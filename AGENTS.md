@@ -14,8 +14,9 @@ is the GitHub Pages site built from `pages/`.
 | Extension ports (`SourceAdapter`, `ArtifactKind`, `Transport`, `Sink`), entry-point discovery, the conformance kit | vendor API clients (connectors own them) |
 
 Dependencies are `fastmcp`, the `epistemic_graph` client, `pydantic`, `PyYAML`,
-`httpx` and `anyio`. **Never add agent-utilities or any later-phase package**; the
-phase-direction hook fails the push.
+`httpx`, `httpx2` (FastMCP's HTTP client), `anyio` and `cryptography`. **Never
+add agent-utilities or any later-phase package**; the phase-direction hook fails
+the push.
 
 ## Layout
 
@@ -23,6 +24,7 @@ phase-direction hook fails the push.
 |---|---|
 | `agent_connector_sdk/config.py`, `utilities.py`, `exceptions.py`, `identity.py` | configuration, coercion, exceptions, actor context |
 | `agent_connector_sdk/credentials/` | `env://` and `openbao://` references and resolvers |
+| `agent_connector_sdk/http/`, `tls/`, `auth/`, `progress.py` | the governed API-client layer: HTTP client, retries, RFC 9457 errors, pagination pages, TLS profiles, outbound auth, progress |
 | `agent_connector_sdk/contracts.py` | the epistemic-graph seam types (replaced by contract-generated types after W1) |
 | `agent_connector_sdk/ports/` | one protocol per module, plus errors |
 | `agent_connector_sdk/discovery.py` | entry-point groups and the activation policy |
