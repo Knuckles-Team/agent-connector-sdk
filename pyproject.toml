@@ -40,6 +40,7 @@ Documentation = "https://knuckles-team.github.io/agent-connector-sdk/"
 
 [project.scripts]
 connector-sync = "agent_connector_sdk.runner.cli:main"
+connector-certify = "agent_connector_sdk.certify.cli:main"
 
 [project.entry-points."agent_connector_sdk.source_adapters"]
 mcp_tool = "agent_connector_sdk.adapters.mcp_tool:McpToolSourceAdapter"
@@ -111,6 +112,7 @@ kiss_version = "0.4.10"
 # every entry-point target as roots; every other module must be imported by one.
 public_modules = [
     "agent_connector_sdk.adapters.mcp_tool",
+    "agent_connector_sdk.certify.cli",
     "agent_connector_sdk.artifacts.pack",
     "agent_connector_sdk.config",
     "agent_connector_sdk.contracts",

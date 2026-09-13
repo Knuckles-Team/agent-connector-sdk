@@ -28,7 +28,7 @@ watermark advances only when a sweep is exhausted.
 |---|---|---|
 | `none` | | none |
 | `cursor` | `cursor_param`; `cursor_path` or `cursor_record_field`; optional `more_path` | the token, until it is absent or repeats |
-| `page` | `page_param`, `page_size_param`, `page_size`, `start_page`; `page_kind` `number` or `page` | the next page index, until a page is shorter than `page_size` |
+| `page` | `page_param`, `page_size_param`, `page_size`, `start_page`; `page_kind` `number` (the spelling `page` is rejected) | the next page index, until a page is shorter than `page_size` |
 | `offset` | `page_param` (the offset), `page_size_param`, `page_size`; `page_kind` `offset` | the offset plus the records returned, until a page is shorter than `page_size` |
 
 A `page_kind` that does not apply to the mode is rejected. A preset with an

@@ -10,8 +10,10 @@ the fixture packages pin them, and a test proves the fixtures serve schemas
 with exactly those fingerprints. The fleet packages themselves pin the
 fingerprint of an empty schema, which no live server matches.
 
-The presets in ``fleet_packages`` are copied verbatim from the connector
-repositories; the manifests keep only the ``sync`` section and provenance.
+The presets in ``fleet_packages`` are copied from the connector repositories,
+except that archivebox-api's ``page_kind: page`` is written ``page_kind: number``,
+the one spelling the SDK accepts; the manifests keep only the ``sync`` section
+and provenance.
 """
 
 from __future__ import annotations

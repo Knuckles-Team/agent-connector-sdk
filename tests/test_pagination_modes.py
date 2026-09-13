@@ -63,11 +63,15 @@ def test_fleet_page_and_offset_vocabulary_validates() -> None:
     for name, raw in (
         (
             "archivebox",
-            {"page_kind": "page", "page_param": "page", "page_size_param": "limit"},
+            {"page_kind": "number", "page_param": "page", "page_size_param": "limit"},
         ),
         (
             "github",
-            {"page_kind": "page", "page_param": "page", "page_size_param": "per_page"},
+            {
+                "page_kind": "number",
+                "page_param": "page",
+                "page_size_param": "per_page",
+            },
         ),
         ("numbered", {"page_kind": "number", "page_param": "page", "start_page": 1}),
     ):
@@ -97,11 +101,15 @@ def test_pagination_modes_reject_what_does_not_apply() -> None:
             "does not apply",
         ),
         (
+            {"pagination": "page", "page_param": "page", "page_kind": "page"},
+            "Input should be 'number' or 'offset'",
+        ),
+        (
             {
                 "pagination": "cursor",
                 "cursor_param": "c",
                 "cursor_path": "c",
-                "page_kind": "page",
+                "page_kind": "number",
             },
             "does not apply",
         ),
@@ -150,7 +158,7 @@ def test_page_and_offset_positions() -> None:
         server="s",
         tool="t",
         pagination="page",
-        page_kind="page",
+        page_kind="number",
         page_param="page",
         page_size_param="limit",
         page_size=2,
