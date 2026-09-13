@@ -7,8 +7,10 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from certify_support import checkout_copy
 from pydantic import ValidationError
 
+from agent_connector_sdk.certify.checkout import load_checkout
 from agent_connector_sdk.manifest.live_contract import (
     LiveToolContract,
     validate_live_tool_contract,
@@ -110,7 +112,7 @@ def test_validator_reports_every_disagreement(package_root: Path) -> None:
     presets = load_tool_presets(package_root / "connectors" / PRESETS_FILE_NAME)
     presets["extra"] = presets["demo"].model_copy(update={"name": "extra"})
     wrong = ToolSchemaFingerprints(
-        connector="other", algorithm="v0", tools={"demo_reader": "0"}
+        connector="other", algorithm="v0", tools={"demo_reader": "0" * 64}
     )
     violations = validate_connector_package(manifest, presets, wrong)
     assert len(violations) == 4
@@ -127,6 +129,14 @@ def test_loader_rejects_bad_files(tmp_path: Path) -> None:
     (tmp_path / "fingerprints.json").write_text(json.dumps({"tools": {"t": 1}}))
     with pytest.raises(ManifestError):
         load_tool_schema_fingerprints(tmp_path / "fingerprints.json")
+
+
+def test_package_validation_rejects_malformed_matching_pins(tmp_path: Path) -> None:
+    root = checkout_copy(tmp_path, "not-a-sha256")
+    with pytest.raises(ManifestError, match="malformed tool_schema_sha256"):
+        require_valid_connector_package(root)
+    with pytest.raises(ManifestError, match="malformed tool_schema_sha256"):
+        load_checkout(root)
 
 
 def test_preset_pagination_needs_its_parameters() -> None:

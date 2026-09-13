@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 from agent_connector_sdk.manifest.model import ConnectorManifest, SyncSpec
@@ -116,6 +117,24 @@ def _unknown_tool_violations(
     ]
 
 
+def _malformed_pin_violations(
+    manifest: ConnectorManifest, fingerprints: ToolSchemaFingerprints
+) -> list[str]:
+    locations = [
+        (f"fingerprint tool {tool!r}", pin)
+        for tool, pin in sorted(fingerprints.tools.items())
+    ]
+    locations.extend(
+        (f"sync preset {entry.preset!r}", entry.tool_schema_sha256 or "")
+        for entry in manifest.sync
+    )
+    return [
+        f"{location} has a malformed tool_schema_sha256"
+        for location, pin in locations
+        if pin and re.fullmatch(r"[0-9A-Fa-f]{64}", pin) is None
+    ]
+
+
 def validate_connector_package(
     manifest: ConnectorManifest,
     presets: dict[str, ToolPreset],
@@ -129,7 +148,8 @@ def validate_connector_package(
     the certifier can repair them. Connector, preset and tool identities still
     have to agree.
     """
-    violations = _pin_policy_violations(fingerprints, allow_pin_migration)
+    violations = _malformed_pin_violations(manifest, fingerprints)
+    violations.extend(_pin_policy_violations(fingerprints, allow_pin_migration))
     if fingerprints.connector != manifest.connector:
         violations.append(
             f"{FINGERPRINTS_FILE_NAME} connector does not match the manifest connector"

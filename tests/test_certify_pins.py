@@ -311,6 +311,29 @@ async def test_pin_pair_rolls_back_when_the_second_replace_fails(
     assert not (checkout.root / ".connector-certify-transaction.json").exists()
 
 
+async def test_pin_pair_cleans_the_first_stage_when_the_second_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    checkout = load_checkout(checkout_copy(tmp_path, EMPTY))
+    files = (checkout.manifest_path, checkout.fingerprints_path)
+    snapshot = [path.read_bytes() for path in files]
+    real_stage = pin_transaction._stage
+    calls = 0
+
+    def fail_second(path: Path, payload: bytes) -> Path:
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise OSError("injected staging failure")
+        return real_stage(path, payload)
+
+    monkeypatch.setattr(pin_transaction, "_stage", fail_second)
+    with pytest.raises(PinWriteError, match="preparation failed"):
+        write_certified_pins(checkout, tool_verdicts(checkout, await live_tools()))
+    assert [path.read_bytes() for path in files] == snapshot
+    assert not list(checkout.connectors_dir.glob(".*.certify-*"))
+
+
 async def test_load_checkout_recovers_an_interrupted_second_replace(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

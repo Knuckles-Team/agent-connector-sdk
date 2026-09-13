@@ -60,6 +60,12 @@ async def test_list_server_tools_is_bounded_in_time() -> None:
         await list_server_tools(McpTransport(), silent, timeout_seconds=1)
 
 
+@pytest.mark.parametrize("timeout", [0.0, -1.0, float("nan"), float("inf")])
+async def test_list_server_tools_rejects_invalid_timeouts(timeout: float) -> None:
+    with pytest.raises(ValueError, match="finite and positive"):
+        await list_server_tools(McpTransport(), _in_process(), timeout_seconds=timeout)
+
+
 async def test_list_server_tools_sanitizes_underlying_failure(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -6,6 +6,7 @@ tool, so it never reaches the connector's upstream API.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Any
 
@@ -37,17 +38,25 @@ async def _listing(transport: Transport, endpoint: TransportEndpoint) -> ToolLis
     return ToolListing(identity.name, identity.version, tuple(tools))
 
 
+def _bounded_timeout(timeout_seconds: float) -> float:
+    if not math.isfinite(timeout_seconds) or timeout_seconds <= 0:
+        raise ValueError("timeout_seconds must be finite and positive")
+    return timeout_seconds
+
+
 async def list_server_tools(
     transport: Transport, endpoint: TransportEndpoint, *, timeout_seconds: float
 ) -> ToolListing:
     """Open a session, list the tools and close it within ``timeout_seconds``.
 
     Raises:
+        ValueError: ``timeout_seconds`` is not finite and positive.
         ToolListingError: the server did not start, answer or list its tools in
             time. Its public message never includes the underlying exception.
     """
+    timeout = _bounded_timeout(timeout_seconds)
     try:
-        with anyio.fail_after(timeout_seconds):
+        with anyio.fail_after(timeout):
             return await _listing(transport, endpoint)
     except Exception as exc:
         raise ToolListingError("the connector server did not list its tools") from exc

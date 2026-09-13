@@ -19,10 +19,8 @@ import yaml
 
 from agent_connector_sdk.certify.checkout import ConnectorCheckout
 from agent_connector_sdk.certify.fingerprints import is_empty_schema_pin
-from agent_connector_sdk.certify.transaction import (
-    _PinTransactionError,
-    _replace_pin_pair,
-)
+from agent_connector_sdk.certify.pin_journal import _PinTransactionError
+from agent_connector_sdk.certify.transaction import _replace_pin_pair
 from agent_connector_sdk.certify.verdicts import ToolVerdict
 from agent_connector_sdk.manifest.model import ConnectorManifest
 from agent_connector_sdk.manifest.tool_schema import (

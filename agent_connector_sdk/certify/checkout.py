@@ -6,7 +6,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
-from agent_connector_sdk.certify.transaction import (
+from agent_connector_sdk.certify.pin_journal import (
     _PinTransactionError,
     _recover_pin_transaction,
 )
