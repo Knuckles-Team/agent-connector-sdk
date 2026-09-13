@@ -1,9 +1,11 @@
 name: Release
 
-# Release-critical jobs only: gates (tests, types, lint, wiring and hygiene gates,
-# secret history, dependency CVEs), scanner-quality (pinned cccc/KISS/dupehound/
-# jscpd), and a reproducible wheel build. publish-pypi runs only for a vX.Y.Z tag.
-# scripts/ci_gate_replica.py replays the executable jobs locally before a push.
+# Release-critical jobs only: gates (tests, types, lint, wiring, and the shared
+# code-shape, security and hygiene hooks), scanner-quality (pinned cccc/KISS/
+# dupehound/jscpd), and a reproducible wheel build. publish-pypi runs only for a
+# vX.Y.Z tag. The shared hooks run through pre-commit at the revision pinned in
+# .pre-commit-config.yaml, so CI and the local hooks can never run different gate
+# code. The ci-gate-replica hook replays the executable jobs locally before a push.
 
 on:
   push:
@@ -23,11 +25,13 @@ jobs:
     name: gates
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - &checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      - &python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
       - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
@@ -35,16 +39,36 @@ jobs:
           version: '0.11.7'
           enable-cache: true
           cache-dependency-glob: uv.lock
-      - name: Secret-history scan
+      # The base the differential hooks compare against: the pull request base or
+      # the previous push, else the root commit (a first push scans all of it).
+      - &base
+        name: Resolve the published base
         run: |
           set -euo pipefail
           BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
           if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE" 2>/dev/null; then
-            BASE="$(git rev-parse --verify HEAD~1 2>/dev/null || git rev-list --max-parents=0 HEAD)"
+            BASE="$(git rev-list --max-parents=0 HEAD)"
           fi
-          python3 scripts/security/check_secret_history.py --base "$BASE"
-      - name: Dependency vulnerability audit (OSV)
-        run: python3 scripts/audit_dependencies.py uv.lock
+          echo "PRE_COMMIT_FROM_REF=$BASE" >> "$GITHUB_ENV"
+          echo "CX_DUP_BASE_REF=$BASE" >> "$GITHUB_ENV"
+      - name: Shared security, code-shape and hygiene hooks
+        run: |
+          set -euo pipefail
+          for hook in secret-history dependency-audit supply-chain security-sanitizer root-hygiene gitignore-convergence sprawl mermaid no-stub stubs env-sprawl stdout-writes swallowed-errors event-loop-blocking import-cycles ci-gate-replica-consistency; do
+            uvx --from pre-commit==4.6.0 pre-commit run "$hook" --hook-stage manual --all-files
+          done
+      # The prohibited-identity catalog is operator-owned and never committed; a
+      # missing catalog makes the hook fail closed.
+      - name: Tracked-artifact privacy (identity catalog from the repository variable)
+        env:
+          PROHIBITED_IDENTITY_CATALOG: ${{ vars.PROHIBITED_IDENTITY_CATALOG }}
+        run: |
+          set -euo pipefail
+          if [ -n "${PROHIBITED_IDENTITY_CATALOG:-}" ]; then
+            mkdir -p "$HOME/.config/agent-utilities/governance"
+            printf '%s' "$PROHIBITED_IDENTITY_CATALOG" > "$HOME/.config/agent-utilities/governance/prohibited-identities.json"
+          fi
+          uvx --from pre-commit==4.6.0 pre-commit run tracked-privacy --hook-stage manual --all-files
       - name: Sync the locked environment
         run: uv sync --frozen
       - name: Test suite
@@ -57,36 +81,15 @@ jobs:
           uvx --from ruff==0.16.0 ruff format --check agent_connector_sdk tests
       - name: Wiring gates
         run: |
-          python3 scripts/check_orphan_modules.py
-          python3 scripts/check_public_api_tested.py
-      - name: Stub, configuration and stdio gates
-        run: |
-          python3 scripts/check_no_stub.py
-          python3 scripts/check_stubs.py
-          python3 scripts/check_no_env_sprawl.py
-          python3 scripts/check_no_stdout_writes.py
-          python3 scripts/check_event_loop_blocking.py
-          python3 scripts/check_swallowed_errors.py
-          uv run --no-project --with networkx==3.6.1 python scripts/check_import_cycles.py
-      - name: Repository hygiene gates
-        run: |
-          python3 scripts/check_root_hygiene.py
-          python3 scripts/check_gitignore_convergence.py
-          python3 scripts/check_sprawl.py
-          python3 scripts/security_sanitizer.py
-          python3 scripts/check_fleet_supply_chain.py .
+          python3 scripts/check_wiring.py orphans
+          python3 scripts/check_wiring.py public-api
 
   scanner-quality:
     name: scanner-quality
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
-        with:
-          python-version: '3.12'
+      - *checkout
+      - *python
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
@@ -104,19 +107,13 @@ jobs:
           for bin in "$root/cccc/bin" "$root/kiss/bin" "$root/dupehound/bin" "$root/npm/node_modules/.bin"; do
             echo "$bin" >> "$GITHUB_PATH"
           done
-      - name: Verify scanner versions
-        run: python3 scripts/scanner_versions.py verify cccc kiss dupehound jscpd
-      - name: Complexity and KISS census (absolute)
-        run: python3 scripts/scanner_census.py
-      - name: jscpd differential gate and census
+      - *base
+      - name: Shared scanner hooks (versions, censuses, clone differentials)
         run: |
           set -euo pipefail
-          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
-          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE" 2>/dev/null; then
-            BASE="$(git rev-parse --verify HEAD~1 2>/dev/null || git rev-list --max-parents=0 HEAD)"
-          fi
-          python3 scripts/check_duplication.py enforce --base-ref "$BASE"
-          python3 scripts/check_duplication.py census
+          for hook in scanner-versions complexity-census kiss-census dupehound-changed jscpd-differential jscpd-census; do
+            uvx --from pre-commit==4.6.0 pre-commit run "$hook" --hook-stage manual --all-files
+          done
 
   build:
     name: build
