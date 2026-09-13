@@ -44,9 +44,10 @@ disallowed `--health-addr`.
 !!! warning "Not done until W1"
     The `epistemic_graph` sink is the declared W1 stub. Until epistemic-graph
     publishes pack import and record ingestion, every cycle against it fails and
-    logs `EG ... lands in RF-ADR-009 W1`. `/health/ready` reports `not_ready`
-    with `epistemic-graph W1 stub` among its reasons for the same reason: the
-    sink cannot commit, so the runner cannot be ready.
+    logs `EG ... lands in RF-ADR-009 W1`. Its `readiness()` (see
+    [Extension ports](extension-ports.md#sink)) always reports not ready, and
+    that reason appears in `/health/ready`'s body: the sink cannot commit, so
+    the runner cannot be ready.
 
 ## Health
 
@@ -57,7 +58,13 @@ separate timer, so it can only ever say what the scheduler loop itself proved:
 | Route | Meaning | 200 when | 503 body |
 |---|---|---|---|
 | `/health` | liveness: is the scheduler loop still ticking? | the loop completed a full reconcile pass within the liveness window (derived from `registry_refresh_seconds`, floor 30s) | `{"status": "error", "component": "scheduler_loop", "age_seconds": ..., "max_age_seconds": ...}` |
-| `/health/ready` | readiness: can the runner do useful work right now? | the registry has loaded, every currently-registered connector's endpoint credentials resolved, and the sink can commit | `{"status": "not_ready", "reasons": [...], "connectors": {...}}` |
+| `/health/ready` | readiness: can the runner do useful work right now? | the registry has loaded, every currently-registered connector's endpoint credentials resolved, and `sink.readiness()` reports ready | `{"status": "not_ready", "reasons": [...], "connectors": {...}}` |
+
+`/health/ready` asks the configured `Sink` directly (its `readiness()` method
+-- [Extension ports](extension-ports.md#sink)), bounded by a short timeout so
+a sink whose readiness check hangs (a stalled network call, say) reports not
+ready instead of hanging the probe request; the timeout itself becomes a
+`"sink readiness timed out after ...s"` reason.
 
 The heartbeat backing `/health` is updated by `ConnectorSyncRunner.run_forever`
 itself immediately after `_reconcile()` returns -- there is no separate

@@ -1,9 +1,13 @@
 """Runner health state: a supervisor heartbeat, per-connector detail, readiness.
 
 Nothing here opens a socket -- :mod:`agent_connector_sdk.runner.health_server`
-serves this state over HTTP. Every method is safe to call from a different
-thread than the writers: the HTTP listener runs in its own background thread
-while the supervisor's anyio event loop keeps updating this object.
+serves this state over HTTP. Every synchronous method (everything but
+:meth:`RunnerHealth.readiness`) is safe to call from a different thread than
+the writers: the HTTP listener runs in its own background thread while the
+supervisor's anyio event loop keeps updating this object. ``readiness`` is
+``async`` -- it asks the configured sink directly -- so its caller supplies
+the event loop (``health_server.py`` runs one fresh per call, since the HTTP
+listener's thread has none of its own).
 """
 
 from __future__ import annotations
@@ -14,11 +18,13 @@ from collections.abc import Callable
 from dataclasses import dataclass, replace
 
 from agent_connector_sdk.ports.sink import Sink
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from agent_connector_sdk.runner.sink_probe import probe_sink_readiness, sink_reason
 
 __all__ = ["ConnectorHealth", "HealthReport", "RunnerHealth"]
 
 _SCHEDULER_COMPONENT = "scheduler_loop"
+#: Default bound on a per-request sink readiness probe (see ``sink_probe.py``).
+_DEFAULT_SINK_TIMEOUT_SECONDS = 5.0
 
 
 @dataclass(frozen=True)
@@ -57,25 +63,15 @@ class HealthReport:
     body: dict[str, object]
 
 
-def _sink_can_commit(sink: Sink) -> bool:
-    """Whether ``sink`` can commit ingestion right now.
-
-    The ``Sink`` port has no readiness method -- ``submit``/``import_pack``
-    have side effects and are unsafe to probe from a health check -- so this
-    recognizes the SDK's one declared stub (RF-ADR-009 W1,
-    ``sinks/epistemic_graph.py``) by type and treats every other ``Sink``
-    implementation as usable.
-    """
-    return not isinstance(sink, EpistemicGraphSink)
-
-
 class RunnerHealth:
     """Liveness/readiness state the supervisor loop and workers update.
 
     Args:
-        sink: The configured sink; readiness reflects whether it can commit.
+        sink: The configured sink; readiness calls ``sink.readiness()``.
         liveness_window_seconds: How long the scheduler heartbeat may go
             without updating before liveness reports unhealthy.
+        sink_timeout_seconds: Bound on the per-request sink readiness probe,
+            so a hung sink cannot hang a ``/health/ready`` request.
         clock: Monotonic time source; overridden by tests for determinism.
     """
 
@@ -84,9 +80,11 @@ class RunnerHealth:
         *,
         sink: Sink,
         liveness_window_seconds: float,
+        sink_timeout_seconds: float = _DEFAULT_SINK_TIMEOUT_SECONDS,
         clock: Callable[[], float] = time.monotonic,
     ) -> None:
-        self._sink_ready = _sink_can_commit(sink)
+        self._sink = sink
+        self._sink_timeout = sink_timeout_seconds
         self._window = liveness_window_seconds
         self._clock = clock
         self._lock = threading.Lock()
@@ -153,10 +151,12 @@ class RunnerHealth:
         }
         return HealthReport(False, 503, body)
 
-    def readiness(self) -> HealthReport:
+    async def readiness(self) -> HealthReport:
         """200 only once the registry loaded, credentials resolved, sink usable.
 
         503 with every reason otherwise, plus per-connector detail (no secrets).
+        The sink is asked directly (``sink.readiness()``), bounded by
+        ``sink_timeout_seconds`` so a hung sink cannot hang this call.
         """
         with self._lock:
             registry_loaded = self._registry_loaded
@@ -169,8 +169,11 @@ class RunnerHealth:
         )
         if unresolved:
             reasons.append(f"credentials unresolved: {', '.join(unresolved)}")
-        if not self._sink_ready:
-            reasons.append("sink cannot commit ingestion (epistemic-graph W1 stub)")
+        sink_state = await probe_sink_readiness(
+            self._sink, timeout_seconds=self._sink_timeout
+        )
+        if not sink_state.ready:
+            reasons.append(sink_reason(sink_state))
         now = self._clock()
         body: dict[str, object] = {
             "status": "ready" if not reasons else "not_ready",

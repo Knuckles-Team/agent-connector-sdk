@@ -30,6 +30,7 @@ from agent_connector_sdk.contracts import (
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
 from agent_connector_sdk.ports.checkpoint_store import CheckpointStore
 from agent_connector_sdk.ports.session import TransportEndpoint
+from agent_connector_sdk.ports.sink import SinkReadiness
 from agent_connector_sdk.runner.checkpoints import JsonFileCheckpointStore
 from agent_connector_sdk.runner.descriptors import (
     ConnectorDescriptor,
@@ -117,6 +118,10 @@ class RecordingSink:
         """Import through the in-memory sink."""
         self.imports += 1
         return await self.inner.import_pack(pack)
+
+    async def readiness(self) -> SinkReadiness:
+        """Delegate to the wrapped in-memory sink."""
+        return await self.inner.readiness()
 
     def record_ids(self, connector: str) -> set[str]:
         """Every committed record id of ``connector``."""

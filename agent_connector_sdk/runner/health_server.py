@@ -15,6 +15,8 @@ import threading
 from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import anyio
+
 from agent_connector_sdk.mcp.exposure import is_loopback_host
 from agent_connector_sdk.runner.errors import RunnerConfigurationError
 from agent_connector_sdk.runner.health_state import HealthReport, RunnerHealth
@@ -49,9 +51,12 @@ def parse_health_address(raw: str) -> tuple[str, int]:
 
 
 def _handler_factory(health: RunnerHealth) -> type[BaseHTTPRequestHandler]:
+    # /health is a plain in-memory read; /health/ready awaits the sink probe,
+    # so it needs a fresh event loop -- this request thread runs no other
+    # (http.server is plain sync code, never inside anyio's own loop).
     routes: dict[str, Callable[[], HealthReport]] = {
         "/health": health.liveness,
-        "/health/ready": health.readiness,
+        "/health/ready": lambda: anyio.run(health.readiness),
     }
 
     class Handler(BaseHTTPRequestHandler):

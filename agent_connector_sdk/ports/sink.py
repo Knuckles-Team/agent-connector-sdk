@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
 from agent_connector_sdk.contracts import (
@@ -11,7 +12,20 @@ from agent_connector_sdk.contracts import (
     RecordBatch,
 )
 
-__all__ = ["Sink"]
+__all__ = ["Sink", "SinkReadiness"]
+
+
+@dataclass(frozen=True)
+class SinkReadiness:
+    """Whether a sink can commit ingestion right now.
+
+    ``reason`` is set whenever ``ready`` is ``False`` and is safe to publish
+    (a health check body, a log line): implementations must never put a
+    credential or other secret value in it.
+    """
+
+    ready: bool
+    reason: str | None = None
 
 
 @runtime_checkable
@@ -24,4 +38,8 @@ class Sink(Protocol):
 
     async def import_pack(self, pack: ContentPack) -> PackImportReceipt:
         """Import a content pack keyed by its digest."""
+        ...
+
+    async def readiness(self) -> SinkReadiness:
+        """Whether this sink can commit right now, without side effects."""
         ...
