@@ -57,11 +57,16 @@ async def _open(endpoint: TransportEndpoint) -> AsyncIterator[McpSession]:
         tasks.cancel_scope.cancel()
 
 
+def _auth(endpoint: TransportEndpoint) -> Any:
+    """Per-request auth, else the static bearer token, else none."""
+    return endpoint.auth or endpoint.bearer_token or None
+
+
 def _client(endpoint: TransportEndpoint, feed: ChangeFeed) -> Client[Any]:
     return Client(
         client_target(endpoint),
         timeout=endpoint.timeout_seconds,
-        auth=endpoint.bearer_token or None,
+        auth=_auth(endpoint),
         message_handler=feed.on_message,
     )
 

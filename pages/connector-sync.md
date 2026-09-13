@@ -34,14 +34,68 @@ connector-sync --config runner.yml --once         # one cycle per connector
 | `--sink` | `epistemic_graph` | sink extension name |
 | `--once` | off | exit `0` only when every connector succeeded, otherwise `1` |
 | `--log-format` | `json` | `json` (one object per line) or `text`, on stderr |
+| `--health-addr` | unset | `PORT` or `HOST:PORT` serving `/health` and `/health/ready` (env `RUNNER_HEALTH_ADDR`); disabled unless set, and never started for `--once` |
+| `--health-allow-non-loopback` | off | required to bind `--health-addr` to a non-loopback host |
 
 Exit `2` means the runner could not start: an invalid configuration, an
-uncertified extension or a malformed credential setting.
+uncertified extension, a malformed credential setting, or a malformed or
+disallowed `--health-addr`.
 
 !!! warning "Not done until W1"
     The `epistemic_graph` sink is the declared W1 stub. Until epistemic-graph
     publishes pack import and record ingestion, every cycle against it fails and
-    logs `EG ... lands in RF-ADR-009 W1`.
+    logs `EG ... lands in RF-ADR-009 W1`. Its `readiness()` (see
+    [Extension ports](extension-ports.md#sink)) always reports not ready, and
+    that reason appears in `/health/ready`'s body: the sink cannot commit, so
+    the runner cannot be ready.
+
+## Health
+
+`--health-addr` starts a small dependency-free HTTP listener (hand-rolled over
+`http.server`, no framework) reporting the supervisor's own state -- not a
+separate timer, so it can only ever say what the scheduler loop itself proved:
+
+| Route | Meaning | 200 when | 503 body |
+|---|---|---|---|
+| `/health` | liveness: is the scheduler loop still ticking? | the loop completed a full reconcile pass within the liveness window (derived from `registry_refresh_seconds`, floor 30s) | `{"status": "error", "component": "scheduler_loop", "age_seconds": ..., "max_age_seconds": ...}` |
+| `/health/ready` | readiness: can the runner do useful work right now? | the registry has loaded, every currently-registered connector's endpoint credentials resolved, and `sink.readiness()` reports ready | `{"status": "not_ready", "reasons": [...], "connectors": {...}}` |
+
+`/health/ready` asks the configured `Sink` directly (its `readiness()` method
+-- [Extension ports](extension-ports.md#sink)), bounded by a short timeout so
+a sink whose readiness check hangs (a stalled network call, say) reports not
+ready instead of hanging the probe request; the timeout itself becomes a
+`"sink readiness timed out after ...s"` reason.
+
+The heartbeat backing `/health` is updated by `ConnectorSyncRunner.run_forever`
+itself immediately after `_reconcile()` returns -- there is no separate
+timer thread, so a wedged registry read, a stuck worker start, or any other
+hang inside that loop stops the heartbeat and `/health` goes `503` naming
+`scheduler_loop`, exactly the signal a `pgrep`-based liveness probe cannot give.
+
+`/health/ready`'s body always includes a `connectors` map, one entry per
+connector the registry has ever listed, with no secret values:
+
+```json
+{
+  "status": "not_ready",
+  "reasons": ["credentials unresolved: freshrss-agent"],
+  "connectors": {
+    "freshrss-agent": {
+      "last_success_seconds_ago": null,
+      "consecutive_failures": 0,
+      "next_retry_seconds": null,
+      "credentials_ok": false,
+      "credential_error": "connector 'freshrss-agent' has a credential reference that could not be resolved"
+    }
+  }
+}
+```
+
+The listener binds loopback (`127.0.0.1`) by default -- `--health-addr 8765`
+binds `127.0.0.1:8765` -- and refuses a non-loopback `--health-addr` (for
+example `0.0.0.0:8765`, the bind a Kubernetes `httpGet` probe needs, since it
+reaches the pod IP rather than the container's loopback interface) unless
+`--health-allow-non-loopback` is also given.
 
 ## Configuration
 
@@ -67,6 +121,7 @@ connectors:
 |---|---|
 | `endpoint.url` or `endpoint.command` + `args` | streamable HTTP or stdio |
 | `endpoint.bearer_token`, `endpoint.env` | credential references only (`env://`, `openbao://`); a literal value is rejected |
+| `endpoint.client_credentials` | instead of `bearer_token`: `issuer` or `token_url`, `client_id`, `client_secret_ref`, `audience`, `scope`; the token is cached per connector, refreshed before expiry and re-minted once on a 401 (see [HTTP clients](http-clients.md#mcp-endpoints)) |
 | `presets` | presets to run; empty means every `sync` preset of the manifest |
 | `provision` | whether the content pack is provisioned |
 | `data_resources` | resource URI to the presets synced when it is updated |

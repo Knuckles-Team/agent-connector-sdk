@@ -1,9 +1,10 @@
-# Tracked root entries of agent-connector-sdk, read by scripts/check_root_hygiene.py.
-# An allowlist: a new root entry needs a reason here or it fails the gate.
+# Tracked root entries of agent-connector-sdk, read by the shared root-hygiene hook.
+# An allowlist: a new root entry needs a reason here or it fails the gate, and an
+# entry that is no longer tracked fails as stale.
 
 [dirs]
 agent_connector_sdk = "the importable SDK package"
-scripts = "gate scripts run by pre-commit and CI"
+scripts = "the SDK's own wiring gates (scripts/check_wiring.py) run by pre-commit and CI"
 tests = "the test suite, including the in-process fixture connector"
 pages = "hand-written GitHub Pages sources (RF-ADR-009 section 5: no /docs directory)"
 ".github" = "GitHub Actions workflows (release and Pages)"
@@ -15,5 +16,10 @@ pages = "hand-written GitHub Pages sources (RF-ADR-009 section 5: no /docs direc
 "LICENSE" = "license text"
 "README.md" = "project readme; carries the version marker bump2version updates"
 "mkdocs.yml" = "Pages site configuration (docs_dir: pages)"
-"pyproject.toml" = "package metadata, tool configuration, scanner pins, public module list"
+"pyproject.toml" = "package metadata, tool configuration, shared-hook configuration, public module list"
 "uv.lock" = "uv lockfile"
+
+[dotfiles]
+".bumpversion.cfg" = "bump2version release configuration"
+".gitignore" = "git exclusion patterns (carries the fleet-shared REQUIRED set)"
+".pre-commit-config.yaml" = "the combined pre-commit and pre-push suite, including the pinned shared hooks"

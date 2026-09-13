@@ -21,9 +21,14 @@ from agent_connector_sdk.ports.transport import Transport
 from agent_connector_sdk.runner.checkpoints import JsonFileCheckpointStore
 from agent_connector_sdk.runner.descriptors import RunnerSettings
 from agent_connector_sdk.runner.endpoints import CredentialEndpoints
+from agent_connector_sdk.runner.health_state import RunnerHealth
 from agent_connector_sdk.runner.services import RunnerServices
 
 __all__ = ["default_services", "extension_instance"]
+
+#: Minimum liveness window regardless of a very short registry-refresh
+#: setting, so a slow-but-healthy loop iteration is never mistaken for a wedge.
+_MIN_LIVENESS_WINDOW_SECONDS = 30.0
 
 
 def extension_instance(
@@ -72,6 +77,7 @@ def default_services(
     checked = tuple(kind for kind in kinds if isinstance(kind, ArtifactKind))
     if len(checked) != len(kinds):
         raise ExtensionDiscoveryError("an artifact kind extension has the wrong port")
+    window = max(3 * settings.registry_refresh_seconds, _MIN_LIVENESS_WINDOW_SECONDS)
     return RunnerServices(
         transport=transport,
         sink=sink,
@@ -79,4 +85,5 @@ def default_services(
         kinds=checked,
         endpoints=CredentialEndpoints(default_credential_resolver()),
         settings=settings,
+        health=RunnerHealth(sink=sink, liveness_window_seconds=window),
     )

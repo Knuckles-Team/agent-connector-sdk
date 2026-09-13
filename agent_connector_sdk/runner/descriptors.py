@@ -19,6 +19,7 @@ from pydantic import (
     model_validator,
 )
 
+from agent_connector_sdk.auth.oidc import ClientCredentialsConfig
 from agent_connector_sdk.credentials.references import parse_secret_reference
 
 __all__ = ["ConnectorDescriptor", "EndpointSpec", "RunnerConfig", "RunnerSettings"]
@@ -38,6 +39,7 @@ class EndpointSpec(_Strict):
     args: tuple[str, ...] = ()
     env: dict[str, str] = Field(default_factory=dict)
     bearer_token: str = ""
+    client_credentials: ClientCredentialsConfig | None = None
     timeout_seconds: float = Field(default=60.0, gt=0)
 
     @model_validator(mode="after")
@@ -49,6 +51,16 @@ class EndpointSpec(_Strict):
         references = [*self.env.values(), self.bearer_token]
         for reference in filter(None, references):
             parse_secret_reference(reference)
+        return self
+
+    @model_validator(mode="after")
+    def _check_client_credentials(self) -> EndpointSpec:
+        if self.client_credentials is None:
+            return self
+        if not self.url:
+            raise ValueError("client_credentials applies only to a url endpoint")
+        if self.bearer_token:
+            raise ValueError("set at most one of bearer_token and client_credentials")
         return self
 
 

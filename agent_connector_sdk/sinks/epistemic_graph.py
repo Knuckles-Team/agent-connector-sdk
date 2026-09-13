@@ -4,7 +4,7 @@ epistemic-graph does not yet publish the pack-import or record-ingestion wire
 methods (RF-ADR-009 wave W1). Rather than invent them, both operations raise
 :class:`NotImplementedError` with a message naming the wave that delivers them.
 This module is the only place in the SDK allowed to do so, and the stub gate
-(``scripts/check_no_stub.py``) accepts exactly these two messages here.
+(the shared ``no-stub`` and ``stubs`` hooks) accepts exactly these two messages here.
 Nothing that calls this sink counts as done until W1 lands.
 """
 
@@ -16,8 +16,10 @@ from agent_connector_sdk.contracts import (
     PackImportReceipt,
     RecordBatch,
 )
+from agent_connector_sdk.ports.sink import SinkReadiness
 
 __all__ = [
+    "NOT_READY_REASON",
     "PACK_IMPORT_UNAVAILABLE",
     "RECORD_INGESTION_UNAVAILABLE",
     "EpistemicGraphSink",
@@ -25,6 +27,7 @@ __all__ = [
 
 PACK_IMPORT_UNAVAILABLE = "EG pack import lands in RF-ADR-009 W1"
 RECORD_INGESTION_UNAVAILABLE = "EG record ingestion lands in RF-ADR-009 W1"
+NOT_READY_REASON = "epistemic-graph native import is not implemented (RF-ADR-009 W1)"
 
 
 class EpistemicGraphSink:
@@ -40,3 +43,7 @@ class EpistemicGraphSink:
     async def import_pack(self, pack: ContentPack) -> PackImportReceipt:
         """Import a content pack keyed by its digest (W1)."""
         raise NotImplementedError(PACK_IMPORT_UNAVAILABLE)
+
+    async def readiness(self) -> SinkReadiness:
+        """Never ready: the wire methods above are the declared W1 stub."""
+        return SinkReadiness(ready=False, reason=NOT_READY_REASON)

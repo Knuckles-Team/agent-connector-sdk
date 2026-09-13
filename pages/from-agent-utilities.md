@@ -20,6 +20,19 @@ counted are the fleet's measured imports before the move.
 | `knowledge_graph.ontology.connector_manifest` | — | `manifest.model` | generator heuristics stay with the manifest generator |
 | `protocols.source_connectors` registry | — | `discovery` | entry points and an explicit activation policy |
 | `mcp_tool` source connector | — | `adapters.mcp_tool` | emits raw records; documents, ACLs, detail fetches and SQL sweeps are not extraction |
+| `core.transport_security.ResolvedTLSProfile` | 129 | `tls.profile.ResolvedTLSProfile` | adds `minimum_version`; `redis_kwargs` and `child_env` removed (no connector used them) |
+| `core.transport_security.resolve_configured_tls_profile` | 96 | `tls.resolve.resolve_tls_profile` | settings are read directly; no `AgentConfig` projection |
+| `core.transport_security.resolve_tls_profile` | 46 | `tls.resolve.resolve_tls_profile` | `environ` removed; `destination_root` is `runtime_root`; `ca_ref`/`ca_pem`/`ca_path` aliases removed |
+| `core.transport_security.TransportSecurityError` | 1 | `tls.errors.TransportSecurityError` | same codes |
+| `mcp.delegated_auth.is_delegation_enabled` | 20 | `auth.delegation.DelegationSettings.from_settings().enabled` | `OIDC_TOKEN_URL` and `OIDC_CLIENT_SECRET_REF` replace discovery and a secret value |
+| `mcp.delegated_auth.get_delegated_token` | 18 | `auth.delegation.DelegatedTokenAuth`, `exchange_token` | per-request auth with a per-caller cache |
+| `mcp.delegated_auth.get_user_identity` | 5 | `auth.delegation.current_user_identity` | returns the opaque reference string |
+| `mcp.delegated_auth.get_user_token` | 1 | `auth.delegation.current_user_token` | only a token the server's auth verified |
+| `mcp.server_factory.mcp_auth_config` | 2 | `auth.delegation.DelegationSettings` | a typed, validated value instead of a mutable dict |
+| `core.http_client.create_http_client` | 4 | `http.client.create_http_client` | takes `HttpClientOptions`; retries, logging and problem errors built in |
+| `core.http_client.create_async_http_client` | 2 | `http.client.create_async_http_client` | as above |
+| `mcp.client_credentials.ClientCredentialsTokenProvider` | 1 | `auth.client_credentials.ClientCredentialsTokenProvider` | `client_secret_ref` and a governed `http_client` |
+| `mcp.context_helpers.ctx_progress` | 6 | `progress.ctx_progress` | adds `message`; validates values; delivery failure is logged |
 
 ## Entry points
 
@@ -34,6 +47,14 @@ counted are the fleet's measured imports before the move.
 
 These server features stay with agent-utilities or graph-os: the WorkItem tasks
 extension, engine-backed `/metrics`, semantic tool filtering through the
-knowledge graph, token delegation, Eunomia policy middleware, OpenAPI tool
-import, TLS client profiles (`core.transport_security`), and the env-var drift
-checker.
+knowledge graph, Eunomia policy middleware, OpenAPI tool import, and the env-var
+drift checker.
+
+These connector imports have no SDK replacement; the connectors drop them:
+
+| agent-utilities import | Imports | Why not |
+|---|---:|---|
+| `core.http_client.pinned_egress_transport` | 1 | DNS pinning against a caller-chosen host depends on agent-utilities' egress policy; a connector reaches a configured base URL |
+| `mcp.client_credentials.child_auth_header` | 1 | the multiplexer's ambient `MCP_CLIENT_AUTH` identity; use `auth.oidc.client_credentials_auth` |
+| `core.workspace.initialize_workspace`, `get_agent_workspace`, `get_mcp_config_path` | 5 | the agent plane's workspace (`agent_server.py`, repository-manager scripts), not API clients |
+| `core.paths.log_dir`, `skills_dir` | 3 | agent-utilities' XDG layout; skills are served over MCP |

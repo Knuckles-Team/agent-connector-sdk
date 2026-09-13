@@ -39,6 +39,21 @@ The package validator also rejects a `tool_schema_sha256` equal to the
 fingerprint of an empty input schema. Such a pin verifies nothing and matches no
 live server; re-certify it from the server's `tools/list`.
 
+## Sink
+
+| Method | Contract |
+|---|---|
+| `submit(batch)` | commit a record batch; the receipt is returned only after commit |
+| `import_pack(pack)` | import a content pack keyed by its digest |
+| `readiness()` | whether this sink can commit right now, without side effects -- returns a `SinkReadiness(ready, reason)`; `reason` is set whenever `ready` is `False` and must never carry a credential or other secret value |
+
+The connector-sync runner's `/health/ready` (see [Connector sync](connector-sync.md)
+"Health") calls `readiness()` directly, bounded by a short timeout, so a sink
+implementation must answer it without a side effect and should not assume it
+is ever skipped. `epistemic_graph` (the declared W1 seam) always reports not
+ready, naming the wave that lands it; the testing kit's `InMemorySink` always
+reports ready.
+
 ## Runner ports
 
 The connector-sync runner adds three ports, described in

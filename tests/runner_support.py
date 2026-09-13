@@ -30,6 +30,7 @@ from agent_connector_sdk.contracts import (
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
 from agent_connector_sdk.ports.checkpoint_store import CheckpointStore
 from agent_connector_sdk.ports.session import TransportEndpoint
+from agent_connector_sdk.ports.sink import SinkReadiness
 from agent_connector_sdk.runner.checkpoints import JsonFileCheckpointStore
 from agent_connector_sdk.runner.descriptors import (
     ConnectorDescriptor,
@@ -118,6 +119,10 @@ class RecordingSink:
         self.imports += 1
         return await self.inner.import_pack(pack)
 
+    async def readiness(self) -> SinkReadiness:
+        """Delegate to the wrapped in-memory sink."""
+        return await self.inner.readiness()
+
     def record_ids(self, connector: str) -> set[str]:
         """Every committed record id of ``connector``."""
         return {
@@ -128,11 +133,24 @@ class RecordingSink:
         }
 
 
+#: There is no real network here (the "server" is an in-process object), so
+#: nothing legitimate ever takes anywhere near this long -- it exists only so
+#: a CPU-starved CI host (many concurrent runs sharing the machine) cannot
+#: trip FastMCP's per-call timeout on a call that would have returned
+#: instantly had the event loop been scheduled promptly. pytest's own
+#: suite-wide per-test timeout (``pyproject.toml`` ``[tool.pytest.ini_options]``)
+#: remains the actual hang guard.
+_IN_PROCESS_TIMEOUT_SECONDS = 300.0
+
+
 def in_process(servers: dict[str, object]) -> EndpointFactory:
     """An endpoint factory reaching fixture servers in this process."""
 
     def build(descriptor: ConnectorDescriptor) -> TransportEndpoint:
-        return TransportEndpoint(in_process=servers[descriptor.connector])
+        return TransportEndpoint(
+            in_process=servers[descriptor.connector],
+            timeout_seconds=_IN_PROCESS_TIMEOUT_SECONDS,
+        )
 
     return build
 
@@ -164,7 +182,17 @@ def freshrss_runner(
     )
 
 
-async def eventually(predicate: Callable[[], bool], timeout: float = 15.0) -> None:
+#: A hang guard, not an expected wait: every real condition here resolves in
+#: milliseconds, but a CPU-starved CI host sharing the machine with other
+#: work can stall the event loop for seconds at a time without anything
+#: actually being wrong -- see ``_IN_PROCESS_TIMEOUT_SECONDS`` above for the
+#: same reasoning applied to the MCP client's own per-call timeout.
+_EVENTUALLY_TIMEOUT_SECONDS = 60.0
+
+
+async def eventually(
+    predicate: Callable[[], bool], timeout: float = _EVENTUALLY_TIMEOUT_SECONDS
+) -> None:
     """Wait until ``predicate`` holds."""
     with anyio.fail_after(timeout):
         while not predicate():

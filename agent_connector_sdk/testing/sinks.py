@@ -19,6 +19,7 @@ from agent_connector_sdk.contracts import (
     PackImportReceipt,
     RecordBatch,
 )
+from agent_connector_sdk.ports.sink import SinkReadiness
 
 __all__ = ["InMemorySink"]
 
@@ -51,3 +52,7 @@ class InMemorySink:
         imported = 0 if digest in self.packs else len(pack.entries)
         self.packs.setdefault(digest, pack)
         return PackImportReceipt(pack_digest=digest, imported=imported)
+
+    async def readiness(self) -> SinkReadiness:
+        """Always ready: everything it needs is the in-memory dict above."""
+        return SinkReadiness(ready=True)
