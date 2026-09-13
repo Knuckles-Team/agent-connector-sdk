@@ -16,6 +16,10 @@ from anyio.abc import TaskGroup, TaskStatus
 from agent_connector_sdk.ports.connector_registry import ConnectorRegistry
 from agent_connector_sdk.runner.descriptors import ConnectorDescriptor
 from agent_connector_sdk.runner.errors import RunnerConfigurationError
+from agent_connector_sdk.runner.health_reporting import (
+    note_heartbeat,
+    note_registry_loaded,
+)
 from agent_connector_sdk.runner.logs import structured
 from agent_connector_sdk.runner.services import RunnerServices
 from agent_connector_sdk.runner.worker import ConnectorWorker
@@ -77,6 +81,10 @@ class ConnectorSyncRunner:
         async with anyio.create_task_group() as tasks:
             while True:
                 await self._reconcile(tasks, running=running, limiter=limiter)
+                # Beats only once a full reconcile pass returns -- a wedged
+                # registry read or a stuck worker start never reaches this
+                # line, so a hung loop goes stale instead of always "live".
+                note_heartbeat(self._services.health)
                 await anyio.sleep(self._services.settings.registry_refresh_seconds)
 
     async def _reconcile(
@@ -97,6 +105,7 @@ class ConnectorSyncRunner:
             )
             return
         wanted = {descriptor.connector: descriptor for descriptor in registered}
+        note_registry_loaded(self._services.health, tuple(wanted))
         for name in [n for n, (d, _) in running.items() if wanted.get(n) != d]:
             running.pop(name)[1].cancel()
             _logger.info(

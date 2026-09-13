@@ -63,6 +63,7 @@ def test_parser_and_state_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
         "json",
         None,
     )
+    assert (args.health_addr, args.health_allow_non_loopback) == (None, False)
     monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path))
     assert default_state_dir() == tmp_path / "connector-sync"
     monkeypatch.delenv("XDG_STATE_HOME")
@@ -103,6 +104,27 @@ def test_cli_exits_2_when_it_cannot_start(tmp_path: Path) -> None:
     state = ["--state-dir", str(tmp_path / "state")]
     assert main(["--config", str(empty), "--once", "--sink", "missing", *state]) == 2
     assert main(["--config", str(empty), "--once", *state]) == 0
+
+
+def test_cli_skips_the_health_server_for_once(tmp_path: Path) -> None:
+    empty = tmp_path / "empty.yml"
+    empty.write_text("connectors: []\n")
+    state = ["--state-dir", str(tmp_path / "state")]
+    # A non-loopback address with no --health-allow-non-loopback would refuse
+    # to bind if the health server were started; --once must never start it.
+    assert (
+        main(["--config", str(empty), "--once", "--health-addr", "0.0.0.0:0", *state])
+        == 0
+    )
+
+
+def test_cli_exits_2_for_an_unconfigured_non_loopback_health_addr(
+    tmp_path: Path,
+) -> None:
+    empty = tmp_path / "empty.yml"
+    empty.write_text("connectors: []\n")
+    state = ["--state-dir", str(tmp_path / "state")]
+    assert main(["--config", str(empty), "--health-addr", "0.0.0.0:0", *state]) == 2
 
 
 def test_cli_once_over_stdio_is_blocked_by_the_w1_sink(

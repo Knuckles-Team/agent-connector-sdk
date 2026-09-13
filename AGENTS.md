@@ -28,6 +28,7 @@ phase-direction hook fails the push.
 | `agent_connector_sdk/discovery.py` | entry-point groups and the activation policy |
 | `agent_connector_sdk/manifest/` | manifest model, presets, fingerprints, live-contract validation, loaders |
 | `agent_connector_sdk/mcp/` | server factory and everything it composes |
+| `agent_connector_sdk/runner/` | the `connector-sync` scheduler: registry, workers, backoff, checkpoints, and its health surface (`health_state.py`, `health_server.py` -- see [Connector sync](pages/connector-sync.md)) |
 | `agent_connector_sdk/adapters/`, `artifacts/`, `transports/`, `sinks/` | reference implementations registered as entry points |
 | `agent_connector_sdk/testing/` | the conformance kit |
 | `tests/` | the suite; `fixture_server.py` and `fixture_package/` are an in-process connector |

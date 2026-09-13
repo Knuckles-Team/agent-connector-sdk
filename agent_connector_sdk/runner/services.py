@@ -10,6 +10,7 @@ from agent_connector_sdk.ports.sink import Sink
 from agent_connector_sdk.ports.transport import Transport
 from agent_connector_sdk.runner.descriptors import RunnerSettings
 from agent_connector_sdk.runner.endpoints import EndpointFactory
+from agent_connector_sdk.runner.health_state import RunnerHealth
 
 __all__ = ["RunnerServices"]
 
@@ -24,3 +25,6 @@ class RunnerServices:
     kinds: tuple[ArtifactKind, ...]
     endpoints: EndpointFactory
     settings: RunnerSettings
+    #: Liveness/readiness state; ``None`` only in tests that build services
+    #: directly without exercising the health surface.
+    health: RunnerHealth | None = None
