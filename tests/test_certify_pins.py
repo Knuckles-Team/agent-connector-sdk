@@ -268,10 +268,16 @@ async def test_write_replaces_empty_pins_line_by_line(tmp_path: Path) -> None:
     assert verdict.status is PinStatus.MATCH
 
 
-async def test_write_refuses_uncertifiable_pins(tmp_path: Path) -> None:
+def _empty_checkout_snapshot(
+    tmp_path: Path,
+) -> tuple[ConnectorCheckout, tuple[Path, Path], list[bytes]]:
     checkout = load_checkout(checkout_copy(tmp_path, EMPTY))
     files = (checkout.manifest_path, checkout.fingerprints_path)
-    snapshot = [path.read_bytes() for path in files]
+    return checkout, files, [path.read_bytes() for path in files]
+
+
+async def test_write_refuses_uncertifiable_pins(tmp_path: Path) -> None:
+    checkout, files, snapshot = _empty_checkout_snapshot(tmp_path)
     for tools in ([], [{"name": "demo_reader", "inputSchema": {}}]):
         with pytest.raises(PinWriteError, match="refusing"):
             write_certified_pins(checkout, tool_verdicts(checkout, tools))
@@ -291,9 +297,7 @@ async def test_write_refuses_uncertifiable_pins(tmp_path: Path) -> None:
 async def test_pin_pair_rolls_back_when_the_second_replace_fails(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    checkout = load_checkout(checkout_copy(tmp_path, EMPTY))
-    files = (checkout.manifest_path, checkout.fingerprints_path)
-    snapshot = [path.read_bytes() for path in files]
+    checkout, files, snapshot = _empty_checkout_snapshot(tmp_path)
     real_replace = pin_transaction.os.replace
     calls = 0
 
@@ -314,9 +318,7 @@ async def test_pin_pair_rolls_back_when_the_second_replace_fails(
 async def test_pin_pair_cleans_the_first_stage_when_the_second_fails(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    checkout = load_checkout(checkout_copy(tmp_path, EMPTY))
-    files = (checkout.manifest_path, checkout.fingerprints_path)
-    snapshot = [path.read_bytes() for path in files]
+    checkout, files, snapshot = _empty_checkout_snapshot(tmp_path)
     real_stage = pin_transaction._stage
     calls = 0
 
@@ -340,9 +342,7 @@ async def test_load_checkout_recovers_an_interrupted_second_replace(
     class SimulatedCrash(BaseException):
         pass
 
-    checkout = load_checkout(checkout_copy(tmp_path, EMPTY))
-    files = (checkout.manifest_path, checkout.fingerprints_path)
-    snapshot = [path.read_bytes() for path in files]
+    checkout, files, snapshot = _empty_checkout_snapshot(tmp_path)
     real_replace = pin_transaction.os.replace
     calls = 0
 
