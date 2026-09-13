@@ -20,9 +20,31 @@ distribution and declares an entry point; nothing in the SDK changes.
 | `reconcile(session, known_ids)` | ids missing from the source and unknown to the sink |
 
 The `mcp_tool` adapter extracts through a connector's MCP tool as a preset
-describes it (cursor or page pagination, a since-watermark), requires the pinned
+describes it (pagination, a since-watermark), requires the pinned
 `tool_schema_sha256`, and rejects records that do not match the preset. The
 watermark advances only when a sweep is exhausted.
+
+| `pagination` | Parameters | Next page |
+|---|---|---|
+| `none` | | none |
+| `cursor` | `cursor_param`; `cursor_path` or `cursor_record_field`; optional `more_path` | the token, until it is absent or repeats |
+| `page` | `page_param`, `page_size_param`, `page_size`, `start_page`; `page_kind` `number` or `page` | the next page index, until a page is shorter than `page_size` |
+| `offset` | `page_param` (the offset), `page_size_param`, `page_size`; `page_kind` `offset` | the offset plus the records returned, until a page is shorter than `page_size` |
+
+A `page_kind` that does not apply to the mode is rejected. A preset with an
+empty `id_field` is rejected: a sweep without record identity, such as a SQL
+table sweep, belongs to a data-platform source adapter (RF-ADR-009 section 2.3).
+
+The package validator also rejects a `tool_schema_sha256` equal to the
+fingerprint of an empty input schema. Such a pin verifies nothing and matches no
+live server; re-certify it from the server's `tools/list`.
+
+## Runner ports
+
+The connector-sync runner adds three ports, described in
+[Connector sync](connector-sync.md): `ConnectorRegistry` (`ports.connector_registry`),
+`CheckpointStore` (`ports.checkpoint_store`) and `ChangeSource`
+(`ports.change_source`).
 
 ## Activation
 

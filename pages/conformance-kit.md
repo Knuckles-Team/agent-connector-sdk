@@ -19,6 +19,10 @@ activated. The kit lives in `agent_connector_sdk.testing`.
 `sessions` and `malformed_sessions` are factories that open a fresh session per
 call. The fixture behind `sessions` must serve at least two pages.
 
+The SDK's own suite runs the kit against the `mcp_tool` adapter in every
+pagination mode the fleet uses: cursor (the FreshRSS-style reader), page (the
+ArchiveBox snapshot preset) and offset (a ServiceNow-style table tool).
+
 ## Artifact kinds
 
 | Function | Checks |

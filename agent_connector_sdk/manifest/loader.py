@@ -22,6 +22,7 @@ from agent_connector_sdk.manifest.model import ConnectorManifest, SyncSpec
 from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.manifest.tool_schema import (
     COMPATIBILITY_FINGERPRINT_ALGORITHM,
+    compatibility_fingerprint,
 )
 
 __all__ = [
@@ -111,7 +112,7 @@ def load_tool_presets(path: Path) -> dict[str, ToolPreset]:
         try:
             presets[name] = ToolPreset.from_mapping(name, raw)
         except ValidationError as exc:
-            raise ManifestError(f"preset {name!r} is invalid") from exc
+            raise _invalid_preset(name, exc) from exc
     return presets
 
 
@@ -173,6 +174,7 @@ def validate_connector_package(
         violations.append(
             f"{FINGERPRINTS_FILE_NAME} connector does not match the manifest connector"
         )
+    violations.extend(_empty_pin_violations(fingerprints))
     for entry in manifest.sync:
         violations.extend(_sync_violations(entry, presets, fingerprints.tools))
     declared = {entry.preset for entry in manifest.sync}
@@ -181,6 +183,24 @@ def validate_connector_package(
         for name in sorted(set(presets) - declared)
     )
     return violations
+
+
+def _invalid_preset(name: str, exc: ValidationError) -> ManifestError:
+    reasons = "; ".join(
+        str(error["msg"]).removeprefix("Value error, ") for error in exc.errors()
+    )
+    return ManifestError(f"preset {name!r} is invalid: {reasons}")
+
+
+def _empty_pin_violations(fingerprints: ToolSchemaFingerprints) -> list[str]:
+    """Pins equal to the fingerprint of an empty input schema verify nothing."""
+    return [
+        f"{FINGERPRINTS_FILE_NAME} pins tool {tool!r} to the fingerprint of an "
+        "empty input schema, which verifies no contract; re-certify it from the "
+        "server's tools/list"
+        for tool, pinned in sorted(fingerprints.tools.items())
+        if pinned == compatibility_fingerprint(tool, {})
+    ]
 
 
 def require_valid_connector_package(package_root: Path) -> ConnectorManifest:

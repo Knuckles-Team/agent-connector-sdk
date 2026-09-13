@@ -6,9 +6,16 @@ import json
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+import anyio
+from anyio.abc import TaskGroup
 from fastmcp import Client
 
 from agent_connector_sdk.contracts import ServerIdentity
+from agent_connector_sdk.ports.change_source import ChangeEvent
+from agent_connector_sdk.transports.mcp_changes import (
+    ChangeFeed,
+    forward_listen_events,
+)
 
 __all__ = ["McpClientSession", "McpTransportError", "decode_tool_result"]
 
@@ -34,10 +41,49 @@ def decode_tool_result(result: Any) -> Any:
 
 
 class McpClientSession:
-    """An open FastMCP client exposing exactly the operations the ports need."""
+    """An open FastMCP client exposing exactly the operations the ports need.
 
-    def __init__(self, client: Client[Any]) -> None:
+    Args:
+        client: The connected client.
+        feed: Collects the change notifications the client receives.
+        tasks: The task group that runs listen streams for this session;
+            without one :meth:`watch` cannot subscribe.
+    """
+
+    def __init__(
+        self,
+        client: Client[Any],
+        *,
+        feed: ChangeFeed,
+        tasks: TaskGroup | None = None,
+    ) -> None:
         self._client = client
+        self._feed = feed
+        self._tasks = tasks
+        self._listen: anyio.CancelScope | None = None
+
+    async def watch(self, resource_uris: Sequence[str]) -> bool:
+        """Open a ``subscriptions/listen`` stream, replacing an earlier one.
+
+        The new stream is acknowledged before the earlier one is closed, so no
+        event published during the switch is lost.
+        """
+        if self._tasks is None:
+            return False
+        previous = self._listen
+        self._listen = await self._tasks.start(
+            forward_listen_events,
+            self._client.session,
+            self._feed,
+            tuple(resource_uris),
+        )
+        if previous is not None:
+            previous.cancel()
+        return self._listen is not None
+
+    async def next_changes(self) -> frozenset[ChangeEvent]:
+        """Wait for at least one change and return every change pending."""
+        return await self._feed.next_changes()
 
     async def server_identity(self) -> ServerIdentity:
         """Name and version from the server's discovery metadata."""

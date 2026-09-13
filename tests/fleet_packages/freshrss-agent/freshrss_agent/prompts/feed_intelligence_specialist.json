@@ -1,0 +1,10 @@
+{
+  "task": "freshrss-agent",
+  "type": "prompt",
+  "description": "Reads and summarizes feed items.",
+  "instructions": {
+    "core_directive": "You read FreshRSS streams and summarize new articles."
+  },
+  "schema_version": "1.0",
+  "source": "freshrss-agent"
+}

@@ -20,6 +20,8 @@ __all__ = [
     "tool_arguments",
 ]
 
+_NUMBERED_MODES = frozenset({"page", "offset"})
+
 
 def dig_path(value: Any, dotted: str) -> Any:
     """Follow a dotted path through mappings and list indices; ``None`` if absent."""
@@ -66,13 +68,17 @@ def page_params(
         set_path(params, preset.updated_since_param, since)
     if preset.pagination == "cursor" and position.get("cursor") is not None:
         set_path(params, preset.cursor_param, position["cursor"])
-    if preset.pagination == "page":
-        page = int(position.get("page", preset.start_page))
-        offset = page * preset.page_size if preset.page_kind == "offset" else page
-        set_path(params, preset.page_param, offset)
+    if preset.pagination in _NUMBERED_MODES:
+        set_path(params, preset.page_param, _page_value(preset, position))
         if preset.page_size_param:
             set_path(params, preset.page_size_param, preset.page_size)
     return params
+
+
+def _page_value(preset: ToolPreset, position: Mapping[str, Any]) -> int:
+    if preset.pagination == "offset":
+        return int(position.get("offset", 0))
+    return int(position.get("page", preset.start_page))
 
 
 def _next_cursor(
@@ -104,8 +110,16 @@ def next_position(
         return None
     if preset.pagination == "cursor":
         return _next_cursor(preset, position, result=result, raw=raw)
+    return _next_numbered(preset, position, raw)
+
+
+def _next_numbered(
+    preset: ToolPreset, position: Mapping[str, Any], raw: Sequence[dict[str, Any]]
+) -> dict[str, Any] | None:
     if len(raw) < preset.page_size:
         return None
+    if preset.pagination == "offset":
+        return {"offset": int(position.get("offset", 0)) + len(raw)}
     return {"page": int(position.get("page", preset.start_page)) + 1}
 
 

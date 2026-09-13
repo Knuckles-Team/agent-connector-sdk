@@ -46,20 +46,37 @@ class TransportEndpoint:
 
     Exactly one of ``url`` (streamable HTTP), ``command`` (stdio) or
     ``in_process`` (a server object in this process) must be set. ``env`` for a
-    stdio child carries already-resolved values: references are resolved at the
-    composition root before an endpoint is built.
+    stdio child and ``bearer_token`` for a URL carry already-resolved values:
+    references are resolved at the composition root before an endpoint is
+    built, and neither value appears in the endpoint's ``repr``.
     """
 
     url: str = ""
     command: str = ""
     args: tuple[str, ...] = ()
-    env: Mapping[str, str] = field(default_factory=dict)
+    env: Mapping[str, str] = field(default_factory=dict, repr=False)
     in_process: object | None = None
     timeout_seconds: float = 60.0
+    bearer_token: str = field(default="", repr=False)
 
     def __post_init__(self) -> None:
-        chosen = [bool(self.url), bool(self.command), self.in_process is not None]
-        if sum(chosen) != 1:
-            raise ValueError("exactly one of url, command or in_process must be set")
-        if self.timeout_seconds <= 0:
-            raise ValueError("timeout_seconds must be positive")
+        problems = _endpoint_problems(self)
+        if problems:
+            raise ValueError("; ".join(problems))
+
+
+def _endpoint_problems(endpoint: TransportEndpoint) -> list[str]:
+    chosen = [
+        bool(endpoint.url),
+        bool(endpoint.command),
+        endpoint.in_process is not None,
+    ]
+    checks = (
+        (sum(chosen) != 1, "exactly one of url, command or in_process must be set"),
+        (endpoint.timeout_seconds <= 0, "timeout_seconds must be positive"),
+        (
+            bool(endpoint.bearer_token) and not endpoint.url,
+            "bearer_token applies only to a url endpoint",
+        ),
+    )
+    return [message for failed, message in checks if failed]

@@ -1,0 +1,180 @@
+"""The runner end to end against the freshrss-agent and archivebox-api fixtures.
+
+Everything commits into ``InMemorySink``; epistemic-graph import is wave W1.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+import anyio
+import pytest
+from fleet_fixtures import (
+    ARCHIVEBOX_WIRE_SHA256,
+    FRESHRSS_READING_LIST,
+    FRESHRSS_WIRE_SHA256,
+    FakeArchiveBox,
+    FakeFreshRss,
+    archivebox_snapshots,
+    build_archivebox_server,
+    build_freshrss_server,
+    freshrss_items,
+)
+from runner_support import (
+    ListRegistry,
+    RecordingSink,
+    archivebox_descriptor,
+    capture_runner_logs,
+    eventually,
+    freshrss_descriptor,
+    freshrss_runner,
+    in_process,
+    logged,
+    services,
+)
+
+from agent_connector_sdk.manifest.live_contract import validate_live_tool_contract
+from agent_connector_sdk.mcp.change_events import (
+    announce_content_changed,
+    announce_resource_updated,
+)
+from agent_connector_sdk.ports.session import TransportEndpoint
+from agent_connector_sdk.runner.checkpoints import JsonFileCheckpointStore
+from agent_connector_sdk.runner.supervisor import ConnectorSyncRunner
+from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from agent_connector_sdk.transports.mcp import McpTransport
+
+LAST_PUBLISHED = str(freshrss_items(249, 1)[0]["published"])
+
+
+async def test_fixtures_serve_the_real_servers_tool_schemas() -> None:
+    for server, tool, pinned in (
+        (
+            build_freshrss_server(FakeFreshRss([])),
+            "freshrss_reader",
+            FRESHRSS_WIRE_SHA256,
+        ),
+        (
+            build_archivebox_server(FakeArchiveBox([])),
+            "archivebox_core",
+            ARCHIVEBOX_WIRE_SHA256,
+        ),
+    ):
+        async with McpTransport().session(
+            TransportEndpoint(in_process=server)
+        ) as session:
+            contract = validate_live_tool_contract(
+                await session.list_tools(),
+                tool_name=tool,
+                expected_schema_sha256=pinned,
+            )
+        assert contract.compatibility_sha256 == pinned
+
+
+async def test_provisioning_is_a_noop_when_the_pack_digest_is_unchanged(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    capture_runner_logs(caplog)
+    freshrss = FakeFreshRss(freshrss_items(0, 250))
+    archive = FakeArchiveBox(archivebox_snapshots(250))
+    servers: dict[str, object] = {
+        "freshrss-agent": build_freshrss_server(freshrss),
+        "archivebox-api": build_archivebox_server(archive),
+    }
+    sink = RecordingSink()
+    registry = ListRegistry(freshrss_descriptor(), archivebox_descriptor())
+    runner = ConnectorSyncRunner(
+        registry, services(sink, JsonFileCheckpointStore(tmp_path), in_process(servers))
+    )
+    everything = {"freshrss-agent": True, "archivebox-api": True}
+    assert await runner.run_once() == everything
+    kinds = {entry.kind for pack in sink.inner.packs.values() for entry in pack.entries}
+    assert sink.imports == 2 and kinds == {"tool", "skill", "prompt", "resource"}
+    assert len(sink.record_ids("freshrss-agent")) == 250
+    assert len(sink.record_ids("archivebox-api")) == 250 and archive.pages == [0, 1, 2]
+    assert await runner.run_once() == everything
+    assert sink.imports == 2 and len(logged(caplog, "pack_unchanged")) == 2
+    assert freshrss.calls[-1]["newer_than"] == LAST_PUBLISHED
+    second_pass = logged(caplog, "stream_synced")[2:]
+    assert [event["records"] for event in second_pass] == [0, 0]
+
+
+async def test_sync_resumes_from_the_committed_cursor_after_a_crash(
+    tmp_path: Path,
+) -> None:
+    archive = FakeArchiveBox(archivebox_snapshots(250))
+    endpoints = in_process({"archivebox-api": build_archivebox_server(archive)})
+    store = JsonFileCheckpointStore(tmp_path)
+    crashing = RecordingSink(crash_on=2)
+    registry = ListRegistry(archivebox_descriptor())
+    first = ConnectorSyncRunner(registry, services(crashing, store, endpoints))
+    assert await first.run_once() == {"archivebox-api": False}
+    committed = await store.committed_cursor("archivebox-api", "archivebox-snapshots")
+    assert committed is not None and committed.position == {"page": 1}
+    assert len(crashing.inner.batches) == 1
+    recovered = RecordingSink(crashing.inner)
+    resumed = ConnectorSyncRunner(registry, services(recovered, store, endpoints))
+    assert await resumed.run_once() == {"archivebox-api": True}
+    assert archive.pages == [0, 1, 1, 2] and recovered.imports == 0
+    assert len(recovered.record_ids("archivebox-api")) == 250
+    final = await store.committed_cursor("archivebox-api", "archivebox-snapshots")
+    assert final is not None and final.position == {}
+    assert final.watermark == archivebox_snapshots(250)[-1]["modified_at"]
+
+
+async def test_change_events_drive_provisioning_and_incremental_sync(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    capture_runner_logs(caplog)
+    freshrss = FakeFreshRss(freshrss_items(0, 250))
+    server = build_freshrss_server(freshrss)
+    sink = RecordingSink()
+    runner = freshrss_runner(sink, tmp_path, server)
+    async with anyio.create_task_group() as tasks:
+        tasks.start_soon(runner.run_forever)
+        await eventually(lambda: bool(logged(caplog, "change_subscription")))
+        assert logged(caplog, "change_subscription")[0]["listening"] is True
+        assert sink.imports == 1 and len(sink.record_ids("freshrss-agent")) == 250
+
+        @server.tool()
+        def freshrss_unread_count() -> dict[str, Any]:
+            """Count unread items."""
+            return {"unread": 0}
+
+        await announce_content_changed(server)
+        await eventually(lambda: len(sink.inner.packs) == 2)
+        freshrss.items.extend(freshrss_items(250, 5))
+        await announce_resource_updated(server, FRESHRSS_READING_LIST)
+        await eventually(lambda: len(sink.record_ids("freshrss-agent")) == 255)
+        tasks.cancel_scope.cancel()
+    assert freshrss.calls[-1]["newer_than"] == LAST_PUBLISHED
+    assert sink.imports == 2 and freshrss_unread_count() == {"unread": 0}
+
+
+async def test_without_listen_the_schedule_drives_sync(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    capture_runner_logs(caplog)
+    freshrss = FakeFreshRss(freshrss_items(0, 3))
+    server = build_freshrss_server(freshrss, listen=False)
+    sink = RecordingSink()
+    runner = freshrss_runner(sink, tmp_path, server, interval_seconds=0.1)
+    async with anyio.create_task_group() as tasks:
+        tasks.start_soon(runner.run_forever)
+        await eventually(lambda: bool(logged(caplog, "change_subscription")))
+        assert logged(caplog, "change_subscription")[0]["listening"] is False
+        freshrss.items.extend(freshrss_items(3, 2))
+        await eventually(lambda: len(sink.record_ids("freshrss-agent")) == 5)
+        tasks.cancel_scope.cancel()
+    assert sink.imports == 1 and logged(caplog, "pack_unchanged")
+
+
+async def test_the_epistemic_graph_sink_stub_blocks_every_cycle(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    capture_runner_logs(caplog)
+    server = build_freshrss_server(FakeFreshRss([]))
+    runner = freshrss_runner(EpistemicGraphSink(client=None), tmp_path, server)
+    assert await runner.run_once() == {"freshrss-agent": False}
+    assert "RF-ADR-009 W1" in logged(caplog, "connector_failed")[0]["error"]

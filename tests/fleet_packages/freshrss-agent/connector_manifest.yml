@@ -1,0 +1,26 @@
+connector: freshrss-agent
+ontology_source: feed
+schema_version: '1'
+sync:
+- preset: freshrss
+  server: freshrss-mcp
+  tool: freshrss_reader
+  action: stream_contents
+  records_path: items
+  id_field: id
+  title_field: title
+  text_field: text
+  updated_field: published
+  pagination: cursor
+  doc_type: news_article
+  tool_schema_sha256: 77979de11db9df14f10b6c76249162c8b43569503e54cc732ca6e50bcddd74b6
+  raw: {"action": "stream_contents", "cursor_param": "continuation", "cursor_path": "continuation", "doc_type": "news_article", "id_field": "id", "pagination": "cursor", "params": {"count": 100, "order": "o"}, "params_style": "json", "records_path": "items", "server": "freshrss-mcp", "text_field": "text", "title_field": "title", "tool": "freshrss_reader", "updated_field": "published", "updated_since_param": "newer_than"}
+provenance:
+  generated_by: tests/fleet_packages
+  source_artifacts:
+  - freshrss_agent/connectors/mcp_source_presets.json
+  - freshrss_agent/connectors/tool_schema_fingerprints.json
+  integrity:
+    algorithm: urdna2015-sha256
+    hash: '0000000000000000000000000000000000000000000000000000000000000000'
+    triple_count: 1

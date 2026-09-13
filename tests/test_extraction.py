@@ -134,16 +134,16 @@ def test_paging_helpers() -> None:
         name="p",
         server="s",
         tool="t",
-        pagination="page",
+        pagination="offset",
         page_param="offset",
         page_size=2,
         page_size_param="limit",
         page_kind="offset",
         params_style="args",
     )
-    assert page_params(paged, {"page": 3}, None) == {"offset": 6, "limit": 2}
+    assert page_params(paged, {"offset": 6}, None) == {"offset": 6, "limit": 2}
     assert tool_arguments(paged, {"offset": 6}) == {"offset": 6}
-    assert next_position(paged, {}, result={}, raw=[{}, {}]) == {"page": 1}
+    assert next_position(paged, {}, result={}, raw=[{}, {}]) == {"offset": 2}
     assert next_position(paged, {}, result={}, raw=[{}]) is None
     keyset = ToolPreset(
         name="k",

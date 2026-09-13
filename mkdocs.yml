@@ -15,6 +15,7 @@ nav:
   - Content over MCP: content-over-mcp.md
   - Extension ports: extension-ports.md
   - Conformance kit: conformance-kit.md
+  - Connector sync: connector-sync.md
   - Credentials: credentials.md
   - Moving from agent-utilities: from-agent-utilities.md
   - Quality gates: quality-gates.md

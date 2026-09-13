@@ -25,6 +25,7 @@ from agent_connector_sdk.config import setting
 from agent_connector_sdk.credentials.resolver import CredentialResolver
 from agent_connector_sdk.mcp.auth.factory import configure_auth
 from agent_connector_sdk.mcp.auth.policy import AuthConfigurationError
+from agent_connector_sdk.mcp.change_events import serve_change_subscriptions
 from agent_connector_sdk.mcp.content import ConnectorContent, register_connector_content
 from agent_connector_sdk.mcp.exposure import (
     NetworkExposureError,
@@ -134,6 +135,7 @@ def create_mcp_server(
             VisibilityPolicy.from_settings(args.tools, args.disabled_tools)
         )
     )
+    serve_change_subscriptions(mcp)
     if content is not None:
         register_connector_content(mcp, content)
     return args, mcp, build_middleware()

@@ -1,0 +1,26 @@
+connector: archivebox-api
+ontology_source: archivebox
+schema_version: '1'
+sync:
+- preset: archivebox-snapshots
+  server: archivebox-mcp
+  tool: archivebox_core
+  action: get_snapshots
+  records_path: items
+  id_field: abid
+  title_field: url
+  text_field: title
+  updated_field: modified_at
+  pagination: page
+  doc_type: web_snapshot
+  tool_schema_sha256: 1f2a33c31bd6b000bbb4954863f4d41e0710faf38c5a040c6415837e9ce3f21f
+  raw: {"action": "get_snapshots", "doc_type": "web_snapshot", "id_field": "abid", "page_kind": "page", "page_param": "page", "page_size_param": "limit", "pagination": "page", "records_path": "items", "server": "archivebox-mcp", "text_field": "title", "title_field": "url", "tool": "archivebox_core", "updated_field": "modified_at"}
+provenance:
+  generated_by: tests/fleet_packages
+  source_artifacts:
+  - archivebox_api/connectors/mcp_source_presets.json
+  - archivebox_api/connectors/tool_schema_fingerprints.json
+  integrity:
+    algorithm: urdna2015-sha256
+    hash: '0000000000000000000000000000000000000000000000000000000000000000'
+    triple_count: 1

@@ -16,6 +16,22 @@ and returns `(args, mcp, middlewares)`. The caller adds the middlewares.
 Every server gets a `GET /health` route, per-caller rate limiting, and error
 handling that never returns tracebacks.
 
+## Change subscriptions
+
+Every server built by `create_mcp_server` serves `subscriptions/listen`, so
+clients such as the connector-sync runner learn about changes without polling.
+`agent_connector_sdk.mcp.change_events` publishes them:
+
+| Function | Publishes |
+|---|---|
+| `announce_content_changed(mcp)` | the tool, prompt and resource lists changed |
+| `announce_resource_updated(mcp, uri)` | the resource at `uri` was updated |
+| `serve_change_subscriptions(mcp, bus=None)` | serves listen streams on a server not built by the factory; returns the bus |
+| `change_bus(mcp)` | the server's bus, for a shared cross-replica implementation |
+
+A connector that publishes `announce_resource_updated` for a data resource lets
+the runner sync that resource's presets as soon as it changes.
+
 ## Network exposure
 
 A `streamable-http` or `sse` listener outside loopback is refused unless it has

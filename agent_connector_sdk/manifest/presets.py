@@ -5,6 +5,25 @@ are assembled, where records live in the result, and how the result paginates.
 It is the declarative-first extension point of RF-ADR-009 section 2.2.1: a new
 API source is a preset, not code.
 
+Pagination modes:
+
+``none``
+    One call returns every record.
+``cursor``
+    ``cursor_param`` carries a token read from ``cursor_path`` (or from
+    ``cursor_record_field`` of the last record); ``more_path`` may gate it.
+``page``
+    ``page_param`` carries a page index starting at ``start_page`` and
+    ``page_size_param`` the page size. ``page_kind`` may be ``number`` or
+    ``page``: both name a page index, the two spellings the fleet's generated
+    presets use.
+``offset``
+    ``page_param`` carries a record offset starting at 0 and advancing by the
+    records returned; ``page_kind`` may be ``offset``.
+
+A page or offset sweep ends at the first page shorter than ``page_size``, so
+``page_size`` must not exceed what the server returns per call.
+
 Presets may carry additional keys that describe how records map onto the
 ontology (``type_field``, ``node_id_template`` and similar). Those are applied by
 the ingestion authority, not by extraction, and are kept verbatim in
@@ -13,6 +32,7 @@ the ingestion authority, not by extraction, and are kept verbatim in
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
@@ -52,6 +72,13 @@ _EXTRACTION_KEYS = frozenset(
     }
 )
 
+_PAGE_KINDS: dict[str, frozenset[str | None]] = {
+    "none": frozenset({None}),
+    "cursor": frozenset({None}),
+    "page": frozenset({None, "number", "page"}),
+    "offset": frozenset({None, "offset"}),
+}
+
 
 class ToolPreset(BaseModel):
     """One validated ``mcp_tool`` preset."""
@@ -75,7 +102,7 @@ class ToolPreset(BaseModel):
     text_field: str = "text"
     updated_field: str = ""
     doc_type: str = "document"
-    pagination: Literal["none", "cursor", "page"] = "none"
+    pagination: Literal["none", "cursor", "page", "offset"] = "none"
     cursor_param: str = ""
     cursor_path: str = ""
     cursor_record_field: str = ""
@@ -83,27 +110,29 @@ class ToolPreset(BaseModel):
     page_param: str = ""
     page_size_param: str = ""
     page_size: int = Field(default=100, ge=1, le=10_000)
-    page_kind: Literal["number", "offset"] = "number"
+    page_kind: Literal["number", "page", "offset"] | None = None
     start_page: int = Field(default=0, ge=0)
     updated_since_param: str = ""
     max_pages: int = Field(default=100, ge=1, le=100_000)
     mapping_hints: dict[str, JsonValue] = Field(default_factory=dict)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _require_record_identity(cls, data: Any) -> Any:
+        if isinstance(data, Mapping) and data.get("id_field") == "":
+            raise ValueError(
+                f"preset {data.get('name')!r} has an empty id_field: an mcp_tool "
+                "preset must identify its records; a sweep without record "
+                "identity (such as a SQL table sweep) belongs to a data-platform "
+                "source adapter (RF-ADR-009 section 2.3, wave W7)"
+            )
+        return data
+
     @model_validator(mode="after")
     def _check_pagination(self) -> ToolPreset:
-        if self.pagination == "cursor" and not self.cursor_param:
-            raise ValueError(
-                f"preset {self.name!r}: cursor pagination needs cursor_param"
-            )
-        if self.pagination == "cursor" and not (
-            self.cursor_path or self.cursor_record_field
-        ):
-            raise ValueError(
-                f"preset {self.name!r}: cursor pagination needs cursor_path or "
-                "cursor_record_field"
-            )
-        if self.pagination == "page" and not self.page_param:
-            raise ValueError(f"preset {self.name!r}: page pagination needs page_param")
+        problems = _pagination_problems(self)
+        if problems:
+            raise ValueError(f"preset {self.name!r}: {'; '.join(problems)}")
         return self
 
     @classmethod
@@ -116,3 +145,30 @@ class ToolPreset(BaseModel):
         extraction = {k: v for k, v in present.items() if k in _EXTRACTION_KEYS}
         hints = {k: v for k, v in present.items() if k not in _EXTRACTION_KEYS}
         return cls(name=name, mapping_hints=hints, **extraction)
+
+
+def _pagination_problems(preset: ToolPreset) -> list[str]:
+    mode = preset.pagination
+    checks = (
+        (
+            preset.page_kind not in _PAGE_KINDS[mode],
+            f"page_kind {preset.page_kind!r} does not apply to {mode} pagination",
+        ),
+        (
+            mode == "cursor" and not preset.cursor_param,
+            "cursor pagination needs cursor_param",
+        ),
+        (
+            mode == "cursor" and not (preset.cursor_path or preset.cursor_record_field),
+            "cursor pagination needs cursor_path or cursor_record_field",
+        ),
+        (
+            mode in {"page", "offset"} and not preset.page_param,
+            f"{mode} pagination needs page_param",
+        ),
+        (
+            mode == "offset" and preset.start_page != 0,
+            "offset pagination starts at offset 0; start_page does not apply",
+        ),
+    )
+    return [message for failed, message in checks if failed]

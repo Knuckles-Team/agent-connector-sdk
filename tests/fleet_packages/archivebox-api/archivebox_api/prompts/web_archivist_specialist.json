@@ -1,0 +1,10 @@
+{
+  "task": "archivebox-api",
+  "type": "prompt",
+  "description": "Finds archived web pages.",
+  "instructions": {
+    "core_directive": "You search the web archive and report what was captured."
+  },
+  "schema_version": "1.0",
+  "source": "archivebox-api"
+}
