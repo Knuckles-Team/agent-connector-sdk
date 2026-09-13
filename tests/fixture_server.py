@@ -48,8 +48,7 @@ def _page(params_json: str) -> dict[str, Any]:
     }
 
 
-def build_reader_server(*, with_content: bool = True) -> FastMCP[Any]:
-    """The well-formed fixture connector."""
+def _fixture_server(*, malformed: bool, with_content: bool) -> FastMCP[Any]:
     mcp: FastMCP[Any] = FastMCP(SERVER_NAME, version=SERVER_VERSION)
 
     @mcp.tool()
@@ -59,7 +58,11 @@ def build_reader_server(*, with_content: bool = True) -> FastMCP[Any]:
         """Read the demo stream one page at a time."""
         if action != "stream_contents":
             raise ValueError("unknown action")
-        return _page(params_json)
+        return (
+            {"items": "not-a-list", "continuation": None}
+            if malformed
+            else _page(params_json)
+        )
 
     if with_content:
         register_connector_content(
@@ -73,15 +76,11 @@ def build_reader_server(*, with_content: bool = True) -> FastMCP[Any]:
     return mcp
 
 
+def build_reader_server(*, with_content: bool = True) -> FastMCP[Any]:
+    """The well-formed fixture connector."""
+    return _fixture_server(malformed=False, with_content=with_content)
+
+
 def build_malformed_server() -> FastMCP[Any]:
     """Same tool contract; the payload is not a record list."""
-    mcp: FastMCP[Any] = FastMCP(SERVER_NAME, version=SERVER_VERSION)
-
-    @mcp.tool()
-    def demo_reader(
-        action: Literal["stream_contents"], params_json: str = "{}"
-    ) -> dict[str, Any]:
-        """Read the demo stream one page at a time."""
-        return {"items": "not-a-list", "continuation": None}
-
-    return mcp
+    return _fixture_server(malformed=True, with_content=False)

@@ -2,13 +2,13 @@
 
 The real connector servers still import agent-utilities, so the suite cannot
 start them. These fixtures serve the same condensed tools with the same input
-schemas and fake upstream data. ``FRESHRSS_WIRE_SHA256`` and
-``ARCHIVEBOX_WIRE_SHA256`` are the compatibility fingerprints of the real
-servers' ``freshrss_reader`` and ``archivebox_core`` tools as listed over stdio
-``tools/list`` (freshrss-agent 2.1.0 and archivebox-api, measured 2026-09-13);
-the fixture packages pin them, and a test proves the fixtures serve schemas
-with exactly those fingerprints. The fleet packages themselves pin the
-fingerprint of an empty schema, which no live server matches.
+schemas and fake upstream data. ``*_CURRENT_SHA256`` values fingerprint the real
+servers' current free-string action schemas as listed over stdio ``tools/list``
+on 2026-09-13.
+The default builders preserve those schemas so certification proves that a
+migration is required. The ``build_enumerated_*`` builders serve the future
+schema that the fixture packages pin and the positive runner tests consume;
+its fingerprint is named ``*_ENUM_SHA256``.
 
 The presets in ``fleet_packages`` are copied from the connector repositories,
 except that archivebox-api's ``page_kind: page`` is written ``page_kind: number``,
@@ -34,11 +34,17 @@ FRESHRSS_ROOT = FLEET_PACKAGES / "freshrss-agent"
 ARCHIVEBOX_ROOT = FLEET_PACKAGES / "archivebox-api"
 FRESHRSS_CONNECTORS = FRESHRSS_ROOT / "freshrss_agent" / "connectors"
 ARCHIVEBOX_CONNECTORS = ARCHIVEBOX_ROOT / "archivebox_api" / "connectors"
-FRESHRSS_WIRE_SHA256 = (
+FRESHRSS_ENUM_SHA256 = (
     "7e18bf9ed1c48cadece180e17777cc68da409d0e86cb79fbebcf69172794d3b4"
 )
-ARCHIVEBOX_WIRE_SHA256 = (
+ARCHIVEBOX_ENUM_SHA256 = (
     "f86ef345d867f55d1a343f684357291f80a1071bccdef5bde8ff859fea3dcc8d"
+)
+FRESHRSS_CURRENT_SHA256 = (
+    "853fb6e29803342a2b48e6000d1669a50b029a6414cf36f64fffd035d5838f5f"
+)
+ARCHIVEBOX_CURRENT_SHA256 = (
+    "a8227dfe8c93b062ebea2f1e055fbf14621d3e21972594b5fddfb64b9b549fe8"
 )
 FRESHRSS_READING_LIST = "data://freshrss-agent/reading-list"
 
@@ -119,37 +125,47 @@ def _content(mcp: FastMCP[Any], root: Path, module: str) -> None:
     )
 
 
-def build_freshrss_server(
-    upstream: FakeFreshRss, *, listen: bool = True
+def _freshrss_server(
+    upstream: FakeFreshRss, *, listen: bool, action_contract: object
 ) -> FastMCP[Any]:
-    """A freshrss-agent server over ``upstream``; ``listen`` serves change subscriptions."""
     mcp: FastMCP[Any] = FastMCP("FreshRSS MCP", version="2.1.0")
 
-    @mcp.tool()
-    async def freshrss_reader(
-        action: Literal["stream_contents"], params_json: str = "{}"
-    ) -> dict[str, Any]:
+    async def freshrss_reader(action: str, params_json: str = "{}") -> dict[str, Any]:
         """Read FreshRSS streams via the Google Reader API."""
         if action != "stream_contents":
             raise ValueError("unknown action")
         return upstream.stream_contents(json.loads(params_json))
 
+    freshrss_reader.__annotations__["action"] = action_contract
+    mcp.tool()(freshrss_reader)
     _content(mcp, FRESHRSS_ROOT, "freshrss_agent")
     if listen:
         serve_change_subscriptions(mcp)
     return mcp
 
 
-def build_archivebox_server(
-    upstream: FakeArchiveBox, *, malformed: bool = False
+def build_freshrss_server(
+    upstream: FakeFreshRss, *, listen: bool = True
 ) -> FastMCP[Any]:
-    """An archivebox-api server over ``upstream``; ``malformed`` breaks the records."""
+    """The fleet's current free-string FreshRSS contract."""
+    return _freshrss_server(upstream, listen=listen, action_contract=str)
+
+
+def build_enumerated_freshrss_server(
+    upstream: FakeFreshRss, *, listen: bool = True
+) -> FastMCP[Any]:
+    """The future action-enumerated FreshRSS contract."""
+    return _freshrss_server(
+        upstream, listen=listen, action_contract=Literal["stream_contents"]
+    )
+
+
+def _archivebox_server(
+    upstream: FakeArchiveBox, *, malformed: bool, action_contract: object
+) -> FastMCP[Any]:
     mcp: FastMCP[Any] = FastMCP("ArchiveBox MCP", version="1.0.0")
 
-    @mcp.tool()
-    async def archivebox_core(
-        action: Literal["get_snapshots"], params_json: str = "{}"
-    ) -> dict[str, Any]:
+    async def archivebox_core(action: str, params_json: str = "{}") -> dict[str, Any]:
         """Manage archivebox core operations."""
         if action != "get_snapshots":
             raise ValueError("unknown action")
@@ -157,8 +173,28 @@ def build_archivebox_server(
             return {"items": "not-a-list"}
         return upstream.get_snapshots(json.loads(params_json))
 
+    archivebox_core.__annotations__["action"] = action_contract
+    mcp.tool()(archivebox_core)
     _content(mcp, ARCHIVEBOX_ROOT, "archivebox_api")
     return mcp
+
+
+def build_archivebox_server(
+    upstream: FakeArchiveBox, *, malformed: bool = False
+) -> FastMCP[Any]:
+    """The fleet's current free-string ArchiveBox contract."""
+    return _archivebox_server(upstream, malformed=malformed, action_contract=str)
+
+
+def build_enumerated_archivebox_server(
+    upstream: FakeArchiveBox, *, malformed: bool = False
+) -> FastMCP[Any]:
+    """The future action-enumerated ArchiveBox contract."""
+    return _archivebox_server(
+        upstream,
+        malformed=malformed,
+        action_contract=Literal["get_snapshots"],
+    )
 
 
 def build_table_server(

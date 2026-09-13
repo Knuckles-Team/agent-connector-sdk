@@ -11,20 +11,21 @@ part of this module; it belongs to the release tooling that signs them.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import yaml
 from pydantic import ValidationError
 
-from agent_connector_sdk.manifest.model import ConnectorManifest, SyncSpec
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.manifest.tool_schema import (
-    COMPATIBILITY_FINGERPRINT_ALGORITHM,
-    compatibility_fingerprint,
-    legacy_empty_schema_fingerprint,
+from agent_connector_sdk.manifest.model import ConnectorManifest
+from agent_connector_sdk.manifest.package_validation import (
+    FINGERPRINTS_FILE_NAME,
+    MANIFEST_FILE_NAME,
+    PRESETS_FILE_NAME,
+    ToolSchemaFingerprints,
+    validate_connector_package,
 )
+from agent_connector_sdk.manifest.presets import ToolPreset
 
 __all__ = [
     "FINGERPRINTS_FILE_NAME",
@@ -39,35 +40,11 @@ __all__ = [
     "validate_connector_package",
 ]
 
-MANIFEST_FILE_NAME = "connector_manifest.yml"
-PRESETS_FILE_NAME = "mcp_source_presets.json"
-FINGERPRINTS_FILE_NAME = "tool_schema_fingerprints.json"
-
 _MAX_DOCUMENT_BYTES = 4 * 1024 * 1024
-_PRESET_FIELDS_MIRRORED_IN_SYNC = (
-    "server",
-    "tool",
-    "records_path",
-    "id_field",
-    "title_field",
-    "text_field",
-    "updated_field",
-    "pagination",
-    "doc_type",
-)
 
 
 class ManifestError(ValueError):
     """A connector package file is unreadable, malformed or inconsistent."""
-
-
-@dataclass(frozen=True)
-class ToolSchemaFingerprints:
-    """The contents of ``tool_schema_fingerprints.json``."""
-
-    connector: str
-    algorithm: str
-    tools: dict[str, str]
 
 
 def _read_bounded(path: Path) -> bytes:
@@ -132,80 +109,11 @@ def load_tool_schema_fingerprints(path: Path) -> ToolSchemaFingerprints:
     )
 
 
-def _sync_violations(
-    entry: SyncSpec, presets: dict[str, ToolPreset], tools: dict[str, str]
-) -> list[str]:
-    preset = presets.get(entry.preset)
-    if preset is None:
-        return [f"sync preset {entry.preset!r} is not declared in {PRESETS_FILE_NAME}"]
-    violations: list[str] = []
-    for field_name in _PRESET_FIELDS_MIRRORED_IN_SYNC:
-        declared = getattr(entry, field_name)
-        if declared is not None and declared != getattr(preset, field_name):
-            violations.append(
-                f"sync preset {entry.preset!r} field {field_name!r} differs from "
-                f"{PRESETS_FILE_NAME}"
-            )
-    if (entry.action or "") != preset.action:
-        violations.append(
-            f"sync preset {entry.preset!r} field 'action' differs from {PRESETS_FILE_NAME}"
-        )
-    pinned = tools.get(preset.tool)
-    if not entry.tool_schema_sha256 or entry.tool_schema_sha256 != pinned:
-        violations.append(
-            f"sync preset {entry.preset!r} tool_schema_sha256 does not match the "
-            f"pinned fingerprint for tool {preset.tool!r}"
-        )
-    return violations
-
-
-def validate_connector_package(
-    manifest: ConnectorManifest,
-    presets: dict[str, ToolPreset],
-    fingerprints: ToolSchemaFingerprints,
-) -> list[str]:
-    """Return every disagreement between manifest, presets and fingerprints."""
-    violations: list[str] = []
-    if fingerprints.algorithm != COMPATIBILITY_FINGERPRINT_ALGORITHM:
-        violations.append(
-            f"{FINGERPRINTS_FILE_NAME} algorithm is not "
-            f"{COMPATIBILITY_FINGERPRINT_ALGORITHM}"
-        )
-    if fingerprints.connector != manifest.connector:
-        violations.append(
-            f"{FINGERPRINTS_FILE_NAME} connector does not match the manifest connector"
-        )
-    violations.extend(_empty_pin_violations(fingerprints))
-    for entry in manifest.sync:
-        violations.extend(_sync_violations(entry, presets, fingerprints.tools))
-    declared = {entry.preset for entry in manifest.sync}
-    violations.extend(
-        f"preset {name!r} is not declared in the manifest sync section"
-        for name in sorted(set(presets) - declared)
-    )
-    return violations
-
-
 def _invalid_preset(name: str, exc: ValidationError) -> ManifestError:
     reasons = "; ".join(
         str(error["msg"]).removeprefix("Value error, ") for error in exc.errors()
     )
     return ManifestError(f"preset {name!r} is invalid: {reasons}")
-
-
-def _empty_pin_violations(fingerprints: ToolSchemaFingerprints) -> list[str]:
-    """Pins equal to the fingerprint of an empty input schema verify nothing."""
-    return [
-        f"{FINGERPRINTS_FILE_NAME} pins tool {tool!r} to the fingerprint of an "
-        "empty input schema, which verifies no contract; re-certify it from the "
-        "server's tools/list"
-        for tool, pinned in sorted(fingerprints.tools.items())
-        if pinned
-        in {
-            compatibility_fingerprint(tool, {}),
-            legacy_empty_schema_fingerprint(tool),
-        }
-    ]
 
 
 def require_valid_connector_package(package_root: Path) -> ConnectorManifest:

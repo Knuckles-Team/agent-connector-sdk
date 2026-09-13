@@ -32,7 +32,7 @@ from agent_connector_sdk.contracts import (
     StreamDescriptor,
     SyncCursor,
 )
-from agent_connector_sdk.manifest.live_contract import validate_live_tool_contract
+from agent_connector_sdk.manifest.live_contract import validate_preset_tool_contract
 from agent_connector_sdk.manifest.model import SyncSpec
 from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.manifest.tool_schema import ToolSchemaContractError
@@ -40,18 +40,6 @@ from agent_connector_sdk.ports.errors import SourceContractError
 from agent_connector_sdk.ports.session import McpSession
 
 __all__ = ["McpToolSourceAdapter"]
-
-
-def _argument_contract(
-    preset: ToolPreset,
-) -> tuple[dict[str, str], dict[str, tuple[str, ...]]]:
-    required = {preset.action_param: "string"} if preset.action else {}
-    enums: dict[str, tuple[str, ...]] = (
-        {preset.action_param: (preset.action,)} if preset.action else {}
-    )
-    if preset.params_style == "json":
-        required[preset.params_arg] = "string"
-    return required, enums
 
 
 class McpToolSourceAdapter:
@@ -105,14 +93,12 @@ class McpToolSourceAdapter:
             SourceContractError: the tool is missing or its schema drifted.
         """
         preset = self._preset
-        required, action_enums = _argument_contract(preset)
         try:
-            contract = validate_live_tool_contract(
+            contract = validate_preset_tool_contract(
                 await session.list_tools(),
                 tool_name=preset.tool,
+                presets=(preset,),
                 expected_schema_sha256=self._pinned,
-                required_argument_types=required,
-                required_argument_enums=action_enums,
             )
         except ToolSchemaContractError as exc:
             raise SourceContractError(str(exc)) from exc

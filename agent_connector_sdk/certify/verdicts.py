@@ -14,7 +14,7 @@ from agent_connector_sdk.certify.fingerprints import (
     output_schema_digest,
     tool_name,
 )
-from agent_connector_sdk.manifest.live_contract import validate_live_tool_contract
+from agent_connector_sdk.manifest.live_contract import validate_preset_tool_contract
 from agent_connector_sdk.manifest.loader import (
     FINGERPRINTS_FILE_NAME,
     MANIFEST_FILE_NAME,
@@ -85,12 +85,8 @@ def _unavailable(checkout: ConnectorCheckout, tool: str, defect: str) -> ToolVer
     )
 
 
-def _action_enums(checkout: ConnectorCheckout, tool: str) -> dict[str, set[str]]:
-    required: dict[str, set[str]] = {}
-    for preset in checkout.presets.values():
-        if preset.tool == tool and preset.action:
-            required.setdefault(preset.action_param, set()).add(preset.action)
-    return required
+def _presets_for_tool(checkout: ConnectorCheckout, tool: str) -> tuple[Any, ...]:
+    return tuple(preset for preset in checkout.presets.values() if preset.tool == tool)
 
 
 def _verdict(
@@ -100,10 +96,10 @@ def _verdict(
         state = "does not list" if not matches else "lists more than once"
         return _unavailable(checkout, tool, f"the server {state} tool {tool!r}")
     try:
-        contract = validate_live_tool_contract(
+        contract = validate_preset_tool_contract(
             matches,
             tool_name=tool,
-            required_argument_enums=_action_enums(checkout, tool),
+            presets=_presets_for_tool(checkout, tool),
         )
     except ToolSchemaContractError as exc:
         _logger.warning("tool %r cannot be certified: %s", tool, exc)

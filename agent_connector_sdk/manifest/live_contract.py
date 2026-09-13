@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Collection, Iterable, Mapping
+from collections.abc import Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
+from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.manifest.tool_schema import (
     ToolSchemaContractError,
     canonical_input_schema,
@@ -15,7 +16,11 @@ from agent_connector_sdk.manifest.tool_schema import (
     schema_fingerprint,
 )
 
-__all__ = ["LiveToolContract", "validate_live_tool_contract"]
+__all__ = [
+    "LiveToolContract",
+    "validate_live_tool_contract",
+    "validate_preset_tool_contract",
+]
 
 
 @dataclass(frozen=True)
@@ -123,6 +128,24 @@ def _contract_digests(tool: Any, tool_name: str) -> tuple[str, str]:
     return exact, compatible
 
 
+def _preset_requirements(
+    tool_name: str, presets: Sequence[ToolPreset]
+) -> tuple[dict[str, str], dict[str, set[str]]]:
+    required: dict[str, str] = {}
+    enums: dict[str, set[str]] = {}
+    for preset in presets:
+        if preset.tool != tool_name:
+            raise ToolSchemaContractError(
+                f"preset {preset.name!r} names tool {preset.tool!r}, not {tool_name!r}"
+            )
+        if preset.action:
+            required[preset.action_param] = "string"
+            enums.setdefault(preset.action_param, set()).add(preset.action)
+        if preset.params_style == "json":
+            required[preset.params_arg] = "string"
+    return required, enums
+
+
 def validate_live_tool_contract(
     list_tools_result: Any,
     *,
@@ -147,17 +170,39 @@ def validate_live_tool_contract(
     tool = _single_tool(list_tools_result, tool_name)
     compatibility_schema = canonical_input_schema(tool, include_presentation=False)
     exact_digest, compatibility_digest = _contract_digests(tool, tool_name)
+    _check_argument_types(
+        compatibility_schema, tool_name, required_argument_types or {}
+    )
+    _check_argument_enums(compatibility_schema, tool_name, required_argument_enums)
     expected = expected_schema_sha256.strip().lower()
     if expected and compatibility_digest != expected:
         raise ToolSchemaContractError(
             f"live MCP tool schema fingerprint differs for {tool_name!r}"
         )
-    _check_argument_types(
-        compatibility_schema, tool_name, required_argument_types or {}
-    )
-    _check_argument_enums(compatibility_schema, tool_name, required_argument_enums)
     return LiveToolContract(
         name=tool_name,
         schema_sha256=exact_digest,
         compatibility_sha256=compatibility_digest,
+    )
+
+
+def validate_preset_tool_contract(
+    list_tools_result: Any,
+    *,
+    tool_name: str,
+    presets: Sequence[ToolPreset],
+    expected_schema_sha256: str = "",
+) -> LiveToolContract:
+    """Validate the full contract every ``presets`` consumer requires.
+
+    Certification and runtime extraction both use this entry point so action,
+    JSON-encoded parameter and pin requirements cannot drift between them.
+    """
+    required_types, required_enums = _preset_requirements(tool_name, presets)
+    return validate_live_tool_contract(
+        list_tools_result,
+        tool_name=tool_name,
+        expected_schema_sha256=expected_schema_sha256,
+        required_argument_types=required_types,
+        required_argument_enums=required_enums,
     )

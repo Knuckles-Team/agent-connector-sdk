@@ -5,11 +5,16 @@ from __future__ import annotations
 import json
 import shutil
 from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
+from unittest.mock import AsyncMock
 
 import pytest
 from certify_support import DRIFTED, EMPTY, LIVE, checkout_copy, live_tools
 from fixture_server import PACKAGE_ROOT, build_reader_server
 
+import agent_connector_sdk.certify.transaction as pin_transaction
+from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from agent_connector_sdk.certify.checkout import (
     ConnectorCheckout,
     find_connectors_dir,
@@ -43,6 +48,7 @@ from agent_connector_sdk.manifest.tool_schema import (
     compatibility_fingerprint,
     legacy_empty_schema_fingerprint,
 )
+from agent_connector_sdk.ports.errors import SourceContractError
 
 COMPACT = (
     '{"name":"t","inputSchema":{"type":"object","properties":{"b":{"type":"string"},'
@@ -145,6 +151,28 @@ def test_load_checkout_rejects_bad_checkouts(tmp_path: Path) -> None:
         load_checkout(root)
 
 
+@pytest.mark.parametrize("mismatch", ["connector", "tool", "preset"])
+def test_load_checkout_rejects_package_identity_mismatches(
+    tmp_path: Path, mismatch: str
+) -> None:
+    root = checkout_copy(tmp_path / mismatch)
+    fingerprints = root / "connectors" / "tool_schema_fingerprints.json"
+    presets = root / "connectors" / "mcp_source_presets.json"
+    if mismatch == "connector":
+        document = json.loads(fingerprints.read_text(encoding="utf-8"))
+        document["connector"] = "another-agent"
+        fingerprints.write_text(json.dumps(document), encoding="utf-8")
+    else:
+        document = json.loads(presets.read_text(encoding="utf-8"))
+        if mismatch == "tool":
+            document["demo"]["tool"] = "another_reader"
+        else:
+            document["renamed"] = document.pop("demo")
+        presets.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(ManifestError):
+        load_checkout(root)
+
+
 @pytest.mark.parametrize(
     ("pin", "status"),
     [
@@ -180,6 +208,29 @@ async def test_unavailable_tools_have_defects() -> None:
     (verdict,) = tool_verdicts(checkout, [unconstrained])
     assert verdict.status is PinStatus.TOOL_UNAVAILABLE
     assert "does not enumerate actions" in verdict.defect
+
+
+@pytest.mark.parametrize("defect", ["free-action", "missing-params-json"])
+async def test_certifier_and_runner_reject_the_same_contract_defect(
+    defect: str,
+) -> None:
+    checkout = load_checkout(PACKAGE_ROOT)
+    (listed,) = await live_tools()
+    wire = listed.model_dump(by_alias=True, exclude_none=True)
+    properties = wire["inputSchema"]["properties"]
+    if defect == "free-action":
+        properties["action"] = {"type": "string"}
+    else:
+        properties.pop("params_json")
+    (verdict,) = tool_verdicts(checkout, [wire])
+    assert verdict.status is PinStatus.TOOL_UNAVAILABLE
+    adapter = McpToolSourceAdapter(
+        checkout.presets["demo"], connector=checkout.connector, tool_schema_sha256=LIVE
+    )
+    session: Any = SimpleNamespace(list_tools=AsyncMock(return_value=[wire]))
+    with pytest.raises(SourceContractError) as caught:
+        await adapter.discover(session)
+    assert str(caught.value) == verdict.defect
 
 
 def test_render_and_rewrite_pins() -> None:
@@ -235,3 +286,56 @@ async def test_write_refuses_uncertifiable_pins(tmp_path: Path) -> None:
         with pytest.raises(PinWriteError, match="refusing"):
             write_certified_pins(checkout, verdicts)
     assert [path.read_bytes() for path in files] == snapshot
+
+
+async def test_pin_pair_rolls_back_when_the_second_replace_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    checkout = load_checkout(checkout_copy(tmp_path, EMPTY))
+    files = (checkout.manifest_path, checkout.fingerprints_path)
+    snapshot = [path.read_bytes() for path in files]
+    real_replace = pin_transaction.os.replace
+    calls = 0
+
+    def fail_second(source: object, target: object) -> None:
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise OSError("injected second replace failure")
+        real_replace(source, target)
+
+    monkeypatch.setattr(pin_transaction.os, "replace", fail_second)
+    with pytest.raises(PinWriteError, match="rolled back"):
+        write_certified_pins(checkout, tool_verdicts(checkout, await live_tools()))
+    assert [path.read_bytes() for path in files] == snapshot
+    assert not (checkout.root / ".connector-certify-transaction.json").exists()
+
+
+async def test_load_checkout_recovers_an_interrupted_second_replace(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class SimulatedCrash(BaseException):
+        pass
+
+    checkout = load_checkout(checkout_copy(tmp_path, EMPTY))
+    files = (checkout.manifest_path, checkout.fingerprints_path)
+    snapshot = [path.read_bytes() for path in files]
+    real_replace = pin_transaction.os.replace
+    calls = 0
+
+    def crash_second(source: object, target: object) -> None:
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise SimulatedCrash
+        real_replace(source, target)
+
+    monkeypatch.setattr(pin_transaction.os, "replace", crash_second)
+    with pytest.raises(SimulatedCrash):
+        write_certified_pins(checkout, tool_verdicts(checkout, await live_tools()))
+    assert (checkout.root / ".connector-certify-transaction.json").exists()
+    monkeypatch.setattr(pin_transaction.os, "replace", real_replace)
+    recovered = load_checkout(checkout.root)
+    assert [path.read_bytes() for path in files] == snapshot
+    assert recovered.tool_pins == checkout.tool_pins
+    assert not (checkout.root / ".connector-certify-transaction.json").exists()

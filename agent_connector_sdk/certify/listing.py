@@ -44,12 +44,10 @@ async def list_server_tools(
 
     Raises:
         ToolListingError: the server did not start, answer or list its tools in
-            time; the message names the failure class and cause.
+            time. Its public message never includes the underlying exception.
     """
     try:
         with anyio.fail_after(timeout_seconds):
             return await _listing(transport, endpoint)
     except Exception as exc:
-        raise ToolListingError(
-            f"the connector server did not list its tools ({type(exc).__name__}: {exc})"
-        ) from exc
+        raise ToolListingError("the connector server did not list its tools") from exc

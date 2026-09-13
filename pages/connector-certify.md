@@ -30,7 +30,8 @@ removed. Output-schema changes therefore invalidate the same pin that
 An empty input schema is refused. If a preset selects an action, the tool's
 action property must constrain that value with JSON Schema `enum`, or with
 `const` for a single action. Action names in prose do not certify a callable
-contract.
+contract. A preset with `params_style: json` also requires its configured
+`params_arg` property as a string.
 
 ## Run it
 
@@ -77,4 +78,6 @@ digest, and any defect. It does not include endpoint URLs or credentials.
 `--write` replaces `connectors/tool_schema_fingerprints.json` and only the
 `tool_schema_sha256` lines of `connector_manifest.yml`. It writes nothing unless
 every preset tool has one live, non-empty, action-valid contract and verifies
-the reparsed manifest before replacing either file.
+the reparsed manifest before replacing either file. A durable transaction
+journal restores the previous consistent pair if either replacement fails or a
+later certification starts after an interrupted write.

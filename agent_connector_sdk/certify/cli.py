@@ -27,21 +27,15 @@ from pathlib import Path
 
 import anyio
 
-from agent_connector_sdk.auth.client_credentials import ClientCredentialsAuth
-from agent_connector_sdk.auth.oidc import (
-    ClientCredentialsConfig,
-    client_credentials_auth,
-)
-from agent_connector_sdk.auth.tokens import TokenRequestError
 from agent_connector_sdk.certify.certification import (
     CertificationReport,
     certify_connector,
 )
 from agent_connector_sdk.certify.checkout import ConnectorCheckout, load_checkout
+from agent_connector_sdk.certify.options import _oidc_auth, _positive_timeout
 from agent_connector_sdk.certify.pins import PinWriteError, write_certified_pins
 from agent_connector_sdk.credentials.references import SecretReferenceError
 from agent_connector_sdk.credentials.resolution import resolve_secret_reference
-from agent_connector_sdk.credentials.resolver import CredentialUnavailableError
 from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.transports.mcp import McpTransport
 
@@ -57,7 +51,6 @@ __all__ = [
 PLACEHOLDER_VALUE = "connector-certify-placeholder"
 
 _logger = logging.getLogger(__name__)
-_STARTUP_ERRORS = (ValueError, CredentialUnavailableError, TokenRequestError)
 
 
 def _add_oidc_arguments(parser: argparse.ArgumentParser) -> None:
@@ -90,7 +83,9 @@ def build_parser() -> argparse.ArgumentParser:
     _add_oidc_arguments(parser)
     parser.add_argument("--env", action="append", default=[], metavar="NAME=REFERENCE")
     parser.add_argument("--placeholder", action="append", default=[], metavar="NAME")
-    parser.add_argument("--timeout", type=float, default=60.0, help="seconds")
+    parser.add_argument(
+        "--timeout", type=_positive_timeout, default=60.0, help="seconds"
+    )
     parser.add_argument("--report", type=Path, help="write the JSON report here")
     parser.epilog = "Everything after -- is the stdio server command and its arguments."
     return parser
@@ -103,28 +98,6 @@ def parse_arguments(argv: Sequence[str]) -> argparse.Namespace:
     args = build_parser().parse_args(items[:split])
     args.command = items[split + 1 :]
     return args
-
-
-def _oidc_auth(args: argparse.Namespace) -> ClientCredentialsAuth | None:
-    values = (
-        args.oidc_issuer,
-        args.oidc_token_url,
-        args.oidc_client_id,
-        args.oidc_client_secret_ref,
-        args.oidc_audience,
-        args.oidc_scope,
-    )
-    if not any(values):
-        return None
-    config = ClientCredentialsConfig(
-        issuer=args.oidc_issuer,
-        token_url=args.oidc_token_url,
-        client_id=args.oidc_client_id,
-        client_secret_ref=args.oidc_client_secret_ref,
-        audience=args.oidc_audience,
-        scope=args.oidc_scope,
-    )
-    return client_credentials_auth(config)
 
 
 def build_endpoint(args: argparse.Namespace) -> TransportEndpoint:
@@ -193,24 +166,43 @@ def _outcome(
     return 0
 
 
+async def _run_certification(
+    checkout: ConnectorCheckout, args: argparse.Namespace
+) -> CertificationReport:
+    endpoint_factory = partial(build_endpoint, args)
+    try:
+        with anyio.fail_after(args.timeout):
+            endpoint = await anyio.to_thread.run_sync(
+                endpoint_factory, abandon_on_cancel=True
+            )
+            return await certify_connector(
+                checkout,
+                McpTransport(),
+                endpoint,
+                timeout_seconds=args.timeout,
+            )
+    except TimeoutError:
+        return CertificationReport(
+            connector=checkout.connector,
+            server=checkout.server,
+            listed=False,
+            reason="connector certification timed out before tools/list completed",
+        )
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Run ``connector-certify``; returns the process exit code."""
     args = parse_arguments(sys.argv[1:] if argv is None else argv)
     _configure_logging()
     try:
         checkout = load_checkout(args.package)
-        endpoint = build_endpoint(args)
-    except _STARTUP_ERRORS as exc:
-        _logger.error("connector-certify cannot start: %s", exc)
+        run = partial(_run_certification, checkout, args)
+        report = anyio.run(run)
+    except Exception:
+        _logger.error(
+            "connector-certify cannot start: invalid checkout, endpoint or credentials"
+        )
         return 2
-    certify = partial(
-        certify_connector,
-        checkout,
-        McpTransport(),
-        endpoint,
-        timeout_seconds=args.timeout,
-    )
-    report = anyio.run(certify)
     _log_report(report)
     if args.report is not None:
         document = json.dumps(report.document(), indent=2, sort_keys=True)

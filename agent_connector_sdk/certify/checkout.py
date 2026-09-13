@@ -6,15 +6,22 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
+from agent_connector_sdk.certify.transaction import (
+    _PinTransactionError,
+    _recover_pin_transaction,
+)
 from agent_connector_sdk.manifest.loader import (
     FINGERPRINTS_FILE_NAME,
     MANIFEST_FILE_NAME,
     PRESETS_FILE_NAME,
     ManifestError,
+    ToolSchemaFingerprints,
     load_manifest,
     load_tool_presets,
     load_tool_schema_fingerprints,
+    validate_connector_package,
 )
+from agent_connector_sdk.manifest.model import ConnectorManifest
 from agent_connector_sdk.manifest.presets import ToolPreset
 
 __all__ = ["ConnectorCheckout", "find_connectors_dir", "load_checkout"]
@@ -77,6 +84,36 @@ def find_connectors_dir(root: Path) -> Path:
     return found[0].parent
 
 
+def _recover_pin_files(root: Path, directory: Path) -> None:
+    try:
+        _recover_pin_transaction(
+            root / MANIFEST_FILE_NAME, directory / FINGERPRINTS_FILE_NAME
+        )
+    except _PinTransactionError as exc:
+        raise ManifestError("an interrupted pin update could not be recovered") from exc
+
+
+def _load_fingerprints(
+    manifest_connector: str, directory: Path
+) -> ToolSchemaFingerprints:
+    path = directory / FINGERPRINTS_FILE_NAME
+    if path.is_file():
+        return load_tool_schema_fingerprints(path)
+    return ToolSchemaFingerprints(connector=manifest_connector, algorithm="", tools={})
+
+
+def _validate_identity(
+    manifest: ConnectorManifest,
+    presets: dict[str, ToolPreset],
+    fingerprints: ToolSchemaFingerprints,
+) -> None:
+    violations = validate_connector_package(
+        manifest, presets, fingerprints, allow_pin_migration=True
+    )
+    if violations:
+        raise ManifestError("; ".join(violations))
+
+
 def load_checkout(root: Path) -> ConnectorCheckout:
     """Load a connector checkout for certification.
 
@@ -84,27 +121,24 @@ def load_checkout(root: Path) -> ConnectorCheckout:
         ManifestError: a package file is missing or malformed, or the presets do
             not name exactly one MCP server.
     """
-    manifest = load_manifest(root / MANIFEST_FILE_NAME)
     directory = find_connectors_dir(root)
+    _recover_pin_files(root, directory)
+    manifest = load_manifest(root / MANIFEST_FILE_NAME)
     presets = load_tool_presets(directory / PRESETS_FILE_NAME)
     servers = {preset.server for preset in presets.values()}
     if len(servers) != 1:
         raise ManifestError(
             "the presets of one connector must name exactly one MCP server"
         )
-    fingerprints = directory / FINGERPRINTS_FILE_NAME
-    tool_pins = (
-        load_tool_schema_fingerprints(fingerprints).tools
-        if fingerprints.is_file()
-        else {}
-    )
+    fingerprints = _load_fingerprints(manifest.connector, directory)
+    _validate_identity(manifest, presets, fingerprints)
     return ConnectorCheckout(
         root=root,
         connectors_dir=directory,
         connector=manifest.connector,
         server=servers.pop(),
         presets=presets,
-        tool_pins=dict(tool_pins),
+        tool_pins=dict(fingerprints.tools),
         manifest_pins={
             entry.preset: entry.tool_schema_sha256 or "" for entry in manifest.sync
         },

@@ -15,7 +15,7 @@ from fleet_fixtures import (
     ARCHIVEBOX_ROOT,
     FakeArchiveBox,
     archivebox_snapshots,
-    build_archivebox_server,
+    build_enumerated_archivebox_server,
     build_table_server,
 )
 from pydantic import ValidationError
@@ -189,9 +189,15 @@ async def test_page_mode_adapter_passes_the_conformance_kit() -> None:
     results = await run_source_adapter_suite(
         adapter,
         _sessions(
-            lambda: build_archivebox_server(FakeArchiveBox(archivebox_snapshots(5)))
+            lambda: build_enumerated_archivebox_server(
+                FakeArchiveBox(archivebox_snapshots(5))
+            )
         ),
-        _sessions(lambda: build_archivebox_server(FakeArchiveBox([]), malformed=True)),
+        _sessions(
+            lambda: build_enumerated_archivebox_server(
+                FakeArchiveBox([]), malformed=True
+            )
+        ),
     )
     assert_conformant(results)
 

@@ -11,7 +11,6 @@ back to exactly those pins.
 from __future__ import annotations
 
 import json
-import os
 import re
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -20,6 +19,10 @@ import yaml
 
 from agent_connector_sdk.certify.checkout import ConnectorCheckout
 from agent_connector_sdk.certify.fingerprints import is_empty_schema_pin
+from agent_connector_sdk.certify.transaction import (
+    _PinTransactionError,
+    _replace_pin_pair,
+)
 from agent_connector_sdk.certify.verdicts import ToolVerdict
 from agent_connector_sdk.manifest.model import ConnectorManifest
 from agent_connector_sdk.manifest.tool_schema import (
@@ -93,10 +96,18 @@ def _certified(verdicts: Sequence[ToolVerdict]) -> dict[str, str]:
     return {verdict.tool: verdict.live for verdict in verdicts}
 
 
-def _replace(path: Path, text: str) -> None:
-    staging = path.with_name(f".{path.name}.certify")
-    staging.write_text(text, encoding="utf-8")
-    os.replace(staging, path)
+def _commit_pair(
+    checkout: ConnectorCheckout, *, manifest_text: str, fingerprints_text: str
+) -> None:
+    try:
+        _replace_pin_pair(
+            checkout.manifest_path,
+            checkout.fingerprints_path,
+            manifest_text=manifest_text,
+            fingerprints_text=fingerprints_text,
+        )
+    except _PinTransactionError as exc:
+        raise PinWriteError(str(exc)) from exc
 
 
 def write_certified_pins(
@@ -119,6 +130,9 @@ def write_certified_pins(
     written = {entry.preset: entry.tool_schema_sha256 for entry in reparsed.sync}
     if any(written.get(preset) != pin for preset, pin in wanted.items()):
         raise PinWriteError("rewritten manifest does not carry the certified pins")
-    _replace(checkout.fingerprints_path, render_fingerprints(checkout.connector, live))
-    _replace(checkout.manifest_path, manifest_text)
+    _commit_pair(
+        checkout,
+        manifest_text=manifest_text,
+        fingerprints_text=render_fingerprints(checkout.connector, live),
+    )
     return checkout.fingerprints_path, checkout.manifest_path
