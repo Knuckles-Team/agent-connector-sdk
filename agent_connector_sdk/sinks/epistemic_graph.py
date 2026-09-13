@@ -4,7 +4,7 @@ epistemic-graph does not yet publish the pack-import or record-ingestion wire
 methods (RF-ADR-009 wave W1). Rather than invent them, both operations raise
 :class:`NotImplementedError` with a message naming the wave that delivers them.
 This module is the only place in the SDK allowed to do so, and the stub gate
-(``scripts/check_no_stub.py``) accepts exactly these two messages here.
+(the shared ``no-stub`` and ``stubs`` hooks) accepts exactly these two messages here.
 Nothing that calls this sink counts as done until W1 lands.
 """
 

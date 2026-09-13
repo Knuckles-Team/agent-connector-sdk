@@ -178,13 +178,14 @@ def dispatch(
     result_coercer: Callable[[Any], Any] | None = None,
 ) -> Any:
     """Resolve and synchronously execute ``action`` on a getattr-dynamic client."""
-    actions = public_actions(client)
-    target = service or type(client).__name__
-    if action in DISCOVERY_ACTIONS:
-        return {"service": target, "actions": actions}
-    canonical = canonicalize(action, actions, aliases=aliases)
-    if canonical is None:
-        raise unknown_action_error(action, actions, target=target)
+    canonical = resolve_action(
+        action,
+        public_actions(client),
+        aliases=aliases,
+        service=service or type(client).__name__,
+    )
+    if isinstance(canonical, dict):
+        return canonical
     method = getattr(client, canonical)
     result = method(**fold_body_arguments(method, (), dict(kwargs or {})))
     return result_coercer(result) if result_coercer is not None else result
@@ -195,24 +196,25 @@ async def dispatch_async(
     action: str,
     kwargs: Mapping[str, Any] | None = None,
     *,
+    ctx: Any = None,
+    operation: Mapping[str, Any] | None = None,
     aliases: Mapping[str, str] | None = None,
     service: str = "",
     result_coercer: Callable[[Any], Any] | None = None,
-    ctx: Any = None,
-    operation: Mapping[str, Any] | None = None,
 ) -> Any:
     """Resolve and execute ``action`` without blocking the MCP event loop.
 
     A destructive action requires an affirmative live-context elicitation; a
     missing context or failed elicitation returns a cancellation payload.
     """
-    actions = public_actions(client)
-    target = service or type(client).__name__
-    if action in DISCOVERY_ACTIONS:
-        return {"service": target, "actions": actions}
-    canonical = canonicalize(action, actions, aliases=aliases)
-    if canonical is None:
-        raise unknown_action_error(action, actions, target=target)
+    canonical = resolve_action(
+        action,
+        public_actions(client),
+        aliases=aliases,
+        service=service or type(client).__name__,
+    )
+    if isinstance(canonical, dict):
+        return canonical
     if is_destructive_action(
         canonical, operation
     ) and not await ctx_confirm_destructive(ctx, canonical):

@@ -32,7 +32,7 @@ phase-direction hook fails the push.
 | `agent_connector_sdk/adapters/`, `artifacts/`, `transports/`, `sinks/` | reference implementations registered as entry points |
 | `agent_connector_sdk/testing/` | the conformance kit |
 | `tests/` | the suite; `fixture_server.py` and `fixture_package/` are an in-process connector |
-| `scripts/` | gate scripts; copied ones name their source in the header |
+| `scripts/` | `check_wiring.py`, the SDK's own wiring gates (orphan modules, tested public API); every other gate is a shared hook |
 | `pages/` | hand-written Pages sources (`mkdocs.yml` sets `docs_dir: pages`) |
 
 `pyproject.toml` `[tool.agent_connector_sdk.wiring] public_modules` is the public
@@ -46,7 +46,8 @@ uv sync                                   # the project environment (Python 3.12
 uv run --frozen python -m pytest -q       # tests
 pre-commit run --all-files                # commit-stage suite
 pre-commit run --all-files --hook-stage pre-push   # push-stage suite
-python3 scripts/scanner_census.py         # absolute cccc and KISS census
+pre-commit run complexity-census --hook-stage manual --all-files   # absolute cccc census
+pre-commit run kiss-census --hook-stage manual --all-files         # absolute KISS census
 ```
 
 ## Rules
@@ -75,9 +76,29 @@ python3 scripts/scanner_census.py         # absolute cccc and KISS census
 
 ## Quality gates
 
-The suite adopts agent-utilities' hooks and epistemic-graph's scanner hooks. Tool
-versions match epistemic-graph's `scripts/scanner_contract.py`: cccc 1.6.0,
-kiss 0.4.10, dupehound 0.1.2, jscpd 5.0.16.
+The suite adopts agent-utilities' tool hooks and consumes every repository-agnostic
+gate from the shared hook repository **Knuckles-Team/pipelines**
+(`.pre-commit-hooks.yaml`, pinned to a full commit SHA in `.pre-commit-config.yaml`):
+complexity (cccc) and KISS, staged and census; dupehound and jscpd; secret history,
+security sanitizer, tracked privacy, dependency audit and supply chain; root
+hygiene, gitignore convergence, sprawl, Mermaid and pre-commit patch safety;
+no-stub, stubs, swallowed errors, event-loop blocking, import cycles, env sprawl
+and stdout writes; and the CI gate replica. No gate script is copied into this
+repository and none is exempt from any gate. The scanner versions are pinned by
+the hook repository: cccc 1.6.0, kiss 0.4.10, dupehound 0.1.2, jscpd 5.0.16.
+
+Repository-specific inputs live in `pyproject.toml` `[tool.pipelines_hooks]`:
+`packages`, `env_sprawl.allow_files` (`config.py` is the only environment reader),
+`stdout_writes.served_paths` (the whole package is served MCP surface),
+`stubs.declared_seams` (the one declared stub above), and the `ci_replica` workflow
+registry. `.repo-layout.toml` declares every root entry, dot-files in `[dotfiles]`.
+CI runs the same pinned hooks with `pre-commit run <hook> --hook-stage manual`.
+
+Until a new pipelines revision is pushed, a machine resolves it only from a local
+clone: run pre-commit with `GIT_CONFIG_COUNT=1`,
+`GIT_CONFIG_KEY_0=url.<local pipelines checkout>.insteadOf` and
+`GIT_CONFIG_VALUE_0=https://github.com/Knuckles-Team/pipelines` in the environment
+(no git configuration is changed).
 
 Hooks from agent-utilities that were **not** adopted, and why:
 
@@ -88,7 +109,7 @@ Hooks from agent-utilities that were **not** adopted, and why:
 | check-release-catalogs, check-skill-name-collision, guardrail-kg-skill-coverage, guardrail-prebundled-skills, guardrail-prompt-schema | agent-utilities' connector catalog and bundled skills |
 | guardrail-genesis-manifest, guardrail-surface-parity, guardrail-openapi-coverage, guardrail-cpd-drift, guardrail-docs-contract, docs-consistency | agent-utilities' gateway, genesis and `/docs` contracts (this repository has no `/docs`) |
 | guardrail-epistemic-operations-protocol, guardrail-no-pyo3, guardrail-retrieval-quality, guardrail-eval-corpus, guardrail-reliability-corpus, guardrail-citation-lineage, guardrail-liveness, guardrail-prod-profile, guardrail-entrypoint-engine-authority, backend-interface-parity, backend-parity, constrained-parallelism | agent-utilities' engine, retrieval, evaluation and backend internals |
-| guardrail-version-consistency, check-wire-first | replaced by `check-bumpversion`, a version test, `check-orphan-modules` and `check-public-api-tested` (no baseline file) |
+| guardrail-version-consistency, check-wire-first | replaced by `check-bumpversion`, a version test, and `check-orphan-modules` / `check-public-api-tested` (`scripts/check_wiring.py`, no baseline file) |
 | guardrail-removed-symbol-consumers | compares against a published `main` and a fleet consumer index; adopt once the SDK has a release consumers import |
 | check-import-safety | its Windows shim cannot model third-party guarded imports without an exclusion list; the package targets POSIX |
 | check-http-transport-closure | agent-utilities' governed HTTP transport layer |

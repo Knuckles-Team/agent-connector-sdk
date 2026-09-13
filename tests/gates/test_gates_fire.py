@@ -1,27 +1,16 @@
-"""The repository's own gates fail on planted violations and pass once fixed."""
+"""The repository's own wiring gates fail on planted violations and pass once fixed.
+
+The shared hooks (complexity, KISS, clones, security, hygiene, code shape) are
+proven to fire by their own test suite in the pipelines hook repository.
+"""
 
 from __future__ import annotations
 
-import importlib.util
 import subprocess
 import sys
 from pathlib import Path
-from types import ModuleType
 
-SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
-
-
-def _script_module(name: str) -> ModuleType:
-    spec = importlib.util.spec_from_file_location(name, SCRIPTS / f"{name}.py")
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
-KISS_SCOPE = _script_module("kiss_diff_scope")
-attributable_violations = KISS_SCOPE.attributable_violations
-item_spans = KISS_SCOPE.item_spans
+WIRING = Path(__file__).resolve().parents[2] / "scripts" / "check_wiring.py"
 
 
 def _git(root: Path, *args: str) -> None:
@@ -37,9 +26,9 @@ def _repository(tmp_path: Path, files: dict[str, str]) -> Path:
     return tmp_path
 
 
-def _run(script: str, root: Path) -> subprocess.CompletedProcess[str]:
+def _run(check: str, root: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [sys.executable, str(SCRIPTS / script), "--root", str(root)],
+        [sys.executable, str(WIRING), check, "--root", str(root)],
         capture_output=True,
         text=True,
         check=False,
@@ -68,11 +57,11 @@ def test_orphan_module_gate_fires_on_a_planted_orphan(tmp_path: Path) -> None:
             "agent_connector_sdk/orphan.py": "UNUSED = 1\n",
         },
     )
-    planted = _run("check_orphan_modules.py", root)
+    planted = _run("orphans", root)
     assert planted.returncode == 1 and "agent_connector_sdk.orphan" in planted.stdout
     (root / "agent_connector_sdk/api.py").write_text("from . import helper, orphan\n")
     _git(root, "add", "--", "agent_connector_sdk/api.py")
-    assert _run("check_orphan_modules.py", root).returncode == 0
+    assert _run("orphans", root).returncode == 0
 
 
 def test_public_api_gate_fires_on_an_untested_name(tmp_path: Path) -> None:
@@ -84,7 +73,7 @@ def test_public_api_gate_fires_on_an_untested_name(tmp_path: Path) -> None:
             "tests/test_api.py": "from agent_connector_sdk.api import tested, untested\n\ndef test_it():\n    tested()\n",
         },
     )
-    planted = _run("check_public_api_tested.py", root)
+    planted = _run("public-api", root)
     assert (
         planted.returncode == 1 and "agent_connector_sdk.api:untested" in planted.stdout
     )
@@ -92,29 +81,4 @@ def test_public_api_gate_fires_on_an_untested_name(tmp_path: Path) -> None:
         "from agent_connector_sdk.api import tested, untested\n\ndef test_it():\n    tested()\n    untested()\n"
     )
     _git(root, "add", "--", "tests/test_api.py")
-    assert _run("check_public_api_tested.py", root).returncode == 0
-
-
-def test_kiss_diff_scope_attributes_only_changed_items() -> None:
-    head = "def untouched():\n    return 1\n\n\ndef changed():\n    return 1\n"
-    staged = "def untouched():\n    return 1\n\n\ndef changed():\n    return 2\n\n\ndef added():\n    return 3\n"
-    report = "\n".join(
-        [
-            "VIOLATION:returns_per_function:m.py:1:untouched: too many returns",
-            "VIOLATION:returns_per_function:m.py:5:changed: too many returns",
-            "VIOLATION:returns_per_function:m.py:9:added: too many returns",
-            "VIOLATION:functions_per_file:m.py:1:m.py: File has 3 functions",
-        ]
-    )
-    head_report = "VIOLATION:functions_per_file:m.py:1:m.py: File has 2 functions"
-    names = [
-        v["name"] for v in attributable_violations(staged, report, head, head_report)
-    ]
-    assert names == ["changed", "added", "m.py"]
-    assert [v["name"] for v in attributable_violations(staged, report, None, None)] == [
-        "untouched",
-        "changed",
-        "added",
-        "m.py",
-    ]
-    assert item_spans("not python (", "x") == []
+    assert _run("public-api", root).returncode == 0
