@@ -1,0 +1,51 @@
+# KISS thresholds for agent-connector-sdk (kiss 0.4.10).
+#
+# Source: agent-packages/agent-utilities/.kiss/kiss.toml, [python] section, whose
+# values were hand-set and measured over the fleet's Python code. They are copied
+# unchanged; none was derived from what this repository currently passes.
+# This file is NOT a baseline.
+#
+# Never run bare `kiss check`: without --config it writes a self-calibrating
+# .kissconfig. Always go through scripts/check_kiss_staged.sh (one path per
+# invocation; kiss 0.4.10 reports a false clean for a multi-path check).
+
+[global]
+min_similarity          = 0.9
+duplication_enabled     = true
+# Orphan modules are owned by scripts/check_orphan_modules.py, which follows the
+# import graph plus declared entry points; kiss does not see entry points.
+orphan_module_enabled   = false
+comment_removal_enabled = false
+docs_allowed            = ["./"]
+orphan_allowed          = []
+
+[python]
+max_indentation            = 4
+nested_function_depth      = 2
+return_values_per_function = 3
+decorators_per_function    = 5
+boolean_parameters         = 1
+statements_per_try_block   = 3
+returns_per_function       = 5
+positional_args            = 3
+statements_per_function    = 35
+local_variables            = 15
+calls_per_function         = 20
+methods_per_class          = 10
+imported_names_per_file    = 30
+statements_per_file        = 200
+lines_per_file             = 300
+functions_per_file         = 10
+interface_types_per_file   = 1
+# OFF, owned by another gate: cccc (scripts/check_complexity_staged.py) owns
+# branching; one metric, one tool.
+branches_per_function      = 999999
+# OFF: pydantic/FastMCP signatures are keyword-heavy by design (AU measurement).
+keyword_only_args          = 999999
+# OFF: one class per file is a layout rule, not a complexity rule (AU measurement).
+concrete_types_per_file    = 999999
+# OFF, owned by scripts/check_import_cycles.py at an absolute zero over the
+# eager import graph; kiss counts deferred and TYPE_CHECKING imports as edges.
+cycle_size                 = 999999
+dependency_depth           = 999999
+indirect_dependencies      = 999999

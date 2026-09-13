@@ -1,0 +1,169 @@
+name: Release
+
+# Release-critical jobs only: gates (tests, types, lint, wiring and hygiene gates,
+# secret history, dependency CVEs), scanner-quality (pinned cccc/KISS/dupehound/
+# jscpd), and a reproducible wheel build. publish-pypi runs only for a vX.Y.Z tag.
+# scripts/ci_gate_replica.py replays the executable jobs locally before a push.
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  gates:
+    name: gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.11.7'
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Secret-history scan
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE" 2>/dev/null; then
+            BASE="$(git rev-parse --verify HEAD~1 2>/dev/null || git rev-list --max-parents=0 HEAD)"
+          fi
+          python3 scripts/security/check_secret_history.py --base "$BASE"
+      - name: Dependency vulnerability audit (OSV)
+        run: python3 scripts/audit_dependencies.py uv.lock
+      - name: Sync the locked environment
+        run: uv sync --frozen
+      - name: Test suite
+        run: uv run --frozen python -m pytest -q
+      - name: Type check
+        run: uv run --frozen --with mypy==1.20.2 --with types-PyYAML==6.0.12.20260518 python -m mypy agent_connector_sdk
+      - name: Lint and format
+        run: |
+          uvx --from ruff==0.16.0 ruff check agent_connector_sdk tests
+          uvx --from ruff==0.16.0 ruff format --check agent_connector_sdk tests
+      - name: Wiring gates
+        run: |
+          python3 scripts/check_orphan_modules.py
+          python3 scripts/check_public_api_tested.py
+      - name: Stub, configuration and stdio gates
+        run: |
+          python3 scripts/check_no_stub.py
+          python3 scripts/check_stubs.py
+          python3 scripts/check_no_env_sprawl.py
+          python3 scripts/check_no_stdout_writes.py
+          python3 scripts/check_event_loop_blocking.py
+          python3 scripts/check_swallowed_errors.py
+          uv run --no-project --with networkx==3.6.1 python scripts/check_import_cycles.py
+      - name: Repository hygiene gates
+        run: |
+          python3 scripts/check_root_hygiene.py
+          python3 scripts/check_gitignore_convergence.py
+          python3 scripts/check_sprawl.py
+          python3 scripts/security_sanitizer.py
+          python3 scripts/check_fleet_supply_chain.py .
+
+  scanner-quality:
+    name: scanner-quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '20'
+      - uses: dtolnay/rust-toolchain@fa04a1451ff1842e2626ccb99004d0195b455a88 # master
+        with:
+          toolchain: stable
+      - name: Provision pinned scanner toolchain
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/scanners"
+          cargo install --locked --version 1.6.0 --root "$root/cccc" cccc-cli
+          cargo install --locked --version 0.4.10 --root "$root/kiss" kiss-ai
+          cargo install --locked --version 0.1.2 --root "$root/dupehound" dupehound
+          npm install --prefix "$root/npm" --no-package-lock --ignore-scripts --no-save --no-audit --no-fund "jscpd@5.0.16"
+          for bin in "$root/cccc/bin" "$root/kiss/bin" "$root/dupehound/bin" "$root/npm/node_modules/.bin"; do
+            echo "$bin" >> "$GITHUB_PATH"
+          done
+      - name: Verify scanner versions
+        run: python3 scripts/scanner_versions.py verify cccc kiss dupehound jscpd
+      - name: Complexity and KISS census (absolute)
+        run: python3 scripts/scanner_census.py
+      - name: jscpd differential gate and census
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE" 2>/dev/null; then
+            BASE="$(git rev-parse --verify HEAD~1 2>/dev/null || git rev-list --max-parents=0 HEAD)"
+          fi
+          python3 scripts/check_duplication.py enforce --base-ref "$BASE"
+          python3 scripts/check_duplication.py census
+
+  build:
+    name: build
+    needs: [gates, scanner-quality]
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_DATE_EPOCH: "0"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.11.7'
+      - name: Build the wheel twice
+        run: |
+          uv build --wheel --out-dir dist-primary
+          uv build --wheel --out-dir dist-reproduction
+      - name: Require byte-identical wheels
+        run: |
+          python3 -c "from hashlib import sha256; from pathlib import Path; a=sorted(Path('dist-primary').glob('*.whl')); b=sorted(Path('dist-reproduction').glob('*.whl')); assert len(a)==len(b)==1 and a[0].name==b[0].name; assert sha256(a[0].read_bytes()).digest()==sha256(b[0].read_bytes()).digest(), 'wheel is not reproducible'; print('reproducible', a[0].name)"
+          mkdir dist
+          cp dist-primary/*.whl dist/
+      - name: Upload the publish candidate
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: agent-connector-sdk-wheel
+          path: dist/*.whl
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-pypi:
+    name: publish-pypi
+    needs: [build]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: agent-connector-sdk-wheel
+          path: dist
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.11.7'
+      - name: Publish the validated wheel
+        run: uv publish --trusted-publishing always dist/*.whl

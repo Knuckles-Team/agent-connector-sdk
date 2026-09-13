@@ -1,0 +1,19 @@
+# Tracked root entries of agent-connector-sdk, read by scripts/check_root_hygiene.py.
+# An allowlist: a new root entry needs a reason here or it fails the gate.
+
+[dirs]
+agent_connector_sdk = "the importable SDK package"
+scripts = "gate scripts run by pre-commit and CI"
+tests = "the test suite, including the in-process fixture connector"
+pages = "hand-written GitHub Pages sources (RF-ADR-009 section 5: no /docs directory)"
+".github" = "GitHub Actions workflows (release and Pages)"
+".kiss" = "hand-set KISS thresholds (.kiss/kiss.toml), not a baseline"
+
+[files]
+"AGENTS.md" = "agent-facing repository guide"
+"CLAUDE.md" = "Claude Code instructions (imports AGENTS.md)"
+"LICENSE" = "license text"
+"README.md" = "project readme; carries the version marker bump2version updates"
+"mkdocs.yml" = "Pages site configuration (docs_dir: pages)"
+"pyproject.toml" = "package metadata, tool configuration, scanner pins, public module list"
+"uv.lock" = "uv lockfile"

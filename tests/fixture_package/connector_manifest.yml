@@ -1,0 +1,49 @@
+connector: demo-agent
+ontology_source: demo
+schema_version: '1'
+resources:
+- name: DemoItem
+  label: Demo Item
+  id_prefix: demoitem
+  relations: []
+actions:
+- id: read_demo
+  name: Read Demo Stream
+  description: Page through the demo stream.
+identity:
+  id_field:
+    demo_item: id
+  title_field:
+    demo_item: title
+  text_field:
+    demo_item: text
+  updated_field:
+    demo_item: published
+schema_mappings:
+  DemoItem:
+    ontology_class: Document
+    fields: {}
+sync:
+- preset: demo
+  server: demo-mcp
+  tool: demo_reader
+  action: stream_contents
+  records_path: items
+  id_field: id
+  title_field: title
+  text_field: text
+  updated_field: published
+  pagination: cursor
+  doc_type: demo_item
+  tool_schema_sha256: be1dfa77d47262bb54005d5f9096d12ef72df38bd6f2972d893ea41a05ce6e10
+  raw: {"action": "stream_contents", "cursor_param": "continuation", "cursor_path": "continuation", "doc_type": "demo_item", "id_field": "id", "pagination": "cursor", "params": {"count": 2}, "params_style": "json", "records_path": "items", "server": "demo-mcp", "text_field": "text", "title_field": "title", "tool": "demo_reader", "type_field": "kind", "updated_field": "published", "updated_since_param": "newer_than"}
+provenance:
+  generated_by: tests/fixture_package
+  source_artifacts:
+  - connectors/mcp_source_presets.json
+  - connectors/tool_schema_fingerprints.json
+  - ontology/demo.ttl
+  integrity:
+    algorithm: urdna2015-sha256
+    hash: '0000000000000000000000000000000000000000000000000000000000000000'
+    triple_count: 1

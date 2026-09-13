@@ -1,0 +1,21 @@
+{
+  "_comment": "Fixture preset for the demo-agent test connector.",
+  "demo": {
+    "server": "demo-mcp",
+    "tool": "demo_reader",
+    "action": "stream_contents",
+    "params_style": "json",
+    "params": {"count": 2},
+    "records_path": "items",
+    "id_field": "id",
+    "title_field": "title",
+    "text_field": "text",
+    "updated_field": "published",
+    "updated_since_param": "newer_than",
+    "pagination": "cursor",
+    "cursor_param": "continuation",
+    "cursor_path": "continuation",
+    "doc_type": "demo_item",
+    "type_field": "kind"
+  }
+}

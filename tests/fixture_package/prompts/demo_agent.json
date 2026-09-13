@@ -1,0 +1,10 @@
+{
+  "task": "demo-agent",
+  "type": "prompt",
+  "description": "Operates the demo stream.",
+  "instructions": {
+    "core_directive": "You operate the demo stream. Page through it with continuation tokens."
+  },
+  "schema_version": "1.0",
+  "source": "demo-agent"
+}

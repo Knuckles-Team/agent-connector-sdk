@@ -1,0 +1,4 @@
+@prefix demo: <https://example.invalid/ontology/demo#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+demo:DemoItem a owl:Class .

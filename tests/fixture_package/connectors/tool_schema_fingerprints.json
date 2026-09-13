@@ -1,0 +1,8 @@
+{
+  "algorithm": "agent-utilities:mcp-tool-schema-compat:v1",
+  "connector": "demo-agent",
+  "schema_version": "1",
+  "tools": {
+    "demo_reader": "be1dfa77d47262bb54005d5f9096d12ef72df38bd6f2972d893ea41a05ce6e10"
+  }
+}
