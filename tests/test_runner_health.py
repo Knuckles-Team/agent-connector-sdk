@@ -8,11 +8,13 @@ import urllib.error
 import urllib.request
 from collections.abc import Awaitable, Callable
 from pathlib import Path
+from typing import NoReturn
 
 import anyio
 import pytest
 from runner_support import ListRegistry, freshrss_descriptor, services
 
+from agent_connector_sdk.auth.oidc import ClientCredentialsConfig
 from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
 from agent_connector_sdk.ports.sink import Sink, SinkReadiness
 from agent_connector_sdk.runner.checkpoints import JsonFileCheckpointStore
@@ -99,8 +101,15 @@ class _HangingSink:
         raise NotImplementedError
 
     async def readiness(self) -> SinkReadiness:
+        return await self._never_ready()
+
+    async def _never_ready(self) -> NoReturn:
+        # The gate is never set, so this coroutine never resumes in a passing
+        # run; if it ever does, that is a real bug (the timeout stopped
+        # bounding the wait), so it fails loudly rather than falling through
+        # to a dead `return` a coverage tool would otherwise have to ignore.
         await self._gate.wait()
-        return SinkReadiness(ready=True)  # pragma: no cover - gate is never set
+        raise AssertionError("hanging sink resumed")
 
 
 class _NeverConnects:
@@ -374,6 +383,41 @@ async def test_resolve_endpoint_records_failure_without_the_secret(
     detail = (await health.readiness()).body["connectors"]["freshrss-agent"]
     assert detail["credentials_ok"] is False
     assert "CONNECTOR_SYNC_TEST_TOKEN" not in detail["credential_error"]
+
+
+async def test_resolve_endpoint_reports_an_unresolvable_oidc_client_secret(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Same choke point (resolve_endpoint -> CredentialEndpoints.__call__) as
+    # the bearer_token case above -- there is one endpoint/credential
+    # resolution path, so a connector configured for OIDC client-credentials
+    # instead of a static bearer token is proven by the same wrapper. A
+    # token_url (rather than an issuer) skips OIDC discovery entirely, so
+    # this never makes a network call: it fails resolving client_secret_ref,
+    # before any token request would be attempted.
+    monkeypatch.delenv("CONNECTOR_SYNC_TEST_OIDC_SECRET", raising=False)
+    endpoint_spec = EndpointSpec(
+        url="https://freshrss.example.invalid/mcp",
+        client_credentials=ClientCredentialsConfig(
+            token_url="https://oidc.example.invalid/token",
+            client_id="connector-sync",
+            client_secret_ref="env://CONNECTOR_SYNC_TEST_OIDC_SECRET",
+        ),
+    )
+    health = _health()
+    built = services(
+        InMemorySink(),
+        JsonFileCheckpointStore(tmp_path),
+        CredentialEndpoints(EnvironmentCredentialResolver()),
+        transport=McpTransport(),
+        health=health,
+    )
+    with pytest.raises(CredentialResolutionError):
+        await resolve_endpoint(built, freshrss_descriptor(endpoint=endpoint_spec))
+    detail = (await health.readiness()).body["connectors"]["freshrss-agent"]
+    assert detail["credentials_ok"] is False
+    assert "freshrss-agent" in detail["credential_error"]
+    assert "CONNECTOR_SYNC_TEST_OIDC_SECRET" not in detail["credential_error"]
 
 
 # ── The HTTP listener ────────────────────────────────────────────────────
