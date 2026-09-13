@@ -6,6 +6,8 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
+import httpx2
+
 from agent_connector_sdk.contracts import ServerIdentity
 
 __all__ = ["McpSession", "TransportEndpoint"]
@@ -48,7 +50,10 @@ class TransportEndpoint:
     ``in_process`` (a server object in this process) must be set. ``env`` for a
     stdio child and ``bearer_token`` for a URL carry already-resolved values:
     references are resolved at the composition root before an endpoint is
-    built, and neither value appears in the endpoint's ``repr``.
+    built, and neither value appears in the endpoint's ``repr``. ``auth``
+    authenticates a URL endpoint per request instead of a static bearer token,
+    for example :func:`agent_connector_sdk.auth.oidc.client_credentials_auth`
+    (FastMCP's HTTP transport takes ``httpx2`` auth).
     """
 
     url: str = ""
@@ -58,6 +63,7 @@ class TransportEndpoint:
     in_process: object | None = None
     timeout_seconds: float = 60.0
     bearer_token: str = field(default="", repr=False)
+    auth: httpx2.Auth | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         problems = _endpoint_problems(self)
@@ -79,4 +85,12 @@ def _endpoint_problems(endpoint: TransportEndpoint) -> list[str]:
             "bearer_token applies only to a url endpoint",
         ),
     )
-    return [message for failed, message in checks if failed]
+    return [message for failed, message in checks if failed] + _auth_problems(endpoint)
+
+
+def _auth_problems(endpoint: TransportEndpoint) -> list[str]:
+    if endpoint.auth is None:
+        return []
+    if not endpoint.url:
+        return ["auth applies only to a url endpoint"]
+    return ["set at most one of bearer_token and auth"] if endpoint.bearer_token else []

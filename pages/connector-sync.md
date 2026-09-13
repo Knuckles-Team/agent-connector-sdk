@@ -67,6 +67,7 @@ connectors:
 |---|---|
 | `endpoint.url` or `endpoint.command` + `args` | streamable HTTP or stdio |
 | `endpoint.bearer_token`, `endpoint.env` | credential references only (`env://`, `openbao://`); a literal value is rejected |
+| `endpoint.client_credentials` | instead of `bearer_token`: `issuer` or `token_url`, `client_id`, `client_secret_ref`, `audience`, `scope`; the token is cached per connector, refreshed before expiry and re-minted once on a 401 (see [HTTP clients](http-clients.md#mcp-endpoints)) |
 | `presets` | presets to run; empty means every `sync` preset of the manifest |
 | `provision` | whether the content pack is provisioned |
 | `data_resources` | resource URI to the presets synced when it is updated |
