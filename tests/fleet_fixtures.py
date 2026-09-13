@@ -22,7 +22,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from fastmcp import FastMCP
 
@@ -35,10 +35,10 @@ ARCHIVEBOX_ROOT = FLEET_PACKAGES / "archivebox-api"
 FRESHRSS_CONNECTORS = FRESHRSS_ROOT / "freshrss_agent" / "connectors"
 ARCHIVEBOX_CONNECTORS = ARCHIVEBOX_ROOT / "archivebox_api" / "connectors"
 FRESHRSS_WIRE_SHA256 = (
-    "77979de11db9df14f10b6c76249162c8b43569503e54cc732ca6e50bcddd74b6"
+    "7e18bf9ed1c48cadece180e17777cc68da409d0e86cb79fbebcf69172794d3b4"
 )
 ARCHIVEBOX_WIRE_SHA256 = (
-    "1f2a33c31bd6b000bbb4954863f4d41e0710faf38c5a040c6415837e9ce3f21f"
+    "f86ef345d867f55d1a343f684357291f80a1071bccdef5bde8ff859fea3dcc8d"
 )
 FRESHRSS_READING_LIST = "data://freshrss-agent/reading-list"
 
@@ -126,7 +126,9 @@ def build_freshrss_server(
     mcp: FastMCP[Any] = FastMCP("FreshRSS MCP", version="2.1.0")
 
     @mcp.tool()
-    async def freshrss_reader(action: str, params_json: str = "{}") -> dict[str, Any]:
+    async def freshrss_reader(
+        action: Literal["stream_contents"], params_json: str = "{}"
+    ) -> dict[str, Any]:
         """Read FreshRSS streams via the Google Reader API."""
         if action != "stream_contents":
             raise ValueError("unknown action")
@@ -145,7 +147,9 @@ def build_archivebox_server(
     mcp: FastMCP[Any] = FastMCP("ArchiveBox MCP", version="1.0.0")
 
     @mcp.tool()
-    async def archivebox_core(action: str, params_json: str = "{}") -> dict[str, Any]:
+    async def archivebox_core(
+        action: Literal["get_snapshots"], params_json: str = "{}"
+    ) -> dict[str, Any]:
         """Manage archivebox core operations."""
         if action != "get_snapshots":
             raise ValueError("unknown action")
@@ -164,7 +168,9 @@ def build_table_server(
     mcp: FastMCP[Any] = FastMCP("Table MCP", version="1.0.0")
 
     @mcp.tool()
-    async def table_records(action: str, params_json: str = "{}") -> dict[str, Any]:
+    async def table_records(
+        action: Literal["list"], params_json: str = "{}"
+    ) -> dict[str, Any]:
         """List table records by ``sysparm_offset`` and ``sysparm_limit``."""
         params = json.loads(params_json)
         offset, limit = int(params["sysparm_offset"]), int(params["sysparm_limit"])

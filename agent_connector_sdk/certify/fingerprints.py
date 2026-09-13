@@ -10,13 +10,13 @@ canonical schema outright.
 
 The pin is the SDK's compatibility fingerprint
 (:data:`~agent_connector_sdk.manifest.tool_schema.COMPATIBILITY_FINGERPRINT_ALGORITHM`)
-of the tool name and canonical input schema: object keys sorted, the
+of the tool name and canonical input and output schemas: object keys sorted, the
 presentation keys ``title``, ``description``, ``examples`` and ``$comment`` and
 the runtime key ``default`` removed, string lists such as ``required`` and
 ``enum`` sorted, serialized compactly. The extraction adapter verifies pins with
-the same function, so a certified pin is exactly what a sync run checks. The
-output schema is outside that algorithm; :func:`output_schema_digest` reports it
-separately.
+the same function, so a certified pin is exactly what a sync run checks.
+The separate :func:`output_schema_digest` field makes output drift easy to audit
+in a report without replacing the combined contract pin.
 """
 
 from __future__ import annotations
@@ -28,7 +28,9 @@ from typing import Any
 from agent_connector_sdk.manifest.tool_schema import (
     ToolSchemaContractError,
     canonical_input_schema,
+    canonical_output_schema,
     compatibility_fingerprint,
+    legacy_empty_schema_fingerprint,
     read_field,
 )
 
@@ -52,7 +54,10 @@ def tool_name(tool: Any) -> str:
 
 def is_empty_schema_pin(tool: str, pin: str) -> bool:
     """Whether ``pin`` is the fingerprint of an empty input schema for ``tool``."""
-    return pin.strip().lower() == compatibility_fingerprint(tool, {})
+    return pin.strip().lower() in {
+        compatibility_fingerprint(tool, {}),
+        legacy_empty_schema_fingerprint(tool),
+    }
 
 
 def tool_fingerprint(tool: Any) -> str:
@@ -73,19 +78,14 @@ def tool_fingerprint(tool: Any) -> str:
             f"MCP tool {name!r} has an empty input schema; certify the definition "
             "a client receives from tools/list"
         )
-    return compatibility_fingerprint(name, schema)
+    output = canonical_output_schema(tool, include_presentation=False)
+    return compatibility_fingerprint(name, schema, output)
 
 
 def output_schema_digest(tool: Any) -> str:
     """SHA-256 of the canonical output schema, or ``""`` when none is served."""
-    raw = read_field(
-        tool,
-        "outputSchema",
-        "output_schema",
-        attr_names=("output_schema", "outputSchema"),
-    )
-    if raw is None:
+    canonical = canonical_output_schema(tool, include_presentation=False)
+    if canonical is None:
         return ""
-    canonical = canonical_input_schema({"inputSchema": raw}, include_presentation=False)
     payload = json.dumps(canonical, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()

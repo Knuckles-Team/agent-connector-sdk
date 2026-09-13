@@ -35,9 +35,12 @@ A `page_kind` that does not apply to the mode is rejected. A preset with an
 empty `id_field` is rejected: a sweep without record identity, such as a SQL
 table sweep, belongs to a data-platform source adapter (RF-ADR-009 section 2.3).
 
-The package validator also rejects a `tool_schema_sha256` equal to the
-fingerprint of an empty input schema. Such a pin verifies nothing and matches no
-live server; re-certify it from the server's `tools/list`.
+The package validator rejects an old input-only algorithm and a
+`tool_schema_sha256` equal to either generation's fingerprint of an empty input
+schema. The current pin binds both input and output schemas. An action selected
+by a preset must appear in the action argument's JSON Schema `enum` (or its
+single-value `const` form). Re-certify from the server's `tools/list` with
+[`connector-certify`](connector-certify.md).
 
 ## Sink
 

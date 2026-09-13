@@ -45,6 +45,7 @@ from agent_connector_sdk.manifest.tool_schema import (
     COMPATIBILITY_FINGERPRINT_ALGORITHM,
     ToolSchemaContractError,
     canonical_input_schema,
+    canonical_output_schema,
     compatibility_fingerprint,
     read_field,
     schema_fingerprint,
@@ -54,7 +55,7 @@ SCHEMA = {
     "type": "object",
     "description": "presentation only",
     "properties": {
-        "action": {"type": "string", "default": "x"},
+        "action": {"type": "string", "default": "x", "enum": ["read", "list"]},
         "params_json": {"anyOf": [{"type": "string"}, {"type": "null"}]},
     },
     "required": ["params_json", "action"],
@@ -142,12 +143,18 @@ def test_preset_pagination_needs_its_parameters() -> None:
 
 
 def test_canonical_schema_and_fingerprints() -> None:
-    tool = {"name": "reader", "inputSchema": SCHEMA}
+    tool = {
+        "name": "reader",
+        "inputSchema": SCHEMA,
+        "outputSchema": {"type": "object"},
+    }
     exact = canonical_input_schema(tool)
     compatible = canonical_input_schema(tool, include_presentation=False)
     assert exact["required"] == ["action", "params_json"]
     assert "default" not in exact["properties"]["action"]
     assert "description" in exact and "description" not in compatible
+    assert canonical_output_schema(tool) == {"type": "object"}
+    assert canonical_output_schema({"name": "no-output"}) is None
     assert schema_fingerprint("reader", exact) != compatibility_fingerprint(
         "reader", compatible
     )
@@ -173,6 +180,7 @@ def test_live_contract_validation() -> None:
         tool_name="reader",
         expected_schema_sha256=pinned,
         required_argument_types={"action": "string", "params_json": "string"},
+        required_argument_enums={"action": {"read"}},
     )
     assert isinstance(contract, LiveToolContract)
     assert contract.compatibility_sha256 == pinned
@@ -190,3 +198,7 @@ def test_live_contract_validation() -> None:
                 expected_schema_sha256=pinned_sha,
                 required_argument_types=required,
             )
+    with pytest.raises(ToolSchemaContractError, match="does not enumerate"):
+        validate_live_tool_contract(
+            [tool], tool_name="reader", required_argument_enums={"action": {"write"}}
+        )

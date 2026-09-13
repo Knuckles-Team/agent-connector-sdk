@@ -41,5 +41,9 @@ A connector package carries three declarations of its sync contract:
 `require_valid_connector_package(package_root)` fails when they disagree: a sync
 entry that names a preset that does not exist, a mirrored field that differs, a
 fingerprint that does not match, or a preset the manifest does not declare.
-Fingerprints use the `agent-utilities:mcp-tool-schema-compat:v1` algorithm, so
-every fingerprint already pinned in the fleet stays valid.
+Fingerprints use the
+`agent-connector-sdk:mcp-tool-contract-compat:v2` algorithm, which binds the
+canonical input and output schemas. The old input-only pins must be replaced
+from the live `tools/list` response with
+[`connector-certify`](connector-certify.md); the package loader fails closed on
+the old algorithm label.

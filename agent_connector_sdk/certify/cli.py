@@ -27,6 +27,12 @@ from pathlib import Path
 
 import anyio
 
+from agent_connector_sdk.auth.client_credentials import ClientCredentialsAuth
+from agent_connector_sdk.auth.oidc import (
+    ClientCredentialsConfig,
+    client_credentials_auth,
+)
+from agent_connector_sdk.auth.tokens import TokenRequestError
 from agent_connector_sdk.certify.certification import (
     CertificationReport,
     certify_connector,
@@ -51,7 +57,22 @@ __all__ = [
 PLACEHOLDER_VALUE = "connector-certify-placeholder"
 
 _logger = logging.getLogger(__name__)
-_STARTUP_ERRORS = (ValueError, CredentialUnavailableError)
+_STARTUP_ERRORS = (ValueError, CredentialUnavailableError, TokenRequestError)
+
+
+def _add_oidc_arguments(parser: argparse.ArgumentParser) -> None:
+    oidc = parser.add_argument_group("OIDC client credentials for --url")
+    source = oidc.add_mutually_exclusive_group()
+    source.add_argument("--oidc-issuer", default="", help="OIDC issuer URL")
+    source.add_argument("--oidc-token-url", default="", help="OAuth token URL")
+    oidc.add_argument("--oidc-client-id", default="", help="OAuth client ID")
+    oidc.add_argument(
+        "--oidc-client-secret-ref",
+        default="",
+        help="secret reference, normally openbao://mount/path#field",
+    )
+    oidc.add_argument("--oidc-audience", default="", help="token audience")
+    oidc.add_argument("--oidc-scope", default="", help="space-separated scopes")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -66,6 +87,7 @@ def build_parser() -> argparse.ArgumentParser:
     mode.add_argument("--write", action="store_true", help="write the live pins")
     parser.add_argument("--url", default="", help="streamable HTTP endpoint")
     parser.add_argument("--bearer-token", default="", help="reference for --url")
+    _add_oidc_arguments(parser)
     parser.add_argument("--env", action="append", default=[], metavar="NAME=REFERENCE")
     parser.add_argument("--placeholder", action="append", default=[], metavar="NAME")
     parser.add_argument("--timeout", type=float, default=60.0, help="seconds")
@@ -81,6 +103,28 @@ def parse_arguments(argv: Sequence[str]) -> argparse.Namespace:
     args = build_parser().parse_args(items[:split])
     args.command = items[split + 1 :]
     return args
+
+
+def _oidc_auth(args: argparse.Namespace) -> ClientCredentialsAuth | None:
+    values = (
+        args.oidc_issuer,
+        args.oidc_token_url,
+        args.oidc_client_id,
+        args.oidc_client_secret_ref,
+        args.oidc_audience,
+        args.oidc_scope,
+    )
+    if not any(values):
+        return None
+    config = ClientCredentialsConfig(
+        issuer=args.oidc_issuer,
+        token_url=args.oidc_token_url,
+        client_id=args.oidc_client_id,
+        client_secret_ref=args.oidc_client_secret_ref,
+        audience=args.oidc_audience,
+        scope=args.oidc_scope,
+    )
+    return client_credentials_auth(config)
 
 
 def build_endpoint(args: argparse.Namespace) -> TransportEndpoint:
@@ -104,6 +148,7 @@ def build_endpoint(args: argparse.Namespace) -> TransportEndpoint:
         args=tuple(command[1:]),
         env=env,
         bearer_token=token,
+        auth=_oidc_auth(args),
         timeout_seconds=args.timeout,
     )
 

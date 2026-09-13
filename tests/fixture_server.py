@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from fastmcp import FastMCP
 
@@ -53,7 +53,9 @@ def build_reader_server(*, with_content: bool = True) -> FastMCP[Any]:
     mcp: FastMCP[Any] = FastMCP(SERVER_NAME, version=SERVER_VERSION)
 
     @mcp.tool()
-    def demo_reader(action: str, params_json: str = "{}") -> dict[str, Any]:
+    def demo_reader(
+        action: Literal["stream_contents"], params_json: str = "{}"
+    ) -> dict[str, Any]:
         """Read the demo stream one page at a time."""
         if action != "stream_contents":
             raise ValueError("unknown action")
@@ -76,7 +78,9 @@ def build_malformed_server() -> FastMCP[Any]:
     mcp: FastMCP[Any] = FastMCP(SERVER_NAME, version=SERVER_VERSION)
 
     @mcp.tool()
-    def demo_reader(action: str, params_json: str = "{}") -> dict[str, Any]:
+    def demo_reader(
+        action: Literal["stream_contents"], params_json: str = "{}"
+    ) -> dict[str, Any]:
         """Read the demo stream one page at a time."""
         return {"items": "not-a-list", "continuation": None}
 

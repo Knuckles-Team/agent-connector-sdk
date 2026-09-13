@@ -41,6 +41,7 @@ from agent_connector_sdk.manifest.loader import (
 from agent_connector_sdk.manifest.tool_schema import (
     ToolSchemaContractError,
     compatibility_fingerprint,
+    legacy_empty_schema_fingerprint,
 )
 
 COMPACT = (
@@ -72,6 +73,20 @@ def test_canonicalization_ignores_order_whitespace_and_presentation() -> None:
     assert len(digests) == 3
     assert tool_name(spaced) == "t" and tool_name({}) == ""
 
+    output = {
+        **compact,
+        "outputSchema": {
+            "type": "object",
+            "properties": {"result": {"type": "string"}},
+        },
+    }
+    output_presentation = json.loads(json.dumps(output))
+    output_presentation["outputSchema"]["title"] = "Presentation only"
+    changed_output = json.loads(json.dumps(output))
+    changed_output["outputSchema"]["properties"]["result"]["type"] = "integer"
+    assert tool_fingerprint(output) == tool_fingerprint(output_presentation)
+    assert tool_fingerprint(output) != tool_fingerprint(changed_output)
+
 
 def test_empty_and_nameless_schemas_are_refused() -> None:
     with pytest.raises(EmptyToolSchemaError, match="empty input schema"):
@@ -81,6 +96,7 @@ def test_empty_and_nameless_schemas_are_refused() -> None:
     with pytest.raises(ToolSchemaContractError, match="no name"):
         tool_fingerprint({"inputSchema": {"type": "object"}})
     assert is_empty_schema_pin("t", compatibility_fingerprint("t", {}).upper())
+    assert is_empty_schema_pin("t", legacy_empty_schema_fingerprint("t"))
     assert not is_empty_schema_pin("t", tool_fingerprint(json.loads(COMPACT)))
 
 
@@ -157,6 +173,13 @@ async def test_unavailable_tools_have_defects() -> None:
         (verdict,) = tool_verdicts(checkout, tools)
         assert verdict.status is PinStatus.TOOL_UNAVAILABLE and not verdict.live
         assert defect in verdict.defect
+
+    (live,) = listed
+    unconstrained = live.model_dump(by_alias=True, exclude_none=True)
+    unconstrained["inputSchema"]["properties"]["action"] = {"type": "string"}
+    (verdict,) = tool_verdicts(checkout, [unconstrained])
+    assert verdict.status is PinStatus.TOOL_UNAVAILABLE
+    assert "does not enumerate actions" in verdict.defect
 
 
 def test_render_and_rewrite_pins() -> None:

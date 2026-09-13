@@ -36,7 +36,7 @@ from agent_connector_sdk.testing.results import SessionFactory, assert_conforman
 from agent_connector_sdk.testing.source_adapters import run_source_adapter_suite
 from agent_connector_sdk.transports.mcp import McpTransport
 
-TABLE_WIRE_SHA256 = "70cbfcd934d04a9e53b039eccdc82dcdcdc39919cbf331cd732dc64a591e3e8b"
+TABLE_WIRE_SHA256 = "55996ec96eb3987015ce7d6ec11cb177141c802577ed087d0c07f70a36d37b16"
 SERVICENOW_STYLE: dict[str, Any] = {
     "server": "table-mcp",
     "tool": "table_records",

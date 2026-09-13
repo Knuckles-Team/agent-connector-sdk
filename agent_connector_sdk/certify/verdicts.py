@@ -12,9 +12,9 @@ from agent_connector_sdk.certify.checkout import ConnectorCheckout
 from agent_connector_sdk.certify.fingerprints import (
     is_empty_schema_pin,
     output_schema_digest,
-    tool_fingerprint,
     tool_name,
 )
+from agent_connector_sdk.manifest.live_contract import validate_live_tool_contract
 from agent_connector_sdk.manifest.loader import (
     FINGERPRINTS_FILE_NAME,
     MANIFEST_FILE_NAME,
@@ -85,6 +85,14 @@ def _unavailable(checkout: ConnectorCheckout, tool: str, defect: str) -> ToolVer
     )
 
 
+def _action_enums(checkout: ConnectorCheckout, tool: str) -> dict[str, set[str]]:
+    required: dict[str, set[str]] = {}
+    for preset in checkout.presets.values():
+        if preset.tool == tool and preset.action:
+            required.setdefault(preset.action_param, set()).add(preset.action)
+    return required
+
+
 def _verdict(
     checkout: ConnectorCheckout, tool: str, matches: Sequence[Any]
 ) -> ToolVerdict:
@@ -92,11 +100,16 @@ def _verdict(
         state = "does not list" if not matches else "lists more than once"
         return _unavailable(checkout, tool, f"the server {state} tool {tool!r}")
     try:
-        live = tool_fingerprint(matches[0])
+        contract = validate_live_tool_contract(
+            matches,
+            tool_name=tool,
+            required_argument_enums=_action_enums(checkout, tool),
+        )
     except ToolSchemaContractError as exc:
         _logger.warning("tool %r cannot be certified: %s", tool, exc)
         return _unavailable(checkout, tool, str(exc))
     pins = pin_locations(checkout, tool)
+    live = contract.compatibility_sha256
     return ToolVerdict(
         tool=tool,
         presets=checkout.presets_for(tool),

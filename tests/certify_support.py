@@ -16,7 +16,7 @@ from agent_connector_sdk.transports.mcp import McpTransport
 
 CERTIFY_SERVER = Path(__file__).parent / "certify_server.py"
 #: The compatibility fingerprint of ``demo_reader`` as a client lists it.
-LIVE = "be1dfa77d47262bb54005d5f9096d12ef72df38bd6f2972d893ea41a05ce6e10"
+LIVE = "457e92adf7af7982d12fa41cc79c69b16b7717a57ead15fb4e318b9f1cb045d6"
 #: What the agent-utilities certifier pinned: the fingerprint of ``{}``.
 EMPTY = compatibility_fingerprint("demo_reader", {})
 DRIFTED = "ab" * 32

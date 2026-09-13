@@ -6,10 +6,13 @@ import json
 import sys
 from pathlib import Path
 
+import httpx2
 import pytest
 from certify_support import DRIFTED, EMPTY, LIVE, checkout_copy, server_command
 from fixture_server import PACKAGE_ROOT, build_reader_server
 
+import agent_connector_sdk.certify.cli as certify_cli
+from agent_connector_sdk.auth.oidc import ClientCredentialsConfig
 from agent_connector_sdk.certify.certification import (
     CertificationReport,
     certify_connector,
@@ -117,6 +120,45 @@ def test_build_endpoint(monkeypatch: pytest.MonkeyPatch) -> None:
         "",
     )
     assert http.args == () and "--" in (build_parser().epilog or "")
+
+    captured: list[ClientCredentialsConfig] = []
+
+    def auth(config: ClientCredentialsConfig) -> httpx2.Auth:
+        captured.append(config)
+        return httpx2.BasicAuth("client", "credential")
+
+    monkeypatch.setattr(certify_cli, "client_credentials_auth", auth)
+    oidc = build_endpoint(
+        parse_arguments(
+            [
+                "pkg",
+                "--check",
+                "--url",
+                "https://connector.example.invalid/mcp",
+                "--oidc-token-url",
+                "https://identity.example.invalid/token",
+                "--oidc-client-id",
+                "connector-certify",
+                "--oidc-client-secret-ref",
+                "openbao://apps/connector-certify#OIDC_CLIENT_SECRET",
+                "--oidc-audience",
+                "agent-services",
+                "--oidc-scope",
+                "mcp:tools",
+            ]
+        )
+    )
+    assert isinstance(oidc.auth, httpx2.BasicAuth)
+    assert captured == [
+        ClientCredentialsConfig(
+            token_url="https://identity.example.invalid/token",
+            client_id="connector-certify",
+            client_secret_ref="openbao://apps/connector-certify#OIDC_CLIENT_SECRET",
+            audience="agent-services",
+            scope="mcp:tools",
+        )
+    ]
+    assert "openbao" not in repr(oidc)
     with pytest.raises(SystemExit):
         parse_arguments(["pkg", "--check", "--write"])
 

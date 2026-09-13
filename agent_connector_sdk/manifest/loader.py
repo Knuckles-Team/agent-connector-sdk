@@ -23,6 +23,7 @@ from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.manifest.tool_schema import (
     COMPATIBILITY_FINGERPRINT_ALGORITHM,
     compatibility_fingerprint,
+    legacy_empty_schema_fingerprint,
 )
 
 __all__ = [
@@ -199,7 +200,11 @@ def _empty_pin_violations(fingerprints: ToolSchemaFingerprints) -> list[str]:
         "empty input schema, which verifies no contract; re-certify it from the "
         "server's tools/list"
         for tool, pinned in sorted(fingerprints.tools.items())
-        if pinned == compatibility_fingerprint(tool, {})
+        if pinned
+        in {
+            compatibility_fingerprint(tool, {}),
+            legacy_empty_schema_fingerprint(tool),
+        }
     ]
 
 

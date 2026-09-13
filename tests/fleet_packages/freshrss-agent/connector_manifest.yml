@@ -13,7 +13,7 @@ sync:
   updated_field: published
   pagination: cursor
   doc_type: news_article
-  tool_schema_sha256: 77979de11db9df14f10b6c76249162c8b43569503e54cc732ca6e50bcddd74b6
+  tool_schema_sha256: 7e18bf9ed1c48cadece180e17777cc68da409d0e86cb79fbebcf69172794d3b4
   raw: {"action": "stream_contents", "cursor_param": "continuation", "cursor_path": "continuation", "doc_type": "news_article", "id_field": "id", "pagination": "cursor", "params": {"count": 100, "order": "o"}, "params_style": "json", "records_path": "items", "server": "freshrss-mcp", "text_field": "text", "title_field": "title", "tool": "freshrss_reader", "updated_field": "published", "updated_since_param": "newer_than"}
 provenance:
   generated_by: tests/fleet_packages

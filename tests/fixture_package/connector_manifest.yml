@@ -35,7 +35,7 @@ sync:
   updated_field: published
   pagination: cursor
   doc_type: demo_item
-  tool_schema_sha256: be1dfa77d47262bb54005d5f9096d12ef72df38bd6f2972d893ea41a05ce6e10
+  tool_schema_sha256: 457e92adf7af7982d12fa41cc79c69b16b7717a57ead15fb4e318b9f1cb045d6
   raw: {"action": "stream_contents", "cursor_param": "continuation", "cursor_path": "continuation", "doc_type": "demo_item", "id_field": "id", "pagination": "cursor", "params": {"count": 2}, "params_style": "json", "records_path": "items", "server": "demo-mcp", "text_field": "text", "title_field": "title", "tool": "demo_reader", "type_field": "kind", "updated_field": "published", "updated_since_param": "newer_than"}
 provenance:
   generated_by: tests/fixture_package
