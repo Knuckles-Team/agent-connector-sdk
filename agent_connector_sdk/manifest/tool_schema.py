@@ -1,10 +1,8 @@
-"""Canonical MCP tool input schemas and their fingerprints.
+"""Canonical MCP tool contracts and their fingerprints.
 
-Extracted from ``agent_utilities.protocols.source_connectors.tool_schema``. The
-digest domain strings (``agent-utilities:mcp-tool-schema:v1`` and
-``agent-utilities:mcp-tool-schema-compat:v1``) are wire constants: every
-``tool_schema_sha256`` already pinned in a connector manifest was computed with
-them, so they are not renamed with the package.
+The v2 digest binds both the input and output schemas. Its predecessor bound
+only the input schema; :func:`legacy_empty_schema_fingerprint` exists solely so
+certification can identify and replace the fleet's old empty-schema pins.
 """
 
 from __future__ import annotations
@@ -18,16 +16,19 @@ __all__ = [
     "COMPATIBILITY_FINGERPRINT_ALGORITHM",
     "ToolSchemaContractError",
     "canonical_input_schema",
+    "canonical_output_schema",
     "compatibility_fingerprint",
+    "legacy_empty_schema_fingerprint",
     "read_field",
     "schema_fingerprint",
 ]
 
 #: Algorithm label written into ``tool_schema_fingerprints.json`` files.
-COMPATIBILITY_FINGERPRINT_ALGORITHM = "agent-utilities:mcp-tool-schema-compat:v1"
+COMPATIBILITY_FINGERPRINT_ALGORITHM = "agent-connector-sdk:mcp-tool-contract-compat:v2"
 
-_EXACT_DOMAIN = b"agent-utilities:mcp-tool-schema:v1\x00"
+_EXACT_DOMAIN = b"agent-connector-sdk:mcp-tool-contract:v2\x00"
 _COMPATIBILITY_DOMAIN = COMPATIBILITY_FINGERPRINT_ALGORITHM.encode("ascii") + b"\x00"
+_LEGACY_COMPATIBILITY_DOMAIN = b"agent-utilities:mcp-tool-schema-compat:v1\x00"
 _PRESENTATION_KEYS = frozenset({"$comment", "description", "examples", "title"})
 _RUNTIME_CONFIGURATION_KEYS = frozenset({"default"})
 
@@ -100,9 +101,41 @@ def canonical_input_schema(
     return schema
 
 
-def _fingerprint(domain: bytes, name: str, schema: Mapping[str, Any]) -> str:
+def canonical_output_schema(
+    tool: Any, *, include_presentation: bool = True
+) -> dict[str, Any] | None:
+    """Return a stable output schema, or ``None`` when the tool declares none.
+
+    Raises:
+        ToolSchemaContractError: the declared output schema is not an object.
+    """
+    raw = read_field(
+        tool,
+        "outputSchema",
+        "output_schema",
+        attr_names=("output_schema", "outputSchema"),
+    )
+    if raw is None:
+        return None
+    schema = _normalize(_jsonable(raw), include_presentation)
+    if not isinstance(schema, dict):
+        raise ToolSchemaContractError("live MCP tool output schema is not an object")
+    return schema
+
+
+def _fingerprint(
+    domain: bytes,
+    name: str,
+    input_schema: Mapping[str, Any],
+    *,
+    output_schema: Mapping[str, Any] | None,
+) -> str:
     payload = json.dumps(
-        {"name": str(name), "input_schema": _jsonable(schema)},
+        {
+            "input_schema": _jsonable(input_schema),
+            "name": str(name),
+            "output_schema": _jsonable(output_schema),
+        },
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=True,
@@ -110,11 +143,32 @@ def _fingerprint(domain: bytes, name: str, schema: Mapping[str, Any]) -> str:
     return hashlib.sha256(domain + payload).hexdigest()
 
 
-def schema_fingerprint(name: str, schema: Mapping[str, Any]) -> str:
-    """Hash an exact tool name and input schema."""
-    return _fingerprint(_EXACT_DOMAIN, name, schema)
+def schema_fingerprint(
+    name: str,
+    input_schema: Mapping[str, Any],
+    output_schema: Mapping[str, Any] | None = None,
+) -> str:
+    """Hash an exact tool name, input schema and optional output schema."""
+    return _fingerprint(_EXACT_DOMAIN, name, input_schema, output_schema=output_schema)
 
 
-def compatibility_fingerprint(name: str, schema: Mapping[str, Any]) -> str:
-    """Hash the structural tool contract (presentation keys already removed)."""
-    return _fingerprint(_COMPATIBILITY_DOMAIN, name, schema)
+def compatibility_fingerprint(
+    name: str,
+    input_schema: Mapping[str, Any],
+    output_schema: Mapping[str, Any] | None = None,
+) -> str:
+    """Hash the structural input and output contract after canonicalization."""
+    return _fingerprint(
+        _COMPATIBILITY_DOMAIN, name, input_schema, output_schema=output_schema
+    )
+
+
+def legacy_empty_schema_fingerprint(name: str) -> str:
+    """The retired input-only v1 fingerprint of ``name`` with an empty schema."""
+    payload = json.dumps(
+        {"name": str(name), "input_schema": {}},
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("utf-8")
+    return hashlib.sha256(_LEGACY_COMPATIBILITY_DOMAIN + payload).hexdigest()

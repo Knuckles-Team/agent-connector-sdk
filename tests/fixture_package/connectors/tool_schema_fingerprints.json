@@ -1,8 +1,8 @@
 {
-  "algorithm": "agent-utilities:mcp-tool-schema-compat:v1",
+  "algorithm": "agent-connector-sdk:mcp-tool-contract-compat:v2",
   "connector": "demo-agent",
   "schema_version": "1",
   "tools": {
-    "demo_reader": "be1dfa77d47262bb54005d5f9096d12ef72df38bd6f2972d893ea41a05ce6e10"
+    "demo_reader": "457e92adf7af7982d12fa41cc79c69b16b7717a57ead15fb4e318b9f1cb045d6"
   }
 }

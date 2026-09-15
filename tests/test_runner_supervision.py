@@ -11,8 +11,8 @@ from fleet_fixtures import (
     FakeArchiveBox,
     FakeFreshRss,
     archivebox_snapshots,
-    build_archivebox_server,
-    build_freshrss_server,
+    build_enumerated_archivebox_server,
+    build_enumerated_freshrss_server,
     freshrss_items,
 )
 from runner_support import (
@@ -99,7 +99,9 @@ def _target(
 
 async def test_passes_commit_before_advancing(tmp_path: Path) -> None:
     store = JsonFileCheckpointStore(tmp_path)
-    server = build_archivebox_server(FakeArchiveBox(archivebox_snapshots(250)))
+    server = build_enumerated_archivebox_server(
+        FakeArchiveBox(archivebox_snapshots(250))
+    )
     adapter = load_sync_adapters(archivebox_descriptor())[STREAM]
     async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
         outcome = await sync_stream(session, adapter, _target(InMemorySink(), store, 2))
@@ -121,7 +123,7 @@ async def test_passes_commit_before_advancing(tmp_path: Path) -> None:
 
 async def test_receipts_that_do_not_acknowledge_record_nothing(tmp_path: Path) -> None:
     store = JsonFileCheckpointStore(tmp_path)
-    server = build_archivebox_server(FakeArchiveBox(archivebox_snapshots(3)))
+    server = build_enumerated_archivebox_server(FakeArchiveBox(archivebox_snapshots(3)))
     adapter = load_sync_adapters(archivebox_descriptor())[STREAM]
     async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
         with pytest.raises(SinkReceiptError):
@@ -169,7 +171,11 @@ async def test_serve_backs_off_and_reconnects(
     capture_runner_logs(caplog)
     sink = RecordingSink()
     endpoints = in_process(
-        {"freshrss-agent": build_freshrss_server(FakeFreshRss(freshrss_items(0, 2)))}
+        {
+            "freshrss-agent": build_enumerated_freshrss_server(
+                FakeFreshRss(freshrss_items(0, 2))
+            )
+        }
     )
     built = services(
         sink,
@@ -194,7 +200,11 @@ async def test_registry_changes_start_and_stop_workers(
     capture_runner_logs(caplog)
     sink = RecordingSink()
     endpoints = in_process(
-        {"freshrss-agent": build_freshrss_server(FakeFreshRss(freshrss_items(0, 2)))}
+        {
+            "freshrss-agent": build_enumerated_freshrss_server(
+                FakeFreshRss(freshrss_items(0, 2))
+            )
+        }
     )
     registry = ListRegistry()
     runner = ConnectorSyncRunner(

@@ -13,8 +13,8 @@ sync:
   updated_field: modified_at
   pagination: page
   doc_type: web_snapshot
-  tool_schema_sha256: 1f2a33c31bd6b000bbb4954863f4d41e0710faf38c5a040c6415837e9ce3f21f
-  raw: {"action": "get_snapshots", "doc_type": "web_snapshot", "id_field": "abid", "page_kind": "page", "page_param": "page", "page_size_param": "limit", "pagination": "page", "records_path": "items", "server": "archivebox-mcp", "text_field": "title", "title_field": "url", "tool": "archivebox_core", "updated_field": "modified_at"}
+  tool_schema_sha256: f86ef345d867f55d1a343f684357291f80a1071bccdef5bde8ff859fea3dcc8d
+  raw: {"action": "get_snapshots", "doc_type": "web_snapshot", "id_field": "abid", "page_kind": "number", "page_param": "page", "page_size_param": "limit", "pagination": "page", "records_path": "items", "server": "archivebox-mcp", "text_field": "title", "title_field": "url", "tool": "archivebox_core", "updated_field": "modified_at"}
 provenance:
   generated_by: tests/fleet_packages
   source_artifacts:

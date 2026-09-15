@@ -15,7 +15,7 @@ from fleet_fixtures import (
     ARCHIVEBOX_ROOT,
     FakeArchiveBox,
     archivebox_snapshots,
-    build_archivebox_server,
+    build_enumerated_archivebox_server,
     build_table_server,
 )
 from pydantic import ValidationError
@@ -36,7 +36,7 @@ from agent_connector_sdk.testing.results import SessionFactory, assert_conforman
 from agent_connector_sdk.testing.source_adapters import run_source_adapter_suite
 from agent_connector_sdk.transports.mcp import McpTransport
 
-TABLE_WIRE_SHA256 = "70cbfcd934d04a9e53b039eccdc82dcdcdc39919cbf331cd732dc64a591e3e8b"
+TABLE_WIRE_SHA256 = "55996ec96eb3987015ce7d6ec11cb177141c802577ed087d0c07f70a36d37b16"
 SERVICENOW_STYLE: dict[str, Any] = {
     "server": "table-mcp",
     "tool": "table_records",
@@ -63,11 +63,15 @@ def test_fleet_page_and_offset_vocabulary_validates() -> None:
     for name, raw in (
         (
             "archivebox",
-            {"page_kind": "page", "page_param": "page", "page_size_param": "limit"},
+            {"page_kind": "number", "page_param": "page", "page_size_param": "limit"},
         ),
         (
             "github",
-            {"page_kind": "page", "page_param": "page", "page_size_param": "per_page"},
+            {
+                "page_kind": "number",
+                "page_param": "page",
+                "page_size_param": "per_page",
+            },
         ),
         ("numbered", {"page_kind": "number", "page_param": "page", "start_page": 1}),
     ):
@@ -97,11 +101,15 @@ def test_pagination_modes_reject_what_does_not_apply() -> None:
             "does not apply",
         ),
         (
+            {"pagination": "page", "page_param": "page", "page_kind": "page"},
+            "Input should be 'number' or 'offset'",
+        ),
+        (
             {
                 "pagination": "cursor",
                 "cursor_param": "c",
                 "cursor_path": "c",
-                "page_kind": "page",
+                "page_kind": "number",
             },
             "does not apply",
         ),
@@ -150,7 +158,7 @@ def test_page_and_offset_positions() -> None:
         server="s",
         tool="t",
         pagination="page",
-        page_kind="page",
+        page_kind="number",
         page_param="page",
         page_size_param="limit",
         page_size=2,
@@ -181,9 +189,15 @@ async def test_page_mode_adapter_passes_the_conformance_kit() -> None:
     results = await run_source_adapter_suite(
         adapter,
         _sessions(
-            lambda: build_archivebox_server(FakeArchiveBox(archivebox_snapshots(5)))
+            lambda: build_enumerated_archivebox_server(
+                FakeArchiveBox(archivebox_snapshots(5))
+            )
         ),
-        _sessions(lambda: build_archivebox_server(FakeArchiveBox([]), malformed=True)),
+        _sessions(
+            lambda: build_enumerated_archivebox_server(
+                FakeArchiveBox([]), malformed=True
+            )
+        ),
     )
     assert_conformant(results)
 

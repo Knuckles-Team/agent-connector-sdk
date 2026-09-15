@@ -120,6 +120,7 @@ def client_credentials_auth(
     *,
     resolver: CredentialResolver | None = None,
     tls: ResolvedTLSProfile | None = None,
+    timeout_seconds: float = 30.0,
 ) -> ClientCredentialsAuth:
     """An ``httpx.Auth`` for ``config``, usable by API clients and MCP endpoints.
 
@@ -131,7 +132,11 @@ def client_credentials_auth(
     """
     origin = urlsplit(config.issuer or config.token_url)
     client = create_http_client(
-        HttpClientOptions(base_url=f"{origin.scheme}://{origin.netloc}", tls=tls)
+        HttpClientOptions(
+            base_url=f"{origin.scheme}://{origin.netloc}",
+            tls=tls,
+            timeout=timeout_seconds,
+        )
     )
     token_url = config.token_url or discover_token_endpoint(config.issuer, client)
     provider = ClientCredentialsTokenProvider(

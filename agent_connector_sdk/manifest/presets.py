@@ -14,9 +14,10 @@ Pagination modes:
     ``cursor_record_field`` of the last record); ``more_path`` may gate it.
 ``page``
     ``page_param`` carries a page index starting at ``start_page`` and
-    ``page_size_param`` the page size. ``page_kind`` may be ``number`` or
-    ``page``: both name a page index, the two spellings the fleet's generated
-    presets use.
+    ``page_size_param`` the page size. ``page_kind`` may be ``number``, the one
+    spelling of a page index (agent-utilities' preset vocabulary). The fleet's
+    generated presets also wrote ``page`` for the same thing; that spelling is
+    rejected, so one index kind has one name.
 ``offset``
     ``page_param`` carries a record offset starting at 0 and advancing by the
     records returned; ``page_kind`` may be ``offset``.
@@ -75,7 +76,7 @@ _EXTRACTION_KEYS = frozenset(
 _PAGE_KINDS: dict[str, frozenset[str | None]] = {
     "none": frozenset({None}),
     "cursor": frozenset({None}),
-    "page": frozenset({None, "number", "page"}),
+    "page": frozenset({None, "number"}),
     "offset": frozenset({None, "offset"}),
 }
 
@@ -110,7 +111,7 @@ class ToolPreset(BaseModel):
     page_param: str = ""
     page_size_param: str = ""
     page_size: int = Field(default=100, ge=1, le=10_000)
-    page_kind: Literal["number", "page", "offset"] | None = None
+    page_kind: Literal["number", "offset"] | None = None
     start_page: int = Field(default=0, ge=0)
     updated_since_param: str = ""
     max_pages: int = Field(default=100, ge=1, le=100_000)

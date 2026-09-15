@@ -9,6 +9,7 @@ import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from unittest.mock import AsyncMock
 
 import httpx2
 import pytest
@@ -71,16 +72,24 @@ def _fleet_server(verifier: _FleetVerifier) -> Iterator[str]:
         """Answer pong."""
         return "pong"
 
+    ready = threading.Event()
     config = uvicorn.Config(
-        mcp.http_app(), host="127.0.0.1", port=0, log_level="error", lifespan="on"
+        mcp.http_app(),
+        host="127.0.0.1",
+        port=0,
+        log_level="error",
+        lifespan="on",
+        callback_notify=AsyncMock(side_effect=ready.set),
+        timeout_notify=1,
     )
     server = uvicorn.Server(config)
     thread = threading.Thread(target=server.run, daemon=True)
     thread.start()
-    deadline = time.monotonic() + 15
-    while not server.started and time.monotonic() < deadline:
-        time.sleep(0.02)
-    assert server.started, "fixture MCP server did not start"
+    if not ready.wait(60):
+        server.should_exit = True
+        thread.join(15)
+        pytest.fail("fixture MCP server did not become ready within 60 seconds")
+    assert server.started
     port = server.servers[0].sockets[0].getsockname()[1]
     try:
         yield f"http://127.0.0.1:{port}/mcp"

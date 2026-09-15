@@ -16,6 +16,7 @@ nav:
   - Extension ports: extension-ports.md
   - Conformance kit: conformance-kit.md
   - Connector sync: connector-sync.md
+  - Connector certification: connector-certify.md
   - HTTP clients: http-clients.md
   - Credentials: credentials.md
   - Moving from agent-utilities: from-agent-utilities.md
