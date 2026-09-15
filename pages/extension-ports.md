@@ -39,6 +39,21 @@ The package validator also rejects a `tool_schema_sha256` equal to the
 fingerprint of an empty input schema. Such a pin verifies nothing and matches no
 live server; re-certify it from the server's `tools/list`.
 
+## ArtifactKind
+
+Prompt packs read both `prompts/list` and `prompts/get` through the same MCP
+session. Each prompt entry retains its listing definition, the argument contract,
+and the complete ordered MCP result, including roles, typed multimodal content,
+resource references and response metadata. The capture records that it is a
+rendered prompt with no supplied arguments; it does not claim to be a template
+or a system prompt. Changed message content changes the pack digest.
+
+Pack provisioning has no configured prompt-argument input. A prompt with required
+arguments fails closed before retrieval; no values are invented. Optional
+arguments are omitted so the server may apply its defaults. Empty, incomplete or
+malformed results are rejected. Aggregate prompt capture uses the existing
+16 MiB response-byte limit and fails before a pack can be acknowledged.
+
 ## Sink
 
 | Method | Contract |

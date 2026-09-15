@@ -206,14 +206,30 @@ async def test_transport_and_session() -> None:
         TransportEndpoint(in_process=build_reader_server())
     ) as session:
         assert isinstance(session, McpClientSession) and isinstance(session, McpSession)
+        positional = McpClientSession(
+            session.client, feed=session.feed, tasks=session.tasks
+        )
+        keyword = McpClientSession(
+            client=session.client, feed=session.feed, tasks=session.tasks
+        )
+        assert positional.client is keyword.client is session.client
+        assert positional.feed is keyword.feed is session.feed
+        assert positional.tasks is keyword.tasks is session.tasks
+        assert positional != keyword
+        assert repr(session).startswith("<")
         identity = await session.server_identity()
         assert (identity.name, identity.version) == ("demo-mcp", "1.4.0")
         assert "demo_agent" in [prompt.name for prompt in await session.list_prompts()]
+        prompt = await session.get_prompt("demo_agent", {})
+        assert prompt.messages[0].role == "user"
+        assert prompt.messages[0].content.type == "text"
         assert (
             await session.read_resource("ontology://demo-agent/demo.ttl")
         ).startswith("@prefix")
         with pytest.raises(McpTransportError):
             await session.call_tool("missing_tool", {})
+        with pytest.raises(McpTransportError, match="MCP prompts/get failed"):
+            await session.get_prompt("missing_prompt", {})
     assert (
         decode_tool_result(SimpleNamespace(content=[SimpleNamespace(text="plain")]))
         == "plain"

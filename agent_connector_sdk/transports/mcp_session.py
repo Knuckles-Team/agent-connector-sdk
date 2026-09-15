@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field
 from typing import Any
 
 import anyio
+import mcp_types
 from anyio.abc import TaskGroup
 from fastmcp import Client
 
@@ -40,6 +42,7 @@ def decode_tool_result(result: Any) -> Any:
         return joined
 
 
+@dataclass(eq=False, repr=False)
 class McpClientSession:
     """An open FastMCP client exposing exactly the operations the ports need.
 
@@ -50,17 +53,10 @@ class McpClientSession:
             without one :meth:`watch` cannot subscribe.
     """
 
-    def __init__(
-        self,
-        client: Client[Any],
-        *,
-        feed: ChangeFeed,
-        tasks: TaskGroup | None = None,
-    ) -> None:
-        self._client = client
-        self._feed = feed
-        self._tasks = tasks
-        self._listen: anyio.CancelScope | None = None
+    client: Client[Any] = field(repr=False)
+    feed: ChangeFeed = field(kw_only=True, repr=False)
+    tasks: TaskGroup | None = field(default=None, kw_only=True, repr=False)
+    _listen: anyio.CancelScope | None = field(default=None, init=False, repr=False)
 
     async def watch(self, resource_uris: Sequence[str]) -> bool:
         """Open a ``subscriptions/listen`` stream, replacing an earlier one.
@@ -68,13 +64,13 @@ class McpClientSession:
         The new stream is acknowledged before the earlier one is closed, so no
         event published during the switch is lost.
         """
-        if self._tasks is None:
+        if self.tasks is None:
             return False
         previous = self._listen
-        self._listen = await self._tasks.start(
+        self._listen = await self.tasks.start(
             forward_listen_events,
-            self._client.session,
-            self._feed,
+            self.client.session,
+            self.feed,
             tuple(resource_uris),
         )
         if previous is not None:
@@ -83,11 +79,11 @@ class McpClientSession:
 
     async def next_changes(self) -> frozenset[ChangeEvent]:
         """Wait for at least one change and return every change pending."""
-        return await self._feed.next_changes()
+        return await self.feed.next_changes()
 
     async def server_identity(self) -> ServerIdentity:
         """Name and version from the server's discovery metadata."""
-        info = self._client.server_info
+        info = self.client.server_info
         name, version = getattr(info, "name", ""), getattr(info, "version", "")
         if not name or not version:
             raise McpTransportError("MCP server did not report a name and version")
@@ -95,27 +91,37 @@ class McpClientSession:
 
     async def list_tools(self) -> Sequence[Any]:
         """``tools/list``."""
-        return await self._client.list_tools()
+        return await self.client.list_tools()
 
     async def call_tool(self, name: str, arguments: Mapping[str, Any]) -> Any:
         """``tools/call``; a tool error is raised as :class:`McpTransportError`."""
         try:
-            result = await self._client.call_tool(name, dict(arguments))
+            result = await self.client.call_tool(name, dict(arguments))
         except Exception as exc:
             raise McpTransportError(f"MCP tools/call failed for {name!r}") from exc
         return decode_tool_result(result)
 
     async def list_prompts(self) -> Sequence[Any]:
         """``prompts/list``."""
-        return await self._client.list_prompts()
+        return await self.client.list_prompts()
+
+    async def get_prompt(
+        self, name: str, arguments: Mapping[str, str]
+    ) -> mcp_types.GetPromptResult:
+        """``prompts/get``; failures name the operation without source content."""
+        try:
+            result = await self.client.get_prompt(name, dict(arguments))
+            return mcp_types.GetPromptResult.model_validate(result)
+        except Exception as exc:
+            raise McpTransportError(f"MCP prompts/get failed for {name!r}") from exc
 
     async def list_resources(self) -> Sequence[Any]:
         """``resources/list``."""
-        return await self._client.list_resources()
+        return await self.client.list_resources()
 
     async def read_resource(self, uri: str) -> str:
         """``resources/read``; raises when the resource has no text content."""
-        contents = await self._client.read_resource(uri)
+        contents = await self.client.read_resource(uri)
         texts = [getattr(block, "text", None) for block in contents]
         if not texts or not all(isinstance(text, str) for text in texts):
             raise McpTransportError(f"MCP resource {uri!r} has no text content")

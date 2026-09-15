@@ -8,7 +8,7 @@ import urllib.error
 import urllib.request
 from collections.abc import Awaitable, Callable
 from pathlib import Path
-from typing import NoReturn
+from typing import Any, NoReturn
 
 import anyio
 import pytest
@@ -362,14 +362,9 @@ async def test_resolve_endpoint_records_success(tmp_path: Path) -> None:
     assert detail["credentials_ok"] is True
 
 
-async def test_resolve_endpoint_records_failure_without_the_secret(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    monkeypatch.delenv("CONNECTOR_SYNC_TEST_TOKEN", raising=False)
-    endpoint_spec = EndpointSpec(
-        url="https://freshrss.example.invalid/mcp",
-        bearer_token="env://CONNECTOR_SYNC_TEST_TOKEN",
-    )
+async def _endpoint_failure_detail(
+    tmp_path: Path, endpoint_spec: EndpointSpec
+) -> dict[str, Any]:
     health = _health()
     built = services(
         InMemorySink(),
@@ -382,6 +377,18 @@ async def test_resolve_endpoint_records_failure_without_the_secret(
         await resolve_endpoint(built, freshrss_descriptor(endpoint=endpoint_spec))
     detail = (await health.readiness()).body["connectors"]["freshrss-agent"]
     assert detail["credentials_ok"] is False
+    return detail
+
+
+async def test_resolve_endpoint_records_failure_without_the_secret(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("CONNECTOR_SYNC_TEST_TOKEN", raising=False)
+    endpoint_spec = EndpointSpec(
+        url="https://freshrss.example.invalid/mcp",
+        bearer_token="env://CONNECTOR_SYNC_TEST_TOKEN",
+    )
+    detail = await _endpoint_failure_detail(tmp_path, endpoint_spec)
     assert "CONNECTOR_SYNC_TEST_TOKEN" not in detail["credential_error"]
 
 
@@ -404,18 +411,7 @@ async def test_resolve_endpoint_reports_an_unresolvable_oidc_client_secret(
             client_secret_ref="env://CONNECTOR_SYNC_TEST_OIDC_SECRET",
         ),
     )
-    health = _health()
-    built = services(
-        InMemorySink(),
-        JsonFileCheckpointStore(tmp_path),
-        CredentialEndpoints(EnvironmentCredentialResolver()),
-        transport=McpTransport(),
-        health=health,
-    )
-    with pytest.raises(CredentialResolutionError):
-        await resolve_endpoint(built, freshrss_descriptor(endpoint=endpoint_spec))
-    detail = (await health.readiness()).body["connectors"]["freshrss-agent"]
-    assert detail["credentials_ok"] is False
+    detail = await _endpoint_failure_detail(tmp_path, endpoint_spec)
     assert "freshrss-agent" in detail["credential_error"]
     assert "CONNECTOR_SYNC_TEST_OIDC_SECRET" not in detail["credential_error"]
 

@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
 import httpx2
+import mcp_types
 
 from agent_connector_sdk.contracts import ServerIdentity
 
@@ -31,6 +32,12 @@ class McpSession(Protocol):
 
     async def list_prompts(self) -> Sequence[Any]:
         """``prompts/list``."""
+        ...
+
+    async def get_prompt(
+        self, name: str, arguments: Mapping[str, str]
+    ) -> mcp_types.GetPromptResult:
+        """``prompts/get``; retain the complete ordered, typed MCP result."""
         ...
 
     async def list_resources(self) -> Sequence[Any]:
