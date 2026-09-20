@@ -101,7 +101,7 @@ class ConnectorDescriptor(_Strict):
 
     @property
     def resolved_mapping_reference(self) -> str:
-        """``mapping_reference``, or ``manifest:<connector>`` when unset."""
+        """Configured exact mapping, or the single-mapping manifest shorthand."""
         return self.mapping_reference or f"manifest:{self.connector}"
 
 

@@ -109,7 +109,11 @@ async def test_passes_commit_before_advancing(tmp_path: Path) -> None:
         assert (outcome.pages, outcome.records) == (2, 200)
         assert outcome.cursor == await store.committed_cursor("archivebox-api", STREAM)
         page = await adapter.extract(session, outcome.cursor)
-        receipt = await commit_page(page, _target(InMemorySink(), store, 1))
+        receipt = await commit_page(
+            page,
+            _target(InMemorySink(), store, 1),
+            expected_previous_cursor=None,
+        )
         assert receipt.accepted == 50 and page.exhausted
         provisioned = await provision_content(
             session,

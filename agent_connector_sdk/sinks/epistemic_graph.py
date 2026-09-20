@@ -1,8 +1,14 @@
 """The epistemic-graph sink: a declared contract seam, not an implementation.
 
-epistemic-graph does not yet publish the pack-import or record-ingestion wire
-methods (RF-ADR-009 wave W1). Rather than invent them, both operations raise
-:class:`NotImplementedError` with a message naming the wave that delivers them.
+epistemic-graph does not yet publish the pack-import or generic record-ingestion
+wire methods (RF-ADR-009 wave W1). ``SqlSourceBatch`` is an append into an
+already-authorized SQL table and its mapping descriptor is inert provenance;
+``ApplyChangeEnvelope(s)`` accepts already-mapped graph mutations. Neither is
+the accepted ``IngestionAuthorityV1`` boundary that stores raw records, applies
+the manifest mapping, and atomically commits its cursor, provenance and receipt.
+Rather than invent a third contract or misuse either native method, both
+operations raise :class:`NotImplementedError` with a message naming the wave
+that delivers them.
 This module is the only place in the SDK allowed to do so, and the stub gate
 (the shared ``no-stub`` and ``stubs`` hooks) accepts exactly these two messages here.
 Nothing that calls this sink counts as done until W1 lands.
@@ -37,7 +43,8 @@ class EpistemicGraphSink:
         self._client = client
 
     async def submit(self, batch: RecordBatch) -> IngestionReceipt:
-        """Commit a record batch through ``IngestionAuthorityV1`` (W1)."""
+        """Await EG's generated ``IngestionAuthorityV1`` record-batch call."""
+        del batch
         raise NotImplementedError(RECORD_INGESTION_UNAVAILABLE)
 
     async def import_pack(self, pack: ContentPack) -> PackImportReceipt:

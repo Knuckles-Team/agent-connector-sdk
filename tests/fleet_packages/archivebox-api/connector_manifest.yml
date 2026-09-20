@@ -1,6 +1,9 @@
 connector: archivebox-api
 ontology_source: archivebox
 schema_version: '1'
+schema_mappings:
+  web_snapshot:
+    ontology_class: WebSnapshot
 sync:
 - preset: archivebox-snapshots
   server: archivebox-mcp

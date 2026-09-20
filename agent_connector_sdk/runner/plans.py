@@ -77,6 +77,32 @@ def _selection_problems(
     return [*missing, *unselected]
 
 
+def _mapping_reference_problems(
+    descriptor: ConnectorDescriptor, manifest: ConnectorManifest
+) -> list[str]:
+    reference = descriptor.resolved_mapping_reference
+    manifest_reference = f"manifest:{descriptor.connector}"
+    if reference == manifest_reference:
+        return (
+            []
+            if len(manifest.schema_mappings) == 1
+            else ["a whole-manifest mapping reference requires exactly one mapping"]
+        )
+    prefix = f"{manifest_reference}#schema_mappings/"
+    if not reference.startswith(prefix):
+        return (
+            ["a manifest mapping reference must name this connector"]
+            if reference.startswith("manifest:")
+            else []
+        )
+    key = reference.removeprefix(prefix)
+    return (
+        []
+        if key and key in manifest.schema_mappings
+        else [f"mapping reference {reference!r} does not name a manifest mapping"]
+    )
+
+
 def load_sync_adapters(
     descriptor: ConnectorDescriptor,
 ) -> dict[str, McpToolSourceAdapter]:
@@ -89,7 +115,13 @@ def load_sync_adapters(
     """
     manifest = _validated_manifest(descriptor)
     specs = {spec.preset: spec for spec in manifest.sync}
-    _raise_problems(descriptor, _selection_problems(descriptor, specs))
+    _raise_problems(
+        descriptor,
+        [
+            *_selection_problems(descriptor, specs),
+            *_mapping_reference_problems(descriptor, manifest),
+        ],
+    )
     return {
         name: McpToolSourceAdapter.from_sync_spec(
             specs[name], connector=manifest.connector

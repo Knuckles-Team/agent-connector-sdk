@@ -125,7 +125,7 @@ connectors:
 | `presets` | presets to run; empty means every `sync` preset of the manifest |
 | `provision` | whether the content pack is provisioned |
 | `data_resources` | resource URI to the presets synced when it is updated |
-| `mapping_reference` | the mapping the sink applies; default `manifest:<connector>` |
+| `mapping_reference` | exact mapping the sink applies, normally `manifest:<connector>#schema_mappings/<key>`; `manifest:<connector>` is allowed only when the manifest declares exactly one mapping |
 | `max_pages_per_cycle` | pages one cycle reads per preset; the next cycle resumes |
 
 Relative paths are resolved against the configuration file. The package is

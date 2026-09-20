@@ -18,9 +18,9 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any
+from typing import Any, Self
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
 __all__ = [
     "SEAM_SCHEMA_VERSION",
@@ -135,13 +135,40 @@ class RecordPage(_Frozen):
     exhausted: bool
 
 
+def _cursor_payload(cursor: SyncCursor | None) -> dict[str, JsonValue] | None:
+    """Return the canonical optional-cursor payload used by batch identity."""
+
+    return cursor.model_dump(mode="json") if cursor is not None else None
+
+
 class RecordBatch(_Frozen):
     """Records submitted to a sink with the mapping they must be applied with."""
 
     connector: str = Field(min_length=1)
     mapping_reference: str = Field(min_length=1)
     records: tuple[SourceRecord, ...]
+    expected_previous_cursor: SyncCursor | None = None
     cursor: SyncCursor
+
+    @model_validator(mode="after")
+    def _bind_source_page(self) -> Self:
+        """Refuse a page whose source identity cannot share one commit receipt."""
+        identities: set[tuple[str, str]] = set()
+        if (
+            self.expected_previous_cursor is not None
+            and self.expected_previous_cursor.stream != self.cursor.stream
+        ):
+            raise ValueError("expected and candidate cursors must name one stream")
+        for record in self.records:
+            if record.stream != self.cursor.stream:
+                raise ValueError("every record must belong to the cursor stream")
+            if record.provenance.connector != self.connector:
+                raise ValueError("record provenance must name the batch connector")
+            identity = (record.stream, record.record_id)
+            if identity in identities:
+                raise ValueError("record identities must be unique within a batch")
+            identities.add(identity)
+        return self
 
     @property
     def digest(self) -> str:
@@ -151,7 +178,16 @@ class RecordBatch(_Frozen):
             {
                 "connector": self.connector,
                 "mapping_reference": self.mapping_reference,
-                "records": [record.content_digest for record in self.records],
+                "records": [
+                    {
+                        "content_digest": record.content_digest,
+                        "provenance": record.provenance.model_dump(mode="json"),
+                    }
+                    for record in self.records
+                ],
+                "expected_previous_cursor": _cursor_payload(
+                    self.expected_previous_cursor
+                ),
                 "cursor": self.cursor.model_dump(mode="json"),
             },
         )

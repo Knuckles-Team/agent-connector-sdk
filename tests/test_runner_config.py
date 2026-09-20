@@ -130,11 +130,23 @@ def test_credential_endpoints_resolve_or_refuse(
 
 def test_load_sync_adapters_fails_closed(tmp_path: Path) -> None:
     assert list(load_sync_adapters(freshrss_descriptor())) == ["freshrss"]
+    exact = "manifest:freshrss-agent#schema_mappings/news_article"
+    assert list(load_sync_adapters(freshrss_descriptor(mapping_reference=exact))) == [
+        "freshrss"
+    ]
     for overrides, message in (
         ({"presets": ("missing",)}, "not in the manifest"),
         ({"data_resources": {"data://x": ("other",)}}, "is not selected"),
         ({"connector": "archivebox-api", "data_resources": {}}, "is connector"),
         ({"package_root": tmp_path}, "unreadable"),
+        (
+            {"mapping_reference": ("manifest:freshrss-agent#schema_mappings/missing")},
+            "does not name a manifest mapping",
+        ),
+        (
+            {"mapping_reference": "manifest:other#schema_mappings/news_article"},
+            "must name this connector",
+        ),
     ):
         with pytest.raises(RunnerConfigurationError, match=message):
             load_sync_adapters(freshrss_descriptor(**overrides))

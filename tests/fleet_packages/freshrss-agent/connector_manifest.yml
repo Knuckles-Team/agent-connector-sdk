@@ -1,6 +1,9 @@
 connector: freshrss-agent
 ontology_source: feed
 schema_version: '1'
+schema_mappings:
+  news_article:
+    ontology_class: NewsArticle
 sync:
 - preset: freshrss
   server: freshrss-mcp

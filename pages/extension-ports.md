@@ -72,6 +72,52 @@ is ever skipped. `epistemic_graph` (the declared W1 seam) always reports not
 ready, naming the wave that lands it; the testing kit's `InMemorySink` always
 reports ready.
 
+`RecordBatch` is the typed SDK handoff immediately before that native call. It
+binds every record to one connector and cursor stream, rejects duplicate source
+identities within a page, and includes the complete raw provenance in its batch
+digest. The exact mapping reference, candidate cursor, and expected previous
+cursor are digest-bound too. The runner sets `expected_previous_cursor` to the
+cursor used to extract the page; it is `None` only when no cursor has ever been
+committed for that connector stream. EG must compare-and-swap that expected
+position atomically with the record commit, rejecting stale or out-of-order
+pages. This is the furthest the SDK can map without taking ownership of EG's
+ingestion schema.
+
+A manifest mapping reference names one exact mapping:
+`manifest:<connector>#schema_mappings/<key>`. The shorter
+`manifest:<connector>` form is a convenience only for a manifest containing
+exactly one `schema_mappings` entry. Package validation fails closed when the
+short form is ambiguous or an explicit fragment names no declared key. Other
+reference schemes remain opaque to the SDK and must identify an equally exact
+mapping at their owning authority.
+
+The current EG-generated client has no generic source-record method. Its two
+nearby native calls are deliberately not substitutes:
+
+- `SqlSourceBatch` appends typed cells to an existing SQL table. Its mapping
+  descriptor is integrity/provenance content and is not interpreted or applied.
+- `ApplyChangeEnvelope(s)` commits graph operations after mapping. It cannot
+  accept the raw `SourceRecord` page or resolve a connector manifest mapping.
+
+EG must publish the accepted `IngestionAuthorityV1` stage contract as generated
+client calls and types. The first call after SDK extraction is
+`CaptureRawRequestV1 -> RawCaptureResultV1`, followed by
+`AdmitRawRequestV1 -> RawAdmissionResultV1`,
+`ValidateBatchRequestV1 -> ValidationResultV1`,
+`MapBatchRequestV1 -> MappedBatchResultV1`, and finally
+`IngestBatchRequestV1 -> IngestResultV1`. `IngestBatchRequestV1` alone is not a
+binding for `RecordBatch`: it receives mapped `ChangeEnvelopeV1` values, while
+mapping and raw admission are EG responsibilities. Those calls must accept the
+raw bounded records and complete source provenance, resolve the imported
+manifest mapping reference, and bind the candidate cursor to its expected prior
+value. The final result must bind the submitted batch digest, per-record
+accepted/duplicate/rejected outcomes, and committed cursor. The native
+transaction must deduplicate, append provenance/outbox records, advance the
+cursor, and retain the terminal receipt before it acknowledges. Once those
+generated calls exist, `EpistemicGraphSink.submit` can compose them without a
+local schema copy; until then it continues to fail closed and readiness remains
+false.
+
 ## Runner ports
 
 The connector-sync runner adds three ports, described in

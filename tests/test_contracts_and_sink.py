@@ -29,7 +29,8 @@ from agent_connector_sdk.sinks.epistemic_graph import (
     RECORD_INGESTION_UNAVAILABLE,
     EpistemicGraphSink,
 )
-from agent_connector_sdk.testing.sinks import InMemorySink
+from agent_connector_sdk.testing.results import assert_conformant
+from agent_connector_sdk.testing.sinks import InMemorySink, run_sink_suite
 
 SERVER = ServerIdentity(name="demo-mcp", version="1.0.0")
 
@@ -98,6 +99,80 @@ def test_batch_digest_changes_with_cursor() -> None:
         IngestionReceipt(batch_digest="d", accepted=-1, committed_cursor=batch.cursor)
     page = RecordPage(records=(record,), cursor=batch.cursor, exhausted=True)
     assert page.exhausted
+
+
+def test_batch_digest_binds_expected_previous_cursor() -> None:
+    current = SyncCursor(stream="demo", position={"page": 2})
+    batch = RecordBatch(
+        connector="demo-agent",
+        mapping_reference="manifest:demo#schema_mappings/Document",
+        records=(_record(title="t"),),
+        expected_previous_cursor=SyncCursor(stream="demo", position={"page": 1}),
+        cursor=current,
+    )
+    initial = batch.model_copy(update={"expected_previous_cursor": None})
+    assert batch.digest != initial.digest
+    with pytest.raises(ValidationError, match="one stream"):
+        RecordBatch(
+            connector=batch.connector,
+            mapping_reference=batch.mapping_reference,
+            records=batch.records,
+            expected_previous_cursor=SyncCursor(stream="other"),
+            cursor=current,
+        )
+
+
+def test_batch_digest_binds_raw_provenance() -> None:
+    record = _record(title="t")
+    moved = record.model_copy(update={"provenance": _provenance(tool="other")})
+    first = RecordBatch(
+        connector="demo-agent",
+        mapping_reference="manifest:demo",
+        records=(record,),
+        cursor=SyncCursor(stream="demo"),
+    )
+    second = first.model_copy(update={"records": (moved,)})
+    assert first.digest != second.digest
+
+
+@pytest.mark.parametrize(
+    ("records", "cursor", "message"),
+    [
+        (
+            (_record(title="one"), _record(title="two")),
+            SyncCursor(stream="demo"),
+            "record identities must be unique",
+        ),
+        (
+            (_record(title="one").model_copy(update={"stream": "other"}),),
+            SyncCursor(stream="demo"),
+            "cursor stream",
+        ),
+        (
+            (
+                _record(title="one").model_copy(
+                    update={
+                        "provenance": _provenance().model_copy(
+                            update={"connector": "other-agent"}
+                        )
+                    }
+                ),
+            ),
+            SyncCursor(stream="demo"),
+            "batch connector",
+        ),
+    ],
+)
+def test_record_batch_refuses_ambiguous_commit_scope(
+    records: tuple[SourceRecord, ...], cursor: SyncCursor, message: str
+) -> None:
+    with pytest.raises(ValidationError, match=message):
+        RecordBatch(
+            connector="demo-agent",
+            mapping_reference="manifest:demo",
+            records=records,
+            cursor=cursor,
+        )
 
 
 def test_pack_digest_is_order_independent() -> None:
@@ -169,3 +244,13 @@ async def test_in_memory_sink_acknowledges_once() -> None:
     assert (await sink.import_pack(pack)).pack_digest == pack.digest
     assert (await sink.import_pack(pack)).imported == 0
     assert list(sink.packs) == [pack.digest] and list(sink.batches) == [batch.digest]
+
+
+async def test_in_memory_sink_passes_record_submission_tck() -> None:
+    batch = RecordBatch(
+        connector="demo-agent",
+        mapping_reference="manifest:demo",
+        records=(_record(title="t"),),
+        cursor=SyncCursor(stream="demo", watermark="w"),
+    )
+    assert_conformant(await run_sink_suite(InMemorySink, batch))

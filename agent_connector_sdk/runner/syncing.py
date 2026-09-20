@@ -42,7 +42,12 @@ class SyncOutcome:
     cursor: SyncCursor | None
 
 
-async def commit_page(page: RecordPage, target: SyncTarget) -> IngestionReceipt:
+async def commit_page(
+    page: RecordPage,
+    target: SyncTarget,
+    *,
+    expected_previous_cursor: SyncCursor | None,
+) -> IngestionReceipt:
     """Submit one page and record its cursor only after the sink committed it.
 
     Raises:
@@ -53,6 +58,7 @@ async def commit_page(page: RecordPage, target: SyncTarget) -> IngestionReceipt:
         connector=target.connector,
         mapping_reference=target.mapping_reference,
         records=page.records,
+        expected_previous_cursor=expected_previous_cursor,
         cursor=page.cursor,
     )
     receipt = await target.sink.submit(batch)
@@ -77,8 +83,13 @@ async def sync_stream(
     pages = records = accepted = 0
     exhausted = False
     while pages < target.max_pages and not exhausted:
+        expected_previous_cursor = cursor
         page = await adapter.extract(session, cursor)
-        receipt = await commit_page(page, target)
+        receipt = await commit_page(
+            page,
+            target,
+            expected_previous_cursor=expected_previous_cursor,
+        )
         cursor, exhausted = receipt.committed_cursor, page.exhausted
         pages, records = pages + 1, records + len(page.records)
         accepted += receipt.accepted
