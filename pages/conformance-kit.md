@@ -30,6 +30,15 @@ ArchiveBox snapshot preset) and offset (a ServiceNow-style table tool).
 | `check_artifact_kind(kind, sessions)` | the listing is not empty, every entry validates and maps to a record that references it, and two listings produce identical digests |
 | `check_artifact_rejects_malformed(kind, entry)` | `validate` rejects a malformed entry |
 
+## Write-back ports
+
+`run_writeback_suite(factory)` requires a fresh scenario for each check and
+proves that dry-run is side-effect free, stale base versions fail before the
+transport mutates, an unverified authorization cannot write, a repeated
+idempotency key cannot repeat an effect, and an uncertain outcome blocks retry
+until reconciliation proves either the original effect or no effect. The
+`make_writeback_fixture` reference uses only memory and never calls a vendor.
+
 ## Asserting
 
 `assert_conformant(results)` raises `ConformanceFailure` naming every failed

@@ -1,6 +1,6 @@
 # Extension ports
 
-Four typed protocols keep the SDK open. An implementation ships in its own
+Five typed protocols keep the SDK open. An implementation ships in its own
 distribution and declares an entry point; nothing in the SDK changes.
 
 | Port | Module | Entry-point group | Reference implementation |
@@ -9,6 +9,7 @@ distribution and declares an entry point; nothing in the SDK changes.
 | `ArtifactKind` | `ports.artifact_kind` | `agent_connector_sdk.artifact_kinds` | `tools`, `skills`, `prompts`, `resources` |
 | `Transport` | `ports.transport` | `agent_connector_sdk.transports` | `mcp` |
 | `Sink` | `ports.sink` | `agent_connector_sdk.sinks` | `epistemic_graph` (declared seam, W1) |
+| `WriteBackPort` | `ports.writeback` | generated connector binding | `GovernedWriteBack` + fixture transport |
 
 ## SourceAdapter
 
@@ -124,6 +125,43 @@ The connector-sync runner adds three ports, described in
 [Connector sync](connector-sync.md): `ConnectorRegistry` (`ports.connector_registry`),
 `CheckpointStore` (`ports.checkpoint_store`) and `ChangeSource`
 (`ports.change_source`).
+
+## WriteBackPort
+
+`WriteBackPort` is the D18 source-I/O boundary. It reads the current source
+version, produces a side-effect-free field diff, rejects an optimistic conflict
+before mutation, verifies an exact durable authorization decision, applies under
+an idempotency key, and reconciles every possible effect before retry. The only
+authorization modes are `proposal_approval`, `standing_policy`, and
+`manual_trigger`; a mode or reference supplied by a caller grants nothing by
+itself.
+
+```mermaid
+sequenceDiagram
+    participant EG as EG change set
+    participant SDK as GovernedWriteBack
+    participant Auth as AuthorizationVerifier
+    participant Source as WriteBackTransport
+    SDK->>Source: read_current
+    SDK->>SDK: compare base version and field scope
+    SDK->>Auth: verify exact digest/mode/ref/policy
+    SDK->>Source: compare-and-apply(idempotency key)
+    alt acknowledgement certain
+        Source-->>SDK: source observation
+    else possible effect
+        Source--xSDK: outcome uncertain
+        SDK->>Source: reconcile key + source version
+        Source-->>SDK: applied / no effect / still uncertain
+    end
+    SDK-->>EG: source observations for durable receipts
+```
+
+The canonical models come from `epistemic_graph.generated.write_back`.
+`SourceChangeSet.canonical_digest()` and `.patch_digest()` implement EG's framed
+MessagePack digest contract; the SDK neither reconstructs those schemas nor
+implements a parallel digest. EG alone creates and persists `WriteBackReceipt`
+and `ReconciliationReceipt`. No live vendor write-back is enabled by the
+reference in-memory transport.
 
 ## Activation
 

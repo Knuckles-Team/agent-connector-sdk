@@ -11,6 +11,8 @@ TCK before they may be served.
   deterministic digests, record mapping and malformed entry rejection.
 * :mod:`~agent_connector_sdk.testing.results`: result types and
   :func:`~agent_connector_sdk.testing.results.assert_conformant`.
+* :mod:`~agent_connector_sdk.testing.writeback`: dry-run, optimistic conflict,
+  authorization, idempotency and uncertain-outcome reconciliation checks.
 
 Fixtures must exercise the checks: a source serving at least two pages, and a
 session factory that opens a fresh session per call.
