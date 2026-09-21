@@ -1,8 +1,8 @@
 # Connector sync
 
-`connector-sync` is one supervised scheduler for every connector (RF-ADR-009
-sections 2.1 and 2.2). For each connector it opens one MCP session through the
-`Transport` port and uses it for everything:
+`connector-sync` is one supervised scheduler for every connector. For each
+connector it opens one MCP session through the `Transport` port and uses it for
+everything:
 
 1. **Provisioning.** It reads the server's tools, skills, prompts and resources
    as a content pack. When the pack digest equals the digest the sink last
@@ -41,13 +41,11 @@ Exit `2` means the runner could not start: an invalid configuration, an
 uncertified extension, a malformed credential setting, or a malformed or
 disallowed `--health-addr`.
 
-!!! warning "Not done until W1"
-    The `epistemic_graph` sink is the declared W1 stub. Until epistemic-graph
-    publishes pack import and record ingestion, every cycle against it fails and
-    logs `EG ... lands in RF-ADR-009 W1`. Its `readiness()` (see
-    [Extension ports](extension-ports.md#sink)) always reports not ready, and
-    that reason appears in `/health/ready`'s body: the sink cannot commit, so
-    the runner cannot be ready.
+!!! warning "Readiness is authoritative"
+    A sync cycle requires a sink that reports `ready=true`. The bundled
+    `epistemic_graph` sink in version 0.1.0 is not commit-capable and reports not
+    ready. The reason appears in `/health/ready`; no pack, record batch, or
+    cursor is committed through that sink while it is unavailable.
 
 ## Health
 
@@ -137,8 +135,8 @@ Any failure fails that connector closed and retries it with backoff.
 
 | Port | Purpose | Implementations |
 |---|---|---|
-| `ConnectorRegistry` | the connectors to serve, re-read periodically | `StaticConfigRegistry`; epistemic-graph's server registry after W1 |
-| `CheckpointStore` | committed cursors and imported pack digests, written only from receipts | `JsonFileCheckpointStore`; an EG-backed store after W1 |
+| `ConnectorRegistry` | the connectors to serve, re-read periodically | `StaticConfigRegistry` |
+| `CheckpointStore` | committed cursors and imported pack digests, written only from receipts | `JsonFileCheckpointStore` |
 | `ChangeSource` | change events of a session | the MCP transport's sessions |
 | `Transport`, `Sink`, `ArtifactKind`, `SourceAdapter` | see [Extension ports](extension-ports.md) | |
 

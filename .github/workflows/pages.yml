@@ -1,9 +1,8 @@
 name: Pages
 
-# Builds the GitHub Pages site from the hand-written sources in pages/ (RF-ADR-009
-# section 5). The shared Knuckles-Team/pipelines Pages workflow does not yet take
-# a configurable source directory, so this repository builds locally; switch to
-# the shared workflow once it accepts docs_dir.
+# Builds the GitHub Pages site from the hand-written sources in pages/. The site
+# uses `pages/` as its configured MkDocs source directory and publishes only
+# after the strict build succeeds.
 
 on:
   push:

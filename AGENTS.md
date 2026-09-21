@@ -1,120 +1,156 @@
-# AGENTS.md
+# agent-connector-sdk engineering contract
 
-Guide for agents and humans working in **agent-connector-sdk**, the connector SDK of
-the agent-packages fleet (RF-ADR-009, workspace phase 3). Published documentation
-is the GitHub Pages site built from `pages/`.
+This file defines the current repository architecture and the rules contributors
+and automation must preserve. The public guides are built from [`pages/`](pages/)
+and published through GitHub Pages.
 
 ## What this repository owns
 
-| Owns | Must not own |
+`agent-connector-sdk` is the connector control and transport layer. It owns:
+
+- secure FastMCP server construction, authentication, network-exposure checks,
+  visibility, rate limiting, action dispatch, and tool registration;
+- connector manifests, sync presets, tool-schema fingerprints, and content
+  publication for skills, prompts, ontologies, SHACL shapes, and manifests;
+- typed extension ports for sources, artifacts, transports, sinks, registries,
+  checkpoints, authorization, and write-back;
+- connector discovery, certification, conformance checks, source scheduling,
+  health reporting, retries, and progress;
+- governed HTTP, TLS, credential-reference, pagination, and error handling.
+
+The repository does not own vendor API implementations, durable graph storage,
+ontology reasoning, agents, model calls, workflow orchestration, or deployment
+policy. Connectors own vendor-specific transport. `epistemic-graph` owns durable
+records, graph schemas, validation, reasoning, receipts, and semantic indexing.
+The agent control plane owns goals, workflows, and routing.
+
+`agent-utilities` is not a dependency. Keep dependency direction enforceable by
+the `phase-direction` gate.
+
+## Architecture and module map
+
+| Path | Responsibility |
 |---|---|
-| MCP server scaffolding (server factory, authentication, visibility, tool surface, action dispatch, concurrency) | agents, orchestration, LLM calls |
-| Connector manifest schema and validator, sync presets, tool-schema fingerprints | knowledge-graph logic, ontology reasoning, storage |
-| Serving connector content (skills, prompts, ontologies, shapes, manifest) as MCP primitives | the pack or record schema (epistemic-graph owns it) |
-| Extension ports (`SourceAdapter`, `ArtifactKind`, `Transport`, `Sink`), entry-point discovery, the conformance kit | vendor API clients (connectors own them) |
-
-Dependencies are `fastmcp`, the `epistemic_graph` client, `pydantic`, `PyYAML`,
-`httpx`, `httpx2` (FastMCP's HTTP client), `anyio` and `cryptography`. **Never
-add agent-utilities or any later-phase package**; the phase-direction hook fails
-the push.
-
-## Layout
-
-| Path | Contents |
-|---|---|
-| `agent_connector_sdk/config.py`, `utilities.py`, `exceptions.py`, `identity.py` | configuration, coercion, exceptions, actor context |
+| `agent_connector_sdk/mcp/` | server factory, auth composition, visibility, content, tools, subscriptions, registry leases |
+| `agent_connector_sdk/manifest/` | manifest models, loaders, sync presets, live-contract validation, fingerprints |
+| `agent_connector_sdk/ports/` | one typed protocol per extension boundary |
+| `agent_connector_sdk/discovery.py` | entry-point discovery and explicit activation policy |
+| `agent_connector_sdk/adapters/` | reference source adapters |
+| `agent_connector_sdk/artifacts/` | MCP content capture and canonical pack construction |
+| `agent_connector_sdk/transports/` | authenticated connector sessions |
+| `agent_connector_sdk/sinks/` | graph-bound sink adapters and readiness reporting |
+| `agent_connector_sdk/runner/` | `connector-sync` composition, workers, scheduling, checkpoints, health |
+| `agent_connector_sdk/writeback/` | governed dry-run, authorization, version checks, idempotency, reconciliation |
+| `agent_connector_sdk/http/`, `tls/`, `auth/` | governed outbound requests and identity boundaries |
 | `agent_connector_sdk/credentials/` | `env://` and `openbao://` references and resolvers |
-| `agent_connector_sdk/http/`, `tls/`, `auth/`, `progress.py` | the governed API-client layer: HTTP client, retries, RFC 9457 errors, pagination pages, TLS profiles, outbound auth, progress |
-| `agent_connector_sdk/contracts.py` | the epistemic-graph seam types (replaced by contract-generated types after W1) |
-| `agent_connector_sdk/ports/` | one protocol per module, plus errors |
-| `agent_connector_sdk/discovery.py` | entry-point groups and the activation policy |
-| `agent_connector_sdk/manifest/` | manifest model, presets, fingerprints, live-contract validation, loaders |
-| `agent_connector_sdk/mcp/` | server factory and everything it composes |
-| `agent_connector_sdk/runner/` | the `connector-sync` scheduler: registry, workers, backoff, checkpoints, and its health surface (`health_state.py`, `health_server.py` -- see [Connector sync](pages/connector-sync.md)) |
-| `agent_connector_sdk/adapters/`, `artifacts/`, `transports/`, `sinks/` | reference implementations registered as entry points |
-| `agent_connector_sdk/testing/` | the conformance kit |
-| `tests/` | the suite; `fixture_server.py` and `fixture_package/` are an in-process connector |
-| `scripts/` | `check_wiring.py`, the SDK's own wiring gates (orphan modules, tested public API); every other gate is a shared hook |
-| `pages/` | hand-written Pages sources (`mkdocs.yml` sets `docs_dir: pages`) |
+| `agent_connector_sdk/testing/` | reusable connector conformance suites |
+| `tests/` | unit, integration, contract, and gate tests |
+| `pages/` | public GitHub Pages sources |
 
-`pyproject.toml` `[tool.agent_connector_sdk.wiring] public_modules` is the public
-surface. A new module is either imported by a reachable module or added there,
-and then its public names need tests.
+The public Python surface is declared in
+`pyproject.toml` under `[tool.agent_connector_sdk.wiring]`. Every module must be
+reachable from a public module or an entry point, and every public name must be
+exercised by a test.
+
+The runner activates an extension only after its exact group, name,
+distribution, and version are certified. Sink readiness is capability based. A
+sink that cannot commit returns `ready=False`; the runner fails readiness and
+does not advance a cursor. The bundled epistemic-graph sink in this release is
+not commit-capable and therefore remains inactive at runtime.
 
 ## Commands
 
 ```bash
-uv sync                                   # the project environment (Python 3.12)
-uv run --frozen python -m pytest -q       # tests
-pre-commit run --all-files                # commit-stage suite
-pre-commit run --all-files --hook-stage pre-push   # push-stage suite
-pre-commit run complexity-census --hook-stage manual --all-files   # absolute cccc census
-pre-commit run kiss-census --hook-stage manual --all-files         # absolute KISS census
+uv sync
+uv run --frozen python -m pytest -q
+uv run --frozen --with mypy==1.20.2 \
+  --with types-PyYAML==6.0.12.20260518 \
+  python -m mypy agent_connector_sdk
+uvx --from ruff==0.16.0 ruff check agent_connector_sdk tests
+uvx --from ruff==0.16.0 ruff format --check agent_connector_sdk tests
+uv run --frozen --only-group docs mkdocs build --strict
+python scripts/check_wiring.py orphans
+python scripts/check_wiring.py public-api
+pre-commit run --all-files
+pre-commit run --all-files --hook-stage pre-push
 ```
 
-## Rules
+Run the shared documentation contract directly while editing public surfaces:
 
-- **Worktrees, not the shared checkout.** Work in
-  `git worktree add <path> -b <branch> main`. Never use the harness's
-  `EnterWorktree` or `isolation: "worktree"` against this repository, and never
-  `git stash` (the stash is shared by every worktree).
-- **Stage explicit paths.** Never `git add -A` or `git add .`; review
-  `git diff --cached` before committing.
-- **Full green, no suppressions.** No `noqa`, `type: ignore`, skips, xfails,
-  baselines or ratchets. No `--no-verify`.
-- **Shape limits.** New code meets cccc (cyclomatic 10, cognitive 15) and
-  `.kiss/kiss.toml` (for example at most 10 functions per file, 300 lines per file,
-  20 calls and 5 returns per function, 3 positional arguments, one protocol per
-  module). The census holds the package at zero.
-- **Fail closed.** Unknown auth modes, unverified tool contracts, malformed
-  records, uncertified extensions and credential values in configuration all
-  raise; nothing degrades to permissive.
-- **No version suffixes** in names (`StorageKernel`, not `StorageKernelV1`) and
-  no compatibility shims.
-- **The one declared stub.** `sinks/epistemic_graph.py` raises
-  `NotImplementedError` for pack import and record ingestion until epistemic-graph
-  publishes those methods (RF-ADR-009 W1). The stub gates accept exactly those two
-  raises and print them as NOT DONE. Nothing that depends on them counts as done.
+```bash
+pre-commit try-repo ../pipelines public-surface --all-files
+```
 
 ## Quality gates
 
-The suite adopts agent-utilities' tool hooks and consumes every repository-agnostic
-gate from the shared hook repository **Knuckles-Team/pipelines**
-(`.pre-commit-hooks.yaml`, pinned to a full commit SHA in `.pre-commit-config.yaml`):
-complexity (cccc) and KISS, staged and census; dupehound and jscpd; secret history,
-security sanitizer, tracked privacy, dependency audit and supply chain; root
-hygiene, gitignore convergence, sprawl, Mermaid and pre-commit patch safety;
-no-stub, stubs, swallowed errors, event-loop blocking, import cycles, env sprawl
-and stdout writes; and the CI gate replica. No gate script is copied into this
-repository and none is exempt from any gate. The scanner versions are pinned by
-the hook repository: cccc 1.6.0, kiss 0.4.10, dupehound 0.1.2, jscpd 5.0.16.
+The repository consumes shared, pinned hooks from
+[`Knuckles-Team/pipelines`](https://github.com/Knuckles-Team/pipelines) and keeps
+repository-specific settings in `[tool.pipelines_hooks]`.
 
-Repository-specific inputs live in `pyproject.toml` `[tool.pipelines_hooks]`:
-`packages`, `env_sprawl.allow_files` (`config.py` is the only environment reader),
-`stdout_writes.served_paths` (the whole package is served MCP surface),
-`stubs.declared_seams` (the one declared stub above), and the `ci_replica` workflow
-registry. `.repo-layout.toml` declares every root entry, dot-files in `[dotfiles]`.
-CI runs the same pinned hooks with `pre-commit run <hook> --hook-stage manual`.
+- **Public surface:** README badges, headings, Pages links, local links, document
+  size, current-state language, and the required `AGENTS.md` structure.
+- **Code shape:** cccc, KISS, dupehound, jscpd, import cycles, swallowed errors,
+  event-loop blocking, environment reads, stdout purity, and production seams.
+- **Security and supply chain:** secret history, tracked privacy, dependency
+  audit, immutable sources, security sanitation, and repository hygiene.
+- **Correctness:** pytest, strict mypy, Ruff, Bandit, Vulture, codespell, wiring,
+  dependency readiness, and dependency direction.
+- **Delivery:** strict MkDocs, reproducible wheel build, version consistency,
+  and the local CI replica.
 
-Until a new pipelines revision is pushed, a machine resolves it only from a local
-clone: run pre-commit with `GIT_CONFIG_COUNT=1`,
-`GIT_CONFIG_KEY_0=url.<local pipelines checkout>.insteadOf` and
-`GIT_CONFIG_VALUE_0=https://github.com/Knuckles-Team/pipelines` in the environment
-(no git configuration is changed).
+Native scanners must match the versions required by the pinned hook revision.
+A missing scanner, configuration, dependency, or privacy catalog is a gate
+failure, never a skipped success. Do not weaken, suppress, baseline, or bypass a
+gate to land a change.
 
-Hooks from agent-utilities that were **not** adopted, and why:
+## Development rules
 
-| Hook(s) | Reason |
-|---|---|
-| lane-guard, check-concept-gaps, check-concept-governance(-merged), guardrail-concept-freshness, guardrail-concept-domain-vocab | agent-utilities' concept registry and merge-queue lanes |
-| turtle-format, check-ontology, check-identifier-interpolation | the SDK owns no ontology and builds no graph queries; epistemic-graph validates ontologies |
-| check-release-catalogs, check-skill-name-collision, guardrail-kg-skill-coverage, guardrail-prebundled-skills, guardrail-prompt-schema | agent-utilities' connector catalog and bundled skills |
-| guardrail-genesis-manifest, guardrail-surface-parity, guardrail-openapi-coverage, guardrail-cpd-drift, guardrail-docs-contract, docs-consistency | agent-utilities' gateway, genesis and `/docs` contracts (this repository has no `/docs`) |
-| guardrail-epistemic-operations-protocol, guardrail-no-pyo3, guardrail-retrieval-quality, guardrail-eval-corpus, guardrail-reliability-corpus, guardrail-citation-lineage, guardrail-liveness, guardrail-prod-profile, guardrail-entrypoint-engine-authority, backend-interface-parity, backend-parity, constrained-parallelism | agent-utilities' engine, retrieval, evaluation and backend internals |
-| guardrail-version-consistency, check-wire-first | replaced by `check-bumpversion`, a version test, and `check-orphan-modules` / `check-public-api-tested` (`scripts/check_wiring.py`, no baseline file) |
-| guardrail-removed-symbol-consumers | compares against a published `main` and a fleet consumer index; adopt once the SDK has a release consumers import |
-| check-import-safety | its Windows shim cannot model third-party guarded imports without an exclusion list; the package targets POSIX |
-| check-http-transport-closure | agent-utilities' governed HTTP transport layer |
-| env-var-drift | lives in agent-utilities; it moves to the SDK with the connector switch (W3) |
-| check-agent-standards, check-cli-help, hadolint, docker-compose-check, nbqa-ruff | no `agent_server.py`/`mcp_server.py`, Dockerfiles, compose files or notebooks here |
-| contract-checks, check-current-only-contract-debt, check-security-*, check-guardrails-release-supply-chain, guardrail-gate-meta-tests, guardrail-coupling-advisory, guardrail-parity | agent-utilities' own security corpus and test suites; this repository's gate tests live in `tests/gates` and run with pytest |
+- Put shared connector behavior in this SDK and vendor behavior in the owning
+  connector. Do not add graph storage, reasoning, agents, or orchestration here.
+- Preserve one contract at every boundary. Import epistemic-graph-owned schemas
+  from its generated client surface; do not duplicate wire DTOs or digests.
+- Fail closed for unknown auth, unsafe exposure, malformed records, unverified
+  tool contracts, uncertified extensions, literal credentials, and uncertain
+  write-back effects.
+- Keep secrets as references. Never serialize resolved values into configuration,
+  logs, errors, reports, fixtures, or manifests.
+- Keep async paths non-blocking and place bounded blocking work behind the
+  established thread boundary.
+- Use current names without version suffixes, compatibility aliases, or parallel
+  implementations.
+- Add focused positive and adversarial tests for each invariant. Verify discovery
+  as well as direct construction for entry-point features.
+- Keep public examples synthetic and portable. Do not publish machine paths,
+  private endpoints, credentials, internal plans, or implementation history.
+- Stage only reviewed paths and run every affected gate before committing.
+
+## Documentation
+
+[`README.md`](README.md) is the concise project entry point. The
+[GitHub Pages site](https://knuckles-team.github.io/agent-connector-sdk/) contains
+the operational and API guides. Keep README, Pages, code, tests, entry points,
+and CLI help synchronized in the same change.
+
+Public documentation describes the architecture and capabilities that exist in
+the referenced commit. Design discussions, rollout sequencing, and program
+tracking belong outside the public repository surface.
+
+Build Pages with `mkdocs build --strict`. Add a page to `mkdocs.yml` navigation
+when it is part of the supported public contract, and keep every local Markdown
+link repository-relative and valid.
+
+## Branching & isolation
+
+This repository is a shared multi-worktree checkout.
+
+- Create a real worktree with
+  `git worktree add <path> -b <branch> main` before changing files.
+- Never use harness-managed worktree isolation or `EnterWorktree`; it can alter
+  shared Git configuration for every linked checkout.
+- Never use `git stash`; its stack is shared by all worktrees.
+- Never stage with `git add -A` or `git add .`. Stage an explicit path allowlist,
+  inspect `git diff --cached`, and keep unrelated work untouched.
+- Do not overwrite another lane's branch, generated files, lockfile, or
+  uncommitted changes. Rebase or recompose only after identifying ownership.
+- Do not use `--no-verify`. Commit, push, tag, publish, and deploy are distinct
+  operations and each requires its own completed gates and authority.

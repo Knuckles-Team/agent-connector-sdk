@@ -8,7 +8,7 @@ distribution and declares an entry point; nothing in the SDK changes.
 | `SourceAdapter` | `ports.source_adapter` | `agent_connector_sdk.source_adapters` | `mcp_tool` |
 | `ArtifactKind` | `ports.artifact_kind` | `agent_connector_sdk.artifact_kinds` | `tools`, `skills`, `prompts`, `resources` |
 | `Transport` | `ports.transport` | `agent_connector_sdk.transports` | `mcp` |
-| `Sink` | `ports.sink` | `agent_connector_sdk.sinks` | `epistemic_graph` (declared seam, W1) |
+| `Sink` | `ports.sink` | `agent_connector_sdk.sinks` | `epistemic_graph` (capability gated) |
 | `WriteBackPort` | `ports.writeback` | generated connector binding | `GovernedWriteBack` + fixture transport |
 
 ## SourceAdapter
@@ -34,13 +34,13 @@ watermark advances only when a sweep is exhausted.
 
 A `page_kind` that does not apply to the mode is rejected. A preset with an
 empty `id_field` is rejected: a sweep without record identity, such as a SQL
-table sweep, belongs to a data-platform source adapter (RF-ADR-009 section 2.3).
+table sweep, belongs to a data-platform source adapter.
 
-The package validator rejects an old input-only algorithm and a
-`tool_schema_sha256` equal to either generation's fingerprint of an empty input
-schema. The current pin binds both input and output schemas. An action selected
-by a preset must appear in the action argument's JSON Schema `enum` (or its
-single-value `const` form). Re-certify from the server's `tools/list` with
+The package validator requires the current fingerprint algorithm and rejects a
+`tool_schema_sha256` derived from an empty input schema. The pin binds both
+input and output schemas. An action selected by a preset must appear in the
+action argument's JSON Schema `enum` (or its single-value `const` form).
+Certify from the server's `tools/list` with
 [`connector-certify`](connector-certify.md).
 
 ## ArtifactKind
@@ -69,9 +69,9 @@ malformed results are rejected. Aggregate prompt capture uses the existing
 The connector-sync runner's `/health/ready` (see [Connector sync](connector-sync.md)
 "Health") calls `readiness()` directly, bounded by a short timeout, so a sink
 implementation must answer it without a side effect and should not assume it
-is ever skipped. `epistemic_graph` (the declared W1 seam) always reports not
-ready, naming the wave that lands it; the testing kit's `InMemorySink` always
-reports ready.
+is ever skipped. The bundled `epistemic_graph` sink in version 0.1.0 reports not
+ready because it cannot commit packs or record batches. The testing kit's
+`InMemorySink` reports ready.
 
 `RecordBatch` is the typed SDK handoff immediately before that native call. It
 binds every record to one connector and cursor stream, rejects duplicate source
@@ -173,6 +173,6 @@ name in a group is an error.
 
 ## Seam types
 
-`agent_connector_sdk.contracts` holds the record, cursor, pack and receipt types
-the SDK exchanges with epistemic-graph. epistemic-graph owns that schema; when it
-publishes the contract, these types are replaced by generated ones.
+`agent_connector_sdk.contracts` holds the SDK-side record, cursor, pack, and
+receipt transport types. epistemic-graph remains authoritative for durable graph
+schema and generated write-back contracts.

@@ -32,5 +32,11 @@ supply-chain pinning, the phase-direction check, stubs, environment reads outsid
 event-loop blocking, ruff, mypy (strict), bandit, codespell, vulture, the test
 suite, the strict site build, the wheel build, and a replay of the CI jobs.
 
-The only stubs allowed are the two epistemic-graph sink methods that wait for
-RF-ADR-009 W1; the stub gates print them as NOT DONE.
+The `public-surface` gate validates the README badge set, required public
+headings, Pages link, local links, document size, current-state language, and the
+durable `AGENTS.md` structure. Its repository identity is configured in
+`[tool.pipelines_hooks.public_surface]`.
+
+Production seams are rejected unless the repository configuration declares the
+exact file and marker. The bundled epistemic-graph sink is capability gated and
+reports not ready; callers must not treat it as a successful commit path.

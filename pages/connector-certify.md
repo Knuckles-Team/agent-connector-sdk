@@ -72,7 +72,7 @@ digest, and any defect. It does not include endpoint URLs or credentials.
 | Exit | Meaning |
 |---|---|
 | `0` | every pin matches, or all certifiable pins were written |
-| `1` | drift, an old empty-schema pin, an unpinned tool, or a refused write |
+| `1` | drift, an invalid empty-schema pin, an unpinned tool, or a refused write |
 | `2` | invalid checkout or the server could not list tools |
 
 `--write` replaces `connectors/tool_schema_fingerprints.json` and only the

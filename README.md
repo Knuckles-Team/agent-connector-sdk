@@ -10,17 +10,19 @@
 [![GitHub Repo stars](https://img.shields.io/github/stars/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/forks)
 [![GitHub contributors](https://img.shields.io/github/contributors/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/graphs/contributors)
-[![GitHub License](https://img.shields.io/github/license/Knuckles-Team/agent-connector-sdk)](LICENSE)
-[![GitHub last commit](https://img.shields.io/github/last-commit/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/commits/main/)
+[![GitHub license](https://img.shields.io/github/license/Knuckles-Team/agent-connector-sdk)](LICENSE)
+[![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/commits/main/)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/pulls)
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/pulls?q=is%3Apr+is%3Aclosed)
 [![GitHub issues](https://img.shields.io/github/issues/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/issues)
 [![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk)
 [![GitHub language count](https://img.shields.io/github/languages/count/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk)
 [![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk)
-[![GitHub repo file count](https://img.shields.io/github/directory-file-count/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk)
+[![GitHub repo file count (file type)](https://img.shields.io/github/directory-file-count/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk)
 
 Current package — *Version: 0.1.0*
+
+## Overview
 
 Build secure, discoverable connector servers that expose tools and content over
 the Model Context Protocol (MCP), synchronize external sources into
@@ -31,7 +33,7 @@ it to an agent framework. Connector packages supply their vendor API client and
 domain tools; the SDK supplies the server, policies, lifecycle, extension ports,
 and conformance tests.
 
-## Highlights
+## Key capabilities
 
 - **Production MCP servers:** authentication, safe network exposure, health,
   visibility controls, rate limits, change subscriptions, and condensed or
@@ -56,7 +58,7 @@ Requires Python 3.12 or newer.
 pip install agent-connector-sdk
 ```
 
-## Build a connector server
+## Quick start
 
 The factory establishes the common server policy. Your package registers its
 own API client and domain tools, then starts the selected transport.
@@ -135,7 +137,7 @@ an unavailable sink fails readiness instead of dropping data.
 See [Connector sync](https://knuckles-team.github.io/agent-connector-sdk/connector-sync/)
 and [Connector certification](https://knuckles-team.github.io/agent-connector-sdk/connector-certify/).
 
-## Architecture and ownership
+## Architecture
 
 The SDK owns connector transport and lifecycle behavior. It intentionally does
 not become a graph database, an agent harness, or a vendor client.

@@ -1,29 +1,39 @@
 # agent-connector-sdk
 
-The SDK every connector in the agent-packages fleet builds on. It holds three
-things that used to live inside agent-utilities:
+The shared runtime and development kit for connector packages. It gives each
+connector a secure MCP server, declarative content, typed source and write-back
+ports, governed HTTP behavior, and a common conformance contract.
 
-| Area | What it gives a connector |
+| Area | Capability |
 |---|---|
-| MCP server scaffolding | `create_mcp_server`, authentication, visibility filtering, the condensed and verbose tool surface, action dispatch |
-| Declarative content | the connector manifest schema and validator, sync presets, pinned tool-schema fingerprints, and serving skills, prompts, ontologies, shapes and the manifest as MCP primitives |
-| Extension ports | typed `SourceAdapter`, `ArtifactKind`, `Transport` and `Sink` protocols discovered through entry points, with a conformance kit |
+| MCP runtime | `create_mcp_server`, authentication, safe exposure, visibility, action dispatch, change subscriptions |
+| Connector content | manifests, sync presets, fingerprints, skills, prompts, ontologies, and SHACL shapes |
+| Source synchronization | certified adapters, transports, sinks, durable acknowledgements, cursor discipline, and health |
+| Write-back | dry-run, authorization, optimistic version checks, idempotency, and uncertain-effect reconciliation |
+| Connector development | governed HTTP and TLS, credential references, extension discovery, certification, and conformance suites |
 
-## Where it sits
+## Ownership boundary
 
-The workspace builds in a fixed order, and a repository may only depend on
-earlier phases. The SDK is phase 3.
+The SDK owns connector transport and lifecycle behavior. A connector owns its
+vendor API requests, source revisions, paging tokens, and external effects.
+`epistemic-graph` owns durable graph records, schemas, validation, reasoning,
+receipts, and semantic indexing. Agent runtimes own goals, workflows, routing,
+and model calls.
 
-| Phase | Repository | Relation to the SDK |
-|---|---|---|
-| 2 | epistemic-graph | the SDK uses its Python client; epistemic-graph owns the pack and record schema |
-| 3 | agent-connector-sdk | this repository |
-| 4 | agent-utilities | the agent plane; not a dependency of the SDK |
-| 7 | connectors (`agents/*`) | depend on the SDK and the epistemic-graph client only |
+Connectors depend on this SDK and the epistemic-graph client. The SDK does not
+depend on an agent framework.
 
-## Status
+## Runtime readiness
 
-This is the first release of the SDK (0.1.0). The epistemic-graph sink is a
-declared contract seam: epistemic-graph publishes its pack-import and ingestion
-methods in RF-ADR-009 wave W1, and until then the sink raises
-`NotImplementedError`. Everything else on these pages is implemented and tested.
+Extensions activate only when their exact package identity and capabilities are
+certified. Sink readiness is queried directly and bounded by a timeout. A sink
+that cannot commit reports not ready; `connector-sync` exposes that result at
+`/health/ready` and does not advance a cursor.
+
+The bundled epistemic-graph sink in version 0.1.0 is not commit-capable. Use the
+readiness endpoint as the runtime authority; no pack or record batch is accepted
+through that sink while it reports `ready=false`.
+
+Start with [Connector servers](connector-servers.md), then configure
+[Connector sync](connector-sync.md) and validate each extension with the
+[Conformance kit](conformance-kit.md).

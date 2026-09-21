@@ -1,5 +1,5 @@
 site_name: agent-connector-sdk
-site_description: The connector SDK for the agent-packages fleet
+site_description: Secure MCP connector servers, source synchronization, and governed write-back
 site_url: https://knuckles-team.github.io/agent-connector-sdk/
 repo_url: https://github.com/Knuckles-Team/agent-connector-sdk
 docs_dir: pages
@@ -19,7 +19,6 @@ nav:
   - Connector certification: connector-certify.md
   - HTTP clients: http-clients.md
   - Credentials: credentials.md
-  - Moving from agent-utilities: from-agent-utilities.md
   - Quality gates: quality-gates.md
 markdown_extensions:
   - admonition
