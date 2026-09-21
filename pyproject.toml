@@ -18,9 +18,8 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
-# The SDK depends on the MCP server/client stack and the epistemic-graph client
-# only. It must never depend on agent-utilities (RF-ADR-009 phase order: the SDK
-# is phase 3, agent-utilities is phase 4).
+# The SDK depends on the MCP server/client stack and the epistemic-graph client.
+# It must never depend on the agent control plane.
 dependencies = [
     "fastmcp>=4.0.3,<5",
     "epistemic-graph>=2.23.0,<3",
@@ -203,10 +202,16 @@ allow_files = ["agent_connector_sdk/config.py"]
 [tool.pipelines_hooks.stdout_writes]
 served_paths = ["agent_connector_sdk"]
 
-# The only accepted stubs: epistemic-graph wire methods not published yet
-# (RF-ADR-009 W1), printed as NOT DONE. Delete the entry when the wave lands.
+# The bundled epistemic-graph sink is capability gated in this release. These
+# exact markers are its only declared non-commit paths.
 [tool.pipelines_hooks.stubs]
 declared_seams = { "agent_connector_sdk/sinks/epistemic_graph.py" = ["PACK_IMPORT_UNAVAILABLE", "RECORD_INGESTION_UNAVAILABLE"] }
+
+[tool.pipelines_hooks.public_surface]
+repository = "Knuckles-Team/agent-connector-sdk"
+distribution = "agent-connector-sdk"
+pages_url = "https://knuckles-team.github.io/agent-connector-sdk/"
+mcp_server = false
 
 [tool.pipelines_hooks.ci_replica]
 build_affecting = ["pyproject.toml", "uv.lock", "mkdocs.yml", "pages/**", ".github/workflows/**", ".pre-commit-config.yaml"]

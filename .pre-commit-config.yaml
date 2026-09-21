@@ -1,12 +1,9 @@
 # Combined pre-commit and pre-push scan suite for agent-connector-sdk.
 #
-# Tool hooks are adopted from agent-packages/agent-utilities/.pre-commit-config.yaml
-# (hook ids, pins and stages kept). Every repository-agnostic gate -- complexity,
-# KISS, clones, secrets, privacy, supply chain, hygiene and code shape -- comes
-# from the shared hook repository Knuckles-Team/pipelines at a pinned commit and is
-# configured in pyproject.toml [tool.pipelines_hooks]. Shared hooks list `manual`
-# so CI runs the identical pinned hook with `--hook-stage manual`. AU hooks that
-# were dropped, and why, are listed in AGENTS.md under "Quality gates".
+# Repository-agnostic complexity, clone, security, privacy, supply-chain,
+# hygiene, code-shape, documentation, and CI-replica gates come from the shared
+# Knuckles-Team/pipelines repository at a pinned commit. Repository-specific
+# settings live in `pyproject.toml` under `[tool.pipelines_hooks]`.
 default_install_hook_types: [pre-commit, pre-push]
 default_stages: [pre-commit]
 repos:
@@ -55,7 +52,7 @@ repos:
     stages: [pre-push, manual]
 # ── Shared gates (Knuckles-Team/pipelines, pinned) ─────────────────────────────
 - repo: https://github.com/Knuckles-Team/pipelines
-  rev: 8f9a755d97a4a03e069799fa853ba64c6bfecbf7 # refactor/shared-hooks (RF-ADR-009 SHARED-HOOKS)
+  rev: 35209bf6d85569a3c1fe3d5cd31771cacfdc3731
   hooks:
   # scanners (pinned versions; never installed by a hook)
   - id: complexity-staged
@@ -83,6 +80,9 @@ repos:
   - id: env-sprawl
     stages: [pre-commit, manual]
   - id: stdout-writes
+    stages: [pre-commit, manual]
+  # public documentation
+  - id: public-surface
     stages: [pre-commit, manual]
   - id: swallowed-errors
     stages: [pre-commit, manual]
@@ -146,7 +146,7 @@ repos:
     pass_filenames: false
     always_run: true
     stages: [manual, pre-push]
-  # ── Wiring (RF-ADR-009 section 4) ────────────────────────────────────────
+  # ── Wiring ───────────────────────────────────────────────────────────────
   - id: check-orphan-modules
     name: Wiring — no orphan package modules
     entry: python3 scripts/check_wiring.py orphans
@@ -171,7 +171,7 @@ repos:
     always_run: true
     stages: [manual, pre-push]
   - id: phase-direction
-    name: Phase direction — no dependency on a later workspace phase (RF-ADR-009)
+    name: Phase direction — no dependency on a later workspace phase
     # repository-manager's own per-repository mode: it resolves this checkout (or
     # linked worktree) from its git remote and checks only its own source.
     entry: |-
