@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 
 import mcp_types
 import pytest
+from epistemic_graph.generated.connector_pack import PackAnnotations
 
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from agent_connector_sdk.artifacts.common import (
@@ -49,6 +53,7 @@ from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
 from agent_connector_sdk.testing.artifact_kinds import (
     check_artifact_kind,
     check_artifact_rejects_malformed,
+    check_tool_contract_pin_normalization,
 )
 from agent_connector_sdk.testing.results import SessionFactory, assert_conformant
 from agent_connector_sdk.testing.sinks import InMemorySink
@@ -92,6 +97,90 @@ async def test_artifact_kinds_pass_the_conformance_kit(
         check_artifact_rejects_malformed(kind, _entry("other", "x://y", "{}")).passed
         is not False
     )
+
+
+async def test_contract_pin_normalization_passes_for_a_real_tool(
+    sessions: SessionFactory,
+) -> None:
+    """EH-199: the SDK TCK recomputes the D18 pin EG cannot recompute itself."""
+    result = await check_tool_contract_pin_normalization(ToolArtifactKind(), sessions)
+    assert result.passed, result.detail
+
+
+async def test_contract_pin_normalization_catches_a_drifted_pin(
+    sessions: SessionFactory,
+) -> None:
+    """Prove the check actually fires: a tampered pin must fail it."""
+    async with sessions() as session:
+        server = await session.server_identity()
+        entries = await ToolArtifactKind().list_entries(session, server)
+    tampered_annotations = entries[0].annotations.model_copy(
+        update={"sdk_contract_pin": "0" * 64}
+    )
+    tampered = (
+        entries[0].model_copy(update={"annotations": tampered_annotations}),
+        *entries[1:],
+    )
+
+    class _TamperedToolKind:
+        kind = "tool"
+
+        async def list_entries(
+            self, session: object, server: object
+        ) -> tuple[CapturedArtifact, ...]:
+            return tampered
+
+        def validate(self, entry: CapturedArtifact) -> None:
+            return None
+
+    result = await check_tool_contract_pin_normalization(_TamperedToolKind(), sessions)
+    assert not result.passed
+    assert "recomputed D18 fingerprint" in result.detail
+
+
+async def test_contract_pin_normalization_reports_an_empty_client_schema(
+    sessions: SessionFactory,
+) -> None:
+    """EH-215's exact regression shape: no client-visible input schema fails
+    the check with a clear reason instead of an uncaught exception."""
+    broken_tool = mcp_types.Tool.model_validate({"name": "broken", "inputSchema": {}})
+    fabricated = CapturedArtifact(
+        kind="tool",
+        uri="tool://demo-mcp/broken",
+        name="broken",
+        media_type="application/json",
+        body="{}",
+        server=SERVER,
+        annotations=PackAnnotations(sdk_contract_pin="1" * 64),
+    )
+
+    class _BrokenSchemaSession:
+        async def server_identity(self) -> ServerIdentity:
+            return SERVER
+
+        async def list_tools(self) -> list[Any]:
+            return [broken_tool]
+
+    class _FabricatedToolKind:
+        kind = "tool"
+
+        async def list_entries(
+            self, session: object, server: object
+        ) -> tuple[CapturedArtifact, ...]:
+            return (fabricated,)
+
+        def validate(self, entry: CapturedArtifact) -> None:
+            return None
+
+    @asynccontextmanager
+    async def _broken_sessions() -> AsyncIterator[_BrokenSchemaSession]:
+        yield _BrokenSchemaSession()
+
+    result = await check_tool_contract_pin_normalization(
+        _FabricatedToolKind(), _broken_sessions
+    )
+    assert not result.passed
+    assert "no client-visible input schema" in result.detail
 
 
 async def test_content_pack_is_complete_and_stable(sessions: SessionFactory) -> None:
