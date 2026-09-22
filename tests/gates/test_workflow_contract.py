@@ -9,8 +9,10 @@ RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 PAGES = ROOT / ".github" / "workflows" / "pages.yml"
 CCCC_REVISION = "d728759323be5d9977b7390a27133e8eaf481f26"
 PIPELINES_REVISION = "ebfaa43bc23346a3a635edd5d1822beb46d48898"
+PAGES_PIPELINE_REVISION = "64e34ca63385200f5ddfef5286e6886bf7dc80b4"
 PAGES_PIPELINE = (
-    f"Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml@{PIPELINES_REVISION}"
+    "Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml"
+    f"@{PAGES_PIPELINE_REVISION}"
 )
 EPISTEMIC_GRAPH_REVISION = "f17f47ab300f7f1ddd972d4e0214283a28547e36"
 UV_ACTION = "astral-sh/setup-uv@"
