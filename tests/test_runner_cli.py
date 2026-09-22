@@ -10,12 +10,17 @@ from pathlib import Path
 
 import pytest
 import yaml
+from epistemic_graph.generated.connector_pack import (
+    AgentLibraryMutationContext,
+    McpCatalogSnapshotBinding,
+)
 from fleet_fixtures import FRESHRSS_CONNECTORS, FRESHRSS_ROOT
 
 from agent_connector_sdk.discovery import (
     TRANSPORT_GROUP,
     CertifiedExtensions,
     ExtensionActivationError,
+    ExtensionDiscoveryError,
     sdk_reference_extensions,
 )
 from agent_connector_sdk.runner.cli import build_parser, default_state_dir, main
@@ -30,6 +35,12 @@ from agent_connector_sdk.runner.logs import (
 from agent_connector_sdk.runner.services import RunnerServices
 from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
 from agent_connector_sdk.transports.mcp import McpTransport
+
+
+async def _pack_import_authority(
+    connector: str,
+) -> tuple[McpCatalogSnapshotBinding, AgentLibraryMutationContext]:
+    raise AssertionError(f"authority resolver unexpectedly called for {connector}")
 
 
 @pytest.fixture(autouse=True)
@@ -71,12 +82,19 @@ def test_parser_and_state_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
 
 
 def test_default_services_load_certified_extensions(tmp_path: Path) -> None:
+    verified_client = object()
     built = default_services(
-        RunnerSettings(), state_dir=tmp_path, sink_name="epistemic_graph"
+        RunnerSettings(),
+        state_dir=tmp_path,
+        sink_name="epistemic_graph",
+        sink_client=verified_client,
+        pack_import_authority=_pack_import_authority,
     )
     assert isinstance(built, RunnerServices)
     assert isinstance(built.transport, McpTransport)
     assert isinstance(built.sink, EpistemicGraphSink)
+    assert built.sink._client is verified_client
+    assert built.sink._pack_import_authority is _pack_import_authority
     assert sorted(kind.kind for kind in built.kinds) == [
         "prompt",
         "resource",
@@ -92,7 +110,13 @@ def test_default_services_load_certified_extensions(tmp_path: Path) -> None:
             RunnerSettings(),
             state_dir=tmp_path,
             sink_name="epistemic_graph",
+            sink_client=verified_client,
+            pack_import_authority=_pack_import_authority,
             policy=CertifiedExtensions(()),
+        )
+    with pytest.raises(ExtensionDiscoveryError, match="pack import authority"):
+        default_services(
+            RunnerSettings(), state_dir=tmp_path, sink_name="epistemic_graph"
         )
 
 
@@ -103,7 +127,7 @@ def test_cli_exits_2_when_it_cannot_start(tmp_path: Path) -> None:
     empty.write_text("connectors: []\n")
     state = ["--state-dir", str(tmp_path / "state")]
     assert main(["--config", str(empty), "--once", "--sink", "missing", *state]) == 2
-    assert main(["--config", str(empty), "--once", *state]) == 0
+    assert main(["--config", str(empty), "--once", *state]) == 2
 
 
 def test_cli_skips_the_health_server_for_once(tmp_path: Path) -> None:
@@ -114,7 +138,7 @@ def test_cli_skips_the_health_server_for_once(tmp_path: Path) -> None:
     # to bind if the health server were started; --once must never start it.
     assert (
         main(["--config", str(empty), "--once", "--health-addr", "0.0.0.0:0", *state])
-        == 0
+        == 2
     )
 
 
@@ -127,7 +151,7 @@ def test_cli_exits_2_for_an_unconfigured_non_loopback_health_addr(
     assert main(["--config", str(empty), "--health-addr", "0.0.0.0:0", *state]) == 2
 
 
-def test_cli_once_over_stdio_is_blocked_by_the_w1_sink(
+def test_cli_once_over_stdio_refuses_to_mint_an_engine_client(
     tmp_path: Path, capfd: pytest.CaptureFixture[str]
 ) -> None:
     server = Path(__file__).parent / "stdio_fleet_server.py"
@@ -140,12 +164,13 @@ def test_cli_once_over_stdio_is_blocked_by_the_w1_sink(
     config = tmp_path / "runner.yml"
     config.write_text(yaml.safe_dump({"connectors": [connector]}))
     state = tmp_path / "state"
-    assert main(["--config", str(config), "--once", "--state-dir", str(state)]) == 1
+    assert main(["--config", str(config), "--once", "--state-dir", str(state)]) == 2
     lines = [
         json.loads(line)
         for line in capfd.readouterr().err.splitlines()
         if line.startswith("{")
     ]
-    failures = [line for line in lines if line.get("event") == "connector_failed"]
-    assert failures and "RF-ADR-009 W1" in failures[0]["error"]
+    assert any(
+        "requires an injected verified client" in line["message"] for line in lines
+    )
     assert not state.exists()

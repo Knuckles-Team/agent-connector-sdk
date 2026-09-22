@@ -7,7 +7,7 @@ from typing import Any
 
 import yaml
 
-from agent_connector_sdk.contracts import ArtifactEntry
+from agent_connector_sdk.contracts import CapturedArtifact
 from agent_connector_sdk.ports.errors import MalformedArtifactError
 
 __all__ = ["canonical_json", "front_matter", "json_object", "mime_type", "require_kind"]
@@ -18,7 +18,7 @@ def canonical_json(value: Any) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
 
-def json_object(entry: ArtifactEntry) -> dict[str, Any]:
+def json_object(entry: CapturedArtifact) -> dict[str, Any]:
     """The entry body as a JSON object.
 
     Raises:
@@ -33,7 +33,7 @@ def json_object(entry: ArtifactEntry) -> dict[str, Any]:
     return document
 
 
-def require_kind(entry: ArtifactEntry, kind: str) -> None:
+def require_kind(entry: CapturedArtifact, kind: str) -> None:
     """Reject an entry of another kind."""
     if entry.kind != kind:
         raise MalformedArtifactError(f"{entry.uri} is a {entry.kind}, not a {kind}")

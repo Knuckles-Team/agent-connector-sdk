@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
+from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
+import mcp_types
 import pytest
 
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
@@ -17,12 +21,11 @@ from agent_connector_sdk.artifacts.common import (
 from agent_connector_sdk.artifacts.pack import build_content_pack
 from agent_connector_sdk.artifacts.prompts import PromptArtifactKind
 from agent_connector_sdk.artifacts.resources import (
-    RESOURCE_RECORD_KINDS,
     ResourceArtifactKind,
 )
 from agent_connector_sdk.artifacts.skills import SkillArtifactKind
 from agent_connector_sdk.artifacts.tools import ToolArtifactKind
-from agent_connector_sdk.contracts import ArtifactEntry, ServerIdentity
+from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
 from agent_connector_sdk.discovery import (
     ARTIFACT_KIND_GROUP,
     EXTENSION_GROUPS,
@@ -38,14 +41,17 @@ from agent_connector_sdk.discovery import (
     load_extension,
     sdk_reference_extensions,
 )
+from agent_connector_sdk.mcp.content import ConnectorContent
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
 from agent_connector_sdk.ports.errors import MalformedArtifactError
+from agent_connector_sdk.runner.provisioning import provision_connector_content
 from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
 from agent_connector_sdk.testing.artifact_kinds import (
     check_artifact_kind,
     check_artifact_rejects_malformed,
 )
 from agent_connector_sdk.testing.results import SessionFactory, assert_conformant
+from agent_connector_sdk.testing.sinks import InMemorySink
 from agent_connector_sdk.transports.mcp import McpTransport
 
 SERVER = ServerIdentity(name="demo-mcp", version="1.4.0")
@@ -57,8 +63,8 @@ KINDS: tuple[ArtifactKind, ...] = (
 )
 
 
-def _entry(kind: str, uri: str, body: str, name: str = "demo") -> ArtifactEntry:
-    return ArtifactEntry(
+def _entry(kind: str, uri: str, body: str, name: str = "demo") -> CapturedArtifact:
+    return CapturedArtifact(
         kind=kind, uri=uri, name=name, media_type="text/plain", body=body, server=SERVER
     )
 
@@ -93,7 +99,7 @@ async def test_content_pack_is_complete_and_stable(sessions: SessionFactory) -> 
         pack = await build_content_pack(session, connector="demo-agent", kinds=KINDS)
     async with sessions() as session:
         again = await build_content_pack(session, connector="demo-agent", kinds=KINDS)
-    uris = sorted(entry.uri for entry in pack.entries)
+    uris = sorted(entry.uri for entry in pack.archive.entries)
     assert uris == [
         "manifest://connector",
         "ontology://demo-agent/demo.ttl",
@@ -102,15 +108,84 @@ async def test_content_pack_is_complete_and_stable(sessions: SessionFactory) -> 
         "skill://demo-reader/SKILL.md",
         "tool://demo-mcp/demo_reader",
     ]
-    assert pack.digest == again.digest
-    records = {
-        ResourceArtifactKind().to_record(e).record_kind
-        for e in pack.entries
-        if e.kind == "resource"
+    assert pack.archive == again.archive
+    assert {entry.kind.value for entry in pack.archive.entries} >= {
+        "manifest",
+        "ontology",
+        "shapes",
     }
-    assert records == {
-        RESOURCE_RECORD_KINDS[s] for s in ("manifest", "ontology", "shapes")
+
+
+async def test_shape_resource_bytes_reach_generated_archive_unchanged(
+    sessions: SessionFactory, package_root: Path
+) -> None:
+    """Canonical connector Turtle reaches the generated archive unchanged."""
+    shape_path = package_root / "ontology" / "shapes" / "demo.shapes.ttl"
+    expected = shape_path.read_bytes()
+    async with sessions() as session:
+        pack = await build_content_pack(
+            session, connector="demo-agent", kinds=(ResourceArtifactKind(),)
+        )
+
+    shape = next(
+        entry
+        for entry in pack.archive.entries
+        if entry.uri == "shapes://demo-agent/demo.shapes.ttl"
+    )
+    body = pack.archive.data[shape.body.offset : shape.body.offset + shape.body.length]
+    assert shape.kind.value == "shapes"
+    assert shape.name == shape.uri
+    assert shape.media_type == "text/turtle"
+    assert body == expected
+    assert shape.body.sha256 == hashlib.sha256(expected).hexdigest()
+
+
+async def test_declared_content_providers_import_as_separate_pack_heads(
+    tmp_path: Path,
+) -> None:
+    providers: list[ConnectorContent] = []
+    for connector, file_name, body in (
+        (
+            "agent-utilities",
+            "governance.shapes.ttl",
+            b"@prefix sh: <urn:sh:> .\n<urn:au> a sh:NodeShape .\n",
+        ),
+        (
+            "graph-os",
+            "runtime.shapes.ttl",
+            b"@prefix sh: <urn:sh:> .\n<urn:os> a sh:NodeShape .\n",
+        ),
+    ):
+        root = tmp_path / connector
+        shapes = root / "ontology" / "shapes"
+        shapes.mkdir(parents=True)
+        (shapes / file_name).write_bytes(body)
+        providers.append(
+            ConnectorContent(
+                connector=connector,
+                package_root=root,
+                package_version="1.0.0",
+            )
+        )
+
+    sink = InMemorySink()
+    outcomes = [
+        await provision_connector_content(provider, sink=sink) for provider in providers
+    ]
+
+    assert all(outcome.changed for outcome in outcomes)
+    assert len(sink.packs) == 2
+    packs = {pack.connector: pack for pack in sink.packs.values()}
+    assert set(packs) == {"agent-utilities", "graph-os"}
+    expected_names = {
+        "agent-utilities": "governance.shapes.ttl",
+        "graph-os": "runtime.shapes.ttl",
     }
+    for connector, pack in packs.items():
+        assert pack.archive.server.uri == f"mcp-server://{connector}"
+        assert [entry.uri for entry in pack.archive.entries] == [
+            f"shapes://{connector}/{expected_names[connector]}"
+        ]
 
 
 async def test_content_pack_rejects_duplicate_uris(sessions: SessionFactory) -> None:
@@ -121,6 +196,80 @@ async def test_content_pack_rejects_duplicate_uris(sessions: SessionFactory) -> 
                 connector="demo-agent",
                 kinds=(ToolArtifactKind(), ToolArtifactKind()),
             )
+
+
+async def test_tool_annotations_and_certified_pin_reach_generated_pack() -> None:
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "annotated",
+            "description": "fixture",
+            "inputSchema": {"type": "object", "properties": {}},
+            "annotations": {"readOnlyHint": True, "openWorldHint": False},
+            "_meta": {
+                "eg.annotations": {
+                    "provides": ["eg:capability/annotated"],
+                    "modalities_in": ["eg:modality/text"],
+                    "contract_version": "1.2.3",
+                }
+            },
+        }
+    )
+    session = SimpleNamespace(
+        server_identity=AsyncMock(return_value=SERVER),
+        list_tools=AsyncMock(return_value=[tool]),
+    )
+    pack = await build_content_pack(
+        session, connector="demo-agent", kinds=(ToolArtifactKind(),)
+    )
+    annotations = pack.archive.entries[0].annotations
+    assert annotations is not None
+    assert annotations.provides == ["eg:capability/annotated"]
+    assert annotations.modalities_in == ["eg:modality/text"]
+    assert annotations.contract_version == "1.2.3"
+    assert annotations.read_only_hint is True
+    assert annotations.open_world_hint is False
+    assert len(annotations.sdk_contract_pin) == 64
+
+
+async def test_tool_annotation_conflict_fails_closed() -> None:
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "ambiguous",
+            "inputSchema": {"type": "object"},
+            "annotations": {"readOnlyHint": True},
+            "_meta": {"eg.annotations": {"read_only_hint": False}},
+        }
+    )
+    session = SimpleNamespace(list_tools=AsyncMock(return_value=[tool]))
+    with pytest.raises(MalformedArtifactError, match="conflicting pack annotation"):
+        await ToolArtifactKind().list_entries(session, SERVER)
+
+
+async def test_skill_front_matter_annotations_reach_generated_pack() -> None:
+    body = """---
+name: annotated-skill
+description: fixture
+eg.annotations:
+  provides: [eg:capability/skill]
+  modalities_out: [eg:modality/text]
+---
+body
+"""
+    resource = SimpleNamespace(
+        uri="skill://annotated-skill/SKILL.md", mimeType="text/markdown"
+    )
+    session = SimpleNamespace(
+        server_identity=AsyncMock(return_value=SERVER),
+        list_resources=AsyncMock(return_value=[resource]),
+        read_resource=AsyncMock(return_value=body),
+    )
+    pack = await build_content_pack(
+        session, connector="demo-agent", kinds=(SkillArtifactKind(),)
+    )
+    annotations = pack.archive.entries[0].annotations
+    assert annotations is not None
+    assert annotations.provides == ["eg:capability/skill"]
+    assert annotations.modalities_out == ["eg:modality/text"]
 
 
 def test_artifact_helpers() -> None:

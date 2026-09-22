@@ -7,6 +7,14 @@ from pathlib import Path
 
 import anyio
 import pytest
+from epistemic_graph.generated.connector_pack import (
+    PackImportResult,
+    PackImportResultRejected,
+)
+from epistemic_graph.generated.source_ingestion import (
+    SourceIngestionReceipt,
+    SourceIngestionRequest,
+)
 from fleet_fixtures import (
     FakeArchiveBox,
     FakeFreshRss,
@@ -29,15 +37,9 @@ from runner_support import (
     services,
 )
 
-from agent_connector_sdk.contracts import (
-    ContentPack,
-    IngestionReceipt,
-    PackImportReceipt,
-    RecordBatch,
-)
+from agent_connector_sdk.artifacts.pack import CapturedConnectorPack
 from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
 from agent_connector_sdk.ports.session import McpSession, TransportEndpoint
-from agent_connector_sdk.runner.checkpoints import JsonFileCheckpointStore
 from agent_connector_sdk.runner.descriptors import EndpointSpec
 from agent_connector_sdk.runner.endpoints import CredentialEndpoints
 from agent_connector_sdk.runner.errors import SinkReceiptError
@@ -58,13 +60,16 @@ STREAM = "archivebox-snapshots"
 
 
 class _LyingSink(InMemorySink):
-    async def submit(self, batch: RecordBatch) -> IngestionReceipt:
+    async def submit(self, batch: SourceIngestionRequest) -> SourceIngestionReceipt:
         receipt = await super().submit(batch)
         return receipt.model_copy(update={"batch_digest": "sha256:another"})
 
-    async def import_pack(self, pack: ContentPack) -> PackImportReceipt:
-        receipt = await super().import_pack(pack)
-        return receipt.model_copy(update={"pack_digest": "sha256:another"})
+    async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
+        return PackImportResultRejected(
+            result="rejected",
+            budget_exhausted=False,
+            violations=[],
+        )
 
 
 class _Transport:
@@ -85,63 +90,58 @@ class _Transport:
         return McpTransport().session(endpoint)
 
 
-def _target(
-    sink: InMemorySink, store: JsonFileCheckpointStore, max_pages: int
-) -> SyncTarget:
+def _target(sink: InMemorySink, max_pages: int) -> SyncTarget:
     return SyncTarget(
         connector="archivebox-api",
-        mapping_reference="manifest:archivebox-api",
         sink=sink,
-        store=store,
         max_pages=max_pages,
     )
 
 
 async def test_passes_commit_before_advancing(tmp_path: Path) -> None:
-    store = JsonFileCheckpointStore(tmp_path)
+    sink = InMemorySink()
     server = build_enumerated_archivebox_server(
         FakeArchiveBox(archivebox_snapshots(250))
     )
     adapter = load_sync_adapters(archivebox_descriptor())[STREAM]
     async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
-        outcome = await sync_stream(session, adapter, _target(InMemorySink(), store, 2))
+        outcome = await sync_stream(session, adapter, _target(sink, 2))
         assert isinstance(outcome, SyncOutcome) and not outcome.exhausted
         assert (outcome.pages, outcome.records) == (2, 200)
-        assert outcome.cursor == await store.committed_cursor("archivebox-api", STREAM)
-        page = await adapter.extract(session, outcome.cursor)
+        status = await sink.source_status("archivebox-api", STREAM)
+        assert outcome.checkpoint == status.accepted_checkpoint
+        page = await adapter.extract(session, outcome.checkpoint)
         receipt = await commit_page(
             page,
-            _target(InMemorySink(), store, 1),
-            expected_previous_cursor=None,
+            _target(InMemorySink(), 1),
+            expected_previous_checkpoint=None,
         )
-        assert receipt.accepted == 50 and page.exhausted
+        assert receipt.affected_count == 50 and page.exhausted
         provisioned = await provision_content(
             session,
             connector="archivebox-api",
             kinds=KINDS,
             sink=InMemorySink(),
-            store=store,
         )
         assert isinstance(provisioned, ProvisionOutcome) and provisioned.changed
 
 
-async def test_receipts_that_do_not_acknowledge_record_nothing(tmp_path: Path) -> None:
-    store = JsonFileCheckpointStore(tmp_path)
+async def test_mismatched_receipts_fail_without_rolling_back_eg(tmp_path: Path) -> None:
+    sink = _LyingSink()
     server = build_enumerated_archivebox_server(FakeArchiveBox(archivebox_snapshots(3)))
     adapter = load_sync_adapters(archivebox_descriptor())[STREAM]
     async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
         with pytest.raises(SinkReceiptError):
-            await sync_stream(session, adapter, _target(_LyingSink(), store, 5))
+            await sync_stream(session, adapter, _target(sink, 5))
         with pytest.raises(SinkReceiptError):
             await provision_content(
                 session,
                 connector="archivebox-api",
                 kinds=KINDS,
                 sink=_LyingSink(),
-                store=store,
             )
-    assert await store.committed_cursor("archivebox-api", STREAM) is None
-    assert await store.imported_pack_digest("archivebox-api") is None
+    status = await sink.source_status("archivebox-api", STREAM)
+    assert status.accepted_checkpoint is not None and len(sink.batches) == 1
 
 
 async def test_unresolvable_credentials_never_open_a_session(
@@ -156,7 +156,6 @@ async def test_unresolvable_credentials_never_open_a_session(
     transport = _Transport(failures=0)
     built = services(
         RecordingSink(),
-        JsonFileCheckpointStore(tmp_path),
         CredentialEndpoints(EnvironmentCredentialResolver()),
         transport=transport,
     )
@@ -183,7 +182,6 @@ async def test_serve_backs_off_and_reconnects(
     )
     built = services(
         sink,
-        JsonFileCheckpointStore(tmp_path),
         endpoints,
         transport=_Transport(failures=2),
     )
@@ -211,9 +209,7 @@ async def test_registry_changes_start_and_stop_workers(
         }
     )
     registry = ListRegistry()
-    runner = ConnectorSyncRunner(
-        registry, services(sink, JsonFileCheckpointStore(tmp_path), endpoints)
-    )
+    runner = ConnectorSyncRunner(registry, services(sink, endpoints))
     async with anyio.create_task_group() as tasks:
         tasks.start_soon(runner.run_forever)
         registry.descriptors.append(freshrss_descriptor())

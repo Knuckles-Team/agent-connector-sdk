@@ -120,6 +120,7 @@ def _content(mcp: FastMCP[Any], root: Path, module: str) -> None:
         ConnectorContent(
             connector=root.name,
             package_root=root / module,
+            package_version="2.1.0",
             manifest_path=root / "connector_manifest.yml",
         ),
     )

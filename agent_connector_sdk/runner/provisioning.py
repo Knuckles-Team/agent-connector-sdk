@@ -5,16 +5,27 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from agent_connector_sdk.artifacts.pack import build_content_pack
+from epistemic_graph.generated.connector_pack import (
+    PackImportResultImported,
+    PackImportResultRejected,
+)
+
+from agent_connector_sdk.artifacts.pack import (
+    CapturedConnectorPack,
+    build_connector_content_pack,
+    build_content_pack,
+)
+from agent_connector_sdk.mcp.content import ConnectorContent
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
-from agent_connector_sdk.ports.checkpoint_store import CheckpointStore
 from agent_connector_sdk.ports.session import McpSession
 from agent_connector_sdk.ports.sink import Sink
 from agent_connector_sdk.runner.errors import SinkReceiptError
 
-__all__ = ["ProvisionOutcome", "provision_content"]
-
-_RESOURCE_KINDS = frozenset({"skill", "resource"})
+__all__ = [
+    "ProvisionOutcome",
+    "provision_connector_content",
+    "provision_content",
+]
 
 
 @dataclass(frozen=True)
@@ -33,26 +44,39 @@ async def provision_content(
     connector: str,
     kinds: Sequence[ArtifactKind],
     sink: Sink,
-    store: CheckpointStore,
 ) -> ProvisionOutcome:
     """Read the served content as a pack; import it only when its digest changed.
 
-    The digest is recorded only after the sink's receipt acknowledges exactly
-    this pack, so a failed import is retried on the next pass. The outcome
-    names the pack entries that are MCP resources (skills and content
-    resources), the URIs a change subscription can follow.
+    EG computes and owns the pack digest after the current catalog binding is
+    resolved. The outcome names the MCP resource URIs a change subscription can
+    follow.
 
     Raises:
         SinkReceiptError: the receipt names another pack.
     """
     pack = await build_content_pack(session, connector=connector, kinds=kinds)
-    uris = frozenset(
-        entry.uri for entry in pack.entries if entry.kind in _RESOURCE_KINDS
-    )
-    if await store.imported_pack_digest(connector) == pack.digest:
-        return ProvisionOutcome(pack.digest, False, 0, uris)
-    receipt = await sink.import_pack(pack)
-    if receipt.pack_digest != pack.digest:
-        raise SinkReceiptError("pack import receipt names a different pack")
-    await store.record_pack_import(connector, receipt)
-    return ProvisionOutcome(pack.digest, True, receipt.imported, uris)
+    return await _import_pack(pack, sink)
+
+
+async def provision_connector_content(
+    content: ConnectorContent, *, sink: Sink
+) -> ProvisionOutcome:
+    """Capture and import one explicitly composed content provider.
+
+    Calling this once per provider preserves independent ConnectorPack heads
+    and receipts even when their resources are served by one GraphOS process.
+    """
+    return await _import_pack(await build_connector_content_pack(content), sink)
+
+
+async def _import_pack(pack: CapturedConnectorPack, sink: Sink) -> ProvisionOutcome:
+    result = await sink.import_pack(pack)
+    if isinstance(result, PackImportResultRejected):
+        raise SinkReceiptError("ConnectorPack import was rejected")
+    if isinstance(result, PackImportResultImported):
+        counts = result.receipt.counts
+        imported = counts.published + counts.republished + counts.revised
+        return ProvisionOutcome(
+            result.receipt.pack_digest, True, imported, pack.resource_uris
+        )
+    return ProvisionOutcome(result.pack_digest, False, 0, pack.resource_uris)

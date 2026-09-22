@@ -84,6 +84,7 @@ class ConnectorDescriptor(_Strict):
     interval_seconds: float = Field(default=900.0, gt=0)
     data_resources: dict[str, tuple[str, ...]] = Field(default_factory=dict)
     mapping_reference: str = ""
+    empty_authoritative_approval: str = ""
     max_pages_per_cycle: int = Field(default=1_000, ge=1, le=1_000_000)
 
     @field_validator("package_root", "connectors_dir")

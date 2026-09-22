@@ -12,12 +12,16 @@ from typing import Any, NoReturn
 
 import anyio
 import pytest
-from runner_support import ListRegistry, freshrss_descriptor, services
+from runner_support import (
+    ListRegistry,
+    freshrss_descriptor,
+    pack_authority_unexpected,
+    services,
+)
 
 from agent_connector_sdk.auth.oidc import ClientCredentialsConfig
 from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
 from agent_connector_sdk.ports.sink import Sink, SinkReadiness
-from agent_connector_sdk.runner.checkpoints import JsonFileCheckpointStore
 from agent_connector_sdk.runner.credentialed_endpoint import resolve_endpoint
 from agent_connector_sdk.runner.descriptors import ConnectorDescriptor, EndpointSpec
 from agent_connector_sdk.runner.endpoints import CredentialEndpoints
@@ -44,10 +48,7 @@ from agent_connector_sdk.runner.health_state import (
 )
 from agent_connector_sdk.runner.sink_probe import probe_sink_readiness, sink_reason
 from agent_connector_sdk.runner.supervisor import ConnectorSyncRunner
-from agent_connector_sdk.sinks.epistemic_graph import (
-    NOT_READY_REASON,
-    EpistemicGraphSink,
-)
+from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
 from agent_connector_sdk.testing.sinks import InMemorySink
 from agent_connector_sdk.transports.mcp import McpTransport
 
@@ -76,6 +77,9 @@ class _NotReadySink:
     async def submit(self, batch: object) -> object:
         raise NotImplementedError
 
+    async def source_status(self, connector: str, stream: str) -> object:
+        raise NotImplementedError
+
     async def import_pack(self, pack: object) -> object:
         raise NotImplementedError
 
@@ -95,6 +99,9 @@ class _HangingSink:
         self._gate = gate
 
     async def submit(self, batch: object) -> object:
+        raise NotImplementedError
+
+    async def source_status(self, connector: str, stream: str) -> object:
         raise NotImplementedError
 
     async def import_pack(self, pack: object) -> object:
@@ -167,7 +174,6 @@ async def test_liveness_goes_stale_when_the_scheduler_loop_wedges(
     health = _health(liveness_window_seconds=0.05)
     built = services(
         InMemorySink(),
-        JsonFileCheckpointStore(tmp_path),
         CredentialEndpoints(EnvironmentCredentialResolver()),
         health=health,
     )
@@ -183,11 +189,10 @@ async def test_liveness_goes_stale_when_the_scheduler_loop_wedges(
 
 
 async def test_readiness_reflects_sink_usability() -> None:
-    stub = _health(sink=EpistemicGraphSink(client=None))
-    stub.sync_registry(())
-    report = await stub.readiness()
-    assert report.status == 503
-    assert NOT_READY_REASON in report.body["reasons"]
+    graph = _health(sink=EpistemicGraphSink(object(), pack_authority_unexpected))
+    graph.sync_registry(())
+    report = await graph.readiness()
+    assert (report.status, report.body["reasons"]) == (200, [])
 
     memory = _health(sink=InMemorySink())
     memory.sync_registry(())
@@ -196,8 +201,8 @@ async def test_readiness_reflects_sink_usability() -> None:
 
 
 async def test_epistemic_graph_sink_reports_its_reason() -> None:
-    state = await EpistemicGraphSink(client=None).readiness()
-    assert state == SinkReadiness(ready=False, reason=NOT_READY_REASON)
+    state = await EpistemicGraphSink(object(), pack_authority_unexpected).readiness()
+    assert state == SinkReadiness(ready=True)
 
 
 async def test_readiness_names_a_not_ready_sinks_reason() -> None:
@@ -244,7 +249,6 @@ async def test_readiness_reports_credential_failure_by_name_without_secret(
     health = _health()
     built = services(
         InMemorySink(),
-        JsonFileCheckpointStore(tmp_path),
         CredentialEndpoints(EnvironmentCredentialResolver()),
         health=health,
     )
@@ -273,7 +277,6 @@ async def test_readiness_true_once_registry_and_credentials_are_proven(
     health = _health()
     built = services(
         InMemorySink(),
-        JsonFileCheckpointStore(tmp_path),
         CredentialEndpoints(EnvironmentCredentialResolver()),
         health=health,
     )
@@ -351,7 +354,6 @@ async def test_resolve_endpoint_records_success(tmp_path: Path) -> None:
     health = _health()
     built = services(
         InMemorySink(),
-        JsonFileCheckpointStore(tmp_path),
         CredentialEndpoints(EnvironmentCredentialResolver()),
         transport=McpTransport(),
         health=health,
@@ -368,7 +370,6 @@ async def _endpoint_failure_detail(
     health = _health()
     built = services(
         InMemorySink(),
-        JsonFileCheckpointStore(tmp_path),
         CredentialEndpoints(EnvironmentCredentialResolver()),
         transport=McpTransport(),
         health=health,

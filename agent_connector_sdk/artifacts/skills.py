@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from agent_connector_sdk.artifacts.annotations import _annotations_from_skill
 from agent_connector_sdk.artifacts.common import front_matter, mime_type, require_kind
-from agent_connector_sdk.contracts import ArtifactEntry, PackRecord, ServerIdentity
+from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
 from agent_connector_sdk.ports.errors import MalformedArtifactError
 from agent_connector_sdk.ports.session import McpSession
 
@@ -13,6 +14,23 @@ _SCHEME = "skill://"
 _MAIN_FILE = "/SKILL.md"
 
 
+def _skill_entry(
+    *, uri: str, resource: object, body: str, server: ServerIdentity
+) -> CapturedArtifact:
+    front = front_matter(body)
+    if front is None:
+        raise MalformedArtifactError(f"{uri} has no YAML front matter")
+    return CapturedArtifact(
+        kind=SkillArtifactKind.kind,
+        uri=uri,
+        name=uri[len(_SCHEME) : -len(_MAIN_FILE)],
+        media_type=mime_type(resource, "text/markdown"),
+        body=body,
+        server=server,
+        annotations=_annotations_from_skill(front),
+    )
+
+
 class SkillArtifactKind:
     """Skills served by the skills provider."""
 
@@ -20,26 +38,20 @@ class SkillArtifactKind:
 
     async def list_entries(
         self, session: McpSession, server: ServerIdentity
-    ) -> tuple[ArtifactEntry, ...]:
+    ) -> tuple[CapturedArtifact, ...]:
         """One entry per ``SKILL.md`` resource; bodies are read in the same session."""
-        entries: list[ArtifactEntry] = []
+        entries: list[CapturedArtifact] = []
         for resource in await session.list_resources():
             uri = str(getattr(resource, "uri", ""))
             if not (uri.startswith(_SCHEME) and uri.endswith(_MAIN_FILE)):
                 continue
+            body = await session.read_resource(uri)
             entries.append(
-                ArtifactEntry(
-                    kind=self.kind,
-                    uri=uri,
-                    name=uri[len(_SCHEME) : -len(_MAIN_FILE)],
-                    media_type=mime_type(resource, "text/markdown"),
-                    body=await session.read_resource(uri),
-                    server=server,
-                )
+                _skill_entry(uri=uri, resource=resource, body=body, server=server)
             )
         return tuple(entries)
 
-    def validate(self, entry: ArtifactEntry) -> None:
+    def validate(self, entry: CapturedArtifact) -> None:
         """YAML front matter whose ``name`` matches, with a description."""
         require_kind(entry, self.kind)
         front = front_matter(entry.body)
@@ -50,15 +62,3 @@ class SkillArtifactKind:
             or not str(front.get("description") or "").strip()
         ):
             raise MalformedArtifactError(f"{entry.uri} front matter is incomplete")
-
-    def to_record(self, entry: ArtifactEntry) -> PackRecord:
-        """A ``Skill`` record."""
-        self.validate(entry)
-        front = front_matter(entry.body) or {}
-        return PackRecord(
-            record_kind="Skill",
-            uri=entry.uri,
-            name=entry.name,
-            entry_digest=entry.digest,
-            attributes={"description": str(front.get("description", "")).strip()},
-        )

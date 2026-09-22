@@ -164,7 +164,6 @@ class ConnectorWorker:
             connector=name,
             kinds=services.kinds,
             sink=services.sink,
-            store=services.store,
         )
         self._resource_uris = outcome.resource_uris
         event = "pack_imported" if outcome.changed else "pack_unchanged"
@@ -180,12 +179,11 @@ class ConnectorWorker:
 
     async def _sync(self, session: McpSession, adapter: SourceAdapter) -> None:
         descriptor, services = self._descriptor, self._services
-        target = SyncTarget(
-            connector=descriptor.connector,
-            mapping_reference=descriptor.resolved_mapping_reference,
-            sink=services.sink,
-            store=services.store,
-            max_pages=descriptor.max_pages_per_cycle,
+        target = SyncTarget.configured(
+            descriptor.connector,
+            services.sink,
+            descriptor.max_pages_per_cycle,
+            descriptor.empty_authoritative_approval,
         )
         outcome = await sync_stream(session, adapter, target)
         _logger.info(

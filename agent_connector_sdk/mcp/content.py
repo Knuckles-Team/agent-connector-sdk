@@ -56,12 +56,18 @@ class ConnectorContent:
         connector: The connector package name used in resource URIs.
         package_root: The package directory holding ``skills/``, ``prompts/``
             and ``ontology/``.
+        package_version: The publisher version recorded on ConnectorPack import.
         manifest_path: The ``connector_manifest.yml`` to serve, if packaged.
     """
 
     connector: str
     package_root: Path
+    package_version: str
     manifest_path: Path | None = None
+
+    def __post_init__(self) -> None:
+        if not self.connector.strip() or not self.package_version.strip():
+            raise ValueError("connector and package_version are required")
 
 
 @dataclass(frozen=True)

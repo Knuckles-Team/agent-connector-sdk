@@ -5,7 +5,9 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from agent_connector_sdk.contracts import SEAM_SCHEMA_VERSION, SourceRecord, SyncCursor
+from epistemic_graph.generated.source_ingestion import SourceCheckpoint, SourceRecord
+
+from agent_connector_sdk.contracts import SEAM_SCHEMA_VERSION
 from agent_connector_sdk.ports.errors import MalformedSourceDataError
 from agent_connector_sdk.ports.session import McpSession
 from agent_connector_sdk.ports.source_adapter import SourceAdapter
@@ -29,7 +31,7 @@ class Sweep:
     """Everything one sweep produced."""
 
     records: tuple[SourceRecord, ...]
-    cursor: SyncCursor | None
+    checkpoint: SourceCheckpoint | None
     pages: int
     exhausted: bool
 
@@ -38,7 +40,7 @@ async def sweep(
     adapter: SourceAdapter,
     session: McpSession,
     *,
-    cursor: SyncCursor | None = None,
+    checkpoint: SourceCheckpoint | None = None,
     max_pages: int = 1_000,
 ) -> Sweep:
     """Verify the source, then extract pages until exhausted or ``max_pages``."""
@@ -46,11 +48,14 @@ async def sweep(
     records: list[SourceRecord] = []
     pages, exhausted = 0, False
     while pages < max_pages and not exhausted:
-        page = await adapter.extract(session, cursor)
+        page = await adapter.extract(session, checkpoint)
         records.extend(page.records)
-        cursor, exhausted, pages = page.cursor, page.exhausted, pages + 1
+        checkpoint, exhausted, pages = page.checkpoint, page.exhausted, pages + 1
     return Sweep(
-        records=tuple(records), cursor=cursor, pages=pages, exhausted=exhausted
+        records=tuple(records),
+        checkpoint=checkpoint,
+        pages=pages,
+        exhausted=exhausted,
     )
 
 
@@ -100,9 +105,11 @@ async def check_checkpoint_resume(
     async with sessions() as session:
         first = await sweep(adapter, session, max_pages=1)
     async with sessions() as session:
-        rest = await sweep(adapter, session, cursor=first.cursor)
-    resumed = [record.content_digest for record in (*first.records, *rest.records)]
-    same = resumed == [record.content_digest for record in full.records]
+        rest = await sweep(adapter, session, checkpoint=first.checkpoint)
+    resumed = [
+        record.model_dump(mode="json") for record in (*first.records, *rest.records)
+    ]
+    same = resumed == [record.model_dump(mode="json") for record in full.records]
     passed = same and not first.exhausted and rest.exhausted
     return ConformanceResult(
         "checkpoint-resume", passed, "" if passed else "resumed sweep differs"
@@ -117,11 +124,11 @@ async def check_idempotent_rerun(
         first = await sweep(adapter, session)
     async with sessions() as session:
         second = await sweep(adapter, session)
-    digests = (
-        [r.content_digest for r in first.records],
-        [r.content_digest for r in second.records],
+    records = (
+        [record.model_dump(mode="json") for record in first.records],
+        [record.model_dump(mode="json") for record in second.records],
     )
-    same = digests[0] == digests[1] and first.cursor == second.cursor
+    same = records[0] == records[1] and first.checkpoint == second.checkpoint
     return ConformanceResult("idempotent-rerun", same, "" if same else "sweeps differ")
 
 

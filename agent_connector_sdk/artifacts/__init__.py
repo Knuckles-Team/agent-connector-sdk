@@ -13,5 +13,5 @@ resource  ``resources/list`` + ``resources/read``         by URI scheme
 ========  ==============================================  ===================
 
 :func:`agent_connector_sdk.artifacts.pack.build_content_pack` assembles a
-validated :class:`~agent_connector_sdk.contracts.ContentPack` from any kinds.
+validated generated ConnectorPack archive from any kinds.
 """

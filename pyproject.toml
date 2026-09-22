@@ -22,7 +22,7 @@ classifiers = [
 # It must never depend on the agent control plane.
 dependencies = [
     "fastmcp>=4.0.3,<5",
-    "epistemic-graph>=2.23.0,<3",
+    "epistemic-graph>=2.27.0,<3",
     "pydantic>=2.13.4,<3",
     "PyYAML>=6.0.3",
     "httpx>=0.28.1",
@@ -153,7 +153,6 @@ public_modules = [
     "agent_connector_sdk.ports.artifact_kind",
     "agent_connector_sdk.ports.authorization_verifier",
     "agent_connector_sdk.ports.change_source",
-    "agent_connector_sdk.ports.checkpoint_store",
     "agent_connector_sdk.ports.connector_registry",
     "agent_connector_sdk.ports.errors",
     "agent_connector_sdk.ports.session",
@@ -163,12 +162,12 @@ public_modules = [
     "agent_connector_sdk.ports.writeback",
     "agent_connector_sdk.ports.writeback_transport",
     "agent_connector_sdk.progress",
-    "agent_connector_sdk.runner.checkpoints",
     "agent_connector_sdk.runner.cli",
     "agent_connector_sdk.runner.composition",
     "agent_connector_sdk.runner.descriptors",
     "agent_connector_sdk.runner.endpoints",
     "agent_connector_sdk.runner.errors",
+    "agent_connector_sdk.runner.provisioning",
     "agent_connector_sdk.runner.static_registry",
     "agent_connector_sdk.runner.supervisor",
     "agent_connector_sdk.testing.artifact_kinds",
@@ -202,11 +201,6 @@ allow_files = ["agent_connector_sdk/config.py"]
 [tool.pipelines_hooks.stdout_writes]
 served_paths = ["agent_connector_sdk"]
 
-# The bundled epistemic-graph sink is capability gated in this release. These
-# exact markers are its only declared non-commit paths.
-[tool.pipelines_hooks.stubs]
-declared_seams = { "agent_connector_sdk/sinks/epistemic_graph.py" = ["PACK_IMPORT_UNAVAILABLE", "RECORD_INGESTION_UNAVAILABLE"] }
-
 [tool.pipelines_hooks.public_surface]
 repository = "Knuckles-Team/agent-connector-sdk"
 distribution = "agent-connector-sdk"
@@ -214,7 +208,7 @@ pages_url = "https://knuckles-team.github.io/agent-connector-sdk/"
 mcp_server = false
 
 [tool.pipelines_hooks.ci_replica]
-build_affecting = ["pyproject.toml", "uv.lock", "mkdocs.yml", "pages/**", ".github/workflows/**", ".pre-commit-config.yaml"]
+build_affecting = ["pyproject.toml", "uv.lock", "mkdocs.yml", "pages/**", ".github/workflows/**", ".config/pre-commit.yaml"]
 
 [tool.pipelines_hooks.ci_replica.workflows."release.yml"]
 blocking = true

@@ -50,4 +50,10 @@ def package_root() -> Path:
 def adapter() -> McpToolSourceAdapter:
     """The ``mcp_tool`` adapter built from the fixture manifest's sync entry."""
     manifest = require_valid_connector_package(PACKAGE_ROOT)
-    return McpToolSourceAdapter.from_sync_spec(manifest.sync[0], connector=CONNECTOR)
+    return McpToolSourceAdapter.from_sync_spec(
+        manifest.sync[0],
+        connector=CONNECTOR,
+        mapping_reference=f"manifest:{CONNECTOR}",
+        schema_mappings=manifest.schema_mappings,
+        resources=manifest.resources,
+    )

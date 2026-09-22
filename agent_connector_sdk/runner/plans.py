@@ -16,7 +16,8 @@ from agent_connector_sdk.manifest.loader import (
     load_tool_schema_fingerprints,
     validate_connector_package,
 )
-from agent_connector_sdk.manifest.model import ConnectorManifest
+from agent_connector_sdk.manifest.model import ConnectorManifest, SyncSpec
+from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.ports.change_source import ChangeEvent
 from agent_connector_sdk.runner.descriptors import ConnectorDescriptor
 from agent_connector_sdk.runner.errors import RunnerConfigurationError
@@ -78,23 +79,45 @@ def _selection_problems(
 
 
 def _mapping_reference_problems(
-    descriptor: ConnectorDescriptor, manifest: ConnectorManifest
+    descriptor: ConnectorDescriptor,
+    manifest: ConnectorManifest,
+    selected_specs: Mapping[str, SyncSpec],
 ) -> list[str]:
     reference = descriptor.resolved_mapping_reference
     manifest_reference = f"manifest:{descriptor.connector}"
     if reference == manifest_reference:
-        return (
-            []
-            if len(manifest.schema_mappings) == 1
-            else ["a whole-manifest mapping reference requires exactly one mapping"]
-        )
+        return _whole_manifest_mapping_problems(manifest, selected_specs)
+    return _explicit_mapping_problems(reference, manifest_reference, manifest)
+
+
+def _whole_manifest_mapping_problems(
+    manifest: ConnectorManifest, selected_specs: Mapping[str, SyncSpec]
+) -> list[str]:
+    if len(manifest.schema_mappings) == 1:
+        return []
+    presets = (
+        ToolPreset.from_mapping(name, dict(spec.raw))
+        for name, spec in selected_specs.items()
+    )
+    if all(
+        preset.record_mode == "typed_entities"
+        and bool(preset.node_type_field)
+        and preset.strict_schema
+        for preset in presets
+    ):
+        return []
+    return [
+        "a whole-manifest mapping reference with multiple mappings requires "
+        "strict typed_entities presets"
+    ]
+
+
+def _explicit_mapping_problems(
+    reference: str, manifest_reference: str, manifest: ConnectorManifest
+) -> list[str]:
     prefix = f"{manifest_reference}#schema_mappings/"
     if not reference.startswith(prefix):
-        return (
-            ["a manifest mapping reference must name this connector"]
-            if reference.startswith("manifest:")
-            else []
-        )
+        return ["a mapping reference must name this connector's exact manifest mapping"]
     key = reference.removeprefix(prefix)
     return (
         []
@@ -114,19 +137,34 @@ def load_sync_adapters(
             descriptor names presets it does not declare.
     """
     manifest = _validated_manifest(descriptor)
+    return _build_sync_adapters(descriptor, manifest)
+
+
+def _build_sync_adapters(
+    descriptor: ConnectorDescriptor, manifest: ConnectorManifest
+) -> dict[str, McpToolSourceAdapter]:
     specs = {spec.preset: spec for spec in manifest.sync}
+    selected = descriptor.presets or tuple(specs)
     _raise_problems(
         descriptor,
         [
             *_selection_problems(descriptor, specs),
-            *_mapping_reference_problems(descriptor, manifest),
+            *_mapping_reference_problems(
+                descriptor,
+                manifest,
+                {name: specs[name] for name in selected if name in specs},
+            ),
         ],
     )
     return {
         name: McpToolSourceAdapter.from_sync_spec(
-            specs[name], connector=manifest.connector
+            specs[name],
+            connector=manifest.connector,
+            mapping_reference=descriptor.resolved_mapping_reference,
+            schema_mappings=manifest.schema_mappings,
+            resources=manifest.resources,
         )
-        for name in descriptor.presets or specs
+        for name in selected
     }
 
 

@@ -5,8 +5,9 @@ Extracted from the ``RegisterServer`` lease loop in
 ``GraphComputeEngine`` singleton; here the registry is a port, and
 :class:`EpistemicGraphServerRegistry` adapts an ``epistemic_graph`` client that
 exposes ``server_registry.register``. A client that predates ``RegisterServer``
-(epistemic-graph 2.23.0, the newest on PyPI) is refused at construction instead
-of failing silently on every heartbeat.
+(including epistemic-graph 2.23.0) is refused at construction instead of
+failing silently on every heartbeat. Epistemic-graph 2.27.0 is the SDK's first
+compatible client contract.
 """
 
 from __future__ import annotations

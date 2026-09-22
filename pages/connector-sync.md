@@ -5,13 +5,13 @@ connector it opens one MCP session through the `Transport` port and uses it for
 everything:
 
 1. **Provisioning.** It reads the server's tools, skills, prompts and resources
-   as a content pack. When the pack digest equals the digest the sink last
-   acknowledged, nothing happens. Otherwise the pack is imported, and the digest
-   is recorded only from the sink's receipt.
+   as a content pack. The EG sink reads the current committed head; when its
+   canonical digest matches, nothing happens. Otherwise EG imports the pack and
+   returns the sole durable receipt.
 2. **Sync.** It runs the manifest `sync` presets through the `mcp_tool` source
-   adapter. Every page goes to the sink as a batch. The cursor is recorded only
-   after the sink's receipt acknowledges that exact batch and cursor, and the
-   next page is requested from that committed cursor. After a crash, the stream
+   adapter. Every page goes to the sink as a batch. EG records the checkpoint only
+   after its receipt acknowledges that exact batch and checkpoint, and the
+   next page is requested from that committed checkpoint. After a crash, the stream
    resumes from the last committed page.
 3. **Changes.** It subscribes with `subscriptions/listen` to the list changes and
    to updates of the pack's resources and the descriptor's data resources.
@@ -20,7 +20,35 @@ everything:
    notifications the server sends on its own still count, and the connector's
    `interval_seconds` schedule runs a full cycle.
 
-## Running
+## Composition and running
+
+The SDK does not discover epistemic-graph or mint its request identity. GraphOS
+constructs the verified generated client from its authenticated runtime context
+and injects it at the public composition seam:
+
+```python
+services = default_services(
+    settings,
+    state_dir=state_dir,
+    sink_name="epistemic_graph",
+    sink_client=verified_epistemic_graph_client,
+    pack_import_authority=live_pack_import_authority,
+)
+```
+
+The authority resolver is called with the canonical connector id on every pack
+import and returns the current generated `McpCatalogSnapshotBinding` and
+`AgentLibraryMutationContext`. It is never cached. Omitting either injected
+dependency for the `epistemic_graph` sink fails before a runner is built;
+supplying either to another sink also fails. The standalone CLI consequently
+cannot manufacture a usable EG composition; GraphOS owns that authenticated
+composition boundary.
+
+Provisioning reads the current EG pack head before upload. A matching canonical
+EG digest is an acknowledged no-op. If the head moves during import, the typed
+`PACK_HEAD_CONFLICT` causes one fresh status read and retry; the generated EG
+client preserves the same deterministic import key for a lost-response retry.
+Any non-null result digest that differs from the submitted pack fails closed.
 
 ```bash
 connector-sync --config runner.yml                # serve until stopped
@@ -30,7 +58,7 @@ connector-sync --config runner.yml --once         # one cycle per connector
 | Option | Default | Meaning |
 |---|---|---|
 | `--config` | required | runner configuration (YAML or JSON) |
-| `--state-dir` | `$XDG_STATE_HOME/connector-sync` | checkpoint directory |
+| `--state-dir` | `$XDG_STATE_HOME/connector-sync` | reserved process-state directory; ingestion checkpoints remain authoritative in EG |
 | `--sink` | `epistemic_graph` | sink extension name |
 | `--once` | off | exit `0` only when every connector succeeded, otherwise `1` |
 | `--log-format` | `json` | `json` (one object per line) or `text`, on stderr |
@@ -41,11 +69,10 @@ Exit `2` means the runner could not start: an invalid configuration, an
 uncertified extension, a malformed credential setting, or a malformed or
 disallowed `--health-addr`.
 
-!!! warning "Readiness is authoritative"
-    A sync cycle requires a sink that reports `ready=true`. The bundled
-    `epistemic_graph` sink in version 0.1.0 is not commit-capable and reports not
-    ready. The reason appears in `/health/ready`; no pack, record batch, or
-    cursor is committed through that sink while it is unavailable.
+Record pages use EG's generated `SourceIngest` request, receipt and client call.
+Provisioning uses EG's generated ConnectorPack archive builder, digest helper
+and typed import result. A rejected pack remains a typed result and fails the
+cycle; an unchanged result is an acknowledged no-op.
 
 ## Health
 
@@ -136,7 +163,6 @@ Any failure fails that connector closed and retries it with backoff.
 | Port | Purpose | Implementations |
 |---|---|---|
 | `ConnectorRegistry` | the connectors to serve, re-read periodically | `StaticConfigRegistry` |
-| `CheckpointStore` | committed cursors and imported pack digests, written only from receipts | `JsonFileCheckpointStore` |
 | `ChangeSource` | change events of a session | the MCP transport's sessions |
 | `Transport`, `Sink`, `ArtifactKind`, `SourceAdapter` | see [Extension ports](extension-ports.md) | |
 

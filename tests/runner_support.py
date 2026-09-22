@@ -9,6 +9,16 @@ from typing import Any
 
 import anyio
 import pytest
+from epistemic_graph.generated.connector_pack import (
+    AgentLibraryMutationContext,
+    McpCatalogSnapshotBinding,
+    PackImportResult,
+)
+from epistemic_graph.generated.source_ingestion import (
+    SourceIngestionReceipt,
+    SourceIngestionRequest,
+    SourceIngestStatus,
+)
 from fleet_fixtures import (
     ARCHIVEBOX_CONNECTORS,
     ARCHIVEBOX_ROOT,
@@ -17,21 +27,14 @@ from fleet_fixtures import (
     FRESHRSS_ROOT,
 )
 
+from agent_connector_sdk.artifacts.pack import CapturedConnectorPack
 from agent_connector_sdk.artifacts.prompts import PromptArtifactKind
 from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
 from agent_connector_sdk.artifacts.skills import SkillArtifactKind
 from agent_connector_sdk.artifacts.tools import ToolArtifactKind
-from agent_connector_sdk.contracts import (
-    ContentPack,
-    IngestionReceipt,
-    PackImportReceipt,
-    RecordBatch,
-)
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
-from agent_connector_sdk.ports.checkpoint_store import CheckpointStore
 from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.ports.sink import SinkReadiness
-from agent_connector_sdk.runner.checkpoints import JsonFileCheckpointStore
 from agent_connector_sdk.runner.descriptors import (
     ConnectorDescriptor,
     EndpointSpec,
@@ -57,6 +60,13 @@ FAST = RunnerSettings(
     registry_refresh_seconds=0.05,
 )
 UNUSED_URL = EndpointSpec(url="https://connector.example.invalid/mcp")
+
+
+async def pack_authority_unexpected(
+    connector: str,
+) -> tuple[McpCatalogSnapshotBinding, AgentLibraryMutationContext]:
+    """A resolver for tests that must not reach ConnectorPack import."""
+    raise AssertionError(f"pack authority unexpectedly requested for {connector}")
 
 
 def freshrss_descriptor(**overrides: Any) -> ConnectorDescriptor:
@@ -107,14 +117,18 @@ class RecordingSink:
         self.submits = 0
         self._crash_on = crash_on
 
-    async def submit(self, batch: RecordBatch) -> IngestionReceipt:
+    async def submit(self, batch: SourceIngestionRequest) -> SourceIngestionReceipt:
         """Commit through the in-memory sink unless this is the crashing call."""
         self.submits += 1
         if self.submits == self._crash_on:
             raise RuntimeError("simulated crash before the sink committed")
         return await self.inner.submit(batch)
 
-    async def import_pack(self, pack: ContentPack) -> PackImportReceipt:
+    async def source_status(self, connector: str, stream: str) -> SourceIngestStatus:
+        """Delegate the authoritative status read."""
+        return await self.inner.source_status(connector, stream)
+
+    async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
         """Import through the in-memory sink."""
         self.imports += 1
         return await self.inner.import_pack(pack)
@@ -156,13 +170,12 @@ def in_process(servers: dict[str, object]) -> EndpointFactory:
 
 
 def services(
-    sink: object, store: CheckpointStore, endpoints: EndpointFactory, **overrides: Any
+    sink: object, endpoints: EndpointFactory, **overrides: Any
 ) -> RunnerServices:
     """Runner services over the MCP transport and the four artifact kinds."""
     values: dict[str, Any] = {
         "transport": McpTransport(),
         "sink": sink,
-        "store": store,
         "kinds": KINDS,
         "endpoints": endpoints,
         "settings": FAST,
@@ -174,11 +187,10 @@ def freshrss_runner(
     sink: object, state: Path, server: object, **descriptor: Any
 ) -> ConnectorSyncRunner:
     """A runner serving one freshrss-agent fixture server."""
+    del state
     return ConnectorSyncRunner(
         ListRegistry(freshrss_descriptor(**descriptor)),
-        services(
-            sink, JsonFileCheckpointStore(state), in_process({"freshrss-agent": server})
-        ),
+        services(sink, in_process({"freshrss-agent": server})),
     )
 
 

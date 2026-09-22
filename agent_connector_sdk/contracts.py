@@ -1,58 +1,40 @@
-"""SDK-side record, cursor, pack and receipt types (the epistemic-graph seam).
+"""SDK-owned connector authoring and extraction types.
 
-These types are the one place the SDK describes data it exchanges with
-epistemic-graph. epistemic-graph owns the authoritative schema for content packs,
-source records, cursors and receipts; once that contract is published, this
-module is replaced by types generated from it, with explicit schema versions,
-and every name here maps one-to-one onto a generated type. Until then the types
-stay deliberately minimal: identity, payload, provenance and a canonical digest,
-nothing an epistemic-graph import would have to reinterpret.
+The durable source-ingestion contract is imported directly from
+``epistemic_graph.generated.source_ingestion`` by its consumers. This module
+contains only SDK-side descriptions and MCP content captured before it is mapped
+into an epistemic-graph request.
 
-Every model is frozen. Digests are SHA-256 over canonical JSON (sorted keys, no
-insignificant whitespace) prefixed with a versioned domain tag, so equal content
-always yields an equal digest and a digest can never be confused with one of a
-different type.
+Every model is frozen. Canonical graph-boundary identity and digests remain in
+the generated epistemic-graph contract rather than being recomputed here.
 """
 
 from __future__ import annotations
 
-import hashlib
-import json
-from typing import Any, Self
-
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
+from epistemic_graph.generated.connector_pack import PackAnnotations
+from epistemic_graph.generated.source_ingestion import (
+    SourceCheckpoint,
+    SourceEntityRef,
+    SourceIngestionMode,
+    SourceRecord,
+    SourceRelationship,
+    SourceWithdrawal,
+)
+from pydantic import BaseModel, ConfigDict, Field
 
 __all__ = [
     "SEAM_SCHEMA_VERSION",
-    "ArtifactEntry",
     "CapabilityDescriptor",
-    "ContentPack",
-    "IngestionReceipt",
-    "PackImportReceipt",
-    "PackRecord",
+    "CapturedArtifact",
     "ReconciliationReport",
-    "RecordBatch",
     "RecordPage",
-    "RecordProvenance",
     "ServerIdentity",
-    "SourceRecord",
     "StreamDescriptor",
-    "SyncCursor",
-    "canonical_digest",
 ]
 
 #: Version of the SDK-side seam types. An epistemic-graph contract-generated
 #: replacement carries its own version; mixing the two fails closed.
 SEAM_SCHEMA_VERSION = "agent-connector-sdk.seam/1"
-
-
-def canonical_digest(domain: str, value: Any) -> str:
-    """Return ``sha256:<hex>`` over ``value``'s canonical JSON in ``domain``."""
-    payload = json.dumps(
-        value, sort_keys=True, separators=(",", ":"), ensure_ascii=True
-    ).encode("utf-8")
-    digest = hashlib.sha256(domain.encode("utf-8") + b"\x00" + payload).hexdigest()
-    return f"sha256:{digest}"
 
 
 class _Frozen(BaseModel):
@@ -78,127 +60,17 @@ class StreamDescriptor(_Frozen):
     schema_sha256: str
 
 
-class RecordProvenance(_Frozen):
-    """Where one record came from. Every field is required and non-empty."""
-
-    connector: str = Field(min_length=1)
-    adapter_kind: str = Field(min_length=1)
-    server: str = Field(min_length=1)
-    tool: str = Field(min_length=1)
-    tool_schema_sha256: str = Field(min_length=1)
-    source_uri: str = Field(min_length=1)
-
-
-class SourceRecord(_Frozen):
-    """One raw record extracted from a source, before any mapping is applied."""
-
-    stream: str = Field(min_length=1)
-    record_id: str = Field(min_length=1)
-    payload: dict[str, JsonValue]
-    updated_at: str | None = None
-    provenance: RecordProvenance
-
-    @property
-    def content_digest(self) -> str:
-        """Digest of the identity and payload, independent of retrieval time."""
-        return canonical_digest(
-            "agent-connector-sdk:source-record:v1",
-            {
-                "stream": self.stream,
-                "record_id": self.record_id,
-                "payload": self.payload,
-                "updated_at": self.updated_at,
-            },
-        )
-
-
-class SyncCursor(_Frozen):
-    """Resumable position of one stream.
-
-    ``position`` is adapter-private pagination state. ``watermark`` is the high
-    water mark of the last completed sweep; ``pending_watermark`` accumulates
-    the high water mark of a sweep that has not finished yet, so a resumed
-    sweep keeps filtering against the last *completed* watermark.
-    """
-
-    stream: str = Field(min_length=1)
-    position: dict[str, JsonValue] = Field(default_factory=dict)
-    watermark: str | None = None
-    pending_watermark: str | None = None
-
-
 class RecordPage(_Frozen):
-    """One extracted page and the cursor that resumes after it."""
+    """One provider page mapped into EG's generated ingestion values."""
 
     records: tuple[SourceRecord, ...]
-    cursor: SyncCursor
+    mode: SourceIngestionMode
+    strict_schema: bool
+    checkpoint: SourceCheckpoint
     exhausted: bool
-
-
-def _cursor_payload(cursor: SyncCursor | None) -> dict[str, JsonValue] | None:
-    """Return the canonical optional-cursor payload used by batch identity."""
-
-    return cursor.model_dump(mode="json") if cursor is not None else None
-
-
-class RecordBatch(_Frozen):
-    """Records submitted to a sink with the mapping they must be applied with."""
-
-    connector: str = Field(min_length=1)
-    mapping_reference: str = Field(min_length=1)
-    records: tuple[SourceRecord, ...]
-    expected_previous_cursor: SyncCursor | None = None
-    cursor: SyncCursor
-
-    @model_validator(mode="after")
-    def _bind_source_page(self) -> Self:
-        """Refuse a page whose source identity cannot share one commit receipt."""
-        identities: set[tuple[str, str]] = set()
-        if (
-            self.expected_previous_cursor is not None
-            and self.expected_previous_cursor.stream != self.cursor.stream
-        ):
-            raise ValueError("expected and candidate cursors must name one stream")
-        for record in self.records:
-            if record.stream != self.cursor.stream:
-                raise ValueError("every record must belong to the cursor stream")
-            if record.provenance.connector != self.connector:
-                raise ValueError("record provenance must name the batch connector")
-            identity = (record.stream, record.record_id)
-            if identity in identities:
-                raise ValueError("record identities must be unique within a batch")
-            identities.add(identity)
-        return self
-
-    @property
-    def digest(self) -> str:
-        """Digest over the mapping reference, record digests and cursor."""
-        return canonical_digest(
-            "agent-connector-sdk:record-batch:v1",
-            {
-                "connector": self.connector,
-                "mapping_reference": self.mapping_reference,
-                "records": [
-                    {
-                        "content_digest": record.content_digest,
-                        "provenance": record.provenance.model_dump(mode="json"),
-                    }
-                    for record in self.records
-                ],
-                "expected_previous_cursor": _cursor_payload(
-                    self.expected_previous_cursor
-                ),
-                "cursor": self.cursor.model_dump(mode="json"),
-            },
-        )
-
-
-class IngestionReceipt(_Frozen):
-    """A sink's acknowledgement that a batch was durably committed."""
-
-    batch_digest: str
-    accepted: int = Field(ge=0)
-    committed_cursor: SyncCursor
+    relationships: tuple[SourceRelationship, ...] = ()
+    authoritative_live_ids: tuple[SourceEntityRef, ...] | None = None
+    withdrawals: tuple[SourceWithdrawal, ...] = ()
 
 
 class ReconciliationReport(_Frozen):
@@ -216,8 +88,8 @@ class ServerIdentity(_Frozen):
     version: str = Field(min_length=1)
 
 
-class ArtifactEntry(_Frozen):
-    """One unit of MCP-served content (a tool, skill, prompt or resource)."""
+class CapturedArtifact(_Frozen):
+    """MCP-served content captured before generated pack construction."""
 
     kind: str = Field(min_length=1)
     uri: str = Field(min_length=1)
@@ -225,53 +97,4 @@ class ArtifactEntry(_Frozen):
     media_type: str = Field(min_length=1)
     body: str
     server: ServerIdentity
-
-    @property
-    def digest(self) -> str:
-        """Digest over kind, URI, media type and body."""
-        return canonical_digest(
-            "agent-connector-sdk:artifact-entry:v1",
-            {
-                "kind": self.kind,
-                "uri": self.uri,
-                "media_type": self.media_type,
-                "body": self.body,
-            },
-        )
-
-
-class PackRecord(_Frozen):
-    """The record one artifact entry maps to on import."""
-
-    record_kind: str = Field(min_length=1)
-    uri: str = Field(min_length=1)
-    name: str = Field(min_length=1)
-    entry_digest: str = Field(min_length=1)
-    attributes: dict[str, JsonValue] = Field(default_factory=dict)
-
-
-class ContentPack(_Frozen):
-    """A connector's MCP-served content snapshot."""
-
-    connector: str = Field(min_length=1)
-    server: ServerIdentity
-    entries: tuple[ArtifactEntry, ...]
-
-    @property
-    def digest(self) -> str:
-        """Digest over the server identity and the sorted entry digests."""
-        return canonical_digest(
-            "agent-connector-sdk:content-pack:v1",
-            {
-                "connector": self.connector,
-                "server": self.server.model_dump(mode="json"),
-                "entries": sorted(entry.digest for entry in self.entries),
-            },
-        )
-
-
-class PackImportReceipt(_Frozen):
-    """A sink's acknowledgement that a content pack was imported."""
-
-    pack_digest: str
-    imported: int = Field(ge=0)
+    annotations: PackAnnotations = Field(default_factory=PackAnnotations)

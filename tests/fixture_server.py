@@ -70,6 +70,7 @@ def _fixture_server(*, malformed: bool, with_content: bool) -> FastMCP[Any]:
             ConnectorContent(
                 connector=CONNECTOR,
                 package_root=PACKAGE_ROOT,
+                package_version=SERVER_VERSION,
                 manifest_path=PACKAGE_ROOT / "connector_manifest.yml",
             ),
         )

@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
+from epistemic_graph.generated.source_ingestion import SourceCheckpoint
+
 from agent_connector_sdk.contracts import (
     CapabilityDescriptor,
     ReconciliationReport,
     RecordPage,
     StreamDescriptor,
-    SyncCursor,
 )
 from agent_connector_sdk.ports.session import McpSession
 
@@ -31,9 +32,9 @@ class SourceAdapter(Protocol):
         ...
 
     async def extract(
-        self, session: McpSession, cursor: SyncCursor | None
+        self, session: McpSession, checkpoint: SourceCheckpoint | None
     ) -> RecordPage:
-        """Extract the page after ``cursor`` (``None`` starts a sweep)."""
+        """Extract after EG's accepted checkpoint (``None`` is initial CAS)."""
         ...
 
     async def reconcile(

@@ -8,7 +8,7 @@ distribution and declares an entry point; nothing in the SDK changes.
 | `SourceAdapter` | `ports.source_adapter` | `agent_connector_sdk.source_adapters` | `mcp_tool` |
 | `ArtifactKind` | `ports.artifact_kind` | `agent_connector_sdk.artifact_kinds` | `tools`, `skills`, `prompts`, `resources` |
 | `Transport` | `ports.transport` | `agent_connector_sdk.transports` | `mcp` |
-| `Sink` | `ports.sink` | `agent_connector_sdk.sinks` | `epistemic_graph` (capability gated) |
+| `Sink` | `ports.sink` | `agent_connector_sdk.sinks` | `epistemic_graph` |
 | `WriteBackPort` | `ports.writeback` | generated connector binding | `GovernedWriteBack` + fixture transport |
 
 ## SourceAdapter
@@ -17,7 +17,7 @@ distribution and declares an entry point; nothing in the SDK changes.
 |---|---|
 | `describe()` | capabilities, without I/O |
 | `discover(session)` | verify the live source contract; required before extraction |
-| `extract(session, cursor)` | one page and the cursor that resumes after it |
+| `extract(session, checkpoint)` | one page and the provider checkpoint that resumes after it |
 | `reconcile(session, known_ids)` | ids missing from the source and unknown to the sink |
 
 The `mcp_tool` adapter extracts through a connector's MCP tool as a preset
@@ -63,68 +63,55 @@ malformed results are rejected. Aggregate prompt capture uses the existing
 | Method | Contract |
 |---|---|
 | `submit(batch)` | commit a record batch; the receipt is returned only after commit |
+| `source_status(connector, stream)` | read EG's sole durable checkpoint and live-set authority |
 | `import_pack(pack)` | import a content pack keyed by its digest |
 | `readiness()` | whether this sink can commit right now, without side effects -- returns a `SinkReadiness(ready, reason)`; `reason` is set whenever `ready` is `False` and must never carry a credential or other secret value |
 
 The connector-sync runner's `/health/ready` (see [Connector sync](connector-sync.md)
 "Health") calls `readiness()` directly, bounded by a short timeout, so a sink
 implementation must answer it without a side effect and should not assume it
-is ever skipped. The bundled `epistemic_graph` sink in version 0.1.0 reports not
-ready because it cannot commit packs or record batches. The testing kit's
-`InMemorySink` reports ready.
+is ever skipped. `epistemic_graph` requires a verified client and a live
+ConnectorPack authority resolver at construction; the testing kit's
+`InMemorySink` always reports ready.
 
-`RecordBatch` is the typed SDK handoff immediately before that native call. It
-binds every record to one connector and cursor stream, rejects duplicate source
-identities within a page, and includes the complete raw provenance in its batch
-digest. The exact mapping reference, candidate cursor, and expected previous
-cursor are digest-bound too. The runner sets `expected_previous_cursor` to the
-cursor used to extract the page; it is `None` only when no cursor has ever been
-committed for that connector stream. EG must compare-and-swap that expected
-position atomically with the record commit, rejecting stale or out-of-order
-pages. This is the furthest the SDK can map without taking ownership of EG's
-ingestion schema.
+`SourceIngestionRequest` is imported from
+`epistemic_graph.generated.source_ingestion`; the SDK does not define an alias,
+parallel DTO or digest. Its generated `canonical_digest()` binds raw records,
+provenance, exact per-record mapping references, provider checkpoint and expected
+previous checkpoint. The runner sends it through generated `send_source_ingest`
+with a stable
+idempotency key and advances the checkpoint only from the matching generated
+receipt. EG compare-and-swaps the expected position atomically with the commit.
 
 A manifest mapping reference names one exact mapping:
 `manifest:<connector>#schema_mappings/<key>`. The shorter
 `manifest:<connector>` form is a convenience only for a manifest containing
 exactly one `schema_mappings` entry. Package validation fails closed when the
 short form is ambiguous or an explicit fragment names no declared key. Other
-reference schemes remain opaque to the SDK and must identify an equally exact
-mapping at their owning authority.
+reference schemes are rejected at the EG boundary.
 
-The current EG-generated client has no generic source-record method. Its two
-nearby native calls are deliberately not substitutes:
+Lifecycle mode is explicit on every page. `full` is a non-authoritative load,
+`delta` may carry provider-declared withdrawals, and `reconcile` carries the
+complete authoritative live-id and relationship sets so EG derives removals
+atomically. Empty authoritative full/reconcile commits require a non-empty
+descriptor approval and the verified server's `source:reconcile-empty` scope;
+the SDK cannot grant that capability. Provider content hashes are optional and
+are echoed, never invented. An unchanged empty delta is not submitted as a
+fake checkpoint advance.
 
-- `SqlSourceBatch` appends typed cells to an existing SQL table. Its mapping
-  descriptor is integrity/provenance content and is not interpreted or applied.
-- `ApplyChangeEnvelope(s)` commits graph operations after mapping. It cannot
-  accept the raw `SourceRecord` page or resolve a connector manifest mapping.
-
-EG must publish the accepted `IngestionAuthorityV1` stage contract as generated
-client calls and types. The first call after SDK extraction is
-`CaptureRawRequestV1 -> RawCaptureResultV1`, followed by
-`AdmitRawRequestV1 -> RawAdmissionResultV1`,
-`ValidateBatchRequestV1 -> ValidationResultV1`,
-`MapBatchRequestV1 -> MappedBatchResultV1`, and finally
-`IngestBatchRequestV1 -> IngestResultV1`. `IngestBatchRequestV1` alone is not a
-binding for `RecordBatch`: it receives mapped `ChangeEnvelopeV1` values, while
-mapping and raw admission are EG responsibilities. Those calls must accept the
-raw bounded records and complete source provenance, resolve the imported
-manifest mapping reference, and bind the candidate cursor to its expected prior
-value. The final result must bind the submitted batch digest, per-record
-accepted/duplicate/rejected outcomes, and committed cursor. The native
-transaction must deduplicate, append provenance/outbox records, advance the
-cursor, and retain the terminal receipt before it acknowledges. Once those
-generated calls exist, `EpistemicGraphSink.submit` can compose them without a
-local schema copy; until then it continues to fail closed and readiness remains
-false.
+`SourceIngest` is the one durable operation; SQL batches and pre-mapped change
+envelopes are not substitutes. EG resolves the manifest mapping, admits raw
+evidence, deduplicates, writes provenance/outbox state, and advances the checkpoint
+before returning `SourceIngestionReceipt`. The SDK verifies that the receipt's
+batch digest, mode and accepted checkpoint bind the submitted request.
 
 ## Runner ports
 
-The connector-sync runner adds three ports, described in
-[Connector sync](connector-sync.md): `ConnectorRegistry` (`ports.connector_registry`),
-`CheckpointStore` (`ports.checkpoint_store`) and `ChangeSource`
-(`ports.change_source`).
+The connector-sync runner adds two runtime ports, described in
+[Connector sync](connector-sync.md): `ConnectorRegistry`
+(`ports.connector_registry`) and `ChangeSource` (`ports.change_source`). Source
+checkpoint and live-set state are read directly from EG's generated
+`SourceIngestStatus` contract and are never persisted by the SDK.
 
 ## WriteBackPort
 
@@ -171,8 +158,9 @@ There is no permissive default. `sdk_reference_extensions()` certifies the
 implementations this SDK version ships. Two distributions declaring the same
 name in a group is an error.
 
-## Seam types
+## Contract ownership
 
-`agent_connector_sdk.contracts` holds the SDK-side record, cursor, pack, and
-receipt transport types. epistemic-graph remains authoritative for durable graph
-schema and generated write-back contracts.
+Source ingestion, ConnectorPack and WriteBack request/result models come
+directly from `epistemic_graph.generated`. The SDK owns only connector authoring,
+capture, transport and extraction shapes; it defines no parallel EG DTO or
+digest.

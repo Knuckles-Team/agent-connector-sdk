@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 __all__ = [
-    "CheckpointStoreError",
     "CredentialResolutionError",
     "RunnerConfigurationError",
     "SinkReceiptError",
@@ -23,7 +22,3 @@ class CredentialResolutionError(PermissionError):
 
 class SinkReceiptError(RuntimeError):
     """A sink receipt does not acknowledge exactly what was submitted."""
-
-
-class CheckpointStoreError(RuntimeError):
-    """Checkpoint state is unreadable, corrupt or addressed by an unsafe name."""

@@ -58,7 +58,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--config", type=Path, required=True, help="runner YAML")
     parser.add_argument(
-        "--state-dir", type=Path, default=None, help="checkpoint directory"
+        "--state-dir", type=Path, default=None, help="reserved process-state directory"
     )
     parser.add_argument("--sink", default="epistemic_graph", help="sink extension")
     parser.add_argument("--once", action="store_true", help="one cycle, then exit")

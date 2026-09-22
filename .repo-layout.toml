@@ -3,6 +3,7 @@
 # entry that is no longer tracked fails as stale.
 
 [dirs]
+".config" = "explicit tool configuration files"
 agent_connector_sdk = "the importable SDK package"
 scripts = "the SDK's own wiring gates (scripts/check_wiring.py) run by pre-commit and CI"
 tests = "the test suite, including the in-process fixture connector"
@@ -22,4 +23,3 @@ pages = "hand-written GitHub Pages sources (RF-ADR-009 section 5: no /docs direc
 [dotfiles]
 ".bumpversion.cfg" = "bump2version release configuration"
 ".gitignore" = "git exclusion patterns (carries the fleet-shared REQUIRED set)"
-".pre-commit-config.yaml" = "the combined pre-commit and pre-push suite, including the pinned shared hooks"

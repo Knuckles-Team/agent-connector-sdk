@@ -5,19 +5,24 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
+from epistemic_graph.generated.source_ingestion import SourceCheckpoint
 from fixture_server import CONNECTOR, ITEMS, build_reader_server
 
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from agent_connector_sdk.adapters.mcp_tool_paging import (
-    cursor_after_page,
+    checkpoint_after_page,
     dig_path,
     next_position,
     page_params,
     set_path,
     tool_arguments,
 )
-from agent_connector_sdk.adapters.mcp_tool_records import raw_records, source_record
-from agent_connector_sdk.contracts import CapabilityDescriptor, SyncCursor
+from agent_connector_sdk.adapters.mcp_tool_records import (
+    raw_records,
+    raw_relationships,
+    source_record,
+)
+from agent_connector_sdk.contracts import CapabilityDescriptor
 from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.ports.errors import (
     MalformedSourceDataError,
@@ -79,16 +84,19 @@ async def test_sweep_extracts_every_item_in_order(
     ]
     assert result.pages == 3 and result.exhausted
     assert (
-        result.cursor is not None and result.cursor.watermark == ITEMS[-1]["published"]
+        result.checkpoint is not None
+        and result.checkpoint.watermark == ITEMS[-1]["published"]
     )
 
 
 async def test_incremental_extraction_uses_the_watermark(
     adapter: McpToolSourceAdapter, sessions: SessionFactory
 ) -> None:
-    cursor = SyncCursor(stream="demo", watermark=ITEMS[2]["published"])
+    checkpoint = SourceCheckpoint(
+        stream="demo", position={}, watermark=ITEMS[2]["published"]
+    )
     async with sessions() as session:
-        result = await sweep(adapter, session, cursor=cursor)
+        result = await sweep(adapter, session, checkpoint=checkpoint)
     assert [record.record_id for record in result.records] == ["item-4", "item-5"]
 
 
@@ -109,16 +117,24 @@ async def test_adapter_fails_closed(
         with pytest.raises(SourceContractError):
             await adapter.extract(session, None)
         drifted = McpToolSourceAdapter(
-            adapter._preset, connector=CONNECTOR, tool_schema_sha256="0" * 64
+            adapter._preset,
+            connector=CONNECTOR,
+            tool_schema_sha256="0" * 64,
+            mapping_reference="manifest:demo-agent#schema_mappings/Document",
         )
         with pytest.raises(SourceContractError):
             await drifted.discover(session)
         await adapter.discover(session)
         with pytest.raises(SourceContractError):
-            await adapter.extract(session, SyncCursor(stream="other"))
+            await adapter.extract(
+                session, SourceCheckpoint(stream="other", position={})
+            )
     with pytest.raises(ValueError):
         McpToolSourceAdapter(
-            adapter._preset, connector=CONNECTOR, tool_schema_sha256=""
+            adapter._preset,
+            connector=CONNECTOR,
+            tool_schema_sha256="",
+            mapping_reference="manifest:demo-agent#schema_mappings/Document",
         )
 
 
@@ -142,6 +158,11 @@ def test_paging_helpers() -> None:
         params_style="args",
     )
     assert page_params(paged, {"offset": 6}, None) == {"offset": 6, "limit": 2}
+    assert page_params(paged, {"offset": 6}, None, mode="full") == {
+        "mode": "full",
+        "offset": 6,
+        "limit": 2,
+    }
     assert tool_arguments(paged, {"offset": 6}) == {"offset": 6}
     assert next_position(paged, {}, result={}, raw=[{}, {}]) == {"offset": 2}
     assert next_position(paged, {}, result={}, raw=[{}]) is None
@@ -160,8 +181,62 @@ def test_paging_helpers() -> None:
     assert (
         next_position(keyset, {}, result={"truncated": False}, raw=[{"id": 9}]) is None
     )
-    cursor = cursor_after_page(SyncCursor(stream="k", watermark="b"), (), None)
-    assert cursor.watermark == "b" and cursor.position == {}
+    checkpoint = checkpoint_after_page(
+        SourceCheckpoint(stream="k", position={}, watermark="b"), (), None
+    )
+    assert checkpoint.watermark == "b" and checkpoint.position == {}
+
+
+def test_preset_types_the_complete_source_lifecycle_contract() -> None:
+    preset = ToolPreset.from_mapping(
+        "typed-metadata",
+        {
+            "server": "metadata-mcp",
+            "tool": "metadata_snapshot",
+            "params": {"mode": "delta"},
+            "record_mode": "typed_entities",
+            "node_type_field": "node_type",
+            "records_path": "entities",
+            "checkpoint_path": "checkpoint",
+            "updated_since_param": "checkpoint",
+            "reconcile_path": "reconcile.live_ids",
+            "authoritative_path": "reconcile.authoritative",
+            "relationships_path": "relationships",
+            "strict_schema": True,
+            "content_fields": [],
+            "metadata_fields": ["id", "node_type", "updated_at"],
+        },
+    )
+    assert preset.record_mode == "typed_entities"
+    assert preset.node_type_field == "node_type"
+    assert preset.content_hash_path == "content_hash"
+    assert preset.metadata_fields == ("id", "node_type", "updated_at")
+    assert not {
+        "record_mode",
+        "node_type_field",
+        "checkpoint_path",
+        "relationships_path",
+        "reconcile_path",
+        "authoritative_path",
+        "strict_schema",
+    }.intersection(preset.mapping_hints)
+
+
+@pytest.mark.parametrize(
+    ("update", "message"),
+    (
+        ({"node_type_field": "type"}, "only to typed_entities"),
+        ({"record_mode": "typed_entities"}, "needs node_type_field"),
+        ({"relationships_path": "edges"}, "requires typed_entities"),
+        ({"strict_schema": True}, "needs metadata_fields"),
+        ({"checkpoint_path": "checkpoint"}, "requires updated_since_param"),
+    ),
+)
+def test_preset_rejects_partial_lifecycle_contracts(
+    update: dict[str, object], message: str
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        ToolPreset(name="metadata", server="s", tool="t", **update)
 
 
 def test_record_helpers() -> None:
@@ -177,11 +252,71 @@ def test_record_helpers() -> None:
     with pytest.raises(MalformedSourceDataError):
         raw_records(listing, [1, 2])
     with pytest.raises(MalformedSourceDataError):
-        source_record(listing, {"title": "no id"}, connector="c", schema_sha256="x")
+        source_record(
+            listing,
+            {"title": "no id"},
+            connector="c",
+            schema_sha256="a" * 64,
+            mapping_reference="manifest:c#schema_mappings/Document",
+        )
     with pytest.raises(MalformedSourceDataError):
         source_record(
-            listing, {"id": 1, "blob": object()}, connector="c", schema_sha256="x"
+            listing,
+            {"id": 1, "blob": object()},
+            connector="c",
+            schema_sha256="a" * 64,
+            mapping_reference="manifest:c#schema_mappings/Document",
         )
+    strict = ToolPreset(
+        name="typed",
+        server="s",
+        tool="t",
+        record_mode="typed_entities",
+        node_type_field="node_type",
+        strict_schema=True,
+        metadata_fields=("id", "node_type"),
+    )
+    with pytest.raises(MalformedSourceDataError, match="outside its strict schema"):
+        source_record(
+            strict,
+            {"id": "1", "node_type": "Document", "secret": "drop-me"},
+            connector="c",
+            schema_sha256="a" * 64,
+            mapping_reference="manifest:c#schema_mappings/Document",
+        )
+    with pytest.raises(MalformedSourceDataError, match="no usable node type"):
+        source_record(
+            strict,
+            {"id": "1", "node_type": ""},
+            connector="c",
+            schema_sha256="a" * 64,
+            mapping_reference="manifest:c#schema_mappings/Document",
+        )
+
+
+def test_relationship_helpers_preserve_and_validate_top_level_edges() -> None:
+    preset = ToolPreset(
+        name="typed",
+        server="s",
+        tool="t",
+        record_mode="typed_entities",
+        node_type_field="node_type",
+        relationships_path="relationships",
+    )
+    edge = {
+        "source": "item:1",
+        "relationship": "belongsTo",
+        "target": "collection:2",
+        "confidence": 1,
+    }
+    assert raw_relationships(preset, {"relationships": [edge]}) == [edge]
+    with pytest.raises(MalformedSourceDataError, match="no usable target"):
+        raw_relationships(
+            preset,
+            {"relationships": [{"source": "item:1", "relationship": "belongsTo"}]},
+        )
+    with pytest.raises(MalformedSourceDataError, match="relationships_path"):
+        raw_relationships(preset, {"relationships": {}})
 
 
 async def test_transport_and_session() -> None:
@@ -254,6 +389,7 @@ async def test_conformance_checks_report_failures(
         adapter._preset.model_copy(update={"params": {"count": 50}}),
         connector=CONNECTOR,
         tool_schema_sha256=adapter._pinned,
+        mapping_reference="manifest:demo-agent#schema_mappings/Document",
     )
     assert not (await check_pagination(single_page, sessions)).passed
     assert not (await check_checkpoint_resume(single_page, sessions)).passed

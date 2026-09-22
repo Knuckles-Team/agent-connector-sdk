@@ -13,7 +13,7 @@ and published through GitHub Pages.
 - connector manifests, sync presets, tool-schema fingerprints, and content
   publication for skills, prompts, ontologies, SHACL shapes, and manifests;
 - typed extension ports for sources, artifacts, transports, sinks, registries,
-  checkpoints, authorization, and write-back;
+  authorization, and write-back;
 - connector discovery, certification, conformance checks, source scheduling,
   health reporting, retries, and progress;
 - governed HTTP, TLS, credential-reference, pagination, and error handling.
@@ -39,7 +39,7 @@ the `phase-direction` gate.
 | `agent_connector_sdk/artifacts/` | MCP content capture and canonical pack construction |
 | `agent_connector_sdk/transports/` | authenticated connector sessions |
 | `agent_connector_sdk/sinks/` | graph-bound sink adapters and readiness reporting |
-| `agent_connector_sdk/runner/` | `connector-sync` composition, workers, scheduling, checkpoints, health |
+| `agent_connector_sdk/runner/` | `connector-sync` composition, workers, scheduling, durable EG status reads, health |
 | `agent_connector_sdk/writeback/` | governed dry-run, authorization, version checks, idempotency, reconciliation |
 | `agent_connector_sdk/http/`, `tls/`, `auth/` | governed outbound requests and identity boundaries |
 | `agent_connector_sdk/credentials/` | `env://` and `openbao://` references and resolvers |
@@ -55,8 +55,9 @@ exercised by a test.
 The runner activates an extension only after its exact group, name,
 distribution, and version are certified. Sink readiness is capability based. A
 sink that cannot commit returns `ready=False`; the runner fails readiness and
-does not advance a cursor. The bundled epistemic-graph sink in this release is
-not commit-capable and therefore remains inactive at runtime.
+does not submit source data. The bundled epistemic-graph sink reads the durable
+SourceIngest status and commits through generated SourceIngest, ConnectorPack,
+and WriteBack contracts; it does not retain a parallel cursor authority.
 
 ## Commands
 
@@ -71,14 +72,14 @@ uvx --from ruff==0.16.0 ruff format --check agent_connector_sdk tests
 uv run --frozen --only-group docs mkdocs build --strict
 python scripts/check_wiring.py orphans
 python scripts/check_wiring.py public-api
-pre-commit run --all-files
-pre-commit run --all-files --hook-stage pre-push
+pre-commit run --config .config/pre-commit.yaml --all-files
+pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage pre-push
 ```
 
 Run the shared documentation contract directly while editing public surfaces:
 
 ```bash
-pre-commit try-repo ../pipelines public-surface --all-files
+pre-commit try-repo --config .config/pre-commit.yaml ../pipelines public-surface --all-files
 ```
 
 ## Quality gates
@@ -96,7 +97,8 @@ repository-specific settings in `[tool.pipelines_hooks]`.
 - **Correctness:** pytest, strict mypy, Ruff, Bandit, Vulture, codespell, wiring,
   dependency readiness, and dependency direction.
 - **Delivery:** strict MkDocs, reproducible wheel build, version consistency,
-  and the local CI replica.
+  and the local CI replica. These full checks run manually or in hosted CI; the
+  automatic pre-push stage remains bounded.
 
 Native scanners must match the versions required by the pinned hook revision.
 A missing scanner, configuration, dependency, or privacy catalog is a gate

@@ -2,19 +2,19 @@
 
 from __future__ import annotations
 
+import json
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import mcp_types
 import pytest
 
-from agent_connector_sdk.artifacts.common import json_object
 from agent_connector_sdk.artifacts.pack import build_content_pack
 from agent_connector_sdk.artifacts.prompts import PromptArtifactKind
 from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
 from agent_connector_sdk.artifacts.skills import SkillArtifactKind
 from agent_connector_sdk.artifacts.tools import ToolArtifactKind
-from agent_connector_sdk.contracts import ArtifactEntry, ServerIdentity
+from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
 from agent_connector_sdk.ports.errors import MalformedArtifactError
 from agent_connector_sdk.testing.results import SessionFactory
 
@@ -35,8 +35,11 @@ async def test_whole_content_pack_retains_rendered_prompt(
                 ResourceArtifactKind(),
             ),
         )
-    captured = json_object(
-        next(entry for entry in pack.entries if entry.kind == "prompt")
+    entry = next(
+        entry for entry in pack.archive.entries if entry.kind.value == "prompt"
+    )
+    captured = json.loads(
+        pack.archive.data[entry.body.offset : entry.body.offset + entry.body.length]
     )
     assert captured["capture"] == {
         "method": "prompts/get",
@@ -105,7 +108,10 @@ async def test_prompt_capture_preserves_order_types_and_content_identity() -> No
     )
     kind = PromptArtifactKind()
     pack = await build_content_pack(session, connector="demo-agent", kinds=(kind,))
-    body = json_object(pack.entries[0])
+    entry = pack.archive.entries[0]
+    body = json.loads(
+        pack.archive.data[entry.body.offset : entry.body.offset + entry.body.length]
+    )
     assert body["description"] == "listed description"
     assert body["result"] == result.model_dump(
         mode="json", by_alias=True, exclude_none=True
@@ -113,7 +119,7 @@ async def test_prompt_capture_preserves_order_types_and_content_identity() -> No
     session.get_prompt.assert_awaited_once_with("demo", {})
     result.messages[0].content = mcp_types.TextContent(type="text", text="changed body")
     changed = await build_content_pack(session, connector="demo-agent", kinds=(kind,))
-    assert changed.digest != pack.digest
+    assert changed.archive.data != pack.archive.data
 
 
 @pytest.mark.parametrize(
@@ -163,7 +169,7 @@ async def test_prompt_capture_fails_closed(
     with pytest.raises(MalformedArtifactError):
         if failure == "listing_only":
             kind.validate(
-                ArtifactEntry(
+                CapturedArtifact(
                     kind="prompt",
                     uri="prompt://demo-mcp/demo",
                     name="demo",
@@ -198,11 +204,9 @@ async def test_prompt_capture_rejects_uri_retagging(uri: str) -> None:
     kind = PromptArtifactKind()
     entry = (await kind.list_entries(session, SERVER))[0]
     kind.validate(entry)
-    assert kind.to_record(entry).uri == "prompt://demo-mcp/demo"
+    assert entry.uri == "prompt://demo-mcp/demo"
     retagged = entry.model_copy(update={"uri": uri})
     assert retagged.body == entry.body and retagged.server == entry.server
     assert retagged.name == entry.name
     with pytest.raises(MalformedArtifactError, match="prompt identity differs"):
         kind.validate(retagged)
-    with pytest.raises(MalformedArtifactError, match="prompt identity differs"):
-        kind.to_record(retagged)

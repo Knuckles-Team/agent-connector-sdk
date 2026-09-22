@@ -1,39 +1,36 @@
-"""The ``mcp_tool`` source adapter: extract records through a connector's MCP tool.
-
-The reference :class:`~agent_connector_sdk.ports.source_adapter.SourceAdapter`,
-ported from ``agent_utilities.protocols.source_connectors.connectors.mcp_tool``.
-What changed on the way out:
-
-* It emits raw :class:`~agent_connector_sdk.contracts.SourceRecord` values.
-  Documents, field mappings and access control are the ingestion authority's
-  job, so AU's document and ACL projection, per-record detail fetches and SQL
-  table sweeps are not part of extraction.
-* It is always governed: construction requires the pinned
-  ``tool_schema_sha256``, :meth:`McpToolSourceAdapter.discover` must verify the
-  live tool before any extraction, and records that do not match the preset
-  raise instead of being skipped.
-* It opens no connections; a :class:`~agent_connector_sdk.ports.transport.Transport`
-  supplies the session, so the same adapter runs over HTTP, stdio or in process.
-"""
+"""Declarative MCP-tool source adapter for generated EG ingestion values."""
 
 from __future__ import annotations
 
-from agent_connector_sdk.adapters.mcp_tool_paging import (
-    cursor_after_page,
-    next_position,
-    page_params,
-    tool_arguments,
+from collections.abc import Mapping, Sequence
+from typing import Any
+
+from epistemic_graph.generated.source_ingestion import (
+    SourceCheckpoint,
+    SourceIngestionMode,
 )
-from agent_connector_sdk.adapters.mcp_tool_records import raw_records, source_record
+
+from agent_connector_sdk.adapters.mcp_tool_extract import (
+    _mapped_records,
+    _mapped_relationships,
+    _page_checkpoint,
+)
+from agent_connector_sdk.adapters.mcp_tool_lifecycle import (
+    _ingestion_mode,
+    _source_withdrawals,
+    authoritative_live_ids,
+    raw_relationships,
+)
+from agent_connector_sdk.adapters.mcp_tool_paging import page_params, tool_arguments
+from agent_connector_sdk.adapters.mcp_tool_records import raw_records
 from agent_connector_sdk.contracts import (
     CapabilityDescriptor,
     ReconciliationReport,
     RecordPage,
     StreamDescriptor,
-    SyncCursor,
 )
 from agent_connector_sdk.manifest.live_contract import validate_preset_tool_contract
-from agent_connector_sdk.manifest.model import SyncSpec
+from agent_connector_sdk.manifest.model import ResourceSpec, SchemaMapping, SyncSpec
 from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.manifest.tool_schema import ToolSchemaContractError
 from agent_connector_sdk.ports.errors import SourceContractError
@@ -42,43 +39,64 @@ from agent_connector_sdk.ports.session import McpSession
 __all__ = ["McpToolSourceAdapter"]
 
 
-class McpToolSourceAdapter:
-    """Extract one preset's records through its MCP tool.
+def _require_identity(
+    connector: str, tool_schema_sha256: str, mapping_reference: str
+) -> None:
+    if not all((connector, tool_schema_sha256, mapping_reference)):
+        raise ValueError(
+            "connector, mapping_reference and a pinned tool_schema_sha256 are required"
+        )
 
-    Args:
-        preset: The validated preset naming tool, arguments and pagination.
-        connector: The connector package that owns the preset.
-        tool_schema_sha256: The pinned compatibility fingerprint of the tool.
-    """
+
+class McpToolSourceAdapter:
+    """Extract one manifest-declared stream through an MCP tool."""
 
     kind = "mcp_tool"
 
     def __init__(
-        self, preset: ToolPreset, *, connector: str, tool_schema_sha256: str
+        self,
+        preset: ToolPreset,
+        *,
+        connector: str,
+        tool_schema_sha256: str,
+        mapping_reference: str,
+        schema_mappings: Mapping[str, SchemaMapping] | None = None,
+        resources: Sequence[ResourceSpec] = (),
     ) -> None:
-        if not connector or not tool_schema_sha256:
-            raise ValueError("connector and a pinned tool_schema_sha256 are required")
+        _require_identity(connector, tool_schema_sha256, mapping_reference)
         self._preset = preset
         self._connector = connector
         self._pinned = tool_schema_sha256
+        self._mapping_reference = mapping_reference
+        self._schema_mappings = dict(schema_mappings or {})
+        self._resources = {resource.name: resource for resource in resources}
         self._verified_sha256 = ""
 
     @classmethod
-    def from_sync_spec(cls, spec: SyncSpec, *, connector: str) -> McpToolSourceAdapter:
-        """Build an adapter from a manifest ``sync`` entry (its ``raw`` preset)."""
+    def from_sync_spec(
+        cls,
+        spec: SyncSpec,
+        *,
+        connector: str,
+        mapping_reference: str,
+        schema_mappings: Mapping[str, SchemaMapping] | None = None,
+        resources: Sequence[ResourceSpec] = (),
+    ) -> McpToolSourceAdapter:
+        """Build an adapter from a manifest sync declaration."""
         return cls(
             ToolPreset.from_mapping(spec.preset, dict(spec.raw)),
             connector=connector,
             tool_schema_sha256=spec.tool_schema_sha256 or "",
+            mapping_reference=mapping_reference,
+            schema_mappings=schema_mappings,
+            resources=resources,
         )
 
     @property
     def stream(self) -> str:
-        """The stream this adapter extracts (the preset name)."""
         return self._preset.name
 
     def describe(self) -> CapabilityDescriptor:
-        """Declared capabilities; performs no I/O."""
         return CapabilityDescriptor(
             kind=self.kind,
             pagination=(self._preset.pagination,),
@@ -87,11 +105,7 @@ class McpToolSourceAdapter:
         )
 
     async def discover(self, session: McpSession) -> StreamDescriptor:
-        """Verify the live tool against the pinned fingerprint and argument types.
-
-        Raises:
-            SourceContractError: the tool is missing or its schema drifted.
-        """
+        """Verify the live tool against its pinned compatibility fingerprint."""
         preset = self._preset
         try:
             contract = validate_preset_tool_contract(
@@ -110,61 +124,72 @@ class McpToolSourceAdapter:
         )
 
     async def extract(
-        self, session: McpSession, cursor: SyncCursor | None
+        self, session: McpSession, checkpoint: SourceCheckpoint | None
     ) -> RecordPage:
-        """Extract the page after ``cursor``.
-
-        Raises:
-            SourceContractError: ``discover`` has not verified the tool, or the
-                cursor belongs to another stream.
-            MalformedSourceDataError: the response does not match the preset.
-        """
-        current = cursor or SyncCursor(stream=self.stream)
+        """Extract the provider page after EG's accepted checkpoint."""
+        current = checkpoint or SourceCheckpoint(stream=self.stream, position={})
         if not self._verified_sha256 or current.stream != self.stream:
             raise SourceContractError(
-                "extraction needs a verified tool and this stream's cursor"
+                "extraction needs a verified tool and this stream's checkpoint"
             )
-        params = page_params(self._preset, current.position, current.watermark)
+        since: Any = (
+            current.position if self._preset.checkpoint_path else current.watermark
+        )
+        params = page_params(self._preset, current.position, since)
         result = await session.call_tool(
             self._preset.tool, tool_arguments(self._preset, params)
         )
         raw = raw_records(self._preset, result)
-        since = current.watermark
-        records = tuple(
-            record
-            for record in (
-                source_record(
-                    self._preset,
-                    item,
-                    connector=self._connector,
-                    schema_sha256=self._verified_sha256,
-                )
-                for item in raw
-            )
-            if not (
-                since and record.updated_at is not None and record.updated_at <= since
-            )
+        records, references = _mapped_records(
+            raw,
+            connector=self._connector,
+            preset=self._preset,
+            configured_mapping=self._mapping_reference,
+            mappings=self._schema_mappings,
+            schema_sha256=self._verified_sha256,
+            since=current.watermark,
         )
-        position = next_position(self._preset, current.position, result=result, raw=raw)
+        candidate, exhausted = _page_checkpoint(
+            self._preset, current, records, result=result, raw=raw
+        )
+        live_ids = authoritative_live_ids(self._preset, result)
+        mode = _ingestion_mode(
+            self._preset,
+            result=result,
+            live_ids=live_ids,
+            checkpoint=checkpoint,
+        )
+        withdrawals = _source_withdrawals(self._preset, result)
+        if mode is not SourceIngestionMode.DELTA and withdrawals:
+            raise SourceContractError("only delta ingestion accepts withdrawals")
+        relationships = _mapped_relationships(
+            raw_relationships(self._preset, result),
+            connector=self._connector,
+            preset=self._preset,
+            mappings=self._schema_mappings,
+            resources=self._resources,
+            mappings_by_id=references,
+            schema_sha256=self._verified_sha256,
+        )
         return RecordPage(
             records=records,
-            cursor=cursor_after_page(current, records, position),
-            exhausted=position is None,
+            relationships=relationships,
+            mode=mode,
+            strict_schema=self._preset.strict_schema,
+            checkpoint=candidate,
+            authoritative_live_ids=live_ids,
+            withdrawals=withdrawals,
+            exhausted=exhausted,
         )
 
     async def reconcile(
         self, session: McpSession, known_ids: frozenset[str]
     ) -> ReconciliationReport:
-        """Sweep every page without a watermark and diff ids against ``known_ids``.
-
-        Raises:
-            SourceContractError: the sweep did not finish within ``max_pages``; an
-                incomplete sweep cannot prove a record is missing.
-        """
+        """Sweep every page without a watermark and diff source identities."""
         seen: set[str] = set()
-        cursor: SyncCursor | None = None
+        checkpoint: SourceCheckpoint | None = None
         for _ in range(self._preset.max_pages):
-            page = await self.extract(session, cursor)
+            page = await self.extract(session, checkpoint)
             seen.update(record.record_id for record in page.records)
             if page.exhausted:
                 return ReconciliationReport(
@@ -172,5 +197,5 @@ class McpToolSourceAdapter:
                     missing_from_source=tuple(sorted(known_ids - seen)),
                     unknown_to_sink=tuple(sorted(seen - known_ids)),
                 )
-            cursor = page.cursor.model_copy(update={"watermark": None})
+            checkpoint = page.checkpoint.model_copy(update={"watermark": None})
         raise SourceContractError("reconciliation sweep exceeded max_pages")

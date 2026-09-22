@@ -33,7 +33,11 @@ The Agent Connector SDK provides a shared runtime for secure MCP connectors, sou
 - Run source synchronization with bounded paging and receipt-gated checkpoints.
 - Validate typed extensions and govern write-back with authorization and reconciliation.
 
-The bundled epistemic-graph sink remains inactive until it can commit records and report readiness.
+The SDK depends directly on `epistemic-graph>=2.27.0`. Its generated
+SourceIngest, ConnectorPack, and WriteBack models and clients are the sole
+graph-boundary contracts; the SDK defines no parallel DTO, receipt, or digest.
+The bundled sink reads EG's durable source status, commits record pages, and
+imports independently identified connector content packs through those APIs.
 
 ## Documentation
 

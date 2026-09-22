@@ -20,13 +20,36 @@ what an agent can call is exactly what the knowledge graph records.
 A prompt file that has no `instructions.core_directive`, or a declared manifest
 that does not exist, is an error when the server starts.
 
+`ConnectorContent` also carries the publishing package version. A composition
+root that hosts declarative content from more than one package registers each
+provider explicitly, then calls
+`provision_connector_content(provider, sink=...)` once per provider. The SDK
+captures each provider through its own in-process MCP listing and imports it
+under that provider's connector identity; resources from two providers can
+therefore never collapse into one ConnectorPack head or receipt.
+
 ## Content packs
 
 `build_content_pack(session, connector=..., kinds=...)` reads every entry of the
-given kinds from one session, validates each, and returns a `ContentPack`. Its
-digest is a canonical hash over the server identity and the entry digests, so an
-unchanged server produces an unchanged digest. Two entries with one URI, an
-unknown resource scheme, or a malformed body are rejected.
+given kinds from one session, validates each, and returns a captured generated
+ConnectorPack archive. EG computes the canonical pack digest from that archive
+and the current catalog snapshot, so the SDK never carries a second digest
+implementation. Two entries with one URI, an unknown resource scheme, or a
+malformed body are rejected.
+
+Ontology and shapes bodies enter the generated archive as the exact served
+UTF-8/LF bytes with `text/turtle`; connector packages must therefore publish
+canonical LF files. The SDK does not parse or reserialize identity-bearing
+Turtle. The generated archive builder supplies the section hashes, URI
+ordering, and `mcp-server://<connector>` server entry. EG alone binds those
+entries to the admitted catalog snapshot and canonical pack digest.
+
+Pack facts are carried by EG's generated `PackAnnotations`: capability,
+modality, cost, latency, and contract-version declarations come from the exact
+`eg.annotations` key in MCP `_meta` (or skill front matter). Tools additionally
+carry all explicitly served MCP safety hints and the SDK compatibility
+fingerprint of their input/output contract. Conflicting declarations fail
+closed instead of silently choosing one.
 
 ## Manifest, presets and fingerprints
 

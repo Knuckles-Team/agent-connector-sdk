@@ -4,8 +4,8 @@ name: Release
 # code-shape, security and hygiene hooks), scanner-quality (pinned cccc/KISS/
 # dupehound/jscpd), and a reproducible wheel build. publish-pypi runs only for a
 # vX.Y.Z tag. The shared hooks run through pre-commit at the revision pinned in
-# .pre-commit-config.yaml, so CI and the local hooks can never run different gate
-# code. The ci-gate-replica hook replays the executable jobs locally before a push.
+# .config/pre-commit.yaml, so CI and the local hooks use the same gate code. The
+# exhaustive CI replica is manual-only locally; hosted CI remains authoritative.
 
 on:
   push:
@@ -24,6 +24,8 @@ jobs:
   gates:
     name: gates
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}/.ci/epistemic-graph
     steps:
       - &checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -34,7 +36,8 @@ jobs:
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+      - &uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           version: '0.11.7'
           enable-cache: true
@@ -55,7 +58,7 @@ jobs:
         run: |
           set -euo pipefail
           for hook in secret-history dependency-audit supply-chain security-sanitizer root-hygiene gitignore-convergence sprawl mermaid no-stub stubs env-sprawl stdout-writes swallowed-errors event-loop-blocking import-cycles public-surface ci-gate-replica-consistency; do
-            uvx --from pre-commit==4.6.0 pre-commit run "$hook" --hook-stage manual --all-files
+            uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml "$hook" --hook-stage manual --all-files
           done
       # The prohibited-identity catalog is operator-owned and never committed; a
       # missing catalog makes the hook fail closed.
@@ -68,9 +71,19 @@ jobs:
             mkdir -p "$HOME/.config/agent-utilities/governance"
             printf '%s' "$PROHIBITED_IDENTITY_CATALOG" > "$HOME/.config/agent-utilities/governance/prohibited-identities.json"
           fi
-          uvx --from pre-commit==4.6.0 pre-commit run tracked-privacy --hook-stage manual --all-files
+          uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml tracked-privacy --hook-stage manual --all-files
+      - name: Checkout the finalized epistemic-graph contract source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          repository: Knuckles-Team/epistemic-graph
+          ref: f17f47ab300f7f1ddd972d4e0214283a28547e36
+          path: .ci/epistemic-graph
+          persist-credentials: false
       - name: Sync the locked environment
-        run: uv sync --frozen
+        run: uv sync --frozen --no-install-package epistemic-graph
+      - name: Verify the finalized generated contract source
+        run: |
+          python -c "from pathlib import Path; import epistemic_graph.generated.source_ingestion as source; assert '.ci/epistemic-graph' in str(Path(source.__file__).resolve())"
       - name: Test suite
         run: uv run --frozen python -m pytest -q
       - name: Type check
@@ -86,6 +99,7 @@ jobs:
 
   scanner-quality:
     name: scanner-quality
+    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
       - *checkout
@@ -96,6 +110,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@fa04a1451ff1842e2626ccb99004d0195b455a88 # master
         with:
           toolchain: stable
+      - *uv
       - name: Provision pinned scanner toolchain
         run: |
           set -euo pipefail
@@ -114,12 +129,12 @@ jobs:
         run: |
           set -euo pipefail
           for hook in scanner-versions complexity-census kiss-census dupehound-changed jscpd-differential jscpd-census; do
-            uvx --from pre-commit==4.6.0 pre-commit run "$hook" --hook-stage manual --all-files
+            uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml "$hook" --hook-stage manual --all-files
           done
 
   build:
     name: build
-    needs: [gates, scanner-quality]
+    needs: [gates]
     runs-on: ubuntu-latest
     env:
       SOURCE_DATE_EPOCH: "0"

@@ -74,7 +74,9 @@ def test_parser_defaults_and_choices() -> None:
 
 
 def test_create_mcp_server_serves_health_and_content(package_root: Path) -> None:
-    content = ConnectorContent(connector="demo-agent", package_root=package_root)
+    content = ConnectorContent(
+        connector="demo-agent", package_root=package_root, package_version="1.0.0"
+    )
     args, mcp, middlewares = create_mcp_server(
         "demo-mcp", version="1.0.0", command_args=[], content=content
     )

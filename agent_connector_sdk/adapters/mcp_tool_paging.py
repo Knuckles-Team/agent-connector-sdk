@@ -6,13 +6,13 @@ import json
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from epistemic_graph.generated.source_ingestion import SourceCheckpoint, SourceRecord
 from pydantic import JsonValue
 
-from agent_connector_sdk.contracts import SourceRecord, SyncCursor
 from agent_connector_sdk.manifest.presets import ToolPreset
 
 __all__ = [
-    "cursor_after_page",
+    "checkpoint_after_page",
     "dig_path",
     "next_position",
     "page_params",
@@ -60,19 +60,33 @@ def tool_arguments(preset: ToolPreset, params: dict[str, Any]) -> dict[str, Any]
 
 
 def page_params(
-    preset: ToolPreset, position: Mapping[str, Any], since: str | None
+    preset: ToolPreset,
+    position: JsonValue,
+    since: JsonValue,
+    *,
+    mode: str | None = None,
 ) -> dict[str, Any]:
     """Preset params plus the since-watermark and the pagination position."""
     params: dict[str, Any] = json.loads(json.dumps(preset.params))
-    if since and preset.updated_since_param:
+    if mode is not None:
+        set_path(params, preset.mode_param, mode)
+    if since not in (None, {}, "") and preset.updated_since_param:
         set_path(params, preset.updated_since_param, since)
+    _apply_page_position(
+        preset, position if isinstance(position, Mapping) else {}, params
+    )
+    return params
+
+
+def _apply_page_position(
+    preset: ToolPreset, position: Mapping[str, Any], params: dict[str, Any]
+) -> None:
     if preset.pagination == "cursor" and position.get("cursor") is not None:
         set_path(params, preset.cursor_param, position["cursor"])
     if preset.pagination in _NUMBERED_MODES:
         set_path(params, preset.page_param, _page_value(preset, position))
         if preset.page_size_param:
             set_path(params, preset.page_size_param, preset.page_size)
-    return params
 
 
 def _page_value(preset: ToolPreset, position: Mapping[str, Any]) -> int:
@@ -123,12 +137,14 @@ def _next_numbered(
     return {"page": int(position.get("page", preset.start_page)) + 1}
 
 
-def cursor_after_page(
-    current: SyncCursor,
+def checkpoint_after_page(
+    current: SourceCheckpoint,
     records: Sequence[SourceRecord],
-    position: dict[str, JsonValue] | None,
-) -> SyncCursor:
-    """The cursor that resumes after a page.
+    position: JsonValue,
+    *,
+    content_hash: str | None = None,
+) -> SourceCheckpoint:
+    """The checkpoint that resumes after a page.
 
     Mid-sweep the watermark stays at the last completed sweep's value and the
     page high-water mark accumulates in ``pending_watermark``; when the sweep
@@ -141,11 +157,17 @@ def cursor_after_page(
     ]
     high_water = max(marks) if marks else None
     if position is not None:
-        return SyncCursor(
+        return SourceCheckpoint(
             stream=current.stream,
             position=position,
+            content_hash=content_hash,
             watermark=current.watermark,
             pending_watermark=high_water,
         )
     final = [mark for mark in (high_water, current.watermark) if mark]
-    return SyncCursor(stream=current.stream, watermark=max(final) if final else None)
+    return SourceCheckpoint(
+        stream=current.stream,
+        position={},
+        content_hash=content_hash,
+        watermark=max(final) if final else None,
+    )

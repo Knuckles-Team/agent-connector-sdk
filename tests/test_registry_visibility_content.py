@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import tomllib
 from collections.abc import Mapping
 from pathlib import Path
 from types import SimpleNamespace
@@ -66,9 +67,18 @@ class RecordingRegistry:
         return bool(outcome)
 
 
-def test_epistemic_graph_registry_requires_register_server() -> None:
-    with pytest.raises(ServerRegistryUnavailableError):
-        EpistemicGraphServerRegistry(object())
+@pytest.mark.parametrize(
+    "client", [object(), SimpleNamespace(server_registry=SimpleNamespace())]
+)
+def test_epistemic_graph_registry_requires_register_server(client: object) -> None:
+    with pytest.raises(
+        ServerRegistryUnavailableError,
+        match=r"^this epistemic-graph client does not expose RegisterServer$",
+    ):
+        EpistemicGraphServerRegistry(client)
+
+
+def test_epistemic_graph_registry_uses_register_server() -> None:
     recorder = RecordingRegistry([True])
     registry: ServerRegistry = EpistemicGraphServerRegistry(
         SimpleNamespace(server_registry=recorder)
@@ -77,6 +87,13 @@ def test_epistemic_graph_registry_requires_register_server() -> None:
         registry.register("demo", "stdio://demo", resources=None, ttl_secs=60)
     )
     assert recorder.calls == [("demo", "stdio://demo", 60)]
+
+
+def test_epistemic_graph_dependency_declares_first_compatible_floor() -> None:
+    pyproject_path = Path(__file__).parents[1] / "pyproject.toml"
+    project = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))["project"]
+
+    assert "epistemic-graph>=2.27.0,<3" in project["dependencies"]
 
 
 def test_lease_settings(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -202,6 +219,7 @@ async def test_connector_content_is_served(package_root: Path) -> None:
         ConnectorContent(
             connector="demo-agent",
             package_root=package_root,
+            package_version="1.4.0",
             manifest_path=package_root / "connector_manifest.yml",
         ),
     )
@@ -225,7 +243,10 @@ def test_connector_content_errors(tmp_path: Path) -> None:
     )
     with pytest.raises(ContentError):
         register_connector_content(
-            FastMCP("demo"), ConnectorContent(connector="c", package_root=tmp_path)
+            FastMCP("demo"),
+            ConnectorContent(
+                connector="c", package_root=tmp_path, package_version="1.0.0"
+            ),
         )
     (tmp_path / "prompts" / "broken.json").unlink()
     with pytest.raises(ContentError):
@@ -234,6 +255,17 @@ def test_connector_content_errors(tmp_path: Path) -> None:
             ConnectorContent(
                 connector="c",
                 package_root=tmp_path,
+                package_version="1.0.0",
                 manifest_path=tmp_path / "missing.yml",
             ),
+        )
+
+
+@pytest.mark.parametrize("field", ["connector", "package_version"])
+def test_connector_content_requires_identity(tmp_path: Path, field: str) -> None:
+    with pytest.raises(ValueError, match="connector and package_version"):
+        ConnectorContent(
+            connector="" if field == "connector" else "demo-agent",
+            package_root=tmp_path,
+            package_version="" if field == "package_version" else "1.0.0",
         )

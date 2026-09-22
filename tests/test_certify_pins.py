@@ -225,7 +225,10 @@ async def test_certifier_and_runner_reject_the_same_contract_defect(
     (verdict,) = tool_verdicts(checkout, [wire])
     assert verdict.status is PinStatus.TOOL_UNAVAILABLE
     adapter = McpToolSourceAdapter(
-        checkout.presets["demo"], connector=checkout.connector, tool_schema_sha256=LIVE
+        checkout.presets["demo"],
+        connector=checkout.connector,
+        tool_schema_sha256=LIVE,
+        mapping_reference=f"manifest:{checkout.connector}#schema_mappings/Document",
     )
     session: Any = SimpleNamespace(list_tools=AsyncMock(return_value=[wire]))
     with pytest.raises(SourceContractError) as caught:

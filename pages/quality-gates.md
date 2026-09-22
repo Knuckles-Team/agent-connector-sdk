@@ -1,6 +1,9 @@
 # Quality gates
 
-Every commit and push runs the combined scan suite in `.pre-commit-config.yaml`;
+The tracked hook configuration is `.config/pre-commit.yaml`. Pushes run bounded
+format, lint, lock-consistency, and patch-safety checks. Full tests, package
+builds, dependency readiness, scanner versions and differential/census checks,
+and the exhaustive CI replica run manually or in hosted CI.
 CI runs the release-critical subset in `.github/workflows/release.yml`.
 
 ## Scanners
@@ -37,6 +40,6 @@ headings, Pages link, local links, document size, current-state language, and th
 durable `AGENTS.md` structure. Its repository identity is configured in
 `[tool.pipelines_hooks.public_surface]`.
 
-Production seams are rejected unless the repository configuration declares the
-exact file and marker. The bundled epistemic-graph sink is capability gated and
-reports not ready; callers must not treat it as a successful commit path.
+No graph-boundary stub is allowed. SourceIngest, ConnectorPack, and WriteBack
+must use epistemic-graph's generated contracts and clients, and readiness must
+fail closed when required verified authority has not been injected.

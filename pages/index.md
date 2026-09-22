@@ -8,7 +8,7 @@ ports, governed HTTP behavior, and a common conformance contract.
 |---|---|
 | MCP runtime | `create_mcp_server`, authentication, safe exposure, visibility, action dispatch, change subscriptions |
 | Connector content | manifests, sync presets, fingerprints, skills, prompts, ontologies, and SHACL shapes |
-| Source synchronization | certified adapters, transports, sinks, durable acknowledgements, cursor discipline, and health |
+| Source synchronization | certified adapters, transports, sinks, EG-authoritative checkpoints, durable acknowledgements, and health |
 | Write-back | dry-run, authorization, optimistic version checks, idempotency, and uncertain-effect reconciliation |
 | Connector development | governed HTTP and TLS, credential references, extension discovery, certification, and conformance suites |
 
@@ -25,15 +25,12 @@ depend on an agent framework.
 
 ## Runtime readiness
 
+This is the first release of the SDK (0.1.0). Source ingestion uses EG's exact
+generated `SourceIngest` models and client call. Content capture is converted
+once into EG's generated ConnectorPack archive and imported through its typed
+client with live catalog and mutation authority injected by GraphOS.
+
 Extensions activate only when their exact package identity and capabilities are
-certified. Sink readiness is queried directly and bounded by a timeout. A sink
-that cannot commit reports not ready; `connector-sync` exposes that result at
-`/health/ready` and does not advance a cursor.
-
-The bundled epistemic-graph sink in version 0.1.0 is not commit-capable. Use the
-readiness endpoint as the runtime authority; no pack or record batch is accepted
-through that sink while it reports `ready=false`.
-
-Start with [Connector servers](connector-servers.md), then configure
+certified. Start with [Connector servers](connector-servers.md), then configure
 [Connector sync](connector-sync.md) and validate each extension with the
 [Conformance kit](conformance-kit.md).

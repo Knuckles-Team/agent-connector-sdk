@@ -11,17 +11,10 @@ from fleet_fixtures import FRESHRSS_READING_LIST
 from pydantic import ValidationError
 from runner_support import freshrss_descriptor
 
-from agent_connector_sdk.contracts import (
-    IngestionReceipt,
-    PackImportReceipt,
-    SyncCursor,
-)
 from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
 from agent_connector_sdk.ports.change_source import ChangeEvent
-from agent_connector_sdk.ports.checkpoint_store import CheckpointStore
 from agent_connector_sdk.ports.connector_registry import ConnectorRegistry
 from agent_connector_sdk.runner.backoff import Backoff
-from agent_connector_sdk.runner.checkpoints import JsonFileCheckpointStore
 from agent_connector_sdk.runner.descriptors import (
     ConnectorDescriptor,
     EndpointSpec,
@@ -30,7 +23,6 @@ from agent_connector_sdk.runner.descriptors import (
 )
 from agent_connector_sdk.runner.endpoints import CredentialEndpoints, EndpointFactory
 from agent_connector_sdk.runner.errors import (
-    CheckpointStoreError,
     CredentialResolutionError,
     RunnerConfigurationError,
 )
@@ -147,6 +139,10 @@ def test_load_sync_adapters_fails_closed(tmp_path: Path) -> None:
             {"mapping_reference": "manifest:other#schema_mappings/news_article"},
             "must name this connector",
         ),
+        (
+            {"mapping_reference": "opaque:mapping"},
+            "must name this connector",
+        ),
     ):
         with pytest.raises(RunnerConfigurationError, match=message):
             load_sync_adapters(freshrss_descriptor(**overrides))
@@ -172,32 +168,6 @@ def test_cycle_plans() -> None:
     assert change_plan(silent, [ChangeEvent("tools")], frozenset()) == CyclePlan(
         False, frozenset()
     )
-
-
-async def test_file_checkpoint_store(tmp_path: Path) -> None:
-    store = JsonFileCheckpointStore(tmp_path / "state")
-    assert isinstance(store, CheckpointStore)
-    cursor = SyncCursor(stream="s", position={"page": 2}, watermark="w")
-    await store.record_ingestion(
-        "demo-agent",
-        IngestionReceipt(batch_digest="sha256:b", accepted=1, committed_cursor=cursor),
-    )
-    await store.record_pack_import(
-        "demo-agent", PackImportReceipt(pack_digest="sha256:p", imported=4)
-    )
-    reopened = JsonFileCheckpointStore(tmp_path / "state")
-    assert await reopened.committed_cursor("demo-agent", "s") == cursor
-    assert await reopened.imported_pack_digest("demo-agent") == "sha256:p"
-    assert await reopened.committed_cursor("demo-agent", "other") is None
-    (tmp_path / "state" / "demo-agent.json").write_text("{not json")
-    (tmp_path / "state" / "folder-agent.json").mkdir()
-    for connector, message in (
-        ("demo-agent", "corrupt"),
-        ("../escape", "safe file name"),
-        ("folder-agent", "unreadable"),
-    ):
-        with pytest.raises(CheckpointStoreError, match=message):
-            await reopened.imported_pack_digest(connector)
 
 
 def test_backoff_doubles_to_its_maximum_and_resets() -> None:

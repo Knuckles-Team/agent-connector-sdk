@@ -5,12 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
-from agent_connector_sdk.contracts import (
-    ContentPack,
-    IngestionReceipt,
-    PackImportReceipt,
-    RecordBatch,
+from epistemic_graph.generated.connector_pack import PackImportResult
+from epistemic_graph.generated.source_ingestion import (
+    SourceIngestionReceipt,
+    SourceIngestionRequest,
+    SourceIngestStatus,
 )
+
+from agent_connector_sdk.artifacts.pack import CapturedConnectorPack
 
 __all__ = ["Sink", "SinkReadiness"]
 
@@ -32,12 +34,16 @@ class SinkReadiness:
 class Sink(Protocol):
     """The ingestion authority seen from the SDK."""
 
-    async def submit(self, batch: RecordBatch) -> IngestionReceipt:
+    async def submit(self, batch: SourceIngestionRequest) -> SourceIngestionReceipt:
         """Commit a record batch; the receipt is returned only after commit."""
         ...
 
-    async def import_pack(self, pack: ContentPack) -> PackImportReceipt:
-        """Import a content pack keyed by its digest."""
+    async def source_status(self, connector: str, stream: str) -> SourceIngestStatus:
+        """Read EG's sole durable checkpoint and live-set status."""
+        ...
+
+    async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
+        """Import a capture through EG's generated ConnectorPack contract."""
         ...
 
     async def readiness(self) -> SinkReadiness:

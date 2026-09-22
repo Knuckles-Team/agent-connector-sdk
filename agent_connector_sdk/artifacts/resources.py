@@ -1,7 +1,7 @@
 """The ``resource`` artifact kind: ontologies, shapes, manifest, profiles, A2A cards.
 
-Resource URI schemes map to record kinds through :data:`RESOURCE_RECORD_KINDS`;
-an unknown scheme is rejected, never guessed.
+Only generated ConnectorPack resource schemes are accepted; an unknown scheme
+is rejected, never guessed.
 """
 
 from __future__ import annotations
@@ -9,22 +9,18 @@ from __future__ import annotations
 import yaml
 from pydantic import ValidationError
 
+from agent_connector_sdk.artifacts.annotations import _annotations_from_mcp
 from agent_connector_sdk.artifacts.common import json_object, mime_type, require_kind
-from agent_connector_sdk.contracts import ArtifactEntry, PackRecord, ServerIdentity
+from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
 from agent_connector_sdk.manifest.model import ConnectorManifest
 from agent_connector_sdk.ports.errors import MalformedArtifactError
 from agent_connector_sdk.ports.session import McpSession
 
-__all__ = ["RESOURCE_RECORD_KINDS", "ResourceArtifactKind"]
+__all__ = ["ResourceArtifactKind"]
 
-#: Resource URI scheme to imported record kind.
-RESOURCE_RECORD_KINDS: dict[str, str] = {
-    "ontology": "Ontology",
-    "shapes": "ShapesGraph",
-    "manifest": "ConnectorManifest",
-    "model-profile": "ModelProfile",
-    "a2a-card": "A2AAgentCard",
-}
+_RESOURCE_SCHEMES = frozenset(
+    {"ontology", "shapes", "manifest", "model-profile", "a2a-card"}
+)
 
 
 def _scheme(uri: str) -> str:
@@ -32,7 +28,7 @@ def _scheme(uri: str) -> str:
     return scheme if separator else ""
 
 
-def _validate_body(entry: ArtifactEntry, scheme: str) -> None:
+def _validate_body(entry: CapturedArtifact, scheme: str) -> None:
     if scheme == "manifest":
         try:
             ConnectorManifest.model_validate(yaml.safe_load(entry.body))
@@ -51,42 +47,32 @@ class ResourceArtifactKind:
 
     async def list_entries(
         self, session: McpSession, server: ServerIdentity
-    ) -> tuple[ArtifactEntry, ...]:
+    ) -> tuple[CapturedArtifact, ...]:
         """One entry per non-skill resource; bodies are read in the same session."""
-        entries: list[ArtifactEntry] = []
+        entries: list[CapturedArtifact] = []
         for resource in await session.list_resources():
             uri = str(getattr(resource, "uri", ""))
             if _scheme(uri) == "skill":
                 continue
             entries.append(
-                ArtifactEntry(
+                CapturedArtifact(
                     kind=self.kind,
                     uri=uri,
                     name=str(getattr(resource, "name", "") or uri),
                     media_type=mime_type(resource, "text/plain"),
                     body=await session.read_resource(uri),
                     server=server,
+                    annotations=_annotations_from_mcp(resource),
                 )
             )
         return tuple(entries)
 
-    def validate(self, entry: ArtifactEntry) -> None:
+    def validate(self, entry: CapturedArtifact) -> None:
         """Known scheme, non-empty body, and a body that parses for its kind."""
         require_kind(entry, self.kind)
         scheme = _scheme(entry.uri)
-        if scheme not in RESOURCE_RECORD_KINDS or not entry.body.strip():
+        if scheme not in _RESOURCE_SCHEMES or not entry.body.strip():
             raise MalformedArtifactError(
                 f"{entry.uri} has an unknown scheme or empty body"
             )
         _validate_body(entry, scheme)
-
-    def to_record(self, entry: ArtifactEntry) -> PackRecord:
-        """A record whose kind is chosen by the URI scheme."""
-        self.validate(entry)
-        return PackRecord(
-            record_kind=RESOURCE_RECORD_KINDS[_scheme(entry.uri)],
-            uri=entry.uri,
-            name=entry.name,
-            entry_digest=entry.digest,
-            attributes={"media_type": entry.media_type},
-        )
