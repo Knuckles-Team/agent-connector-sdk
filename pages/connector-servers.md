@@ -39,6 +39,41 @@ all three of: an authentication mode other than `none`, a TLS boundary (a
 certificate and key, or `--tls-terminated` with `--trusted-proxy-cidrs`), and an
 exact `--allowed-hosts` list.
 
+Build the serving boundary once and pass it intact to FastMCP:
+
+```python
+from agent_connector_sdk.mcp.network import build_network_serving_config
+
+serving = build_network_serving_config(args)
+if serving is None:
+    mcp.run(transport="stdio")
+else:
+    mcp.run(
+        transport=args.transport,
+        host=args.host,
+        port=args.port,
+        **serving.fastmcp_run_kwargs(),
+    )
+```
+
+The typed configuration enforces exact Host and browser/WebSocket Origin
+allowlists, a bounded request body with a read timeout, and the immediate-peer
+CIDR for TLS-terminating ingress. Its Uvicorn policy disables forwarded-header
+trust and bounds concurrency, listen backlog, keepalive, graceful shutdown, and
+the incomplete HTTP-event buffer. Direct TLS certificate and key paths are
+validated before the listener starts.
+
+| Bound | Default | Setting / flag |
+|---|---:|---|
+| request body | 4 MiB | `MCP_MAX_REQUEST_BYTES` / `--max-request-bytes` |
+| body read timeout | 30 s | `MCP_REQUEST_BODY_TIMEOUT_SECONDS` / `--request-body-timeout-seconds` |
+| concurrent connections | 128 | `MCP_MAX_CONNECTIONS` / `--max-connections` |
+| listen backlog | 256 | `MCP_LISTEN_BACKLOG` / `--listen-backlog` |
+| keepalive timeout | 5 s | `MCP_KEEPALIVE_TIMEOUT_SECONDS` / `--keepalive-timeout-seconds` |
+| graceful shutdown | 15 s | `MCP_GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS` / `--graceful-shutdown-timeout-seconds` |
+
+Invalid values refuse startup; they never fall back to an unbounded listener.
+
 ## Authentication
 
 | `--auth-type` | Needs |

@@ -27,6 +27,7 @@ _SETTING_FLAGS: tuple[tuple[tuple[str, ...], str | None], ...] = (
     (("--tls-keyfile",), "MCP_TLS_KEYFILE"),
     (("--trusted-proxy-cidrs",), "MCP_TRUSTED_PROXY_CIDRS"),
     (("--allowed-hosts",), "MCP_ALLOWED_HOSTS"),
+    (("--allowed-origins",), "MCP_ALLOWED_ORIGINS"),
     (("--static-tokens-ref",), "FASTMCP_SERVER_AUTH_STATIC_TOKENS_REF"),
     (("--token-jwks-uri",), "FASTMCP_SERVER_AUTH_JWT_JWKS_URI"),
     (("--token-audience",), "FASTMCP_SERVER_AUTH_JWT_AUDIENCE"),
@@ -87,8 +88,38 @@ def _add_typed_flags(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--auth-type", default=setting("AUTH_TYPE", "none"), choices=list(AUTH_TYPES)
     )
+    _add_network_bound_flags(parser)
     parser.add_argument(
         "--token-issuer",
         default=setting("OIDC_ISSUER") or setting("FASTMCP_SERVER_AUTH_JWT_ISSUER"),
     )
     parser.add_argument("--help", action="store_true")
+
+
+def _add_network_bound_flags(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--max-request-bytes",
+        type=int,
+        default=setting("MCP_MAX_REQUEST_BYTES"),
+    )
+    parser.add_argument(
+        "--max-connections", type=int, default=setting("MCP_MAX_CONNECTIONS")
+    )
+    parser.add_argument(
+        "--listen-backlog", type=int, default=setting("MCP_LISTEN_BACKLOG")
+    )
+    parser.add_argument(
+        "--keepalive-timeout-seconds",
+        type=int,
+        default=setting("MCP_KEEPALIVE_TIMEOUT_SECONDS"),
+    )
+    parser.add_argument(
+        "--graceful-shutdown-timeout-seconds",
+        type=int,
+        default=setting("MCP_GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS"),
+    )
+    parser.add_argument(
+        "--request-body-timeout-seconds",
+        type=float,
+        default=setting("MCP_REQUEST_BODY_TIMEOUT_SECONDS"),
+    )

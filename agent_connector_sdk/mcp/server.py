@@ -27,11 +27,9 @@ from agent_connector_sdk.mcp.auth.factory import configure_auth
 from agent_connector_sdk.mcp.auth.policy import AuthConfigurationError
 from agent_connector_sdk.mcp.change_events import serve_change_subscriptions
 from agent_connector_sdk.mcp.content import ConnectorContent, register_connector_content
-from agent_connector_sdk.mcp.exposure import (
-    NetworkExposureError,
-    validate_network_exposure,
-)
+from agent_connector_sdk.mcp.exposure import NetworkExposureError
 from agent_connector_sdk.mcp.middleware import build_middleware
+from agent_connector_sdk.mcp.network import build_network_serving_config
 from agent_connector_sdk.mcp.parser import TRANSPORTS, create_mcp_parser
 from agent_connector_sdk.mcp.registry import (
     ServerRegistry,
@@ -63,7 +61,7 @@ def _authentication(
     args: argparse.Namespace, resolver: CredentialResolver | None
 ) -> Any:
     try:
-        validate_network_exposure(args)
+        build_network_serving_config(args)
         return configure_auth(args, resolver=resolver)
     except (NetworkExposureError, AuthConfigurationError) as exc:
         _logger.error("Refusing to build MCP server: %s", exc)

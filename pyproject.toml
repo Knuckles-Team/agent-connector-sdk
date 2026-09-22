@@ -146,6 +146,7 @@ public_modules = [
     "agent_connector_sdk.mcp.concurrency",
     "agent_connector_sdk.mcp.content",
     "agent_connector_sdk.mcp.context",
+    "agent_connector_sdk.mcp.network",
     "agent_connector_sdk.mcp.registry",
     "agent_connector_sdk.mcp.server",
     "agent_connector_sdk.mcp.tool_mode",

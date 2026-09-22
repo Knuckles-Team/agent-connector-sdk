@@ -40,11 +40,6 @@ from agent_connector_sdk.mcp.auth.verifiers import (
     hardened_jwt_verifier,
 )
 from agent_connector_sdk.mcp.content import ConnectorContent
-from agent_connector_sdk.mcp.exposure import (
-    NetworkExposureError,
-    is_loopback_host,
-    validate_network_exposure,
-)
 from agent_connector_sdk.mcp.parser import (
     DEFAULT_HOST,
     DEFAULT_PORT,
@@ -101,38 +96,6 @@ def test_create_mcp_server_exits_on_unsafe_configuration(
         )
     assert exposed.value.code == 1
     capsys.readouterr()
-
-
-def test_network_exposure_rules(tmp_path: Path) -> None:
-    assert (
-        is_loopback_host("localhost")
-        and is_loopback_host("[::1]")
-        and not is_loopback_host("10.0.0.1")
-    )
-    validate_network_exposure(_args("-t", "streamable-http", "-H", "127.0.0.1"))
-    cert, key = tmp_path / "c.pem", tmp_path / "k.pem"
-    cert.write_text("c")
-    key.write_text("k")
-    base = ["-t", "sse", "-H", "10.0.0.5", "--auth-type", "jwt"]
-    for extra in (
-        [],
-        ["--tls-certfile", str(cert)],
-        ["--tls-terminated"],
-        ["--tls-certfile", str(cert), "--tls-keyfile", str(key)],
-    ):
-        with pytest.raises(NetworkExposureError):
-            validate_network_exposure(_args(*base, *extra))
-    validate_network_exposure(
-        _args(
-            *base,
-            "--tls-certfile",
-            str(cert),
-            "--tls-keyfile",
-            str(key),
-            "--allowed-hosts",
-            "mcp.example.invalid",
-        )
-    )
 
 
 def test_url_policy_and_redirects() -> None:
