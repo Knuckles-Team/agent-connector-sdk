@@ -22,7 +22,6 @@ __all__ = [
     "RepositoryAuthentication",
     "RepositoryBatchLimits",
     "RepositoryFile",
-    "RepositoryPage",
     "RepositoryRevision",
     "RepositoryTombstone",
 ]
@@ -75,7 +74,7 @@ class RepositoryAuthentication(_Frozen):
 
 
 class RepositoryFile(_Frozen):
-    """One immutable blob at a logical path in a repository revision."""
+    """One unique blob, named by one logical path it occurs at, with its bytes."""
 
     path: str
     blob_digest: str
@@ -93,7 +92,11 @@ class RepositoryFile(_Frozen):
 
 
 class RepositoryTombstone(_Frozen):
-    """A path removed or renamed since the preceding admitted revision."""
+    """A path that left a ref since its preceding admitted revision.
+
+    A path whose blob changed is tombstoned under its prior blob and re-enters
+    the ref as a new file version; ``successor_path`` names a rename target.
+    """
 
     path: str
     prior_blob_digest: str
@@ -114,31 +117,17 @@ class RepositoryTombstone(_Frozen):
         return self
 
 
-class RepositoryPage(_Frozen):
-    """One provider page bound to the exact requested immutable revision."""
-
-    revision: RepositoryRevision
-    files: tuple[RepositoryFile, ...] = ()
-    tombstones: tuple[RepositoryTombstone, ...] = ()
-    next_cursor: str | None = Field(default=None, min_length=1)
-
-    @model_validator(mode="after")
-    def _paths_are_unique(self) -> Self:
-        paths = [item.path for item in self.files]
-        paths.extend(item.path for item in self.tombstones)
-        if len(paths) != len(set(paths)):
-            raise ValueError("repository page paths must be unique")
-        if not paths and self.next_cursor is not None:
-            raise ValueError("an empty repository page cannot continue")
-        return self
-
-
 class RepositoryBatchLimits(_Frozen):
-    """Bounds for one epistemic-graph repository-resolution call."""
+    """Bounds for one epistemic-graph repository-resolution call.
+
+    ``max_files``/``max_bytes`` bound the unique blobs of a call and
+    ``max_file_versions`` bounds its ref memberships plus tombstones.
+    """
 
     max_files: int = Field(default=4096, ge=1, le=100_000)
     max_bytes: int = Field(default=32 * 1024 * 1024, ge=1, le=256 * 1024 * 1024)
     max_file_bytes: int = Field(default=4 * 1024 * 1024, ge=1, le=64 * 1024 * 1024)
+    max_file_versions: int = Field(default=65_536, ge=1, le=262_144)
     provider_page_size: int = Field(default=1000, ge=1, le=10_000)
 
     @model_validator(mode="after")

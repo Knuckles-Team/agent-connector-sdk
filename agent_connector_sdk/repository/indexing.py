@@ -1,53 +1,41 @@
-"""Bounded, one-call repository indexing through the public EG client."""
+"""Bounded, one-call branch-aware repository indexing through the public EG client."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from epistemic_graph.client import EpistemicGraphClient
-from epistemic_graph.generated.index_repository import IndexResult
+from epistemic_graph.generated.index_repository import (
+    IndexRepositoryScope,
+    IndexResult,
+)
 
+from agent_connector_sdk.repository.batching import RepositoryBatch
 from agent_connector_sdk.repository.errors import RepositoryTransportError
-from agent_connector_sdk.repository.models import RepositoryBatchLimits, RepositoryFile
+from agent_connector_sdk.repository.models import RepositoryFile
 
 __all__ = ["RepositoryBatchReceipt"]
+
+_STATUSES = frozenset({"success", "unsupported", "error"})
 
 
 @dataclass(frozen=True)
 class RepositoryBatchReceipt:
-    """The source paths and unchanged native EG result for one resolution batch."""
+    """The submitted blob paths, membership counts and native EG result of one call."""
 
     paths: tuple[str, ...]
+    file_versions: int
+    tombstones: int
     result: IndexResult
 
 
-class _RepositoryBatcher:
-    """Accumulate files until one configured engine-call bound is reached."""
+@dataclass(frozen=True)
+class ScopeHeader:
+    """The per-run part of every batch scope: repository and declared refs."""
 
-    def __init__(self, limits: RepositoryBatchLimits) -> None:
-        self.limits = limits
-        self.files: list[RepositoryFile] = []
-        self.byte_count = 0
-
-    def add(self, item: RepositoryFile) -> tuple[RepositoryFile, ...]:
-        """Add a file and return the preceding full batch, if any."""
-        size = len(item.content)
-        if size > self.limits.max_file_bytes:
-            raise RepositoryTransportError(
-                f"repository file exceeds limit: {item.path}"
-            )
-        full = len(self.files) >= self.limits.max_files
-        bytes_full = bool(self.files) and self.byte_count + size > self.limits.max_bytes
-        ready = self.finish() if full or bytes_full else ()
-        self.files.append(item)
-        self.byte_count += size
-        return ready
-
-    def finish(self) -> tuple[RepositoryFile, ...]:
-        """Return and clear the pending batch."""
-        ready = tuple(self.files)
-        self.files, self.byte_count = [], 0
-        return ready
+    repository_id: str
+    refs: tuple[dict[str, str], ...]
 
 
 def _status_value(status: object) -> str:
@@ -64,13 +52,8 @@ def _valid_digest(value: object) -> bool:
     return len(payload) == 64 and all(char in "0123456789abcdef" for char in payload)
 
 
-def _validate_outcomes(result: IndexResult, files: tuple[RepositoryFile, ...]) -> None:
-    try:
-        outcomes = result.file_outcomes
-    except AttributeError as exc:
-        raise RepositoryTransportError(
-            "epistemic-graph result lacks typed file_outcomes"
-        ) from exc
+def _validate_outcomes(result: IndexResult, files: list[RepositoryFile]) -> None:
+    outcomes = result.file_outcomes
     if len(outcomes) != len(files):
         raise RepositoryTransportError(
             "epistemic-graph returned incomplete file outcomes"
@@ -80,28 +63,40 @@ def _validate_outcomes(result: IndexResult, files: tuple[RepositoryFile, ...]) -
             raise RepositoryTransportError("epistemic-graph reordered file outcomes")
         if outcome.content_digest != source.blob_digest:
             raise RepositoryTransportError("epistemic-graph outcome digest mismatch")
-        if _status_value(outcome.status) not in {
-            "success",
-            "unsupported",
-            "error",
-        }:
+        if _status_value(outcome.status) not in _STATUSES:
             raise RepositoryTransportError(
                 "epistemic-graph returned unknown parse status"
             )
         if not _valid_digest(outcome.parser_capability_digest):
             raise RepositoryTransportError("parser capability digest is invalid")
-        if not isinstance(outcome.diagnostics, list):
-            raise RepositoryTransportError("index diagnostics must be a list")
+
+
+def _scope(header: ScopeHeader, batch: RepositoryBatch) -> IndexRepositoryScope:
+    payload: dict[str, Any] = {
+        "repository_id": header.repository_id,
+        "refs": list(header.refs),
+        "file_versions": [
+            {"ref_name": ref_name, "path": path, "blob_digest": digest}
+            for ref_name, path, digest in batch.versions
+        ],
+        "tombstones": [
+            {"ref_name": ref_name, **tombstone.model_dump(mode="json")}
+            for ref_name, tombstone in batch.tombstones
+        ],
+    }
+    return IndexRepositoryScope.model_validate(payload)
 
 
 async def submit_repository_batch(
-    client: EpistemicGraphClient, files: tuple[RepositoryFile, ...]
+    client: EpistemicGraphClient, header: ScopeHeader, batch: RepositoryBatch
 ) -> RepositoryBatchReceipt:
     """Make the sole high-level EG call for one batch and validate outcomes."""
-    payload = [(item.path, item.content) for item in files]
-    result = await client.graph.index_repository(payload)
-    _validate_outcomes(result, files)
+    payload = [(item.path, item.content) for item in batch.files]
+    result = await client.graph.index_repository(payload, scope=_scope(header, batch))
+    _validate_outcomes(result, batch.files)
     return RepositoryBatchReceipt(
-        paths=tuple(item.path for item in files),
+        paths=tuple(item.path for item in batch.files),
+        file_versions=len(batch.versions),
+        tombstones=len(batch.tombstones),
         result=result,
     )

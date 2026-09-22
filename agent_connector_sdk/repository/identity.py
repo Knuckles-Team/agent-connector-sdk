@@ -1,5 +1,6 @@
 """Shared validation for repository transport identities."""
 
+import hashlib
 from pathlib import PurePosixPath
 
 __all__: list[str] = []
@@ -31,3 +32,10 @@ def _immutable_git_id(value: str, *, field_name: str) -> str:
     if not valid:
         raise ValueError(f"{field_name} must be an immutable lowercase Git object id")
     return value
+
+
+def _git_blob_object_id(content: bytes, *, width: int) -> str:
+    """Return the Git blob object id of ``content`` for a SHA-1/SHA-256 repository."""
+    header = f"blob {len(content)}\0".encode("ascii")
+    algorithm = hashlib.sha1 if width == 40 else hashlib.sha256
+    return algorithm(header + content, usedforsecurity=False).hexdigest()
