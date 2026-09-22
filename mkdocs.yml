@@ -14,6 +14,8 @@ extra:
 nav:
   - Home: index.md
   - Build your first connector: tutorial.md
+  - Capabilities: capabilities.md
+  - Status: status.md
   - Architecture: architecture.md
   - Guides:
       - Connector servers: connector-servers.md

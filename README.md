@@ -1,16 +1,17 @@
 # Agent Connector SDK
 
 <p align="center">
-  <img src="docs/assets/brands/agent-connector-sdk-logo-v1.png" alt="Agent Connector SDK logo" width="160" />
+  <img src="docs/assets/brands/agent-connector-sdk-logo-v1.png" alt="Agent Connector SDK logo" width="180">
+</p>
+
+<p align="center">
+  <b>Build secure connectors once. Serve, synchronize, and write back through one governed contract.</b><br>
+  <sub>The typed source-integration boundary for MCP services and Epistemic Graph.</sub>
 </p>
 
 [![PyPI - Version](https://img.shields.io/pypi/v/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
 [![Build](https://github.com/Knuckles-Team/agent-connector-sdk/actions/workflows/release.yml/badge.svg)](https://github.com/Knuckles-Team/agent-connector-sdk/actions/workflows/release.yml)
 [![Documentation](https://github.com/Knuckles-Team/agent-connector-sdk/actions/workflows/pages.yml/badge.svg)](https://knuckles-team.github.io/agent-connector-sdk/)
-
-<details>
-<summary>Project telemetry</summary>
-
 [![GitHub Repo stars](https://img.shields.io/github/stars/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/forks)
 [![GitHub contributors](https://img.shields.io/github/contributors/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/graphs/contributors)
@@ -28,76 +29,80 @@
 [![PyPI - Wheel](https://img.shields.io/pypi/wheel/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
 [![PyPI - Implementation](https://img.shields.io/pypi/implementation/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
 
-</details>
+<p align="center">
+  <a href="https://knuckles-team.github.io/agent-connector-sdk/">Documentation</a> ·
+  <a href="https://knuckles-team.github.io/agent-connector-sdk/capabilities/">Capabilities</a> ·
+  <a href="https://knuckles-team.github.io/agent-connector-sdk/extension-ports/">Interfaces</a> ·
+  <a href="https://knuckles-team.github.io/agent-connector-sdk/status/">Status</a>
+</p>
+
+---
 
 ## Overview
 
-Agent Connector SDK is the ecosystem's source integration boundary. It turns
-vendor APIs and domain tools into secure MCP connectors, synchronizes bounded
-source records into Epistemic Graph, and applies authorized changes back to the
-source. Connector packages keep vendor behavior; generated Epistemic Graph
-contracts own durable records, receipts, and graph state.
+Agent Connector SDK is the ecosystem's source-integration boundary. It turns
+vendor APIs and domain tools into secure MCP connectors, transports bounded
+source evidence into Epistemic Graph, indexes immutable repository snapshots,
+and applies authorized changes back to source systems.
+
+Connector packages retain vendor behavior. The SDK owns transport, lifecycle,
+certification, and effect execution. Generated Epistemic Graph contracts own
+durable graph records, checkpoints, content identity, and receipts.
 
 Package version: 0.1.0.
 
-## Key capabilities
+## Key Capabilities
 
 - Build FastMCP servers with authentication, safe exposure, health, visibility,
-  rate limits, change subscriptions, and condensed or verbose tool surfaces.
+  rate limits, change subscriptions, and consistent tool surfaces.
 - Publish skills, prompts, ontologies, SHACL shapes, and connector manifests as
   typed MCP content.
 - Extract bounded source pages and advance checkpoints only from matching
-  durable receipts created by Epistemic Graph.
-- Import deterministic ConnectorPack archives with exact content identity and
-  generated Epistemic Graph contracts.
+  durable Epistemic Graph receipts.
+- Import deterministic ConnectorPack archives without copying graph DTOs or
+  digest algorithms into connector packages.
+- Stream authenticated immutable repository snapshots into the generated
+  `IndexRepository` boundary without becoming a semantic writer.
 - Govern write-back through dry-run, authorization, source-version checks,
   idempotency, and uncertain-effect reconciliation.
-- Certify extension identity, MCP schemas, pagination, and safety behavior before
-  activation.
+- Certify extension identity, live MCP schemas, pagination, and safety behavior
+  before activation.
 
 ## Documentation
 
-Start with the
-[one-file connector tutorial](https://knuckles-team.github.io/agent-connector-sdk/tutorial/),
-then use the [architecture guide](https://knuckles-team.github.io/agent-connector-sdk/architecture/)
-for SourceIngest, ConnectorPack, and WriteBack lifecycles.
+Start with [Build your first connector](https://knuckles-team.github.io/agent-connector-sdk/tutorial/),
+then choose the reference that matches the work:
 
 - [Documentation home](https://knuckles-team.github.io/agent-connector-sdk/)
-- [Connector server reference](https://knuckles-team.github.io/agent-connector-sdk/connector-servers/)
+- [Capabilities](https://knuckles-team.github.io/agent-connector-sdk/capabilities/)
+- [Architecture](https://knuckles-team.github.io/agent-connector-sdk/architecture/)
+- [Connector servers](https://knuckles-team.github.io/agent-connector-sdk/connector-servers/)
 - [Source synchronization](https://knuckles-team.github.io/agent-connector-sdk/connector-sync/)
-- [Extension ports and conformance](https://knuckles-team.github.io/agent-connector-sdk/extension-ports/)
-- [Epistemic Graph](https://knuckles-team.github.io/epistemic-graph/) — durable graph and contract authority
-- [Graph OS](https://knuckles-team.github.io/graph-os/) — authenticated runtime composition
-- [Build status](https://github.com/Knuckles-Team/agent-connector-sdk/actions/workflows/release.yml)
+- [Repository ingestion](https://knuckles-team.github.io/agent-connector-sdk/repository-ingestion/)
+- [Extension interfaces](https://knuckles-team.github.io/agent-connector-sdk/extension-ports/)
+- [Current status](https://knuckles-team.github.io/agent-connector-sdk/status/)
+
+Sibling authorities: [Epistemic Graph](https://knuckles-team.github.io/epistemic-graph/)
+owns durable graph state and generated contracts; [Graph OS](https://knuckles-team.github.io/graph-os/)
+owns authenticated runtime composition.
 
 ## Architecture
 
-![Runtime architecture: people use Agent Web UI, Agent Terminal UI, Geniusbot, and Graph OS-hosted messaging; MCP, REST, and A2A clients enter through Graph OS; source systems flow through Agent Connector SDK into Epistemic Graph.](docs/assets/runtime-architecture.svg)
+![Runtime architecture: people and clients enter through Graph OS; source systems flow through Agent Connector SDK into Epistemic Graph.](docs/assets/runtime-architecture.svg)
 
-People enter the platform through [Agent Web UI](https://knuckles-team.github.io/agent-webui/),
-[Agent Terminal UI](https://knuckles-team.github.io/agent-terminal-ui/),
-[Geniusbot](https://knuckles-team.github.io/geniusbot/), or Graph OS-hosted messaging.
-Agent Terminal UI exposes REST operations; it has no ACP conversational path.
-MCP, REST, and A2A clients also enter through [Graph OS](https://knuckles-team.github.io/graph-os/),
-which routes agent work to [Agent Utilities](https://knuckles-team.github.io/agent-utilities/)
-and durable knowledge to [Epistemic Graph](https://knuckles-team.github.io/epistemic-graph/).
-External sources connect through this SDK into Epistemic Graph.
+| Boundary | Owned here | Owned elsewhere |
+|---|---|---|
+| Connector service | MCP lifecycle, exposure policy, content capture, certification | Vendor models and business semantics stay in the connector package. |
+| Source ingest | Discovery, bounded extraction, transport, receipt verification | Epistemic Graph owns mapping, checkpoints, provenance, and commit receipts. |
+| Repository ingest | Authenticated snapshots, stable manifests, bounded object transport | Epistemic Graph owns indexing, graph projection, and semantic interpretation. |
+| Write-back | Preview, source-version checks, apply, and reconciliation | Epistemic Graph owns change sets, authorization decisions, and durable outcomes. |
+| Runtime composition | Typed ports and verified dependency requirements | Graph OS supplies authenticated identity, clients, and live authority. |
 
-| The SDK owns | The SDK does not own |
-|---|---|
-| MCP server lifecycle and security | vendor API models and business semantics |
-| source transport, bounded paging, and certification | Epistemic Graph's durable records, schemas, reasoning, and receipts |
-| connector content capture and deterministic handoff | agent goals, model calls, workflow routing, or deployment policy |
-| governed source-side write-back execution | authorization policy or graph-side change-set authority |
+The SDK depends directly on `epistemic-graph>=2.27.0`. Generated SourceIngest,
+ConnectorPack, IndexRepository, and WriteBack clients and models are the graph
+boundary; the SDK adds no parallel graph contract.
 
-The SDK depends directly on `epistemic-graph>=2.27.0`. Its generated
-SourceIngest, ConnectorPack, and WriteBack models and clients are the sole
-graph-boundary contracts; the SDK defines no parallel DTO, receipt, or digest.
-The bundled sink reads Epistemic Graph's durable source status, commits record
-pages, and imports independently identified connector content packs through
-those APIs.
-
-## Quick start
+## Quick Start
 
 Create a project and install the SDK:
 
@@ -106,57 +111,21 @@ uv init --bare demo-connector
 cd demo-connector
 uv add agent-connector-sdk
 uv sync
+uv run connector-sync --help
 ```
 
-Save this as `connector.py`:
-
-```python
-from typing import Literal
-
-from agent_connector_sdk.mcp.server import create_mcp_server
-
-args, mcp, middlewares = create_mcp_server(
-    "demo-connector",
-    version="0.1.0",
-    instructions="A minimal observable connector.",
-)
-
-
-@mcp.tool
-async def demo(action: Literal["ping"] = "ping") -> dict[str, str]:
-    """Check that the connector tool surface is responding."""
-    return {"connector": "demo", "status": "ok", "action": action}
-
-
-for middleware in middlewares:
-    mcp.add_middleware(middleware)
-
-if args.transport == "stdio":
-    mcp.run(transport="stdio")
-else:
-    mcp.run(transport=args.transport, host=args.host, port=args.port)
-```
-
-Run it on loopback and observe the SDK health contract:
-
-```bash
-uv run python connector.py --transport streamable-http \
-  --host 127.0.0.1 --port 8000
-curl -s http://127.0.0.1:8000/health
-```
-
-The health endpoint returns `{"status":"ok"}`.
-
-The [tutorial](https://knuckles-team.github.io/agent-connector-sdk/tutorial/)
-adds tool-surface registration, declarative content, certification, and source
-sync without changing this server foundation.
+The command prints the supervised synchronization options without opening a
+source session. Continue with the
+[connector tutorial](https://knuckles-team.github.io/agent-connector-sdk/tutorial/)
+to build and run a one-file MCP connector, observe its health response, add
+declarative content, certify the live schema, and join source synchronization.
 
 ## Contributing
 
 Issues and pull requests are welcome. Follow [AGENTS.md](AGENTS.md) for ownership,
-isolation, and validation rules. Run the tests and public documentation gate
-before submitting a change.
+isolation, and validation rules, and run the affected tests and public-surface
+gates before submitting a change.
 
 ## License
 
-Licensed under the [MIT License](LICENSE).
+Agent Connector SDK is released under the [MIT License](LICENSE).
