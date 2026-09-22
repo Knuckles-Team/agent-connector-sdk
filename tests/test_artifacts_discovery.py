@@ -334,6 +334,66 @@ async def test_tool_annotation_conflict_fails_closed() -> None:
         await ToolArtifactKind().list_entries(session, SERVER)
 
 
+async def test_tool_cost_and_latency_annotations_reach_generated_pack() -> None:
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "priced",
+            "inputSchema": {"type": "object"},
+            "_meta": {
+                "eg.annotations": {
+                    "cost": {"currency": "USD", "per_call_micros": 1200},
+                    "latency_declared": {"p50_ms": 40, "p95_ms": 120},
+                }
+            },
+        }
+    )
+    session = SimpleNamespace(
+        server_identity=AsyncMock(return_value=SERVER),
+        list_tools=AsyncMock(return_value=[tool]),
+    )
+    pack = await build_content_pack(
+        session, connector="demo-agent", kinds=(ToolArtifactKind(),)
+    )
+    annotations = pack.archive.entries[0].annotations
+    assert annotations is not None
+    assert annotations.cost is not None
+    assert annotations.cost.currency == "USD"
+    assert annotations.latency_declared is not None
+    assert annotations.latency_declared.p50_ms == 40
+    assert annotations.latency_declared.p95_ms == 120
+
+
+@pytest.mark.parametrize("currency", ["usd", "US", "USDD", "US1", "", "  USD"])
+async def test_tool_cost_rejects_non_iso4217_currency(currency: str) -> None:
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "mispriced",
+            "inputSchema": {"type": "object"},
+            "_meta": {
+                "eg.annotations": {"cost": {"currency": currency, "per_call_micros": 1}}
+            },
+        }
+    )
+    session = SimpleNamespace(list_tools=AsyncMock(return_value=[tool]))
+    with pytest.raises(MalformedArtifactError, match="ISO-4217"):
+        await ToolArtifactKind().list_entries(session, SERVER)
+
+
+async def test_tool_latency_rejects_p50_above_p95() -> None:
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "backwards-latency",
+            "inputSchema": {"type": "object"},
+            "_meta": {
+                "eg.annotations": {"latency_declared": {"p50_ms": 500, "p95_ms": 100}}
+            },
+        }
+    )
+    session = SimpleNamespace(list_tools=AsyncMock(return_value=[tool]))
+    with pytest.raises(MalformedArtifactError, match="p50_ms"):
+        await ToolArtifactKind().list_entries(session, SERVER)
+
+
 async def test_skill_front_matter_annotations_reach_generated_pack() -> None:
     body = """---
 name: annotated-skill
