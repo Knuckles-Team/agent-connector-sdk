@@ -29,7 +29,7 @@ from epistemic_graph.generated.write_back import (
 )
 from pydantic import TypeAdapter
 
-from agent_connector_sdk.writeback.durable_files import read_json, write_json_atomic
+from agent_connector_sdk.writeback.durable_files import _read_json, _write_json_atomic
 from agent_connector_sdk.writeback.errors import WriteBackPersistenceError
 
 __all__ = ["FileWriteBackLedger"]
@@ -53,7 +53,9 @@ class FileWriteBackLedger:
         if existing is not None and existing != change_set:
             raise WriteBackPersistenceError("change-set identity conflict")
         if existing is None:
-            write_json_atomic(self._change_set_path, change_set.model_dump(mode="json"))
+            _write_json_atomic(
+                self._change_set_path, change_set.model_dump(mode="json")
+            )
         return change_set
 
     async def get(self, tenant_id: str, change_set_id: str) -> SourceChangeSet | None:
@@ -129,7 +131,7 @@ class FileWriteBackLedger:
         return WriteBackReceiptPage(receipts=selected, next_sequence=next_sequence)
 
     def _read_change_set(self) -> SourceChangeSet | None:
-        payload = read_json(self._change_set_path)
+        payload = _read_json(self._change_set_path)
         return None if payload is None else SourceChangeSet.model_validate(payload)
 
     def _existing_change_set(self) -> SourceChangeSet:
@@ -139,11 +141,11 @@ class FileWriteBackLedger:
         return change_set
 
     def _read_receipts(self) -> list[WriteBackReceiptRecord]:
-        payload = read_json(self._receipts_path) or []
+        payload = _read_json(self._receipts_path) or []
         return [_RECORD_ADAPTER.validate_python(item) for item in payload]
 
     def _write_receipts(self, records: list[WriteBackReceiptRecord]) -> None:
-        write_json_atomic(
+        _write_json_atomic(
             self._receipts_path,
             [record.model_dump(mode="json") for record in records],
         )

@@ -28,7 +28,7 @@ from epistemic_graph.generated.write_back import (
 )
 from pydantic import JsonValue
 
-from agent_connector_sdk.writeback.durable_files import read_json, write_json_atomic
+from agent_connector_sdk.writeback.durable_files import _read_json, _write_json_atomic
 from agent_connector_sdk.writeback.errors import (
     IdempotencyConflictError,
     SourceVersionConflictError,
@@ -57,7 +57,7 @@ class FileWriteBackTransport:
         """Create or replace one entity's current durable state."""
         entities = self._read(self._entities_path)
         entities[entity_id] = {"source_version": source_version, "fields": fields}
-        write_json_atomic(self._entities_path, entities)
+        _write_json_atomic(self._entities_path, entities)
 
     async def read_current(self, change_set: SourceChangeSet) -> SourceSnapshot:
         """Read the durable entity snapshot."""
@@ -127,7 +127,7 @@ class FileWriteBackTransport:
         )
         effects = self._read(self._effects_path)
         effects[change_set.idempotency_key] = attempt.model_dump(mode="json")
-        write_json_atomic(self._effects_path, effects)
+        _write_json_atomic(self._effects_path, effects)
         return attempt
 
     async def reconcile(self, change_set: SourceChangeSet) -> ReconciliationObservation:
@@ -164,4 +164,4 @@ class FileWriteBackTransport:
 
     @staticmethod
     def _read(path: Path) -> dict[str, Any]:
-        return read_json(path) or {}
+        return _read_json(path) or {}

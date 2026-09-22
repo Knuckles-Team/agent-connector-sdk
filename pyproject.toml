@@ -188,7 +188,6 @@ public_modules = [
     "agent_connector_sdk.utilities",
     "agent_connector_sdk.writeback.authorization",
     "agent_connector_sdk.writeback.connector",
-    "agent_connector_sdk.writeback.durable_files",
     "agent_connector_sdk.writeback.durable_ledger",
     "agent_connector_sdk.writeback.durable_transport",
     "agent_connector_sdk.writeback.epistemic_graph",
