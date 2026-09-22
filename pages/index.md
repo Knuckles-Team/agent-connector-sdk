@@ -9,6 +9,7 @@ ports, governed HTTP behavior, and a common conformance contract.
 | MCP runtime | `create_mcp_server`, authentication, safe exposure, visibility, action dispatch, change subscriptions |
 | Connector content | manifests, sync presets, fingerprints, skills, prompts, ontologies, and SHACL shapes |
 | Source synchronization | certified adapters, transports, sinks, EG-authoritative checkpoints, durable acknowledgements, and health |
+| Repository transport | authenticated immutable snapshots, deterministic manifests, bounded EG indexing, tombstones, and typed per-file outcomes |
 | Write-back | dry-run, authorization, optimistic version checks, idempotency, and uncertain-effect reconciliation |
 | Connector development | governed HTTP and TLS, credential references, extension discovery, certification, and conformance suites |
 

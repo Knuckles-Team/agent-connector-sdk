@@ -40,6 +40,7 @@ the `phase-direction` gate.
 | `agent_connector_sdk/transports/` | authenticated connector sessions |
 | `agent_connector_sdk/sinks/` | graph-bound sink adapters and readiness reporting |
 | `agent_connector_sdk/runner/` | `connector-sync` composition, workers, scheduling, durable EG status reads, health |
+| `agent_connector_sdk/repository/` | authenticated immutable snapshot paging, manifests, and bounded transport to EG `IndexRepository`; no semantic writer |
 | `agent_connector_sdk/writeback/` | governed dry-run, authorization, version checks, idempotency, reconciliation |
 | `agent_connector_sdk/http/`, `tls/`, `auth/` | governed outbound requests and identity boundaries |
 | `agent_connector_sdk/credentials/` | `env://` and `openbao://` references and resolvers |
