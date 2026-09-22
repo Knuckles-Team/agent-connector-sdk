@@ -26,6 +26,7 @@ node_modules/
 .kissconfig
 reports/
 scratch/
+/.specify/
 *.log
 .env
 .envrc
