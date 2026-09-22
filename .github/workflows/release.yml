@@ -83,7 +83,7 @@ jobs:
         run: uv sync --frozen --no-install-package epistemic-graph
       - name: Verify the finalized generated contract source
         run: |
-          python -c "from pathlib import Path; import epistemic_graph.generated.source_ingestion as source; assert '.ci/epistemic-graph' in str(Path(source.__file__).resolve())"
+          uv run --frozen python -c "from pathlib import Path; import epistemic_graph.generated.source_ingestion as source; assert '.ci/epistemic-graph' in str(Path(source.__file__).resolve())"
       - name: Test suite
         run: uv run --frozen python -m pytest -q
       - name: Type check
