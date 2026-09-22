@@ -8,8 +8,11 @@ ROOT = Path(__file__).resolve().parents[2]
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 PAGES = ROOT / ".github" / "workflows" / "pages.yml"
 CCCC_REVISION = "d728759323be5d9977b7390a27133e8eaf481f26"
-CONFIGURE_PAGES_REVISION = "45bfe0192ca1faeb007ade9deae92b16b8254a0d"
 PIPELINES_REVISION = "ebfaa43bc23346a3a635edd5d1822beb46d48898"
+PAGES_PIPELINE = (
+    "Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml@"
+    f"{PIPELINES_REVISION}"
+)
 EPISTEMIC_GRAPH_REVISION = "f17f47ab300f7f1ddd972d4e0214283a28547e36"
 UV_ACTION = "astral-sh/setup-uv@"
 
@@ -22,14 +25,21 @@ def test_release_installs_cccc_1_6_from_its_immutable_upstream_commit() -> None:
     assert f"--rev {CCCC_REVISION}" in workflow
 
 
-def test_pages_configures_the_site_before_uploading_the_artifact() -> None:
-    workflow = PAGES.read_text(encoding="utf-8")
-    configure = f"actions/configure-pages@{CONFIGURE_PAGES_REVISION}"
+def test_pages_delegates_the_complete_site_pipeline_to_the_pinned_workflow() -> None:
+    document = yaml.safe_load(PAGES.read_text(encoding="utf-8"))
+    pages = document["jobs"]["pages"]
 
-    assert configure in workflow
-    assert workflow.index(configure) < workflow.index("actions/upload-pages-artifact@")
-    assert "pages: write" in workflow
-    assert "id-token: write" in workflow
+    assert pages["uses"] == PAGES_PIPELINE
+    assert "steps" not in pages
+    assert pages["with"] == {
+        "content_source": "docs",
+        "shared_theme_enabled": True,
+    }
+    assert pages["permissions"] == {
+        "contents": "read",
+        "pages": "write",
+        "id-token": "write",
+    }
 
 
 def test_every_release_job_using_uvx_installs_uv_first() -> None:
