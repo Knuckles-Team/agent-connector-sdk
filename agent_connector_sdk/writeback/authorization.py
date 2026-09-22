@@ -9,9 +9,10 @@ from epistemic_graph.generated.write_back import (
     WriteBackAuthorizationDecision,
 )
 
+from agent_connector_sdk.ports.writeback_ledger import WriteBackLedger
 from agent_connector_sdk.writeback.errors import AuthorizationDeniedError
 
-__all__ = ["DeterministicAuthorizationVerifier"]
+__all__ = ["DeterministicAuthorizationVerifier", "DurableAuthorizationResolver"]
 
 
 @dataclass(frozen=True)
@@ -66,3 +67,29 @@ class DeterministicAuthorizationVerifier:
         if binding not in self._grants:
             raise AuthorizationDeniedError("no exact authorization decision")
         return change_set.authorization
+
+
+class DurableAuthorizationResolver:
+    """Resolve authorization only from EG's canonical durable change set."""
+
+    def __init__(self, ledger: WriteBackLedger) -> None:
+        self._ledger = ledger
+
+    async def verify(
+        self, change_set: SourceChangeSet
+    ) -> WriteBackAuthorizationDecision:
+        """Reject missing, changed or unauthorized durable decisions."""
+        durable = await self._ledger.get(change_set.tenant_id, change_set.change_set_id)
+        return _require_durable_authorization(change_set, durable)
+
+
+def _require_durable_authorization(
+    requested: SourceChangeSet, durable: SourceChangeSet | None
+) -> WriteBackAuthorizationDecision:
+    if durable is None:
+        raise AuthorizationDeniedError("durable change set does not exist")
+    if durable != requested or durable.change_set_digest != durable.canonical_digest():
+        raise AuthorizationDeniedError("durable change-set binding mismatch")
+    if not durable.authorization.authorized:
+        raise AuthorizationDeniedError("durable authorization denied")
+    return durable.authorization

@@ -11,6 +11,7 @@ __all__ = [
     "ReconciliationRequiredError",
     "SourceVersionConflictError",
     "WriteBackError",
+    "WriteBackPersistenceError",
 ]
 
 
@@ -44,3 +45,7 @@ class OutcomeUncertainError(WriteBackError):
 
 class ReconciliationRequiredError(WriteBackError):
     """A prior uncertain attempt must reconcile before another apply."""
+
+
+class WriteBackPersistenceError(WriteBackError):
+    """EG's durable write-back record is missing, malformed or inconsistent."""
