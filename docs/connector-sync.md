@@ -69,8 +69,8 @@ Exit `2` means the runner could not start: an invalid configuration, an
 uncertified extension, a malformed credential setting, or a malformed or
 disallowed `--health-addr`.
 
-Record pages use EG's generated `SourceIngest` request, receipt and client call.
-Provisioning uses EG's generated ConnectorPack archive builder, digest helper
+Record pages use EG's generated `SourceIngest` request, receipt, and client call.
+Provisioning uses EG's generated ConnectorPack archive builder, digest helper,
 and typed import result. A rejected pack remains a typed result and fails the
 cycle; an unchanged result is an acknowledged no-op.
 

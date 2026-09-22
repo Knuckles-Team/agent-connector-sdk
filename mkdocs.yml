@@ -1,28 +1,30 @@
-site_name: agent-connector-sdk
-site_description: Secure MCP connector servers, source synchronization, and governed write-back
+INHERIT: .pipeline-theme/templates/mkdocs-theme/base.mkdocs.yml
+
+site_name: Agent Connector SDK
+site_description: Secure MCP connectors, source synchronization, and governed write-back
 site_url: https://knuckles-team.github.io/agent-connector-sdk/
 repo_url: https://github.com/Knuckles-Team/agent-connector-sdk
-docs_dir: pages
+docs_dir: docs
 strict: true
-theme:
-  name: material
-  features:
-    - navigation.sections
-    - content.code.copy
+
+extra:
+  ecosystem:
+    current: agent-connector-sdk
+
 nav:
-  - Overview: index.md
-  - Connector servers: connector-servers.md
-  - Content over MCP: content-over-mcp.md
-  - Extension ports: extension-ports.md
-  - Conformance kit: conformance-kit.md
-  - Connector sync: connector-sync.md
-  - Repository ingestion: repository-ingestion.md
-  - Connector certification: connector-certify.md
-  - HTTP clients: http-clients.md
-  - Credentials: credentials.md
-  - Quality gates: quality-gates.md
-markdown_extensions:
-  - admonition
-  - tables
-  - toc:
-      permalink: true
+  - Home: index.md
+  - Build your first connector: tutorial.md
+  - Architecture: architecture.md
+  - Guides:
+      - Connector servers: connector-servers.md
+      - Content over MCP: content-over-mcp.md
+      - Source synchronization: connector-sync.md
+      - Repository ingestion: repository-ingestion.md
+      - Extension ports: extension-ports.md
+      - Connector certification: connector-certify.md
+      - HTTP clients: http-clients.md
+      - Credentials: credentials.md
+  - Reference:
+      - Conformance kit: conformance-kit.md
+      - Quality gates: quality-gates.md
+      - Ecosystem glossary: glossary.md

@@ -1,7 +1,7 @@
 # agent-connector-sdk engineering contract
 
 This file defines the current repository architecture and the rules contributors
-and automation must preserve. The public guides are built from [`pages/`](pages/)
+and automation must preserve. The public guides are built from [`docs/`](docs/)
 and published through GitHub Pages.
 
 ## What this repository owns
@@ -39,14 +39,15 @@ the `phase-direction` gate.
 | `agent_connector_sdk/artifacts/` | MCP content capture and canonical pack construction |
 | `agent_connector_sdk/transports/` | authenticated connector sessions |
 | `agent_connector_sdk/sinks/` | graph-bound sink adapters and readiness reporting |
+| `agent_connector_sdk/repository/` | authenticated immutable snapshot paging, manifests, and bounded transport to EG IndexRepository; no semantic writer |
 | `agent_connector_sdk/runner/` | `connector-sync` composition, workers, scheduling, durable EG status reads, health |
-| `agent_connector_sdk/repository/` | authenticated immutable snapshot paging, manifests, and bounded transport to EG `IndexRepository`; no semantic writer |
 | `agent_connector_sdk/writeback/` | governed dry-run, authorization, version checks, idempotency, reconciliation |
 | `agent_connector_sdk/http/`, `tls/`, `auth/` | governed outbound requests and identity boundaries |
 | `agent_connector_sdk/credentials/` | `env://` and `openbao://` references and resolvers |
 | `agent_connector_sdk/testing/` | reusable connector conformance suites |
 | `tests/` | unit, integration, contract, and gate tests |
-| `pages/` | public GitHub Pages sources |
+| `docs/` | public GitHub Pages sources and generated shared-theme assets |
+| `overrides/` | shared MkDocs Material template overrides |
 
 The public Python surface is declared in
 `pyproject.toml` under `[tool.agent_connector_sdk.wiring]`. Every module must be
@@ -54,11 +55,11 @@ reachable from a public module or an entry point, and every public name must be
 exercised by a test.
 
 The runner activates an extension only after its exact group, name,
-distribution, and version are certified. Sink readiness is capability based. A
-sink that cannot commit returns `ready=False`; the runner fails readiness and
-does not submit source data. The bundled epistemic-graph sink reads the durable
-SourceIngest status and commits through generated SourceIngest, ConnectorPack,
-and WriteBack contracts; it does not retain a parallel cursor authority.
+distribution, and version are certified. Sink readiness is capability based.
+The bundled epistemic-graph sink reads durable SourceIngest status and commits
+through generated SourceIngest, ConnectorPack, and WriteBack contracts; it does
+not retain a parallel cursor authority. Construction requires a verified
+generated client and live ConnectorPack authority resolver.
 
 ## Commands
 
@@ -73,14 +74,14 @@ uvx --from ruff==0.16.0 ruff format --check agent_connector_sdk tests
 uv run --frozen --only-group docs mkdocs build --strict
 python scripts/check_wiring.py orphans
 python scripts/check_wiring.py public-api
-pre-commit run --config .config/pre-commit.yaml --all-files
-pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage pre-push
+pre-commit run --all-files
+pre-commit run --all-files --hook-stage pre-push
 ```
 
 Run the shared documentation contract directly while editing public surfaces:
 
 ```bash
-pre-commit try-repo --config .config/pre-commit.yaml ../pipelines public-surface --all-files
+pre-commit try-repo ../pipelines public-surface --all-files
 ```
 
 ## Quality gates
@@ -98,8 +99,7 @@ repository-specific settings in `[tool.pipelines_hooks]`.
 - **Correctness:** pytest, strict mypy, Ruff, Bandit, Vulture, codespell, wiring,
   dependency readiness, and dependency direction.
 - **Delivery:** strict MkDocs, reproducible wheel build, version consistency,
-  and the local CI replica. These full checks run manually or in hosted CI; the
-  automatic pre-push stage remains bounded.
+  and the local CI replica.
 
 Native scanners must match the versions required by the pinned hook revision.
 A missing scanner, configuration, dependency, or privacy catalog is a gate

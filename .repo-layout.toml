@@ -7,7 +7,8 @@
 agent_connector_sdk = "the importable SDK package"
 scripts = "the SDK's own wiring gates (scripts/check_wiring.py) run by pre-commit and CI"
 tests = "the test suite, including the in-process fixture connector"
-pages = "hand-written GitHub Pages sources (RF-ADR-009 section 5: no /docs directory)"
+docs = "public GitHub Pages sources and generated shared-theme assets"
+overrides = "shared MkDocs Material template overrides"
 ".github" = "GitHub Actions workflows (release and Pages)"
 ".kiss" = "hand-set KISS thresholds (.kiss/kiss.toml), not a baseline"
 
@@ -16,7 +17,7 @@ pages = "hand-written GitHub Pages sources (RF-ADR-009 section 5: no /docs direc
 "CLAUDE.md" = "Claude Code instructions (imports AGENTS.md)"
 "LICENSE" = "license text"
 "README.md" = "project readme; carries the version marker bump2version updates"
-"mkdocs.yml" = "Pages site configuration (docs_dir: pages)"
+"mkdocs.yml" = "Pages site configuration and shared-theme inheritance"
 "pyproject.toml" = "package metadata, tool configuration, shared-hook configuration, public module list"
 "uv.lock" = "uv lockfile"
 

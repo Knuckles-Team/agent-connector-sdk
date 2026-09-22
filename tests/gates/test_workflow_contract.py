@@ -9,7 +9,7 @@ RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 PAGES = ROOT / ".github" / "workflows" / "pages.yml"
 CCCC_REVISION = "d728759323be5d9977b7390a27133e8eaf481f26"
 CONFIGURE_PAGES_REVISION = "45bfe0192ca1faeb007ade9deae92b16b8254a0d"
-PIPELINES_REVISION = "7ae41925ca0a62c1fdb64197e0bb1859c1903a15"
+PIPELINES_REVISION = "ebfaa43bc23346a3a635edd5d1822beb46d48898"
 EPISTEMIC_GRAPH_REVISION = "f17f47ab300f7f1ddd972d4e0214283a28547e36"
 UV_ACTION = "astral-sh/setup-uv@"
 

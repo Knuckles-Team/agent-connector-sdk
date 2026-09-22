@@ -1,4 +1,4 @@
-# Fast pre-push checks plus the full manual validation suite for agent-connector-sdk.
+# Combined pre-commit and pre-push scan suite for agent-connector-sdk.
 #
 # Repository-agnostic complexity, clone, security, privacy, supply-chain,
 # hygiene, code-shape, documentation, and CI-replica gates come from the shared
@@ -26,9 +26,8 @@ repos:
   rev: cb8c523fd4835aba42af70f4cad5568db4df0b6c # v0.16.0
   hooks:
   - id: ruff-check
-    stages: [pre-commit, pre-push, manual]
+    args: ["--fix"]
   - id: ruff-format
-    stages: [pre-commit, pre-push, manual]
 - repo: https://github.com/jendrikseipp/vulture
   rev: b0f67ba0044693aa9ec0d38fe460590facc98004 # v2.16
   hooks:
@@ -53,7 +52,7 @@ repos:
     stages: [pre-push, manual]
 # ── Shared gates (Knuckles-Team/pipelines, pinned) ─────────────────────────────
 - repo: https://github.com/Knuckles-Team/pipelines
-  rev: 7ae41925ca0a62c1fdb64197e0bb1859c1903a15 # shared scanner argv fix + public-surface contract
+  rev: ebfaa43bc23346a3a635edd5d1822beb46d48898
   hooks:
   # scanners (pinned versions; never installed by a hook)
   - id: complexity-staged
@@ -63,15 +62,15 @@ repos:
   - id: dupehound-changed
     stages: [pre-commit, manual]
   - id: complexity-census
-    stages: [manual]
+    stages: [pre-push, manual]
   - id: kiss-census
-    stages: [manual]
+    stages: [pre-push, manual]
   - id: jscpd-differential
-    stages: [manual]
+    stages: [pre-push, manual]
   - id: jscpd-census
-    stages: [manual]
+    stages: [pre-push, manual]
   - id: scanner-versions
-    stages: [manual]
+    stages: [pre-push, manual]
   # code shape
   - id: no-stub
     stages: [pre-commit, manual]
@@ -97,7 +96,7 @@ repos:
   - id: supply-chain
     stages: [pre-commit, manual]
   - id: secret-history
-    stages: [manual]
+    stages: [pre-push, manual]
   - id: security-sanitizer
     stages: [pre-commit, manual]
   - id: tracked-privacy
@@ -116,7 +115,7 @@ repos:
   - id: ci-gate-replica-consistency
     stages: [pre-commit, manual]
   - id: ci-gate-replica
-    stages: [manual]
+    stages: [pre-push]
 - repo: local
   hooks:
   # ── Types, tests, build, docs (CI parity) ────────────────────────────────
@@ -126,28 +125,27 @@ repos:
     language: system
     pass_filenames: false
     files: ^(agent_connector_sdk/.*\.py|pyproject\.toml|uv\.lock)$
-    stages: [pre-commit, manual]
   - id: pytest
     name: pytest (full suite)
     entry: uv run --frozen python -m pytest -q
     language: system
     pass_filenames: false
     always_run: true
-    stages: [manual]
+    stages: [manual, pre-push]
   - id: docs-build
     name: Pages site build (strict)
     entry: bash -c 'uv run --frozen --only-group docs mkdocs build --strict --site-dir "$(mktemp -d)/site"'
     language: system
     pass_filenames: false
     always_run: true
-    stages: [manual]
+    stages: [manual, pre-push]
   - id: wheel-build
     name: package build
     entry: bash -c 'uv build --out-dir "$(mktemp -d)/dist"'
     language: system
     pass_filenames: false
     always_run: true
-    stages: [manual]
+    stages: [manual, pre-push]
   # ── Wiring ───────────────────────────────────────────────────────────────
   - id: check-orphan-modules
     name: Wiring — no orphan package modules
@@ -171,7 +169,7 @@ repos:
     language: system
     pass_filenames: false
     always_run: true
-    stages: [manual]
+    stages: [manual, pre-push]
   - id: phase-direction
     name: Phase direction — no dependency on a later workspace phase
     # repository-manager's own per-repository mode: it resolves this checkout (or
@@ -181,7 +179,7 @@ repos:
     language: system
     pass_filenames: false
     always_run: true
-    stages: [manual]
+    stages: [manual, pre-push]
   - id: check-bumpversion
     name: validate bumpversion config
     entry: |-

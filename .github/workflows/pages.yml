@@ -1,51 +1,20 @@
 name: Pages
 
-# Builds the GitHub Pages site from the hand-written sources in pages/. The site
-# uses `pages/` as its configured MkDocs source directory and publishes only
-# after the strict build succeeds.
-
 on:
   push:
     branches: [main]
-  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  build:
-    name: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
-        with:
-          version: '0.11.7'
-      - name: Build the site strictly
-        run: uv run --frozen --only-group docs mkdocs build --strict --site-dir site
-      - name: Configure GitHub Pages
-        if: github.event_name == 'push'
-        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
-      - name: Upload the Pages artifact
-        if: github.event_name == 'push'
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
-        with:
-          path: site
-
-  deploy:
-    name: deploy
-    needs: [build]
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+  pages:
     permissions:
+      contents: read
       pages: write
       id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
+    uses: Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml@ebfaa43bc23346a3a635edd5d1822beb46d48898
+    with:
+      content_source: docs
+      shared_theme_enabled: true

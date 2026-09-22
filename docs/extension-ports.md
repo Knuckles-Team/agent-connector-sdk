@@ -76,12 +76,12 @@ ConnectorPack authority resolver at construction; the testing kit's
 
 `SourceIngestionRequest` is imported from
 `epistemic_graph.generated.source_ingestion`; the SDK does not define an alias,
-parallel DTO or digest. Its generated `canonical_digest()` binds raw records,
-provenance, exact per-record mapping references, provider checkpoint and expected
-previous checkpoint. The runner sends it through generated `send_source_ingest`
-with a stable
-idempotency key and advances the checkpoint only from the matching generated
-receipt. EG compare-and-swaps the expected position atomically with the commit.
+parallel DTO, or digest. Its generated `canonical_digest()` binds raw records,
+provenance, exact per-record mapping references, provider checkpoint, and
+expected previous checkpoint. The runner sends it through generated
+`send_source_ingest` with a stable idempotency key and advances the checkpoint
+only from the matching generated receipt. EG compare-and-swaps the expected
+position atomically with the commit.
 
 A manifest mapping reference names one exact mapping:
 `manifest:<connector>#schema_mappings/<key>`. The shorter
@@ -101,9 +101,10 @@ fake checkpoint advance.
 
 `SourceIngest` is the one durable operation; SQL batches and pre-mapped change
 envelopes are not substitutes. EG resolves the manifest mapping, admits raw
-evidence, deduplicates, writes provenance/outbox state, and advances the checkpoint
-before returning `SourceIngestionReceipt`. The SDK verifies that the receipt's
-batch digest, mode and accepted checkpoint bind the submitted request.
+evidence, deduplicates, writes provenance/outbox state, and advances the
+checkpoint before returning `SourceIngestionReceipt`. The SDK verifies that the
+receipt's batch digest, mode, and accepted checkpoint bind the submitted
+request.
 
 ## Runner ports
 
@@ -160,7 +161,7 @@ name in a group is an error.
 
 ## Contract ownership
 
-Source ingestion, ConnectorPack and WriteBack request/result models come
+Source ingestion, ConnectorPack, and WriteBack request/result models come
 directly from `epistemic_graph.generated`. The SDK owns only connector authoring,
-capture, transport and extraction shapes; it defines no parallel EG DTO or
+capture, transport, and extraction shapes; it defines no parallel EG DTO or
 digest.
