@@ -8,8 +8,8 @@ ROOT = Path(__file__).resolve().parents[2]
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 PAGES = ROOT / ".github" / "workflows" / "pages.yml"
 CCCC_REVISION = "d728759323be5d9977b7390a27133e8eaf481f26"
-PIPELINES_REVISION = "ebfaa43bc23346a3a635edd5d1822beb46d48898"
-PAGES_PIPELINE_REVISION = "64e34ca63385200f5ddfef5286e6886bf7dc80b4"
+PIPELINES_REVISION = "73915f29ae672003a0bed287f85e19390d55f4d0"
+PAGES_PIPELINE_REVISION = "73915f29ae672003a0bed287f85e19390d55f4d0"
 PAGES_PIPELINE = (
     "Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml"
     f"@{PAGES_PIPELINE_REVISION}"

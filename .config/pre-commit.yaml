@@ -52,7 +52,7 @@ repos:
     stages: [pre-push, manual]
 # ── Shared gates (Knuckles-Team/pipelines, pinned) ─────────────────────────────
 - repo: https://github.com/Knuckles-Team/pipelines
-  rev: e841cfe67d3e13ddf52aee32a4580f9c7cf9ec80
+  rev: 73915f29ae672003a0bed287f85e19390d55f4d0
   hooks:
   # scanners (pinned versions; never installed by a hook)
   - id: complexity-staged
