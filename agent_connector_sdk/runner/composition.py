@@ -4,7 +4,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from agent_connector_sdk import decide
 from agent_connector_sdk.credentials.resolution import default_credential_resolver
+from agent_connector_sdk.decide.epistemic_graph import (
+    EpistemicGraphDecisionRunner,
+    GeneratedTransport,
+)
+from agent_connector_sdk.decide.points import Bindings
 from agent_connector_sdk.discovery import (
     ARTIFACT_KIND_GROUP,
     SINK_GROUP,
@@ -16,6 +22,7 @@ from agent_connector_sdk.discovery import (
     sdk_reference_extensions,
 )
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
+from agent_connector_sdk.ports.decide_runner import DecisionRunner
 from agent_connector_sdk.ports.sink import Sink
 from agent_connector_sdk.ports.transport import Transport
 from agent_connector_sdk.runner.descriptors import RunnerSettings
@@ -71,6 +78,43 @@ def _sink_arguments(
     }
 
 
+def _decide_runner(
+    sink_name: str,
+    sink_client: object | None,
+    decide_tenant: str | None,
+    decide_bindings: Bindings | None,
+) -> DecisionRunner | None:
+    """The EG-backed connector decision runner (EH-042/043), when this
+    process has both a verified EG session and a tenant to decide as.
+
+    ``sink_client`` alone is not enough: a real ``Decide`` request is
+    tenant-scoped, and this composition root never invents one (the same
+    "never discovers... at this boundary" rule ``default_services`` already
+    documents). With no ``decide_tenant`` -- true for every caller today --
+    no runner is built and every EH-042/043 call site stays exactly its
+    deterministic fallback, unchanged. ``decide_bindings`` defaults to
+    :data:`agent_connector_sdk.decide.points.EMPTY_BINDINGS`: bound or not,
+    the runner installs the same way, and an unbound point still never
+    reaches EG.
+
+    The transport is built with no engine loop (``loop=None``): this
+    function runs before the connector's own ``anyio``/``asyncio`` loop
+    starts, so there is no other-thread loop reference to bind yet. A sync
+    call site (:func:`agent_connector_sdk.decide.choose`) safely falls back
+    with reason ``unavailable`` until a future change threads one through;
+    an async call site (:func:`agent_connector_sdk.decide.achoose`) already
+    works, since it needs no thread bridging.
+    """
+    if sink_name != "epistemic_graph" or sink_client is None or decide_tenant is None:
+        return None
+    transport = GeneratedTransport(client=sink_client)
+    if decide_bindings is None:
+        return EpistemicGraphDecisionRunner(transport=transport, tenant=decide_tenant)
+    return EpistemicGraphDecisionRunner(
+        transport=transport, tenant=decide_tenant, bindings=decide_bindings
+    )
+
+
 def _artifact_kinds(policy: ActivationPolicy) -> tuple[ArtifactKind, ...]:
     kinds = tuple(
         extension_instance(ARTIFACT_KIND_GROUP, identity.name, policy=policy)
@@ -90,6 +134,8 @@ def default_services(
     sink_client: object | None = None,
     pack_import_authority: PackImportAuthorityResolver | None = None,
     policy: ActivationPolicy | None = None,
+    decide_tenant: str | None = None,
+    decide_bindings: Bindings | None = None,
 ) -> RunnerServices:
     """Services from certified entry points and credential resolution.
 
@@ -97,6 +143,14 @@ def default_services(
     provisioned. An epistemic-graph deployment must inject the already verified
     generated client. The SDK never discovers an engine endpoint, reads a token,
     or mints request identity at this boundary.
+
+    With ``decide_tenant`` also given, the EH-042/043 connector decision
+    runner (:class:`~agent_connector_sdk.decide.epistemic_graph.EpistemicGraphDecisionRunner`)
+    is built over the SAME verified ``sink_client`` and installed process-wide
+    (:func:`agent_connector_sdk.decide.install_runner`) -- one composition
+    root, one EG session, both consumers. With no ``decide_tenant`` (every
+    caller today), no runner is installed and every connector-side ``Decide``
+    call site stays exactly its deterministic fallback.
 
     Raises:
         ExtensionActivationError: an extension is not certified by ``policy``.
@@ -115,6 +169,9 @@ def default_services(
     if not isinstance(transport, Transport) or not isinstance(sink, Sink):
         raise ExtensionDiscoveryError("transport or sink extension has the wrong port")
     window = max(3 * settings.registry_refresh_seconds, _MIN_LIVENESS_WINDOW_SECONDS)
+    runner = _decide_runner(sink_name, sink_client, decide_tenant, decide_bindings)
+    if runner is not None:
+        decide.install_runner(runner)
     return RunnerServices(
         transport=transport,
         sink=sink,
@@ -122,4 +179,5 @@ def default_services(
         endpoints=CredentialEndpoints(default_credential_resolver()),
         settings=settings,
         health=RunnerHealth(sink=sink, liveness_window_seconds=window),
+        decide_runner=runner,
     )

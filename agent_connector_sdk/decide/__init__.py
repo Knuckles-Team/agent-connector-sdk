@@ -10,13 +10,17 @@ asks EG first and keeps that rule as the deterministic fallback::
 With no runner installed (no engine reachable from this process), :func:`choose`
 is exactly the fallback, reason ``no_runner``. A process that also holds a
 verified EG session may :func:`install_runner` a real
-:class:`~agent_connector_sdk.ports.decide_runner.DecisionRunner`; tests
-install fakes. This mirrors ``agent_utilities.decide``'s own contract
-(DESIGN.md §1 of lane decide-consumers) so the SAME EG question is asked
-whichever side calls it, but is implemented independently: the SDK never
-imports ``agent_utilities`` (the agent control plane), and does not ship a
-live EG-calling implementation -- only the port and the two evaluate-only
-call sites EH-042/043 name (see :mod:`agent_connector_sdk.decide.consumers`).
+:class:`~agent_connector_sdk.ports.decide_runner.DecisionRunner` --
+:class:`~agent_connector_sdk.decide.epistemic_graph.EpistemicGraphDecisionRunner`
+is the SDK's own EG-backed one, installed at the ``connector-sync`` composition
+root (:func:`agent_connector_sdk.runner.composition.default_services`) when
+this process was given a tenant to decide as; tests install fakes. This
+mirrors ``agent_utilities.decide``'s own contract (DESIGN.md §1 of lane
+decide-consumers) so the SAME EG question is asked whichever side calls it,
+but is implemented independently: the SDK never imports ``agent_utilities``
+(the agent control plane) -- only the port, the EG-backed runner, and the two
+evaluate-only call sites EH-042/043 name (see
+:mod:`agent_connector_sdk.decide.consumers`).
 
 EH-041 (connector inbound event triage) has no SDK-owned call site: it is
 wired entirely inside ``agent_utilities`` at
@@ -26,7 +30,7 @@ dispatches AU's own fleet events, not anything the SDK's connectors receive.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Sequence
 from contextvars import ContextVar
 from typing import Any
 
@@ -65,38 +69,29 @@ def _no_runner(fallback: Fallback) -> Choice:
     return Choice(fallback(), False, "no_runner")
 
 
+#: The rest of a ``choose``/``achoose`` call (``params``, ``candidates``): kept
+#: as ``**kwargs`` here, forwarded verbatim to a :class:`DecisionRunner`, so
+#: this dispatcher's signature does not restate
+#: :class:`~agent_connector_sdk.ports.decide_runner.DecisionRunner`'s own
+#: canonical one (defined once, in ``ports/``) a second time.
 def choose(
-    question_id: str,
-    options: Sequence[Option],
-    fallback: Fallback,
-    *,
-    params: Iterable[Mapping[str, Any]] = (),
-    candidates: Mapping[str, Any] | None = None,
+    question_id: str, options: Sequence[Option], fallback: Fallback, **kwargs: Any
 ) -> Choice:
     """Decide ``question_id`` from a sync call site."""
     runner = current_runner()
     if runner is None:
         return _no_runner(fallback)
-    return runner.choose(
-        question_id, options, fallback, params=params, candidates=candidates
-    )
+    return runner.choose(question_id, options, fallback, **kwargs)
 
 
 async def achoose(
-    question_id: str,
-    options: Sequence[Option],
-    fallback: Fallback,
-    *,
-    params: Iterable[Mapping[str, Any]] = (),
-    candidates: Mapping[str, Any] | None = None,
+    question_id: str, options: Sequence[Option], fallback: Fallback, **kwargs: Any
 ) -> Choice:
     """Decide ``question_id`` from an async call site."""
     runner = current_runner()
     if runner is None:
         return _no_runner(fallback)
-    return await runner.achoose(
-        question_id, options, fallback, params=params, candidates=candidates
-    )
+    return await runner.achoose(question_id, options, fallback, **kwargs)
 
 
 __all__ = [

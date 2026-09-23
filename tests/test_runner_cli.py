@@ -16,6 +16,11 @@ from epistemic_graph.generated.connector_pack import (
 )
 from fleet_fixtures import FRESHRSS_CONNECTORS, FRESHRSS_ROOT
 
+from agent_connector_sdk import decide
+from agent_connector_sdk.decide.epistemic_graph import (
+    EpistemicGraphDecisionRunner,
+    GeneratedTransport,
+)
 from agent_connector_sdk.discovery import (
     TRANSPORT_GROUP,
     CertifiedExtensions,
@@ -118,6 +123,58 @@ def test_default_services_load_certified_extensions(tmp_path: Path) -> None:
         default_services(
             RunnerSettings(), state_dir=tmp_path, sink_name="epistemic_graph"
         )
+
+
+@pytest.fixture
+def _reset_decide_runner() -> Iterator[None]:
+    yield
+    decide.install_runner(None)
+
+
+def test_default_services_installs_no_decide_runner_without_a_tenant(
+    tmp_path: Path, _reset_decide_runner: None
+) -> None:
+    """Every caller today: unaffected, exactly as before this port existed."""
+    built = default_services(
+        RunnerSettings(),
+        state_dir=tmp_path,
+        sink_name="epistemic_graph",
+        sink_client=object(),
+        pack_import_authority=_pack_import_authority,
+    )
+    assert built.decide_runner is None
+    assert decide.current_runner() is None
+
+
+def test_default_services_installs_the_eg_backed_decide_runner_with_a_tenant(
+    tmp_path: Path, _reset_decide_runner: None
+) -> None:
+    verified_client = object()
+    built = default_services(
+        RunnerSettings(),
+        state_dir=tmp_path,
+        sink_name="epistemic_graph",
+        sink_client=verified_client,
+        pack_import_authority=_pack_import_authority,
+        decide_tenant="tenant-connector-sync",
+    )
+    assert isinstance(built.decide_runner, EpistemicGraphDecisionRunner)
+    assert built.decide_runner.tenant == "tenant-connector-sync"
+    assert isinstance(built.decide_runner.transport, GeneratedTransport)
+    assert built.decide_runner.transport.client is verified_client
+    assert built.decide_runner.transport.loop is None, (
+        "no loop exists yet at composition-root time; a sync choose() falls "
+        "back until a future change threads one through"
+    )
+    assert decide.current_runner() is built.decide_runner
+
+
+def test_decide_runner_is_never_built_for_a_non_eg_sink_or_missing_inputs() -> None:
+    from agent_connector_sdk.runner.composition import _decide_runner
+
+    assert _decide_runner("other_sink", object(), "tenant-t", None) is None
+    assert _decide_runner("epistemic_graph", None, "tenant-t", None) is None
+    assert _decide_runner("epistemic_graph", object(), None, None) is None
 
 
 def test_cli_exits_2_when_it_cannot_start(tmp_path: Path) -> None:

@@ -3,13 +3,15 @@
 Mirrors ``agent_utilities.decide.runner.DecisionRunner``'s shape (DESIGN §1 of
 lane decide-consumers) without importing ``agent_utilities`` -- the SDK must
 never depend on the agent control plane (see ``pyproject.toml``'s dependency
-comment) or on EG beyond its existing generated types. A process embedding
-this SDK that also holds a verified EG session (for example the
-``connector-sync`` runner, which already talks to EG for ``ConnectorPack``
-and ``SourceIngest``) may install a real implementation that calls EG's
-generated ``Decide``/``DecisionLog`` senders; with none installed, every
-call site in :mod:`agent_connector_sdk.decide.consumers` is exactly its old
-deterministic rule.
+comment) or on EG beyond its existing generated types.
+:class:`~agent_connector_sdk.decide.epistemic_graph.EpistemicGraphDecisionRunner`
+is the SDK's own real implementation, calling EG's generated ``Decide``
+sender (and, once EG's ``feat/decide-consumers`` branch lands, its decision
+log) over a verified client -- installed at the ``connector-sync``
+composition root (:func:`agent_connector_sdk.runner.composition.default_services`)
+when this process has one. With no runner installed, every call site in
+:mod:`agent_connector_sdk.decide.consumers` is exactly its old deterministic
+rule.
 """
 
 from __future__ import annotations
@@ -45,11 +47,15 @@ class DecisionRunner(Protocol):
         question_id: str,
         options: Sequence[Option],
         fallback: Fallback,
-        *,
-        params: Iterable[Mapping[str, Any]] = (),
-        candidates: Mapping[str, Any] | None = None,
+        **kwargs: Any,
     ) -> Choice:
-        """Decide from a sync call site."""
+        """Decide from a sync call site.
+
+        ``**kwargs`` is exactly :meth:`achoose`'s ``params``/``candidates`` --
+        kept generic here so the one fully typed signature (an implementer's
+        real sync/async pair almost always shares one body, the sync half
+        bridging to the async one) is written only once, on :meth:`achoose`.
+        """
         ...
 
     async def achoose(
@@ -61,7 +67,13 @@ class DecisionRunner(Protocol):
         params: Iterable[Mapping[str, Any]] = (),
         candidates: Mapping[str, Any] | None = None,
     ) -> Choice:
-        """Decide from an async call site."""
+        """Decide from an async call site -- the canonical signature.
+
+        An unbound question, a transport failure, an abstention, an
+        advisory-only outcome, or an option the caller never offered all mean
+        the implementation calls ``fallback()`` itself and returns that
+        answer with ``decided=False`` and a ``reason`` naming why.
+        """
         ...
 
 

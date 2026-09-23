@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
+from agent_connector_sdk.ports.decide_runner import DecisionRunner
 from agent_connector_sdk.ports.sink import Sink
 from agent_connector_sdk.ports.transport import Transport
 from agent_connector_sdk.runner.descriptors import RunnerSettings
@@ -26,3 +27,8 @@ class RunnerServices:
     #: Liveness/readiness state; ``None`` only in tests that build services
     #: directly without exercising the health surface.
     health: RunnerHealth | None = None
+    #: The installed EH-042/043 connector decision runner (EG-backed), when
+    #: this process was given a tenant to decide as; ``None`` means every
+    #: connector-side ``Decide`` call site stays its deterministic fallback,
+    #: exactly as before this port existed.
+    decide_runner: DecisionRunner | None = None
