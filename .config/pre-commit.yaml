@@ -153,6 +153,12 @@ repos:
     language: system
     pass_filenames: false
     files: ^(docs/architecture/(universal-graph-connectors|privacy-safe-ingestion)\.md|scripts/check_external_graph_contract\.py)$
+  - id: check-documentation-privacy
+    name: Public docs — no private IPs, host aliases, or environment TLDs
+    entry: python3 scripts/check_documentation_privacy.py
+    language: system
+    pass_filenames: false
+    files: ^(docs/.*\.md|scripts/check_documentation_privacy\.py)$
   # ── Wiring ───────────────────────────────────────────────────────────────
   - id: check-orphan-modules
     name: Wiring — no orphan package modules
