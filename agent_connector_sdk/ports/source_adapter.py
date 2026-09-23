@@ -14,18 +14,29 @@ from agent_connector_sdk.contracts import (
 )
 from agent_connector_sdk.ports.session import McpSession
 
-__all__ = ["SourceAdapter"]
+__all__ = ["DescribesCapabilities", "SourceAdapter"]
 
 
 @runtime_checkable
-class SourceAdapter(Protocol):
-    """Describe, verify, extract page by page, and reconcile one stream."""
+class DescribesCapabilities(Protocol):
+    """The subset of ``SourceAdapter`` needed to check its capability descriptor.
+
+    Conformance checks that only inspect ``describe()``/``kind`` (e.g.
+    ``check_capability_descriptor``) should depend on this, not the full
+    ``SourceAdapter``, so a conformance-only test double never needs to also
+    implement ``discover``/``extract``/``reconcile``.
+    """
 
     kind: str
 
     def describe(self) -> CapabilityDescriptor:
         """Declare the adapter's capabilities; must not perform I/O."""
         ...
+
+
+@runtime_checkable
+class SourceAdapter(DescribesCapabilities, Protocol):
+    """Describe, verify, extract page by page, and reconcile one stream."""
 
     async def discover(self, session: McpSession) -> StreamDescriptor:
         """Verify the live source contract before any extraction."""

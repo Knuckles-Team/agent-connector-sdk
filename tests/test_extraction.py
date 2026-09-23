@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 from epistemic_graph.generated.source_ingestion import SourceCheckpoint
@@ -233,7 +234,7 @@ def test_preset_types_the_complete_source_lifecycle_contract() -> None:
     ),
 )
 def test_preset_rejects_partial_lifecycle_contracts(
-    update: dict[str, object], message: str
+    update: dict[str, Any], message: str
 ) -> None:
     with pytest.raises(ValueError, match=message):
         ToolPreset(name="metadata", server="s", tool="t", **update)

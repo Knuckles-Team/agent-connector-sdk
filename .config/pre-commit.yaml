@@ -121,10 +121,10 @@ repos:
   # ── Types, tests, build, docs (CI parity) ────────────────────────────────
   - id: mypy
     name: mypy (strict, project environment)
-    entry: uv run --frozen --with mypy==1.20.2 --with types-PyYAML==6.0.12.20260518 python -m mypy agent_connector_sdk
+    entry: uv run --frozen --with mypy==1.20.2 --with types-PyYAML==6.0.12.20260518 python -m mypy agent_connector_sdk tests
     language: system
     pass_filenames: false
-    files: ^(agent_connector_sdk/.*\.py|pyproject\.toml|uv\.lock)$
+    files: ^(agent_connector_sdk/.*\.py|tests/.*\.py|pyproject\.toml|uv\.lock)$
   - id: pytest
     name: pytest (full suite)
     entry: uv run --frozen python -m pytest -q

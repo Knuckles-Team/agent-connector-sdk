@@ -12,6 +12,12 @@ from typing import Any, NoReturn
 
 import anyio
 import pytest
+from epistemic_graph.generated.connector_pack import PackImportResult
+from epistemic_graph.generated.source_ingestion import (
+    SourceIngestionReceipt,
+    SourceIngestionRequest,
+    SourceIngestStatus,
+)
 from runner_support import (
     ListRegistry,
     freshrss_descriptor,
@@ -19,6 +25,7 @@ from runner_support import (
     services,
 )
 
+from agent_connector_sdk.artifacts.pack import CapturedConnectorPack
 from agent_connector_sdk.auth.oidc import ClientCredentialsConfig
 from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
 from agent_connector_sdk.ports.sink import Sink, SinkReadiness
@@ -68,19 +75,37 @@ def _health(
     )
 
 
+def _reasons(body: dict[str, object]) -> list[Any]:
+    """Narrow a health/readiness report body's ``reasons`` list for assertions."""
+    reasons = body["reasons"]
+    assert isinstance(reasons, list)
+    return reasons
+
+
+def _connector_detail(body: dict[str, object], connector: str) -> dict[str, Any]:
+    """Narrow a readiness report body's per-connector detail dict for assertions."""
+    connectors = body["connectors"]
+    assert isinstance(connectors, dict)
+    detail = connectors[connector]
+    assert isinstance(detail, dict)
+    return detail
+
+
 class _NotReadySink:
     """A ``Sink`` double that is never ready, for a chosen reason."""
 
     def __init__(self, reason: str) -> None:
         self._reason = reason
 
-    async def submit(self, batch: object) -> object:
+    async def submit(self, batch: SourceIngestionRequest) -> SourceIngestionReceipt:
         raise NotImplementedError
 
-    async def source_status(self, connector: str, stream: str) -> object:
+    async def source_status(
+        self, connector: str, stream: str
+    ) -> SourceIngestStatus:
         raise NotImplementedError
 
-    async def import_pack(self, pack: object) -> object:
+    async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
         raise NotImplementedError
 
     async def readiness(self) -> SinkReadiness:
@@ -98,13 +123,15 @@ class _HangingSink:
     def __init__(self, gate: anyio.Event) -> None:
         self._gate = gate
 
-    async def submit(self, batch: object) -> object:
+    async def submit(self, batch: SourceIngestionRequest) -> SourceIngestionReceipt:
         raise NotImplementedError
 
-    async def source_status(self, connector: str, stream: str) -> object:
+    async def source_status(
+        self, connector: str, stream: str
+    ) -> SourceIngestStatus:
         raise NotImplementedError
 
-    async def import_pack(self, pack: object) -> object:
+    async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
         raise NotImplementedError
 
     async def readiness(self) -> SinkReadiness:
@@ -210,7 +237,7 @@ async def test_readiness_names_a_not_ready_sinks_reason() -> None:
     health.sync_registry(())
     report = await health.readiness()
     assert report.status == 503
-    assert "database connection refused" in report.body["reasons"]
+    assert "database connection refused" in _reasons(report.body)
 
 
 async def test_readiness_503_within_the_timeout_when_the_sink_hangs() -> None:
@@ -220,7 +247,7 @@ async def test_readiness_503_within_the_timeout_when_the_sink_hangs() -> None:
     with anyio.fail_after(5.0):  # generous outer bound; a real block still 503s
         report = await health.readiness()
     assert report.status == 503
-    assert any("timed out" in reason for reason in report.body["reasons"])
+    assert any("timed out" in reason for reason in _reasons(report.body))
 
 
 async def test_probe_sink_readiness_passes_through_and_bounds_a_hang() -> None:
@@ -262,7 +289,7 @@ async def test_readiness_reports_credential_failure_by_name_without_secret(
     rendered = json.dumps(report.body)
     assert "freshrss-agent" in rendered
     assert "CONNECTOR_SYNC_TEST_TOKEN" not in rendered
-    detail = report.body["connectors"]["freshrss-agent"]
+    detail = _connector_detail(report.body, "freshrss-agent")
     assert detail["credentials_ok"] is False
     assert "could not be resolved" in detail["credential_error"]
 
@@ -332,15 +359,15 @@ async def test_note_functions_update_a_real_health_object() -> None:
     health = _health(liveness_window_seconds=30.0)
     note_registry_loaded(health, ("freshrss-agent",))
     note_credentials(health, "freshrss-agent", ok=False, error="boom")
-    detail = (await health.readiness()).body["connectors"]["freshrss-agent"]
+    detail = _connector_detail((await health.readiness()).body, "freshrss-agent")
     assert (detail["credentials_ok"], detail["credential_error"]) == (False, "boom")
 
     note_cycle_success(health, "freshrss-agent")
-    detail = (await health.readiness()).body["connectors"]["freshrss-agent"]
+    detail = _connector_detail((await health.readiness()).body, "freshrss-agent")
     assert detail["consecutive_failures"] == 0
 
     note_cycle_failure(health, "freshrss-agent", next_retry_seconds=2.5)
-    detail = (await health.readiness()).body["connectors"]["freshrss-agent"]
+    detail = _connector_detail((await health.readiness()).body, "freshrss-agent")
     assert (detail["consecutive_failures"], detail["next_retry_seconds"]) == (1, 2.5)
 
     note_heartbeat(health)
@@ -360,7 +387,7 @@ async def test_resolve_endpoint_records_success(tmp_path: Path) -> None:
     )
     endpoint = await resolve_endpoint(built, freshrss_descriptor())
     assert endpoint.url == "https://connector.example.invalid/mcp"
-    detail = (await health.readiness()).body["connectors"]["freshrss-agent"]
+    detail = _connector_detail((await health.readiness()).body, "freshrss-agent")
     assert detail["credentials_ok"] is True
 
 
@@ -376,7 +403,7 @@ async def _endpoint_failure_detail(
     )
     with pytest.raises(CredentialResolutionError):
         await resolve_endpoint(built, freshrss_descriptor(endpoint=endpoint_spec))
-    detail = (await health.readiness()).body["connectors"]["freshrss-agent"]
+    detail = _connector_detail((await health.readiness()).body, "freshrss-agent")
     assert detail["credentials_ok"] is False
     return detail
 

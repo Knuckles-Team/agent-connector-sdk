@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 from epistemic_graph.connector_pack import (
     ConnectorPackArchiveBuilder,
@@ -12,6 +14,7 @@ from epistemic_graph.generated.connector_pack import (
     AgentLibraryMutationContext,
     McpCatalogSnapshotBinding,
     PackEntryKind,
+    PackImportResultImported,
     PackImportResultRejected,
     PackImportResultUnchanged,
 )
@@ -245,6 +248,23 @@ class _PackClient:
         raise AssertionError((method, params, graph))
 
 
+def _call_op(call: tuple[str, dict[str, object] | None, str | None]) -> dict[str, Any]:
+    """Narrow one recorded ``_PackClient`` call's ``params["op"]`` for assertions."""
+    _, params, _ = call
+    assert params is not None
+    operation = params["op"]
+    assert isinstance(operation, dict)
+    return operation
+
+
+def _is_import_call(call: tuple[str, dict[str, object] | None, str | None]) -> bool:
+    method, params, _ = call
+    if method != "ConnectorPack" or params is None:
+        return False
+    operation = params.get("op")
+    return isinstance(operation, dict) and operation.get("op") == "import"
+
+
 def _provenance(tool: str = "reader") -> SourceRecordProvenance:
     return SourceRecordProvenance(
         connector="demo-agent",
@@ -286,16 +306,17 @@ def _batch(
 
 
 def test_generated_provenance_rejects_unknown_fields() -> None:
+    fields_with_unknown_key: dict[str, Any] = {
+        "connector": "demo-agent",
+        "adapter_kind": "mcp_tool",
+        "server": "s",
+        "tool": "t",
+        "tool_schema_sha256": "a" * 64,
+        "source_uri": "u",
+        "copied_sdk_field": "forbidden",
+    }
     with pytest.raises(ValidationError):
-        SourceRecordProvenance(
-            connector="demo-agent",
-            adapter_kind="mcp_tool",
-            server="s",
-            tool="t",
-            tool_schema_sha256="a" * 64,
-            source_uri="u",
-            copied_sdk_field="forbidden",
-        )
+        SourceRecordProvenance(**fields_with_unknown_key)
     with pytest.raises(ValidationError):
         SourceRecordProvenance(
             connector="demo-agent",
@@ -451,11 +472,13 @@ async def test_epistemic_graph_sink_imports_with_live_generated_authority() -> N
         "ConnectorPack",
     ]
     import_call = client.calls[-1]
-    operation = import_call[1]["op"]
+    operation = _call_op(import_call)
     assert operation["request"]["index"]["catalog"] == _catalog().model_dump(
         mode="json"
     )
-    assert import_call[2].startswith("connector-pack:demo-agent:import:")
+    idempotency_key = import_call[2]
+    assert idempotency_key is not None
+    assert idempotency_key.startswith("connector-pack:demo-agent:import:")
 
 
 async def test_epistemic_graph_sink_resolves_pack_authority_for_every_import() -> None:
@@ -516,11 +539,7 @@ async def test_epistemic_graph_sink_retries_one_pack_head_conflict() -> None:
     client = _PackClient(conflict_once=True)
     result = await EpistemicGraphSink(client, authority).import_pack(_pack())
     assert isinstance(result, PackImportResultUnchanged)
-    imports = [
-        call
-        for call in client.calls
-        if call[0] == "ConnectorPack" and call[1]["op"]["op"] == "import"
-    ]
+    imports = [call for call in client.calls if _is_import_call(call)]
     assert len(imports) == 2
     assert imports[0][2] == imports[1][2]
 
@@ -562,6 +581,8 @@ async def test_in_memory_sink_acknowledges_once() -> None:
     pack = _pack()
     first_pack = await sink.import_pack(pack)
     replayed_pack = await sink.import_pack(pack)
+    assert isinstance(first_pack, PackImportResultImported)
+    assert isinstance(replayed_pack, PackImportResultUnchanged)
     assert first_pack.receipt.pack_digest == replayed_pack.pack_digest
     assert list(sink.packs) == [first_pack.receipt.pack_digest]
     assert list(sink.batches) == [batch.canonical_digest()]

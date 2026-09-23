@@ -112,9 +112,9 @@ class EpistemicGraphSink:
             raise ValueError("SourceIngest status does not bind the requested stream")
         return status
 
-    def import_pack(self, pack: CapturedConnectorPack) -> Awaitable[PackImportResult]:
+    async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
         """Resolve current authority and import through the generated facade."""
-        return self._import_pack(pack)
+        return await self._import_pack(pack)
 
     async def _import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
         catalog, context = await self._pack_import_authority(pack.connector)
