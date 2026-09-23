@@ -17,7 +17,7 @@ nav:
   - Capabilities: capabilities.md
   - Status: status.md
   - Architecture: architecture.md
-  - Guides:
+  - Components:
       - Connector servers: connector-servers.md
       - Content over MCP: content-over-mcp.md
       - Source synchronization: connector-sync.md
