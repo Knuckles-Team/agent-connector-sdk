@@ -8,14 +8,15 @@ source batches through the public epistemic-graph client. Epistemic-graph alone
 parses files, resolves cross-file symbols, and owns every semantic or durable
 graph effect.
 
-```mermaid
-flowchart LR
-    A[Authenticated provider client] --> B[Immutable revision pages]
-    B --> C[SDK bounded source batch]
-    C --> D[EG IndexRepository]
-    D --> E[Typed per-file outcomes]
-    D --> F[EG semantic authority]
-```
+<div class="admonition architecture" markdown>
+<p class="admonition-title">Ingestion flow</p>
+
+An authenticated provider client fetches immutable revision pages, which the
+SDK batches into a bounded source batch and hands to EG's
+`IndexRepository`. EG returns typed per-file outcomes and is the semantic
+authority for the ingested content.
+
+</div>
 
 Call `index_repository_snapshot(provider, client, revision, limits=...)`. The
 revision uses the provider/project identity plus immutable revision and tree
