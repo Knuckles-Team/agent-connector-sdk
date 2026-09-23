@@ -192,6 +192,60 @@ def test_decide_runner_is_never_built_for_a_non_eg_sink_or_missing_inputs() -> N
     assert _decide_runner("epistemic_graph", object(), None, None) is None
 
 
+def test_resolve_decide_tenant_env_override_wins(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from agent_connector_sdk.runner.cli import _resolve_decide_tenant
+
+    monkeypatch.delenv("RUNNER_DECIDE_TENANT", raising=False)
+    assert _resolve_decide_tenant("injected-tenant") == "injected-tenant"
+    assert _resolve_decide_tenant(None) is None
+    monkeypatch.setenv("RUNNER_DECIDE_TENANT", "env-tenant")
+    assert _resolve_decide_tenant("injected-tenant") == "env-tenant"
+    assert _resolve_decide_tenant(None) == "env-tenant"
+
+
+def test_cli_main_installs_the_decide_runner_with_a_verified_client(
+    tmp_path: Path, _reset_decide_runner: None
+) -> None:
+    """The real CLI path (``main()``), not just ``default_services`` directly."""
+    empty = tmp_path / "empty.yml"
+    empty.write_text("connectors: []\n")
+    state = ["--state-dir", str(tmp_path / "state")]
+    verified_client = object()
+    exit_code = main(
+        ["--config", str(empty), "--once", *state],
+        sink_client=verified_client,
+        pack_import_authority=_pack_import_authority,
+        decide_tenant="tenant-connector-sync",
+    )
+    assert exit_code == 0
+    runner = decide.current_runner()
+    assert isinstance(runner, EpistemicGraphDecisionRunner)
+    assert runner.tenant == "tenant-connector-sync"
+    assert isinstance(runner.transport, GeneratedTransport)
+    assert runner.transport.client is verified_client
+
+
+def test_cli_main_env_tenant_overrides_the_injected_one(
+    tmp_path: Path, _reset_decide_runner: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("RUNNER_DECIDE_TENANT", "env-tenant")
+    empty = tmp_path / "empty.yml"
+    empty.write_text("connectors: []\n")
+    state = ["--state-dir", str(tmp_path / "state")]
+    exit_code = main(
+        ["--config", str(empty), "--once", *state],
+        sink_client=object(),
+        pack_import_authority=_pack_import_authority,
+        decide_tenant="injected-tenant",
+    )
+    assert exit_code == 0
+    runner = decide.current_runner()
+    assert isinstance(runner, EpistemicGraphDecisionRunner)
+    assert runner.tenant == "env-tenant"
+
+
 def test_cli_exits_2_when_it_cannot_start(tmp_path: Path) -> None:
     (tmp_path / "broken.yml").write_text("connectors: [unclosed")
     assert main(["--config", str(tmp_path / "broken.yml"), "--log-format", "text"]) == 2
