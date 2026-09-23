@@ -132,18 +132,33 @@ def _reset_decide_runner() -> Iterator[None]:
 
 
 def test_default_services_installs_no_decide_runner_without_a_tenant(
-    tmp_path: Path, _reset_decide_runner: None
+    tmp_path: Path, _reset_decide_runner: None, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """Every caller today: unaffected, exactly as before this port existed."""
-    built = default_services(
-        RunnerSettings(),
-        state_dir=tmp_path,
-        sink_name="epistemic_graph",
-        sink_client=object(),
-        pack_import_authority=_pack_import_authority,
-    )
+    """A verified client with no tenant: never invented, logged once."""
+    with caplog.at_level(logging.WARNING):
+        built = default_services(
+            RunnerSettings(),
+            state_dir=tmp_path,
+            sink_name="epistemic_graph",
+            sink_client=object(),
+            pack_import_authority=_pack_import_authority,
+        )
     assert built.decide_runner is None
     assert decide.current_runner() is None
+    warnings = [r for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 1
+    assert "no decide_tenant" in warnings[0].message
+
+
+def test_decide_runner_logs_nothing_for_a_non_eg_sink(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """No verified session at all is unremarkable -- nothing to warn about."""
+    from agent_connector_sdk.runner.composition import _decide_runner
+
+    with caplog.at_level(logging.WARNING):
+        assert _decide_runner("other_sink", None, None, None) is None
+    assert not caplog.records
 
 
 def test_default_services_installs_the_eg_backed_decide_runner_with_a_tenant(

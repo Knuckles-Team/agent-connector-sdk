@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from agent_connector_sdk import decide
@@ -32,6 +33,8 @@ from agent_connector_sdk.runner.services import RunnerServices
 from agent_connector_sdk.sinks.epistemic_graph import PackImportAuthorityResolver
 
 __all__ = ["default_services", "extension_instance"]
+
+_logger = logging.getLogger(__name__)
 
 #: Minimum liveness window regardless of a very short registry-refresh
 #: setting, so a slow-but-healthy loop iteration is never mistaken for a wedge.
@@ -104,8 +107,21 @@ def _decide_runner(
     with reason ``unavailable`` until a future change threads one through;
     an async call site (:func:`agent_connector_sdk.decide.achoose`) already
     works, since it needs no thread bridging.
+
+    Logs once, at ``WARNING``, when a verified EG client exists but no
+    tenant does -- the one case worth an operator's attention (a client
+    without EH-042/043 configured is unremarkable; a client with no tenant
+    to decide as is a configuration gap). Never invents a tenant.
     """
-    if sink_name != "epistemic_graph" or sink_client is None or decide_tenant is None:
+    if sink_name != "epistemic_graph" or sink_client is None:
+        return None
+    if decide_tenant is None:
+        _logger.warning(
+            "epistemic_graph sink has a verified client but no decide_tenant "
+            "(no RUNNER_DECIDE_TENANT override and none was derived from the "
+            "verified session) -- EH-042/043 connector decisions stay their "
+            "deterministic fallback; not installing a decision runner"
+        )
         return None
     transport = GeneratedTransport(client=sink_client)
     if decide_bindings is None:
@@ -148,9 +164,18 @@ def default_services(
     runner (:class:`~agent_connector_sdk.decide.epistemic_graph.EpistemicGraphDecisionRunner`)
     is built over the SAME verified ``sink_client`` and installed process-wide
     (:func:`agent_connector_sdk.decide.install_runner`) -- one composition
-    root, one EG session, both consumers. With no ``decide_tenant`` (every
-    caller today), no runner is installed and every connector-side ``Decide``
-    call site stays exactly its deterministic fallback.
+    root, one EG session, both consumers. ``decide_tenant`` is the caller's
+    own verified session tenant, the same one it authenticated ``sink_client``
+    as -- this function never derives or invents one from ``sink_client``
+    itself (an intentionally opaque ``object`` at this boundary). The
+    ``RUNNER_DECIDE_TENANT`` environment variable, read by
+    :func:`agent_connector_sdk.runner.cli.main`'s entrypoint (never here --
+    see that module's own env-reading convention), overrides it, matching
+    ``config.py``'s "an explicit environment variable always wins" rule. With
+    neither (every caller before this override existed), no runner is
+    installed and every connector-side ``Decide`` call site stays exactly its
+    deterministic fallback -- logged once, at ``WARNING``, only when a
+    verified client exists with no tenant to pair it with.
 
     Raises:
         ExtensionActivationError: an extension is not certified by ``policy``.
