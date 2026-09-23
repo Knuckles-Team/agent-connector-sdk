@@ -146,6 +146,13 @@ repos:
     pass_filenames: false
     always_run: true
     stages: [manual, pre-push]
+  # ── Docs contract ──────────────────────────────────────────────────────────
+  - id: check-external-graph-contract
+    name: External-graph docs — required markers + no environment literals
+    entry: python3 scripts/check_external_graph_contract.py
+    language: system
+    pass_filenames: false
+    files: ^(docs/architecture/(universal-graph-connectors|privacy-safe-ingestion)\.md|scripts/check_external_graph_contract\.py)$
   # ── Wiring ───────────────────────────────────────────────────────────────
   - id: check-orphan-modules
     name: Wiring — no orphan package modules
