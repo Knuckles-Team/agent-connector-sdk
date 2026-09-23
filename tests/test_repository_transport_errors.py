@@ -82,7 +82,11 @@ class _Graph:
         self.calls = 0
 
     async def index_repository(
-        self, files: list[tuple[str, bytes]], *, scope: IndexRepositoryScope
+        self,
+        files: list[tuple[str, bytes]],
+        *,
+        scope: IndexRepositoryScope,
+        graph: str | None,
     ) -> IndexResult:
         self.calls += 1
         digest = f"sha256:{hashlib.sha256(_CONTENT).hexdigest()}"

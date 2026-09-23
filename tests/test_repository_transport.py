@@ -77,11 +77,17 @@ class _Graph:
 
     def __init__(self) -> None:
         self.calls: list[tuple[list[tuple[str, bytes]], IndexRepositoryScope]] = []
+        self.graphs: set[str | None] = set()
 
     async def index_repository(
-        self, files: list[tuple[str, bytes]], *, scope: IndexRepositoryScope
+        self,
+        files: list[tuple[str, bytes]],
+        *,
+        scope: IndexRepositoryScope,
+        graph: str | None,
     ) -> IndexResult:
         self.calls.append((files, scope))
+        self.graphs.add(graph)
         outcomes = [
             {
                 "file_path": path,
@@ -144,10 +150,10 @@ def _client(graph: _Graph) -> EpistemicGraphClient:
 
 async def _index(
     provider: LocalGitRepositoryProvider,
-    graph: _Graph,
+    engine: _Graph,
     **options: Any,
 ) -> RepositoryIndexReceipt:
-    return await index_repository(provider, _client(graph), **options)
+    return await index_repository(provider, _client(engine), **options)
 
 
 def _provider(root: Path) -> _CountingProvider:
@@ -192,8 +198,9 @@ async def test_each_unique_blob_is_fetched_and_submitted_once(repository: Path) 
 async def test_every_ref_keeps_exactly_its_own_memberships(repository: Path) -> None:
     graph = _Graph()
 
-    receipt = await _index(_provider(repository), graph)
+    receipt = await _index(_provider(repository), graph, graph="repositories")
 
+    assert graph.graphs == {"repositories"}
     assert graph.memberships() == _expected_memberships()
     refs = {ref.ref_name: ref for ref in receipt.manifest.refs}
     assert sorted(refs) == ["refs/heads/feature", "refs/heads/main", "refs/tags/v1"]

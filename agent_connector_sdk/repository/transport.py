@@ -68,7 +68,11 @@ def _repository_key(provider: RepositorySnapshotProvider) -> str:
 
 
 def _header(
-    provider: RepositorySnapshotProvider, trees: tuple[RefTree, ...], plan: IndexPlan
+    provider: RepositorySnapshotProvider,
+    trees: tuple[RefTree, ...],
+    plan: IndexPlan,
+    *,
+    graph: str | None,
 ) -> ScopeHeader:
     refs = [
         {
@@ -90,7 +94,9 @@ def _header(
         raise RepositoryTransportError(
             f"repository declares more than {_MAX_REFS} refs"
         )
-    return ScopeHeader(repository_id=_repository_key(provider), refs=tuple(refs))
+    return ScopeHeader(
+        graph=graph, repository_id=_repository_key(provider), refs=tuple(refs)
+    )
 
 
 async def _fetch(
@@ -181,18 +187,20 @@ async def index_repository(
     *,
     prior: RepositoryIndexManifest | None = None,
     limits: RepositoryBatchLimits | None = None,
+    graph: str | None = None,
 ) -> RepositoryIndexReceipt:
     """Index every ref of one repository, parsing each unique blob once.
 
     ``prior`` is the previous run's ``receipt.manifest``: its blobs are not
     fetched again, and paths (or refs) missing since then become tombstones.
+    EG commits each batch's projection durably into ``graph``.
     """
     bounds = limits or RepositoryBatchLimits()
     trees, pages = await walk_refs(provider, page_size=bounds.provider_page_size)
     plan = plan_index(trees, prior)
     run = _Run(
         client=client,
-        header=_header(provider, trees, plan),
+        header=_header(provider, trees, plan, graph=graph),
         batcher=RepositoryBatcher(bounds),
         identities=dict(plan.known),
     )

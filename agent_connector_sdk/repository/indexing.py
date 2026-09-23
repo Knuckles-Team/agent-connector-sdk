@@ -32,8 +32,9 @@ class RepositoryBatchReceipt:
 
 @dataclass(frozen=True)
 class ScopeHeader:
-    """The per-run part of every batch scope: repository and declared refs."""
+    """The per-run part of every batch: target graph, repository and refs."""
 
+    graph: str | None
     repository_id: str
     refs: tuple[dict[str, str], ...]
 
@@ -92,7 +93,9 @@ async def submit_repository_batch(
 ) -> RepositoryBatchReceipt:
     """Make the sole high-level EG call for one batch and validate outcomes."""
     payload = [(item.path, item.content) for item in batch.files]
-    result = await client.graph.index_repository(payload, scope=_scope(header, batch))
+    result = await client.graph.index_repository(
+        payload, scope=_scope(header, batch), graph=header.graph
+    )
     _validate_outcomes(result, batch.files)
     return RepositoryBatchReceipt(
         paths=tuple(item.path for item in batch.files),
