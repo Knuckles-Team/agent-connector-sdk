@@ -16,7 +16,16 @@ nav:
   - Build your first connector: tutorial.md
   - Capabilities: capabilities.md
   - Status: status.md
-  - Architecture: architecture.md
+  - Architecture:
+      - Overview: architecture.md
+      - Connectors & ingestion: architecture/connectors-and-ingestion.md
+      - Bidirectional ETL hub: architecture/etl-hub.md
+      - Chunked async drain: architecture/chunked-async-drain.md
+      - Content-aware ingestion: architecture/content-aware-ingestion.md
+      - Camunda + ARIS integration: architecture/camunda-aris-integration.md
+      - CISO Assistant integration: architecture/ciso-assistant-integration.md
+      - Privacy-safe external ingestion: architecture/privacy-safe-ingestion.md
+      - Universal external graph connectors: architecture/universal-graph-connectors.md
   - Components:
       - Connector servers: connector-servers.md
       - Content over MCP: content-over-mcp.md

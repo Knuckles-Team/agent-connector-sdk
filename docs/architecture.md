@@ -131,3 +131,24 @@ and blocks a retry while an effect remains uncertain.
 
 See [Extension ports](extension-ports.md) for protocol details and
 [Connector sync](connector-sync.md) for runtime configuration.
+
+## Connector subsystem architecture
+
+Deep-dive pages for individual connector families and the ingestion machinery
+they share, relocated here from agent-utilities per RF-ADR-009 (SDK owns
+connectors, transport, repository hydration, and write-back):
+
+- [Connectors & ingestion](architecture/connectors-and-ingestion.md) — the
+  unified ingestion architecture: one entrypoint, one provenance contract, one
+  delta model, ~40+ connectors.
+- [Bidirectional ETL hub](architecture/etl-hub.md) — Stardog SPARQL data
+  backend, `graph_etl`, and ETL lineage.
+- [Chunked async drain](architecture/chunked-async-drain.md) — capacity-guarded
+  background waves for a large single-source full re-ingest.
+- [Content-aware ingestion](architecture/content-aware-ingestion.md) —
+  ArchiveBox/crawl4ai/scholarx pluggable fetch and research acquisition.
+- [Camunda + ARIS integration](architecture/camunda-aris-integration.md)
+- [CISO Assistant integration](architecture/ciso-assistant-integration.md)
+- [Privacy-safe external ingestion](architecture/privacy-safe-ingestion.md) —
+  governed GraphQL/property-graph external-source lifecycle.
+- [Universal external graph connectors](architecture/universal-graph-connectors.md)
