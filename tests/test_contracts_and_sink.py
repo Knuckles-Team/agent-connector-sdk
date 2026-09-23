@@ -8,14 +8,13 @@ from epistemic_graph.connector_pack import (
     ConnectorPackEntryContent,
     pack_digest,
 )
+from epistemic_graph.generated import connector_pack as _generated_connector_pack
 from epistemic_graph.generated.connector_pack import (
     AgentLibraryMutationContext,
     McpCatalogSnapshotBinding,
-    PackAnnotations,
     PackEntryKind,
     PackImportResultRejected,
     PackImportResultUnchanged,
-    PackToolMode,
 )
 from epistemic_graph.generated.source_ingestion import (
     SourceCheckpoint,
@@ -395,6 +394,15 @@ def test_small_descriptors() -> None:
         SourceCheckpoint.model_validate({"stream": "s", "position": {}, "copied": True})
 
 
+@pytest.mark.skipif(
+    not hasattr(_generated_connector_pack, "PackToolMode"),
+    reason=(
+        "PackAnnotations.tool_mode / PackToolMode ship on EG feat/pack-complete "
+        "(33fccec61) only; the installed epistemic-graph predates it (train 3's "
+        "eg-pack lane has not landed / the shared wheel has not been restaged -- "
+        "see /var/tmp/l9/finish/eg-wheel/REBUILD.md). Remove this guard once it lands."
+    ),
+)
 def test_tool_mode_annotation_joins_the_pack_digest() -> None:
     """EH-213 exact-type proof (EG `feat/pack-complete` 33fccec61, ``172696e1c..33fccec61``):
 
@@ -405,8 +413,10 @@ def test_tool_mode_annotation_joins_the_pack_digest() -> None:
     with zero SDK code changes. This proves that against the exact pack-complete facade: two
     packs identical except for one tool's ``tool_mode`` must not collide.
     """
+    PackAnnotations = _generated_connector_pack.PackAnnotations
+    PackToolMode = _generated_connector_pack.PackToolMode
 
-    def _pack_digest_for(tool_mode: PackToolMode | None) -> str:
+    def _pack_digest_for(tool_mode: object | None) -> str:
         server_entry = ConnectorPackEntryContent(
             kind=PackEntryKind.MCP_SERVER,
             uri="mcp-server://demo-agent",
