@@ -1,6 +1,6 @@
 # KISS thresholds for agent-connector-sdk (kiss 0.4.10).
 #
-# Source: agent-packages/agent-utilities/.kiss/kiss.toml, [python] section, whose
+# Source: agent-packages/agent-utilities/.config/kiss.toml, [python] section, whose
 # values were hand-set and measured over the fleet's Python code. They are copied
 # unchanged; none was derived from what this repository currently passes.
 # This file is NOT a baseline.

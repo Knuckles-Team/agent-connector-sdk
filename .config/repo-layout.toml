@@ -1,0 +1,25 @@
+# Tracked root entries of agent-connector-sdk, read by the shared root-hygiene hook.
+# An allowlist: a new root entry needs a reason here or it fails the gate, and an
+# entry that is no longer tracked fails as stale. Every tool input that accepts a
+# path override lives in .config/; the root keeps only what a tool discovers
+# nowhere else.
+
+[dirs]
+".config" = "tool configuration: pre-commit suite (pre-commit -c), bump2version (--config-file), KISS thresholds, this manifest, generated MkDocs theme overrides (custom_dir)"
+".github" = "GitHub Actions workflows (GitHub discovers only .github/)"
+agent_connector_sdk = "the importable SDK package"
+scripts = "the SDK's own wiring gates (scripts/check_wiring.py) run by pre-commit and CI"
+tests = "the test suite, including the in-process fixture connector"
+docs = "public GitHub Pages sources and generated shared-theme assets"
+
+[files]
+"AGENTS.md" = "agent-facing repository guide (agents discover it at the root)"
+"CLAUDE.md" = "Claude Code instructions (imports AGENTS.md; discovered at the root)"
+"LICENSE" = "license text (GitHub and packaging detect it at the root)"
+"README.md" = "project readme and PyPI long description; carries the version marker bump2version updates"
+"mkdocs.yml" = "Pages site configuration; mkdocs and the shared pages_pipeline/readiness TCK read it only at the root, and its INHERIT/docs_dir paths are root-relative"
+"pyproject.toml" = "package metadata, tool configuration, shared-hook configuration, public module list"
+"uv.lock" = "uv lockfile (uv discovers it only beside pyproject.toml)"
+
+[dotfiles]
+".gitignore" = "git exclusion patterns (git reads only the root file; carries the fleet-shared REQUIRED set)"

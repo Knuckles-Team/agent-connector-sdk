@@ -47,7 +47,7 @@ the `phase-direction` gate.
 | `agent_connector_sdk/testing/` | reusable connector conformance suites |
 | `tests/` | unit, integration, contract, and gate tests |
 | `docs/` | public GitHub Pages sources and generated shared-theme assets |
-| `overrides/` | shared MkDocs Material template overrides |
+| `.config/` | tool configuration: pre-commit suite, bump2version, KISS thresholds, root-layout manifest, generated MkDocs theme overrides |
 
 The public Python surface is declared in
 `pyproject.toml` under `[tool.agent_connector_sdk.wiring]`. Every module must be
@@ -74,8 +74,8 @@ uvx --from ruff==0.16.0 ruff format --check agent_connector_sdk tests
 uv run --frozen --only-group docs mkdocs build --strict
 python scripts/check_wiring.py orphans
 python scripts/check_wiring.py public-api
-pre-commit run --all-files
-pre-commit run --all-files --hook-stage pre-push
+pre-commit run -c .config/pre-commit.yaml --all-files
+pre-commit run -c .config/pre-commit.yaml --all-files --hook-stage pre-push
 ```
 
 Run the shared documentation contract directly while editing public surfaces:

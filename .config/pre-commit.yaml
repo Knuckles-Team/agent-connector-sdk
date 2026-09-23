@@ -52,7 +52,7 @@ repos:
     stages: [pre-push, manual]
 # ── Shared gates (Knuckles-Team/pipelines, pinned) ─────────────────────────────
 - repo: https://github.com/Knuckles-Team/pipelines
-  rev: 444b232c7975e125a24b17d53ff615f5ad26a4cd
+  rev: 1d12b14a9f51c889316591c6314f4fc835660870
   hooks:
   # scanners (pinned versions; never installed by a hook)
   - id: complexity-staged
@@ -189,7 +189,7 @@ repos:
           if command -v "$candidate" >/dev/null 2>&1; then bump2version_bin="$candidate"; break; fi
         done
         if [ -z "$bump2version_bin" ]; then echo "check-bumpversion: bump2version is not installed" >&2; exit 127; fi
-        "$bump2version_bin" patch --dry-run --allow-dirty
+        "$bump2version_bin" --config-file .config/bumpversion.cfg patch --dry-run --allow-dirty
       '
     language: system
     pass_filenames: false
