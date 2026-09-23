@@ -11,9 +11,11 @@ from epistemic_graph.connector_pack import (
 from epistemic_graph.generated.connector_pack import (
     AgentLibraryMutationContext,
     McpCatalogSnapshotBinding,
+    PackAnnotations,
     PackEntryKind,
     PackImportResultRejected,
     PackImportResultUnchanged,
+    PackToolMode,
 )
 from epistemic_graph.generated.source_ingestion import (
     SourceCheckpoint,
@@ -391,6 +393,43 @@ def test_small_descriptors() -> None:
     assert report.missing_from_source == ("1",)
     with pytest.raises(ValidationError):
         SourceCheckpoint.model_validate({"stream": "s", "position": {}, "copied": True})
+
+
+def test_tool_mode_annotation_joins_the_pack_digest() -> None:
+    """EH-213 exact-type proof (EG `feat/pack-complete` 33fccec61, ``172696e1c..33fccec61``):
+
+    the facade bumped ``_ANNOTATIONS_DIGEST_DOMAIN`` v1 -> v2 in the SAME range that added
+    ``PackAnnotations.tool_mode`` -- a wire/digest change, not merely an additive field. The
+    SDK never reimplements ``pack_digest``; it imports it from ``epistemic_graph.connector_pack``
+    unmodified, so once a connector declares ``tool_mode`` the digest picks it up automatically
+    with zero SDK code changes. This proves that against the exact pack-complete facade: two
+    packs identical except for one tool's ``tool_mode`` must not collide.
+    """
+
+    def _pack_digest_for(tool_mode: PackToolMode | None) -> str:
+        server_entry = ConnectorPackEntryContent(
+            kind=PackEntryKind.MCP_SERVER,
+            uri="mcp-server://demo-agent",
+            name="demo-agent",
+            media_type="application/json",
+            body=b'{"name": "demo-agent", "version": "1.0.0"}',
+        )
+        tool_entry = ConnectorPackEntryContent(
+            kind=PackEntryKind.TOOL,
+            uri="tool://demo-mcp/moded",
+            name="moded",
+            media_type="application/json",
+            body=b'{"name": "moded"}',
+            input_schema=b'{"type": "object"}',
+            annotations=PackAnnotations(tool_mode=tool_mode),
+        )
+        archive = ConnectorPackArchiveBuilder.build(server_entry, (tool_entry,))
+        return pack_digest("demo-agent", _catalog(), archive.server, archive.entries)
+
+    condensed = _pack_digest_for(PackToolMode.CONDENSED)
+    verbose = _pack_digest_for(PackToolMode.VERBOSE)
+    unset = _pack_digest_for(None)
+    assert len({condensed, verbose, unset}) == 3
 
 
 async def test_epistemic_graph_sink_uses_generated_source_ingest_end_to_end() -> None:

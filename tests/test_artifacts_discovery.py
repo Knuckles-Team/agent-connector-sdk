@@ -320,6 +320,49 @@ async def test_tool_annotations_and_certified_pin_reach_generated_pack() -> None
     assert len(annotations.sdk_contract_pin) == 64
 
 
+@pytest.mark.parametrize("declared_mode", ["condensed", "verbose"])
+async def test_tool_mode_annotation_reaches_generated_pack(declared_mode: str) -> None:
+    """EH-213: ``PackAnnotations.tool_mode`` (EG `feat/pack-complete` 33fccec61) is a
+    connector-declared claim like every other ``eg.annotations`` field (RF §5.1's "the
+    pack builder's declaration, EG never re-derives it" -- ``catalog_attributes.rs``'s
+    own comment). It reaches the generated pack through the SAME generic
+    ``_declared_annotations``/``PackAnnotations.model_validate`` path every other
+    annotation uses, so no SDK code names the field explicitly -- this proves that
+    generic path already targets the exact pack-complete shape with zero SDK changes.
+    """
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "moded",
+            "inputSchema": {"type": "object"},
+            "_meta": {"eg.annotations": {"tool_mode": declared_mode}},
+        }
+    )
+    session = SimpleNamespace(
+        server_identity=AsyncMock(return_value=SERVER),
+        list_tools=AsyncMock(return_value=[tool]),
+    )
+    pack = await build_content_pack(
+        session, connector="demo-agent", kinds=(ToolArtifactKind(),)
+    )
+    annotations = pack.archive.entries[0].annotations
+    assert annotations is not None
+    assert annotations.tool_mode is not None
+    assert annotations.tool_mode.value == declared_mode
+
+
+async def test_tool_mode_rejects_a_value_outside_the_generated_enum() -> None:
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "mismoded",
+            "inputSchema": {"type": "object"},
+            "_meta": {"eg.annotations": {"tool_mode": "both"}},
+        }
+    )
+    session = SimpleNamespace(list_tools=AsyncMock(return_value=[tool]))
+    with pytest.raises(MalformedArtifactError, match="eg\\.annotations is malformed"):
+        await ToolArtifactKind().list_entries(session, SERVER)
+
+
 async def test_tool_annotation_conflict_fails_closed() -> None:
     tool = mcp_types.Tool.model_validate(
         {
