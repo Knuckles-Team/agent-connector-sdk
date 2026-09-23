@@ -86,8 +86,9 @@ pre-commit try-repo ../pipelines public-surface --all-files
 
 ## Quality gates
 
-The repository consumes shared, pinned hooks from
-[`Knuckles-Team/pipelines`](https://github.com/Knuckles-Team/pipelines) and keeps
+The repository consumes shared hooks from
+[`Knuckles-Team/pipelines`](https://github.com/Knuckles-Team/pipelines) at `main`
+-- the one sanctioned exception to this repo's immutable-pin policy -- and keeps
 repository-specific settings in `[tool.pipelines_hooks]`.
 
 - **Public surface:** README badges, headings, Pages links, local links, document
