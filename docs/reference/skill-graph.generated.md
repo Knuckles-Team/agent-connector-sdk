@@ -9,7 +9,15 @@ Every concept and component this repo's own registries and documentation nav dec
 
 ## Architecture
 
-- **Architecture** — `architecture.md`
+- **Overview** — `architecture.md`
+- **Connectors & ingestion** — `architecture/connectors-and-ingestion.md`
+- **Bidirectional ETL hub** — `architecture/etl-hub.md`
+- **Chunked async drain** — `architecture/chunked-async-drain.md`
+- **Content-aware ingestion** — `architecture/content-aware-ingestion.md`
+- **Camunda + ARIS integration** — `architecture/camunda-aris-integration.md`
+- **CISO Assistant integration** — `architecture/ciso-assistant-integration.md`
+- **Privacy-safe external ingestion** — `architecture/privacy-safe-ingestion.md`
+- **Universal external graph connectors** — `architecture/universal-graph-connectors.md`
 
 ## Build your first connector
 
@@ -19,7 +27,7 @@ Every concept and component this repo's own registries and documentation nav dec
 
 - **Capabilities** — `capabilities.md`
 
-## Guides
+## Components
 
 - **Connector servers** — `connector-servers.md`
 - **Content over MCP** — `content-over-mcp.md`
@@ -39,6 +47,7 @@ Every concept and component this repo's own registries and documentation nav dec
 - **Conformance kit** — `conformance-kit.md`
 - **Quality gates** — `quality-gates.md`
 - **Ecosystem glossary** — `glossary.md`
+- **Skill graph reference** — `reference/skill-graph.generated.md`
 
 ## Status
 
