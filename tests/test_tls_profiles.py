@@ -199,7 +199,7 @@ def test_selection_errors(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_resolution_rejects_unsafe_profiles(
     certificates: CertificateSet, tmp_path: Path
 ) -> None:
-    cases = [
+    cases: list[tuple[dict[str, object], str]] = [
         ({"verify": False}, "tls_verification_control_rejected"),
         ({"allow_insecure": True}, "tls_verification_control_rejected"),
         ({"system_trust": False}, "tls_trust_anchor_missing"),
@@ -293,7 +293,10 @@ def test_database_adapters_reject_proxies(tmp_path: Path) -> None:
 def test_configure_requests_session(certificates: CertificateSet) -> None:
     class Session:
         def __init__(self) -> None:
-            self.trust_env, self.verify, self.cert, self.proxies = True, True, None, {}
+            self.trust_env = True
+            self.verify = True
+            self.cert: str | None = None
+            self.proxies: dict[str, str] = {}
 
     profile = resolve_tls_profile(
         "demo",

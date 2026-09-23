@@ -228,6 +228,7 @@ async def test_tool_annotations_and_certified_pin_reach_generated_pack() -> None
     assert annotations.contract_version == "1.2.3"
     assert annotations.read_only_hint is True
     assert annotations.open_world_hint is False
+    assert annotations.sdk_contract_pin is not None
     assert len(annotations.sdk_contract_pin) == 64
 
 

@@ -143,7 +143,9 @@ async def test_static_auth(monkeypatch: pytest.MonkeyPatch) -> None:
         )
     )
     verifier = configure_static_auth(inputs)
-    assert (await verifier.verify_token(TOKEN)).client_id == "svc"
+    verified_token = await verifier.verify_token(TOKEN)
+    assert verified_token is not None
+    assert verified_token.client_id == "svc"
     assert await verifier.verify_token("x" * 40) is None
     with pytest.raises(AuthConfigurationError):
         configure_static_auth(AuthInputs(args=_args("--auth-type", "static")))
@@ -252,7 +254,12 @@ async def test_any_realm_verifier_and_hardened_verifier() -> None:
             return self.value
 
     verifier = any_realm_verifier([Fixed(None), Fixed("ok")], required_scopes=None)
-    assert await verifier.verify_token("x") == "ok"
+    # `Fixed.verify_token` deliberately returns a raw value rather than a real
+    # `AccessToken`, to exercise the "first non-None wins" combinator without
+    # constructing one; the real `TokenVerifier.verify_token` contract is
+    # `AccessToken | None`, so the raw value is opaque to the type checker here.
+    verified: Any = await verifier.verify_token("x")
+    assert verified == "ok"
     assert (
         await hardened_jwt_verifier(
             public_key=RSAKeyPair.generate().public_key

@@ -6,6 +6,7 @@ import logging
 import ssl
 from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
+from typing import Any
 
 import httpx
 import pytest
@@ -84,7 +85,7 @@ def _client(
 
 
 def test_options_fail_closed(caplog: pytest.LogCaptureFixture) -> None:
-    rejected = [
+    rejected: list[dict[str, Any]] = [
         {"base_url": "ftp://api.example.invalid"},
         {"base_url": f"https://{_USERINFO}@api.example.invalid"},
         {"base_url": "https://api.example.invalid", "timeout": float("inf")},

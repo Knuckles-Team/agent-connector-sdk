@@ -159,12 +159,14 @@ def test_client_credentials_cache_refresh_and_failure(
         audience="api",
         scope="read",
     )
-    assert provider.access_token_ttl is None
+    initial_ttl = provider.access_token_ttl
+    assert initial_ttl is None
     token_server.enqueue(
         _token("first", 120), _token("second"), ScriptedResponse(status=500)
     )
     assert provider.get_token() == provider.get_token() == "first"
-    assert provider.access_token_ttl == 120
+    ttl = provider.access_token_ttl
+    assert ttl == 120
     assert provider.get_token(force=True) == "second"
     form = parse_qs(token_server.requests[0].body.decode())
     assert form == {

@@ -95,7 +95,7 @@ def test_tool_mode_reads_setting(monkeypatch: pytest.MonkeyPatch) -> None:
 
 async def test_register_verbose_tools_typed_and_params_json() -> None:
     mcp: FastMCP[Any] = FastMCP("demo")
-    manifest = [
+    manifest: list[dict[str, Any]] = [
         {
             "method": "get_item",
             "summary": "Typed get",

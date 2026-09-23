@@ -62,10 +62,11 @@ def test_fold_body_arguments() -> None:
 async def test_run_blocking_and_invoke_client_method() -> None:
     assert await run_blocking(Client().get_movie, 3) == {"id": 3}
     with pytest.raises(TypeError):
-        await run_blocking(Client().delete_item, "x")
+        _ = await run_blocking(Client().delete_item, "x")
     with pytest.raises(TypeError):
-        await run_blocking(lambda: Client().delete_item("x"))
-    assert await invoke_client_method(Client().delete_item, "gone") == "gone"
+        _ = await run_blocking(lambda: Client().delete_item("x"))
+    deleted: str = await invoke_client_method(Client().delete_item, "gone")
+    assert deleted == "gone"
     result = await invoke_client_method(Client().create_item, project_id="p", title="t")
     assert result == {"project_id": "p", "data": {"title": "t"}}
 

@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass, field
-from enum import StrEnum
 from typing import cast
 
 import pytest
 from epistemic_graph.client import EpistemicGraphClient
+from epistemic_graph.generated.index_repository import IndexFileStatus, IndexResult
 
 from agent_connector_sdk.repository import (
     RepositoryAuthentication,
@@ -42,16 +42,10 @@ def _revision(tree: str = "b") -> RepositoryRevision:
     )
 
 
-class _Status(StrEnum):
-    SUCCESS = "success"
-    UNSUPPORTED = "unsupported"
-    ERROR = "error"
-
-
 @dataclass
 class _Outcome:
     file_path: str
-    status: _Status
+    status: IndexFileStatus
     content_digest: str
     parser_capability_digest: str = f"sha256:{'c' * 64}"
     diagnostics: list[object] = field(default_factory=list)
@@ -64,7 +58,7 @@ class _Result:
 
 
 class _Graph:
-    def __init__(self, statuses: dict[str, _Status] | None = None) -> None:
+    def __init__(self, statuses: dict[str, IndexFileStatus] | None = None) -> None:
         self.calls: list[list[tuple[str, bytes]]] = []
         self.statuses = statuses or {}
         self.results: list[_Result] = []
@@ -72,7 +66,11 @@ class _Graph:
     async def index_repository(self, files: list[tuple[str, bytes]]) -> _Result:
         self.calls.append(files)
         outcomes = [
-            _Outcome(path, self.statuses.get(path, _Status.SUCCESS), _digest(content))
+            _Outcome(
+                path,
+                self.statuses.get(path, IndexFileStatus.SUCCESS),
+                _digest(content),
+            )
             for path, content in files
         ]
         result = _Result(outcomes, [{"native": "engine-owned"}])
@@ -139,7 +137,7 @@ async def test_pages_are_combined_into_one_native_repository_batch() -> None:
     assert graph.calls == [[("a.py", b"a = 1\n"), ("b.rs", b"fn b() {}\n")]]
     assert [call[1] for call in provider.calls] == [None, "page:2"]
     assert receipt.provider_pages == 2
-    assert receipt.batches[0].result is graph.results[0]
+    assert receipt.batches[0].result is cast(IndexResult, graph.results[0])
     assert graph.results[0].nodes == [{"native": "engine-owned"}]
 
 
@@ -157,12 +155,14 @@ async def test_typed_outcomes_tombstones_and_revision_metadata_are_preserved() -
     provider = _Provider(
         [RepositoryPage(revision=revision, files=files, tombstones=(deleted,))]
     )
-    graph = _Graph({"notes.txt": _Status.UNSUPPORTED, "broken.py": _Status.ERROR})
+    graph = _Graph(
+        {"notes.txt": IndexFileStatus.UNSUPPORTED, "broken.py": IndexFileStatus.ERROR}
+    )
 
     receipt = await index_repository_snapshot(provider, _client(graph), revision)
 
     outcomes = receipt.batches[0].result.file_outcomes
-    assert [outcome.status for outcome in outcomes] == list(_Status)
+    assert [outcome.status for outcome in outcomes] == list(IndexFileStatus)
     assert receipt.revision == revision
     assert receipt.authentication == provider.authentication
     assert receipt.manifest.tombstones == (deleted,)
