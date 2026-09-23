@@ -30,3 +30,4 @@ nav:
       - Conformance kit: conformance-kit.md
       - Quality gates: quality-gates.md
       - Ecosystem glossary: glossary.md
+      - Skill graph reference: reference/skill-graph.generated.md
