@@ -2,7 +2,7 @@
 #
 # Repository-agnostic complexity, clone, security, privacy, supply-chain,
 # hygiene, code-shape, documentation, and CI-replica gates come from the shared
-# Knuckles-Team/pipelines repository at a pinned commit. Repository-specific
+# Knuckles-Team/pipelines repository at `main` (the sanctioned exception). Repository-specific
 # settings live in `pyproject.toml` under `[tool.pipelines_hooks]`.
 default_install_hook_types: [pre-commit, pre-push]
 default_stages: [pre-commit]
