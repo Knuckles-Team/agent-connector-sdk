@@ -7,11 +7,9 @@ from pathlib import Path
 
 from agent_connector_sdk import decide
 from agent_connector_sdk.credentials.resolution import default_credential_resolver
-from agent_connector_sdk.decide.epistemic_graph import (
-    EpistemicGraphDecisionRunner,
-    GeneratedTransport,
-)
+from agent_connector_sdk.decide.epistemic_graph import EpistemicGraphDecisionRunner
 from agent_connector_sdk.decide.points import Bindings
+from agent_connector_sdk.decide.transport import GeneratedTransport
 from agent_connector_sdk.discovery import (
     ARTIFACT_KIND_GROUP,
     SINK_GROUP,
@@ -84,6 +82,7 @@ def _sink_arguments(
 def _decide_runner(
     sink_name: str,
     sink_client: object | None,
+    *,
     decide_tenant: str | None,
     decide_bindings: Bindings | None,
 ) -> DecisionRunner | None:
@@ -194,7 +193,12 @@ def default_services(
     if not isinstance(transport, Transport) or not isinstance(sink, Sink):
         raise ExtensionDiscoveryError("transport or sink extension has the wrong port")
     window = max(3 * settings.registry_refresh_seconds, _MIN_LIVENESS_WINDOW_SECONDS)
-    runner = _decide_runner(sink_name, sink_client, decide_tenant, decide_bindings)
+    runner = _decide_runner(
+        sink_name,
+        sink_client,
+        decide_tenant=decide_tenant,
+        decide_bindings=decide_bindings,
+    )
     if runner is not None:
         decide.install_runner(runner)
     return RunnerServices(

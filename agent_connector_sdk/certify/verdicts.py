@@ -65,7 +65,7 @@ def pin_locations(checkout: ConnectorCheckout, tool: str) -> dict[str, str]:
 
 
 def _status(
-    tool: str, live: tuple[str, str], pins: Sequence[str], output_pin: str | None
+    tool: str, live: tuple[str, str], *, pins: Sequence[str], output_pin: str | None
 ) -> PinStatus:
     """``live`` is the live (contract, output-schema) digest pair."""
     if any(pin and is_empty_schema_pin(tool, pin) for pin in pins):
@@ -114,7 +114,7 @@ def _verdict(
         tool=tool,
         presets=checkout.presets_for(tool),
         pins=pins,
-        status=_status(tool, live, list(pins.values()), output_pin),
+        status=_status(tool, live, pins=list(pins.values()), output_pin=output_pin),
         live=live[0],
         output_schema_sha256=live[1],
         output_pin=output_pin,

@@ -306,15 +306,7 @@ async def test_tool_annotations_and_certified_pin_reach_generated_pack() -> None
             },
         }
     )
-    session = SimpleNamespace(
-        server_identity=AsyncMock(return_value=SERVER),
-        list_tools=AsyncMock(return_value=[tool]),
-    )
-    pack = await build_content_pack(
-        session, connector="demo-agent", kinds=(ToolArtifactKind(),)
-    )
-    annotations = pack.archive.entries[0].annotations
-    assert annotations is not None
+    annotations = await _single_tool_pack_annotations(tool)
     assert annotations.provides == ["eg:capability/annotated"]
     assert annotations.modalities_in == ["eg:modality/text"]
     assert annotations.contract_version == "1.2.3"
@@ -341,6 +333,13 @@ async def test_tool_mode_annotation_reaches_generated_pack(declared_mode: str) -
             "_meta": {"eg.annotations": {"tool_mode": declared_mode}},
         }
     )
+    annotations = await _single_tool_pack_annotations(tool)
+    assert annotations.tool_mode is not None
+    assert annotations.tool_mode.value == declared_mode
+
+
+async def _single_tool_pack_annotations(tool: Any) -> PackAnnotations:
+    """Build a one-tool content pack and return its (present) annotations."""
     session = SimpleNamespace(
         server_identity=AsyncMock(return_value=SERVER),
         list_tools=AsyncMock(return_value=[tool]),
@@ -350,8 +349,7 @@ async def test_tool_mode_annotation_reaches_generated_pack(declared_mode: str) -
     )
     annotations = pack.archive.entries[0].annotations
     assert annotations is not None
-    assert annotations.tool_mode is not None
-    assert annotations.tool_mode.value == declared_mode
+    return annotations
 
 
 async def _tool_pack_entry(tool: Any) -> Any:
@@ -443,15 +441,7 @@ async def test_tool_cost_and_latency_annotations_reach_generated_pack() -> None:
             },
         }
     )
-    session = SimpleNamespace(
-        server_identity=AsyncMock(return_value=SERVER),
-        list_tools=AsyncMock(return_value=[tool]),
-    )
-    pack = await build_content_pack(
-        session, connector="demo-agent", kinds=(ToolArtifactKind(),)
-    )
-    annotations = pack.archive.entries[0].annotations
-    assert annotations is not None
+    annotations = await _single_tool_pack_annotations(tool)
     assert annotations.cost is not None
     assert annotations.cost.currency == "USD"
     assert annotations.latency_declared is not None

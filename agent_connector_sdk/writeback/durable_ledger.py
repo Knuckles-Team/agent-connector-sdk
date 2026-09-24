@@ -31,6 +31,7 @@ from pydantic import TypeAdapter
 
 from agent_connector_sdk.writeback.durable_files import _read_json, _write_json_atomic
 from agent_connector_sdk.writeback.errors import WriteBackPersistenceError
+from agent_connector_sdk.writeback.records import receipt_page
 
 __all__ = ["FileWriteBackLedger"]
 
@@ -118,17 +119,9 @@ class FileWriteBackLedger:
     ) -> WriteBackReceiptPage:
         """Read an ordered page of append-only receipts."""
         self._existing_change_set()
-        after = after_sequence or 0
-        remaining = [
-            record
-            for record in self._read_receipts()
-            if record.receipt.sequence > after
-        ]
-        selected = remaining[:limit]
-        next_sequence = (
-            selected[-1].receipt.sequence if len(remaining) > limit else None
+        return receipt_page(
+            self._read_receipts(), after_sequence=after_sequence, limit=limit
         )
-        return WriteBackReceiptPage(receipts=selected, next_sequence=next_sequence)
 
     def _read_change_set(self) -> SourceChangeSet | None:
         payload = _read_json(self._change_set_path)

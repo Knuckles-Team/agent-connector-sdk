@@ -9,7 +9,7 @@ tests here.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -66,9 +66,7 @@ class FakeRunner:
         question_id: str,
         options: Sequence[Option],
         fallback: Fallback,
-        *,
-        params: Iterable[Mapping[str, Any]] = (),
-        candidates: Mapping[str, Any] | None = None,
+        **kwargs: Any,
     ) -> Choice:
         return self._reply(question_id, options, fallback)
 

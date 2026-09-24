@@ -97,14 +97,10 @@ def _advisory(outcome: Mapping[str, Any]) -> dict[str, int]:
     }
 
 
-def read_batch(batch: Any, offered: frozenset[str]) -> Reading:
-    """Read one ``DecisionBatch``: an executed, offered option, or why not."""
-    record = _record_of(batch)
-    if record is None:
-        return Reading(None, "unavailable: empty decision batch", None, {})
-    outcome = record.get("outcome")
-    if not isinstance(outcome, Mapping):
-        return Reading(None, "unavailable: malformed outcome", record, {})
+def _read_outcome(
+    outcome: Mapping[str, Any], record: Mapping[str, Any], offered: frozenset[str]
+) -> Reading:
+    """Read a well-formed outcome: executed-and-offered, foreign, advisory, abstained."""
     kind = str(outcome.get("outcome"))
     if kind in _EXECUTING:
         chosen = str(outcome.get("option_id"))
@@ -114,6 +110,17 @@ def read_batch(batch: Any, offered: frozenset[str]) -> Reading:
     if kind == "advisory":
         return Reading(None, "advisory", record, _advisory(outcome))
     return Reading(None, f"abstained: {_reasons(outcome)}", record, {})
+
+
+def read_batch(batch: Any, offered: frozenset[str]) -> Reading:
+    """Read one ``DecisionBatch``: an executed, offered option, or why not."""
+    record = _record_of(batch)
+    if record is None:
+        return Reading(None, "unavailable: empty decision batch", None, {})
+    outcome = record.get("outcome")
+    if not isinstance(outcome, Mapping):
+        return Reading(None, "unavailable: malformed outcome", record, {})
+    return _read_outcome(outcome, record, offered)
 
 
 def sampled(point: DecisionPoint, record: Mapping[str, Any]) -> bool:

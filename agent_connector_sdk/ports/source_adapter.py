@@ -7,31 +7,14 @@ from typing import Protocol, runtime_checkable
 from epistemic_graph.generated.source_ingestion import SourceCheckpoint
 
 from agent_connector_sdk.contracts import (
-    CapabilityDescriptor,
     ReconciliationReport,
     RecordPage,
     StreamDescriptor,
 )
+from agent_connector_sdk.ports.describes_capabilities import DescribesCapabilities
 from agent_connector_sdk.ports.session import McpSession
 
-__all__ = ["DescribesCapabilities", "SourceAdapter"]
-
-
-@runtime_checkable
-class DescribesCapabilities(Protocol):
-    """The subset of ``SourceAdapter`` needed to check its capability descriptor.
-
-    Conformance checks that only inspect ``describe()``/``kind`` (e.g.
-    ``check_capability_descriptor``) should depend on this, not the full
-    ``SourceAdapter``, so a conformance-only test double never needs to also
-    implement ``discover``/``extract``/``reconcile``.
-    """
-
-    kind: str
-
-    def describe(self) -> CapabilityDescriptor:
-        """Declare the adapter's capabilities; must not perform I/O."""
-        ...
+__all__ = ["SourceAdapter"]
 
 
 @runtime_checkable

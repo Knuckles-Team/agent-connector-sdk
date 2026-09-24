@@ -12,6 +12,8 @@ import json
 from collections.abc import Mapping
 from typing import Any
 
+from agent_connector_sdk.manifest.schema_canonical import normalize_schema, to_jsonable
+
 __all__ = [
     "COMPATIBILITY_FINGERPRINT_ALGORITHM",
     "ToolSchemaContractError",
@@ -30,24 +32,10 @@ COMPATIBILITY_FINGERPRINT_ALGORITHM = "agent-connector-sdk:mcp-tool-contract-com
 _EXACT_DOMAIN = b"agent-connector-sdk:mcp-tool-contract:v2\x00"
 _COMPATIBILITY_DOMAIN = COMPATIBILITY_FINGERPRINT_ALGORITHM.encode("ascii") + b"\x00"
 _LEGACY_COMPATIBILITY_DOMAIN = b"agent-utilities:mcp-tool-schema-compat:v1\x00"
-_PRESENTATION_KEYS = frozenset({"$comment", "description", "examples", "title"})
-_RUNTIME_CONFIGURATION_KEYS = frozenset({"default"})
 
 
 class ToolSchemaContractError(RuntimeError):
     """The live MCP tool differs from the pinned connector contract."""
-
-
-def _jsonable(value: Any) -> Any:
-    if hasattr(value, "model_dump"):
-        value = value.model_dump(by_alias=True, exclude_none=True)
-    if isinstance(value, Mapping):
-        return {str(key): _jsonable(item) for key, item in value.items()}
-    if isinstance(value, list | tuple | set | frozenset):
-        return [_jsonable(item) for item in value]
-    if value is None or isinstance(value, str | int | float | bool):
-        return value
-    return str(value)
 
 
 def read_field(value: Any, *names: str, attr_names: tuple[str, ...] = ()) -> Any:
@@ -65,26 +53,6 @@ def read_field(value: Any, *names: str, attr_names: tuple[str, ...] = ()) -> Any
     )
 
 
-def _keep_key(key: str, include_presentation: bool) -> bool:
-    if key in _RUNTIME_CONFIGURATION_KEYS:
-        return False
-    return include_presentation or key not in _PRESENTATION_KEYS
-
-
-def _normalize(value: Any, include_presentation: bool) -> Any:
-    if isinstance(value, dict):
-        return {
-            key: _normalize(value[key], include_presentation)
-            for key in sorted(value)
-            if _keep_key(key, include_presentation)
-        }
-    if not isinstance(value, list):
-        return value
-    items = [_normalize(item, include_presentation) for item in value]
-    # JSON Schema ``required`` and ``enum`` order is not semantic.
-    return sorted(items) if all(isinstance(item, str) for item in items) else items
-
-
 def canonical_input_schema(
     tool: Any, *, include_presentation: bool = True
 ) -> dict[str, Any]:
@@ -96,7 +64,7 @@ def canonical_input_schema(
     raw = read_field(
         tool, "inputSchema", "input_schema", attr_names=("input_schema", "inputSchema")
     )
-    schema = _normalize(_jsonable(raw or {}), include_presentation)
+    schema = normalize_schema(to_jsonable(raw or {}), include_presentation)
     if not isinstance(schema, dict):
         raise ToolSchemaContractError("live MCP tool input schema is not an object")
     return schema
@@ -118,7 +86,7 @@ def canonical_output_schema(
     )
     if raw is None:
         return None
-    schema = _normalize(_jsonable(raw), include_presentation)
+    schema = normalize_schema(to_jsonable(raw), include_presentation)
     if not isinstance(schema, dict):
         raise ToolSchemaContractError("live MCP tool output schema is not an object")
     return schema
@@ -140,9 +108,9 @@ def _fingerprint(
 ) -> str:
     payload = _canonical_bytes(
         {
-            "input_schema": _jsonable(input_schema),
+            "input_schema": to_jsonable(input_schema),
             "name": str(name),
-            "output_schema": _jsonable(output_schema),
+            "output_schema": to_jsonable(output_schema),
         }
     )
     return hashlib.sha256(domain + payload).hexdigest()

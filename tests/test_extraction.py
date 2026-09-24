@@ -25,15 +25,13 @@ from agent_connector_sdk.adapters.mcp_tool_records import (
 )
 from agent_connector_sdk.contracts import CapabilityDescriptor
 from agent_connector_sdk.manifest.presets import ToolPreset
+from agent_connector_sdk.ports.describes_capabilities import DescribesCapabilities
 from agent_connector_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
 )
 from agent_connector_sdk.ports.session import McpSession, TransportEndpoint
-from agent_connector_sdk.ports.source_adapter import (
-    DescribesCapabilities,
-    SourceAdapter,
-)
+from agent_connector_sdk.ports.source_adapter import SourceAdapter
 from agent_connector_sdk.ports.transport import Transport
 from agent_connector_sdk.testing.results import (
     ConformanceFailure,

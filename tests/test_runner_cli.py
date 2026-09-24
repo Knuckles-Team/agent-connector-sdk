@@ -17,10 +17,8 @@ from epistemic_graph.generated.connector_pack import (
 from fleet_fixtures import FRESHRSS_CONNECTORS, FRESHRSS_ROOT
 
 from agent_connector_sdk import decide
-from agent_connector_sdk.decide.epistemic_graph import (
-    EpistemicGraphDecisionRunner,
-    GeneratedTransport,
-)
+from agent_connector_sdk.decide.epistemic_graph import EpistemicGraphDecisionRunner
+from agent_connector_sdk.decide.transport import GeneratedTransport
 from agent_connector_sdk.discovery import (
     TRANSPORT_GROUP,
     CertifiedExtensions,
@@ -157,7 +155,10 @@ def test_decide_runner_logs_nothing_for_a_non_eg_sink(
     from agent_connector_sdk.runner.composition import _decide_runner
 
     with caplog.at_level(logging.WARNING):
-        assert _decide_runner("other_sink", None, None, None) is None
+        assert (
+            _decide_runner("other_sink", None, decide_tenant=None, decide_bindings=None)
+            is None
+        )
     assert not caplog.records
 
 
@@ -187,9 +188,24 @@ def test_default_services_installs_the_eg_backed_decide_runner_with_a_tenant(
 def test_decide_runner_is_never_built_for_a_non_eg_sink_or_missing_inputs() -> None:
     from agent_connector_sdk.runner.composition import _decide_runner
 
-    assert _decide_runner("other_sink", object(), "tenant-t", None) is None
-    assert _decide_runner("epistemic_graph", None, "tenant-t", None) is None
-    assert _decide_runner("epistemic_graph", object(), None, None) is None
+    assert (
+        _decide_runner(
+            "other_sink", object(), decide_tenant="tenant-t", decide_bindings=None
+        )
+        is None
+    )
+    assert (
+        _decide_runner(
+            "epistemic_graph", None, decide_tenant="tenant-t", decide_bindings=None
+        )
+        is None
+    )
+    assert (
+        _decide_runner(
+            "epistemic_graph", object(), decide_tenant=None, decide_bindings=None
+        )
+        is None
+    )
 
 
 def test_resolve_decide_tenant_env_override_wins(

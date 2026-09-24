@@ -91,11 +91,8 @@ def _connector_detail(body: dict[str, object], connector: str) -> dict[str, Any]
     return detail
 
 
-class _NotReadySink:
-    """A ``Sink`` double that is never ready, for a chosen reason."""
-
-    def __init__(self, reason: str) -> None:
-        self._reason = reason
+class _ReadinessOnlySink:
+    """A ``Sink`` double whose only exercised method is ``readiness()``."""
 
     async def submit(self, batch: SourceIngestionRequest) -> SourceIngestionReceipt:
         raise NotImplementedError
@@ -106,11 +103,18 @@ class _NotReadySink:
     async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
         raise NotImplementedError
 
+
+class _NotReadySink(_ReadinessOnlySink):
+    """A ``Sink`` double that is never ready, for a chosen reason."""
+
+    def __init__(self, reason: str) -> None:
+        self._reason = reason
+
     async def readiness(self) -> SinkReadiness:
         return SinkReadiness(ready=False, reason=self._reason)
 
 
-class _HangingSink:
+class _HangingSink(_ReadinessOnlySink):
     """A ``Sink`` double whose ``readiness()`` blocks on an event forever.
 
     Models a sink whose readiness check makes a network call that never
@@ -120,15 +124,6 @@ class _HangingSink:
 
     def __init__(self, gate: anyio.Event) -> None:
         self._gate = gate
-
-    async def submit(self, batch: SourceIngestionRequest) -> SourceIngestionReceipt:
-        raise NotImplementedError
-
-    async def source_status(self, connector: str, stream: str) -> SourceIngestStatus:
-        raise NotImplementedError
-
-    async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
-        raise NotImplementedError
 
     async def readiness(self) -> SinkReadiness:
         return await self._never_ready()

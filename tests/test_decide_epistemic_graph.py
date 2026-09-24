@@ -12,14 +12,7 @@ from typing import Any
 import pytest
 
 from agent_connector_sdk.decide import Option
-from agent_connector_sdk.decide.epistemic_graph import (
-    DEFAULT_SYNC_TIMEOUT_S,
-    DecideTransport,
-    DecideUnavailable,
-    EpistemicGraphDecisionRunner,
-    GeneratedTransport,
-    _generated,
-)
+from agent_connector_sdk.decide.epistemic_graph import EpistemicGraphDecisionRunner
 from agent_connector_sdk.decide.outcome import Reading, read_batch, request_for, sampled
 from agent_connector_sdk.decide.points import (
     CONNECTOR_TOOL,
@@ -32,6 +25,13 @@ from agent_connector_sdk.decide.points import (
     LogMode,
     StaticBindings,
     point,
+)
+from agent_connector_sdk.decide.transport import (
+    DEFAULT_SYNC_TIMEOUT_S,
+    DecideTransport,
+    DecideUnavailable,
+    GeneratedTransport,
+    _generated,
 )
 
 #: EG's own ``query`` module always has SOME sender (a much older, unrelated
