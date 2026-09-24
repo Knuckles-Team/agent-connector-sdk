@@ -14,7 +14,7 @@ PAGES_PIPELINE = (
     "Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml"
     f"@{PAGES_PIPELINE_REVISION}"
 )
-EPISTEMIC_GRAPH_REVISION = "f17f47ab300f7f1ddd972d4e0214283a28547e36"
+EPISTEMIC_GRAPH_REVISION = "bd5fdf71f258cdddbceb158245fe5a1381da26db"
 UV_ACTION = "astral-sh/setup-uv@"
 
 
