@@ -165,8 +165,7 @@ repos:
     name: Dependency readiness — every declared intra-fleet constraint is installable
     # --no-cache: uv otherwise reuses a stale build of the local repository-manager
     # path dependency (observed: a build without --phase-direction-here).
-    entry: |-
-      bash -c 'canonical=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); P="$(dirname "$canonical")/agents/repository-manager"; [ -d "$P" ] || P=repository-manager; uv run --no-cache --no-project --python 3.12 --prerelease=allow --with "$P" python -m repository_manager.dependency_readiness .'
+    entry: bash -c 'CANON_ROOT="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)"; P=""; d="$CANON_ROOT"; while [ "$d" != "/" ]; do [ -d "$d/agent-packages/agents/repository-manager" ] && { P="$d/agent-packages/agents/repository-manager"; break; }; d=$(dirname "$d"); done; [ -n "$P" ] || P=repository-manager; uv run --no-cache --no-project --python 3.12 --prerelease=allow --with "$P" python -m repository_manager.dependency_readiness .'
     language: system
     pass_filenames: false
     always_run: true
