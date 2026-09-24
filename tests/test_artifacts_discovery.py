@@ -12,7 +12,6 @@ from unittest.mock import AsyncMock
 
 import mcp_types
 import pytest
-from epistemic_graph.generated import connector_pack as _generated_connector_pack
 from epistemic_graph.generated.connector_pack import PackAnnotations
 
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
@@ -321,15 +320,6 @@ async def test_tool_annotations_and_certified_pin_reach_generated_pack() -> None
     assert len(annotations.sdk_contract_pin) == 64
 
 
-@pytest.mark.skipif(
-    not hasattr(_generated_connector_pack, "PackToolMode"),
-    reason=(
-        "PackAnnotations.tool_mode / PackToolMode ship on EG feat/pack-complete "
-        "(33fccec61) only; the installed epistemic-graph predates it (train 3's "
-        "eg-pack lane has not landed / the shared wheel has not been restaged -- "
-        "see /var/tmp/l9/finish/eg-wheel/REBUILD.md). Remove this guard once it lands."
-    ),
-)
 @pytest.mark.parametrize("declared_mode", ["condensed", "verbose"])
 async def test_tool_mode_annotation_reaches_generated_pack(declared_mode: str) -> None:
     """EH-213: ``PackAnnotations.tool_mode`` (EG `feat/pack-complete` 33fccec61) is a

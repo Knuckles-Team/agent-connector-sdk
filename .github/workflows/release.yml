@@ -76,7 +76,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           repository: Knuckles-Team/epistemic-graph
-          ref: f17f47ab300f7f1ddd972d4e0214283a28547e36
+          ref: bd5fdf71f258cdddbceb158245fe5a1381da26db
           path: .ci/epistemic-graph
           persist-credentials: false
       - name: Sync the locked environment
