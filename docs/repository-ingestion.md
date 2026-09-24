@@ -1,49 +1,72 @@
 # Repository ingestion
 
-Repository ingestion has one ownership path. A connector-owned provider client
-authenticates to its Git forge and implements `RepositorySnapshotProvider`. The
-SDK validates that the provider, authentication evidence, and requested
-immutable revision agree; pages source blobs and tombstones; and submits bounded
-source batches through the public epistemic-graph client. Epistemic-graph alone
-parses files, resolves cross-file symbols, and owns every semantic or durable
-graph effect.
+Repository ingestion has one ownership path, and it is branch-aware. A
+connector-owned provider client authenticates to its Git forge and implements
+`RepositorySnapshotProvider`: it lists refs pinned to immutable revisions, pages
+each revision's tree as `(path, Git blob id)` entries without content, and
+fetches blob bytes by object id. The SDK enumerates every ref, dedupes blobs
+across all of them, fetches and submits each unique blob exactly once, and sends
+the `(ref, path) -> blob` memberships with it. Epistemic-graph alone parses,
+resolves cross-file symbols, and owns every semantic or durable graph effect.
 
 ```mermaid
 flowchart LR
-    A[Authenticated provider client] --> B[Immutable revision pages]
-    B --> C[SDK bounded source batch]
-    C --> D[EG IndexRepository]
-    D --> E[Typed per-file outcomes]
-    D --> F[EG semantic authority]
+    A[Authenticated provider client] --> B[Refs pinned to revisions]
+    B --> C[Tree walks: path + blob id]
+    C --> D[SDK plan: unique blobs, memberships, tombstones]
+    D --> E[Bounded batches: each blob once]
+    E --> F[EG IndexRepository with scope]
+    F --> G[":Blob (symbols) / :FileVersion / :Branch"]
 ```
 
-Call `index_repository_snapshot(provider, client, revision, limits=...)`. The
-revision uses the provider/project identity plus immutable revision and tree
-identifiers. Each file carries a normalized repository-relative POSIX path, its
-content, and a verified SHA-256 blob digest. Rename and deletion evidence travels
-as `RepositoryTombstone`; it is preserved in the receipt and is never disguised
-as parser input.
+Call `index_repository(provider, client, prior=..., limits=...)`. Two branches
+that share history share blobs, so indexing every branch costs barely more than
+indexing one: a blob present on five branches is fetched, shipped and parsed once
+and referenced five times.
 
-The receipt carries a canonical `RepositorySnapshotManifest`, sorted by logical
-path. Its SHA-256 `fingerprint` binds the immutable revision, tree, file content
-digests and byte lengths, plus rename/delete tombstones. Batch receipts retain
-paths and the native EG result, not source bodies, so completed batches release
-their blob memory.
+## What one run does
 
-The SDK combines provider pages until an engine batch reaches a file-count or
-byte bound, then calls `client.graph.index_repository(files)` exactly once for
-that batch. It does not serialize the engine wire protocol itself, inspect or
-rewrite native nodes and edges, or issue graph mutations. The native result is
-retained unchanged in `RepositoryBatchReceipt`.
+1. `list_refs()` returns every ref; each must name the provider's repository and
+   an immutable commit and tree. Refs pinned to the same revision share one tree
+   walk. Provider cursors are ephemeral; repeated cursors, revision drift and
+   duplicate paths stop the run before any engine call.
+2. The plan collects unique Git blob ids. Each blob is submitted under its
+   lexicographically smallest path, so the choice never depends on provider
+   order. Blobs already recorded in `prior` are not fetched again.
+3. Blob bytes are streamed: fetched one at a time, verified against the Git
+   object id (SHA-1 or SHA-256 repositories), hashed to a `sha256:` content
+   digest, and released once their batch is accepted.
+4. Every batch carries `IndexRepositoryScope`: the repository key
+   (`<provider>:<repository_id>`), all declared refs (`live` or `deleted`), the
+   memberships of its blobs, and tombstones. A blob always shares its batch with
+   the membership naming the path it was submitted under.
+5. The receipt's `manifest` (per ref: revision, `(path, blob id, digest,
+   length)` files, tombstones) is the `prior` of the next run.
 
-Every result must contain one ordered `file_outcomes` item per submitted file.
-The SDK checks the path, source-content digest, parser-capability digest, closed
-`success | unsupported | error` status, and diagnostics container. Missing,
-reordered, or malformed outcomes fail closed; an empty parse result can never be
-reported as success by inference.
+## Tombstones
 
-Provider cursors are ephemeral to this fetch. Repeated cursors, revision drift,
-duplicate paths across pages, oversized files, or mismatched authentication stop
-the run before another engine call. Durable repository admission, watermarks,
-acknowledgements, reconciliation, parsing, cross-file linking, RDF/OWL/SHACL, and
-projection receipts remain epistemic-graph responsibilities.
+Against `prior`, a path that left a ref, or whose blob changed, is tombstoned
+under its prior digest; when the same blob reappears at a new path of that ref
+the tombstone names it as `successor_path`. A ref missing since `prior` is
+declared `deleted` with a tombstone for each of its prior files.
+
+## Engine projection
+
+Epistemic-graph parses each submitted blob once under a content-keyed name, so
+symbol identity depends on content and grammar only. It attaches symbols to
+`:Blob` (`blob:sha256:<hex>`), resolves imports per ref between `:FileVersion`
+nodes (path + blob), and projects `:Branch -hasFileVersion-> :FileVersion
+-hasBlob-> :Blob` plus `removesFileVersion` tombstone edges. The SDK validates
+one ordered outcome per submitted blob (path, content digest, parser-capability
+digest, closed `success | unsupported | error` status) and retains the native
+result unchanged.
+
+## Bounds
+
+`RepositoryBatchLimits` bounds unique blobs per call (`max_files`, `max_bytes`,
+`max_file_bytes`) and memberships plus tombstones per call
+(`max_file_versions`). Blob content is never held beyond one batch; the tree
+listings (paths and blob ids, no content) of all refs are held for the run.
+
+`LocalGitRepositoryProvider` reads a repository on the local filesystem through
+the git CLI and is the reference implementation of the port.

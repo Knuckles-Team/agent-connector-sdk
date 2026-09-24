@@ -1,264 +1,273 @@
-"""The repository transport batches source bytes and preserves native outcomes."""
+"""Branch-aware transport over a synthetic multi-branch Git repository.
+
+``main`` and ``feature`` share ``pkg/util.py`` byte for byte, ``feature``
+changes ``pkg/app.py`` and adds ``pkg/new.py``, and tag ``v1`` pins ``main``.
+Every unique blob must be fetched and submitted exactly once while every ref
+keeps exactly its own ``(path, blob)`` memberships.
+"""
 
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass, field
-from enum import StrEnum
-from typing import cast
+import subprocess
+from pathlib import Path
+from typing import Any, cast
 
 import pytest
 from epistemic_graph.client import EpistemicGraphClient
+from epistemic_graph.generated.index_repository import (
+    IndexRepositoryScope,
+    IndexResult,
+)
 
 from agent_connector_sdk.repository import (
-    RepositoryAuthentication,
+    LocalGitRepositoryProvider,
     RepositoryBatchLimits,
-    RepositoryBatchReceipt,
-    RepositoryFile,
     RepositoryIndexReceipt,
-    RepositoryPage,
-    RepositoryRevision,
     RepositorySnapshotProvider,
-    RepositoryTombstone,
     RepositoryTransportError,
-    index_repository_snapshot,
+    index_repository,
 )
+from agent_connector_sdk.repository.models import RepositoryRevision
+
+_UTIL = b"def shared():\n    return 1\n"
+_APP = b"from pkg.util import shared\n\ndef run():\n    return shared()\n"
+_APP_FEATURE = _APP + b"\ndef extra():\n    return 2\n"
+_NEW = b"def new():\n    return 3\n"
 
 
 def _digest(content: bytes) -> str:
     return f"sha256:{hashlib.sha256(content).hexdigest()}"
 
 
-def _file(path: str, content: bytes) -> RepositoryFile:
-    return RepositoryFile(path=path, blob_digest=_digest(content), content=content)
+def _git(root: Path, *args: str) -> str:
+    command = ["git", "-C", str(root), "-c", "user.name=fixture"]
+    command += [
+        "-c",
+        "user.email=fixture@example.invalid",
+        "-c",
+        "commit.gpgsign=false",
+    ]
+    done = subprocess.run([*command, *args], check=True, capture_output=True, text=True)
+    return done.stdout
 
 
-def _revision(tree: str = "b") -> RepositoryRevision:
-    return RepositoryRevision(
-        provider="git-forge",
-        repository_id="team/project",
-        revision_id="a" * 40,
-        tree_id=tree * 40,
-    )
+def _commit(root: Path, files: dict[str, bytes], message: str) -> None:
+    for path, content in files.items():
+        (root / path).parent.mkdir(parents=True, exist_ok=True)
+        (root / path).write_bytes(content)
+        _git(root, "add", "--", path)
+    _git(root, "commit", "-q", "-m", message)
 
 
-class _Status(StrEnum):
-    SUCCESS = "success"
-    UNSUPPORTED = "unsupported"
-    ERROR = "error"
-
-
-@dataclass
-class _Outcome:
-    file_path: str
-    status: _Status
-    content_digest: str
-    parser_capability_digest: str = f"sha256:{'c' * 64}"
-    diagnostics: list[object] = field(default_factory=list)
-
-
-@dataclass
-class _Result:
-    file_outcomes: list[_Outcome]
-    nodes: list[dict[str, str]]
+@pytest.fixture
+def repository(tmp_path: Path) -> Path:
+    root = tmp_path / "repo"
+    root.mkdir()
+    _git(root, "init", "-q", "-b", "main")
+    _commit(root, {"pkg/util.py": _UTIL, "pkg/app.py": _APP}, "main")
+    _git(root, "tag", "v1")
+    _git(root, "checkout", "-q", "-b", "feature")
+    _commit(root, {"pkg/app.py": _APP_FEATURE, "pkg/new.py": _NEW}, "feature")
+    return root
 
 
 class _Graph:
-    def __init__(self, statuses: dict[str, _Status] | None = None) -> None:
-        self.calls: list[list[tuple[str, bytes]]] = []
-        self.statuses = statuses or {}
-        self.results: list[_Result] = []
+    """Engine stand-in answering with a typed result, one outcome per blob."""
 
-    async def index_repository(self, files: list[tuple[str, bytes]]) -> _Result:
-        self.calls.append(files)
+    def __init__(self) -> None:
+        self.calls: list[tuple[list[tuple[str, bytes]], IndexRepositoryScope]] = []
+        self.graphs: set[str | None] = set()
+
+    async def index_repository(
+        self,
+        files: list[tuple[str, bytes]],
+        *,
+        scope: IndexRepositoryScope,
+        graph: str | None,
+    ) -> IndexResult:
+        self.calls.append((files, scope))
+        self.graphs.add(graph)
         outcomes = [
-            _Outcome(path, self.statuses.get(path, _Status.SUCCESS), _digest(content))
+            {
+                "file_path": path,
+                "status": "success",
+                "content_digest": _digest(content),
+                "parser_capability_digest": f"sha256:{'c' * 64}",
+                "diagnostics": [],
+            }
             for path, content in files
         ]
-        result = _Result(outcomes, [{"native": "engine-owned"}])
-        self.results.append(result)
-        return result
-
-
-@dataclass
-class _Client:
-    graph: object
-
-
-def _client(graph: object) -> EpistemicGraphClient:
-    return cast(EpistemicGraphClient, _Client(graph))
-
-
-class _Provider:
-    name = "git-forge"
-    authentication = RepositoryAuthentication(
-        provider=name,
-        principal="service:repository-reader",
-        mechanism="bearer",
-        credential_reference_digest=f"sha256:{'d' * 64}",
-    )
-
-    def __init__(self, pages: list[RepositoryPage]) -> None:
-        self.pages = pages
-        self.calls: list[tuple[RepositoryRevision, str | None, int]] = []
-
-    async def fetch_page(
-        self,
-        revision: RepositoryRevision,
-        *,
-        cursor: str | None,
-        page_size: int,
-    ) -> RepositoryPage:
-        self.calls.append((revision, cursor, page_size))
-        return self.pages[len(self.calls) - 1]
-
-
-@pytest.mark.asyncio
-async def test_pages_are_combined_into_one_native_repository_batch() -> None:
-    revision = _revision()
-    provider = _Provider(
-        [
-            RepositoryPage(
-                revision=revision,
-                files=(_file("a.py", b"a = 1\n"),),
-                next_cursor="page:2",
-            ),
-            RepositoryPage(
-                revision=revision,
-                files=(_file("b.rs", b"fn b() {}\n"),),
-            ),
-        ]
-    )
-    graph = _Graph()
-
-    receipt = await index_repository_snapshot(provider, _client(graph), revision)
-
-    assert isinstance(provider, RepositorySnapshotProvider)
-    assert isinstance(receipt, RepositoryIndexReceipt)
-    assert isinstance(receipt.batches[0], RepositoryBatchReceipt)
-    assert graph.calls == [[("a.py", b"a = 1\n"), ("b.rs", b"fn b() {}\n")]]
-    assert [call[1] for call in provider.calls] == [None, "page:2"]
-    assert receipt.provider_pages == 2
-    assert receipt.batches[0].result is graph.results[0]
-    assert graph.results[0].nodes == [{"native": "engine-owned"}]
-
-
-@pytest.mark.asyncio
-async def test_typed_outcomes_tombstones_and_revision_metadata_are_preserved() -> None:
-    revision = _revision()
-    deleted = RepositoryTombstone(
-        path="removed.py", prior_blob_digest=f"sha256:{'e' * 64}"
-    )
-    files = (
-        _file("good.py", b"ok"),
-        _file("notes.txt", b"plain"),
-        _file("broken.py", b"bad"),
-    )
-    provider = _Provider(
-        [RepositoryPage(revision=revision, files=files, tombstones=(deleted,))]
-    )
-    graph = _Graph({"notes.txt": _Status.UNSUPPORTED, "broken.py": _Status.ERROR})
-
-    receipt = await index_repository_snapshot(provider, _client(graph), revision)
-
-    outcomes = receipt.batches[0].result.file_outcomes
-    assert [outcome.status for outcome in outcomes] == list(_Status)
-    assert receipt.revision == revision
-    assert receipt.authentication == provider.authentication
-    assert receipt.manifest.tombstones == (deleted,)
-    assert [item.path for item in receipt.manifest.files] == [
-        "broken.py",
-        "good.py",
-        "notes.txt",
-    ]
-    assert receipt.manifest.fingerprint.startswith("sha256:")
-
-
-@pytest.mark.asyncio
-async def test_batch_limits_create_one_call_per_bounded_batch() -> None:
-    revision = _revision()
-    files = tuple(_file(f"{index}.py", b"xx") for index in range(3))
-    provider = _Provider([RepositoryPage(revision=revision, files=files)])
-    graph = _Graph()
-    limits = RepositoryBatchLimits(
-        max_files=2, max_bytes=4, max_file_bytes=2, provider_page_size=7
-    )
-
-    await index_repository_snapshot(provider, _client(graph), revision, limits=limits)
-
-    assert [[path for path, _ in call] for call in graph.calls] == [
-        ["0.py", "1.py"],
-        ["2.py"],
-    ]
-    assert provider.calls[0][2] == 7
-
-
-@pytest.mark.asyncio
-async def test_oversized_file_fails_before_engine_call() -> None:
-    revision = _revision()
-    provider = _Provider(
-        [RepositoryPage(revision=revision, files=(_file("large.py", b"xxx"),))]
-    )
-    graph = _Graph()
-    limits = RepositoryBatchLimits(
-        max_files=2, max_bytes=2, max_file_bytes=2, provider_page_size=7
-    )
-
-    with pytest.raises(RepositoryTransportError, match=r"large\.py"):
-        await index_repository_snapshot(
-            provider, _client(graph), revision, limits=limits
+        counters = dict.fromkeys(
+            [
+                "symbols_extracted",
+                "calls_resolved",
+                "calls_unresolved",
+                "calls_scope_resolved",
+                "calls_type_resolved",
+                "inherits_edges",
+                "realizes_edges",
+                "similar_edges",
+                "imports_resolved",
+                "imports_unresolved",
+            ],
+            0,
+        )
+        payload: dict[str, Any] = {"nodes": [], "edges": [], "file_outcomes": outcomes}
+        return IndexResult.model_validate(
+            {**payload, **counters, "files_parsed": len(files)}
         )
 
-    assert graph.calls == []
+    def submitted(self) -> list[tuple[str, bytes]]:
+        return [item for files, _ in self.calls for item in files]
+
+    def memberships(self) -> set[tuple[str, str, str]]:
+        return {
+            (item.ref_name, item.path, item.blob_digest)
+            for _, scope in self.calls
+            for item in scope.file_versions
+        }
+
+    def tombstones(self) -> set[tuple[str, str, str | None]]:
+        return {
+            (item.ref_name, item.path, item.successor_path)
+            for _, scope in self.calls
+            for item in scope.tombstones
+        }
 
 
-@pytest.mark.asyncio
-async def test_revision_drift_fails_before_engine_call() -> None:
-    requested = _revision()
-    provider = _Provider([RepositoryPage(revision=_revision("f"))])
+class _CountingProvider(LocalGitRepositoryProvider):
+    fetched: list[str]
+
+    async def fetch_blob(self, revision: RepositoryRevision, blob_id: str) -> bytes:
+        self.fetched = [*getattr(self, "fetched", []), blob_id]
+        return await super().fetch_blob(revision, blob_id)
+
+
+def _client(graph: _Graph) -> EpistemicGraphClient:
+    return cast(EpistemicGraphClient, type("Client", (), {"graph": graph})())
+
+
+async def _index(
+    provider: LocalGitRepositoryProvider,
+    engine: _Graph,
+    **options: Any,
+) -> RepositoryIndexReceipt:
+    return await index_repository(provider, _client(engine), **options)
+
+
+def _provider(root: Path) -> _CountingProvider:
+    return _CountingProvider(root, repository_id="team/project")
+
+
+def _expected_memberships() -> set[tuple[str, str, str]]:
+    shared = {("pkg/util.py", _UTIL), ("pkg/app.py", _APP)}
+    feature = {
+        ("pkg/util.py", _UTIL),
+        ("pkg/app.py", _APP_FEATURE),
+        ("pkg/new.py", _NEW),
+    }
+    refs = {
+        "refs/heads/main": shared,
+        "refs/tags/v1": shared,
+        "refs/heads/feature": feature,
+    }
+    return {
+        (ref, path, _digest(content))
+        for ref, files in refs.items()
+        for path, content in files
+    }
+
+
+async def test_each_unique_blob_is_fetched_and_submitted_once(repository: Path) -> None:
+    provider, graph = _provider(repository), _Graph()
+
+    receipt = await _index(provider, graph)
+
+    assert isinstance(provider, RepositorySnapshotProvider)
+    submitted = graph.submitted()
+    assert sorted(content for _, content in submitted) == sorted(
+        [_UTIL, _APP, _APP_FEATURE, _NEW]
+    )
+    assert len(provider.fetched) == len(set(provider.fetched)) == 4
+    assert receipt.blobs_fetched == 4
+    assert receipt.blobs_reused == 0
+    assert [path for path, _ in submitted] == sorted(path for path, _ in submitted)
+
+
+async def test_every_ref_keeps_exactly_its_own_memberships(repository: Path) -> None:
     graph = _Graph()
 
-    with pytest.raises(RepositoryTransportError, match="changed immutable revision"):
-        await index_repository_snapshot(provider, _client(graph), requested)
+    receipt = await _index(_provider(repository), graph, graph="repositories")
 
-    assert graph.calls == []
+    assert graph.graphs == {"repositories"}
+    assert graph.memberships() == _expected_memberships()
+    refs = {ref.ref_name: ref for ref in receipt.manifest.refs}
+    assert sorted(refs) == ["refs/heads/feature", "refs/heads/main", "refs/tags/v1"]
+    feature = refs["refs/heads/feature"].snapshot
+    assert [item.path for item in feature.files] == [
+        "pkg/app.py",
+        "pkg/new.py",
+        "pkg/util.py",
+    ]
+    assert graph.tombstones() == set()
+    declared = {item.ref_name for item in graph.calls[0][1].refs}
+    assert declared == set(refs)
 
 
-@pytest.mark.asyncio
-async def test_repeated_provider_cursor_fails_before_cyclic_page_effects() -> None:
-    revision = _revision()
-    provider = _Provider(
-        [
-            RepositoryPage(
-                revision=revision,
-                files=(_file("a.py", b"a"),),
-                next_cursor="repeat",
-            ),
-            RepositoryPage(
-                revision=revision,
-                files=(_file("b.py", b"b"),),
-                next_cursor="repeat",
-            ),
-        ]
-    )
+async def test_bounded_batches_bind_each_blob_in_its_own_call(repository: Path) -> None:
     graph = _Graph()
+    limits = RepositoryBatchLimits(max_files=1, max_file_versions=2)
 
-    with pytest.raises(RepositoryTransportError, match="cursor repeated"):
-        await index_repository_snapshot(provider, _client(graph), revision)
+    await _index(_provider(repository), graph, limits=limits)
 
-    assert graph.calls == []
+    assert graph.memberships() == _expected_memberships()
+    for files, scope in graph.calls:
+        assert len(files) <= 1
+        assert len(scope.file_versions) + len(scope.tombstones) <= 2
+        bound = {(item.path, item.blob_digest) for item in scope.file_versions}
+        assert {(path, _digest(content)) for path, content in files} <= bound
 
 
-@pytest.mark.asyncio
-async def test_missing_per_file_outcomes_fail_closed() -> None:
-    revision = _revision()
-    provider = _Provider(
-        [RepositoryPage(revision=revision, files=(_file("a.py", b"a"),))]
-    )
+async def test_rerun_reuses_blobs_and_tombstones_what_left(repository: Path) -> None:
+    first = await _index(_provider(repository), _Graph())
+    _git(repository, "mv", "pkg/util.py", "pkg/shared.py")
+    _git(repository, "rm", "-q", "pkg/new.py")
+    _git(repository, "-c", "commit.gpgsign=false", "commit", "-q", "-m", "move")
+    _git(repository, "tag", "-d", "v1")
+    provider, graph = _provider(repository), _Graph()
 
-    class _OldGraph:
-        async def index_repository(self, files: list[tuple[str, bytes]]) -> object:
-            return {"files_parsed": len(files)}
+    second = await _index(provider, graph, prior=first.manifest)
 
-    with pytest.raises(RepositoryTransportError, match="lacks typed file_outcomes"):
-        await index_repository_snapshot(provider, _client(_OldGraph()), revision)
+    assert getattr(provider, "fetched", []) == []
+    assert graph.submitted() == []
+    assert second.blobs_reused == 3
+    v1_removed = {
+        ("refs/tags/v1", "pkg/app.py", None),
+        ("refs/tags/v1", "pkg/util.py", None),
+    }
+    assert graph.tombstones() == {
+        ("refs/heads/feature", "pkg/new.py", None),
+        ("refs/heads/feature", "pkg/util.py", "pkg/shared.py"),
+        *v1_removed,
+    }
+    deleted = [ref for ref in second.manifest.refs if ref.deleted]
+    assert [ref.ref_name for ref in deleted] == ["refs/tags/v1"]
+
+
+async def test_manifest_fingerprint_is_deterministic(repository: Path) -> None:
+    first = await _index(_provider(repository), _Graph())
+    second = await _index(_provider(repository), _Graph())
+
+    assert first.manifest.fingerprint == second.manifest.fingerprint
+    assert first.manifest.fingerprint.startswith("sha256:")
+
+
+async def test_blob_content_must_match_its_object_id(repository: Path) -> None:
+    class _Tampering(LocalGitRepositoryProvider):
+        async def fetch_blob(self, revision: RepositoryRevision, blob_id: str) -> bytes:
+            return b"tampered" + await super().fetch_blob(revision, blob_id)
+
+    provider = _Tampering(repository, repository_id="team/project")
+    with pytest.raises(RepositoryTransportError, match="does not match"):
+        await _index(provider, _Graph())

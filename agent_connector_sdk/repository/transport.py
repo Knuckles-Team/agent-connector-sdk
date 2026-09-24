@@ -1,144 +1,217 @@
-"""Authenticated immutable repository paging and EG batch transport."""
+"""Branch-aware, blob-deduplicated repository transport into epistemic-graph.
+
+One run enumerates every ref, walks each tree without content, fetches each
+unique blob exactly once (streamed through bounded batches), and submits the
+``(ref, path) -> blob`` memberships and tombstones alongside, so the engine
+parses each blob once and projects branch membership by edge.
+"""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import hashlib
+from collections import defaultdict
+from dataclasses import dataclass, field
 
 from epistemic_graph.client import EpistemicGraphClient
 
+from agent_connector_sdk.repository.batching import (
+    Membership,
+    RepositoryBatch,
+    RepositoryBatcher,
+)
 from agent_connector_sdk.repository.errors import RepositoryTransportError
+from agent_connector_sdk.repository.identity import _git_blob_object_id
 from agent_connector_sdk.repository.indexing import (
     RepositoryBatchReceipt,
-    _RepositoryBatcher,
+    ScopeHeader,
     submit_repository_batch,
 )
 from agent_connector_sdk.repository.manifest import (
+    RepositoryIndexManifest,
     RepositoryManifestFile,
+    RepositoryRefManifest,
     RepositorySnapshotManifest,
 )
 from agent_connector_sdk.repository.models import (
     RepositoryAuthentication,
     RepositoryBatchLimits,
-    RepositoryPage,
-    RepositoryRevision,
+    RepositoryFile,
     RepositoryTombstone,
 )
+from agent_connector_sdk.repository.plan import BlobFetch, IndexPlan, plan_index
 from agent_connector_sdk.repository.provider import RepositorySnapshotProvider
+from agent_connector_sdk.repository.walk import RefTree, walk_refs
 
-__all__ = ["RepositoryIndexReceipt", "index_repository_snapshot"]
+__all__ = ["RepositoryIndexReceipt", "index_repository"]
+
+# The engine's per-batch ref bound (`MAX_INDEX_SCOPE_REFS`).
+_MAX_REFS = 4096
 
 
 @dataclass(frozen=True)
 class RepositoryIndexReceipt:
-    """Source-side evidence retained after every batch is accepted by EG."""
+    """Source-side evidence retained after every batch is accepted by EG.
 
-    revision: RepositoryRevision
+    ``manifest`` is the ``prior`` of the next run.
+    """
+
     authentication: RepositoryAuthentication
-    manifest: RepositorySnapshotManifest
+    manifest: RepositoryIndexManifest
     batches: tuple[RepositoryBatchReceipt, ...]
     provider_pages: int
+    blobs_fetched: int
+    blobs_reused: int
 
 
-def _validate_provider(
-    provider: RepositorySnapshotProvider, revision: RepositoryRevision
-) -> RepositoryAuthentication:
-    authentication = provider.authentication
-    if provider.name != revision.provider or authentication.provider != provider.name:
-        raise RepositoryTransportError("provider, authentication and revision disagree")
-    return authentication
+def _repository_key(provider: RepositorySnapshotProvider) -> str:
+    return f"{provider.name}:{provider.repository_id}"
 
 
-def _accept_paths(
-    page: RepositoryPage,
+def _header(
+    provider: RepositorySnapshotProvider,
+    trees: tuple[RefTree, ...],
+    plan: IndexPlan,
     *,
-    seen_paths: set[str],
-    tombstones: list[RepositoryTombstone],
-    manifest_files: list[RepositoryManifestFile],
-) -> None:
-    paths = [item.path for item in page.files]
-    paths.extend(item.path for item in page.tombstones)
-    if any(path in seen_paths for path in paths):
-        raise RepositoryTransportError("provider repeated a repository path")
-    seen_paths.update(paths)
-    tombstones.extend(page.tombstones)
-    manifest_files.extend(
-        RepositoryManifestFile(
-            path=item.path,
-            blob_digest=item.blob_digest,
-            byte_length=len(item.content),
+    graph: str | None,
+) -> ScopeHeader:
+    refs = [
+        {
+            "ref_name": tree.ref.name,
+            "revision_id": tree.ref.revision.revision_id,
+            "status": "live",
+        }
+        for tree in trees
+    ]
+    refs.extend(
+        {
+            "ref_name": item.ref_name,
+            "revision_id": item.snapshot.revision.revision_id,
+            "status": "deleted",
+        }
+        for item in plan.deleted
+    )
+    if len(refs) > _MAX_REFS:
+        raise RepositoryTransportError(
+            f"repository declares more than {_MAX_REFS} refs"
         )
-        for item in page.files
+    return ScopeHeader(
+        graph=graph, repository_id=_repository_key(provider), refs=tuple(refs)
     )
 
 
-async def _accept_files(
-    page: RepositoryPage,
-    *,
-    batcher: _RepositoryBatcher,
-    client: EpistemicGraphClient,
-    batches: list[RepositoryBatchReceipt],
+async def _fetch(
+    provider: RepositorySnapshotProvider, item: BlobFetch
+) -> RepositoryFile:
+    content = await provider.fetch_blob(item.revision, item.blob_id)
+    if _git_blob_object_id(content, width=len(item.blob_id)) != item.blob_id:
+        raise RepositoryTransportError(f"blob content does not match {item.blob_id}")
+    digest = f"sha256:{hashlib.sha256(content).hexdigest()}"
+    return RepositoryFile(path=item.path, blob_digest=digest, content=content)
+
+
+def _memberships(plan: IndexPlan, blob_id: str, digest: str) -> list[Membership]:
+    return [(ref_name, path, digest) for path, ref_name in plan.members[blob_id]]
+
+
+@dataclass
+class _Run:
+    """One run's batcher, accepted batch receipts and blob identities."""
+
+    client: EpistemicGraphClient
+    header: ScopeHeader
+    batcher: RepositoryBatcher
+    identities: dict[str, RepositoryManifestFile]
+    receipts: list[RepositoryBatchReceipt] = field(default_factory=list)
+
+    async def flush(self, batches: list[RepositoryBatch]) -> None:
+        """Submit closed batches in order; each releases its blob bytes."""
+        for batch in batches:
+            receipt = await submit_repository_batch(self.client, self.header, batch)
+            self.receipts.append(receipt)
+
+
+async def _stream_new_blobs(
+    provider: RepositorySnapshotProvider, plan: IndexPlan, run: _Run
 ) -> None:
-    for item in page.files:
-        ready = batcher.add(item)
-        if ready:
-            batches.append(await submit_repository_batch(client, ready))
+    for item in plan.fetch:
+        blob = await _fetch(provider, item)
+        run.identities[item.blob_id] = RepositoryManifestFile(
+            path=item.path,
+            blob_id=item.blob_id,
+            blob_digest=blob.blob_digest,
+            byte_length=len(blob.content),
+        )
+        run.batcher.add_file(blob, _memberships(plan, item.blob_id, blob.blob_digest))
+        await run.flush(run.batcher.drain())
 
 
-async def index_repository_snapshot(
+def _queue_reused(plan: IndexPlan, run: _Run) -> None:
+    for blob_id in sorted(plan.members.keys() & plan.known.keys()):
+        digest = plan.known[blob_id].blob_digest
+        run.batcher.add_versions(_memberships(plan, blob_id, digest))
+    run.batcher.add_tombstones(plan.tombstones)
+
+
+def _manifest(
+    provider: RepositorySnapshotProvider,
+    trees: tuple[RefTree, ...],
+    plan: IndexPlan,
+    *,
+    identities: dict[str, RepositoryManifestFile],
+) -> RepositoryIndexManifest:
+    removed: dict[str, list[RepositoryTombstone]] = defaultdict(list)
+    for ref_name, tombstone in plan.tombstones:
+        removed[ref_name].append(tombstone)
+    live = tuple(
+        RepositoryRefManifest(
+            ref_name=tree.ref.name,
+            snapshot=RepositorySnapshotManifest(
+                revision=tree.ref.revision,
+                files=tuple(
+                    identities[entry.blob_id].model_copy(update={"path": entry.path})
+                    for entry in tree.entries
+                ),
+                tombstones=tuple(removed[tree.ref.name]),
+            ),
+        )
+        for tree in trees
+    )
+    return RepositoryIndexManifest(
+        repository_id=_repository_key(provider), refs=live + plan.deleted
+    )
+
+
+async def index_repository(
     provider: RepositorySnapshotProvider,
     client: EpistemicGraphClient,
-    revision: RepositoryRevision,
     *,
+    prior: RepositoryIndexManifest | None = None,
     limits: RepositoryBatchLimits | None = None,
+    graph: str | None = None,
 ) -> RepositoryIndexReceipt:
-    """Fetch and index one immutable revision with bounded memory and calls."""
+    """Index every ref of one repository, parsing each unique blob once.
+
+    ``prior`` is the previous run's ``receipt.manifest``: its blobs are not
+    fetched again, and paths (or refs) missing since then become tombstones.
+    EG commits each batch's projection durably into ``graph``.
+    """
     bounds = limits or RepositoryBatchLimits()
-    authentication = _validate_provider(provider, revision)
-    batches: list[RepositoryBatchReceipt] = []
-    tombstones: list[RepositoryTombstone] = []
-    manifest_files: list[RepositoryManifestFile] = []
-    batcher = _RepositoryBatcher(bounds)
-    seen_paths: set[str] = set()
-    seen_cursors: set[str] = set()
-    cursor: str | None = None
-    pages = 0
-    while True:
-        page = await provider.fetch_page(
-            revision, cursor=cursor, page_size=bounds.provider_page_size
-        )
-        pages += 1
-        if page.revision != revision:
-            raise RepositoryTransportError("provider page changed immutable revision")
-        next_cursor = page.next_cursor
-        if next_cursor is not None and next_cursor in seen_cursors:
-            raise RepositoryTransportError("provider pagination cursor repeated")
-        _accept_paths(
-            page,
-            seen_paths=seen_paths,
-            tombstones=tombstones,
-            manifest_files=manifest_files,
-        )
-        await _accept_files(
-            page,
-            batcher=batcher,
-            client=client,
-            batches=batches,
-        )
-        if next_cursor is None:
-            break
-        seen_cursors.add(next_cursor)
-        cursor = next_cursor
-    final_batch = batcher.finish()
-    if final_batch:
-        batches.append(await submit_repository_batch(client, final_batch))
+    trees, pages = await walk_refs(provider, page_size=bounds.provider_page_size)
+    plan = plan_index(trees, prior)
+    run = _Run(
+        client=client,
+        header=_header(provider, trees, plan, graph=graph),
+        batcher=RepositoryBatcher(bounds),
+        identities=dict(plan.known),
+    )
+    await _stream_new_blobs(provider, plan, run)
+    _queue_reused(plan, run)
+    await run.flush(run.batcher.finish())
     return RepositoryIndexReceipt(
-        revision=revision,
-        authentication=authentication,
-        manifest=RepositorySnapshotManifest(
-            revision=revision,
-            files=tuple(manifest_files),
-            tombstones=tuple(tombstones),
-        ),
-        batches=tuple(batches),
+        authentication=provider.authentication,
+        manifest=_manifest(provider, trees, plan, identities=run.identities),
+        batches=tuple(run.receipts),
         provider_pages=pages,
+        blobs_fetched=len(plan.fetch),
+        blobs_reused=len(plan.members.keys() & plan.known.keys()),
     )
