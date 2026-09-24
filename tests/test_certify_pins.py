@@ -10,7 +10,7 @@ from typing import Any
 from unittest.mock import AsyncMock
 
 import pytest
-from certify_support import DRIFTED, EMPTY, LIVE, checkout_copy, live_tools
+from certify_support import DRIFTED, EMPTY, LIVE, OUTPUT, checkout_copy, live_tools
 from fixture_server import PACKAGE_ROOT, build_reader_server
 
 import agent_connector_sdk.certify.transaction as pin_transaction
@@ -43,6 +43,7 @@ from agent_connector_sdk.manifest.loader import (
     ManifestError,
     require_valid_connector_package,
 )
+from agent_connector_sdk.manifest.package_validation import OUTPUT_PINS_KEY
 from agent_connector_sdk.manifest.tool_schema import (
     ToolSchemaContractError,
     compatibility_fingerprint,
@@ -186,7 +187,34 @@ async def test_verdict_status(tmp_path: Path, pin: str, status: PinStatus) -> No
     checkout = load_checkout(checkout_copy(tmp_path, pin))
     (verdict,) = tool_verdicts(checkout, await live_tools())
     assert (verdict.status, verdict.live, verdict.presets) == (status, LIVE, ("demo",))
-    assert verdict.output_schema_sha256 and not verdict.defect
+    assert verdict.output_schema_sha256 == OUTPUT and not verdict.defect
+
+
+@pytest.mark.parametrize(
+    ("output_pin", "status"),
+    [(OUTPUT, PinStatus.MATCH), (DRIFTED, PinStatus.DRIFT), ("", PinStatus.DRIFT)],
+)
+async def test_the_output_pin_is_part_of_the_verdict(
+    tmp_path: Path, output_pin: str, status: PinStatus
+) -> None:
+    """D18: a matching contract pin with a drifted output pin is drift."""
+    checkout = load_checkout(checkout_copy(tmp_path, LIVE, output_pin))
+    (verdict,) = tool_verdicts(checkout, await live_tools())
+    assert (verdict.status, verdict.output_pin) == (status, output_pin)
+
+
+async def test_a_checkout_without_output_pins_is_unpinned(tmp_path: Path) -> None:
+    """A pre-D18 fingerprints file loads for re-certification but never matches."""
+    root = checkout_copy(tmp_path, LIVE, None)
+    checkout = load_checkout(root)
+    (verdict,) = tool_verdicts(checkout, await live_tools())
+    assert (verdict.status, verdict.output_pin) == (PinStatus.UNPINNED, None)
+    with pytest.raises(ManifestError, match="no output_schema_sha256 pin"):
+        require_valid_connector_package(root)
+    write_certified_pins(checkout, tool_verdicts(checkout, await live_tools()))
+    require_valid_connector_package(root)
+    document = json.loads(checkout.fingerprints_path.read_text(encoding="utf-8"))
+    assert document[OUTPUT_PINS_KEY] == {"demo_reader": OUTPUT}
 
 
 async def test_unavailable_tools_have_defects() -> None:
@@ -238,7 +266,9 @@ async def test_certifier_and_runner_reject_the_same_contract_defect(
 
 def test_render_and_rewrite_pins() -> None:
     fixture = PACKAGE_ROOT / "connectors" / "tool_schema_fingerprints.json"
-    rendered = render_fingerprints("demo-agent", {"demo_reader": LIVE})
+    rendered = render_fingerprints(
+        "demo-agent", {"demo_reader": LIVE}, {"demo_reader": OUTPUT}
+    )
     assert rendered == fixture.read_text(encoding="utf-8")
     text = (
         "connector: x\nsync:\n- preset: a\n  tool: t\n  tool_schema_sha256: 00\n"

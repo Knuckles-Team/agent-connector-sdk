@@ -65,6 +65,7 @@ class CertificationReport:
                     "live": verdict.live,
                     "pins": dict(verdict.pins),
                     "output_schema_sha256": verdict.output_schema_sha256,
+                    "output_pin": verdict.output_pin,
                     "defect": verdict.defect,
                 }
                 for verdict in self.verdicts

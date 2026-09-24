@@ -19,6 +19,7 @@ __all__ = [
     "canonical_output_schema",
     "compatibility_fingerprint",
     "legacy_empty_schema_fingerprint",
+    "output_schema_digest",
     "read_field",
     "schema_fingerprint",
 ]
@@ -123,6 +124,13 @@ def canonical_output_schema(
     return schema
 
 
+def _canonical_bytes(value: Any) -> bytes:
+    """The one serialization every tool-contract digest hashes."""
+    return json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+
+
 def _fingerprint(
     domain: bytes,
     name: str,
@@ -130,17 +138,30 @@ def _fingerprint(
     *,
     output_schema: Mapping[str, Any] | None,
 ) -> str:
-    payload = json.dumps(
+    payload = _canonical_bytes(
         {
             "input_schema": _jsonable(input_schema),
             "name": str(name),
             "output_schema": _jsonable(output_schema),
-        },
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=True,
-    ).encode("utf-8")
+        }
+    )
     return hashlib.sha256(domain + payload).hexdigest()
+
+
+def output_schema_digest(tool: Any) -> str:
+    """SHA-256 of the compatibility-canonical output schema (D18 output pin).
+
+    The same canonical form :func:`compatibility_fingerprint` binds: presentation
+    and runtime-default keys removed, keys and string lists sorted. ``""`` means
+    the tool declares no output schema.
+
+    Raises:
+        ToolSchemaContractError: the declared output schema is not an object.
+    """
+    canonical = canonical_output_schema(tool, include_presentation=False)
+    if canonical is None:
+        return ""
+    return hashlib.sha256(_canonical_bytes(canonical)).hexdigest()
 
 
 def schema_fingerprint(
@@ -165,10 +186,5 @@ def compatibility_fingerprint(
 
 def legacy_empty_schema_fingerprint(name: str) -> str:
     """The retired input-only v1 fingerprint of ``name`` with an empty schema."""
-    payload = json.dumps(
-        {"name": str(name), "input_schema": {}},
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=True,
-    ).encode("utf-8")
+    payload = _canonical_bytes({"name": str(name), "input_schema": {}})
     return hashlib.sha256(_LEGACY_COMPATIBILITY_DOMAIN + payload).hexdigest()

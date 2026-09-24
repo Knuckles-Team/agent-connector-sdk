@@ -2,6 +2,9 @@
   "_comment": "Test-only post-migration target. The real 2026-09-13 server still exposes a free-string action and certification refuses it.",
   "algorithm": "agent-connector-sdk:mcp-tool-contract-compat:v2",
   "connector": "freshrss-agent",
+  "output_schema_sha256": {
+    "freshrss_reader": "82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf"
+  },
   "schema_version": "1",
   "tools": {
     "freshrss_reader": "7e18bf9ed1c48cadece180e17777cc68da409d0e86cb79fbebcf69172794d3b4"

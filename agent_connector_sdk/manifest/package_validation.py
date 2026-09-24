@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from agent_connector_sdk.manifest.model import ConnectorManifest, SyncSpec
 from agent_connector_sdk.manifest.presets import ToolPreset
@@ -16,7 +16,10 @@ from agent_connector_sdk.manifest.tool_schema import (
 MANIFEST_FILE_NAME = "connector_manifest.yml"
 PRESETS_FILE_NAME = "mcp_source_presets.json"
 FINGERPRINTS_FILE_NAME = "tool_schema_fingerprints.json"
+#: The ``tool_schema_fingerprints.json`` key holding each tool's D18 output pin.
+OUTPUT_PINS_KEY = "output_schema_sha256"
 
+_HEX_DIGEST = re.compile(r"[0-9A-Fa-f]{64}")
 _PRESET_FIELDS_MIRRORED_IN_SYNC = (
     "server",
     "tool",
@@ -37,6 +40,8 @@ class ToolSchemaFingerprints:
     connector: str
     algorithm: str
     tools: dict[str, str]
+    #: D18 output-schema digest per tool; ``""`` = the tool declares none.
+    output_schemas: dict[str, str] = field(default_factory=dict)
 
 
 def _pin_mismatch(
@@ -98,6 +103,11 @@ def _pin_policy_violations(
     if allow_pin_migration:
         return []
     violations = _empty_pin_violations(fingerprints)
+    violations.extend(
+        f"{FINGERPRINTS_FILE_NAME} has no {OUTPUT_PINS_KEY} pin for tool {tool!r} "
+        "(D18); re-certify it from the server's tools/list"
+        for tool in sorted(set(fingerprints.tools) - set(fingerprints.output_schemas))
+    )
     if fingerprints.algorithm != COMPATIBILITY_FINGERPRINT_ALGORITHM:
         violations.insert(
             0,
@@ -111,9 +121,10 @@ def _unknown_tool_violations(
     presets: dict[str, ToolPreset], fingerprints: ToolSchemaFingerprints
 ) -> list[str]:
     preset_tools = {preset.tool for preset in presets.values()}
+    pinned = set(fingerprints.tools) | set(fingerprints.output_schemas)
     return [
         f"{FINGERPRINTS_FILE_NAME} names unknown tool {tool!r}"
-        for tool in sorted(set(fingerprints.tools) - preset_tools)
+        for tool in sorted(pinned - preset_tools)
     ]
 
 
@@ -128,11 +139,17 @@ def _malformed_pin_violations(
         (f"sync preset {entry.preset!r}", entry.tool_schema_sha256 or "")
         for entry in manifest.sync
     )
-    return [
+    malformed = [
         f"{location} has a malformed tool_schema_sha256"
         for location, pin in locations
-        if pin and re.fullmatch(r"[0-9A-Fa-f]{64}", pin) is None
+        if pin and _HEX_DIGEST.fullmatch(pin) is None
     ]
+    malformed.extend(
+        f"fingerprint tool {tool!r} has a malformed {OUTPUT_PINS_KEY}"
+        for tool, pin in sorted(fingerprints.output_schemas.items())
+        if pin and _HEX_DIGEST.fullmatch(pin) is None
+    )
+    return malformed
 
 
 def validate_connector_package(

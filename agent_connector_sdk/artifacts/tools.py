@@ -15,6 +15,7 @@ from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
 from agent_connector_sdk.manifest.tool_schema import (
     ToolSchemaContractError,
     canonical_input_schema,
+    canonical_output_schema,
 )
 from agent_connector_sdk.ports.errors import MalformedArtifactError
 from agent_connector_sdk.ports.session import McpSession
@@ -22,20 +23,30 @@ from agent_connector_sdk.ports.session import McpSession
 __all__ = ["ToolArtifactKind"]
 
 
-def _tool_entry(tool: Any, server: ServerIdentity) -> CapturedArtifact:
-    name = str(getattr(tool, "name", "") or "")
+def _canonical_schemas(tool: Any, name: str) -> tuple[dict[str, Any], Any]:
+    """The tool's input and output schemas in the one canonical contract form.
+
+    Both sections of a pack tool entry use it, so EG's section digests
+    (``input_schema_digest`` / ``output_schema_digest``) are deterministic for
+    a served contract: a reordered ``required`` or ``enum`` list is the same
+    contract and the same digest.
+    """
     try:
-        input_schema = canonical_input_schema(tool)
+        return canonical_input_schema(tool), canonical_output_schema(tool)
     except ToolSchemaContractError as exc:
         raise MalformedArtifactError(
-            f"tool {name!r} has no object input schema"
+            f"tool {name!r} has a non-object input or output schema"
         ) from exc
-    output_schema = getattr(tool, "output_schema", None)
+
+
+def _tool_entry(tool: Any, server: ServerIdentity) -> CapturedArtifact:
+    name = str(getattr(tool, "name", "") or "")
+    input_schema, output_schema = _canonical_schemas(tool, name)
     body = {
         "name": name,
         "description": str(getattr(tool, "description", "") or ""),
         "input_schema": input_schema,
-        "output_schema": output_schema if isinstance(output_schema, dict) else None,
+        "output_schema": output_schema,
     }
     return CapturedArtifact(
         kind=ToolArtifactKind.kind,

@@ -31,9 +31,11 @@ __all__ = ["ConnectorCheckout", "find_connectors_dir", "load_checkout"]
 class ConnectorCheckout:
     """The certification view of one connector package.
 
-    ``tool_pins`` are the ``tool_schema_fingerprints.json`` entries;
-    ``manifest_pins`` map each manifest ``sync`` preset to its
-    ``tool_schema_sha256`` (``""`` when unset).
+    ``tool_pins`` are the ``tool_schema_fingerprints.json`` entries and
+    ``output_pins`` its D18 output-schema digests (a tool absent from it is
+    unpinned; ``""`` pins "declares no output schema"); ``manifest_pins`` map
+    each manifest ``sync`` preset to its ``tool_schema_sha256`` (``""`` when
+    unset).
     """
 
     root: Path
@@ -42,6 +44,7 @@ class ConnectorCheckout:
     server: str
     presets: Mapping[str, ToolPreset]
     tool_pins: Mapping[str, str]
+    output_pins: Mapping[str, str]
     manifest_pins: Mapping[str, str]
 
     @property
@@ -139,6 +142,7 @@ def load_checkout(root: Path) -> ConnectorCheckout:
         server=servers.pop(),
         presets=presets,
         tool_pins=dict(fingerprints.tools),
+        output_pins=dict(fingerprints.output_schemas),
         manifest_pins={
             entry.preset: entry.tool_schema_sha256 or "" for entry in manifest.sync
         },

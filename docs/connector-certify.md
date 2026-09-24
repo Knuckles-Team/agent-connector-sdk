@@ -66,8 +66,16 @@ refreshes it before expiry, and retries once with a new token after a 401. The
 secret stays a reference until token minting.
 
 `--report PATH` writes a JSON report containing connector and server identity,
-each pin location, the combined live pin, a separately visible output-schema
-digest, and any defect. It does not include endpoint URLs or credentials.
+each pin location, the combined live pin, the live and pinned output-schema
+digests, and any defect. It does not include endpoint URLs or credentials.
+
+Each tool's pin has two parts (D18). `tools` holds the combined contract pin
+over the canonical input and output schemas; `output_schema_sha256` holds the
+SHA-256 of the same canonical output schema on its own (presentation keys and
+`default` removed, keys and string lists sorted), or `""` when the tool
+declares no output schema. A tool whose output pin differs from the live
+server is drift even when its combined pin was edited to match; a tool with no
+output pin is unpinned, and `--write` records it.
 
 | Exit | Meaning |
 |---|---|

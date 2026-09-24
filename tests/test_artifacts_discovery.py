@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -45,6 +46,7 @@ from agent_connector_sdk.discovery import (
     load_extension,
     sdk_reference_extensions,
 )
+from agent_connector_sdk.manifest.tool_schema import canonical_output_schema
 from agent_connector_sdk.mcp.content import ConnectorContent
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
 from agent_connector_sdk.ports.errors import MalformedArtifactError
@@ -320,6 +322,98 @@ async def test_tool_annotations_and_certified_pin_reach_generated_pack() -> None
     assert len(annotations.sdk_contract_pin) == 64
 
 
+@pytest.mark.parametrize("declared_mode", ["condensed", "verbose"])
+async def test_tool_mode_annotation_reaches_generated_pack(declared_mode: str) -> None:
+    """EH-213: ``PackAnnotations.tool_mode`` (EG `feat/pack-complete` 33fccec61) is a
+    connector-declared claim like every other ``eg.annotations`` field (RF §5.1's "the
+    pack builder's declaration, EG never re-derives it" -- ``catalog_attributes.rs``'s
+    own comment). It reaches the generated pack through the SAME generic
+    ``_declared_annotations``/``PackAnnotations.model_validate`` path every other
+    annotation uses, so no SDK code names the field explicitly -- this proves that
+    generic path already targets the exact pack-complete shape with zero SDK changes.
+    """
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "moded",
+            "inputSchema": {"type": "object"},
+            "_meta": {"eg.annotations": {"tool_mode": declared_mode}},
+        }
+    )
+    session = SimpleNamespace(
+        server_identity=AsyncMock(return_value=SERVER),
+        list_tools=AsyncMock(return_value=[tool]),
+    )
+    pack = await build_content_pack(
+        session, connector="demo-agent", kinds=(ToolArtifactKind(),)
+    )
+    annotations = pack.archive.entries[0].annotations
+    assert annotations is not None
+    assert annotations.tool_mode is not None
+    assert annotations.tool_mode.value == declared_mode
+
+
+async def _tool_pack_entry(tool: Any) -> Any:
+    session = SimpleNamespace(
+        server_identity=AsyncMock(return_value=SERVER),
+        list_tools=AsyncMock(return_value=[tool]),
+    )
+    pack = await build_content_pack(
+        session, connector="demo-agent", kinds=(ToolArtifactKind(),)
+    )
+    return pack.archive.entries[0]
+
+
+async def test_the_output_schema_section_is_the_canonical_contract_form() -> None:
+    """D18: EG's ``output_schema_digest`` is the sha256 of this section, so the
+    section must be the SDK's canonical output schema: a reordered ``required``
+    list is the same contract and the same digest."""
+    output = {
+        "type": "object",
+        "properties": {"b": {"type": "string"}, "a": {"type": "integer"}},
+        "required": ["b", "a"],
+    }
+    typed = mcp_types.Tool.model_validate(
+        {"name": "out", "inputSchema": {"type": "object"}, "outputSchema": output}
+    )
+    reordered = mcp_types.Tool.model_validate(
+        {
+            "name": "out",
+            "inputSchema": {"type": "object"},
+            "outputSchema": {**output, "required": ["a", "b"]},
+        }
+    )
+    first = await _tool_pack_entry(typed)
+    second = await _tool_pack_entry(reordered)
+    canonical = json.dumps(
+        canonical_output_schema(typed),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("utf-8")
+    assert first.output_schema is not None and second.output_schema is not None
+    assert first.output_schema.sha256 == hashlib.sha256(canonical).hexdigest()
+    assert second.output_schema.sha256 == first.output_schema.sha256
+    declares_none = await _tool_pack_entry(
+        mcp_types.Tool.model_validate(
+            {"name": "out", "inputSchema": {"type": "object"}}
+        )
+    )
+    assert declares_none.output_schema is None
+
+
+async def test_tool_mode_rejects_a_value_outside_the_generated_enum() -> None:
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "mismoded",
+            "inputSchema": {"type": "object"},
+            "_meta": {"eg.annotations": {"tool_mode": "both"}},
+        }
+    )
+    session = SimpleNamespace(list_tools=AsyncMock(return_value=[tool]))
+    with pytest.raises(MalformedArtifactError, match="eg\\.annotations is malformed"):
+        await ToolArtifactKind().list_entries(session, SERVER)
+
+
 async def test_tool_annotation_conflict_fails_closed() -> None:
     tool = mcp_types.Tool.model_validate(
         {
@@ -331,6 +425,66 @@ async def test_tool_annotation_conflict_fails_closed() -> None:
     )
     session = SimpleNamespace(list_tools=AsyncMock(return_value=[tool]))
     with pytest.raises(MalformedArtifactError, match="conflicting pack annotation"):
+        await ToolArtifactKind().list_entries(session, SERVER)
+
+
+async def test_tool_cost_and_latency_annotations_reach_generated_pack() -> None:
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "priced",
+            "inputSchema": {"type": "object"},
+            "_meta": {
+                "eg.annotations": {
+                    "cost": {"currency": "USD", "per_call_micros": 1200},
+                    "latency_declared": {"p50_ms": 40, "p95_ms": 120},
+                }
+            },
+        }
+    )
+    session = SimpleNamespace(
+        server_identity=AsyncMock(return_value=SERVER),
+        list_tools=AsyncMock(return_value=[tool]),
+    )
+    pack = await build_content_pack(
+        session, connector="demo-agent", kinds=(ToolArtifactKind(),)
+    )
+    annotations = pack.archive.entries[0].annotations
+    assert annotations is not None
+    assert annotations.cost is not None
+    assert annotations.cost.currency == "USD"
+    assert annotations.latency_declared is not None
+    assert annotations.latency_declared.p50_ms == 40
+    assert annotations.latency_declared.p95_ms == 120
+
+
+@pytest.mark.parametrize("currency", ["usd", "US", "USDD", "US1", "", "  USD"])
+async def test_tool_cost_rejects_non_iso4217_currency(currency: str) -> None:
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "mispriced",
+            "inputSchema": {"type": "object"},
+            "_meta": {
+                "eg.annotations": {"cost": {"currency": currency, "per_call_micros": 1}}
+            },
+        }
+    )
+    session = SimpleNamespace(list_tools=AsyncMock(return_value=[tool]))
+    with pytest.raises(MalformedArtifactError, match="ISO-4217"):
+        await ToolArtifactKind().list_entries(session, SERVER)
+
+
+async def test_tool_latency_rejects_p50_above_p95() -> None:
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "backwards-latency",
+            "inputSchema": {"type": "object"},
+            "_meta": {
+                "eg.annotations": {"latency_declared": {"p50_ms": 500, "p95_ms": 100}}
+            },
+        }
+    )
+    session = SimpleNamespace(list_tools=AsyncMock(return_value=[tool]))
+    with pytest.raises(MalformedArtifactError, match="p50_ms"):
         await ToolArtifactKind().list_entries(session, SERVER)
 
 

@@ -1,7 +1,8 @@
 """Write certified pins into a connector checkout.
 
 Two files carry a tool's pin: ``tool_schema_fingerprints.json`` (rendered
-whole, in the fleet's format) and each ``sync`` entry's ``tool_schema_sha256``
+whole, in the fleet's format, with each tool's D18 output-schema digest beside
+its contract pin) and each ``sync`` entry's ``tool_schema_sha256``
 in ``connector_manifest.yml`` (rewritten line by line, so the rest of the
 generated manifest is byte-for-byte unchanged). Nothing is written unless every
 preset tool has a live, non-empty fingerprint and the rewritten manifest parses
@@ -23,6 +24,7 @@ from agent_connector_sdk.certify.pin_journal import _PinTransactionError
 from agent_connector_sdk.certify.transaction import _replace_pin_pair
 from agent_connector_sdk.certify.verdicts import ToolVerdict
 from agent_connector_sdk.manifest.model import ConnectorManifest
+from agent_connector_sdk.manifest.package_validation import OUTPUT_PINS_KEY
 from agent_connector_sdk.manifest.tool_schema import (
     COMPATIBILITY_FINGERPRINT_ALGORITHM,
 )
@@ -42,13 +44,20 @@ class PinWriteError(RuntimeError):
     """Certified pins could not be written; no file was changed."""
 
 
-def render_fingerprints(connector: str, tools: Mapping[str, str]) -> str:
-    """The ``tool_schema_fingerprints.json`` document for ``tools``."""
+def render_fingerprints(
+    connector: str, tools: Mapping[str, str], output_schemas: Mapping[str, str]
+) -> str:
+    """The ``tool_schema_fingerprints.json`` document for ``tools``.
+
+    ``output_schemas`` holds each tool's D18 output-schema digest (``""`` when
+    the tool declares no output schema).
+    """
     document = {
         "schema_version": "1",
         "connector": connector,
         "algorithm": COMPATIBILITY_FINGERPRINT_ALGORITHM,
         "tools": dict(sorted(tools.items())),
+        OUTPUT_PINS_KEY: dict(sorted(output_schemas.items())),
     }
     return json.dumps(document, indent=2, sort_keys=True) + "\n"
 
@@ -131,6 +140,10 @@ def write_certified_pins(
     _commit_pair(
         checkout,
         manifest_text=manifest_text,
-        fingerprints_text=render_fingerprints(checkout.connector, live),
+        fingerprints_text=render_fingerprints(
+            checkout.connector,
+            live,
+            {verdict.tool: verdict.output_schema_sha256 for verdict in verdicts},
+        ),
     )
     return checkout.fingerprints_path, checkout.manifest_path
