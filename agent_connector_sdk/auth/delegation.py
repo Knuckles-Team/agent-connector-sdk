@@ -16,6 +16,7 @@ or absent token is never exchanged. Settings:
 
 from __future__ import annotations
 
+import dataclasses
 import functools
 import hashlib
 import threading
@@ -43,12 +44,15 @@ from agent_connector_sdk.credentials.resolver import (
     CredentialUnavailableError,
 )
 from agent_connector_sdk.exceptions import LoginRequiredError
+from agent_connector_sdk.http.client import create_http_client
+from agent_connector_sdk.http.options import HttpClientOptions
 
 __all__ = [
     "DelegatedTokenAuth",
     "DelegationSettings",
     "current_user_identity",
     "current_user_token",
+    "delegated_token",
     "exchange_token",
 ]
 
@@ -154,6 +158,46 @@ def exchange_token(
         form=form,
         client_auth=(settings.client_id, secret),
     )
+
+
+def delegated_token(
+    settings: DelegationSettings | None = None,
+    *,
+    audience: str | None = None,
+    scopes: str | None = None,
+    http_client: httpx.Client | None = None,
+    resolver: CredentialResolver | None = None,
+) -> str:
+    """A downstream token exchanged for the verified caller of this request.
+
+    ``settings`` defaults to :meth:`DelegationSettings.from_settings`;
+    ``audience`` and ``scopes`` override it for this call. Without
+    ``http_client`` a governed client for the token endpoint is used.
+    Clients built on ``httpx`` should attach :class:`DelegatedTokenAuth`
+    instead, which also caches per caller.
+
+    Raises:
+        LoginRequiredError: no verified caller token is available.
+        TokenRequestError: delegation is disabled or the exchange failed.
+    """
+    base = settings or DelegationSettings.from_settings()
+    effective = dataclasses.replace(
+        base, audience=audience or base.audience, scopes=scopes or base.scopes
+    )
+    subject = current_user_token()
+    if not subject:
+        raise LoginRequiredError("no verified caller token to delegate")
+    if not effective.enabled:
+        raise TokenRequestError("delegation is not enabled")
+    if http_client is not None:
+        return exchange_token(
+            effective, subject_token=subject, http_client=http_client, resolver=resolver
+        ).value
+    options = HttpClientOptions(base_url=effective.token_endpoint)
+    with create_http_client(options) as client:
+        return exchange_token(
+            effective, subject_token=subject, http_client=client, resolver=resolver
+        ).value
 
 
 class DelegatedTokenAuth(httpx.Auth):

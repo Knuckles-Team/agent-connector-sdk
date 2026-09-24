@@ -40,7 +40,7 @@ from agent_connector_sdk.mcp.registry import (
 from agent_connector_sdk.mcp.visibility import VisibilityTransform
 from agent_connector_sdk.mcp.visibility_policy import VisibilityPolicy
 
-__all__ = ["create_mcp_server"]
+__all__ = ["create_mcp_server", "run_mcp_server"]
 
 _logger = logging.getLogger(__name__)
 
@@ -137,3 +137,34 @@ def create_mcp_server(
     if content is not None:
         register_connector_content(mcp, content)
     return args, mcp, build_middleware()
+
+
+def run_mcp_server(
+    args: argparse.Namespace, mcp: FastMCP[Any], middlewares: Sequence[Any] = ()
+) -> None:
+    """Serve ``mcp`` on the transport ``args`` selected, inside its network boundary.
+
+    ``middlewares`` (the third value :func:`create_mcp_server` returns) are
+    added first. A network transport runs with the validated
+    :class:`~agent_connector_sdk.mcp.network.NetworkServingConfig`: exact host
+    and origin checks, the request-body bound, and the listener limits.
+
+    Raises:
+        SystemExit: the transport is unknown or the network boundary is unsafe.
+    """
+    for middleware in middlewares:
+        mcp.add_middleware(middleware)
+    try:
+        config = build_network_serving_config(args)
+    except NetworkExposureError as exc:
+        _logger.error("Refusing to serve MCP: %s", exc)
+        raise SystemExit(1) from exc
+    if config is None:
+        mcp.run(transport="stdio")
+        return
+    mcp.run(
+        transport=config.transport,
+        host=config.host,
+        port=config.port,
+        **config.fastmcp_run_kwargs(),
+    )

@@ -22,6 +22,7 @@ nav:
       - Content over MCP: content-over-mcp.md
       - Source synchronization: connector-sync.md
       - Repository ingestion: repository-ingestion.md
+      - Knowledge ingest: knowledge-ingest.md
       - Extension ports: extension-ports.md
       - Connector certification: connector-certify.md
       - HTTP clients: http-clients.md
