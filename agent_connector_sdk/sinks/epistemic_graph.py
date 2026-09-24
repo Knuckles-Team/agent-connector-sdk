@@ -85,9 +85,9 @@ class EpistemicGraphSink:
         """Read the sole durable checkpoint from EG's generated status method."""
         return await self._source.source_status(connector, stream)
 
-    def import_pack(self, pack: CapturedConnectorPack) -> Awaitable[PackImportResult]:
+    async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
         """Resolve current authority and import through the generated facade."""
-        return self._import_pack(pack)
+        return await self._import_pack(pack)
 
     async def _import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
         catalog, context = await self._pack_import_authority(pack.connector)

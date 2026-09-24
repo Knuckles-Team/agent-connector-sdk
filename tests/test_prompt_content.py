@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 
 import mcp_types
@@ -138,7 +139,7 @@ async def test_prompt_capture_fails_closed(
     failure: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     prompt = mcp_types.Prompt(name="demo")
-    result = {
+    result: dict[str, Any] = {
         "messages": [{"role": "user", "content": {"type": "text", "text": "body"}}]
     }
     if failure == "required":

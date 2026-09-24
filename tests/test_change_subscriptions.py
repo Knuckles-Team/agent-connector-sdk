@@ -116,7 +116,11 @@ class _SwitchBus:
                 current(ResourceUpdated(uri="data://during-switch"))
         token = object()
         self.listeners[token] = listener
-        return lambda: self.listeners.pop(token, None)
+
+        def _unsubscribe() -> None:
+            self.listeners.pop(token, None)
+
+        return _unsubscribe
 
 
 async def test_resubscribing_loses_no_event_published_during_the_switch() -> None:

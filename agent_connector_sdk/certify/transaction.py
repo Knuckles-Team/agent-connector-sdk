@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import base64
 import json
-import os
+import os as os  # re-exported: tests patch `pin_transaction.os.replace` directly
 from pathlib import Path
 
 from agent_connector_sdk.certify.pin_journal import (
     _JOURNAL_NAME,
     _PinTransactionError,
     _recover_pin_transaction,
-    _stage,
+    _stage as _stage,  # re-exported: tests patch `pin_transaction._stage` directly
     _sync_directory,
     _write_journal,
 )

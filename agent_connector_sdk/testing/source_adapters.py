@@ -10,7 +10,7 @@ from epistemic_graph.generated.source_ingestion import SourceCheckpoint, SourceR
 from agent_connector_sdk.contracts import SEAM_SCHEMA_VERSION
 from agent_connector_sdk.ports.errors import MalformedSourceDataError
 from agent_connector_sdk.ports.session import McpSession
-from agent_connector_sdk.ports.source_adapter import SourceAdapter
+from agent_connector_sdk.ports.source_adapter import DescribesCapabilities, SourceAdapter
 from agent_connector_sdk.testing.results import ConformanceResult, SessionFactory
 
 __all__ = [
@@ -59,7 +59,7 @@ async def sweep(
     )
 
 
-def check_capability_descriptor(adapter: SourceAdapter) -> ConformanceResult:
+def check_capability_descriptor(adapter: DescribesCapabilities) -> ConformanceResult:
     """The descriptor names the adapter kind, the seam version and pagination."""
     descriptor = adapter.describe()
     problems = [
