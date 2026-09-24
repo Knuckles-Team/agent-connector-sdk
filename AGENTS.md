@@ -113,8 +113,8 @@ gate to land a change.
 The development workflow lives in skills; load them before editing:
 
 - `graphos-ecosystem-development` — architecture boundaries, the lane protocol,
-  build hosts, gate caps, contract regeneration, landing (`eg-land-gate
-  --fanout` by default for the engine), and the decisions protocol.
+  build hosts, gate caps, contract regeneration, landing (the release-workflow gate
+  fanned out across hosts by default), and the decisions protocol.
 - `agent-connector-sdk-development` — this repository's module map, the
   generated-contract boundary, wiring gates, commands, and the table for
   moving a connector onto the SDK.
