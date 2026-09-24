@@ -335,7 +335,9 @@ async def test_pin_pair_rolls_back_when_the_second_replace_fails(
     real_replace = pin_transaction.os.replace
     calls = 0
 
-    def fail_second(source: str | os.PathLike[str], target: str | os.PathLike[str]) -> None:
+    def fail_second(
+        source: str | os.PathLike[str], target: str | os.PathLike[str]
+    ) -> None:
         nonlocal calls
         calls += 1
         if calls == 2:
@@ -380,7 +382,9 @@ async def test_load_checkout_recovers_an_interrupted_second_replace(
     real_replace = pin_transaction.os.replace
     calls = 0
 
-    def crash_second(source: str | os.PathLike[str], target: str | os.PathLike[str]) -> None:
+    def crash_second(
+        source: str | os.PathLike[str], target: str | os.PathLike[str]
+    ) -> None:
         nonlocal calls
         calls += 1
         if calls == 2:

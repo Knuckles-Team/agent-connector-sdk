@@ -57,9 +57,7 @@ class FakeRunner:
         question_id: str,
         options: Sequence[Option],
         fallback: Fallback,
-        *,
-        params: Iterable[Mapping[str, Any]] = (),
-        candidates: Mapping[str, Any] | None = None,
+        **kwargs: Any,
     ) -> Choice:
         return self._reply(question_id, options, fallback)
 

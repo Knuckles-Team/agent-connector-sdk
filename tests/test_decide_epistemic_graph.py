@@ -10,7 +10,6 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import pytest
-from epistemic_graph.generated import query as _generated_query
 
 from agent_connector_sdk.decide import Option
 from agent_connector_sdk.decide.epistemic_graph import (
@@ -49,7 +48,9 @@ _SCHEMA = {
 }
 
 
-def _record(outcome: dict[str, Any], *, digest: str = "sha256:" + "0" * 64) -> dict:
+def _record(
+    outcome: dict[str, Any], *, digest: str = "sha256:" + "0" * 64
+) -> dict[str, Any]:
     return {
         "record_id": "decision:" + digest[-8:],
         "record_digest": digest,
@@ -217,16 +218,6 @@ def test_generated_sender_lookup_is_dynamic_and_costs_only_unavailable() -> None
     assert _generated("query", _A_SENDER_ALWAYS_PUBLISHED) is not None
 
 
-@pytest.mark.skipif(
-    not hasattr(_generated_query, "send_decide"),
-    reason=(
-        "send_decide ships on EG's local main tree but the currently "
-        "installed epistemic-graph (wheel or vendored source) predates it -- "
-        "see /var/tmp/l9/finish/eg-wheel/REBUILD.md. The FakeTransport tests "
-        "above already cover this runner's logic without it; this test only "
-        "proves the wire shape reaches EG's own real generated wrapper."
-    ),
-)
 async def test_generated_transport_calls_egs_real_send_decide() -> None:
     """Proves the wire request this runner builds reaches EG's own generated
     ``send_decide`` wrapper without raising -- not a hand-rolled fake of it.
@@ -244,7 +235,7 @@ async def test_generated_transport_calls_egs_real_send_decide() -> None:
 
     client = _MockClient()
     transport = GeneratedTransport(client=client)
-    request = {
+    request: dict[str, Any] = {
         "tenant_id": "tenant-t",
         "question": {
             "question_id": "au.connector.tool",
@@ -254,7 +245,7 @@ async def test_generated_transport_calls_egs_real_send_decide() -> None:
         "candidates": {"source": "declared", "options": []},
         "feature_schema": _SCHEMA,
         "head": None,
-        "policy": {},
+        "policy": {"policy": "default"},
         "params": [],
         "max_records": 1,
     }

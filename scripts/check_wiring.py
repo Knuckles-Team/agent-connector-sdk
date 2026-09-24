@@ -130,6 +130,15 @@ def _assigned(node: ast.stmt) -> list[str]:
     return [target.id for target in node.targets if isinstance(target, ast.Name)]
 
 
+def _declared_all(node: ast.stmt) -> ast.expr | None:
+    """The value of ``__all__ = [...]`` or ``__all__: list[str] = [...]``."""
+    if isinstance(node, ast.Assign) and "__all__" in _assigned(node):
+        return node.value
+    if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+        return node.value if node.target.id == "__all__" else None
+    return None
+
+
 def _top_level_names(tree: ast.Module) -> list[str]:
     """Top-level definitions plus upper-case constants."""
     names: list[str] = []
@@ -145,8 +154,9 @@ def public_names(path: Path) -> list[str]:
     """The public names a module exports: ``__all__`` when declared."""
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     for node in tree.body:
-        if isinstance(node, ast.Assign) and "__all__" in _assigned(node):
-            return [str(name) for name in ast.literal_eval(node.value)]
+        declared = _declared_all(node)
+        if declared is not None:
+            return [str(name) for name in ast.literal_eval(declared)]
     return [name for name in _top_level_names(tree) if not name.startswith("_")]
 
 

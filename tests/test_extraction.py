@@ -30,7 +30,10 @@ from agent_connector_sdk.ports.errors import (
     SourceContractError,
 )
 from agent_connector_sdk.ports.session import McpSession, TransportEndpoint
-from agent_connector_sdk.ports.source_adapter import SourceAdapter
+from agent_connector_sdk.ports.source_adapter import (
+    DescribesCapabilities,
+    SourceAdapter,
+)
 from agent_connector_sdk.ports.transport import Transport
 from agent_connector_sdk.testing.results import (
     ConformanceFailure,
@@ -385,7 +388,9 @@ class _FakeAdapter:
 async def test_conformance_checks_report_failures(
     adapter: McpToolSourceAdapter, sessions: SessionFactory
 ) -> None:
-    assert not check_capability_descriptor(_FakeAdapter()).passed
+    descriptor_only: DescribesCapabilities = _FakeAdapter()
+    assert isinstance(descriptor_only, DescribesCapabilities)
+    assert not check_capability_descriptor(descriptor_only).passed
     single_page = McpToolSourceAdapter(
         adapter._preset.model_copy(update={"params": {"count": 50}}),
         connector=CONNECTOR,

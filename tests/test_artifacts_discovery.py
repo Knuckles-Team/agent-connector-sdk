@@ -8,7 +8,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
 from unittest.mock import AsyncMock
 
 import mcp_types
@@ -50,6 +50,7 @@ from agent_connector_sdk.manifest.tool_schema import canonical_output_schema
 from agent_connector_sdk.mcp.content import ConnectorContent
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
 from agent_connector_sdk.ports.errors import MalformedArtifactError
+from agent_connector_sdk.ports.session import McpSession
 from agent_connector_sdk.runner.provisioning import provision_connector_content
 from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
 from agent_connector_sdk.testing.artifact_kinds import (
@@ -175,8 +176,8 @@ async def test_contract_pin_normalization_reports_an_empty_client_schema(
             return None
 
     @asynccontextmanager
-    async def _broken_sessions() -> AsyncIterator[_BrokenSchemaSession]:
-        yield _BrokenSchemaSession()
+    async def _broken_sessions() -> AsyncIterator[McpSession]:
+        yield cast(McpSession, _BrokenSchemaSession())
 
     result = await check_tool_contract_pin_normalization(
         _FabricatedToolKind(), _broken_sessions

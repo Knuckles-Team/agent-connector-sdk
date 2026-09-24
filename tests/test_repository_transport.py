@@ -23,7 +23,10 @@ from epistemic_graph.generated.index_repository import (
 from agent_connector_sdk.repository import (
     LocalGitRepositoryProvider,
     RepositoryBatchLimits,
+    RepositoryBatchReceipt,
+    RepositoryIndexManifest,
     RepositoryIndexReceipt,
+    RepositoryRefManifest,
     RepositorySnapshotProvider,
     RepositoryTransportError,
     index_repository,
@@ -202,6 +205,10 @@ async def test_every_ref_keeps_exactly_its_own_memberships(repository: Path) -> 
 
     assert graph.graphs == {"repositories"}
     assert graph.memberships() == _expected_memberships()
+    assert isinstance(receipt.manifest, RepositoryIndexManifest)
+    assert all(isinstance(ref, RepositoryRefManifest) for ref in receipt.manifest.refs)
+    assert receipt.batches
+    assert all(isinstance(batch, RepositoryBatchReceipt) for batch in receipt.batches)
     refs = {ref.ref_name: ref for ref in receipt.manifest.refs}
     assert sorted(refs) == ["refs/heads/feature", "refs/heads/main", "refs/tags/v1"]
     feature = refs["refs/heads/feature"].snapshot

@@ -82,3 +82,19 @@ def test_public_api_gate_fires_on_an_untested_name(tmp_path: Path) -> None:
     )
     _git(root, "add", "--", "tests/test_api.py")
     assert _run("public-api", root).returncode == 0
+
+
+def test_public_api_gate_honours_an_annotated_all(tmp_path: Path) -> None:
+    root = _repository(
+        tmp_path,
+        {
+            "agent_connector_sdk/__init__.py": "",
+            "agent_connector_sdk/internal.py": "__all__: list[str] = []\nclass Helper: ...\n",
+            "agent_connector_sdk/api.py": '__all__: list[str] = ["exported"]\ndef exported(): ...\n',
+            "tests/test_api.py": "def test_it():\n    pass\n",
+        },
+    )
+    planted = _run("public-api", root)
+    assert planted.returncode == 1
+    assert "agent_connector_sdk.api:exported" in planted.stdout
+    assert "internal:Helper" not in planted.stdout

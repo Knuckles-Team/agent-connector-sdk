@@ -100,9 +100,7 @@ class _NotReadySink:
     async def submit(self, batch: SourceIngestionRequest) -> SourceIngestionReceipt:
         raise NotImplementedError
 
-    async def source_status(
-        self, connector: str, stream: str
-    ) -> SourceIngestStatus:
+    async def source_status(self, connector: str, stream: str) -> SourceIngestStatus:
         raise NotImplementedError
 
     async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
@@ -126,9 +124,7 @@ class _HangingSink:
     async def submit(self, batch: SourceIngestionRequest) -> SourceIngestionReceipt:
         raise NotImplementedError
 
-    async def source_status(
-        self, connector: str, stream: str
-    ) -> SourceIngestStatus:
+    async def source_status(self, connector: str, stream: str) -> SourceIngestStatus:
         raise NotImplementedError
 
     async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:

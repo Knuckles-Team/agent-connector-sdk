@@ -426,7 +426,8 @@ def test_tool_mode_annotation_joins_the_pack_digest() -> None:
     with zero SDK code changes. This proves that against the exact pack-complete facade: two
     packs identical except for one tool's ``tool_mode`` must not collide.
     """
-    def _pack_digest_for(tool_mode: object | None) -> str:
+
+    def _pack_digest_for(tool_mode: PackToolMode | None) -> str:
         server_entry = ConnectorPackEntryContent(
             kind=PackEntryKind.MCP_SERVER,
             uri="mcp-server://demo-agent",

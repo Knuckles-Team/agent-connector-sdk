@@ -24,6 +24,7 @@ from pathlib import Path
 
 from epistemic_graph.generated.write_back import (
     SourceChangeSet,
+    WriteBackAttempt,
     WriteBackAuthorizationDecision,
     WriteBackAuthorizationMode,
     WriteBackEffectStatus,
@@ -76,7 +77,9 @@ class _KillAfterApplyTransport(FileWriteBackTransport):
     attempt happened.
     """
 
-    async def apply(self, change_set: SourceChangeSet, expected_version: str) -> object:
+    async def apply(
+        self, change_set: SourceChangeSet, expected_version: str
+    ) -> WriteBackAttempt:
         attempt = await super().apply(change_set, expected_version)
         os.kill(os.getpid(), signal.SIGKILL)
         return attempt  # pragma: no cover - unreachable, the process is dead
