@@ -117,6 +117,13 @@ its tenant claim and its `roles`, `groups` and `realm_access.roles`.
 `admin`/`system` everything. No verified, tenant-bound caller raises
 `IdentityRequiredError`; nothing matching grants nothing.
 
+## Connector directories
+
+`agent_connector_sdk.paths.data_dir(connector)`, `config_dir(connector)` and
+`cache_dir(connector)` return `$XDG_DATA_HOME/<connector>`, `$XDG_CONFIG_HOME/<connector>`
+and `$XDG_CACHE_HOME/<connector>` (the usual home-directory defaults when unset).
+`<CONNECTOR>_DATA_DIR`, `_CONFIG_DIR` and `_CACHE_DIR` override each one.
+
 ## Visibility
 
 `MCP_ENABLED_TOOLS`, `MCP_DISABLED_TOOLS`, `MCP_ENABLED_TAGS` and

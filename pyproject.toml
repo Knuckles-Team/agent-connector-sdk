@@ -164,6 +164,7 @@ public_modules = [
     "agent_connector_sdk.mcp.server",
     "agent_connector_sdk.mcp.tool_mode",
     "agent_connector_sdk.mcp.tool_surface",
+    "agent_connector_sdk.paths",
     "agent_connector_sdk.ports.artifact_kind",
     "agent_connector_sdk.ports.authorization_verifier",
     "agent_connector_sdk.ports.change_source",
