@@ -11,6 +11,7 @@ from agent_connector_sdk.http.egress import (
     MAX_RESOLVED_ADDRESSES,
     EgressDecision,
     egress_ip_is_blocked,
+    resolve_host,
     validate_egress_url,
     validate_resolved_egress_url,
 )
@@ -83,3 +84,10 @@ def test_resolution_failures_refuse() -> None:
     assert garbage.reason == "invalid address resolved"
     literal = validate_resolved_egress_url("https://93.184.216.34")
     assert literal.resolved_ips == ("93.184.216.34",)
+
+
+def test_resolve_host_lists_distinct_addresses_without_judging_them() -> None:
+    decision = resolve_host(
+        "svc.internal", resolver=_answers("10.0.0.5", "10.0.0.5", "10.0.0.6")
+    )
+    assert decision == EgressDecision(True, "resolved", ("10.0.0.5", "10.0.0.6"))

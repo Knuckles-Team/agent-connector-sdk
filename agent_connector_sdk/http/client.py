@@ -12,7 +12,9 @@ Every client built here:
 * does not follow redirects;
 * retries under its :class:`~agent_connector_sdk.http.retry.RetryPolicy` and logs
   each attempt to the ``agent_connector_sdk.http`` logger with secrets redacted;
-* rejects credential-bearing default headers: credentials go through ``auth``.
+* rejects credential-bearing default headers: credentials go through ``auth``;
+* with an ``egress`` policy, resolves each request once and connects only to the
+  checked address (DNS-rebinding-safe SSRF pinning).
 
 The options are :class:`~agent_connector_sdk.http.options.HttpClientOptions`.
 """
@@ -28,6 +30,10 @@ import httpx
 
 from agent_connector_sdk._version import __version__
 from agent_connector_sdk.http.options import HttpClientOptions
+from agent_connector_sdk.http.pinning import (
+    AsyncPinnedEgressTransport,
+    PinnedEgressTransport,
+)
 from agent_connector_sdk.http.redaction import redact_url
 from agent_connector_sdk.http.transport import AsyncGovernedTransport, GovernedTransport
 
@@ -90,7 +96,11 @@ def create_http_client(
     by the retrying, logging transport, and the TLS profile does not apply to it.
     """
     inner = transport or httpx.HTTPTransport(**_transport_kwargs(options))
-    governed = GovernedTransport(inner, policy=options.retry, logger=_logger)
+    governed: httpx.BaseTransport = GovernedTransport(
+        inner, policy=options.retry, logger=_logger
+    )
+    if options.egress is not None:
+        governed = PinnedEgressTransport(governed, options.egress)
     return httpx.Client(transport=governed, **_client_kwargs(options))
 
 
@@ -99,5 +109,9 @@ def create_async_http_client(
 ) -> httpx.AsyncClient:
     """An asynchronous governed client; see :func:`create_http_client`."""
     inner = transport or httpx.AsyncHTTPTransport(**_transport_kwargs(options))
-    governed = AsyncGovernedTransport(inner, policy=options.retry, logger=_logger)
+    governed: httpx.AsyncBaseTransport = AsyncGovernedTransport(
+        inner, policy=options.retry, logger=_logger
+    )
+    if options.egress is not None:
+        governed = AsyncPinnedEgressTransport(governed, options.egress)
     return httpx.AsyncClient(transport=governed, **_client_kwargs(options))

@@ -10,6 +10,7 @@ from urllib.parse import urlsplit
 
 import httpx
 
+from agent_connector_sdk.http.egress_policy import EgressPolicy
 from agent_connector_sdk.http.redaction import is_sensitive_name
 from agent_connector_sdk.http.retry import RetryPolicy
 from agent_connector_sdk.tls.profile import ResolvedTLSProfile
@@ -55,6 +56,14 @@ def _plaintext_problem(base_url: str, allow_plaintext: bool) -> str | None:
     return "plaintext http requires allow_plaintext"
 
 
+def _egress_problem(
+    egress: EgressPolicy | None, tls: ResolvedTLSProfile | None
+) -> str | None:
+    if egress is not None and tls is not None and tls.proxy_url:
+        return "DNS-pinned egress cannot go through a proxy"
+    return None
+
+
 @dataclass(frozen=True)
 class HttpClientOptions:
     """How a governed client reaches one API.
@@ -68,6 +77,8 @@ class HttpClientOptions:
         headers: Default headers; credential-bearing names are rejected.
         limits: Connection pool limits.
         allow_plaintext: Permit ``http://`` to a non-loopback host.
+        egress: Pin every request to a DNS-checked address (see
+            :mod:`agent_connector_sdk.http.egress_policy`); not with a proxy.
 
     Raises:
         ValueError: on construction, when any of the rules above is broken.
@@ -81,6 +92,7 @@ class HttpClientOptions:
     headers: Mapping[str, str] = field(default_factory=dict)
     limits: httpx.Limits | None = None
     allow_plaintext: bool = False
+    egress: EgressPolicy | None = None
 
     def __post_init__(self) -> None:
         credential_headers = any(is_sensitive_name(name) for name in self.headers)
@@ -91,6 +103,7 @@ class HttpClientOptions:
             if credential_headers
             else None,
             _plaintext_problem(self.base_url, self.allow_plaintext),
+            _egress_problem(self.egress, self.tls),
         )
         problem = next((item for item in problems if item), None)
         if problem is not None:
