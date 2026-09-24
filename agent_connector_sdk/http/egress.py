@@ -42,7 +42,7 @@ class EgressDecision:
 
 
 def egress_ip_is_blocked(ip: str, *, allow_loopback: bool) -> bool:
-    """Whether ``ip`` is outside the public egress boundary (unparseable blocks)."""
+    """Whether ``ip`` is outside the public egress boundary (unparsable blocks)."""
     try:
         address = ipaddress.ip_address(ip)
     except ValueError:
@@ -95,7 +95,7 @@ def resolve_host(host: str, *, resolver: Resolver | None = None) -> EgressDecisi
     """Resolve ``host`` once, bounded; the decision lists every distinct address.
 
     Refused when resolution fails, returns nothing, returns more than
-    :data:`MAX_RESOLVED_ADDRESSES` answers or an unparseable address. No range
+    :data:`MAX_RESOLVED_ADDRESSES` answers or an unparsable address. No range
     check: callers apply their own boundary to ``resolved_ips``.
     """
     try:

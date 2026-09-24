@@ -94,6 +94,6 @@ def test_resolution_failures_refuse() -> None:
 
 def test_resolve_host_lists_distinct_addresses_without_judging_them() -> None:
     decision = resolve_host(
-        "svc.internal", resolver=_answers("10.0.0.5", "10.0.0.5", "10.0.0.6")
+        "svc.example", resolver=_answers("10.0.0.5", "10.0.0.5", "10.0.0.6")
     )
     assert decision == EgressDecision(True, "resolved", ("10.0.0.5", "10.0.0.6"))

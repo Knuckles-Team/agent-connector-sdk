@@ -26,11 +26,12 @@ __all__ = ["AsyncPinnedEgressTransport", "PinnedEgressTransport"]
 
 def _check_peer(response: httpx.Response, pin: Pin) -> None:
     stream = response.extensions.get("network_stream")
-    extra = getattr(stream, "get_extra_info", None)
-    if not callable(extra):
+    get_extra_info = getattr(stream, "get_extra_info", None)
+    if not callable(get_extra_info):
         raise PinnedEgressViolation("outbound peer identity is unavailable")
     try:
-        peer = ipaddress.ip_address(str(extra("server_addr")[0])).compressed
+        server_addr = get_extra_info("server_addr")
+        peer = ipaddress.ip_address(str(server_addr[0])).compressed
     except (IndexError, TypeError, ValueError) as exc:
         raise PinnedEgressViolation("outbound peer identity is invalid") from exc
     if peer != pin.address:

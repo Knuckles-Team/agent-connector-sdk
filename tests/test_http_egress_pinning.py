@@ -182,12 +182,12 @@ def test_real_connection_goes_to_the_pin_and_passes_peer_verification(
     server.enqueue(ScriptedResponse(body=b"ok"))
     port = httpx.URL(server.base_url).port
     resolver, _ = _dns(("127.0.0.1",))
-    policy = EgressPolicy.for_hosts(["svc.internal"])
+    policy = EgressPolicy.for_hosts(["svc.example"])
     transport = PinnedEgressTransport(httpx.HTTPTransport(), policy, resolver=resolver)
     with httpx.Client(transport=transport) as client:
-        response = client.get(f"http://svc.internal:{port}/health")
+        response = client.get(f"http://svc.example:{port}/health")
     assert response.text == "ok"
-    assert server.requests[0].headers["host"] == f"svc.internal:{port}"
+    assert server.requests[0].headers["host"] == f"svc.example:{port}"
 
 
 def test_tls_verifies_the_logical_host_not_the_pinned_address(tmp_path: Path) -> None:
@@ -200,9 +200,9 @@ def test_tls_verifies_the_logical_host_not_the_pinned_address(tmp_path: Path) ->
         ok, ssl_context=certificates.server_context(tmp_path)
     ) as server:
         port = httpx.URL(server.base_url).port
-        policy = EgressPolicy.for_hosts(["localhost", "impostor.internal"])
+        policy = EgressPolicy.for_hosts(["localhost", "impostor.example"])
         resolver, _ = _dns(("127.0.0.1",))
-        for host, trusted in (("localhost", True), ("impostor.internal", False)):
+        for host, trusted in (("localhost", True), ("impostor.example", False)):
             inner = httpx.HTTPTransport(verify=profile.ssl_context)
             transport = PinnedEgressTransport(inner, policy, resolver=resolver)
             with httpx.Client(transport=transport) as client:
