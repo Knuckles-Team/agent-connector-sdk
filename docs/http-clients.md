@@ -127,6 +127,27 @@ private, link-local, reserved or metadata IP literals;
 `validate_resolved_egress_url(url)` also resolves the host and refuses when any
 address is blocked. Connect to one of the returned `resolved_ips`.
 
+A check before the request does not stop DNS rebinding: the connection would
+resolve the name again. Give the client an `EgressPolicy` to pin instead:
+
+```python
+from agent_connector_sdk.http.egress_policy import EgressPolicy
+
+options = HttpClientOptions(
+    base_url="https://vault.lab:8200",
+    egress=EgressPolicy.for_hosts(["vault.lab"]),
+)
+```
+
+Every request is resolved once; every answer must be public (or, for a host in
+`allowed_private_hosts`, must be loopback, RFC 1918, RFC 6598 or IPv6 ULA); the
+request is sent to that address with the original `Host` header and TLS server
+name, so the certificate is still verified for the logical host; the connected
+peer must be the pinned address; and a pooled connection never serves a second
+host. Violations raise `PinnedEgressViolation`. Pinning cannot be combined with
+a proxy. `PinnedEgressTransport` and `AsyncPinnedEgressTransport` wrap any
+`httpx` transport the same way.
+
 ### MCP endpoints
 
 The same client-credentials implementation authenticates the connector-sync

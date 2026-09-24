@@ -21,6 +21,7 @@ __all__ = [
     "MAX_RESOLVED_ADDRESSES",
     "EgressDecision",
     "egress_ip_is_blocked",
+    "resolve_host",
     "validate_egress_url",
     "validate_resolved_egress_url",
 ]
@@ -90,20 +91,29 @@ def validate_egress_url(url: str, *, allow_loopback: bool = True) -> EgressDecis
     return EgressDecision(True, "allowed IP literal", (literal,))
 
 
-def _resolved(host: str, resolver: Resolver) -> tuple[str, ...] | str:
+def resolve_host(host: str, *, resolver: Resolver | None = None) -> EgressDecision:
+    """Resolve ``host`` once, bounded; the decision lists every distinct address.
+
+    Refused when resolution fails, returns nothing, returns more than
+    :data:`MAX_RESOLVED_ADDRESSES` answers or an unparseable address. No range
+    check: callers apply their own boundary to ``resolved_ips``.
+    """
     try:
-        answers = resolver(host, None)
+        answers = (resolver or socket.getaddrinfo)(host, None)
     except OSError:
-        return "DNS resolution failed"
+        return EgressDecision(False, "DNS resolution failed")
     if len(answers) > MAX_RESOLVED_ADDRESSES:
-        return "too many addresses resolved"
+        return EgressDecision(False, "too many addresses resolved")
     addresses: list[str] = []
     for answer in answers:
         try:
             addresses.append(ipaddress.ip_address(str(answer[4][0])).compressed)
         except (IndexError, TypeError, ValueError):
-            return "invalid address resolved"
-    return tuple(dict.fromkeys(addresses)) or "no addresses resolved"
+            return EgressDecision(False, "invalid address resolved")
+    unique = tuple(dict.fromkeys(addresses))
+    if not unique:
+        return EgressDecision(False, "no addresses resolved")
+    return EgressDecision(True, "resolved", unique)
 
 
 def validate_resolved_egress_url(
@@ -116,9 +126,10 @@ def validate_resolved_egress_url(
     decision = validate_egress_url(url, allow_loopback=allow_loopback)
     if not decision.allowed or decision.resolved_ips:
         return decision
-    addresses = _resolved(urlsplit(url).hostname or "", resolver or socket.getaddrinfo)
-    if isinstance(addresses, str):
-        return EgressDecision(False, addresses)
+    resolved = resolve_host(urlsplit(url).hostname or "", resolver=resolver)
+    if not resolved.allowed:
+        return resolved
+    addresses = resolved.resolved_ips
     if any(egress_ip_is_blocked(ip, allow_loopback=allow_loopback) for ip in addresses):
         return EgressDecision(False, "resolves to blocked address")
     return EgressDecision(True, "all resolved addresses allowed", addresses)
