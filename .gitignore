@@ -30,5 +30,8 @@ scratch/
 *.log
 .env
 .envrc
-.kiss/*
-!.kiss/kiss.toml
+.kiss/
+*maturin.lock
+# Shared pipelines checkouts the Pages workflow (and a local docs build) creates
+.pipeline-theme/
+.pipeline-contract/

@@ -8,8 +8,11 @@ ROOT = Path(__file__).resolve().parents[2]
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 PAGES = ROOT / ".github" / "workflows" / "pages.yml"
 CCCC_REVISION = "d728759323be5d9977b7390a27133e8eaf481f26"
-PIPELINES_REVISION = "444b232c7975e125a24b17d53ff615f5ad26a4cd"
-PAGES_PIPELINE_REVISION = "444b232c7975e125a24b17d53ff615f5ad26a4cd"
+# Knuckles-Team/pipelines is the one sanctioned exception to this repo's
+# immutable-pin policy: every consumer references it at `main`, never a
+# commit SHA or tag (operator ruling, plans/refactor/DECISIONS.md).
+PIPELINES_REVISION = "main"
+PAGES_PIPELINE_REVISION = "main"
 PAGES_PIPELINE = (
     "Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml"
     f"@{PAGES_PIPELINE_REVISION}"
