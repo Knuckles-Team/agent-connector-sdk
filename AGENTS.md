@@ -108,6 +108,19 @@ gate to land a change.
 
 ## Development rules
 
+### Developing here
+
+The development workflow lives in skills; load them before editing:
+
+- `graphos-ecosystem-development` — architecture boundaries, the lane protocol,
+  build hosts, gate caps, contract regeneration, landing (`eg-land-gate
+  --fanout` by default for the engine), and the decisions protocol.
+- `agent-connector-sdk-development` — this repository's module map, the
+  generated-contract boundary, wiring gates, commands, and the table for
+  moving a connector onto the SDK.
+
+### Rules
+
 - Put shared connector behavior in this SDK and vendor behavior in the owning
   connector. Do not add graph storage, reasoning, agents, or orchestration here.
 - Preserve one contract at every boundary. Import epistemic-graph-owned schemas
@@ -155,5 +168,7 @@ This repository is a shared multi-worktree checkout.
   inspect `git diff --cached`, and keep unrelated work untouched.
 - Do not overwrite another lane's branch, generated files, lockfile, or
   uncommitted changes. Rebase or recompose only after identifying ownership.
-- Do not use `--no-verify`. Commit, push, tag, publish, and deploy are distinct
+- Do not use `--no-verify` to get past a red gate. In a coordinated program,
+  lane commits skip hooks because the full suite runs once on the merged tree
+  at landing. Commit, push, tag, publish, and deploy are distinct
   operations and each requires its own completed gates and authority.
