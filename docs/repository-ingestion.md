@@ -9,15 +9,18 @@ across all of them, fetches and submits each unique blob exactly once, and sends
 the `(ref, path) -> blob` memberships with it. Epistemic-graph alone parses,
 resolves cross-file symbols, and owns every semantic or durable graph effect.
 
-```mermaid
-flowchart LR
-    A[Authenticated provider client] --> B[Refs pinned to revisions]
-    B --> C[Tree walks: path + blob id]
-    C --> D[SDK plan: unique blobs, memberships, tombstones]
-    D --> E[Bounded batches: each blob once]
-    E --> F[EG IndexRepository with scope]
-    F --> G[":Blob (symbols) / :FileVersion / :Branch"]
-```
+<div class="admonition architecture" markdown>
+<p class="admonition-title">Ingestion flow</p>
+
+An authenticated provider client lists refs pinned to immutable revisions and
+walks each tree as `(path, blob id)` entries. The SDK plans unique blobs,
+`(ref, path)` memberships and tombstones, submits bounded batches that carry
+each blob exactly once, and hands them to EG's `IndexRepository` with a scope.
+EG returns typed per-file outcomes and records `:Blob` (with its symbols),
+`:FileVersion` and `:Branch` nodes; it is the semantic authority for the
+ingested content.
+
+</div>
 
 Call `index_repository(provider, client, prior=..., limits=...)`. Two branches
 that share history share blobs, so indexing every branch costs barely more than
