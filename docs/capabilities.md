@@ -10,6 +10,7 @@ part of the current public package.
 | Connector content | Typed publication and capture of tools, skills, prompts, resources, ontologies, SHACL shapes, and manifests | [Content over MCP](content-over-mcp.md) |
 | Source synchronization | Certified discovery, bounded extraction, explicit lifecycle modes, durable status reads, and receipt-verified checkpoint progression | [Connector sync](connector-sync.md) |
 | ConnectorPack | Deterministic archives whose exact served content crosses generated Epistemic Graph contracts | [Architecture](architecture.md#connectorpack-lifecycle) |
+| Knowledge ingest | Typed change sets (entities, documents, media, relationships) pushed through generated SourceIngest against the durable checkpoint | [Knowledge ingest](knowledge-ingest.md) |
 | Repository ingestion | Authenticated immutable snapshots, stable manifests, bounded object transfer, tombstones, and typed per-file outcomes | [Repository ingestion](repository-ingestion.md) |
 | Write-back | Side-effect-free preview, authorization verification, optimistic source versions, idempotent apply, and uncertain-effect reconciliation | [Architecture](architecture.md#writeback-lifecycle) |
 | Extension system | Typed source, artifact, transport, sink, registry, authorization, and write-back ports with exact distribution certification | [Extension interfaces](extension-ports.md) |

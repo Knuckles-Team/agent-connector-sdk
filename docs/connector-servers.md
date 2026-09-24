@@ -39,22 +39,19 @@ all three of: an authentication mode other than `none`, a TLS boundary (a
 certificate and key, or `--tls-terminated` with `--trusted-proxy-cidrs`), and an
 exact `--allowed-hosts` list.
 
-Build the serving boundary once and pass it intact to FastMCP:
+Serve through `run_mcp_server`, which adds the middlewares and passes the
+validated boundary intact to FastMCP:
 
 ```python
-from agent_connector_sdk.mcp.network import build_network_serving_config
+from agent_connector_sdk.mcp.server import create_mcp_server, run_mcp_server
 
-serving = build_network_serving_config(args)
-if serving is None:
-    mcp.run(transport="stdio")
-else:
-    mcp.run(
-        transport=args.transport,
-        host=args.host,
-        port=args.port,
-        **serving.fastmcp_run_kwargs(),
-    )
+args, mcp, middlewares = create_mcp_server("demo", version="1.0.0")
+run_mcp_server(args, mcp, middlewares)
 ```
+
+A server that runs FastMCP itself builds the boundary with
+`build_network_serving_config(args)` and passes `fastmcp_run_kwargs()` to
+`mcp.run`.
 
 The typed configuration enforces exact Host and browser/WebSocket Origin
 allowlists, a bounded request body with a read timeout, and the immediate-peer
@@ -102,6 +99,23 @@ plus `tool__action` aliases derived from the condensed tools.
 
 Each condensed registrar honours a `<TAG>TOOL` setting. A destructive operation
 asks the connected user to confirm and is cancelled when it cannot.
+
+## GraphQL introspection
+
+`agent_connector_sdk.mcp.graphql.graphql_schema_types(execute)` and
+`graphql_type_details(execute, type_name)` run the standard introspection
+queries through the connector's own sync or async `execute(query, variables=...)`
+function and return its response.
+
+## Identity-scoped resources
+
+`agent_connector_sdk.entitlements.identity_scoped_resources(namespace, available)`
+returns the resources (kube contexts, hosts, databases) the verified caller may
+reach. The caller is the bound `ActorContext`, else the verified access token:
+its tenant claim and its `roles`, `groups` and `realm_access.roles`.
+`"<namespace>:<resource>"` grants one resource, `"<namespace>:*"` all of them,
+`admin`/`system` everything. No verified, tenant-bound caller raises
+`IdentityRequiredError`; nothing matching grants nothing.
 
 ## Visibility
 

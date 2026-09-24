@@ -22,6 +22,7 @@ from agent_connector_sdk.auth.delegation import (
     DelegationSettings,
     current_user_identity,
     current_user_token,
+    delegated_token,
     exchange_token,
 )
 from agent_connector_sdk.auth.static import (
@@ -360,3 +361,44 @@ def test_credential_value_checks(monkeypatch: pytest.MonkeyPatch) -> None:
             header_safe(bad, what="token")
     monkeypatch.setenv("DEMO_VALUE", "v4lue")
     assert resolved_credential("env://DEMO_VALUE", None) == "v4lue"
+
+
+def test_delegated_token_exchanges_for_the_verified_caller(
+    monkeypatch: pytest.MonkeyPatch, caller: str, token_server: ScriptedHttpServer
+) -> None:
+    monkeypatch.setenv("DEMO_OIDC_SECRET", "oidc")
+    token_server.enqueue(_token("downstream"))
+    settings = DelegationSettings(
+        enabled=True,
+        token_endpoint=f"{token_server.base_url}/token",
+        client_id="conn",
+        client_secret_ref="env://DEMO_OIDC_SECRET",
+        audience="gitlab",
+    )
+    assert delegated_token(settings, audience="jira", scopes="read") == "downstream"
+    form = parse_qs(token_server.requests[0].body.decode())
+    assert form["subject_token"] == [caller]
+    assert form["audience"] == ["jira"] and form["scope"] == ["read"]
+
+
+def test_delegated_token_with_a_supplied_client(
+    monkeypatch: pytest.MonkeyPatch,
+    caller: str,
+    token_server: ScriptedHttpServer,
+    token_client: httpx.Client,
+) -> None:
+    monkeypatch.setenv("DEMO_OIDC_SECRET", "oidc")
+    token_server.enqueue(_token("via-client"))
+    settings = _delegation(token_server)
+    assert delegated_token(settings, http_client=token_client) == "via-client"
+
+
+def test_delegated_token_fails_closed(
+    monkeypatch: pytest.MonkeyPatch, caller: str, token_server: ScriptedHttpServer
+) -> None:
+    monkeypatch.delenv("ENABLE_DELEGATION", raising=False)
+    with pytest.raises(TokenRequestError, match="not enabled"):
+        delegated_token()
+    auth_context_var.set(None)
+    with pytest.raises(LoginRequiredError):
+        delegated_token(_delegation(token_server))

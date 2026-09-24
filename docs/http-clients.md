@@ -115,6 +115,17 @@ fleet MCP servers.
 
 Delegation exchanges only the access token the connector's own MCP server
 authentication verified; with no verified caller it raises `LoginRequiredError`.
+Code that needs the token value itself (a non-`httpx` SDK) calls
+`delegated_token(audience=..., scopes=...)`, which reads the same settings.
+
+## Egress checks
+
+Before following a URL the connector did not configure (an upload session, a
+webhook target), check it with `agent_connector_sdk.http.egress`:
+`validate_egress_url(url)` refuses non-HTTP schemes, embedded credentials and
+private, link-local, reserved or metadata IP literals;
+`validate_resolved_egress_url(url)` also resolves the host and refuses when any
+address is blocked. Connect to one of the returned `resolved_ips`.
 
 ### MCP endpoints
 
