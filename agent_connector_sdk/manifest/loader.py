@@ -21,6 +21,7 @@ from agent_connector_sdk.manifest.model import ConnectorManifest
 from agent_connector_sdk.manifest.package_validation import (
     FINGERPRINTS_FILE_NAME,
     MANIFEST_FILE_NAME,
+    OUTPUT_PINS_KEY,
     PRESETS_FILE_NAME,
     ToolSchemaFingerprints,
     validate_connector_package,
@@ -94,18 +95,33 @@ def load_tool_presets(path: Path) -> dict[str, ToolPreset]:
     return presets
 
 
-def load_tool_schema_fingerprints(path: Path) -> ToolSchemaFingerprints:
-    """Parse ``tool_schema_fingerprints.json``."""
-    document = _load_json_object(path)
-    tools = document.get("tools")
-    if not isinstance(tools, dict) or not all(
-        isinstance(key, str) and isinstance(value, str) for key, value in tools.items()
+def _string_map(value: Any) -> dict[str, str] | None:
+    if not isinstance(value, dict) or not all(
+        isinstance(key, str) and isinstance(item, str) for key, item in value.items()
     ):
+        return None
+    return dict(value)
+
+
+def load_tool_schema_fingerprints(path: Path) -> ToolSchemaFingerprints:
+    """Parse ``tool_schema_fingerprints.json``.
+
+    ``output_schema_sha256`` (D18) maps each tool to its output-schema digest;
+    ``""`` records that the tool declares no output schema. A file certified
+    before D18 has no such map, which validation reports as unpinned.
+    """
+    document = _load_json_object(path)
+    tools = _string_map(document.get("tools"))
+    if tools is None:
         raise ManifestError(f"{path.name} must map tool names to fingerprints")
+    outputs = _string_map(document.get(OUTPUT_PINS_KEY, {}))
+    if outputs is None:
+        raise ManifestError(f"{path.name} must map tool names to output-schema digests")
     return ToolSchemaFingerprints(
         connector=str(document.get("connector") or ""),
         algorithm=str(document.get("algorithm") or ""),
-        tools=dict(tools),
+        tools=tools,
+        output_schemas=outputs,
     )
 
 

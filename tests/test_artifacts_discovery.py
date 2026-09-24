@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -45,6 +46,7 @@ from agent_connector_sdk.discovery import (
     load_extension,
     sdk_reference_extensions,
 )
+from agent_connector_sdk.manifest.tool_schema import canonical_output_schema
 from agent_connector_sdk.mcp.content import ConnectorContent
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
 from agent_connector_sdk.ports.errors import MalformedArtifactError
@@ -348,6 +350,55 @@ async def test_tool_mode_annotation_reaches_generated_pack(declared_mode: str) -
     assert annotations is not None
     assert annotations.tool_mode is not None
     assert annotations.tool_mode.value == declared_mode
+
+
+async def _tool_pack_entry(tool: Any) -> Any:
+    session = SimpleNamespace(
+        server_identity=AsyncMock(return_value=SERVER),
+        list_tools=AsyncMock(return_value=[tool]),
+    )
+    pack = await build_content_pack(
+        session, connector="demo-agent", kinds=(ToolArtifactKind(),)
+    )
+    return pack.archive.entries[0]
+
+
+async def test_the_output_schema_section_is_the_canonical_contract_form() -> None:
+    """D18: EG's ``output_schema_digest`` is the sha256 of this section, so the
+    section must be the SDK's canonical output schema: a reordered ``required``
+    list is the same contract and the same digest."""
+    output = {
+        "type": "object",
+        "properties": {"b": {"type": "string"}, "a": {"type": "integer"}},
+        "required": ["b", "a"],
+    }
+    typed = mcp_types.Tool.model_validate(
+        {"name": "out", "inputSchema": {"type": "object"}, "outputSchema": output}
+    )
+    reordered = mcp_types.Tool.model_validate(
+        {
+            "name": "out",
+            "inputSchema": {"type": "object"},
+            "outputSchema": {**output, "required": ["a", "b"]},
+        }
+    )
+    first = await _tool_pack_entry(typed)
+    second = await _tool_pack_entry(reordered)
+    canonical = json.dumps(
+        canonical_output_schema(typed),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("utf-8")
+    assert first.output_schema is not None and second.output_schema is not None
+    assert first.output_schema.sha256 == hashlib.sha256(canonical).hexdigest()
+    assert second.output_schema.sha256 == first.output_schema.sha256
+    declares_none = await _tool_pack_entry(
+        mcp_types.Tool.model_validate(
+            {"name": "out", "inputSchema": {"type": "object"}}
+        )
+    )
+    assert declares_none.output_schema is None
 
 
 async def test_tool_mode_rejects_a_value_outside_the_generated_enum() -> None:

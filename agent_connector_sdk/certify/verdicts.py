@@ -9,11 +9,7 @@ from enum import StrEnum
 from typing import Any
 
 from agent_connector_sdk.certify.checkout import ConnectorCheckout
-from agent_connector_sdk.certify.fingerprints import (
-    is_empty_schema_pin,
-    output_schema_digest,
-    tool_name,
-)
+from agent_connector_sdk.certify.fingerprints import is_empty_schema_pin, tool_name
 from agent_connector_sdk.manifest.live_contract import validate_preset_tool_contract
 from agent_connector_sdk.manifest.loader import (
     FINGERPRINTS_FILE_NAME,
@@ -41,7 +37,9 @@ class ToolVerdict:
     """One preset tool: its pins by location, its live fingerprint and status.
 
     ``live`` is ``""`` when the server does not serve a certifiable definition;
-    ``defect`` then says why.
+    ``defect`` then says why. ``output_schema_sha256`` is the live D18 output
+    pin (``""`` when the tool declares no output schema) and ``output_pin`` the
+    pinned one (``None`` when the checkout pins none).
     """
 
     tool: str
@@ -50,6 +48,7 @@ class ToolVerdict:
     status: PinStatus
     live: str = ""
     output_schema_sha256: str = ""
+    output_pin: str | None = None
     defect: str = ""
 
 
@@ -65,12 +64,16 @@ def pin_locations(checkout: ConnectorCheckout, tool: str) -> dict[str, str]:
     return pins
 
 
-def _status(tool: str, live: str, pins: Sequence[str]) -> PinStatus:
+def _status(
+    tool: str, live: tuple[str, str], pins: Sequence[str], output_pin: str | None
+) -> PinStatus:
+    """``live`` is the live (contract, output-schema) digest pair."""
     if any(pin and is_empty_schema_pin(tool, pin) for pin in pins):
         return PinStatus.EMPTY_PIN
-    if not all(pins):
+    if not all(pins) or output_pin is None:
         return PinStatus.UNPINNED
-    if any(pin.strip().lower() != live for pin in pins):
+    pinned = [pin.strip().lower() for pin in pins]
+    if any(pin != live[0] for pin in pinned) or output_pin.lower() != live[1]:
         return PinStatus.DRIFT
     return PinStatus.MATCH
 
@@ -105,14 +108,16 @@ def _verdict(
         _logger.warning("tool %r cannot be certified: %s", tool, exc)
         return _unavailable(checkout, tool, str(exc))
     pins = pin_locations(checkout, tool)
-    live = contract.compatibility_sha256
+    output_pin = checkout.output_pins.get(tool)
+    live = (contract.compatibility_sha256, contract.output_schema_sha256)
     return ToolVerdict(
         tool=tool,
         presets=checkout.presets_for(tool),
         pins=pins,
-        status=_status(tool, live, list(pins.values())),
-        live=live,
-        output_schema_sha256=output_schema_digest(matches[0]),
+        status=_status(tool, live, list(pins.values()), output_pin),
+        live=live[0],
+        output_schema_sha256=live[1],
+        output_pin=output_pin,
     )
 
 

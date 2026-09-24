@@ -115,8 +115,35 @@ def test_validator_reports_every_disagreement(package_root: Path) -> None:
         connector="other", algorithm="v0", tools={"demo_reader": "0" * 64}
     )
     violations = validate_connector_package(manifest, presets, wrong)
-    assert len(violations) == 4
+    assert len(violations) == 5
     assert any("extra" in violation for violation in violations)
+    assert any("no output_schema_sha256 pin" in violation for violation in violations)
+
+
+def test_output_pins_are_validated(package_root: Path) -> None:
+    """D18 output pins: hex digests of known tools; ``""`` declares none."""
+    manifest = load_manifest(package_root / MANIFEST_FILE_NAME)
+    presets = load_tool_presets(package_root / "connectors" / PRESETS_FILE_NAME)
+    pinned = load_tool_schema_fingerprints(
+        package_root / "connectors" / FINGERPRINTS_FILE_NAME
+    )
+
+    def violations(outputs: dict[str, str]) -> list[str]:
+        fingerprints = ToolSchemaFingerprints(
+            connector=pinned.connector,
+            algorithm=pinned.algorithm,
+            tools=pinned.tools,
+            output_schemas=outputs,
+        )
+        return validate_connector_package(manifest, presets, fingerprints)
+
+    assert violations({"demo_reader": ""}) == []
+    assert violations({"demo_reader": "xyz"}) == [
+        "fingerprint tool 'demo_reader' has a malformed output_schema_sha256"
+    ]
+    assert violations({"demo_reader": "", "ghost": ""}) == [
+        "tool_schema_fingerprints.json names unknown tool 'ghost'"
+    ]
 
 
 def test_loader_rejects_bad_files(tmp_path: Path) -> None:
@@ -128,6 +155,11 @@ def test_loader_rejects_bad_files(tmp_path: Path) -> None:
         load_tool_presets(tmp_path / "presets.json")
     (tmp_path / "fingerprints.json").write_text(json.dumps({"tools": {"t": 1}}))
     with pytest.raises(ManifestError):
+        load_tool_schema_fingerprints(tmp_path / "fingerprints.json")
+    (tmp_path / "fingerprints.json").write_text(
+        json.dumps({"tools": {"t": "0" * 64}, "output_schema_sha256": ["t"]})
+    )
+    with pytest.raises(ManifestError, match="output-schema digests"):
         load_tool_schema_fingerprints(tmp_path / "fingerprints.json")
 
 

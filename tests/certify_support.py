@@ -20,10 +20,17 @@ LIVE = "457e92adf7af7982d12fa41cc79c69b16b7717a57ead15fb4e318b9f1cb045d6"
 #: What the agent-utilities certifier pinned: the fingerprint of ``{}``.
 EMPTY = compatibility_fingerprint("demo_reader", {})
 DRIFTED = "ab" * 32
+#: The D18 output pin of ``demo_reader``: its ``dict[str, Any]`` result schema.
+OUTPUT = "82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf"
 
 
-def checkout_copy(tmp_path: Path, pin: str | None = None) -> Path:
-    """A copy of the fixture package, with both pin files set to ``pin``."""
+def checkout_copy(
+    tmp_path: Path, pin: str | None = None, output_pin: str | None = OUTPUT
+) -> Path:
+    """A copy of the fixture package, with both pin files set to ``pin``.
+
+    ``output_pin`` is the fingerprints file's D18 output pin; ``None`` omits it.
+    """
     root = tmp_path / "demo-agent"
     shutil.copytree(PACKAGE_ROOT, root)
     if pin is not None:
@@ -33,7 +40,12 @@ def checkout_copy(tmp_path: Path, pin: str | None = None) -> Path:
             encoding="utf-8",
         )
         (root / "connectors" / "tool_schema_fingerprints.json").write_text(
-            render_fingerprints("demo-agent", {"demo_reader": pin}), encoding="utf-8"
+            render_fingerprints(
+                "demo-agent",
+                {"demo_reader": pin},
+                {} if output_pin is None else {"demo_reader": output_pin},
+            ),
+            encoding="utf-8",
         )
     return root
 

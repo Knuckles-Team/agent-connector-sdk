@@ -12,6 +12,7 @@ from agent_connector_sdk.manifest.tool_schema import (
     canonical_input_schema,
     canonical_output_schema,
     compatibility_fingerprint,
+    output_schema_digest,
     read_field,
     schema_fingerprint,
 )
@@ -25,11 +26,16 @@ __all__ = [
 
 @dataclass(frozen=True)
 class LiveToolContract:
-    """A validated live tool identity with its deterministic fingerprints."""
+    """A validated live tool identity with its deterministic fingerprints.
+
+    ``output_schema_sha256`` is the D18 output pin of the live tool (``""`` when
+    it declares no output schema).
+    """
 
     name: str
     schema_sha256: str
     compatibility_sha256: str
+    output_schema_sha256: str = ""
 
 
 def _single_tool(list_tools_result: Any, tool_name: str) -> Any:
@@ -183,6 +189,7 @@ def validate_live_tool_contract(
         name=tool_name,
         schema_sha256=exact_digest,
         compatibility_sha256=compatibility_digest,
+        output_schema_sha256=output_schema_digest(tool),
     )
 
 

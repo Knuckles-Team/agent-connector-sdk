@@ -15,14 +15,13 @@ presentation keys ``title``, ``description``, ``examples`` and ``$comment`` and
 the runtime key ``default`` removed, string lists such as ``required`` and
 ``enum`` sorted, serialized compactly. The extraction adapter verifies pins with
 the same function, so a certified pin is exactly what a sync run checks.
-The separate :func:`output_schema_digest` field makes output drift easy to audit
-in a report without replacing the combined contract pin.
+The separate :func:`output_schema_digest` (D18) is pinned beside the combined
+contract pin, so a pin names the tool's output contract on its own and output
+drift is reported as such.
 """
 
 from __future__ import annotations
 
-import hashlib
-import json
 from typing import Any
 
 from agent_connector_sdk.manifest.tool_schema import (
@@ -31,6 +30,7 @@ from agent_connector_sdk.manifest.tool_schema import (
     canonical_output_schema,
     compatibility_fingerprint,
     legacy_empty_schema_fingerprint,
+    output_schema_digest,
     read_field,
 )
 
@@ -80,12 +80,3 @@ def tool_fingerprint(tool: Any) -> str:
         )
     output = canonical_output_schema(tool, include_presentation=False)
     return compatibility_fingerprint(name, schema, output)
-
-
-def output_schema_digest(tool: Any) -> str:
-    """SHA-256 of the canonical output schema, or ``""`` when none is served."""
-    canonical = canonical_output_schema(tool, include_presentation=False)
-    if canonical is None:
-        return ""
-    payload = json.dumps(canonical, sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
