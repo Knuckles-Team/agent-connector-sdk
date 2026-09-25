@@ -1,0 +1,19 @@
+schema: architecture-destination-owner/v1
+owner_repository: agent-connector-sdk
+components:
+  - component_id: sdk.connector-transport
+    parent_layer: ports
+    capability_ids: [sdk.source-io, sdk.write-back-transport]
+    owned_source_roots:
+      - agent_connector_sdk/ports
+      - agent_connector_sdk/transports
+      - agent_connector_sdk/writeback
+    legacy_au_source_roots:
+      - agent_utilities/knowledge_graph/schema_drift
+    console_scripts: []
+  - component_id: sdk.connector-runner
+    parent_layer: application
+    capability_ids: [sdk.connector-sync]
+    owned_source_roots: [agent_connector_sdk/runner]
+    legacy_au_source_roots: []
+    console_scripts: [connector-sync]
