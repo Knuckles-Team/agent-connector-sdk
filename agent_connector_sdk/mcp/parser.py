@@ -28,7 +28,6 @@ _SETTING_FLAGS: tuple[tuple[tuple[str, ...], str | None], ...] = (
     (("--trusted-proxy-cidrs",), "MCP_TRUSTED_PROXY_CIDRS"),
     (("--allowed-hosts",), "MCP_ALLOWED_HOSTS"),
     (("--allowed-origins",), "MCP_ALLOWED_ORIGINS"),
-    (("--static-tokens-ref",), "FASTMCP_SERVER_AUTH_STATIC_TOKENS_REF"),
     (("--token-jwks-uri",), "FASTMCP_SERVER_AUTH_JWT_JWKS_URI"),
     (("--token-audience",), "FASTMCP_SERVER_AUTH_JWT_AUDIENCE"),
     (("--token-algorithm",), "FASTMCP_SERVER_AUTH_JWT_ALGORITHM"),

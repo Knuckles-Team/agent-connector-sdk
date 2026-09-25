@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
 from typing import Any
 
@@ -29,10 +28,6 @@ from agent_connector_sdk.mcp.auth.proxies import (
     configure_oauth_proxy,
     configure_oidc_proxy,
     configure_remote_oauth,
-)
-from agent_connector_sdk.mcp.auth.static import (
-    configure_static_auth,
-    validated_static_tokens,
 )
 from agent_connector_sdk.mcp.auth.verifiers import (
     any_realm_verifier,
@@ -132,34 +127,23 @@ def test_claims_are_current() -> None:
     assert not claims_are_current({"exp": 500, "nbf": 400}, 100)
 
 
-async def test_static_auth(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv(
-        "DEMO_STATIC_TOKENS",
-        json.dumps({TOKEN: {"client_id": "svc", "scopes": ["read"]}}),
-    )
-    inputs = AuthInputs(
-        args=_args(
-            "--auth-type", "static", "--static-tokens-ref", "env://DEMO_STATIC_TOKENS"
-        )
-    )
-    verifier = configure_static_auth(inputs)
-    assert (await verifier.verify_token(TOKEN)).client_id == "svc"
-    assert await verifier.verify_token("x" * 40) is None
+def test_static_auth_type_removed_no_compat(capsys: pytest.CaptureFixture[str]) -> None:
+    assert "static" not in AUTH_TYPES
+    with pytest.raises(SystemExit):
+        create_mcp_parser().parse_args(["--auth-type", "static"])
+    assert "invalid choice" in capsys.readouterr().err
+    args = _args()
+    args.auth_type = "static"
+    with pytest.raises(AuthConfigurationError, match="/oauth/token"):
+        configure_auth(args)
+
+
+def test_resolve_auth_secret(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DEMO_SECRET_REF", "shh")
+    inputs = AuthInputs(args=_args())
+    assert resolve_auth_secret("env://DEMO_SECRET_REF", inputs, what="secret") == "shh"
     with pytest.raises(AuthConfigurationError):
-        configure_static_auth(AuthInputs(args=_args("--auth-type", "static")))
-    for raw in (
-        "[]",
-        "{}",
-        json.dumps({"short": {"client_id": "a"}}),
-        json.dumps({TOKEN: {"client_id": "a", "expires_at": "soon"}}),
-    ):
-        with pytest.raises(AuthConfigurationError):
-            validated_static_tokens(raw)
-    assert resolve_auth_secret(
-        "env://DEMO_STATIC_TOKENS", inputs, what="tokens"
-    ).startswith("{")
-    with pytest.raises(AuthConfigurationError):
-        resolve_auth_secret("env://DEMO_UNSET_REF", inputs, what="tokens")
+        resolve_auth_secret("env://DEMO_UNSET_REF", inputs, what="secret")
 
 
 async def test_jwt_auth_single_realm_with_public_key() -> None:

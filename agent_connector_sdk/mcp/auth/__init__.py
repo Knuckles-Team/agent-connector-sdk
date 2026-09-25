@@ -1,9 +1,11 @@
 """Authentication providers for connector MCP servers.
 
 Extracted from the auth configuration in ``agent_utilities.mcp.server_factory``:
-static tokens, JWT (including multi-realm), OAuth proxy, OIDC proxy and remote
-OAuth. :func:`agent_connector_sdk.mcp.auth.factory.configure_auth` is the entry
-point. Differences from AU:
+JWT (including multi-realm), OAuth proxy, OIDC proxy and remote OAuth.
+:func:`agent_connector_sdk.mcp.auth.factory.configure_auth` is the entry point.
+Static token maps have no compatibility path: an API key exchanged at the
+Graph OS ``/oauth/token`` endpoint (RFC 8693), or an OIDC/JWT issuer, replaces
+them. Differences from AU:
 
 * secrets arrive through :mod:`agent_connector_sdk.credentials` references;
 * a JWKS URI discovered from an issuer uses an injectable HTTP client instead

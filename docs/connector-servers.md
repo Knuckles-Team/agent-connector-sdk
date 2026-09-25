@@ -78,14 +78,17 @@ Invalid values refuse startup; they never fall back to an unbounded listener.
 
 | `--auth-type` | Needs |
 |---|---|
-| `static` | `--static-tokens-ref` naming a JSON token map |
 | `jwt` | `--token-issuer`, `--token-audience`, and a JWKS URI, public key, or `--token-secret-ref` for HMAC; comma lists configure several realms |
 | `oauth-proxy` | upstream endpoints, client id, `--oauth-upstream-client-secret-ref`, base URL and JWT settings |
 | `oidc-proxy` | `--oidc-config-url`, client id, `--oidc-client-secret-ref`, base URL and token audience |
 | `remote-oauth` | authorization servers, base URL and JWT settings |
 
-An unknown mode is an error, never an unauthenticated server. With
-`--public-base-url`, JWT servers publish RFC 9728 protected-resource metadata.
+An unknown mode is an error, never an unauthenticated server. There is no
+static token map mode and no compatibility shim for one: a client presents an
+API key exchanged at the issuer's `/oauth/token` endpoint (RFC 8693) for a
+short-lived token, or authenticates against an OIDC/JWT issuer directly
+(`--auth-type jwt`). With `--public-base-url`, JWT servers publish RFC 9728
+protected-resource metadata.
 
 ## Tool surface
 

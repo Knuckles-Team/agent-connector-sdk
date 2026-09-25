@@ -20,16 +20,23 @@ from agent_connector_sdk.mcp.auth.proxies import (
     configure_oidc_proxy,
     configure_remote_oauth,
 )
-from agent_connector_sdk.mcp.auth.static import configure_static_auth
 
 __all__ = ["configure_auth"]
 
 _BUILDERS: dict[str, Callable[[AuthInputs], Any]] = {
-    "static": configure_static_auth,
     "jwt": configure_jwt_auth,
     "oauth-proxy": configure_oauth_proxy,
     "oidc-proxy": configure_oidc_proxy,
     "remote-oauth": configure_remote_oauth,
+}
+
+#: Removed modes and the replacement each one names in its refusal.
+_REMOVED_AUTH_TYPES: dict[str, str] = {
+    "static": (
+        "static token maps are retired; issue an API key and exchange it at "
+        "the Graph OS /oauth/token endpoint (RFC 8693), or use --auth-type jwt "
+        "against an OIDC issuer"
+    ),
 }
 
 
@@ -52,6 +59,9 @@ def configure_auth(
     auth_type = str(args.auth_type or "none")
     if auth_type == "none":
         return None
+    removed = _REMOVED_AUTH_TYPES.get(auth_type)
+    if removed is not None:
+        raise AuthConfigurationError(f"auth type {auth_type!r} was removed: {removed}")
     builder = _BUILDERS.get(auth_type)
     if builder is None:
         raise AuthConfigurationError(

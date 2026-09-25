@@ -26,7 +26,7 @@ __all__ = [
     "secure_auth_url",
 ]
 
-AUTH_TYPES = ("none", "static", "jwt", "oauth-proxy", "oidc-proxy", "remote-oauth")
+AUTH_TYPES = ("none", "jwt", "oauth-proxy", "oidc-proxy", "remote-oauth")
 _LOOPBACK_HOSTS = frozenset({"localhost", "127.0.0.1", "::1"})
 _MAX_REDIRECT_URIS = 32
 

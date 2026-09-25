@@ -61,8 +61,9 @@ def _authentication(
     args: argparse.Namespace, resolver: CredentialResolver | None
 ) -> Any:
     try:
+        provider = configure_auth(args, resolver=resolver)
         build_network_serving_config(args)
-        return configure_auth(args, resolver=resolver)
+        return provider
     except (NetworkExposureError, AuthConfigurationError) as exc:
         _logger.error("Refusing to build MCP server: %s", exc)
         raise SystemExit(1) from exc
