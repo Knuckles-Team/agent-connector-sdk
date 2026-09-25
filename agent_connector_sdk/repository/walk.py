@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Protocol, cast
 
 from agent_connector_sdk.repository.errors import RepositoryTransportError
 from agent_connector_sdk.repository.models import RepositoryRevision
@@ -18,6 +19,10 @@ class RefTree:
 
     ref: RepositoryRef
     entries: tuple[RepositoryTreeEntry, ...]
+
+
+class _BulkTreeProvider(Protocol):
+    async def prime_trees(self, tree_ids: tuple[str, ...]) -> None: ...
 
 
 def _validate_refs(
@@ -64,16 +69,23 @@ async def walk_refs(
 ) -> tuple[tuple[RefTree, ...], int]:
     """Return every ref's tree (sorted by ref name) and the pages fetched.
 
-    Refs pinned to the same revision share one tree walk.
+    Refs pinned to the same immutable tree share one tree walk.
     """
     refs = _validate_refs(provider, await provider.list_refs())
-    walked: dict[RepositoryRevision, tuple[RepositoryTreeEntry, ...]] = {}
+    tree_ids = tuple(dict.fromkeys(item.revision.tree_id for item in refs))
+    prime = getattr(provider, "prime_trees", None)
+    if callable(prime):
+        await cast(_BulkTreeProvider, provider).prime_trees(tree_ids)
+    walked: dict[str, tuple[RepositoryTreeEntry, ...]] = {}
     pages = 0
     for item in refs:
-        if item.revision not in walked:
-            walked[item.revision], fetched = await _walk_tree(
+        tree_id = item.revision.tree_id
+        if tree_id not in walked:
+            walked[tree_id], fetched = await _walk_tree(
                 provider, item.revision, page_size
             )
             pages += fetched
-    trees = tuple(RefTree(ref=item, entries=walked[item.revision]) for item in refs)
+    trees = tuple(
+        RefTree(ref=item, entries=walked[item.revision.tree_id]) for item in refs
+    )
     return trees, pages

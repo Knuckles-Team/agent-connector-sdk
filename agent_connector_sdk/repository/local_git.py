@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+from collections import deque
 from pathlib import Path
 
 from agent_connector_sdk.repository.errors import RepositoryTransportError
@@ -51,6 +52,92 @@ class LocalGitRepositoryProvider:
             ).hexdigest(),
         )
         self._trees: dict[str, tuple[RepositoryTreeEntry, ...]] = {}
+
+    async def prime_trees(self, tree_ids: tuple[str, ...]) -> None:
+        """Read all distinct root trees through one Git batch process.
+
+        Tree objects are content addressed, so common subtrees are read once even
+        when many branch tips have different root trees.
+        """
+        roots = tuple(dict.fromkeys(oid for oid in tree_ids if oid not in self._trees))
+        if not roots:
+            return
+        process = await asyncio.create_subprocess_exec(
+            "git",
+            "-C",
+            str(self.root),
+            "cat-file",
+            "--batch",
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        assert process.stdin is not None and process.stdout is not None
+        objects: dict[str, tuple[tuple[bytes, str, str], ...]] = {}
+        pending = deque(roots)
+        requested: set[str] = set()
+        try:
+            while pending:
+                oid = pending.popleft()
+                if oid in requested:
+                    continue
+                requested.add(oid)
+                process.stdin.write(f"{oid}\n".encode("ascii"))
+                await process.stdin.drain()
+                header = (await process.stdout.readline()).split()
+                if (
+                    len(header) != 3
+                    or header[0].decode("ascii") != oid
+                    or header[1] != b"tree"
+                ):
+                    raise RepositoryTransportError(
+                        f"git cat-file did not return tree {oid}"
+                    )
+                size = int(header[2])
+                raw = await process.stdout.readexactly(size + 1)
+                if raw[-1:] != b"\n":
+                    raise RepositoryTransportError(
+                        "git cat-file returned malformed tree framing"
+                    )
+                record_size = len(bytes.fromhex(oid))
+                records: list[tuple[bytes, str, str]] = []
+                payload = raw[:-1]
+                offset = 0
+                while offset < len(payload):
+                    boundary = payload.find(b"\0", offset)
+                    if boundary < 0 or boundary + 1 + record_size > len(payload):
+                        raise RepositoryTransportError(
+                            "git cat-file returned malformed tree"
+                        )
+                    mode_name = payload[offset:boundary]
+                    object_id = payload[boundary + 1 : boundary + 1 + record_size]
+                    offset = boundary + 1 + record_size
+                    mode, name = mode_name.split(b" ", 1)
+                    child = object_id.hex()
+                    records.append((mode, name.decode("utf-8"), child))
+                    if mode == b"40000" and child not in requested:
+                        pending.append(child)
+                objects[oid] = tuple(records)
+        finally:
+            process.stdin.close()
+            await process.stdin.wait_closed()
+            await process.wait()
+        if process.returncode != 0:
+            assert process.stderr is not None
+            message = (await process.stderr.read()).decode("utf-8", "replace").strip()
+            raise RepositoryTransportError(f"git cat-file failed: {message}")
+        for root in roots:
+            entries: list[RepositoryTreeEntry] = []
+            stack = [(root, "")]
+            while stack:
+                oid, prefix = stack.pop()
+                for mode, name, child in objects[oid]:
+                    path = f"{prefix}{name}"
+                    if mode == b"40000":
+                        stack.append((child, f"{path}/"))
+                    elif mode in (b"100644", b"100755", b"120000"):
+                        entries.append(RepositoryTreeEntry(path=path, blob_id=child))
+            self._trees[root] = tuple(sorted(entries, key=lambda item: item.path))
 
     async def _git(self, *args: str) -> bytes:
         process = await asyncio.create_subprocess_exec(
