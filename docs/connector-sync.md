@@ -151,12 +151,16 @@ connectors:
 | `provision` | whether the content pack is provisioned |
 | `data_resources` | resource URI to the presets synced when it is updated |
 | `mapping_reference` | exact mapping the sink applies, normally `manifest:<connector>#schema_mappings/<key>`; `manifest:<connector>` is allowed only when the manifest declares exactly one mapping |
+| `manifest_release_hash` | complete-manifest SHA-256 from a trusted release ledger; when supplied, admission rejects any changed YAML field, including `sync` tool routing |
 | `max_pages_per_cycle` | pages one cycle reads per preset; the next cycle resumes |
 
 Relative paths are resolved against the configuration file. The package is
 validated before any session opens (manifest, presets and pinned fingerprints
 must agree), and credential references are resolved before the session opens.
 Any failure fails that connector closed and retries it with backoff.
+The release hash must come from trusted deployment configuration outside the
+writable connector package. Configurations that omit `manifest_release_hash`
+still use package agreement checks; they do not have release-pin admission.
 
 ## Ports
 

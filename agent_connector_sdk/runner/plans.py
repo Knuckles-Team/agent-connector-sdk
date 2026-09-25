@@ -6,6 +6,7 @@ from collections.abc import Collection, Iterable, Mapping
 from dataclasses import dataclass
 
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from agent_connector_sdk.manifest.admission import require_release_pinned_manifest
 from agent_connector_sdk.manifest.loader import (
     FINGERPRINTS_FILE_NAME,
     MANIFEST_FILE_NAME,
@@ -45,7 +46,16 @@ def _raise_problems(descriptor: ConnectorDescriptor, problems: list[str]) -> Non
 def _validated_manifest(descriptor: ConnectorDescriptor) -> ConnectorManifest:
     connectors = descriptor.resolved_connectors_dir
     try:
-        manifest = load_manifest(descriptor.package_root / MANIFEST_FILE_NAME)
+        manifest_path = descriptor.package_root / MANIFEST_FILE_NAME
+        manifest = (
+            require_release_pinned_manifest(
+                manifest_path,
+                connector=descriptor.connector,
+                expected_hash=descriptor.manifest_release_hash,
+            )
+            if descriptor.manifest_release_hash
+            else load_manifest(manifest_path)
+        )
         violations = validate_connector_package(
             manifest,
             load_tool_presets(connectors / PRESETS_FILE_NAME),

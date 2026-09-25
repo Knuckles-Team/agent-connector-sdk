@@ -12,6 +12,7 @@ from pydantic import ValidationError
 from runner_support import freshrss_descriptor
 
 from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
+from agent_connector_sdk.manifest.admission import canonical_manifest_hash
 from agent_connector_sdk.ports.change_source import ChangeEvent
 from agent_connector_sdk.ports.connector_registry import ConnectorRegistry
 from agent_connector_sdk.runner.backoff import Backoff
@@ -146,6 +147,19 @@ def test_load_sync_adapters_fails_closed(tmp_path: Path) -> None:
     ):
         with pytest.raises(RunnerConfigurationError, match=message):
             load_sync_adapters(freshrss_descriptor(**overrides))
+
+
+def test_runner_checks_supplied_release_manifest_pin() -> None:
+    descriptor = freshrss_descriptor()
+    document = yaml.safe_load(
+        (descriptor.package_root / "connector_manifest.yml").read_bytes()
+    )
+    pin = canonical_manifest_hash(document)
+    assert list(load_sync_adapters(freshrss_descriptor(manifest_release_hash=pin))) == [
+        "freshrss"
+    ]
+    with pytest.raises(RunnerConfigurationError, match="complete manifest content"):
+        load_sync_adapters(freshrss_descriptor(manifest_release_hash="0" * 64))
 
 
 def test_cycle_plans() -> None:

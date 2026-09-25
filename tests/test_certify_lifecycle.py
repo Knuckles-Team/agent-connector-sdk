@@ -6,11 +6,20 @@ import base64
 import hashlib
 import json
 from copy import deepcopy
+from pathlib import Path
 
+import pytest
+import yaml
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from agent_connector_sdk.certify.lifecycle import verify_lifecycle_record
+from agent_connector_sdk.manifest.admission import (
+    canonical_manifest_hash,
+    require_certified_manifest,
+    require_release_pinned_manifest,
+)
+from agent_connector_sdk.manifest.loader import ManifestError
 
 CHECKS = (
     "bundle_integrity",
@@ -142,3 +151,61 @@ def test_tampering_extra_fields_and_pin_report_are_rejected() -> None:
     assert verify_lifecycle_record({"passed": True}, trusted_public_keys=(public,)) == (
         "lifecycle record fields are not exact",
     )
+
+
+def test_release_pin_covers_sync_fields_outside_ontology(
+    package_root: Path, tmp_path: Path
+) -> None:
+    source = package_root / "connector_manifest.yml"
+    path = tmp_path / source.name
+    path.write_bytes(source.read_bytes())
+    document = yaml.safe_load(path.read_bytes())
+    pin = canonical_manifest_hash(document)
+    assert (
+        require_release_pinned_manifest(
+            path, connector="demo-agent", expected_hash=pin
+        ).connector
+        == "demo-agent"
+    )
+
+    document["sync"][0]["tool"] = "redirected_reader"
+    path.write_text(yaml.safe_dump(document), encoding="utf-8")
+    with pytest.raises(ManifestError, match="complete manifest content"):
+        require_release_pinned_manifest(path, connector="demo-agent", expected_hash=pin)
+    with pytest.raises(ManifestError, match="trusted manifest release pin"):
+        require_release_pinned_manifest(path, connector="demo-agent", expected_hash="")
+
+
+def test_signed_live_record_binds_exact_manifest_bytes(
+    package_root: Path, tmp_path: Path
+) -> None:
+    source = package_root / "connector_manifest.yml"
+    path = tmp_path / source.name
+    path.write_bytes(source.read_bytes())
+    record, public, private = _record()
+    record["bundle"]["manifest_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()  # type: ignore[index]
+    _sign(record, private)
+    assert (
+        require_certified_manifest(
+            path,
+            connector="demo-agent",
+            lifecycle_record=record,
+            trusted_public_keys=(public,),
+        ).connector
+        == "demo-agent"
+    )
+    with pytest.raises(ManifestError, match="release signature"):
+        require_certified_manifest(
+            path,
+            connector="demo-agent",
+            lifecycle_record=record,
+            trusted_public_keys=(),
+        )
+    path.write_bytes(path.read_bytes() + b"\n")
+    with pytest.raises(ManifestError, match="manifest bytes differ"):
+        require_certified_manifest(
+            path,
+            connector="demo-agent",
+            lifecycle_record=record,
+            trusted_public_keys=(public,),
+        )

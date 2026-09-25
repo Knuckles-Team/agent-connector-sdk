@@ -7,6 +7,13 @@ checks from a real external live run to pass; an offline fixture record or this
 command's pin report cannot satisfy that admission. This check verifies the
 attestation and its aggregate schema. It does not execute the lifecycle run.
 
+`agent_connector_sdk.manifest.admission.require_certified_manifest` additionally
+binds that passing signed record to the exact bytes and schema version of the
+manifest selected for activation. The caller supplies the trusted public keys;
+the record cannot declare its own trust. For bundled unsigned manifests,
+`require_release_pinned_manifest` checks the AU-compatible complete-document
+hash against a separately trusted release pin.
+
 `connector-certify` compares every MCP tool used by a connector's sync presets
 with the client-visible contract returned by `tools/list`. It lists tools only;
 it never calls a tool or reaches the connector's upstream API.
