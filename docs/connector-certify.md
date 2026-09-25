@@ -1,5 +1,12 @@
 # Connector certification
 
+The SDK also exposes `agent_connector_sdk.certify.verify_lifecycle_record` for
+read-only admission of a signed Graph OS connector lifecycle record. The caller
+supplies trusted Ed25519 public keys. Its default requires all ten aggregate
+checks from a real external live run to pass; an offline fixture record or this
+command's pin report cannot satisfy that admission. This check verifies the
+attestation and its aggregate schema. It does not execute the lifecycle run.
+
 `connector-certify` compares every MCP tool used by a connector's sync presets
 with the client-visible contract returned by `tools/list`. It lists tools only;
 it never calls a tool or reaches the connector's upstream API.
