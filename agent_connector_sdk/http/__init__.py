@@ -15,6 +15,8 @@
 * :mod:`~agent_connector_sdk.http.pagination`: tool result pages that feed the
   ``mcp_tool`` pagination modes.
 * :mod:`~agent_connector_sdk.http.redaction`: secret redaction for logs.
+* :mod:`~agent_connector_sdk.http.source_egress`: configuration-time source
+  URL and exact private-host validation without network I/O.
 
 Replaces ``agent_utilities.core.http_client``.
 """
