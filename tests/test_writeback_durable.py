@@ -174,6 +174,47 @@ async def test_generated_eg_adapter_uses_typed_ops_and_idempotency_keys() -> Non
     assert client.calls[3][3] == change_set.idempotency_key
 
 
+async def test_generated_eg_adapter_rejects_other_tenant_and_changed_receipts() -> None:
+    fixture = make_writeback_fixture()
+    memory = MemoryLedger()
+    change_set = await memory.create(fixture.change_set)
+    attempt = await fixture.port.apply(change_set)
+    receipt = await memory.record_attempt(attempt)
+
+    other = change_set.model_copy(update={"tenant_id": "another-tenant"})
+    ledger = EpistemicGraphWriteBackLedger(
+        RecordingEgClient([other.model_dump(mode="json")])
+    )
+    with pytest.raises(WriteBackPersistenceError, match="another change set"):
+        await ledger.get(change_set.tenant_id, change_set.change_set_id)
+
+    changed = receipt.model_copy(update={"post_source_version": "wrong-version"})
+    ledger = EpistemicGraphWriteBackLedger(
+        RecordingEgClient([changed.model_dump(mode="json")])
+    )
+    with pytest.raises(WriteBackPersistenceError, match="different write-back receipt"):
+        await ledger.record_attempt(attempt)
+
+
+async def test_generated_eg_adapter_rejects_foreign_receipt_page() -> None:
+    fixture = make_writeback_fixture()
+    memory = MemoryLedger()
+    change_set = await memory.create(fixture.change_set)
+    attempt = await fixture.port.apply(change_set)
+    receipt = await memory.record_attempt(attempt)
+    foreign = receipt.model_copy(update={"tenant_id": "another-tenant"})
+    page = WriteBackReceiptPage(
+        receipts=[
+            WriteBackReceiptRecordAttempt(receipt_kind="attempt", receipt=foreign)
+        ]
+    )
+    ledger = EpistemicGraphWriteBackLedger(
+        RecordingEgClient([page.model_dump(mode="json")])
+    )
+    with pytest.raises(WriteBackPersistenceError, match="page binding"):
+        await ledger.receipts(change_set.tenant_id, change_set.change_set_id)
+
+
 async def test_uncertain_effect_is_reconciled_after_process_restart() -> None:
     fixture = make_writeback_fixture()
     ledger = MemoryLedger()
