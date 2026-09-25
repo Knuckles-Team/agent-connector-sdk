@@ -1,4 +1,4 @@
-# KISS thresholds for agent-connector-sdk (kiss 0.4.10).
+# KISS thresholds for agent-connector-sdk (kiss 0.4.12, fleet fork build).
 #
 # Source: agent-packages/agent-utilities/.kiss/kiss.toml, [python] section, whose
 # values were hand-set and measured over the fleet's Python code. They are copied
@@ -7,17 +7,21 @@
 #
 # Never run bare `kiss check`: without --config it writes a self-calibrating
 # .kissconfig. Always go through the shared kiss-staged / kiss-census hooks
-# (one path per invocation; kiss 0.4.10 reports a false clean for a multi-path check).
+# (one path per invocation; kiss reports a false clean for a multi-path check).
 
 [global]
 min_similarity          = 0.9
 duplication_enabled     = true
-# Orphan modules are owned by scripts/check_wiring.py orphans, which follows the
-# import graph plus declared entry points; kiss does not see entry points.
-orphan_module_enabled   = false
 comment_removal_enabled = false
 docs_allowed            = ["./"]
 orphan_allowed          = []
+
+# Orphan modules are owned by scripts/check_wiring.py orphans, which follows the
+# import graph plus declared entry points; kiss does not see entry points.
+# (kiss 0.4.11 renamed [global] orphan_module_enabled to this key; the old key
+# now makes kiss 0.4.12 silently drop the whole [global] table.)
+[test]
+orphan_detection        = false
 
 [python]
 max_indentation            = 4

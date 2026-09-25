@@ -11,7 +11,7 @@ CI runs the release-critical subset in `.github/workflows/release.yml`.
 | Scanner | Version | Scope | Rule |
 |---|---|---|---|
 | cccc | 1.6.0 | staged package Python | no new or worsened function above cyclomatic 10 or cognitive 15 |
-| KISS | 0.4.10 | staged package Python | `.kiss/kiss.toml`, findings attributable to the diff |
+| KISS | 0.4.12 (fork build) | staged package Python | `.kiss/kiss.toml`, findings attributable to the diff |
 | dupehound | 0.1.2 | changed functions | no new function clones |
 | jscpd | 5.0.16 | pushed range and full tree | no new copied blocks; census printed |
 | scanner census | cccc and KISS | every package module | zero findings, absolutely |
