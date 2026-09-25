@@ -17,6 +17,8 @@
 * :mod:`~agent_connector_sdk.http.redaction`: secret redaction for logs.
 * :mod:`~agent_connector_sdk.http.source_egress`: configuration-time source
   URL and exact private-host validation without network I/O.
+* :mod:`~agent_connector_sdk.http.source_post`: bounded JSON POST through the
+  governed, DNS-pinned client.
 
 Replaces ``agent_utilities.core.http_client``.
 """
