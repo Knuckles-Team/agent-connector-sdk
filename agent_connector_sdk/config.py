@@ -18,6 +18,7 @@ Rules this module enforces:
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import os
 import threading
@@ -33,6 +34,7 @@ __all__ = [
     "config_file_path",
     "csv_values",
     "load_config",
+    "normalize_http_host_allowlist",
     "setting",
 ]
 
@@ -61,6 +63,52 @@ class ConfigurationError(RuntimeError):
 
     Messages name the offending key but never its value.
     """
+
+
+def normalize_http_host_allowlist(hosts: list[str]) -> list[str]:
+    """Validate exact outbound host exceptions and return a stable set.
+
+    An exception names one IP address or DNS hostname. Wildcards, URL syntax,
+    Unicode names, and empty labels never enlarge the egress boundary.
+    """
+    if len(hosts) > 256:
+        raise ValueError("HTTP host allow-lists may contain at most 256 entries")
+    normalized: set[str] = set()
+    for raw in hosts:
+        host = str(raw).strip().lower().rstrip(".")
+        _validate_exact_http_host(host)
+        normalized.add(host)
+    return sorted(normalized)
+
+
+def _validate_exact_http_host(host: str) -> None:
+    try:
+        host.encode("ascii")
+    except UnicodeEncodeError as exc:
+        raise ValueError("HTTP host allow-lists require ASCII hostnames") from exc
+    if (
+        not host
+        or len(host) > 253
+        or any(ord(character) < 33 for character in host)
+        or any(character in host for character in "/@*?#[]")
+    ):
+        raise ValueError("HTTP host allow-lists require exact hostnames")
+    try:
+        ipaddress.ip_address(host)
+    except ValueError:
+        labels = host.split(".")
+        if not all(_valid_dns_label(label) for label in labels):
+            raise ValueError("HTTP host allow-lists require exact hostnames") from None
+
+
+def _valid_dns_label(label: str) -> bool:
+    return bool(
+        label
+        and len(label) <= 63
+        and not label.startswith("-")
+        and not label.endswith("-")
+        and all(character.isalnum() or character == "-" for character in label)
+    )
 
 
 def setting(
