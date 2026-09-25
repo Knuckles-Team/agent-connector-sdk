@@ -236,6 +236,46 @@ async def test_connector_content_is_served(package_root: Path) -> None:
     assert "continuation" in prompt.messages[0].content.text
 
 
+async def test_manifest_only_connector_serves_eg_compiled_ontology(
+    tmp_path: Path, package_root: Path
+) -> None:
+    manifest_path = tmp_path / "connector_manifest.yml"
+    manifest_path.write_bytes((package_root / "connector_manifest.yml").read_bytes())
+    mcp: FastMCP[Any] = FastMCP("manifest-only")
+    registration = register_connector_content(
+        mcp,
+        ConnectorContent(
+            connector="demo-agent",
+            package_root=tmp_path,
+            package_version="1.4.0",
+            manifest_path=manifest_path,
+        ),
+    )
+    assert registration.resources == 2
+    async with Client(mcp) as client:
+        uri = "ontology://demo-agent/manifest.generated.ttl"
+        assert uri in {str(resource.uri) for resource in await client.list_resources()}
+        body = await client.read_resource(uri)
+    assert any(":DemoItem a owl:Class" in part.text for part in body)
+
+
+def test_manifest_only_ontology_rejects_mismatched_connector(
+    tmp_path: Path, package_root: Path
+) -> None:
+    manifest_path = tmp_path / "connector_manifest.yml"
+    manifest_path.write_bytes((package_root / "connector_manifest.yml").read_bytes())
+    with pytest.raises(ContentError, match="different package"):
+        register_connector_content(
+            FastMCP("mismatch"),
+            ConnectorContent(
+                connector="other-agent",
+                package_root=tmp_path,
+                package_version="1.4.0",
+                manifest_path=manifest_path,
+            ),
+        )
+
+
 def test_connector_content_errors(tmp_path: Path) -> None:
     (tmp_path / "prompts").mkdir()
     (tmp_path / "prompts" / "broken.json").write_text(

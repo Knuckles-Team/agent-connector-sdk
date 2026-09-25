@@ -28,10 +28,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import yaml
 from fastmcp.prompts import Prompt
-from fastmcp.resources import FileResource
+from fastmcp.resources import FileResource, FunctionResource
 from fastmcp.server.providers.skills import SkillsDirectoryProvider
 from pydantic import AnyUrl
+
+from agent_connector_sdk.manifest.model import ConnectorManifest
+from agent_connector_sdk.manifest.ontology_pack import compile_manifest_ontology
 
 __all__ = [
     "MANIFEST_RESOURCE_URI",
@@ -117,9 +121,37 @@ def _file_resource(uri: str, path: Path, mime_type: str) -> FileResource:
     )
 
 
-def _content_resources(content: ConnectorContent) -> list[FileResource]:
+def _generated_ontology_resource(content: ConnectorContent) -> FunctionResource:
+    """Serve an EG-compiled ontology when a manifest has no packaged source."""
+    assert content.manifest_path is not None
+    try:
+        if content.manifest_path.stat().st_size > 4 * 1024 * 1024:
+            raise ContentError("connector manifest exceeds the content limit")
+        manifest = ConnectorManifest.model_validate(
+            yaml.safe_load(content.manifest_path.read_text(encoding="utf-8"))
+        )
+        if manifest.connector != content.connector:
+            raise ContentError("connector manifest names a different package")
+        document = compile_manifest_ontology(manifest)
+    except ContentError:
+        raise
+    except (OSError, UnicodeError, ValueError, yaml.YAMLError) as exc:
+        raise ContentError("connector manifest ontology cannot be compiled") from exc
+
+    def read() -> str:
+        return document
+
+    uri = f"ontology://{content.connector}/manifest.generated.ttl"
+    return FunctionResource.from_function(
+        read, uri=uri, name=uri, mime_type="text/turtle"
+    )
+
+
+def _content_resources(
+    content: ConnectorContent,
+) -> list[FileResource | FunctionResource]:
     ontology = content.package_root / "ontology"
-    resources = [
+    resources: list[FileResource | FunctionResource] = [
         _file_resource(
             f"{scheme}://{content.connector}/{path.name}", path, "text/turtle"
         )
@@ -133,6 +165,8 @@ def _content_resources(content: ConnectorContent) -> list[FileResource]:
         return resources
     if not content.manifest_path.is_file():
         raise ContentError("declared connector manifest does not exist")
+    if not any(ontology.glob("*.ttl")):
+        resources.append(_generated_ontology_resource(content))
     resources.append(
         _file_resource(MANIFEST_RESOURCE_URI, content.manifest_path, "text/yaml")
     )
