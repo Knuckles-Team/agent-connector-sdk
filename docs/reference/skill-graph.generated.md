@@ -33,6 +33,7 @@ Every concept and component this repo's own registries and documentation nav dec
 - **Content over MCP** — `content-over-mcp.md`
 - **Source synchronization** — `connector-sync.md`
 - **Repository ingestion** — `repository-ingestion.md`
+- **Knowledge ingest** — `knowledge-ingest.md`
 - **Extension ports** — `extension-ports.md`
 - **Connector certification** — `connector-certify.md`
 - **HTTP clients** — `http-clients.md`
