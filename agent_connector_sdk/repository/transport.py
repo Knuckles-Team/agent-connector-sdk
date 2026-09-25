@@ -121,12 +121,25 @@ class _Run:
     header: ScopeHeader
     batcher: RepositoryBatcher
     identities: dict[str, RepositoryManifestFile]
+    pending: dict[tuple[str, str], str] = field(default_factory=dict)
     receipts: list[RepositoryBatchReceipt] = field(default_factory=list)
 
     async def flush(self, batches: list[RepositoryBatch]) -> None:
         """Submit closed batches in order; each releases its blob bytes."""
         for batch in batches:
             receipt = await submit_repository_batch(self.client, self.header, batch)
+            for source, outcome in zip(
+                batch.files, receipt.result.file_outcomes, strict=True
+            ):
+                blob_id = self.pending.pop((source.path, source.blob_digest))
+                self.identities[blob_id] = RepositoryManifestFile(
+                    path=source.path,
+                    blob_id=blob_id,
+                    blob_digest=source.blob_digest,
+                    byte_length=len(source.content),
+                    parse_status=getattr(outcome.status, "value", outcome.status),
+                    parser_capability_digest=outcome.parser_capability_digest,
+                )
             self.receipts.append(receipt)
 
 
@@ -135,12 +148,7 @@ async def _stream_new_blobs(
 ) -> None:
     for item in plan.fetch:
         blob = await _fetch(provider, item)
-        run.identities[item.blob_id] = RepositoryManifestFile(
-            path=item.path,
-            blob_id=item.blob_id,
-            blob_digest=blob.blob_digest,
-            byte_length=len(blob.content),
-        )
+        run.pending[(item.path, blob.blob_digest)] = item.blob_id
         run.batcher.add_file(blob, _memberships(plan, item.blob_id, blob.blob_digest))
         await run.flush(run.batcher.drain())
 
@@ -158,6 +166,7 @@ def _manifest(
     plan: IndexPlan,
     *,
     identities: dict[str, RepositoryManifestFile],
+    graph: str | None,
 ) -> RepositoryIndexManifest:
     removed: dict[str, list[RepositoryTombstone]] = defaultdict(list)
     for ref_name, tombstone in plan.tombstones:
@@ -177,7 +186,7 @@ def _manifest(
         for tree in trees
     )
     return RepositoryIndexManifest(
-        repository_id=_repository_key(provider), refs=live + plan.deleted
+        repository_id=_repository_key(provider), graph=graph, refs=live + plan.deleted
     )
 
 
@@ -195,6 +204,10 @@ async def index_repository(
     fetched again, and paths (or refs) missing since then become tombstones.
     EG commits each batch's projection durably into ``graph``.
     """
+    if prior is not None and prior.repository_id != _repository_key(provider):
+        raise RepositoryTransportError("prior manifest belongs to another repository")
+    if prior is not None and prior.graph != graph:
+        raise RepositoryTransportError("prior manifest belongs to another graph")
     bounds = limits or RepositoryBatchLimits()
     trees, pages = await walk_refs(provider, page_size=bounds.provider_page_size)
     plan = plan_index(trees, prior)
@@ -209,7 +222,9 @@ async def index_repository(
     await run.flush(run.batcher.finish())
     return RepositoryIndexReceipt(
         authentication=provider.authentication,
-        manifest=_manifest(provider, trees, plan, identities=run.identities),
+        manifest=_manifest(
+            provider, trees, plan, identities=run.identities, graph=graph
+        ),
         batches=tuple(run.receipts),
         provider_pages=pages,
         blobs_fetched=len(plan.fetch),

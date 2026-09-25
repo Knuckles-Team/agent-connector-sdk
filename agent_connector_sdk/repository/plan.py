@@ -134,6 +134,7 @@ def plan_index(
         file.blob_id: file
         for item in prior_refs.values()
         for file in item.snapshot.files
+        if file.parse_status == "success"
     }
     members: dict[str, list[tuple[str, str]]] = defaultdict(list)
     sources: dict[str, RepositoryRevision] = {}

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -48,7 +48,11 @@ def _require_unique_paths(
 
 
 class RepositoryManifestFile(BaseModel):
-    """Content identity retained after a source blob leaves transport memory."""
+    """Content and parser disposition retained after transport releases bytes.
+
+    Only a successful parse is reusable. An unsupported or failed file stays in
+    the inventory for tombstone detection, but is resubmitted on the next run.
+    """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -56,6 +60,8 @@ class RepositoryManifestFile(BaseModel):
     blob_id: str
     blob_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     byte_length: int = Field(ge=0)
+    parse_status: Literal["success", "unsupported", "error"]
+    parser_capability_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
     @model_validator(mode="after")
     def _identity_is_canonical(self) -> Self:
@@ -100,11 +106,12 @@ class RepositoryRefManifest(BaseModel):
 
 
 class RepositoryIndexManifest(BaseModel):
-    """Every ref of one repository run, sorted by ref name."""
+    """Every ref of one repository and target graph, sorted by ref name."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     repository_id: str = Field(min_length=1)
+    graph: str | None = None
     refs: tuple[RepositoryRefManifest, ...]
 
     @model_validator(mode="after")

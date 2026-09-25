@@ -32,7 +32,7 @@ and referenced five times.
    duplicate paths stop the run before any engine call.
 2. The plan collects unique Git blob ids. Each blob is submitted under its
    lexicographically smallest path, so the choice never depends on provider
-   order. Blobs already recorded in `prior` are not fetched again.
+   order. Only blobs with a recorded successful parse in `prior` are reused.
 3. Blob bytes are streamed: fetched one at a time, verified against the Git
    object id (SHA-1 or SHA-256 repositories), hashed to a `sha256:` content
    digest, and released once their batch is accepted.
@@ -40,8 +40,13 @@ and referenced five times.
    (`<provider>:<repository_id>`), all declared refs (`live` or `deleted`), the
    memberships of its blobs, and tombstones. A blob always shares its batch with
    the membership naming the path it was submitted under.
-5. The receipt's `manifest` (per ref: revision, `(path, blob id, digest,
-   length)` files, tombstones) is the `prior` of the next run.
+5. The receipt's `manifest` (bound to repository and target graph; per ref:
+   revision, `(path, blob id, digest, length, parse status, parser-capability
+   digest)` files, tombstones) is the
+   source inventory for the next run. `error` and `unsupported` files remain
+   visible for rename/delete detection but are fetched and parsed again;
+   neither can become a successful-parse skip marker. The manifest is not an
+   engine-owned admission watermark or semantic receipt.
 
 ## Tombstones
 

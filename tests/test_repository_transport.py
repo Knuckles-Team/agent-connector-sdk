@@ -75,9 +75,10 @@ def repository(tmp_path: Path) -> Path:
 class _Graph:
     """Engine stand-in answering with a typed result, one outcome per blob."""
 
-    def __init__(self) -> None:
+    def __init__(self, status_by_digest: dict[str, str] | None = None) -> None:
         self.calls: list[tuple[list[tuple[str, bytes]], IndexRepositoryScope]] = []
         self.graphs: set[str | None] = set()
+        self.status_by_digest = status_by_digest or {}
 
     async def index_repository(
         self,
@@ -91,7 +92,7 @@ class _Graph:
         outcomes = [
             {
                 "file_path": path,
-                "status": "success",
+                "status": self.status_by_digest.get(_digest(content), "success"),
                 "content_digest": _digest(content),
                 "parser_capability_digest": f"sha256:{'c' * 64}",
                 "diagnostics": [],
@@ -253,6 +254,54 @@ async def test_rerun_reuses_blobs_and_tombstones_what_left(repository: Path) -> 
     }
     deleted = [ref for ref in second.manifest.refs if ref.deleted]
     assert [ref.ref_name for ref in deleted] == ["refs/tags/v1"]
+
+
+async def test_failed_and_unsupported_blobs_are_reparsed_on_next_run(
+    repository: Path,
+) -> None:
+    first = await _index(
+        _provider(repository),
+        _Graph({_digest(_UTIL): "error", _digest(_NEW): "unsupported"}),
+    )
+    dispositions = {
+        file.blob_digest: (file.parse_status, file.parser_capability_digest)
+        for ref in first.manifest.refs
+        for file in ref.snapshot.files
+    }
+    assert dispositions[_digest(_UTIL)] == ("error", f"sha256:{'c' * 64}")
+    assert dispositions[_digest(_NEW)] == ("unsupported", f"sha256:{'c' * 64}")
+
+    provider, graph = _provider(repository), _Graph()
+    second = await _index(provider, graph, prior=first.manifest)
+    assert sorted(content for _, content in graph.submitted()) == sorted([_UTIL, _NEW])
+    assert second.blobs_fetched == 2
+    assert second.blobs_reused == 2
+    assert all(
+        file.parse_status == "success"
+        for ref in second.manifest.refs
+        for file in ref.snapshot.files
+    )
+
+
+async def test_prior_manifest_cannot_cross_repository_boundary(
+    repository: Path,
+) -> None:
+    first = await _index(_provider(repository), _Graph())
+    alien = first.manifest.model_copy(update={"repository_id": "another:project"})
+    provider, graph = _provider(repository), _Graph()
+    with pytest.raises(RepositoryTransportError, match="another repository"):
+        await _index(provider, graph, prior=alien)
+    assert not hasattr(provider, "fetched")
+    assert graph.calls == []
+
+
+async def test_prior_manifest_cannot_cross_graph_boundary(repository: Path) -> None:
+    first = await _index(_provider(repository), _Graph(), graph="graph:one")
+    provider, graph = _provider(repository), _Graph()
+    with pytest.raises(RepositoryTransportError, match="another graph"):
+        await _index(provider, graph, prior=first.manifest, graph="graph:two")
+    assert not hasattr(provider, "fetched")
+    assert graph.calls == []
 
 
 async def test_manifest_fingerprint_is_deterministic(repository: Path) -> None:

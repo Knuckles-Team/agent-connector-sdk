@@ -113,10 +113,20 @@ def test_repository_batch_limits_reject_file_limit_larger_than_batch() -> None:
 
 def test_snapshot_manifest_fingerprint_is_order_independent() -> None:
     first = RepositoryManifestFile(
-        path="a.py", blob_id="a" * 40, blob_digest=f"sha256:{'a' * 64}", byte_length=1
+        path="a.py",
+        blob_id="a" * 40,
+        blob_digest=f"sha256:{'a' * 64}",
+        byte_length=1,
+        parse_status="success",
+        parser_capability_digest=f"sha256:{'c' * 64}",
     )
     second = RepositoryManifestFile(
-        path="b.py", blob_id="b" * 40, blob_digest=f"sha256:{'b' * 64}", byte_length=2
+        path="b.py",
+        blob_id="b" * 40,
+        blob_digest=f"sha256:{'b' * 64}",
+        byte_length=2,
+        parse_status="success",
+        parser_capability_digest=f"sha256:{'c' * 64}",
     )
 
     left = RepositorySnapshotManifest(revision=_revision(), files=(first, second))
@@ -129,7 +139,12 @@ def test_snapshot_manifest_fingerprint_is_order_independent() -> None:
 
 def test_snapshot_manifest_allows_a_changed_path_as_file_and_tombstone() -> None:
     current = RepositoryManifestFile(
-        path="a.py", blob_id="a" * 40, blob_digest=f"sha256:{'a' * 64}", byte_length=1
+        path="a.py",
+        blob_id="a" * 40,
+        blob_digest=f"sha256:{'a' * 64}",
+        byte_length=1,
+        parse_status="success",
+        parser_capability_digest=f"sha256:{'c' * 64}",
     )
     prior = RepositoryTombstone(path="a.py", prior_blob_digest=f"sha256:{'b' * 64}")
 
