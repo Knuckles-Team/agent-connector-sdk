@@ -9,7 +9,7 @@ parses each blob once and projects branch membership by edge.
 from __future__ import annotations
 
 import hashlib
-from collections import defaultdict
+from collections import defaultdict, deque
 from dataclasses import dataclass, field
 
 from epistemic_graph.client import EpistemicGraphClient
@@ -46,6 +46,8 @@ __all__ = ["RepositoryIndexReceipt", "index_repository"]
 
 # The engine's per-batch ref bound (`MAX_INDEX_SCOPE_REFS`).
 _MAX_REFS = 4096
+_BATCH_TOO_LARGE = "REPOSITORY_BATCH_TOO_LARGE"
+_MAX_BATCH_ATTEMPTS = 128
 
 
 @dataclass(frozen=True)
@@ -126,8 +128,82 @@ class _Run:
     async def flush(self, batches: list[RepositoryBatch]) -> None:
         """Submit closed batches in order; each releases its blob bytes."""
         for batch in batches:
-            receipt = await submit_repository_batch(self.client, self.header, batch)
-            self.receipts.append(receipt)
+            self.receipts.extend(
+                await _submit_with_split(self.client, self.header, batch)
+            )
+
+
+def _split_batch(
+    batch: RepositoryBatch,
+) -> tuple[RepositoryBatch, RepositoryBatch] | None:
+    """Bisect a refused batch while keeping each blob's first membership with it."""
+    positions: dict[tuple[str, str], deque[int]] = defaultdict(deque)
+    for index, (_, path, digest) in enumerate(batch.versions):
+        positions[(path, digest)].append(index)
+    paired: set[int] = set()
+    units: list[RepositoryBatch] = []
+    for item in batch.files:
+        matching = positions[(item.path, item.blob_digest)]
+        if not matching:
+            raise RepositoryTransportError("repository blob lacks its first membership")
+        index = matching.popleft()
+        paired.add(index)
+        units.append(
+            RepositoryBatch(
+                files=[item],
+                versions=[batch.versions[index]],
+                byte_count=len(item.content),
+            )
+        )
+    units.extend(
+        RepositoryBatch(versions=[version])
+        for index, version in enumerate(batch.versions)
+        if index not in paired
+    )
+    units.extend(RepositoryBatch(tombstones=[item]) for item in batch.tombstones)
+    if len(units) < 2:
+        return None
+
+    def join(parts: list[RepositoryBatch]) -> RepositoryBatch:
+        return RepositoryBatch(
+            files=[file for part in parts for file in part.files],
+            versions=[version for part in parts for version in part.versions],
+            tombstones=[item for part in parts for item in part.tombstones],
+            byte_count=sum(part.byte_count for part in parts),
+        )
+
+    midpoint = len(units) // 2
+    return join(units[:midpoint]), join(units[midpoint:])
+
+
+async def _submit_with_split(
+    client: EpistemicGraphClient, header: ScopeHeader, batch: RepositoryBatch
+) -> list[RepositoryBatchReceipt]:
+    """Retry only EG's atomic size refusal, with a finite send budget."""
+    pending = [batch]
+    receipts: list[RepositoryBatchReceipt] = []
+    attempts = 0
+    while pending:
+        current = pending.pop()
+        attempts += 1
+        try:
+            receipts.append(await submit_repository_batch(client, header, current))
+        except RuntimeError as error:
+            message = str(error)
+            size_refusal = message == _BATCH_TOO_LARGE or message.startswith(
+                f"{_BATCH_TOO_LARGE}:"
+            )
+            if isinstance(error, RepositoryTransportError) or not size_refusal:
+                raise
+            halves = _split_batch(current)
+            if halves is None:
+                raise
+            if attempts + len(pending) + 2 > _MAX_BATCH_ATTEMPTS:
+                raise RepositoryTransportError(
+                    "repository batch size retry budget exhausted"
+                ) from error
+            pending.extend(reversed(halves))
+    return receipts
 
 
 async def _stream_new_blobs(
