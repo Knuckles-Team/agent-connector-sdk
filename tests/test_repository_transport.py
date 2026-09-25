@@ -271,3 +271,54 @@ async def test_blob_content_must_match_its_object_id(repository: Path) -> None:
     provider = _Tampering(repository, repository_id="team/project")
     with pytest.raises(RepositoryTransportError, match="does not match"):
         await _index(provider, _Graph())
+
+
+class _BudgetedGraph(_Graph):
+    """Refuses, as EG does, any call carrying more than ``files`` blobs."""
+
+    def __init__(self, files: int) -> None:
+        super().__init__()
+        self.budget = files
+        self.refused = 0
+
+    async def index_repository(
+        self,
+        files: list[tuple[str, bytes]],
+        *,
+        scope: IndexRepositoryScope,
+        graph: str | None,
+    ) -> IndexResult:
+        if len(files) > self.budget:
+            self.refused += 1
+            raise RuntimeError(
+                "REPOSITORY_BATCH_TOO_LARGE: the batch lowers to 200001 graph operations"
+            )
+        return await super().index_repository(files, scope=scope, graph=graph)
+
+
+async def test_a_batch_refused_as_too_large_is_halved_until_it_commits(
+    repository: Path,
+) -> None:
+    engine = _BudgetedGraph(files=1)
+    await _index(_provider(repository), engine)
+    assert engine.refused > 0
+    submitted = engine.submitted()
+    assert sorted(content for _, content in submitted) == sorted(
+        [_UTIL, _APP, _APP_FEATURE, _NEW]
+    )
+    assert engine.memberships() == _expected_memberships()
+    for files, scope in engine.calls:
+        bound = {(item.path, item.blob_digest) for item in scope.file_versions}
+        for path, content in files:
+            assert (path, _digest(content)) in bound, (
+                "each blob rides with its membership"
+            )
+
+
+async def test_other_engine_refusals_are_not_retried(repository: Path) -> None:
+    class _Broken(_Graph):
+        async def index_repository(self, *args: Any, **kwargs: Any) -> IndexResult:
+            raise RuntimeError("AST_INPUT_INVALID: something else")
+
+    with pytest.raises(RuntimeError, match="AST_INPUT_INVALID"):
+        await _index(_provider(repository), _Broken())

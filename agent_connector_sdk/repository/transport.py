@@ -18,6 +18,7 @@ from agent_connector_sdk.repository.batching import (
     Membership,
     RepositoryBatch,
     RepositoryBatcher,
+    split_batch,
 )
 from agent_connector_sdk.repository.errors import RepositoryTransportError
 from agent_connector_sdk.repository.identity import _git_blob_object_id
@@ -43,6 +44,10 @@ from agent_connector_sdk.repository.provider import RepositorySnapshotProvider
 from agent_connector_sdk.repository.walk import RefTree, walk_refs
 
 __all__ = ["RepositoryIndexReceipt", "index_repository"]
+
+# EG's refusal code for a batch whose lowered operations exceed one atomic
+# commit's budget.
+_BATCH_TOO_LARGE = "REPOSITORY_BATCH_TOO_LARGE"
 
 # The engine's per-batch ref bound (`MAX_INDEX_SCOPE_REFS`).
 _MAX_REFS = 4096
@@ -126,8 +131,29 @@ class _Run:
     async def flush(self, batches: list[RepositoryBatch]) -> None:
         """Submit closed batches in order; each releases its blob bytes."""
         for batch in batches:
+            await self._submit(batch)
+
+    async def _submit(self, batch: RepositoryBatch) -> None:
+        """Submit one batch; halve it while EG refuses it as too large.
+
+        EG commits a batch as ONE atomic envelope or refuses it whole with
+        ``REPOSITORY_BATCH_TOO_LARGE`` (its lowered graph operations exceed the
+        commit budget); only the source can size batches by that measure.
+        """
+        try:
             receipt = await submit_repository_batch(self.client, self.header, batch)
-            self.receipts.append(receipt)
+        except RuntimeError as exc:
+            if _BATCH_TOO_LARGE not in str(exc):
+                raise
+            halves = split_batch(batch)
+            if not all(half.files or half.membership_count() for half in halves):
+                raise RepositoryTransportError(
+                    "one blob lowers past EG's atomic commit budget"
+                ) from exc
+            for half in halves:
+                await self._submit(half)
+            return
+        self.receipts.append(receipt)
 
 
 async def _stream_new_blobs(

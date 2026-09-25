@@ -94,3 +94,35 @@ class RepositoryBatcher:
         """Close the open batch and return every remaining batch."""
         self._rotate()
         return self.drain()
+
+
+def split_batch(batch: RepositoryBatch) -> tuple[RepositoryBatch, RepositoryBatch]:
+    """Halve a batch the engine refused as too large to commit atomically.
+
+    Every membership of a submitted blob stays with that blob (the engine
+    binds each submitted blob to a membership in the same call); memberships
+    of blobs submitted earlier, and tombstones, are split by position.
+    """
+    middle = len(batch.files) // 2
+    halves = (
+        RepositoryBatch(files=batch.files[:middle]),
+        RepositoryBatch(files=batch.files[middle:]),
+    )
+    owner = {
+        item.blob_digest: index
+        for index, half in enumerate(halves)
+        for item in half.files
+    }
+    loose = [version for version in batch.versions if version[2] not in owner]
+    for version in batch.versions:
+        if version[2] in owner:
+            halves[owner[version[2]]].versions.append(version)
+    cut = len(loose) // 2
+    halves[0].versions.extend(loose[:cut])
+    halves[1].versions.extend(loose[cut:])
+    cut = len(batch.tombstones) // 2
+    halves[0].tombstones.extend(batch.tombstones[:cut])
+    halves[1].tombstones.extend(batch.tombstones[cut:])
+    for half in halves:
+        half.byte_count = sum(len(item.content) for item in half.files)
+    return halves
