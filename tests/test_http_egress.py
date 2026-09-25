@@ -15,6 +15,7 @@ from agent_connector_sdk.http.egress import (
     validate_egress_url,
     validate_resolved_egress_url,
 )
+from agent_connector_sdk.http.egress_policy import EgressPolicy
 
 
 def _with_userinfo(url: str) -> str:
@@ -55,6 +56,13 @@ def test_literals_and_hostnames() -> None:
     assert not validate_egress_url("http://127.0.0.1", allow_loopback=False).allowed
     assert validate_egress_url("https://upload.example.com").resolved_ips == ()
     assert egress_ip_is_blocked("not-an-ip", allow_loopback=True)
+
+
+def test_pinned_policy_uses_exact_config_host_validation() -> None:
+    policy = EgressPolicy.for_hosts(["Example.Invalid."])
+    assert policy.allowed_private_hosts == frozenset({"example.invalid"})
+    with pytest.raises(ValueError, match="exact hostnames"):
+        EgressPolicy.for_hosts(["bad..invalid"])
 
 
 def test_resolution_checks_every_address() -> None:

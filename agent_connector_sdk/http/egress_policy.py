@@ -22,6 +22,7 @@ from urllib.parse import urlsplit
 
 import httpx
 
+from agent_connector_sdk.config import normalize_http_host_allowlist
 from agent_connector_sdk.http.egress import (
     Resolver,
     egress_ip_is_blocked,
@@ -40,26 +41,11 @@ _PRIVATE_NETWORKS = tuple(
         "fc00::/7",
     )
 )
-_MAX_PRIVATE_HOSTS = 256
 _MAX_URL = 8_192
-_FORBIDDEN_HOST_CHARACTERS = frozenset("/@*?#[]")
 
 
 class PinnedEgressViolation(httpx.TransportError):
     """A request failed the DNS-pinning or peer-identity boundary."""
-
-
-def _exact_host(raw: str) -> str:
-    host = str(raw).strip().lower().rstrip(".")
-    if (
-        not host
-        or len(host) > 253
-        or not host.isascii()
-        or any(ord(character) < 33 for character in host)
-        or _FORBIDDEN_HOST_CHARACTERS.intersection(host)
-    ):
-        raise ValueError("allowed private hosts must be exact hostnames")
-    return host
 
 
 @dataclass(frozen=True)
@@ -79,9 +65,9 @@ class EgressPolicy:
     verify_peer: bool = True
 
     def __post_init__(self) -> None:
-        hosts = frozenset(_exact_host(host) for host in self.allowed_private_hosts)
-        if len(hosts) > _MAX_PRIVATE_HOSTS:
-            raise ValueError("the private host allowlist is too large")
+        hosts = frozenset(
+            normalize_http_host_allowlist(list(self.allowed_private_hosts))
+        )
         object.__setattr__(self, "allowed_private_hosts", hosts)
 
     @classmethod
