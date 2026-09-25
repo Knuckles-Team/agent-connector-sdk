@@ -5,6 +5,7 @@ from __future__ import annotations
 import httpx
 import pytest
 
+from agent_connector_sdk.http.errors import ResponseTooLargeError
 from agent_connector_sdk.http.source_egress import SourceEgressError
 from agent_connector_sdk.http.source_post import safe_post_json_async
 
@@ -60,7 +61,7 @@ async def test_post_checks_request_and_response_limits() -> None:
             allowed_private_hosts={"127.0.0.1"},
             transport=transport,
         )
-    with pytest.raises(Exception, match=r"limit|large|bytes"):
+    with pytest.raises(ResponseTooLargeError):
         await safe_post_json_async(
             "http://127.0.0.1/check",
             {},
