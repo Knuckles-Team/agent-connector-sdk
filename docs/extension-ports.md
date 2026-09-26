@@ -151,6 +151,14 @@ implements a parallel digest. EG alone creates and persists `WriteBackReceipt`
 and `ReconciliationReceipt`. No live vendor write-back is enabled by the
 reference in-memory transport.
 
+For an isolated served acceptance test, `testing.synthetic_writeback` exposes
+one file-backed synthetic ticket tool. It loads an already authorized change
+set from the injected EG ledger, restricts the tenant and source scope, and
+serves `dry_run`, `apply`, and `reconcile` with a durable receipt ID. Its action
+manifest pins the input and output schemas observed through MCP `tools/list`.
+The file-backed source is a test fixture; a deployed test must inject the EG
+ledger adapter and a tenant-granted principal to prove the full boundary.
+
 ## Activation
 
 `load_extension(group, name, policy=...)` loads an extension only when the

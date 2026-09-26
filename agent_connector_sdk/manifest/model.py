@@ -105,6 +105,8 @@ class ActionSpec(_Strict):
     requires_approval: bool = True
     approval_class: str = "unclassified"
     effects: list[str] = Field(default_factory=list)
+    input_schema_sha256: str | None = Field(default=None, pattern="^[0-9a-f]{64}$")
+    output_schema_sha256: str | None = Field(default=None, pattern="^[0-9a-f]{64}$")
 
 
 class EventSpec(_Strict):

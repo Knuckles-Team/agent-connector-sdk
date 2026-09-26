@@ -180,6 +180,7 @@ public_modules = [
     "agent_connector_sdk.testing.results",
     "agent_connector_sdk.testing.sinks",
     "agent_connector_sdk.testing.source_adapters",
+    "agent_connector_sdk.testing.synthetic_writeback",
     "agent_connector_sdk.testing.writeback",
     "agent_connector_sdk.tls.errors",
     "agent_connector_sdk.tls.profile",
