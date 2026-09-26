@@ -51,6 +51,18 @@ carry all explicitly served MCP safety hints and the SDK compatibility
 fingerprint of their input/output contract. Conflicting declarations fail
 closed instead of silently choosing one.
 
+`VerifiedPackCatalogReader(client, tenant_id=...).sdk_entries()` reads the
+published manifest through EG's generated `AgentComponent` search/content and
+checks the current `ConnectorPack.Status` head before and after the read. The
+client must be bound to a verified caller and tenant. It returns bounded
+`pack`/`name`/`op` pointers for whole-connector sync and pack status, with the
+scopes those operations require. Each row carries EG tenant, pack and manifest
+digests, plus the manifest's actor scope, policy digest and purpose. A missing
+or changing head, mismatched body
+digest, cross-tenant row, malformed manifest, or unavailable EG read is an
+error. The reader does not advertise per-preset sync, because the served
+ingestion control currently accepts only whole-connector sync.
+
 ## Manifest, presets and fingerprints
 
 A connector package carries three declarations of its sync contract:

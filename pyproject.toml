@@ -110,6 +110,7 @@ public_modules = [
     "agent_connector_sdk.adapters.mcp_tool",
     "agent_connector_sdk.certify.cli",
     "agent_connector_sdk.artifacts.pack",
+    "agent_connector_sdk.artifacts.catalog",
     "agent_connector_sdk.auth.client_credentials",
     "agent_connector_sdk.auth.delegation",
     "agent_connector_sdk.auth.oidc",
