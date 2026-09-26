@@ -81,3 +81,30 @@ loop; synchronous tool handlers block on it and async handlers await it.
 Submissions for one stream are serialized in the process. When another replica
 advances the checkpoint first, the submission re-reads it and rebuilds, up to
 three attempts.
+
+## Polled document sources
+
+The push API above uses an SDK sequence checkpoint. A provider that owns a
+resumable cursor uses `DocumentPollAdapter` and `sync_document_source` from
+`agent_connector_sdk.runner.document_source` instead. The provider callback
+receives EG's last accepted `SourceCheckpoint` and returns one
+`DocumentProviderPage` with its actual JSON cursor in `position`. The runner
+commits each page before invoking the callback again. A checkpoint conflict
+stops the run so the provider can resume from EG status on a new run.
+
+The adapter requires a `ConnectorManifest` with an exact `schema_mappings` key
+whose ontology class is `Document` and `external_access` in
+`permissions.acl_fields`. Its `fields` must preserve `text`, `title`,
+`doc_type`, `metadata`, and `external_access` under those same names; EG drops
+source fields omitted by a mapping. The mapping must also be published through
+`ConnectorPack` in the target tenant; the EG `SourceIngest` commit verifies
+that authority. Each document carries an explicit ACL payload or receives a
+quarantine marking; served EG read policy must enforce those properties. The
+`provider_contract_sha256` is a real pin for the provider adapter contract;
+the runner rejects an absent pin and never invents a mapping or cursor.
+
+Pass `EpistemicGraphIngestTransport` constructed from the caller's existing
+verified EG client as the sink. The callback can adapt a connector's `poll()`
+page by serializing its checkpoint into `DocumentProviderPage.position`; do
+not drain all pages into one synthetic checkpoint. The SDK does not import a
+provider package or open a second client for this path.
