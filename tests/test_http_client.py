@@ -88,6 +88,10 @@ def test_options_fail_closed(caplog: pytest.LogCaptureFixture) -> None:
     rejected: list[dict[str, Any]] = [
         {"base_url": "ftp://api.example.invalid"},
         {"base_url": f"https://{_USERINFO}@api.example.invalid"},
+        {"base_url": "https://api.example.invalid:70000"},
+        {"base_url": "https://api.example.invalid/?token=x"},
+        {"base_url": "https://api.example.invalid/#fragment"},
+        {"base_url": "https://{server}.example.invalid"},
         {"base_url": "https://api.example.invalid", "timeout": float("inf")},
         {"base_url": "https://api.example.invalid", "timeout": httpx.Timeout(None)},
         {

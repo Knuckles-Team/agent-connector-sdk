@@ -25,6 +25,7 @@ import threading
 from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 from agent_connector_sdk.utilities import to_boolean, to_dict, to_list
 
@@ -36,6 +37,10 @@ __all__ = [
     "load_config",
     "normalize_http_host_allowlist",
     "setting",
+    "validate_discovery_limit",
+    "validate_http_base_url",
+    "validate_ingest_budget",
+    "validate_ingest_limit",
 ]
 
 #: Environment variable naming an explicit configuration document.
@@ -63,6 +68,89 @@ class ConfigurationError(RuntimeError):
 
     Messages name the offending key but never its value.
     """
+
+
+def validate_http_base_url(value: object) -> str | None:
+    """Validate a bounded HTTP base URL without resolving or fetching it."""
+    if value in (None, ""):
+        return None
+    rendered = str(value).strip()
+    if not rendered:
+        return None
+    if len(rendered) > 2_048 or any(char.isspace() for char in rendered):
+        raise ValueError(
+            "runtime HTTP endpoints must be bounded URLs without whitespace"
+        )
+    if "{" in rendered or "}" in rendered:
+        raise ValueError("runtime HTTP endpoints cannot contain placeholders")
+    try:
+        parsed = urlsplit(rendered)
+        scheme = parsed.scheme.lower()
+        hostname = parsed.hostname
+        port = parsed.port
+    except ValueError as exc:
+        raise ValueError("runtime HTTP endpoint is malformed") from exc
+    if scheme not in {"http", "https"} or not parsed.netloc or not hostname:
+        raise ValueError("runtime HTTP endpoints must use http:// or https://")
+    if parsed.username is not None or parsed.password is not None:
+        raise ValueError("runtime HTTP endpoints cannot contain inline credentials")
+    if parsed.query or parsed.fragment:
+        raise ValueError(
+            "runtime HTTP base URLs cannot contain query strings or fragments"
+        )
+    if port is not None and not 1 <= port <= 65_535:
+        raise ValueError("runtime HTTP endpoint port is out of range")
+    return f"{scheme}{rendered[len(parsed.scheme) :]}".rstrip("/")
+
+
+_INGEST_LIMITS = {
+    "ingest_max_records": (1, 10_000),
+    "ingest_page_size": (1, 1_000),
+    "ingest_max_pages": (1, 1_000),
+    "ingest_max_row_bytes": (256, 8_388_608),
+    "ingest_max_total_bytes": (256, 67_108_864),
+    "ingest_max_nesting_depth": (1, 64),
+    "ingest_max_collection_items": (1, 100_000),
+}
+
+_DISCOVERY_LIMITS = {
+    "discovery_max_types": (1, 500),
+    "discovery_max_depth": (1, 12),
+}
+
+
+def _validate_integer_limit(
+    name: str, value: object, limits: Mapping[str, tuple[int, int]]
+) -> int:
+    lower, upper = limits[name]
+    if isinstance(value, bool) or not isinstance(value, (int, str)):
+        raise ValueError(f"{name} must be an integer")
+    if isinstance(value, str) and not value.strip().isdecimal():
+        raise ValueError(f"{name} must be an integer")
+    parsed = int(value)
+    if not lower <= parsed <= upper:
+        raise ValueError(f"{name} must be between {lower} and {upper}")
+    return parsed
+
+
+def validate_discovery_limit(name: str, value: object) -> int:
+    """Validate a connector schema discovery breadth or depth limit."""
+    return _validate_integer_limit(name, value, _DISCOVERY_LIMITS)
+
+
+def validate_ingest_limit(name: str, value: object) -> int:
+    """Validate one bounded connector ingestion limit.
+
+    Booleans are rejected even though Python treats them as integers. Unknown
+    limit names are programmer errors and never silently acquire a default.
+    """
+    return _validate_integer_limit(name, value, _INGEST_LIMITS)
+
+
+def validate_ingest_budget(row_bytes: int, total_bytes: int) -> None:
+    """Require the cumulative transfer budget to hold at least one row."""
+    if total_bytes < row_bytes:
+        raise ValueError("ingest_max_total_bytes must cover one bounded row")
 
 
 def normalize_http_host_allowlist(hosts: list[str]) -> list[str]:

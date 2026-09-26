@@ -10,6 +10,7 @@ from urllib.parse import urlsplit
 
 import httpx
 
+from agent_connector_sdk.config import validate_http_base_url
 from agent_connector_sdk.http.egress_policy import EgressPolicy
 from agent_connector_sdk.http.redaction import is_sensitive_name
 from agent_connector_sdk.http.retry import RetryPolicy
@@ -31,12 +32,15 @@ def _is_loopback(host: str) -> bool:
 
 
 def _base_url_problem(base_url: str) -> str | None:
-    parts = urlsplit(base_url)
-    if parts.scheme not in {"http", "https"} or not parts.hostname:
-        return "base_url must be an absolute http or https URL"
-    if parts.username or parts.password:
-        return "base_url must not carry credentials; use auth"
-    return None
+    try:
+        validated = validate_http_base_url(base_url)
+    except ValueError as exc:
+        return str(exc)
+    return (
+        None
+        if validated is not None
+        else "base_url must be an absolute http or https URL"
+    )
 
 
 def _timeout_problem(timeout: float | httpx.Timeout) -> str | None:
