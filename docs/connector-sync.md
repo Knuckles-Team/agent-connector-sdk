@@ -44,6 +44,15 @@ supplying either to another sink also fails. The standalone CLI consequently
 cannot manufacture a usable EG composition; GraphOS owns that authenticated
 composition boundary.
 
+For a separate runner process, GraphOS can inject
+`RemotePackImportAuthorityResolver` from `agent_connector_sdk.runner.catalog_authority`.
+Its `TransportEndpoint` needs an HTTPS MCP URL and refreshable request auth.
+GraphOS supplies the verified EG client's tenant and service principal to the
+resolver. Each import calls GraphOS `connector_pack_authority` with only the
+connector id; the adapter validates the returned generated contracts and their
+connector, tenant, and caller principal before the sink uses them. A failed or
+foreign authority response stops the import.
+
 Provisioning reads the current EG pack head before upload. A matching canonical
 EG digest is an acknowledged no-op. If the head moves during import, the typed
 `PACK_HEAD_CONFLICT` causes one fresh status read and retry; the generated EG

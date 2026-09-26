@@ -1,0 +1,26 @@
+connector: synthetic-writeback
+ontology_source: synthetic
+schema_version: '1'
+resources:
+- name: SyntheticTicket
+  label: Synthetic Ticket
+  id_prefix: synthetic-ticket
+  relations: []
+actions:
+- id: synthetic_writeback
+  name: Synthetic Ticket Write-Back
+  target_resource: SyntheticTicket
+  requires_approval: true
+  approval_class: tenant-granted
+  conflict_policy: reject
+  effects: [source-status-update, eg-writeback-receipt]
+  parameters:
+  - {name: action, type: string, required: true}
+  - {name: tenant_id, type: string, required: true}
+  - {name: change_set_id, type: string, required: true}
+provenance:
+  generated_by: tests/synthetic_writeback_package
+  source_artifacts: []
+  integrity:
+    hash: '0000000000000000000000000000000000000000000000000000000000000000'
+    triple_count: 0

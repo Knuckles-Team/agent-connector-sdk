@@ -7,6 +7,8 @@ import logging
 import sys
 from collections.abc import Iterator
 from pathlib import Path
+from types import SimpleNamespace
+from typing import cast
 
 import pytest
 import yaml
@@ -23,7 +25,12 @@ from agent_connector_sdk.discovery import (
     ExtensionDiscoveryError,
     sdk_reference_extensions,
 )
-from agent_connector_sdk.runner.cli import build_parser, default_state_dir, main
+from agent_connector_sdk.runner.cli import (
+    build_parser,
+    default_state_dir,
+    main,
+    run_with_services,
+)
 from agent_connector_sdk.runner.composition import default_services, extension_instance
 from agent_connector_sdk.runner.descriptors import RunnerSettings
 from agent_connector_sdk.runner.logs import (
@@ -128,6 +135,43 @@ def test_cli_exits_2_when_it_cannot_start(tmp_path: Path) -> None:
     state = ["--state-dir", str(tmp_path / "state")]
     assert main(["--config", str(empty), "--once", "--sink", "missing", *state]) == 2
     assert main(["--config", str(empty), "--once", *state]) == 2
+
+
+@pytest.mark.asyncio
+async def test_injected_services_run_one_cycle_without_minting_identity(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = tmp_path / "runner.yml"
+    config.write_text("connectors: []\n")
+    services = cast(
+        RunnerServices,
+        SimpleNamespace(settings=RunnerSettings(), health=None),
+    )
+
+    async def connectors(_registry: object) -> tuple[()]:
+        return ()
+
+    monkeypatch.setattr(
+        "agent_connector_sdk.runner.static_registry.StaticConfigRegistry.connectors",
+        connectors,
+    )
+    assert await run_with_services(["--config", str(config), "--once"], services) == 0
+
+
+@pytest.mark.asyncio
+async def test_injected_services_refuse_different_settings_and_sink(
+    tmp_path: Path,
+) -> None:
+    config = tmp_path / "runner.yml"
+    config.write_text("connectors: []\n")
+    services = cast(
+        RunnerServices,
+        SimpleNamespace(settings=RunnerSettings(max_concurrency=2), health=None),
+    )
+    args = ["--config", str(config), "--once"]
+    assert await run_with_services(args, services) == 2
+    services.settings = RunnerSettings()
+    assert await run_with_services([*args, "--sink", "other"], services) == 2
 
 
 def test_cli_skips_the_health_server_for_once(tmp_path: Path) -> None:

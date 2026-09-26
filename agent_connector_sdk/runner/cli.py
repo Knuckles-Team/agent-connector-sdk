@@ -31,7 +31,7 @@ from agent_connector_sdk.runner.static_registry import (
 )
 from agent_connector_sdk.runner.supervisor import ConnectorSyncRunner
 
-__all__ = ["build_parser", "default_state_dir", "main"]
+__all__ = ["build_parser", "default_state_dir", "main", "run_with_services"]
 
 _logger = logging.getLogger(__name__)
 
@@ -127,6 +127,41 @@ def _run(runner: ConnectorSyncRunner, *, once: bool) -> int:
         return 0 if all(results.values()) else 1
     anyio.run(runner.run_forever)
     return 0
+
+
+async def run_with_services(argv: Sequence[str], services: RunnerServices) -> int:
+    """Run the CLI with services supplied by an authenticated composition root.
+
+    The plain console script cannot create an EG identity. A deployment that
+    already holds a verified client may call this entry point inside the
+    client's lifetime. The runner configuration is revalidated before work.
+    """
+    args = build_parser().parse_args(argv)
+    configure_logging(args.log_format)
+    try:
+        config = load_runner_config(args.config)
+        if services.settings != config.settings:
+            raise RunnerConfigurationError(
+                "injected runner settings differ from the configuration"
+            )
+        if args.sink != "epistemic_graph":
+            raise RunnerConfigurationError(
+                "injected connector services require the epistemic_graph sink"
+            )
+        health_server = _health_server(args, services)
+    except _STARTUP_ERRORS as exc:
+        _logger.error("connector-sync cannot start: %s", exc)
+        return 2
+    runner = ConnectorSyncRunner(StaticConfigRegistry(args.config), services)
+    try:
+        if args.once:
+            results = await runner.run_once()
+            return 0 if all(results.values()) else 1
+        await runner.run_forever()
+        return 0
+    finally:
+        if health_server is not None:
+            health_server.stop()
 
 
 def main(argv: Sequence[str] | None = None) -> int:

@@ -151,6 +151,39 @@ implements a parallel digest. EG alone creates and persists `WriteBackReceipt`
 and `ReconciliationReceipt`. No live vendor write-back is enabled by the
 reference in-memory transport.
 
+For an isolated served acceptance test, `testing.synthetic_writeback` exposes
+one file-backed synthetic ticket tool. It loads an already authorized change
+set from the injected EG ledger, restricts the tenant and source scope, and
+serves `dry_run`, `apply`, and `reconcile` with a durable receipt ID. Its action
+manifest pins the input and output schemas observed through MCP `tools/list`.
+The file-backed source is a test fixture; a deployed test must inject the EG
+ledger adapter and a tenant-granted principal to prove the full boundary.
+`build_synthetic_writeback_test_namespace_server` accepts that verified EG
+client plus the test tenant, graph, expected MCP client ID and standard SDK
+server arguments. It returns the server and validated network serving config;
+`serve_synthetic_writeback_test_namespace` runs it at the validated transport,
+host and port with all required middleware. The listener
+requires authenticated streamable HTTP, and its action requires the exact
+client ID and `writeback:synthetic` scope. Authentication settings use secret
+references. The in-process fixture builder is only for local tests.
+For served acceptance, `run_live_synthetic_writeback_acceptance` takes an
+already verified, tenant-granted EG client and an authenticated MCP URL
+endpoint. It reads a pre-approved EG change set, checks the declared
+authorization mode, runs dry-run and apply through the network endpoint, then
+binds the source observation to one EG receipt. Persist its returned
+`LiveSyntheticWriteBackEvidence` as JSON, restart the connector server, and
+run the same function with that evidence as `prior`. The second run checks
+that the same receipt and reported source version are replayed from a distinct
+served instance marker. It refuses a stale MCP route still hitting the old
+process after a pod restart. The
+test-namespace harness supplies the source seed, EG client, endpoint, actual
+restart and independent source-state check; the SDK fixture does not mint
+grants or identities.
+`seed_synthetic_writeback_test_source` refuses an existing state file, and
+`verify_synthetic_writeback_source_effect` reads the source independently after
+restart to check the effect's key, version and scoped fields against the EG
+receipt evidence.
+
 ## Activation
 
 `load_extension(group, name, policy=...)` loads an extension only when the

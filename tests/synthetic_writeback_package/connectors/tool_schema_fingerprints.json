@@ -1,0 +1,8 @@
+{
+  "algorithm": "agent-connector-sdk:mcp-tool-contract-compat:v2",
+  "connector": "synthetic-writeback",
+  "schema_version": "1",
+  "tools": {
+    "synthetic_writeback": "c459f5a1adff51678eca83e1e3dc65c16e143da79635d4638858902ce03ad390"
+  }
+}
