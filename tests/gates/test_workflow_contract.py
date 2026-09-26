@@ -9,7 +9,7 @@ RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 PAGES = ROOT / ".github" / "workflows" / "pages.yml"
 CCCC_REVISION = "d728759323be5d9977b7390a27133e8eaf481f26"
 PIPELINES_REVISION = "444b232c7975e125a24b17d53ff615f5ad26a4cd"
-PAGES_PIPELINE_REVISION = "fe4d11323d0b94c044c38f5257a15576c076500e"
+PAGES_PIPELINE_REVISION = "8eea314b89764a8dc5e2c66b50bc16b8709826c7"
 PAGES_PIPELINE = (
     "Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml"
     f"@{PAGES_PIPELINE_REVISION}"
