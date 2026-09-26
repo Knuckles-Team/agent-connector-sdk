@@ -102,6 +102,8 @@ it never accepts an endpoint, header,
 query, mapping, variables object, or TLS file in a GraphOS action. Discovery is
 bounded by `discovery_max_types` (maximum 500) and `discovery_max_depth`
 (maximum 12); ingestion is bounded by `ingest_max_records` (maximum 10,000).
+The SDK validates the discovery breadth and depth limits before connector
+declarations are used.
 `ingest_operation` is only a neutral operation alias. Approval and fail-closed
 drift are mandatory, and semantic mapping defaults off.
 
@@ -118,7 +120,10 @@ structural read budgets: `ingest_max_row_bytes` (default 1 MiB, maximum 8 MiB),
 `ingest_max_nesting_depth` (default 16, maximum 64), and
 `ingest_max_collection_items` (default 10,000, maximum 100,000). The cumulative
 byte bound must cover at least one row. Page values cannot exceed 1,000. These
-neutral controls are included in the
+integer bounds and the total-versus-row byte rule are validated in
+`agent_connector_sdk.config`;
+the AU configuration model uses that same SDK rule for its connector declarations.
+These neutral controls are included in the
 mapping-policy digest, so a reconciliation or sync-mode change requires a new
 proposal and approval. Actions cannot override them inline.
 Connection names and source aliases are mandatory and independently unique across

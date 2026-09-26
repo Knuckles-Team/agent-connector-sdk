@@ -43,6 +43,12 @@ The matching `mcp_source_presets.json` entry comes from
 `preset_pagination("cursor", cursor_param="cursor")`, so extraction pages through
 exactly what the tool returns.
 
+At a composition boundary, `agent_connector_sdk.config.validate_http_base_url()`
+checks a runtime base URL without making a network request. It bounds length,
+requires an HTTP scheme and host, and rejects inline credentials, placeholders,
+queries, and fragments. The governed client still applies its own TLS and
+outbound policy when it connects.
+
 ## What every governed client does
 
 | Behaviour | Detail |
