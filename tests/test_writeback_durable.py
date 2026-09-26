@@ -31,6 +31,7 @@ from agent_connector_sdk.writeback.errors import (
     WriteBackPersistenceError,
 )
 from agent_connector_sdk.writeback.memory import FixtureUncertainty
+from agent_connector_sdk.writeback.recovery import _receipt_recovery_state
 
 
 class MemoryLedger:
@@ -307,3 +308,57 @@ async def test_writable_connector_rejects_noncanonical_or_wrong_connector() -> N
     wrong_connector = fixture.change_set.model_copy(update={"connector_id": "other"})
     with pytest.raises(ValueError, match="another connector"):
         await connector.register(wrong_connector)
+
+
+async def test_replay_refuses_reconciliation_without_uncertainty() -> None:
+    fixture = make_writeback_fixture()
+    ledger = MemoryLedger()
+    await ledger.create(fixture.change_set)
+    observation = await fixture.transport.reconcile(fixture.change_set)
+    await ledger.record_reconciliation(observation)
+
+    with pytest.raises(WriteBackPersistenceError, match="no uncertain attempt"):
+        await _receipt_recovery_state(ledger, fixture.change_set)
+
+
+async def test_receipt_replay_refuses_reconciliation_after_applied_attempt() -> None:
+    fixture = make_writeback_fixture()
+    ledger = MemoryLedger()
+    await ledger.create(fixture.change_set)
+    attempt = await fixture.port.apply(fixture.change_set)
+    await ledger.record_attempt(attempt)
+    observation = await fixture.transport.reconcile(fixture.change_set)
+    await ledger.record_reconciliation(observation)
+
+    with pytest.raises(WriteBackPersistenceError, match="cannot be reconciled again"):
+        await _receipt_recovery_state(ledger, fixture.change_set)
+
+
+async def test_receipt_replay_refuses_duplicate_attempt_while_uncertain() -> None:
+    fixture = make_writeback_fixture()
+    ledger = MemoryLedger()
+    await ledger.create(fixture.change_set)
+    fixture.transport.inject_uncertainty(
+        fixture.change_set.idempotency_key, FixtureUncertainty.BEFORE_EFFECT
+    )
+    uncertain = await fixture.port.apply(fixture.change_set)
+    await ledger.record_attempt(uncertain)
+    await ledger.record_attempt(uncertain)
+
+    with pytest.raises(WriteBackPersistenceError, match="no proven retry permission"):
+        await _receipt_recovery_state(ledger, fixture.change_set)
+
+
+async def test_replay_rejects_foreign_actor_with_matching_change_set() -> None:
+    fixture = make_writeback_fixture()
+    ledger = MemoryLedger()
+    await ledger.create(fixture.change_set)
+    attempt = await fixture.port.apply(fixture.change_set)
+    receipt = await ledger.record_attempt(attempt)
+    ledger.records[0] = WriteBackReceiptRecordAttempt(
+        receipt_kind="attempt",
+        receipt=receipt.model_copy(update={"actor": "principal:other"}),
+    )
+
+    with pytest.raises(WriteBackPersistenceError, match="principal mismatch"):
+        await _receipt_recovery_state(ledger, fixture.change_set)

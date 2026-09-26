@@ -84,8 +84,31 @@ def _consume_page(
                 "EG receipt sequence is not strictly increasing"
             )
         last_sequence = record.receipt.sequence
-        state = _record_state(change_set, record)
+        state = _advance_state(change_set, record, state)
     return state, last_sequence
+
+
+def _advance_state(
+    change_set: SourceChangeSet,
+    record: WriteBackReceiptRecord,
+    state: _ReceiptRecoveryState,
+) -> _ReceiptRecoveryState:
+    next_state = _record_state(change_set, record)
+    is_attempt = isinstance(record, WriteBackReceiptRecordAttempt)
+    if state in (_ReceiptRecoveryState.FRESH, _ReceiptRecoveryState.RETRYABLE):
+        if not is_attempt:
+            raise WriteBackPersistenceError(
+                "durable reconciliation has no uncertain attempt"
+            )
+    elif is_attempt:
+        raise WriteBackPersistenceError(
+            "durable attempt has no proven retry permission"
+        )
+    elif state is _ReceiptRecoveryState.APPLIED:
+        raise WriteBackPersistenceError(
+            "durable applied effect cannot be reconciled again"
+        )
+    return next_state
 
 
 def _record_state(
@@ -111,6 +134,7 @@ def _require_attempt_receipt(
             receipt.idempotency_key,
         ),
     )
+    _require_receipt_principal(change_set, receipt.actor, receipt.schema_version)
     binding_matches = (
         receipt.authorization == change_set.authorization
         and receipt.policy_digest == change_set.policy_digest
@@ -142,6 +166,7 @@ def _require_reconciliation_receipt(
             receipt.idempotency_key,
         ),
     )
+    _require_receipt_principal(change_set, receipt.actor, receipt.schema_version)
     retry_forbidden = receipt.effect_status in (
         WriteBackEffectStatus.APPLIED,
         WriteBackEffectStatus.OUTCOME_UNCERTAIN,
@@ -173,3 +198,10 @@ def _require_receipt_identity(
     )
     if observed != expected:
         raise WriteBackPersistenceError("durable receipt identity mismatch")
+
+
+def _require_receipt_principal(
+    change_set: SourceChangeSet, actor: str, schema_version: int
+) -> None:
+    if actor != change_set.actor or schema_version != change_set.schema_version:
+        raise WriteBackPersistenceError("durable receipt principal mismatch")
