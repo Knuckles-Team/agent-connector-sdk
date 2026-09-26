@@ -1,7 +1,7 @@
 # Agent Connector SDK
 
 <p align="center">
-  <img src="docs/assets/brands/agent-connector-sdk-logo-v1.png" alt="Agent Connector SDK logo" width="180">
+  <img src="pages/assets/brands/agent-connector-sdk-logo-v1.png" alt="Agent Connector SDK logo" width="180">
 </p>
 
 <p align="center">
@@ -88,7 +88,7 @@ owns authenticated runtime composition.
 
 ## Architecture
 
-![Runtime architecture: people and clients enter through Graph OS; source systems flow through Agent Connector SDK into Epistemic Graph.](docs/assets/runtime-architecture.svg)
+![Runtime architecture: people and clients enter through Graph OS; source systems flow through Agent Connector SDK into Epistemic Graph.](pages/assets/runtime-architecture.svg)
 
 | Boundary | Owned here | Owned elsewhere |
 |---|---|---|

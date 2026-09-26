@@ -1,7 +1,7 @@
 # agent-connector-sdk engineering contract
 
 This file defines the current repository architecture and the rules contributors
-and automation must preserve. The public guides are built from [`docs/`](docs/)
+and automation must preserve. The public guides are built from [`pages/`](pages/)
 and published through GitHub Pages.
 
 ## What this repository owns
@@ -46,7 +46,7 @@ the `phase-direction` gate.
 | `agent_connector_sdk/credentials/` | `env://` and `openbao://` references and resolvers |
 | `agent_connector_sdk/testing/` | reusable connector conformance suites |
 | `tests/` | unit, integration, contract, and gate tests |
-| `docs/` | public GitHub Pages sources and generated shared-theme assets |
+| `pages/` | public GitHub Pages sources and generated shared-theme assets |
 | `overrides/` | shared MkDocs Material template overrides |
 
 The public Python surface is declared in

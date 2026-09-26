@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Scan this repo's public docs for private-IP / host-alias / environment-TLD literals.
 
-Every published page under ``docs/`` is read by anyone who can reach
+Every published page under ``pages/`` is read by anyone who can reach
 https://knuckles-team.github.io/agent-connector-sdk/ -- a literal private IPv4
 address, a homelab-only DNS suffix (``.arpa``/``.local``), or a short internal
 host alias (``r510``, ``gr1080``, ``host42``, ...) checked into one of those
@@ -71,9 +71,9 @@ class GateError(RuntimeError):
 
 
 def public_doc_paths(root: Path) -> list[Path]:
-    docs_dir = root / "docs"
+    docs_dir = root / "pages"
     if not docs_dir.is_dir():
-        raise GateError(f"no docs/ directory under {root}")
+        raise GateError(f"no pages/ directory under {root}")
     paths = sorted(docs_dir.rglob("*.md"))
     if not paths:
         raise GateError(f"no Markdown files found under {docs_dir}")
