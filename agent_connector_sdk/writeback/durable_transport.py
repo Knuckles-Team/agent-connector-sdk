@@ -9,6 +9,8 @@ connector.py) end to end without depending on a fleet connector's live
 credentials. See :class:`~agent_connector_sdk.writeback.memory.
 InMemoryWriteBackTransport` for the same compare-and-apply shape kept only in
 process memory, which a killed process cannot use to prove anything.
+The reference entity and its idempotency effect share one atomic state file,
+so a process kill cannot persist only one side of an apply.
 """
 
 from __future__ import annotations
@@ -48,16 +50,16 @@ class FileWriteBackTransport:
 
     def __init__(self, directory: Path) -> None:
         directory.mkdir(parents=True, exist_ok=True)
-        self._entities_path = directory / "entities.json"
-        self._effects_path = directory / "effects.json"
+        self._state_path = directory / "state.json"
 
     def seed(
         self, entity_id: str, source_version: str, fields: dict[str, JsonValue]
     ) -> None:
         """Create or replace one entity's current durable state."""
-        entities = self._read(self._entities_path)
+        state = self._state()
+        entities = state["entities"]
         entities[entity_id] = {"source_version": source_version, "fields": fields}
-        _write_json_atomic(self._entities_path, entities)
+        _write_json_atomic(self._state_path, state)
 
     async def read_current(self, change_set: SourceChangeSet) -> SourceSnapshot:
         """Read the durable entity snapshot."""
@@ -85,7 +87,7 @@ class FileWriteBackTransport:
         self, change_set: SourceChangeSet
     ) -> WriteBackAttempt | None:
         """Return an exactly matching prior durable effect or reject key reuse."""
-        payload = self._read(self._effects_path).get(change_set.idempotency_key)
+        payload = self._state()["effects"].get(change_set.idempotency_key)
         if payload is None:
             return None
         effect = WriteBackAttempt.model_validate(payload)
@@ -107,7 +109,6 @@ class FileWriteBackTransport:
             raise SourceVersionConflictError("source changed during compare-and-apply")
         fields = {**current.fields, **change_set.desired_patch}
         post_version = f"{current.source_version}+1"
-        self.seed(change_set.entity_id, post_version, fields)
         authorization = change_set.authorization
         attempt = WriteBackAttempt(
             tenant_id=change_set.tenant_id,
@@ -125,14 +126,18 @@ class FileWriteBackTransport:
             connector_observation_digest=_digest({"fields": fields, "v": post_version}),
             provenance_digest=_digest(change_set.field_provenance),
         )
-        effects = self._read(self._effects_path)
-        effects[change_set.idempotency_key] = attempt.model_dump(mode="json")
-        _write_json_atomic(self._effects_path, effects)
+        state = self._state()
+        state["entities"][change_set.entity_id] = {
+            "source_version": post_version,
+            "fields": fields,
+        }
+        state["effects"][change_set.idempotency_key] = attempt.model_dump(mode="json")
+        _write_json_atomic(self._state_path, state)
         return attempt
 
     async def reconcile(self, change_set: SourceChangeSet) -> ReconciliationObservation:
         """Resolve by durable idempotency key and current durable source version."""
-        effect = self._read(self._effects_path).get(change_set.idempotency_key)
+        effect = self._state()["effects"].get(change_set.idempotency_key)
         current = self._snapshot(change_set.entity_id)
         status = (
             WriteBackEffectStatus.APPLIED
@@ -157,11 +162,10 @@ class FileWriteBackTransport:
         )
 
     def _snapshot(self, entity_id: str) -> SourceSnapshot:
-        payload = self._read(self._entities_path)[entity_id]
+        payload = self._state()["entities"][entity_id]
         return SourceSnapshot(
             source_version=str(payload["source_version"]), fields=payload["fields"]
         )
 
-    @staticmethod
-    def _read(path: Path) -> dict[str, Any]:
-        return _read_json(path) or {}
+    def _state(self) -> dict[str, dict[str, Any]]:
+        return _read_json(self._state_path) or {"entities": {}, "effects": {}}
