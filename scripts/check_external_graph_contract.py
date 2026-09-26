@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Check the relocated universal/privacy-safe external-graph architecture docs.
 
-``docs/architecture/universal-graph-connectors.md`` and
-``docs/architecture/privacy-safe-ingestion.md`` moved here from agent-utilities'
+``pages/architecture/universal-graph-connectors.md`` and
+``pages/architecture/privacy-safe-ingestion.md`` moved here from agent-utilities'
 own ``scripts/check_external_graph_contract.py`` gate (RF-ADR-009: this repo owns
 connectors/transport). That gate verified two things about the docs directly: a
 fixed set of required content markers (so the page cannot silently drop mention
@@ -42,8 +42,8 @@ _ENVIRONMENT_LITERAL_RE = re.compile(
 )
 
 DOC_RELATIVE_PATHS = (
-    "docs/architecture/universal-graph-connectors.md",
-    "docs/architecture/privacy-safe-ingestion.md",
+    "pages/architecture/universal-graph-connectors.md",
+    "pages/architecture/privacy-safe-ingestion.md",
 )
 
 

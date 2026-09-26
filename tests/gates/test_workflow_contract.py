@@ -36,7 +36,7 @@ def test_pages_delegates_the_complete_site_pipeline_to_the_pinned_workflow() -> 
     assert pages["uses"] == PAGES_PIPELINE
     assert "steps" not in pages
     assert pages["with"] == {
-        "content_source": "docs",
+        "content_source": "pages",
         "shared_theme_enabled": True,
     }
     assert pages["permissions"] == {
