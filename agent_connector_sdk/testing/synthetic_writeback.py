@@ -15,10 +15,15 @@ from pydantic import BaseModel, ConfigDict, JsonValue
 from agent_connector_sdk.ports.writeback_ledger import WriteBackLedger
 from agent_connector_sdk.writeback.connector import DurableWritableConnector
 from agent_connector_sdk.writeback.durable_transport import FileWriteBackTransport
+from agent_connector_sdk.writeback.epistemic_graph import EpistemicGraphWriteBackLedger
 from agent_connector_sdk.writeback.errors import WriteBackPersistenceError
 from agent_connector_sdk.writeback.models import DryRunObservation
 
-__all__ = ["SyntheticWriteBackResult", "build_synthetic_writeback_server"]
+__all__ = [
+    "SyntheticWriteBackResult",
+    "build_synthetic_writeback_eg_server",
+    "build_synthetic_writeback_server",
+]
 
 CONNECTOR_ID = "synthetic-writeback"
 SOURCE_INSTANCE_ID = "synthetic-source"
@@ -108,3 +113,25 @@ def build_synthetic_writeback_server(
         )
 
     return mcp
+
+
+def build_synthetic_writeback_eg_server(
+    eg_client: Any,
+    source_dir: Path,
+    *,
+    graph: str,
+    tenant_id: str,
+) -> FastMCP[Any]:
+    """Bind the test source to EG's generated durable WriteBack operations.
+
+    ``eg_client`` must already carry a tenant-granted verified context. EG
+    authorizes every create, read and receipt append; the SDK never mints a
+    principal or stores a credential in this fixture.
+    """
+    if not graph:
+        raise ValueError("graph must not be empty")
+    return build_synthetic_writeback_server(
+        EpistemicGraphWriteBackLedger(eg_client, graph=graph),
+        source_dir,
+        tenant_id=tenant_id,
+    )

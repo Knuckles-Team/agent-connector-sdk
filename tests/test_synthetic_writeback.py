@@ -6,7 +6,11 @@ import hashlib
 import json
 from pathlib import Path
 
-from epistemic_graph.generated.write_back import SourceChangeSet
+from epistemic_graph.generated.write_back import (
+    ReconciliationObservation,
+    SourceChangeSet,
+    WriteBackAttempt,
+)
 from fastmcp import Client
 
 from agent_connector_sdk.certify.listing import list_server_tools
@@ -18,14 +22,68 @@ from agent_connector_sdk.manifest.tool_schema import (
 from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.testing.synthetic_writeback import (
     SyntheticWriteBackResult,
+    build_synthetic_writeback_eg_server,
     build_synthetic_writeback_server,
 )
 from agent_connector_sdk.testing.writeback import make_writeback_fixture
 from agent_connector_sdk.transports.mcp import McpTransport
 from agent_connector_sdk.writeback.durable_ledger import FileWriteBackLedger
 from agent_connector_sdk.writeback.durable_transport import FileWriteBackTransport
+from agent_connector_sdk.writeback.epistemic_graph import EpistemicGraphWriteBackLedger
 
 MANIFEST = Path(__file__).parent / "synthetic_writeback_package/connector_manifest.yml"
+
+
+class _TenantEgClient:
+    """In-process EG wire stand-in; persists behind generated operations."""
+
+    def __init__(
+        self, root: Path, tenant_id: str, principal: str = "principal:fixture"
+    ) -> None:
+        self.ledger = FileWriteBackLedger(root)
+        self.tenant_id = tenant_id
+        self.principal = principal
+        self.methods: list[str] = []
+
+    async def _send(
+        self,
+        method: str,
+        params: dict[str, object],
+        graph: str | None,
+        *,
+        idempotency_key: str | None = None,
+    ) -> object:
+        assert method == "WriteBack" and graph == "graph:c5"
+        self.methods.append(method)
+        op = params["op"]
+        assert isinstance(op, dict)
+        name = op["op"]
+        if name == "create":
+            change = SourceChangeSet.model_validate(op["change_set"])
+            assert change.tenant_id == self.tenant_id
+            assert change.actor == self.principal
+            result = await self.ledger.create(change)
+        elif name == "get":
+            assert op["tenant_id"] == self.tenant_id
+            result = await self.ledger.get(op["tenant_id"], op["change_set_id"])
+        elif name == "record_attempt":
+            attempt = WriteBackAttempt.model_validate(op["attempt"])
+            assert attempt.tenant_id == self.tenant_id
+            result = await self.ledger.record_attempt(attempt)
+        elif name == "record_reconciliation":
+            observation = ReconciliationObservation.model_validate(op["observation"])
+            assert observation.tenant_id == self.tenant_id
+            result = await self.ledger.record_reconciliation(observation)
+        else:
+            assert name == "receipts" and op["tenant_id"] == self.tenant_id
+            result = await self.ledger.receipts(
+                op["tenant_id"],
+                op["change_set_id"],
+                after_sequence=op.get("after_sequence"),
+                limit=op["limit"],
+            )
+        assert result is not None
+        return result.model_dump(mode="json")
 
 
 def _digest(schema: dict[str, object] | None) -> str:
@@ -159,3 +217,43 @@ async def test_synthetic_served_denied_change_set_never_mutates(tmp_path: Path) 
         assert result.is_error
     assert (await source.read_current(denied)).source_version == "v1"
     assert not (await ledger.receipts(denied.tenant_id, denied.change_set_id)).receipts
+
+
+async def test_synthetic_eg_adapter_serves_receipt_after_restart(
+    tmp_path: Path,
+) -> None:
+    change = _change_set()
+    eg = _TenantEgClient(tmp_path / "eg", "tenant-c5")
+    ledger = EpistemicGraphWriteBackLedger(eg, graph="graph:c5")
+    assert await ledger.create(change) == change
+    source = FileWriteBackTransport(tmp_path / "source")
+    source.seed(change.entity_id, "v1", {"status": "new"})
+    args = {
+        "action": "apply",
+        "tenant_id": "tenant-c5",
+        "change_set_id": change.change_set_id,
+    }
+
+    server = build_synthetic_writeback_eg_server(
+        eg, tmp_path / "source", graph="graph:c5", tenant_id="tenant-c5"
+    )
+    async with Client(server) as client:
+        first = SyntheticWriteBackResult.model_validate(
+            (await client.call_tool("synthetic_writeback", args)).structured_content
+        )
+    restarted_eg = _TenantEgClient(tmp_path / "eg", "tenant-c5")
+    restarted = build_synthetic_writeback_eg_server(
+        restarted_eg, tmp_path / "source", graph="graph:c5", tenant_id="tenant-c5"
+    )
+    async with Client(restarted) as client:
+        second = SyntheticWriteBackResult.model_validate(
+            (await client.call_tool("synthetic_writeback", args)).structured_content
+        )
+    assert first == second and first.receipt_id
+    assert (await source.read_current(change)).source_version == "v1+1"
+    page = await EpistemicGraphWriteBackLedger(restarted_eg, graph="graph:c5").receipts(
+        change.tenant_id, change.change_set_id
+    )
+    assert len(page.receipts) == 1
+    assert page.receipts[0].receipt.receipt_id == first.receipt_id
+    assert eg.methods and restarted_eg.methods
