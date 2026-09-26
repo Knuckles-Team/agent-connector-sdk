@@ -11,6 +11,7 @@ from epistemic_graph.connector_pack import (
     PackWriteErrorCode,
     pack_digest,
 )
+from epistemic_graph.generated import METHOD_IDS
 from epistemic_graph.generated.connector_pack import (
     AgentLibraryMutationContext,
     McpCatalogSnapshotBinding,
@@ -77,6 +78,30 @@ def _validate_pack_result(result: PackImportResult, expected_digest: str) -> Non
         actual = result.pack_digest
     if actual is not None and actual != expected_digest:
         raise ValueError("ConnectorPack result does not bind the submitted pack")
+
+
+async def _probe_commit_capabilities(client: Any) -> SinkReadiness:
+    """Fail closed if the installed contract or connected engine lacks a path."""
+    required = ("SourceIngest", "SourceIngestStatus", "ConnectorPack")
+    missing = [method for method in required if method not in METHOD_IDS]
+    if missing:
+        return SinkReadiness(
+            ready=False, reason=f"engine wheel lacks {', '.join(missing)}"
+        )
+    supports = getattr(client, "supports", None)
+    if not callable(supports):
+        return SinkReadiness(ready=False, reason="engine capability probe unavailable")
+    try:
+        for method in required:
+            if await supports(method) is not True:
+                return SinkReadiness(
+                    ready=False, reason=f"engine does not advertise {method}"
+                )
+    except Exception:
+        # The health response is public; do not echo a transport exception
+        # that may contain connection details or credential-bearing URLs.
+        return SinkReadiness(ready=False, reason="engine capability probe failed")
+    return SinkReadiness(ready=True)
 
 
 class EpistemicGraphSink:
@@ -172,5 +197,5 @@ class EpistemicGraphSink:
         return result
 
     async def readiness(self) -> SinkReadiness:
-        """Both generated commit paths and their injected authorities are present."""
-        return SinkReadiness(ready=True)
+        """Require the pinned client and live EG to advertise every commit path."""
+        return await _probe_commit_capabilities(self._client)
