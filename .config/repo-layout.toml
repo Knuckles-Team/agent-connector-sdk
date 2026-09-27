@@ -10,7 +10,6 @@ tests = "the test suite, including the in-process fixture connector"
 docs = "public GitHub Pages sources and generated shared-theme assets"
 overrides = "shared MkDocs Material template overrides"
 ".github" = "GitHub Actions workflows (release and Pages)"
-".kiss" = "hand-set KISS thresholds (.kiss/kiss.toml), not a baseline"
 
 [files]
 "AGENTS.md" = "agent-facing repository guide"

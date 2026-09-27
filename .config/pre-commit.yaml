@@ -2,7 +2,7 @@
 #
 # Repository-agnostic complexity, clone, security, privacy, supply-chain,
 # hygiene, code-shape, documentation, and CI-replica gates come from the shared
-# Knuckles-Team/pipelines repository at a pinned commit. Repository-specific
+# Knuckles-Team/pipelines repository at main. Repository-specific
 # settings live in `pyproject.toml` under `[tool.pipelines_hooks]`.
 default_install_hook_types: [pre-commit, pre-push]
 default_stages: [pre-commit]
@@ -50,9 +50,9 @@ repos:
   - id: uv-lock
     args: ["--locked"]
     stages: [pre-push, manual]
-# ── Shared gates (Knuckles-Team/pipelines, pinned) ─────────────────────────────
+# ── Shared gates (Knuckles-Team/pipelines, main) ─────────────────────────────
 - repo: https://github.com/Knuckles-Team/pipelines
-  rev: 444b232c7975e125a24b17d53ff615f5ad26a4cd
+  rev: main # sanctioned first-party exception
   hooks:
   # scanners (pinned versions; never installed by a hook)
   - id: complexity-staged

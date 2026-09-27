@@ -34,6 +34,10 @@ from epistemic_graph.generated.source_ingestion import (
 from agent_connector_sdk._version import __version__
 from agent_connector_sdk.artifacts.pack import CapturedConnectorPack
 from agent_connector_sdk.ports.sink import SinkReadiness
+from agent_connector_sdk.sinks.pack_identity import (
+    _validate_imported_pack_identity,
+    _validate_pack_identity,
+)
 
 __all__ = [
     "EpistemicGraphSink",
@@ -121,6 +125,12 @@ class EpistemicGraphSink:
         status = await self._packs.status(
             tenant_id=context.tenant_id, connector=pack.connector
         )
+        _validate_pack_identity(
+            tenant_id=context.tenant_id,
+            connector=pack.connector,
+            actual_tenant=status.tenant_id,
+            actual_connector=status.connector,
+        )
         try:
             return await self._import_after_status(
                 pack, catalog=catalog, context=context, status=status
@@ -130,6 +140,12 @@ class EpistemicGraphSink:
                 raise
         status = await self._packs.status(
             tenant_id=context.tenant_id, connector=pack.connector
+        )
+        _validate_pack_identity(
+            tenant_id=context.tenant_id,
+            connector=pack.connector,
+            actual_tenant=status.tenant_id,
+            actual_connector=status.connector,
         )
         return await self._import_after_status(
             pack, catalog=catalog, context=context, status=status
@@ -169,6 +185,7 @@ class EpistemicGraphSink:
             ),
         )
         _validate_pack_result(result, digest)
+        _validate_imported_pack_identity(result, context, pack.connector)
         return result
 
     async def readiness(self) -> SinkReadiness:

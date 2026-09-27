@@ -12,6 +12,7 @@ from epistemic_graph.generated.connector_pack import (
     AgentLibraryMutationContext,
     McpCatalogSnapshotBinding,
     PackEntryKind,
+    PackImportResultImported,
     PackImportResultRejected,
     PackImportResultUnchanged,
 )
@@ -243,6 +244,40 @@ class _PackClient:
         if method == "BlobCommit":
             return "blob-manifest-a"
         raise AssertionError((method, params, graph))
+
+
+class _ImportedPackClient(_PackClient):
+    identity: tuple[str, str] = ("tenant-a", "demo-agent")
+
+    def _import(self, operation: dict[str, object]) -> object:
+        request = operation["request"]
+        assert isinstance(request, dict)
+        index = request["index"]
+        assert isinstance(index, dict)
+        tenant_id, connector = self.identity
+        return {
+            "result": "imported",
+            "receipt": {
+                "batch_id": "batch-a",
+                "binding_revision": 4,
+                "catalog": _catalog().model_dump(mode="json"),
+                "committed_version": 4,
+                "connector": connector,
+                "counts": {
+                    "published": 1,
+                    "republished": 0,
+                    "revised": 0,
+                    "unchanged": 0,
+                    "withdrawn": 0,
+                },
+                "pack_digest": index["pack_digest"],
+                "projection": {"projection": "none"},
+                "record_id": "pack:demo-agent:4",
+                "schema_version": 2,
+                "tenant_id": tenant_id,
+                "warnings": [],
+            },
+        }
 
 
 def _provenance(tool: str = "reader") -> SourceRecordProvenance:
@@ -505,6 +540,89 @@ async def test_epistemic_graph_sink_replays_matching_pack_without_upload() -> No
     assert isinstance(result, PackImportResultUnchanged)
     assert result.pack_digest == digest and result.binding_revision == 4
     assert [method for method, _, _ in client.calls] == ["ConnectorPack"]
+
+
+@pytest.mark.parametrize(
+    ("field", "other"),
+    [("tenant_id", "tenant-b"), ("connector", "other-agent")],
+)
+async def test_epistemic_graph_sink_refuses_foreign_pack_status(
+    field: str, other: str
+) -> None:
+    async def authority(
+        _connector: str,
+    ) -> tuple[McpCatalogSnapshotBinding, AgentLibraryMutationContext]:
+        return _catalog(), _mutation_context()
+
+    pack = _pack()
+    digest = pack_digest(
+        pack.connector, _catalog(), pack.archive.server, pack.archive.entries
+    )
+
+    class ForeignStatusClient(_PackClient):
+        def _status(self) -> dict[str, object]:
+            response = super()._status()
+            response[field] = other
+            return response
+
+    client = ForeignStatusClient(head_digest=digest)
+    with pytest.raises(ValueError, match="requested tenant and connector"):
+        await EpistemicGraphSink(client, authority).import_pack(pack)
+    assert [method for method, _, _ in client.calls] == ["ConnectorPack"]
+
+
+@pytest.mark.parametrize(
+    "identity", [("tenant-b", "demo-agent"), ("tenant-a", "other-agent")]
+)
+async def test_epistemic_graph_sink_refuses_foreign_import_receipt(
+    identity: tuple[str, str],
+) -> None:
+    async def authority(
+        _connector: str,
+    ) -> tuple[McpCatalogSnapshotBinding, AgentLibraryMutationContext]:
+        return _catalog(), _mutation_context()
+
+    client = _ImportedPackClient()
+    client.identity = identity
+    with pytest.raises(ValueError, match="requested tenant and connector"):
+        await EpistemicGraphSink(client, authority).import_pack(_pack())
+
+
+async def test_epistemic_graph_sink_accepts_matching_import_receipt() -> None:
+    async def authority(
+        _connector: str,
+    ) -> tuple[McpCatalogSnapshotBinding, AgentLibraryMutationContext]:
+        return _catalog(), _mutation_context()
+
+    result = await EpistemicGraphSink(_ImportedPackClient(), authority).import_pack(
+        _pack()
+    )
+    assert isinstance(result, PackImportResultImported)
+    assert result.receipt.tenant_id == "tenant-a"
+    assert result.receipt.connector == "demo-agent"
+
+
+async def test_epistemic_graph_sink_refuses_foreign_status_after_conflict() -> None:
+    async def authority(
+        _connector: str,
+    ) -> tuple[McpCatalogSnapshotBinding, AgentLibraryMutationContext]:
+        return _catalog(), _mutation_context()
+
+    class ForeignRetryStatusClient(_PackClient):
+        status_reads = 0
+
+        def _status(self) -> dict[str, object]:
+            self.status_reads += 1
+            response = super()._status()
+            if self.status_reads == 2:
+                response["tenant_id"] = "tenant-b"
+            return response
+
+    client = ForeignRetryStatusClient(conflict_once=True)
+    with pytest.raises(ValueError, match="requested tenant and connector"):
+        await EpistemicGraphSink(client, authority).import_pack(_pack())
+    assert client.status_reads == 2
+    assert sum(method == "BlobBegin" for method, _, _ in client.calls) == 1
 
 
 async def test_epistemic_graph_sink_retries_one_pack_head_conflict() -> None:

@@ -30,5 +30,5 @@ scratch/
 *.log
 .env
 .envrc
-.kiss/*
-!.kiss/kiss.toml
+.kiss/
+*maturin.lock
