@@ -24,8 +24,6 @@ jobs:
   gates:
     name: gates
     runs-on: ubuntu-latest
-    env:
-      PYTHONPATH: ${{ github.workspace }}/.ci/epistemic-graph
     steps:
       - &checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -72,22 +70,19 @@ jobs:
             printf '%s' "$PROHIBITED_IDENTITY_CATALOG" > "$HOME/.config/agent-utilities/governance/prohibited-identities.json"
           fi
           uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml tracked-privacy --hook-stage manual --all-files
-      - name: Checkout the finalized epistemic-graph contract source
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          repository: Knuckles-Team/epistemic-graph
-          ref: f17f47ab300f7f1ddd972d4e0214283a28547e36
-          path: .ci/epistemic-graph
-          persist-credentials: false
-      - name: Sync the locked environment
-        run: uv sync --frozen --no-install-package epistemic-graph
-      - name: Verify the finalized generated contract source
-        run: |
-          uv run --frozen python -c "from pathlib import Path; import epistemic_graph.generated.source_ingestion as source; assert '.ci/epistemic-graph' in str(Path(source.__file__).resolve())"
+      # Release qualification must import the published, registry-locked EG
+      # wheel. A source checkout on PYTHONPATH can mask a stale lock or an
+      # incomplete published artifact while mypy/tests appear green.
+      - name: Require an up-to-date registry lock
+        run: uv lock --check --no-sources
+      - name: Sync the locked wheel environment
+        run: uv sync --locked --no-sources --no-build-package epistemic-graph
+      - name: Verify the published EG wheel and generated client contract
+        run: env -u PYTHONPATH uv run --locked --no-sources python scripts/check_eg_release_dependency.py
       - name: Test suite
-        run: uv run --frozen python -m pytest -q
+        run: env -u PYTHONPATH uv run --locked --no-sources python -m pytest -q
       - name: Type check
-        run: uv run --frozen --with mypy==1.20.2 --with types-PyYAML==6.0.12.20260518 python -m mypy agent_connector_sdk
+        run: env -u PYTHONPATH uv run --locked --no-sources --with mypy==1.20.2 --with types-PyYAML==6.0.12.20260518 python -m mypy agent_connector_sdk
       - name: Lint and format
         run: |
           uvx --from ruff==0.16.0 ruff check agent_connector_sdk tests
