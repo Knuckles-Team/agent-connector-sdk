@@ -22,6 +22,11 @@ UNLISTED_DEFECT = (
 )
 
 
+def _include_missing_pins(checkout: ConnectorCheckout, writing: bool) -> bool:
+    """A first contract-only write may replace stale pins from a live catalog."""
+    return not (writing and checkout.contract_only)
+
+
 @dataclass(frozen=True)
 class CertificationReport:
     """The outcome of certifying one connector.
@@ -78,6 +83,7 @@ async def certify_connector(
     endpoint: TransportEndpoint,
     *,
     timeout_seconds: float,
+    writing: bool = False,
 ) -> CertificationReport:
     """List the server's tools and compare every preset tool's pins."""
     try:
@@ -98,5 +104,9 @@ async def certify_connector(
         listed=True,
         server_name=listing.server_name,
         server_version=listing.server_version,
-        verdicts=tool_verdicts(checkout, listing.tools),
+        verdicts=tool_verdicts(
+            checkout,
+            listing.tools,
+            include_missing_pins=_include_missing_pins(checkout, writing),
+        ),
     )

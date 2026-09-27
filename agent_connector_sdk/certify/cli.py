@@ -87,6 +87,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--timeout", type=_positive_timeout, default=60.0, help="seconds"
     )
     parser.add_argument("--report", type=Path, help="write the JSON report here")
+    parser.add_argument(
+        "--tool-contract-only",
+        action="store_true",
+        help="certify all listed MCP tools for a connector with no sync presets",
+    )
     parser.epilog = "Everything after -- is the stdio server command and its arguments."
     return parser
 
@@ -180,6 +185,7 @@ async def _run_certification(
                 McpTransport(),
                 endpoint,
                 timeout_seconds=args.timeout,
+                writing=args.write,
             )
     except TimeoutError:
         return CertificationReport(
@@ -195,7 +201,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parse_arguments(sys.argv[1:] if argv is None else argv)
     _configure_logging()
     try:
-        checkout = load_checkout(args.package)
+        checkout = load_checkout(args.package, contract_only=args.tool_contract_only)
         run = partial(_run_certification, checkout, args)
         report = anyio.run(run)
     except Exception:

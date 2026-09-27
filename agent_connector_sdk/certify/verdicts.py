@@ -19,7 +19,10 @@ from agent_connector_sdk.manifest.loader import (
     FINGERPRINTS_FILE_NAME,
     MANIFEST_FILE_NAME,
 )
-from agent_connector_sdk.manifest.tool_schema import ToolSchemaContractError
+from agent_connector_sdk.manifest.tool_schema import (
+    COMPATIBILITY_FINGERPRINT_ALGORITHM,
+    ToolSchemaContractError,
+)
 
 __all__ = ["PinStatus", "ToolVerdict", "pin_locations", "tool_verdicts"]
 
@@ -89,18 +92,50 @@ def _presets_for_tool(checkout: ConnectorCheckout, tool: str) -> tuple[Any, ...]
     return tuple(preset for preset in checkout.presets.values() if preset.tool == tool)
 
 
+def _catalog_defect(tool: str, matches: Sequence[Any]) -> str:
+    if not tool:
+        return "the server lists an unnamed tool"
+    if len(matches) != 1:
+        state = "does not list" if not matches else "lists more than once"
+        return f"the server {state} tool {tool!r}"
+    return ""
+
+
+def _output_digest(checkout: ConnectorCheckout, match: Any) -> str:
+    digest = output_schema_digest(match)
+    if checkout.contract_only and not digest:
+        raise ToolSchemaContractError("the tool has no declared output schema")
+    return digest
+
+
+def _verdict_status(
+    checkout: ConnectorCheckout,
+    tool: str,
+    live: str,
+    *,
+    pins: Mapping[str, str],
+) -> PinStatus:
+    if (
+        checkout.contract_only
+        and checkout.pin_algorithm != COMPATIBILITY_FINGERPRINT_ALGORITHM
+    ):
+        return PinStatus.UNPINNED
+    return _status(tool, live, list(pins.values()))
+
+
 def _verdict(
     checkout: ConnectorCheckout, tool: str, matches: Sequence[Any]
 ) -> ToolVerdict:
-    if len(matches) != 1:
-        state = "does not list" if not matches else "lists more than once"
-        return _unavailable(checkout, tool, f"the server {state} tool {tool!r}")
+    defect = _catalog_defect(tool, matches)
+    if defect:
+        return _unavailable(checkout, tool, defect)
     try:
         contract = validate_preset_tool_contract(
             matches,
             tool_name=tool,
             presets=_presets_for_tool(checkout, tool),
         )
+        output_digest = _output_digest(checkout, matches[0])
     except ToolSchemaContractError as exc:
         _logger.warning("tool %r cannot be certified: %s", tool, exc)
         return _unavailable(checkout, tool, str(exc))
@@ -110,19 +145,34 @@ def _verdict(
         tool=tool,
         presets=checkout.presets_for(tool),
         pins=pins,
-        status=_status(tool, live, list(pins.values())),
+        status=_verdict_status(checkout, tool, live, pins=pins),
         live=live,
-        output_schema_sha256=output_schema_digest(matches[0]),
+        output_schema_sha256=output_digest,
     )
 
 
+def _catalog_names(
+    checkout: ConnectorCheckout,
+    by_name: Mapping[str, list[Any]],
+    include_missing_pins: bool,
+) -> set[str]:
+    names = set(checkout.tools) if include_missing_pins else set()
+    if checkout.contract_only:
+        names.update(by_name)
+    return names
+
+
 def tool_verdicts(
-    checkout: ConnectorCheckout, tools: Sequence[Any]
+    checkout: ConnectorCheckout,
+    tools: Sequence[Any],
+    *,
+    include_missing_pins: bool = True,
 ) -> tuple[ToolVerdict, ...]:
     """One verdict per preset tool, from the server's ``tools/list`` entries."""
     by_name: dict[str, list[Any]] = {}
     for tool in tools:
         by_name.setdefault(tool_name(tool), []).append(tool)
+    names = _catalog_names(checkout, by_name, include_missing_pins)
     return tuple(
-        _verdict(checkout, tool, by_name.get(tool, [])) for tool in checkout.tools
+        _verdict(checkout, tool, by_name.get(tool, [])) for tool in sorted(names)
     )

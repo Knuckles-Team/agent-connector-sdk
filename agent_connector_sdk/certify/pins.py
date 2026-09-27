@@ -19,6 +19,10 @@ import yaml
 
 from agent_connector_sdk.certify.checkout import ConnectorCheckout
 from agent_connector_sdk.certify.fingerprints import is_empty_schema_pin
+from agent_connector_sdk.certify.pin_file import (
+    _replace_contract_pins,
+    stage_contract_pins,
+)
 from agent_connector_sdk.certify.pin_journal import _PinTransactionError
 from agent_connector_sdk.certify.transaction import _replace_pin_pair
 from agent_connector_sdk.certify.verdicts import ToolVerdict
@@ -108,29 +112,74 @@ def _commit_pair(
         raise PinWriteError(str(exc)) from exc
 
 
-def write_certified_pins(
-    checkout: ConnectorCheckout, verdicts: Sequence[ToolVerdict]
-) -> tuple[Path, Path]:
-    """Write the live fingerprints of ``verdicts`` into both pin files.
+def _write_contract_only_pins(
+    checkout: ConnectorCheckout,
+    _verdicts: Sequence[ToolVerdict],
+    live: Mapping[str, str],
+) -> tuple[Path, ...]:
+    path = checkout.fingerprints_path
+    path.parent.mkdir(exist_ok=True)
+    staging: Path | None = None
+    try:
+        staging = stage_contract_pins(
+            path, render_fingerprints(checkout.connector, live)
+        )
+        _replace_contract_pins(staging, path)
+    except OSError as exc:
+        raise PinWriteError("tool contract pins could not be written") from exc
+    finally:
+        if staging is not None:
+            staging.unlink(missing_ok=True)
+    return (path,)
 
-    Raises:
-        PinWriteError: a tool has no certifiable live fingerprint, or the
-            rewritten manifest does not parse back to the certified pins.
-    """
-    live = _certified(verdicts)
-    wanted = {
+
+def _wanted_pins(
+    verdicts: Sequence[ToolVerdict], live: Mapping[str, str]
+) -> dict[str, str]:
+    return {
         preset: live[verdict.tool] for verdict in verdicts for preset in verdict.presets
     }
-    manifest_text = rewrite_manifest_pins(
+
+
+def _validated_manifest_text(
+    checkout: ConnectorCheckout, wanted: Mapping[str, str]
+) -> str:
+    text = rewrite_manifest_pins(
         checkout.manifest_path.read_text(encoding="utf-8"), wanted
     )
-    reparsed = ConnectorManifest.model_validate(yaml.safe_load(manifest_text))
+    reparsed = ConnectorManifest.model_validate(yaml.safe_load(text))
     written = {entry.preset: entry.tool_schema_sha256 for entry in reparsed.sync}
     if any(written.get(preset) != pin for preset, pin in wanted.items()):
         raise PinWriteError("rewritten manifest does not carry the certified pins")
+    return text
+
+
+def _write_sync_pins(
+    checkout: ConnectorCheckout,
+    verdicts: Sequence[ToolVerdict],
+    live: Mapping[str, str],
+) -> tuple[Path, ...]:
+    wanted = _wanted_pins(verdicts, live)
+    manifest_text = _validated_manifest_text(checkout, wanted)
     _commit_pair(
         checkout,
         manifest_text=manifest_text,
         fingerprints_text=render_fingerprints(checkout.connector, live),
     )
     return checkout.fingerprints_path, checkout.manifest_path
+
+
+def write_certified_pins(
+    checkout: ConnectorCheckout, verdicts: Sequence[ToolVerdict]
+) -> tuple[Path, ...]:
+    """Write certified live pins to the checkout's authoritative pin file(s).
+
+    Raises:
+        PinWriteError: a tool has no certifiable live fingerprint, or the
+            rewritten manifest does not parse back to the certified pins.
+    """
+    live = _certified(verdicts)
+    writer = {True: _write_contract_only_pins, False: _write_sync_pins}[
+        checkout.contract_only
+    ]
+    return writer(checkout, verdicts, live)

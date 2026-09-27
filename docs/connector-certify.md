@@ -4,6 +4,15 @@
 with the client-visible contract returned by `tools/list`. It lists tools only;
 it never calls a tool or reaches the connector's upstream API.
 
+For a connector with no sync presets, `--tool-contract-only` certifies the
+complete listed MCP tool catalog. This mode is explicit because those tools may
+have side effects: certification still calls only `tools/list`, never a tool.
+It requires `sync: []`, no `mcp_source_presets.json`, a nonempty tool catalog,
+and a declared input and output schema for every listed tool. It pins all
+listed names in `connectors/tool_schema_fingerprints.json`; `--check` fails on
+an added, removed, duplicated, unpinned, or changed tool. `--write` updates
+only that fingerprint file and leaves the manifest unchanged.
+
 ```mermaid
 flowchart LR
     C[Connector checkout] --> P[Load presets and pins]
@@ -40,6 +49,12 @@ Start a connector over stdio by putting its command after `--`:
 ```bash
 connector-certify ../sample-agent --check -- sample-mcp --transport stdio
 connector-certify ../sample-agent --write -- sample-mcp --transport stdio
+
+# A no-sync MCP connector, after live listing is available:
+connector-certify ../media-downloader --tool-contract-only --write \
+  -- media-downloader-mcp
+connector-certify ../media-downloader --tool-contract-only --check \
+  -- media-downloader-mcp
 ```
 
 `--placeholder NAME` gives a stdio child a fixed non-secret placeholder.
@@ -81,3 +96,9 @@ every preset tool has one live, non-empty, action-valid contract and verifies
 the reparsed manifest before replacing either file. A durable transaction
 journal restores the previous consistent pair if either replacement fails or a
 later certification starts after an interrupted write.
+
+For `--tool-contract-only`, the single fingerprint file is replaced atomically.
+The generated file must be reviewed and committed in the connector checkout
+before a subsequent `--check` can pass. A connector with a malformed sync
+preset must repair or remove that preset based on its real extraction semantics;
+this mode refuses any checkout that still declares one.

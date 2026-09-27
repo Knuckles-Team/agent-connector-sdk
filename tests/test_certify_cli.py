@@ -12,6 +12,7 @@ import pytest
 from certify_support import DRIFTED, EMPTY, LIVE, checkout_copy, server_command
 from fixture_server import PACKAGE_ROOT, build_reader_server
 
+import agent_connector_sdk.certify.certification as certify_certification
 import agent_connector_sdk.certify.listing as certify_listing
 import agent_connector_sdk.certify.options as certify_options
 from agent_connector_sdk.auth.oidc import ClientCredentialsConfig
@@ -32,6 +33,7 @@ from agent_connector_sdk.certify.listing import (
     ToolListingError,
     list_server_tools,
 )
+from agent_connector_sdk.certify.pins import write_certified_pins
 from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.transports.mcp import McpTransport
 
@@ -95,6 +97,35 @@ async def test_certify_connector_reports() -> None:
     assert not (unlisted.listed or unlisted.passed)
     assert "must not require real credentials" in unlisted.reason
     assert unlisted.document()["tools"] == []
+
+
+async def test_contract_only_report_requires_pins_and_output_schema(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from test_certify_pins import _contract_only_checkout
+
+    root = _contract_only_checkout(tmp_path)
+    checkout = load_checkout(root, contract_only=True)
+    live = await list_server_tools(McpTransport(), _in_process(), timeout_seconds=30)
+
+    async def listed(*_args: object, **_kwargs: object) -> ToolListing:
+        return live
+
+    monkeypatch.setattr(certify_certification, "list_server_tools", listed)
+    report = await certify_connector(
+        checkout, McpTransport(), _in_process(), timeout_seconds=30
+    )
+    assert not report.passed
+    assert report.document()["tools"][0]["status"] == "unpinned"
+    write_certified_pins(checkout, report.verdicts)
+    matched = await certify_connector(
+        load_checkout(root, contract_only=True),
+        McpTransport(),
+        _in_process(),
+        timeout_seconds=30,
+    )
+    assert matched.passed
+    assert len(matched.document()["tools"][0]["output_schema_sha256"]) == 64
 
 
 def test_build_endpoint(monkeypatch: pytest.MonkeyPatch) -> None:

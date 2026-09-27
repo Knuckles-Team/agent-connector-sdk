@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import Literal
 
 from agent_connector_sdk.manifest.model import ConnectorManifest, SyncSpec
 from agent_connector_sdk.manifest.presets import ToolPreset
@@ -135,12 +136,25 @@ def _malformed_pin_violations(
     ]
 
 
+def _unmatched_tool_violations(
+    manifest: ConnectorManifest,
+    presets: dict[str, ToolPreset],
+    fingerprints: ToolSchemaFingerprints,
+    *,
+    mode: Literal["sync", "contract_only"],
+) -> list[str]:
+    if mode == "contract_only" and not manifest.sync and not presets:
+        return []
+    return _unknown_tool_violations(presets, fingerprints)
+
+
 def validate_connector_package(
     manifest: ConnectorManifest,
     presets: dict[str, ToolPreset],
     fingerprints: ToolSchemaFingerprints,
     *,
     allow_pin_migration: bool = False,
+    mode: Literal["sync", "contract_only"] = "sync",
 ) -> list[str]:
     """Return every disagreement between manifest, presets and fingerprints.
 
@@ -168,5 +182,7 @@ def validate_connector_package(
         f"preset {name!r} is not declared in the manifest sync section"
         for name in sorted(set(presets) - declared)
     )
-    violations.extend(_unknown_tool_violations(presets, fingerprints))
+    violations.extend(
+        _unmatched_tool_violations(manifest, presets, fingerprints, mode=mode)
+    )
     return violations

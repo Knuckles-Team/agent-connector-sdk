@@ -10,9 +10,11 @@ from typing import Any
 from unittest.mock import AsyncMock
 
 import pytest
+import yaml
 from certify_support import DRIFTED, EMPTY, LIVE, checkout_copy, live_tools
 from fixture_server import PACKAGE_ROOT, build_reader_server
 
+import agent_connector_sdk.certify.pin_file as pin_file
 import agent_connector_sdk.certify.transaction as pin_transaction
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from agent_connector_sdk.certify.checkout import (
@@ -208,6 +210,92 @@ async def test_unavailable_tools_have_defects() -> None:
     (verdict,) = tool_verdicts(checkout, [unconstrained])
     assert verdict.status is PinStatus.TOOL_UNAVAILABLE
     assert "does not enumerate actions" in verdict.defect
+
+
+def _contract_only_checkout(tmp_path: Path) -> Path:
+    root = checkout_copy(tmp_path)
+    manifest = root / "connector_manifest.yml"
+    document = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    document["sync"] = []
+    manifest.write_text(yaml.safe_dump(document), encoding="utf-8")
+    (root / "connectors" / "mcp_source_presets.json").unlink()
+    (root / "connectors" / "tool_schema_fingerprints.json").unlink()
+    return root
+
+
+async def test_contract_only_certifies_all_listed_tools_without_sync(
+    tmp_path: Path,
+) -> None:
+    root = _contract_only_checkout(tmp_path)
+    with pytest.raises(ManifestError):
+        load_checkout(root)
+    checkout = load_checkout(root, contract_only=True)
+    listed = await live_tools()
+    (unmarked,) = tool_verdicts(checkout, listed)
+    assert unmarked.status is PinStatus.UNPINNED
+    before = checkout.manifest_path.read_bytes()
+    (written,) = write_certified_pins(checkout, (unmarked,))
+    assert written == checkout.fingerprints_path
+    assert checkout.manifest_path.read_bytes() == before
+    pinned = load_checkout(root, contract_only=True)
+    (matched,) = tool_verdicts(pinned, listed)
+    assert matched.status is PinStatus.MATCH
+    assert len(matched.output_schema_sha256) == 64
+    assert matched.presets == ()
+    document = json.loads(written.read_text(encoding="utf-8"))
+    document["algorithm"] = "unverified-algorithm"
+    written.write_text(json.dumps(document), encoding="utf-8")
+    (wrong_algorithm,) = tool_verdicts(load_checkout(root, contract_only=True), listed)
+    assert wrong_algorithm.status is PinStatus.UNPINNED
+    written.write_text(
+        render_fingerprints("demo-agent", {"demo_reader": LIVE}), encoding="utf-8"
+    )
+
+    extra = {**listed[0].model_dump(by_alias=True, exclude_none=True), "name": "other"}
+    statuses = {v.tool: v.status for v in tool_verdicts(pinned, [*listed, extra])}
+    assert statuses == {"demo_reader": PinStatus.MATCH, "other": PinStatus.UNPINNED}
+    (missing,) = tool_verdicts(pinned, [])
+    assert missing.status is PinStatus.TOOL_UNAVAILABLE
+    assert tool_verdicts(pinned, [], include_missing_pins=False) == ()
+
+
+async def test_contract_only_refuses_unbounded_or_malformed_tools(
+    tmp_path: Path,
+) -> None:
+    root = _contract_only_checkout(tmp_path)
+    checkout = load_checkout(root, contract_only=True)
+    (listed,) = await live_tools()
+    wire = listed.model_dump(by_alias=True, exclude_none=True)
+    no_output = {key: value for key, value in wire.items() if key != "outputSchema"}
+    (verdict,) = tool_verdicts(checkout, [no_output])
+    assert verdict.status is PinStatus.TOOL_UNAVAILABLE
+    assert "output schema" in verdict.defect
+    with pytest.raises(PinWriteError):
+        write_certified_pins(checkout, (verdict,))
+    assert not checkout.fingerprints_path.exists()
+    duplicate = tool_verdicts(checkout, [wire, wire])
+    assert duplicate[0].status is PinStatus.TOOL_UNAVAILABLE
+    unnamed = tool_verdicts(checkout, [{**wire, "name": ""}])
+    assert unnamed[0].status is PinStatus.TOOL_UNAVAILABLE
+    with pytest.raises(ManifestError, match="no sync"):
+        load_checkout(PACKAGE_ROOT, contract_only=True)
+    nested = root / "demo_agent" / "connectors"
+    nested.mkdir(parents=True)
+    (nested / "mcp_source_presets.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(ManifestError, match="no sync"):
+        load_checkout(root, contract_only=True)
+
+
+def test_failed_contract_pin_fsync_removes_staging_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def fail_fsync(_fd: int) -> None:
+        raise OSError("fsync failure")
+
+    monkeypatch.setattr(pin_file.os, "fsync", fail_fsync)
+    with pytest.raises(OSError, match="fsync failure"):
+        pin_file.stage_contract_pins(tmp_path / "pins.json", "{}")
+    assert list(tmp_path.iterdir()) == []
 
 
 @pytest.mark.parametrize("defect", ["free-action", "missing-params-json"])
