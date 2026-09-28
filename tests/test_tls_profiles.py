@@ -72,6 +72,7 @@ def _isolated_environment(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> No
         "REQUESTS_CA_BUNDLE",
         "TLS_PROFILES",
         "TLS_PROFILE",
+        "NO_PROXY",
     ):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv("XDG_RUNTIME_DIR", str(tmp_path / "runtime"))

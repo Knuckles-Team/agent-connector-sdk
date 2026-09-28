@@ -6,6 +6,7 @@ proven to fire by their own test suite in the pipelines hook repository.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -82,3 +83,34 @@ def test_public_api_gate_fires_on_an_untested_name(tmp_path: Path) -> None:
     )
     _git(root, "add", "--", "tests/test_api.py")
     assert _run("public-api", root).returncode == 0
+
+
+FLEET_GATE = Path(__file__).resolve().parents[2] / "scripts" / "run_fleet_gate.sh"
+
+
+def _fleet_gate(root: Path, ci: bool) -> subprocess.CompletedProcess[str]:
+    env = {k: v for k, v in os.environ.items() if k != "CI"}
+    if ci:
+        env["CI"] = "true"
+    return subprocess.run(
+        ["bash", str(FLEET_GATE), "phase-direction"],
+        cwd=root,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+def test_fleet_gate_skips_locally_and_fails_closed_in_ci(tmp_path: Path) -> None:
+    root = tmp_path / "standalone"
+    root.mkdir()
+    _git(root, "init", "-q")
+
+    local = _fleet_gate(root, ci=False)
+    assert local.returncode == 0
+    assert local.stdout.startswith("SKIPPED (phase-direction): ")
+
+    hosted = _fleet_gate(root, ci=True)
+    assert hosted.returncode == 2
+    assert "phase-direction: CANNOT RUN: " in hosted.stderr

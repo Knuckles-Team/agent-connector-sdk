@@ -213,18 +213,3 @@ repository = "Knuckles-Team/agent-connector-sdk"
 distribution = "agent-connector-sdk"
 pages_url = "https://knuckles-team.github.io/agent-connector-sdk/"
 mcp_server = false
-
-[tool.pipelines_hooks.ci_replica]
-build_affecting = ["pyproject.toml", "uv.lock", "mkdocs.yml", "docs/**", "overrides/**", ".github/workflows/**", ".config/pre-commit.yaml", "scripts/bootstrap_epistemic_graph_contract.sh"]
-
-[tool.pipelines_hooks.ci_replica.workflows."release.yml"]
-blocking = true
-executable_jobs = ["gates", "build"]
-
-[tool.pipelines_hooks.ci_replica.workflows."release.yml".skip_reasons]
-scanner-quality = "provisions the pinned cccc/kiss/dupehound/jscpd toolchain on the runner (cargo install, npm install); local replay never installs tools, and the pre-push hooks run the same shared gates against the locally installed, version-verified binaries"
-publish-pypi = "requires a vX.Y.Z release tag and PyPI trusted publishing; publishing must never happen from a local hook"
-
-[tool.pipelines_hooks.ci_replica.workflows."pages.yml"]
-blocking = true
-executable_jobs = ["pages"]
