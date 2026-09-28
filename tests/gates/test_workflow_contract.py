@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 PAGES = ROOT / ".github" / "workflows" / "pages.yml"
 CCCC_REVISION = "d728759323be5d9977b7390a27133e8eaf481f26"
+KISS_FORK_REVISION = "7f1c6785697d3fe9a41ceb8b8e5d0f615fb1f3d9"
 PAGES_PIPELINE = "Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml@main"
 UV_ACTION = "astral-sh/setup-uv@"
 
@@ -25,6 +26,18 @@ def test_release_installs_cccc_1_6_from_its_immutable_upstream_commit() -> None:
     assert "cargo install --locked --version 1.6.0" not in workflow
     assert "--git https://github.com/moznion/cccc" in workflow
     assert f"--rev {CCCC_REVISION}" in workflow
+
+
+def test_release_requires_the_pinned_kiss_fork_scanner_gate() -> None:
+    document = yaml.safe_load(RELEASE.read_text(encoding="utf-8"))
+    scanner = document["jobs"]["scanner-quality"]
+    commands = "\n".join(str(step.get("run", "")) for step in scanner["steps"])
+
+    assert "continue-on-error" not in scanner
+    assert "--git https://github.com/Knucklessg1/kiss" in commands
+    assert f"--rev {KISS_FORK_REVISION}" in commands
+    assert "--version 0.4.10" not in commands
+    assert "scanner-quality" in document["jobs"]["build"]["needs"]
 
 
 def test_pages_delegates_the_complete_site_pipeline_to_main() -> None:

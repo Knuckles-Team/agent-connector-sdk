@@ -94,7 +94,6 @@ jobs:
 
   scanner-quality:
     name: scanner-quality
-    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
       - *checkout
@@ -113,7 +112,9 @@ jobs:
           # cccc 1.6.0 is not published to crates.io (cccc-cli stops at 1.0.0).
           # Install the upstream v1.6.0 tag by its immutable commit instead.
           cargo install --locked --git https://github.com/moznion/cccc --rev d728759323be5d9977b7390a27133e8eaf481f26 --root "$root/cccc" cccc-cli
-          cargo install --locked --version 0.4.10 --root "$root/kiss" kiss-ai
+          # The fleet fork fixes inline Rust module resolution; crates.io builds
+          # report the same 0.4.12 version but fail the shared fork probe.
+          cargo install --locked --git https://github.com/Knucklessg1/kiss --rev 7f1c6785697d3fe9a41ceb8b8e5d0f615fb1f3d9 --root "$root/kiss" kiss-ai
           cargo install --locked --version 0.1.2 --root "$root/dupehound" dupehound
           npm install --prefix "$root/npm" --no-package-lock --ignore-scripts --no-save --no-audit --no-fund "jscpd@5.0.16"
           for bin in "$root/cccc/bin" "$root/kiss/bin" "$root/dupehound/bin" "$root/npm/node_modules/.bin"; do
@@ -129,7 +130,7 @@ jobs:
 
   build:
     name: build
-    needs: [gates]
+    needs: [gates, scanner-quality]
     runs-on: ubuntu-latest
     env:
       SOURCE_DATE_EPOCH: "0"
