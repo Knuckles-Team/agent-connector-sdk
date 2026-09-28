@@ -3,6 +3,7 @@
 # entry that is no longer tracked fails as stale.
 
 [dirs]
+specs = "tracked repository-owned specifications and contribution templates"
 ".config" = "explicit tool configuration files"
 agent_connector_sdk = "the importable SDK package"
 scripts = "the SDK's own wiring gates (scripts/check_wiring.py) run by pre-commit and CI"
