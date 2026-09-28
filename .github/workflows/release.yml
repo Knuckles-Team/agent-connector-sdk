@@ -25,7 +25,7 @@ jobs:
     name: gates
     runs-on: ubuntu-latest
     env:
-      PYTHONPATH: ${{ github.workspace }}/.ci/epistemic-graph
+      PYTHONPATH: .ci/epistemic-graph
     steps:
       - &checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -72,13 +72,8 @@ jobs:
             printf '%s' "$PROHIBITED_IDENTITY_CATALOG" > "$HOME/.config/agent-utilities/governance/prohibited-identities.json"
           fi
           uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml tracked-privacy --hook-stage manual --all-files
-      - name: Checkout the finalized epistemic-graph contract source
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          repository: Knuckles-Team/epistemic-graph
-          ref: f17f47ab300f7f1ddd972d4e0214283a28547e36
-          path: .ci/epistemic-graph
-          persist-credentials: false
+      - name: Fetch the pinned epistemic-graph contract source
+        run: bash scripts/bootstrap_epistemic_graph_contract.sh
       - name: Sync the locked environment
         run: uv sync --frozen --no-install-package epistemic-graph
       - name: Verify the finalized generated contract source
@@ -172,6 +167,9 @@ jobs:
       contents: read
       id-token: write
     steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: agent-connector-sdk-wheel
@@ -179,5 +177,7 @@ jobs:
       - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           version: '0.11.7'
+      - name: Require a published dependency resolution before release
+        run: uv lock --check
       - name: Publish the validated wheel
         run: uv publish --trusted-publishing always dist/*.whl

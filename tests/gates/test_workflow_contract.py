@@ -85,8 +85,23 @@ def test_release_uses_the_finalized_generated_contract_source() -> None:
     document = yaml.safe_load(RELEASE.read_text(encoding="utf-8"))
     gates = document["jobs"]["gates"]
     workflow = RELEASE.read_text(encoding="utf-8")
+    bootstrap = (ROOT / "scripts/bootstrap_epistemic_graph_contract.sh").read_text(
+        encoding="utf-8"
+    )
 
-    assert gates["env"]["PYTHONPATH"].endswith("/.ci/epistemic-graph")
-    assert f"ref: {EPISTEMIC_GRAPH_REVISION}" in workflow
+    assert gates["env"]["PYTHONPATH"] == ".ci/epistemic-graph"
+    assert "bash scripts/bootstrap_epistemic_graph_contract.sh" in workflow
+    assert f"revision={EPISTEMIC_GRAPH_REVISION}" in bootstrap
+    assert 'git -C "$target" checkout --detach "$revision"' in bootstrap
     assert "uv sync --frozen --no-install-package epistemic-graph" in workflow
     assert "epistemic_graph.generated.source_ingestion" in workflow
+
+
+def test_publish_requires_the_dependency_floor_on_the_public_index() -> None:
+    document = yaml.safe_load(RELEASE.read_text(encoding="utf-8"))
+    steps = document["jobs"]["publish-pypi"]["steps"]
+    commands = [step.get("run", "") for step in steps]
+
+    assert commands.index("uv lock --check") < commands.index(
+        "uv publish --trusted-publishing always dist/*.whl"
+    )

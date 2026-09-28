@@ -14,6 +14,7 @@ site/
 wheels/
 .venv/
 .venv-*
+.ci/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/

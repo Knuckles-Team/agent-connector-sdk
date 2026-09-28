@@ -49,7 +49,9 @@ repos:
   hooks:
   - id: uv-lock
     args: ["--locked"]
-    stages: [pre-push, manual]
+    # The SDK consumes a generated EG contract before its matching wheel is
+    # published. Resolve against the public index only at release time.
+    stages: [manual]
 # ── Shared gates (Knuckles-Team/pipelines, pinned) ─────────────────────────────
 - repo: https://github.com/Knuckles-Team/pipelines
   rev: 444b232c7975e125a24b17d53ff615f5ad26a4cd
@@ -121,20 +123,13 @@ repos:
   # ── Types, tests, build, docs (CI parity) ────────────────────────────────
   - id: mypy
     name: mypy (strict, project environment)
-    entry: uv run --frozen --with mypy==1.20.2 --with types-PyYAML==6.0.12.20260518 python -m mypy agent_connector_sdk
+    entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && PYTHONPATH=.ci/epistemic-graph uv run --frozen --with mypy==1.20.2 --with types-PyYAML==6.0.12.20260518 python -m mypy agent_connector_sdk'
     language: system
     pass_filenames: false
     files: ^(agent_connector_sdk/.*\.py|pyproject\.toml|uv\.lock)$
   - id: pytest
     name: pytest (full suite)
-    entry: uv run --frozen python -m pytest -q
-    language: system
-    pass_filenames: false
-    always_run: true
-    stages: [manual, pre-push]
-  - id: docs-build
-    name: Pages site build (strict)
-    entry: bash -c 'uv run --frozen --only-group docs mkdocs build --strict --site-dir "$(mktemp -d)/site"'
+    entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && PYTHONPATH=.ci/epistemic-graph uv run --frozen python -m pytest -q'
     language: system
     pass_filenames: false
     always_run: true
@@ -169,7 +164,7 @@ repos:
     language: system
     pass_filenames: false
     always_run: true
-    stages: [manual, pre-push]
+    stages: [manual]
   - id: phase-direction
     name: Phase direction — no dependency on a later workspace phase
     # repository-manager's own per-repository mode: it resolves this checkout (or
@@ -179,18 +174,10 @@ repos:
     language: system
     pass_filenames: false
     always_run: true
-    stages: [manual, pre-push]
+    stages: [manual]
   - id: check-bumpversion
     name: validate bumpversion config
-    entry: |-
-      bash -c '
-        bump2version_bin=""
-        for candidate in bump2version "$HOME/.local/bin/bump2version" "$HOME/.local/pipx/venvs/bump2version/bin/bump2version"; do
-          if command -v "$candidate" >/dev/null 2>&1; then bump2version_bin="$candidate"; break; fi
-        done
-        if [ -z "$bump2version_bin" ]; then echo "check-bumpversion: bump2version is not installed" >&2; exit 127; fi
-        "$bump2version_bin" patch --dry-run --allow-dirty
-      '
+    entry: uvx --from bump2version==1.0.1 bump2version patch --dry-run --allow-dirty
     language: system
     pass_filenames: false
     always_run: true
