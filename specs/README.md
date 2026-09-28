@@ -57,3 +57,13 @@ corresponding gates actually pass. Use the [universal-skills spec-generator](htt
 and [task-planner](https://github.com/Knuckles-Team/universal-skills/tree/main/universal_skills/development/task-planner)
 and the [graph-os-development](https://github.com/Knuckles-Team/graph-os/blob/main/graph_os/skills/graph-os-development/SKILL.md)
 bootstrap skill, together with the [SDD full lifecycle](https://github.com/Knuckles-Team/universal-skills/tree/main/universal_skills/development-workflows/sdd-full-lifecycle) workflow.
+
+## Local specifications
+
+- [`SDK-CONNECTOR-CONTROL`](SDK-CONNECTOR-CONTROL/spec.md) — connector control and certification.
+- [`SDK-FINANCE-SOURCES`](SDK-FINANCE-SOURCES/spec.md) — finance source contracts.
+- [`SDK-GOVERNED-WRITEBACK`](SDK-GOVERNED-WRITEBACK/spec.md) — governed effects and write-back.
+- [`SDK-OBSERVABILITY-FEEDS`](SDK-OBSERVABILITY-FEEDS/spec.md) — telemetry and observability feeds.
+- [`SDK-QUALITY-RELEASE`](SDK-QUALITY-RELEASE/spec.md) — package and release proof.
+- [`SDK-REPOSITORY-TRANSPORT`](SDK-REPOSITORY-TRANSPORT/spec.md) — repository transport contract.
+- [`SDK-SOURCE-INGEST`](SDK-SOURCE-INGEST/spec.md) — source ingestion contracts.
