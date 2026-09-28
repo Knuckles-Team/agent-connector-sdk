@@ -55,7 +55,9 @@ CONTENT_MARKERS = {
         r"(?m)^# .*plan|architecture|design|interface|sequence", re.IGNORECASE
     ),
     "test-spec.md": re.compile(r"test|expected|proof", re.IGNORECASE),
-    "tasks.md": re.compile(r"(?m)(^# .*tasks|^- \[[ xX]\]|^\|[^\n]*\bTask\b)", re.IGNORECASE),
+    "tasks.md": re.compile(
+        r"(?m)(^# .*tasks|^- \[[ xX]\]|^\|[^\n]*\bTask\b)", re.IGNORECASE
+    ),
 }
 
 

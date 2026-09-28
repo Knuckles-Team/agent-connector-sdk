@@ -1,9 +1,15 @@
 # Combined pre-commit and pre-push scan suite for agent-connector-sdk.
 #
 # Repository-agnostic complexity, clone, security, privacy, supply-chain,
-# hygiene, code-shape, documentation, and CI-replica gates come from the shared
+# hygiene, code-shape, and documentation gates come from the shared
 # Knuckles-Team/pipelines repository at a pinned commit. Repository-specific
 # settings live in `pyproject.toml` under `[tool.pipelines_hooks]`.
+#
+# Hosted CI runs this file directly (.github/workflows/release.yml), so local
+# and CI results agree:
+#   uvx --from pre-commit==4.6.0 pre-commit run --all-files --config .config/pre-commit.yaml
+#   ... --hook-stage pre-push     (tests, wheel build, secret history)
+#   ... --hook-stage manual <id>  (native scanners, privacy, fleet gates)
 default_install_hook_types: [pre-commit, pre-push]
 default_stages: [pre-commit]
 repos:
@@ -56,23 +62,25 @@ repos:
 - repo: https://github.com/Knuckles-Team/pipelines
   rev: 444b232c7975e125a24b17d53ff615f5ad26a4cd
   hooks:
-  # scanners (pinned versions; never installed by a hook)
+  # Native scanners (pinned versions; never installed by a hook). Manual only:
+  # install them with `scripts/bootstrap.sh --scanners`; hosted CI runs them
+  # in the advisory scanner-quality job.
   - id: complexity-staged
-    stages: [pre-commit, manual]
+    stages: [manual]
   - id: kiss-staged
-    stages: [pre-commit, manual]
+    stages: [manual]
   - id: dupehound-changed
-    stages: [pre-commit, manual]
+    stages: [manual]
   - id: complexity-census
-    stages: [pre-push, manual]
+    stages: [manual]
   - id: kiss-census
-    stages: [pre-push, manual]
+    stages: [manual]
   - id: jscpd-differential
-    stages: [pre-push, manual]
+    stages: [manual]
   - id: jscpd-census
-    stages: [pre-push, manual]
+    stages: [manual]
   - id: scanner-versions
-    stages: [pre-push, manual]
+    stages: [manual]
   # code shape
   - id: no-stub
     stages: [pre-commit, manual]
@@ -92,17 +100,18 @@ repos:
     stages: [pre-commit, manual]
   - id: import-cycles
     stages: [pre-commit, manual]
-  # supply chain, secrets, privacy, hygiene
-  - id: dependency-audit
-    stages: [pre-commit, manual]
+  # supply chain, secrets, privacy, hygiene. No gate calls an external
+  # service: the OSV dependency-audit hook is deliberately not enabled.
   - id: supply-chain
     stages: [pre-commit, manual]
   - id: secret-history
     stages: [pre-push, manual]
   - id: security-sanitizer
     stages: [pre-commit, manual]
+  # Needs the operator-owned identity catalog, which is never committed; CI
+  # runs it when the PROHIBITED_IDENTITY_CATALOG repository variable is set.
   - id: tracked-privacy
-    stages: [pre-commit, manual]
+    stages: [manual]
   - id: root-hygiene
     stages: [pre-commit, manual]
   - id: gitignore-convergence
@@ -113,11 +122,6 @@ repos:
     stages: [pre-commit, manual]
   - id: pre-commit-patch-safety
     stages: [pre-push, manual]
-  # CI replica
-  - id: ci-gate-replica-consistency
-    stages: [pre-commit, manual]
-  - id: ci-gate-replica
-    stages: [pre-push]
 - repo: local
   hooks:
   # ── Types, tests, build, docs (CI parity) ────────────────────────────────
@@ -144,33 +148,30 @@ repos:
   # ── Wiring ───────────────────────────────────────────────────────────────
   - id: check-orphan-modules
     name: Wiring — no orphan package modules
-    entry: python3 scripts/check_wiring.py orphans
+    # The project interpreter: the package uses Python 3.12 syntax.
+    entry: uv run --frozen python scripts/check_wiring.py orphans
     language: system
     pass_filenames: false
     always_run: true
   - id: check-public-api-tested
     name: Wiring — every public name is used by a test
-    entry: python3 scripts/check_wiring.py public-api
+    entry: uv run --frozen python scripts/check_wiring.py public-api
     language: system
     pass_filenames: false
     always_run: true
-  # ── Fleet dependency order ───────────────────────────────────────────────
+  # ── Fleet dependency order (maintainer gates) ─────────────────────────────
+  # Both need the fleet workspace layout (a sibling agents/repository-manager
+  # checkout and a workspace.yml); outside it they report SKIPPED locally.
   - id: dependency-readiness
     name: Dependency readiness — every declared intra-fleet constraint is installable
-    # --no-cache: uv otherwise reuses a stale build of the local repository-manager
-    # path dependency (observed: a build without --phase-direction-here).
-    entry: |-
-      bash -c 'canonical=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); P="$(dirname "$canonical")/agents/repository-manager"; [ -d "$P" ] || P=repository-manager; uv run --no-cache --no-project --python 3.12 --prerelease=allow --with "$P" python -m repository_manager.dependency_readiness .'
+    entry: bash scripts/run_fleet_gate.sh dependency-readiness
     language: system
     pass_filenames: false
     always_run: true
     stages: [manual]
   - id: phase-direction
     name: Phase direction — no dependency on a later workspace phase
-    # repository-manager's own per-repository mode: it resolves this checkout (or
-    # linked worktree) from its git remote and checks only its own source.
-    entry: |-
-      bash -c 'canonical=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); W="$canonical"; while [ "$W" != / ] && [ ! -f "$W/workspace.yml" ]; do W=$(dirname "$W"); done; [ -f "$W/workspace.yml" ] || { echo "phase-direction: no workspace.yml above $canonical" >&2; exit 2; }; P="$(dirname "$canonical")/agents/repository-manager"; exec uv run --no-cache --no-project --python 3.12 --prerelease=allow --with "$P" python -m repository_manager.repository_manager --phase-direction-here -f "$W/workspace.yml" -w "$W" --phase-direction-start "$PWD"'
+    entry: bash scripts/run_fleet_gate.sh phase-direction
     language: system
     pass_filenames: false
     always_run: true

@@ -61,23 +61,33 @@ through generated SourceIngest, ConnectorPack, and WriteBack contracts; it does
 not retain a parallel cursor authority. Construction requires a verified
 generated client and live ConnectorPack authority resolver.
 
+## Setup
+
+From a fresh clone (locally, or in a Claude Code cloud session where
+`.claude/hooks/session-start.sh` runs it automatically):
+
+```bash
+scripts/bootstrap.sh              # uv >= 0.9, pinned Python, EG contract, locked env, git hooks
+scripts/bootstrap.sh --scanners   # also the pinned cccc/KISS/dupehound/jscpd (needs cargo + npm)
+```
+
+`scripts/bootstrap.sh` is idempotent. `scripts/install_scanners.sh` is the only
+place the native scanner pins live; hosted CI calls it too and keys its cache on
+the script's hash.
+
 ## Commands
 
 ```bash
-uv sync
 uv run --frozen python -m pytest -q
-uv run --frozen --with mypy==1.20.2 \
-  --with types-PyYAML==6.0.12.20260518 \
-  python -m mypy agent_connector_sdk
-uvx --from ruff==0.16.0 ruff check agent_connector_sdk tests
-uvx --from ruff==0.16.0 ruff format --check agent_connector_sdk tests
-python scripts/check_wiring.py orphans
-python scripts/check_wiring.py public-api
-pre-commit run --all-files
-pre-commit run --all-files --hook-stage pre-push
+uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files
+uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage pre-push
+uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage manual
 ```
 
-Run the shared documentation contract directly while editing public surfaces:
+Hosted CI (`.github/workflows/release.yml`) runs the same configuration: the
+whole pre-commit stage, then the pre-push stage (tests, wheel build, secret
+history). Run the shared documentation contract directly while editing public
+surfaces:
 
 ```bash
 pre-commit try-repo ../pipelines public-surface --all-files
@@ -93,19 +103,26 @@ repository-specific settings in `[tool.pipelines_hooks]`.
   size, current-state language, and the required `AGENTS.md` structure.
 - **Code shape:** cccc, KISS, dupehound, jscpd, import cycles, swallowed errors,
   event-loop blocking, environment reads, stdout purity, and production seams.
-- **Security and supply chain:** secret history, tracked privacy, dependency
-  audit, immutable sources, security sanitation, and repository hygiene.
+- **Security and supply chain:** secret history, tracked privacy, immutable
+  sources, security sanitation, and repository hygiene. No gate calls an
+  external service such as a vulnerability database.
 - **Correctness:** pytest, strict mypy, Ruff, Bandit, Vulture, codespell, wiring,
   dependency readiness, and dependency direction.
-- **Delivery:** strict MkDocs, reproducible wheel build, version consistency,
-  and the self-contained local CI replica. The hosted Pages workflow
+- **Delivery:** strict MkDocs, reproducible wheel build, and version
+  consistency. The hosted Pages workflow
   provisions the shared theme before its strict MkDocs build; release checks
   validate the lockfile.
 
 Native scanners must match the versions required by the pinned hook revision.
-A missing scanner, configuration, dependency, or privacy catalog is a gate
-failure, never a skipped success. Do not weaken, suppress, baseline, or bypass a
-gate to land a change.
+Gates check behaviour or structure, never hand-kept counts or copied pins, so an
+unrelated change never needs a gate edit. The pre-commit and pre-push stages run
+from a fresh clone after `scripts/bootstrap.sh`. Gates that need more than that
+(native scanners, the operator privacy catalog, the fleet workspace checkout)
+are in the manual stage: the repository's fleet gates print
+`SKIPPED (<gate>): <reason>` and exit 0 locally and fail closed with
+`CANNOT RUN` (exit 2) when `CI` is set; a shared scanner hook reports a missing
+or drifted binary as `CANNOT RUN`. Do not weaken, suppress, baseline, or bypass
+a gate to land a change.
 
 ## Development rules
 
@@ -159,3 +176,6 @@ This repository is a shared multi-worktree checkout.
   uncommitted changes. Rebase or recompose only after identifying ownership.
 - Do not use `--no-verify`. Commit, push, tag, publish, and deploy are distinct
   operations and each requires its own completed gates and authority.
+- Work on a topic branch, push it, and open a pull request against `main`
+  (draft until the gates pass). The `gates` and `build` jobs must be green
+  before merge; `scanner-quality` is advisory.
