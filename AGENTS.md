@@ -71,7 +71,6 @@ uv run --frozen --with mypy==1.20.2 \
   python -m mypy agent_connector_sdk
 uvx --from ruff==0.16.0 ruff check agent_connector_sdk tests
 uvx --from ruff==0.16.0 ruff format --check agent_connector_sdk tests
-uv run --frozen --only-group docs mkdocs build --strict
 python scripts/check_wiring.py orphans
 python scripts/check_wiring.py public-api
 pre-commit run --all-files
@@ -99,7 +98,9 @@ repository-specific settings in `[tool.pipelines_hooks]`.
 - **Correctness:** pytest, strict mypy, Ruff, Bandit, Vulture, codespell, wiring,
   dependency readiness, and dependency direction.
 - **Delivery:** strict MkDocs, reproducible wheel build, version consistency,
-  and the local CI replica.
+  and the self-contained local CI replica. The hosted Pages workflow
+  provisions the shared theme before its strict MkDocs build; release checks
+  validate the lockfile.
 
 Native scanners must match the versions required by the pinned hook revision.
 A missing scanner, configuration, dependency, or privacy catalog is a gate
@@ -138,9 +139,10 @@ Public documentation describes the architecture and capabilities that exist in
 the referenced commit. Design discussions, rollout sequencing, and program
 tracking belong outside the public repository surface.
 
-Build Pages with `mkdocs build --strict`. Add a page to `mkdocs.yml` navigation
-when it is part of the supported public contract, and keep every local Markdown
-link repository-relative and valid.
+The hosted Pages workflow runs `mkdocs build --strict` after provisioning the
+shared theme. A local strict build needs that same theme checkout. Add a page
+to `mkdocs.yml` navigation when it is part of the supported public contract,
+and keep every local Markdown link repository-relative and valid.
 
 ## Branching & isolation
 
