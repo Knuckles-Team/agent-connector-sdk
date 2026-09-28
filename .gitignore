@@ -27,6 +27,11 @@ node_modules/
 reports/
 scratch/
 /.specify/
+!/.specify/
+/.specify/*
+!/.specify/memory/
+/.specify/memory/*
+!/.specify/memory/constitution.md
 *.log
 .env
 .envrc
