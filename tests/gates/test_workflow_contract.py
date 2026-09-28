@@ -1,41 +1,53 @@
-"""Release workflow contracts that must remain executable on a clean runner."""
+"""Structural contracts between the release workflow, the hook config and scripts.
 
+These tests pin no revision or version by value: each pin lives in exactly one
+source file, and the tests prove the files agree with each other and stay
+immutable (full commit digests), so bumping a pin never needs a test edit.
+"""
+
+import re
 from pathlib import Path
+from typing import Any
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 PAGES = ROOT / ".github" / "workflows" / "pages.yml"
-CCCC_REVISION = "d728759323be5d9977b7390a27133e8eaf481f26"
-PIPELINES_REVISION = "444b232c7975e125a24b17d53ff615f5ad26a4cd"
-PAGES_PIPELINE_REVISION = "444b232c7975e125a24b17d53ff615f5ad26a4cd"
-PAGES_PIPELINE = (
-    "Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml"
-    f"@{PAGES_PIPELINE_REVISION}"
-)
-EPISTEMIC_GRAPH_REVISION = "f17f47ab300f7f1ddd972d4e0214283a28547e36"
+PRE_COMMIT = ROOT / ".config" / "pre-commit.yaml"
+BOOTSTRAP = ROOT / "scripts" / "bootstrap.sh"
+CONTRACT = ROOT / "scripts" / "bootstrap_epistemic_graph_contract.sh"
+SCANNERS = ROOT / "scripts" / "install_scanners.sh"
+PIPELINES = "https://github.com/Knuckles-Team/pipelines"
+COMMIT = re.compile(r"[0-9a-f]{40}")
 UV_ACTION = "astral-sh/setup-uv@"
 
 
-def test_release_installs_cccc_1_6_from_its_immutable_upstream_commit() -> None:
-    workflow = RELEASE.read_text(encoding="utf-8")
-
-    assert "cargo install --locked --version 1.6.0" not in workflow
-    assert "--git https://github.com/moznion/cccc" in workflow
-    assert f"--rev {CCCC_REVISION}" in workflow
+def _yaml(path: Path) -> dict[str, Any]:
+    return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
-def test_pages_delegates_the_complete_site_pipeline_to_the_pinned_workflow() -> None:
-    document = yaml.safe_load(PAGES.read_text(encoding="utf-8"))
-    pages = document["jobs"]["pages"]
+def _pipelines_rev() -> str:
+    config = _yaml(PRE_COMMIT)
+    return next(r["rev"] for r in config["repos"] if r.get("repo") == PIPELINES)
 
-    assert pages["uses"] == PAGES_PIPELINE
+
+def _runs(job: dict[str, Any]) -> list[str]:
+    return [str(step.get("run", "")) for step in job.get("steps", [])]
+
+
+def test_shared_hooks_are_pinned_to_an_immutable_commit() -> None:
+    assert COMMIT.fullmatch(_pipelines_rev())
+
+
+def test_pages_uses_the_same_pipelines_revision_as_the_hooks() -> None:
+    pages = _yaml(PAGES)["jobs"]["pages"]
+    workflow, _, rev = pages["uses"].partition("@")
+
+    assert workflow == "Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml"
+    assert rev == _pipelines_rev()
     assert "steps" not in pages
-    assert pages["with"] == {
-        "content_source": "docs",
-        "shared_theme_enabled": True,
-    }
+    assert pages["with"] == {"content_source": "docs", "shared_theme_enabled": True}
     assert pages["permissions"] == {
         "contents": "read",
         "pages": "write",
@@ -43,64 +55,102 @@ def test_pages_delegates_the_complete_site_pipeline_to_the_pinned_workflow() -> 
     }
 
 
+def test_gates_job_runs_whole_hook_stages_not_hand_listed_hooks() -> None:
+    runs = _runs(_yaml(RELEASE)["jobs"]["gates"])
+    stages = {
+        match.group(1)
+        for command in runs
+        if "--all-files" in command
+        for match in [re.search(r"--hook-stage (\S+)", command)]
+        if match and "pre-commit run --config" in command
+    }
+
+    assert "scripts/bootstrap.sh" in runs
+    assert {"pre-commit", "pre-push"} <= stages
+    assert not any("for hook in" in command for command in runs)
+
+
+def test_every_pre_commit_invocation_uses_the_relocated_config() -> None:
+    for path in (RELEASE, BOOTSTRAP):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if re.search(r"pre-commit (run|install)\b", line):
+                assert "--config .config/pre-commit.yaml" in line, (path, line)
+
+
 def test_every_release_job_using_uvx_installs_uv_first() -> None:
-    document = yaml.safe_load(RELEASE.read_text(encoding="utf-8"))
-
-    for name, job in document["jobs"].items():
+    for name, job in _yaml(RELEASE)["jobs"].items():
         steps = job.get("steps", [])
-        commands = "\n".join(str(step.get("run", "")) for step in steps)
-        if "uvx " not in commands:
+        uvx = [i for i, s in enumerate(steps) if "uvx " in str(s.get("run", ""))]
+        if not uvx:
             continue
-        setup_positions = [
-            index
-            for index, step in enumerate(steps)
-            if str(step.get("uses", "")).startswith(UV_ACTION)
+        setup = [
+            i
+            for i, s in enumerate(steps)
+            if str(s.get("uses", "")).startswith(UV_ACTION)
         ]
-        uvx_positions = [
-            index
-            for index, step in enumerate(steps)
-            if "uvx " in str(step.get("run", ""))
-        ]
-        assert setup_positions, f"{name} uses uvx without setup-uv"
-        assert min(setup_positions) < min(uvx_positions)
+        assert setup, f"{name} uses uvx without setup-uv"
+        assert min(setup) < min(uvx)
 
 
-def test_release_uses_the_relocated_pinned_shared_gate_configuration() -> None:
-    config_path = ROOT / ".config" / "pre-commit.yaml"
-    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    shared = next(
-        item
-        for item in config["repos"]
-        if item.get("repo") == "https://github.com/Knuckles-Team/pipelines"
-    )
-    workflow = RELEASE.read_text(encoding="utf-8")
-
-    assert shared["rev"] == PIPELINES_REVISION
-    for line in workflow.splitlines():
-        if "pre-commit run" in line:
-            assert "--config .config/pre-commit.yaml" in line
+def test_workflow_actions_are_pinned_to_immutable_commits() -> None:
+    for path in (RELEASE, PAGES):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            match = re.search(r"uses:\s*([^\s#]+)", line)
+            if match and not match.group(1).startswith("./"):
+                ref = match.group(1).rpartition("@")[2]
+                assert COMMIT.fullmatch(ref), (path.name, line.strip())
 
 
-def test_release_uses_the_finalized_generated_contract_source() -> None:
-    document = yaml.safe_load(RELEASE.read_text(encoding="utf-8"))
-    gates = document["jobs"]["gates"]
-    workflow = RELEASE.read_text(encoding="utf-8")
-    bootstrap = (ROOT / "scripts/bootstrap_epistemic_graph_contract.sh").read_text(
-        encoding="utf-8"
-    )
+def test_scanner_toolchain_comes_from_the_single_install_script() -> None:
+    scanner = _yaml(RELEASE)["jobs"]["scanner-quality"]
+    runs = "\n".join(_runs(scanner))
+    caches = [
+        step
+        for step in scanner["steps"]
+        if str(step.get("uses", "")).startswith("actions/cache@")
+    ]
+    script = SCANNERS.read_text(encoding="utf-8")
+    cccc_rev = re.search(r"^CCCC_REV=(\S+)$", script, re.MULTILINE)
+
+    assert "bash scripts/install_scanners.sh" in runs
+    assert "cargo install" not in runs
+    assert "npm install" not in runs
+    assert caches
+    assert "hashFiles('scripts/install_scanners.sh')" in caches[0]["with"]["key"]
+    assert "bash scripts/install_scanners.sh" in BOOTSTRAP.read_text(encoding="utf-8")
+    # cccc 1.6 is not on crates.io; it must come from an immutable upstream commit.
+    assert cccc_rev
+    assert COMMIT.fullmatch(cccc_rev.group(1))
+    assert '--git "$CCCC_GIT" --rev "$CCCC_REV"' in script
+
+
+def test_generated_contract_source_is_fetched_at_an_immutable_commit() -> None:
+    gates = _yaml(RELEASE)["jobs"]["gates"]
+    contract = CONTRACT.read_text(encoding="utf-8")
+    bootstrap = BOOTSTRAP.read_text(encoding="utf-8")
+    revision = re.search(r"^revision=(\S+)$", contract, re.MULTILINE)
 
     assert gates["env"]["PYTHONPATH"] == ".ci/epistemic-graph"
-    assert "bash scripts/bootstrap_epistemic_graph_contract.sh" in workflow
-    assert f"revision={EPISTEMIC_GRAPH_REVISION}" in bootstrap
-    assert 'git -C "$target" checkout --detach "$revision"' in bootstrap
-    assert "uv sync --frozen --no-install-package epistemic-graph" in workflow
-    assert "epistemic_graph.generated.source_ingestion" in workflow
+    assert revision
+    assert COMMIT.fullmatch(revision.group(1))
+    assert 'git -C "$target" checkout --detach "$revision"' in contract
+    assert "bash scripts/bootstrap_epistemic_graph_contract.sh" in bootstrap
+    assert "uv sync --frozen" in bootstrap
+    assert "--no-install-package epistemic-graph" in bootstrap
+    assert any("epistemic_graph.generated.source_ingestion" in r for r in _runs(gates))
+
+
+def test_no_gate_depends_on_an_external_audit_service() -> None:
+    hook_ids = {
+        hook["id"] for repo in _yaml(PRE_COMMIT)["repos"] for hook in repo["hooks"]
+    }
+
+    assert "dependency-audit" not in hook_ids
+    assert "osv" not in RELEASE.read_text(encoding="utf-8").lower()
 
 
 def test_publish_requires_the_dependency_floor_on_the_public_index() -> None:
-    document = yaml.safe_load(RELEASE.read_text(encoding="utf-8"))
-    steps = document["jobs"]["publish-pypi"]["steps"]
-    commands = [step.get("run", "") for step in steps]
+    commands = _runs(_yaml(RELEASE)["jobs"]["publish-pypi"])
 
     assert commands.index("uv lock --check") < commands.index(
         "uv publish --trusted-publishing always dist/*.whl"

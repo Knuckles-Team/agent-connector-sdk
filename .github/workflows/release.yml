@@ -1,11 +1,12 @@
 name: Release
 
-# Release-critical jobs only: gates (tests, types, lint, wiring, and the shared
-# code-shape, security and hygiene hooks), scanner-quality (pinned cccc/KISS/
-# dupehound/jscpd), and a reproducible wheel build. publish-pypi runs only for a
-# vX.Y.Z tag. The shared hooks run through pre-commit at the revision pinned in
-# .config/pre-commit.yaml, so CI and the local hooks use the same gate code. The
-# exhaustive CI replica is manual-only locally; hosted CI remains authoritative.
+# Release-critical jobs only: gates (the whole .config/pre-commit.yaml suite --
+# lint, format, types, wiring, the shared code-shape, security and hygiene hooks
+# -- then its pre-push stage: tests, wheel build, secret history), the advisory
+# scanner-quality job (pinned cccc/KISS/dupehound/jscpd), and a reproducible
+# wheel build. publish-pypi runs only for a vX.Y.Z tag. CI runs the same
+# pre-commit configuration a contributor runs after scripts/bootstrap.sh, so
+# local and hosted results agree.
 
 on:
   push:
@@ -54,43 +55,35 @@ jobs:
           fi
           echo "PRE_COMMIT_FROM_REF=$BASE" >> "$GITHUB_ENV"
           echo "CX_DUP_BASE_REF=$BASE" >> "$GITHUB_ENV"
-      - name: Shared security, code-shape and hygiene hooks
-        run: |
-          set -euo pipefail
-          for hook in secret-history dependency-audit supply-chain security-sanitizer root-hygiene gitignore-convergence sprawl mermaid no-stub stubs env-sprawl stdout-writes swallowed-errors event-loop-blocking import-cycles public-surface ci-gate-replica-consistency; do
-            uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml "$hook" --hook-stage manual --all-files
-          done
-      # The prohibited-identity catalog is operator-owned and never committed; a
-      # missing catalog makes the hook fail closed.
-      - name: Tracked-artifact privacy (identity catalog from the repository variable)
-        env:
-          PROHIBITED_IDENTITY_CATALOG: ${{ vars.PROHIBITED_IDENTITY_CATALOG }}
-        run: |
-          set -euo pipefail
-          if [ -n "${PROHIBITED_IDENTITY_CATALOG:-}" ]; then
-            mkdir -p "$HOME/.config/agent-utilities/governance"
-            printf '%s' "$PROHIBITED_IDENTITY_CATALOG" > "$HOME/.config/agent-utilities/governance/prohibited-identities.json"
-          fi
-          uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml tracked-privacy --hook-stage manual --all-files
-      - name: Fetch the pinned epistemic-graph contract source
-        run: bash scripts/bootstrap_epistemic_graph_contract.sh
-      - name: Sync the locked environment
-        run: uv sync --frozen --no-install-package epistemic-graph
+      - name: Bootstrap (pinned Python, EG contract, locked environment)
+        run: scripts/bootstrap.sh
       - name: Verify the finalized generated contract source
         run: |
           uv run --frozen python -c "from pathlib import Path; import epistemic_graph.generated.source_ingestion as source; assert '.ci/epistemic-graph' in str(Path(source.__file__).resolve())"
-      - name: Test suite
-        run: uv run --frozen python -m pytest -q
-      - name: Type check
-        run: uv run --frozen --with mypy==1.20.2 --with types-PyYAML==6.0.12.20260518 python -m mypy agent_connector_sdk
-      - name: Lint and format
+      - name: Pre-commit stage (lint, format, types, wiring, shared gates)
+        run: uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage pre-commit --show-diff-on-failure
+      - name: Pre-push stage (tests, wheel build, secret history, patch safety)
+        run: uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage pre-push
+      # The prohibited-identity catalog is operator-owned and never committed; it
+      # arrives through a repository variable. A missing catalog fails closed
+      # (CANNOT RUN) except on a fork pull request, which cannot read it.
+      - name: Tracked-artifact privacy (identity catalog from the repository variable)
+        env:
+          PROHIBITED_IDENTITY_CATALOG: ${{ vars.PROHIBITED_IDENTITY_CATALOG }}
+          FORK_PULL_REQUEST: ${{ github.event.pull_request.head.repo.fork || false }}
         run: |
-          uvx --from ruff==0.16.0 ruff check agent_connector_sdk tests
-          uvx --from ruff==0.16.0 ruff format --check agent_connector_sdk tests
-      - name: Wiring gates
-        run: |
-          python3 scripts/check_wiring.py orphans
-          python3 scripts/check_wiring.py public-api
+          set -euo pipefail
+          if [ -z "${PROHIBITED_IDENTITY_CATALOG:-}" ]; then
+            if [ "$FORK_PULL_REQUEST" = "true" ]; then
+              echo "::notice title=tracked-privacy skipped::fork pull requests cannot read the PROHIBITED_IDENTITY_CATALOG repository variable"
+              exit 0
+            fi
+            echo "tracked-privacy: CANNOT RUN: the PROHIBITED_IDENTITY_CATALOG repository variable is not set" >&2
+            exit 2
+          fi
+          mkdir -p "$HOME/.config/agent-utilities/governance"
+          printf '%s' "$PROHIBITED_IDENTITY_CATALOG" > "$HOME/.config/agent-utilities/governance/prohibited-identities.json"
+          uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml tracked-privacy --hook-stage manual --all-files
 
   scanner-quality:
     name: scanner-quality
@@ -106,26 +99,30 @@ jobs:
         with:
           toolchain: stable
       - *uv
+      # scripts/install_scanners.sh is the one place the scanner pins live, so
+      # its hash keys the cache: a pin change rebuilds, nothing else does.
+      - name: Cache the pinned scanner toolchain
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.local/share/pipelines-scanners
+          key: scanners-${{ runner.os }}-${{ hashFiles('scripts/install_scanners.sh') }}
       - name: Provision pinned scanner toolchain
         run: |
-          set -euo pipefail
-          root="$RUNNER_TEMP/scanners"
-          # cccc 1.6.0 is not published to crates.io (cccc-cli stops at 1.0.0).
-          # Install the upstream v1.6.0 tag by its immutable commit instead.
-          cargo install --locked --git https://github.com/moznion/cccc --rev d728759323be5d9977b7390a27133e8eaf481f26 --root "$root/cccc" cccc-cli
-          cargo install --locked --version 0.4.10 --root "$root/kiss" kiss-ai
-          cargo install --locked --version 0.1.2 --root "$root/dupehound" dupehound
-          npm install --prefix "$root/npm" --no-package-lock --ignore-scripts --no-save --no-audit --no-fund "jscpd@5.0.16"
-          for bin in "$root/cccc/bin" "$root/kiss/bin" "$root/dupehound/bin" "$root/npm/node_modules/.bin"; do
-            echo "$bin" >> "$GITHUB_PATH"
-          done
+          bash scripts/install_scanners.sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - *base
-      - name: Shared scanner hooks (versions, censuses, clone differentials)
+      # Advisory: every hook runs and reports; the job result is informational.
+      - name: Shared scanner hooks (versions, staged, censuses, clone differentials)
         run: |
-          set -euo pipefail
-          for hook in scanner-versions complexity-census kiss-census dupehound-changed jscpd-differential jscpd-census; do
-            uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml "$hook" --hook-stage manual --all-files
+          set -uo pipefail
+          failed=()
+          for hook in scanner-versions complexity-staged kiss-staged dupehound-changed complexity-census kiss-census jscpd-differential jscpd-census; do
+            uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml "$hook" --hook-stage manual --all-files || failed+=("$hook")
           done
+          if [ "${#failed[@]}" -gt 0 ]; then
+            echo "::warning title=scanner-quality::advisory scanner findings: ${failed[*]}"
+            exit 1
+          fi
 
   build:
     name: build

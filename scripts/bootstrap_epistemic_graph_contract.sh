@@ -6,8 +6,8 @@ set -euo pipefail
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR GIT_PREFIX
 
 # This source revision carries the generated contracts consumed by the SDK.
-# Fetch it in both hosted CI and local hooks; a second actions/checkout step is
-# skipped by the local CI replica and leaves an older published wheel visible.
+# scripts/bootstrap.sh fetches it for contributors and hosted CI alike, and the
+# mypy and pytest hooks re-verify it, so both use the same contract source.
 revision=f17f47ab300f7f1ddd972d4e0214283a28547e36
 target=.ci/epistemic-graph
 
