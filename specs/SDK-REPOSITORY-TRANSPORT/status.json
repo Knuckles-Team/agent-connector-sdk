@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "spec_id": "SDK-REPOSITORY-TRANSPORT",
+  "owner_repo": "agent-connector-sdk",
+  "requirement_ids": [
+    "RF-031",
+    "EH-340",
+    "EH-637"
+  ],
+  "delivery_state": "UNKNOWN",
+  "acceptance_state": "NOT_AUDITED",
+  "evidence": []
+}

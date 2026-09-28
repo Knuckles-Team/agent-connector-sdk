@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "spec_id": "SDK-QUALITY-RELEASE",
+  "owner_repo": "agent-connector-sdk",
+  "requirement_ids": [
+    "EH-212",
+    "EH-369"
+  ],
+  "delivery_state": "UNKNOWN",
+  "acceptance_state": "NOT_AUDITED",
+  "evidence": []
+}

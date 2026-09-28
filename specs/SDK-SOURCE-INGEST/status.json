@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "spec_id": "SDK-SOURCE-INGEST",
+  "owner_repo": "agent-connector-sdk",
+  "requirement_ids": [
+    "EH-339",
+    "EH-402",
+    "EH-403",
+    "EH-499",
+    "EH-500",
+    "EH-501",
+    "EH-510"
+  ],
+  "delivery_state": "UNKNOWN",
+  "acceptance_state": "NOT_AUDITED",
+  "evidence": []
+}

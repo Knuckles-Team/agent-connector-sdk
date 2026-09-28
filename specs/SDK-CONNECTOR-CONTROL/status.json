@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "spec_id": "SDK-CONNECTOR-CONTROL",
+  "owner_repo": "agent-connector-sdk",
+  "requirement_ids": [
+    "EH-079",
+    "EH-135",
+    "EH-198",
+    "EH-199",
+    "EH-213",
+    "EH-214",
+    "EH-215",
+    "EH-217",
+    "EH-480",
+    "EH-481",
+    "EH-482",
+    "EH-483",
+    "EH-484",
+    "EH-485",
+    "EH-486",
+    "EH-491"
+  ],
+  "delivery_state": "UNKNOWN",
+  "acceptance_state": "NOT_AUDITED",
+  "evidence": []
+}

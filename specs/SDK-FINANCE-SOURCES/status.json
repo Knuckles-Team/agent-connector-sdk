@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "spec_id": "SDK-FINANCE-SOURCES",
+  "owner_repo": "agent-connector-sdk",
+  "requirement_ids": [
+    "EH-412",
+    "EH-701",
+    "EH-709",
+    "EH-713"
+  ],
+  "delivery_state": "SPECIFIED",
+  "acceptance_state": "NOT_AUDITED",
+  "evidence": []
+}
