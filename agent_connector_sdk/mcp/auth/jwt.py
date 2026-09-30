@@ -39,7 +39,12 @@ def _key_material(inputs: AuthInputs) -> str | None:
         if len(secret.encode("utf-8")) < _MIN_HMAC_SECRET_BYTES:
             raise AuthConfigurationError("JWT HMAC secret is too short")
         return secret
-    key = str(args.token_public_key or "")
+    return _public_key(str(args.token_public_key or ""))
+
+
+def _public_key(key: str) -> str | None:
+    if key.startswith("-----BEGIN "):
+        return key
     return (
         Path(key).read_text(encoding="utf-8")
         if key and Path(key).is_file()
