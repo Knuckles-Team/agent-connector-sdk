@@ -15,6 +15,7 @@ from agent_connector_sdk.manifest.tool_schema import (
     read_field,
     schema_fingerprint,
 )
+from agent_connector_sdk.schema_drift import SchemaContract
 
 __all__ = [
     "LiveToolContract",
@@ -30,6 +31,7 @@ class LiveToolContract:
     name: str
     schema_sha256: str
     compatibility_sha256: str
+    schema_contract: SchemaContract
 
 
 def _single_tool(list_tools_result: Any, tool_name: str) -> Any:
@@ -183,6 +185,25 @@ def validate_live_tool_contract(
         name=tool_name,
         schema_sha256=exact_digest,
         compatibility_sha256=compatibility_digest,
+        schema_contract=SchemaContract.from_schema(
+            {
+                "type": "object",
+                "properties": {
+                    "input": read_field(
+                        tool,
+                        "inputSchema",
+                        "input_schema",
+                        attr_names=("input_schema", "inputSchema"),
+                    ),
+                    "output": read_field(
+                        tool,
+                        "outputSchema",
+                        "output_schema",
+                        attr_names=("output_schema", "outputSchema"),
+                    ),
+                },
+            }
+        ),
     )
 
 

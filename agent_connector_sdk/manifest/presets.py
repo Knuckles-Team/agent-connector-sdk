@@ -39,6 +39,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
+from agent_connector_sdk.schema_drift import EvolutionPolicy
+
 __all__ = ["ToolPreset"]
 
 _EXTRACTION_KEYS = frozenset(
@@ -87,6 +89,7 @@ _EXTRACTION_KEYS = frozenset(
         "withdrawal_id_field",
         "withdrawal_reason_field",
         "strict_schema",
+        "evolution_policy",
         "content_fields",
         "metadata_fields",
     }
@@ -149,6 +152,7 @@ class ToolPreset(BaseModel):
     withdrawals_path: str = ""
     withdrawal_id_field: str = "id"
     withdrawal_reason_field: str = "reason"
+    evolution_policy: EvolutionPolicy = EvolutionPolicy.REVIEW
     strict_schema: bool = False
     content_fields: tuple[str, ...] = ()
     metadata_fields: tuple[str, ...] = ()

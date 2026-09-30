@@ -121,6 +121,10 @@ class McpToolSourceAdapter:
             stream=self.stream,
             tool=preset.tool,
             schema_sha256=contract.compatibility_sha256,
+            schema_contract=contract.schema_contract.model_copy(
+                update={"identifier_fields": (preset.id_field,)}
+            ),
+            evolution_policy=preset.evolution_policy,
         )
 
     async def extract(
@@ -138,6 +142,11 @@ class McpToolSourceAdapter:
         params = page_params(self._preset, current.position, since)
         result = await session.call_tool(
             self._preset.tool, tool_arguments(self._preset, params)
+        )
+        observed = validate_preset_tool_contract(
+            await session.list_tools(),
+            tool_name=self._preset.tool,
+            presets=(self._preset,),
         )
         raw = raw_records(self._preset, result)
         records, references = _mapped_records(
@@ -180,6 +189,9 @@ class McpToolSourceAdapter:
             authoritative_live_ids=live_ids,
             withdrawals=withdrawals,
             exhausted=exhausted,
+            schema_contract=observed.schema_contract.model_copy(
+                update={"identifier_fields": (self._preset.id_field,)}
+            ),
         )
 
     async def reconcile(

@@ -176,3 +176,26 @@ Any failure fails that connector closed and retries it with backoff.
 | `change_subscription` | `listening`, `resources` |
 | `connector_failed` | `error`, and `retry_in` when serving |
 | `registry_unreadable` | `error` |
+
+## Source contract drift
+
+Discovery verifies the MCP tool against the manifest's pinned compatibility
+fingerprint. Each extracted page carries a normalized snapshot of the live
+input and output contract. Before submission, the runner compares that snapshot
+with discovery's verified contract (or the explicit `SyncTarget.schema_contract`).
+A direct `commit_page` caller must supply that prior contract too. Missing
+contracts fail closed. Custom adapters supply `StreamDescriptor.schema_contract`
+and `RecordPage.schema_contract`.
+
+The preset's `evolution_policy` defaults to `review`. `optional_fields` permits
+new optional properties; removals, requiredness changes, enum changes, unknown
+changes, and incompatible types still require review or are breaking. Identifier
+changes are breaking. Presentation text does not affect the drift digest.
+
+A refused page raises `SchemaDriftQuarantined` before the sink call, including
+empty polling pages. Its `SchemaDriftReport` records source, stream, optional
+tenant, schema and sample digests, affected fields, classification, and reason
+codes. It includes no record payloads. The durable checkpoint remains unchanged,
+so the provider page remains replayable. Discovery on restart rechecks the pin;
+the SDK does not persist a replacement schema authority. Graph-owned validation
+and approval remain responsible for schema activation.
