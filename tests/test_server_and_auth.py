@@ -15,7 +15,7 @@ from starlette.testclient import TestClient
 
 from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
 from agent_connector_sdk.mcp.auth.factory import configure_auth
-from agent_connector_sdk.mcp.auth.jwt import configure_jwt_auth
+from agent_connector_sdk.mcp.auth.jwt import _key_material, configure_jwt_auth
 from agent_connector_sdk.mcp.auth.policy import (
     AUTH_TYPES,
     AuthConfigurationError,
@@ -302,3 +302,13 @@ def test_proxy_providers(monkeypatch: pytest.MonkeyPatch) -> None:
     with pytest.raises(AuthConfigurationError):
         configure_auth(argparse.Namespace(auth_type="kerberos"))
     assert configure_auth(_args()) is None
+
+
+def test_jwt_key_material_distinguishes_inline_pem_and_file(tmp_path: Path) -> None:
+    key = "-----BEGIN PUBLIC KEY-----\n" + "A" * 400 + "\n-----END PUBLIC KEY-----\n"
+    inline = AuthInputs(args=_args("--token-public-key", key))
+    assert _key_material(inline) == key
+    key_file = tmp_path / "public.pem"
+    key_file.write_text(key, encoding="utf-8")
+    file_input = AuthInputs(args=_args("--token-public-key", str(key_file)))
+    assert _key_material(file_input) == key

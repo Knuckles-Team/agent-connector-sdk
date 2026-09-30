@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from contextlib import AbstractAsyncContextManager
+from dataclasses import replace
 from pathlib import Path
 
 import anyio
@@ -110,10 +111,13 @@ async def test_passes_commit_before_advancing(tmp_path: Path) -> None:
         assert (outcome.pages, outcome.records) == (2, 200)
         status = await sink.source_status("archivebox-api", STREAM)
         assert outcome.checkpoint == status.accepted_checkpoint
+        verified = await adapter.discover(session)
         page = await adapter.extract(session, outcome.checkpoint)
         receipt = await commit_page(
             page,
-            _target(InMemorySink(), 1),
+            replace(
+                _target(InMemorySink(), 1), schema_contract=verified.schema_contract
+            ),
             expected_previous_checkpoint=None,
         )
         assert receipt.affected_count == 50 and page.exhausted

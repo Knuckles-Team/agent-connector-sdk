@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import logging
+from dataclasses import dataclass, replace
 from typing import Self
 
 from epistemic_graph.generated.source_ingestion import (
@@ -12,13 +13,22 @@ from epistemic_graph.generated.source_ingestion import (
     SourceIngestionRequest,
 )
 
-from agent_connector_sdk.contracts import RecordPage
+from agent_connector_sdk.contracts import RecordPage, StreamDescriptor
 from agent_connector_sdk.ports.session import McpSession
 from agent_connector_sdk.ports.sink import Sink
 from agent_connector_sdk.ports.source_adapter import SourceAdapter
-from agent_connector_sdk.runner.errors import SinkReceiptError
+from agent_connector_sdk.runner.errors import SchemaDriftQuarantined, SinkReceiptError
+from agent_connector_sdk.runner.logs import structured
+from agent_connector_sdk.schema_drift import (
+    DriftClassification,
+    EvolutionPolicy,
+    SchemaContract,
+    classify_schema_drift,
+)
 
 __all__ = ["SyncOutcome", "SyncTarget", "commit_page", "sync_stream"]
+
+_logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -29,6 +39,9 @@ class SyncTarget:
     sink: Sink
     max_pages: int
     empty_authoritative_approval: str | None = None
+    schema_contract: SchemaContract | None = None
+    evolution_policy: EvolutionPolicy = EvolutionPolicy.REVIEW
+    tenant: str | None = None
 
     @classmethod
     def configured(
@@ -92,10 +105,35 @@ async def commit_page(
 ) -> SourceIngestionReceipt:
     """Commit one exact generated request and verify its terminal receipt."""
     request = _source_request(page, target, expected_previous_checkpoint)
+    _check_drift(page, target, request)
     receipt = await target.sink.submit(request)
     if not _receipt_binds_request(request, receipt):
         raise SinkReceiptError("ingestion receipt does not acknowledge the request")
     return receipt
+
+
+def _check_drift(
+    page: RecordPage, target: SyncTarget, request: SourceIngestionRequest
+) -> None:
+    report = classify_schema_drift(
+        target.schema_contract,
+        page.schema_contract,
+        source=target.connector,
+        stream=page.checkpoint.stream,
+        tenant=target.tenant,
+        observed_sample_digest=request.canonical_digest(),
+        policy=target.evolution_policy,
+    )
+    if report.classification is not DriftClassification.COMPATIBLE:
+        _logger.warning(
+            "source page quarantined",
+            extra=structured(
+                "schema_drift_quarantined",
+                target.connector,
+                report=report.model_dump(mode="json"),
+            ),
+        )
+        raise SchemaDriftQuarantined(report)
 
 
 def _source_request(
@@ -137,16 +175,29 @@ async def _accept_page(
     checkpoint: SourceCheckpoint | None,
 ) -> tuple[SourceCheckpoint, int]:
     if _is_delta_noop(page, checkpoint):
+        _check_drift(page, target, _source_request(page, target, checkpoint))
         return page.checkpoint, 0
     receipt = await commit_page(page, target, expected_previous_checkpoint=checkpoint)
     return receipt.accepted_checkpoint, receipt.affected_count
+
+
+def _discovered_target(target: SyncTarget, descriptor: StreamDescriptor) -> SyncTarget:
+    if target.schema_contract is None:
+        target = replace(
+            target,
+            schema_contract=descriptor.schema_contract,
+            evolution_policy=descriptor.evolution_policy,
+        )
+    return target
 
 
 async def sync_stream(
     session: McpSession, adapter: SourceAdapter, target: SyncTarget
 ) -> SyncOutcome:
     """Resume from EG status and commit each provider page before extracting next."""
-    stream = (await adapter.discover(session)).stream
+    descriptor = await adapter.discover(session)
+    stream = descriptor.stream
+    target = _discovered_target(target, descriptor)
     status = await target.sink.source_status(target.connector, stream)
     checkpoint = status.accepted_checkpoint
     pages = records = accepted = 0

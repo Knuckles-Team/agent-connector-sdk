@@ -22,6 +22,8 @@ from epistemic_graph.generated.source_ingestion import (
 )
 from pydantic import BaseModel, ConfigDict, Field
 
+from agent_connector_sdk.schema_drift import EvolutionPolicy, SchemaContract
+
 __all__ = [
     "SEAM_SCHEMA_VERSION",
     "CapabilityDescriptor",
@@ -58,6 +60,8 @@ class StreamDescriptor(_Frozen):
     stream: str
     tool: str
     schema_sha256: str
+    schema_contract: SchemaContract | None = None
+    evolution_policy: EvolutionPolicy = EvolutionPolicy.REVIEW
 
 
 class RecordPage(_Frozen):
@@ -68,6 +72,7 @@ class RecordPage(_Frozen):
     strict_schema: bool
     checkpoint: SourceCheckpoint
     exhausted: bool
+    schema_contract: SchemaContract | None = None
     relationships: tuple[SourceRelationship, ...] = ()
     authoritative_live_ids: tuple[SourceEntityRef, ...] | None = None
     withdrawals: tuple[SourceWithdrawal, ...] = ()
