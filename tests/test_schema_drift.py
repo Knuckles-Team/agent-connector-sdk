@@ -346,3 +346,89 @@ def test_unknown_keyword_values_are_not_treated_as_presentation() -> None:
     )
     assert report.classification is DriftClassification.REQUIRES_REVIEW
     assert report.reason_codes == ("UNKNOWN_SCHEMA_CHANGE",)
+
+
+@pytest.mark.parametrize(
+    "prior,current",
+    [
+        ({"const": True}, {"const": 1}),
+        ({"const": False}, {"const": 0}),
+        ({"enum": [True]}, {"enum": [1]}),
+        ({"const": {"nested": [False]}}, {"const": {"nested": [0]}}),
+        ({"enum": [{"nested": [True]}]}, {"enum": [{"nested": [1]}]}),
+        ({"x-policy": {"nested": [True]}}, {"x-policy": {"nested": [1]}}),
+        ({"x-policy": None}, {}),
+        ({"items": None}, {}),
+    ],
+)
+@pytest.mark.parametrize("policy", list(EvolutionPolicy))
+@pytest.mark.parametrize("reverse", [False, True])
+def test_json_types_and_keyword_presence_require_review(
+    prior: dict[str, Any],
+    current: dict[str, Any],
+    *,
+    policy: EvolutionPolicy,
+    reverse: bool,
+) -> None:
+    before, after = (current, prior) if reverse else (prior, current)
+    report = classify_schema_drift(
+        contract(before),
+        contract(after),
+        source="synthetic",
+        stream="items",
+        tenant=None,
+        observed_sample_digest="a" * 64,
+        policy=policy,
+    )
+    assert report.old_schema_digest != report.new_schema_digest
+    assert report.classification is DriftClassification.REQUIRES_REVIEW
+    assert report.reason_codes and report.affected_fields
+
+
+@pytest.mark.parametrize("keyword", ["const", "enum", "x-policy"])
+def test_json_numbers_remain_semantically_equivalent(keyword: str) -> None:
+    report = classify_schema_drift(
+        contract({keyword: [{"value": 1}]}),
+        contract({keyword: [{"value": 1.0}]}),
+        source="synthetic",
+        stream="items",
+        tenant=None,
+        observed_sample_digest="a" * 64,
+    )
+    assert report.classification is DriftClassification.COMPATIBLE
+    assert report.reason_codes == ()
+
+
+async def test_boolean_to_number_drift_never_submits(sessions: SessionFactory) -> None:
+    before = deepcopy(SCHEMA)
+    after = deepcopy(SCHEMA)
+    before["properties"]["state"]["enum"] = [True]
+    after["properties"]["state"]["enum"] = [1]
+    sink = InMemorySink()
+    target = SyncTarget("synthetic", sink, 1, schema_contract=contract(before))
+    async with sessions() as session:
+        with pytest.raises(SchemaDriftQuarantined):
+            await sync_stream(session, SyntheticAdapter(contract(after)), target)
+    assert sink.batches == {}
+    assert (await sink.source_status("synthetic", "items")).accepted_checkpoint is None
+
+
+@pytest.mark.parametrize(
+    "keyword,expected",
+    [
+        ("enum", DriftClassification.COMPATIBLE),
+        ("const", DriftClassification.REQUIRES_REVIEW),
+    ],
+)
+def test_numeric_enum_domain_is_unordered_but_const_array_is_ordered(
+    keyword: str, expected: DriftClassification
+) -> None:
+    report = classify_schema_drift(
+        contract({keyword: [100000000000000000000, 11]}),
+        contract({keyword: [11, 1e20]}),
+        source="synthetic",
+        stream="items",
+        tenant=None,
+        observed_sample_digest="a" * 64,
+    )
+    assert report.classification is expected

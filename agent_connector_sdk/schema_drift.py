@@ -85,29 +85,67 @@ def _property_changes(
     return changes
 
 
+def _semantic_value(value: Any) -> Any:
+    """Preserve JSON boolean identity while allowing equivalent numeric values."""
+    if isinstance(value, bool):
+        return ("boolean", value)
+    if isinstance(value, dict):
+        return (
+            "object",
+            frozenset((key, _semantic_value(item)) for key, item in value.items()),
+        )
+    if isinstance(value, list):
+        return ("array", tuple(_semantic_value(item) for item in value))
+    return value
+
+
+def _keyword_value(value: Any, key: str) -> Any:
+    if key == "enum" and isinstance(value, list):
+        return frozenset(_semantic_value(item) for item in value)
+    return _semantic_value(value)
+
+
+def _same_keyword(old: dict[str, Any], new: dict[str, Any], key: str) -> bool:
+    return (
+        key in old
+        and key in new
+        and _keyword_value(old[key], key) == _keyword_value(new[key], key)
+    )
+
+
+def _keyword_changes(
+    old: dict[str, Any],
+    new: dict[str, Any],
+    key: str,
+    *,
+    path: str,
+    policy: EvolutionPolicy,
+) -> list[_Change]:
+    field = f"{path}/{key}"
+    if key == "items" and key in old and key in new:
+        return _changes(old[key], new[key], field, policy=policy)
+    if key == "type":
+        return [(field, "TYPE_CHANGED", DriftClassification.BREAKING)]
+    reason = {
+        "required": "REQUIREDNESS_CHANGED",
+        "enum": "ENUM_CHANGED",
+        "const": "ENUM_CHANGED",
+    }.get(key, "UNKNOWN_SCHEMA_CHANGE")
+    return [(field, reason, DriftClassification.REQUIRES_REVIEW)]
+
+
 def _changes(
     old: Any, new: Any, path: str, *, policy: EvolutionPolicy
 ) -> list[_Change]:
-    if old == new:
+    if _semantic_value(old) == _semantic_value(new):
         return []
     if not isinstance(old, dict) or not isinstance(new, dict):
         return [(path, "UNKNOWN_SCHEMA_CHANGE", DriftClassification.REQUIRES_REVIEW)]
     changes = _property_changes(old, new, path, policy=policy)
     for key in sorted(old.keys() | new.keys()):
-        if key == "properties" or old.get(key) == new.get(key):
+        if key == "properties" or _same_keyword(old, new, key):
             continue
-        field = f"{path}/{key}"
-        if key == "items":
-            changes.extend(_changes(old.get(key), new.get(key), field, policy=policy))
-        elif key == "type":
-            changes.append((field, "TYPE_CHANGED", DriftClassification.BREAKING))
-        else:
-            reason = {
-                "required": "REQUIREDNESS_CHANGED",
-                "enum": "ENUM_CHANGED",
-                "const": "ENUM_CHANGED",
-            }.get(key, "UNKNOWN_SCHEMA_CHANGE")
-            changes.append((field, reason, DriftClassification.REQUIRES_REVIEW))
+        changes.extend(_keyword_changes(old, new, key, path=path, policy=policy))
     return changes
 
 
