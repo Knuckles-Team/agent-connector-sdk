@@ -16,6 +16,7 @@ from agent_connector_sdk.decide.epistemic_graph import EpistemicGraphDecisionRun
 from agent_connector_sdk.decide.outcome import Reading, read_batch, request_for, sampled
 from agent_connector_sdk.decide.points import (
     CONNECTOR_TOOL,
+    CONNECTOR_TRIAGE,
     CONNECTOR_WRITEBACK,
     EMPTY_BINDINGS,
     POINTS,
@@ -327,8 +328,10 @@ def test_sampled_keeps_a_reproducible_fraction_by_record_digest() -> None:
 def test_points_registry_and_bindings() -> None:
     assert POINTS["au.connector.tool"] is CONNECTOR_TOOL
     assert point("au.connector.writeback") is CONNECTOR_WRITEBACK
+    assert point("au.connector.triage") is CONNECTOR_TRIAGE
     assert CONNECTOR_TOOL.log_mode is LogMode.SAMPLED
     assert CONNECTOR_WRITEBACK.log_mode is LogMode.ALWAYS
+    assert CONNECTOR_TRIAGE.log_mode is LogMode.SAMPLED
     assert CONNECTOR_TOOL.schema_component_id == "decide.schema.au.connector.tool"
     assert EMPTY_BINDINGS.binding_for(CONNECTOR_TOOL) is None
 

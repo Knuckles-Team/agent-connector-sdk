@@ -115,7 +115,14 @@ async def test_server_side_tools_are_refused_and_client_tools_certify() -> None:
     wire = client_side.model_dump(by_alias=True, exclude_none=True)
     assert tool_fingerprint(client_side) == tool_fingerprint(wire) == LIVE
     assert output_schema_digest(client_side) == output_schema_digest(wire) != ""
-    assert output_schema_digest({"name": "t"}) == ""
+    missing = output_schema_digest({"name": "t"})
+    assert missing != "" and missing != output_schema_digest(client_side)
+    assert missing == output_schema_digest({"name": "u"})
+    declared_empty = output_schema_digest({"name": "t", "outputSchema": {}})
+    assert missing != declared_empty, "undeclared and declared-empty must differ"
+    assert missing != output_schema_digest(
+        {"name": "t", "outputSchema": {"type": "object"}}
+    )
 
 
 def test_load_checkout_in_both_layouts(tmp_path: Path) -> None:

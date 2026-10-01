@@ -52,10 +52,15 @@ CONNECTOR_TOOL = DecisionPoint("au.connector.tool", "route", sample_every=16)
 CONNECTOR_WRITEBACK = DecisionPoint(
     "au.connector.writeback", "route", safety="write_back", log_mode=LogMode.ALWAYS
 )
+#: Which action triages one inbound connector change-event batch; evaluate-only,
+#: sampled. The connector's own deterministic read of the batch is the fallback
+#: and the only candidates ever offered, so this point can never ask for
+#: anything the deterministic rule did not already consider.
+CONNECTOR_TRIAGE = DecisionPoint("au.connector.triage", "route", sample_every=16)
 
 #: Every decision point this package can ask, by question id.
 POINTS: dict[str, DecisionPoint] = {
-    p.question_id: p for p in (CONNECTOR_TOOL, CONNECTOR_WRITEBACK)
+    p.question_id: p for p in (CONNECTOR_TOOL, CONNECTOR_WRITEBACK, CONNECTOR_TRIAGE)
 }
 
 
@@ -103,6 +108,7 @@ def point(question_id: str) -> DecisionPoint:
 
 __all__ = [
     "CONNECTOR_TOOL",
+    "CONNECTOR_TRIAGE",
     "CONNECTOR_WRITEBACK",
     "EMPTY_BINDINGS",
     "POINTS",
