@@ -30,6 +30,7 @@ from agent_connector_sdk.runner.static_registry import (
     load_runner_config,
 )
 from agent_connector_sdk.runner.supervisor import ConnectorSyncRunner
+from agent_connector_sdk.sinks.epistemic_graph import PackImportAuthorityResolver
 
 __all__ = ["build_parser", "default_state_dir", "main"]
 
@@ -103,7 +104,24 @@ def _health_server(
     return server
 
 
-def _start(args: argparse.Namespace) -> tuple[RunnerServices, HealthServer | None]:
+def _resolve_decide_tenant(injected: str | None) -> str | None:
+    """``RUNNER_DECIDE_TENANT`` overrides ``injected``; neither is invented.
+
+    ``injected`` is the caller's own verified-session tenant (see
+    :func:`main`'s docstring); an explicit environment variable still wins,
+    matching ``config.py``'s "an explicit environment variable always wins
+    over the file [or, here, the caller]" rule.
+    """
+    return setting("RUNNER_DECIDE_TENANT") or injected
+
+
+def _start(
+    args: argparse.Namespace,
+    *,
+    sink_client: object | None = None,
+    pack_import_authority: PackImportAuthorityResolver | None = None,
+    decide_tenant: str | None = None,
+) -> tuple[RunnerServices, HealthServer | None]:
     """Build services and, when configured, the health listener.
 
     Raises:
@@ -116,6 +134,9 @@ def _start(args: argparse.Namespace) -> tuple[RunnerServices, HealthServer | Non
         config.settings,
         state_dir=args.state_dir or default_state_dir(),
         sink_name=args.sink,
+        sink_client=sink_client,
+        pack_import_authority=pack_import_authority,
+        decide_tenant=_resolve_decide_tenant(decide_tenant),
     )
     return services, _health_server(args, services)
 
@@ -129,12 +150,34 @@ def _run(runner: ConnectorSyncRunner, *, once: bool) -> int:
     return 0
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    """Run the connector-sync runner; returns the process exit code."""
+def main(
+    argv: Sequence[str] | None = None,
+    *,
+    sink_client: object | None = None,
+    pack_import_authority: PackImportAuthorityResolver | None = None,
+    decide_tenant: str | None = None,
+) -> int:
+    """Run the connector-sync runner; returns the process exit code.
+
+    ``sink_client``/``pack_import_authority`` are the ``epistemic_graph``
+    sink's own required inputs (see
+    ``runner/composition.py::default_services``); ``decide_tenant`` is the
+    SAME verified session's tenant, for the connector decision runner
+    (``RUNNER_DECIDE_TENANT`` overrides it). None of these three can come
+    from ``argv`` -- connector-sync never discovers an engine endpoint, reads
+    a token, or mints request identity itself (``default_services``'s own
+    docstring) -- an embedder that already holds a verified EG session passes
+    them here directly.
+    """
     args = build_parser().parse_args(argv)
     configure_logging(args.log_format)
     try:
-        services, health_server = _start(args)
+        services, health_server = _start(
+            args,
+            sink_client=sink_client,
+            pack_import_authority=pack_import_authority,
+            decide_tenant=decide_tenant,
+        )
     except _STARTUP_ERRORS as exc:
         _logger.error("connector-sync cannot start: %s", exc)
         return 2

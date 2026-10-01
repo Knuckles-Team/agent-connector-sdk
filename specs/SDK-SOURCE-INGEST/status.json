@@ -63,7 +63,8 @@
           "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/4ea8bbb289fc5cc8064f046d922fec7113d8840b",
           "description": "Implementation commit is published on a branch; not yet merged to the default branch."
         }
-      ]
+      ],
+      "remaining": "The ingest package is on the default branch: the engine ingest transport, channel and service, with tests for full, delta and reconcile submission, checkpoint chaining, conflict retry and privacy sanitization. Remaining: the runner-level enterprise source-sync adapter (manifest presets, connection profiling, data preparation) and its integration tests through the runner with receipt parity; blob storage through the engine chunked-blob protocol (it currently refuses with a typed error)."
     },
     {
       "id": "SDK-SOURCE-INGEST-R005",

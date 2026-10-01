@@ -287,20 +287,16 @@ async def test_content_pack_rejects_duplicate_uris(sessions: SessionFactory) -> 
             )
 
 
-async def test_tool_annotations_and_certified_pin_reach_generated_pack() -> None:
+async def _annotated_tool_pack(
+    name: str, meta: dict[str, Any], **tool_fields: Any
+) -> Any:
+    """Build one tool with a declared ``eg.annotations`` block and pack it."""
     tool = mcp_types.Tool.model_validate(
         {
-            "name": "annotated",
-            "description": "fixture",
-            "inputSchema": {"type": "object", "properties": {}},
-            "annotations": {"readOnlyHint": True, "openWorldHint": False},
-            "_meta": {
-                "eg.annotations": {
-                    "provides": ["eg:capability/annotated"],
-                    "modalities_in": ["eg:modality/text"],
-                    "contract_version": "1.2.3",
-                }
-            },
+            "name": name,
+            "inputSchema": {"type": "object"},
+            "_meta": {"eg.annotations": meta},
+            **tool_fields,
         }
     )
     session = SimpleNamespace(
@@ -312,6 +308,21 @@ async def test_tool_annotations_and_certified_pin_reach_generated_pack() -> None
     )
     annotations = pack.archive.entries[0].annotations
     assert annotations is not None
+    return annotations
+
+
+async def test_tool_annotations_and_certified_pin_reach_generated_pack() -> None:
+    annotations = await _annotated_tool_pack(
+        "annotated",
+        {
+            "provides": ["eg:capability/annotated"],
+            "modalities_in": ["eg:modality/text"],
+            "contract_version": "1.2.3",
+        },
+        description="fixture",
+        inputSchema={"type": "object", "properties": {}},
+        annotations={"readOnlyHint": True, "openWorldHint": False},
+    )
     assert annotations.provides == ["eg:capability/annotated"]
     assert annotations.modalities_in == ["eg:modality/text"]
     assert annotations.contract_version == "1.2.3"
@@ -331,6 +342,52 @@ async def test_tool_annotation_conflict_fails_closed() -> None:
     )
     session = SimpleNamespace(list_tools=AsyncMock(return_value=[tool]))
     with pytest.raises(MalformedArtifactError, match="conflicting pack annotation"):
+        await ToolArtifactKind().list_entries(session, SERVER)
+
+
+async def test_tool_cost_and_latency_annotations_reach_generated_pack() -> None:
+    annotations = await _annotated_tool_pack(
+        "priced",
+        {
+            "cost": {"currency": "USD", "per_call_micros": 1200},
+            "latency_declared": {"p50_ms": 40, "p95_ms": 120},
+        },
+    )
+    assert annotations.cost is not None
+    assert annotations.cost.currency == "USD"
+    assert annotations.latency_declared is not None
+    assert annotations.latency_declared.p50_ms == 40
+    assert annotations.latency_declared.p95_ms == 120
+
+
+@pytest.mark.parametrize("currency", ["usd", "US", "USDD", "US1", "", "  USD"])
+async def test_tool_cost_rejects_non_iso4217_currency(currency: str) -> None:
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "mispriced",
+            "inputSchema": {"type": "object"},
+            "_meta": {
+                "eg.annotations": {"cost": {"currency": currency, "per_call_micros": 1}}
+            },
+        }
+    )
+    session = SimpleNamespace(list_tools=AsyncMock(return_value=[tool]))
+    with pytest.raises(MalformedArtifactError, match="ISO-4217"):
+        await ToolArtifactKind().list_entries(session, SERVER)
+
+
+async def test_tool_latency_rejects_p50_above_p95() -> None:
+    tool = mcp_types.Tool.model_validate(
+        {
+            "name": "backwards-latency",
+            "inputSchema": {"type": "object"},
+            "_meta": {
+                "eg.annotations": {"latency_declared": {"p50_ms": 500, "p95_ms": 100}}
+            },
+        }
+    )
+    session = SimpleNamespace(list_tools=AsyncMock(return_value=[tool]))
+    with pytest.raises(MalformedArtifactError, match="p50_ms"):
         await ToolArtifactKind().list_entries(session, SERVER)
 
 

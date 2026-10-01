@@ -38,6 +38,24 @@
 
 ---
 
+## Quick Start
+
+Create a project and install the SDK:
+
+```bash
+uv init --bare demo-connector
+cd demo-connector
+uv add agent-connector-sdk
+uv sync
+uv run connector-sync --help
+```
+
+The command prints the supervised synchronization options without opening a
+source session. Continue with the
+[connector tutorial](https://knuckles-team.github.io/agent-connector-sdk/tutorial/)
+to build and run a one-file MCP connector, observe its health response, add
+declarative content, certify the live schema, and join source synchronization.
+
 ## Overview
 
 Agent Connector SDK is the ecosystem's source-integration boundary. It turns
@@ -101,24 +119,6 @@ owns authenticated runtime composition.
 The SDK depends directly on `epistemic-graph>=2.27.0`. Generated SourceIngest,
 ConnectorPack, IndexRepository, and WriteBack clients and models are the graph
 boundary; the SDK adds no parallel graph contract.
-
-## Quick Start
-
-Create a project and install the SDK:
-
-```bash
-uv init --bare demo-connector
-cd demo-connector
-uv add agent-connector-sdk
-uv sync
-uv run connector-sync --help
-```
-
-The command prints the supervised synchronization options without opening a
-source session. Continue with the
-[connector tutorial](https://knuckles-team.github.io/agent-connector-sdk/tutorial/)
-to build and run a one-file MCP connector, observe its health response, add
-declarative content, certify the live schema, and join source synchronization.
 
 ## Contributing
 

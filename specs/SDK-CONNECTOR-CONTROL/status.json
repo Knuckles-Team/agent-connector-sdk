@@ -102,7 +102,7 @@
           "description": "Tool-choice proposals stay observational; exercised by tests/test_decide_consumers.py and tests/test_decide_epistemic_graph.py."
         }
       ],
-      "remaining": "The triage half has no call site in this repository yet, and the decision runner is not wired into the default service composition."
+      "remaining": "The decision runner is now wired into the default service composition and the command line, with tests through both. Remaining: the triage half still has no call site in this repository."
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R007",
@@ -113,17 +113,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R008",
       "title": "Closed, canonical pack annotation map across the connector fleet",
-      "delivery_state": "BUILDING",
+      "delivery_state": "LANDED",
       "evidence": [
         {
-          "kind": "implementation",
+          "kind": "merged_head",
           "result": "passed",
-          "commit": "06aaa76638a72706779d09b7f856541db3d470d3",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/06aaa76638a72706779d09b7f856541db3d470d3",
-          "description": "Part of the requirement is implemented on the default branch."
+          "commit": "6a6c626b5708204d8719fc500b338b1f8f4f880b",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/6a6c626b5708204d8719fc500b338b1f8f4f880b",
+          "description": "Implemented on the default branch; exercised by tests/test_artifacts_discovery.py"
         }
-      ],
-      "remaining": "cost/latency_declared are fields on the generated PackAnnotations model but are never populated or unit-validated by any code in this repo (zero hits for 'cost'/'latency' in source); no test demonstrates a semantic annotation change shifts the pack digest. Closed-map validation (extra=forbid), tool "
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R009",
@@ -170,14 +169,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R016",
       "title": "Connector base settings live in the SDK's own config module",
-      "delivery_state": "BUILDING",
+      "delivery_state": "LANDED",
       "evidence": [
         {
-          "kind": "implementation",
+          "kind": "merged_head",
           "result": "passed",
           "commit": "4f8b0022945ecd71698535649a583cd260914930",
           "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/4f8b0022945ecd71698535649a583cd260914930",
-          "description": "Part of the requirement is implemented on the default branch."
+          "description": "Implemented on the default branch; exercised by tests/test_foundation.py"
         }
       ]
     },
