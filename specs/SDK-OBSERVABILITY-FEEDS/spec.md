@@ -13,5 +13,3 @@ An event envelope carries tenant/source/stream IDs; provider event ID or canonic
 ## Portable contribution and completion
 
 Use synthetic RUM, audit and CI event fixtures with fake sessions and generated-client ports after `uv sync`; no production telemetry, private fleet, or hosted service is necessary for source tests. **LANDED** requires exact merged adapter contract and one provider implementation per feed kind. **ACCEPTED** requires the tests below, a graph-backed receipt and restart replay. No source implementation or live evidence is claimed by this spec.
-
-Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.
