@@ -93,19 +93,13 @@ only with the SDK's authentication, TLS-boundary, and allowed-host policies.
 
 A production connector can publish content beside its server:
 
-```text
-demo_connector/
-├── connector_manifest.yml
-├── ontology/
-│   ├── demo.ttl
-│   └── shapes/
-│       └── demo-shapes.ttl
-├── prompts/
-│   └── investigate.json
-└── skills/
-    └── demo-operations/
-        └── SKILL.md
-```
+- `demo_connector/`
+    - `connector_manifest.yml`
+    - `ontology/`
+        - `demo.ttl`
+        - `shapes/demo-shapes.ttl`
+    - `prompts/investigate.json`
+    - `skills/demo-operations/SKILL.md`
 
 Pass a `ConnectorContent` to `create_mcp_server` to expose those files as MCP
 skills, prompts, and resources. Content validation fails closed when a declared

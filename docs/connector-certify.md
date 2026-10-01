@@ -4,18 +4,16 @@
 with the client-visible contract returned by `tools/list`. It lists tools only;
 it never calls a tool or reaches the connector's upstream API.
 
-```mermaid
-flowchart LR
-    C[Connector checkout] --> P[Load presets and pins]
-    S[MCP server] --> L[tools/list]
-    P --> V[Validate action schemas]
-    L --> V
-    V --> D[Canonical input and output contract]
-    D --> H[SHA-256 pin]
-    H --> R{check or write}
-    R -->|check| E[Drift report]
-    R -->|write| F[Both pin files]
-```
+<div class="admonition architecture" markdown>
+<p class="admonition-title">Certification flow</p>
+
+A connector checkout loads its presets and pins while the live MCP server's
+`tools/list` response is fetched; both feed action-schema validation, which
+produces the canonical input/output contract and its SHA-256 pin. In `check`
+mode this either matches (nothing to report) or produces a drift report; in
+`write` mode it writes both pin files.
+
+</div>
 
 ## Contract pin
 

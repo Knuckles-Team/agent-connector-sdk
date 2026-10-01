@@ -35,16 +35,20 @@ SDK does not copy graph request DTOs, receipt types, or digest algorithms.
 
 ## Shared runtime
 
-```mermaid
-flowchart LR
-    Client[AI or MCP client] -->|MCP| Server[Connector server]
-    Server -->|governed HTTP| Vendor[Vendor API]
-    GraphOS -->|verified identity and authority| Runner[SDK runtime]
-    Runner -->|discover and extract| Server
-    Runner -->|generated EG client| EG[epistemic-graph]
-    EG -->|authorized change set| Runner
-    Runner -->|preview, apply, reconcile| Vendor
-```
+<ol class="site-flow">
+  <li class="site-flow__step">
+    <div class="site-flow__title">Serve</div>
+    <div class="site-flow__body">An AI or MCP client talks MCP to the connector server, which talks governed HTTP to the vendor API.</div>
+  </li>
+  <li class="site-flow__step">
+    <div class="site-flow__title">Authorize</div>
+    <div class="site-flow__body">Graph OS hands the SDK runtime a verified identity and authority; the runtime discovers and extracts through the connector server.</div>
+  </li>
+  <li class="site-flow__step">
+    <div class="site-flow__title">Write back</div>
+    <div class="site-flow__body">The runtime's generated EG client receives an authorized change set from epistemic-graph, then previews, applies, and reconciles against the vendor API.</div>
+  </li>
+</ol>
 
 The same SDK policies guard connector serving and background source work.
 Transport changes do not create another content catalog, checkpoint store, or
@@ -94,27 +98,20 @@ version, and served MCP safety hints. Conflicting declarations fail closed.
 
 ## WriteBack lifecycle
 
-```mermaid
-sequenceDiagram
-    participant EG as epistemic-graph
-    participant OS as GraphOS
-    participant SDK as Connector SDK
-    participant Source as Vendor source
+<div class="admonition architecture" markdown>
+<p class="admonition-title">Write-back sequence</p>
 
-    EG->>OS: authorized SourceChangeSet
-    OS->>SDK: generated contract + verified identity
-    SDK->>Source: read current source version
-    SDK->>Source: dry-run exact field diff
-    SDK->>Source: apply with idempotency key
-    alt effect confirmed
-        Source-->>SDK: applied source observation
-    else outcome uncertain
-        SDK->>Source: reconcile key + source version
-        Source-->>SDK: applied / no effect / uncertain
-    end
-    SDK-->>EG: attempt and reconciliation observations
-    EG-->>OS: durable receipts
-```
+epistemic-graph hands Graph OS an authorized `SourceChangeSet`; Graph OS
+passes the Connector SDK a generated contract and verified identity. The SDK
+reads the vendor source's current version, dry-runs the exact field diff,
+then applies with an idempotency key. When the effect is confirmed, the
+source returns an applied observation directly; when the outcome is
+uncertain, the SDK reconciles using the key and source version, resolving to
+applied, no-effect, or still-uncertain. The SDK reports attempt and
+reconciliation observations back to epistemic-graph, which returns durable
+receipts to Graph OS.
+
+</div>
 
 epistemic-graph creates the change set, binds authorization and policy, and
 persists attempt and reconciliation receipts. The SDK validates those generated
@@ -134,3 +131,24 @@ and blocks a retry while an effect remains uncertain.
 
 See [Extension ports](extension-ports.md) for protocol details and
 [Connector sync](connector-sync.md) for runtime configuration.
+
+## Connector subsystem architecture
+
+Deep-dive pages for individual connector families and the ingestion machinery
+they share, relocated here from agent-utilities (the SDK owns
+connectors, transport, repository hydration, and write-back):
+
+- [Connectors & ingestion](architecture/connectors-and-ingestion.md) — the
+  unified ingestion architecture: one entrypoint, one provenance contract, one
+  delta model, ~40+ connectors.
+- [Bidirectional ETL hub](architecture/etl-hub.md) — Stardog SPARQL data
+  backend, `graph_etl`, and ETL lineage.
+- [Chunked async drain](architecture/chunked-async-drain.md) — capacity-guarded
+  background waves for a large single-source full re-ingest.
+- [Content-aware ingestion](architecture/content-aware-ingestion.md) —
+  ArchiveBox/crawl4ai/scholarx pluggable fetch and research acquisition.
+- [Camunda + ARIS integration](architecture/camunda-aris-integration.md)
+- [CISO Assistant integration](architecture/ciso-assistant-integration.md)
+- [Privacy-safe external ingestion](architecture/privacy-safe-ingestion.md) —
+  governed GraphQL/property-graph external-source lifecycle.
+- [Universal external graph connectors](architecture/universal-graph-connectors.md)
