@@ -20,10 +20,10 @@ Exit 0 = clean, 1 = findings, 2 = the gate could not establish its universe.
 
 from __future__ import annotations
 
-import argparse
 import re
-import sys
 from pathlib import Path
+
+from doc_gate import GateError, run_gate
 
 REQUIRED_MARKERS = (
     "Neo4j/openCypher",
@@ -45,10 +45,6 @@ DOC_RELATIVE_PATHS = (
     "docs/architecture/universal-graph-connectors.md",
     "docs/architecture/privacy-safe-ingestion.md",
 )
-
-
-class GateError(RuntimeError):
-    """The gate could not establish its universe."""
 
 
 def environment_literal_violations(root: Path, path: Path, text: str) -> list[str]:
@@ -87,24 +83,7 @@ def violations(root: Path) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--root", type=Path, default=Path(__file__).resolve().parents[1]
-    )
-    args = parser.parse_args(argv)
-    root = args.root.resolve()
-    try:
-        failures = violations(root)
-    except (GateError, OSError, UnicodeDecodeError) as exc:
-        print(f"external-graph contract: CANNOT RUN: {exc}", file=sys.stderr)
-        return 2
-    if failures:
-        print("External graph contract gate failed:", file=sys.stderr)
-        for failure in failures:
-            print(f"- {failure}", file=sys.stderr)
-        return 1
-    print("External graph contract gate passed")
-    return 0
+    return run_gate("External graph contract", __doc__, violations, argv)
 
 
 if __name__ == "__main__":

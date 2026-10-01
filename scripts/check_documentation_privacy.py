@@ -24,10 +24,10 @@ Exit 0 = clean, 1 = findings, 2 = the gate could not establish its universe.
 
 from __future__ import annotations
 
-import argparse
 import re
-import sys
 from pathlib import Path
+
+from doc_gate import GateError, run_gate
 
 # RFC 1918 private ranges, one named sub-pattern per block.
 _RANGE_10 = r"10(?:\.\d{1,3}){3}"
@@ -66,10 +66,6 @@ CHECKS: tuple[tuple[str, re.Pattern[str]], ...] = (
 )
 
 
-class GateError(RuntimeError):
-    """The gate could not establish its universe."""
-
-
 def public_doc_paths(root: Path) -> list[Path]:
     docs_dir = root / "docs"
     if not docs_dir.is_dir():
@@ -93,24 +89,7 @@ def violations(root: Path) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--root", type=Path, default=Path(__file__).resolve().parents[1]
-    )
-    args = parser.parse_args(argv)
-    root = args.root.resolve()
-    try:
-        failures = violations(root)
-    except (GateError, OSError, UnicodeDecodeError) as exc:
-        print(f"documentation-privacy: CANNOT RUN: {exc}", file=sys.stderr)
-        return 2
-    if failures:
-        print("Documentation privacy gate failed:", file=sys.stderr)
-        for failure in failures:
-            print(f"- {failure}", file=sys.stderr)
-        return 1
-    print("Documentation privacy gate passed")
-    return 0
+    return run_gate("Documentation privacy", __doc__, violations, argv)
 
 
 if __name__ == "__main__":
