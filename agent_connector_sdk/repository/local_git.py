@@ -27,6 +27,51 @@ from agent_connector_sdk.repository.refs import (
 __all__ = ["LocalGitRepositoryProvider"]
 
 _DEFAULT_REF_PREFIXES = ("refs/heads", "refs/tags")
+_TREE_MODE = b"40000"
+_BLOB_MODES = (b"100644", b"100755", b"120000")
+TreeRecord = tuple[bytes, str, str]
+TreeObjects = dict[str, tuple[TreeRecord, ...]]
+
+
+def _parse_tree_payload(oid: str, payload: bytes) -> tuple[TreeRecord, ...]:
+    """Parse one ``git cat-file --batch`` tree payload into ``(mode, name, child)``."""
+    record_size = len(bytes.fromhex(oid))
+    records: list[TreeRecord] = []
+    offset = 0
+    while offset < len(payload):
+        boundary = payload.find(b"\0", offset)
+        if boundary < 0 or boundary + 1 + record_size > len(payload):
+            raise RepositoryTransportError("git cat-file returned malformed tree")
+        mode_name = payload[offset:boundary]
+        object_id = payload[boundary + 1 : boundary + 1 + record_size]
+        offset = boundary + 1 + record_size
+        mode, name_bytes = mode_name.split(b" ", 1)
+        records.append((mode, name_bytes.decode("utf-8"), object_id.hex()))
+    return tuple(records)
+
+
+async def _check_batch_exit(process: asyncio.subprocess.Process) -> None:
+    if process.returncode == 0:
+        return
+    if process.stderr is None:
+        raise RepositoryTransportError("git cat-file failed with no stderr pipe")
+    message = (await process.stderr.read()).decode("utf-8", "replace").strip()
+    raise RepositoryTransportError(f"git cat-file failed: {message}")
+
+
+def _flatten_tree(root: str, objects: TreeObjects) -> tuple[RepositoryTreeEntry, ...]:
+    """Walk ``objects`` from ``root``, collecting blob entries by full path."""
+    entries: list[RepositoryTreeEntry] = []
+    stack = [(root, "")]
+    while stack:
+        oid, prefix = stack.pop()
+        for mode, name, child in objects[oid]:
+            path = f"{prefix}{name}"
+            if mode == _TREE_MODE:
+                stack.append((child, f"{path}/"))
+            elif mode in _BLOB_MODES:
+                entries.append(RepositoryTreeEntry(path=path, blob_id=child))
+    return tuple(sorted(entries, key=lambda item: item.path))
 
 
 class LocalGitRepositoryProvider:
@@ -92,16 +137,28 @@ class LocalGitRepositoryProvider:
             for index, name in enumerate(names)
         )
 
-    async def prime_trees(self, tree_ids: tuple[str, ...]) -> None:
-        """Read all distinct root trees through one Git batch process.
+    async def _read_one_tree(
+        self,
+        stdin: asyncio.StreamWriter,
+        stdout: asyncio.StreamReader,
+        oid: str,
+    ) -> tuple[TreeRecord, ...]:
+        """Request one tree object over an open ``git cat-file --batch`` pipe."""
+        stdin.write(f"{oid}\n".encode("ascii"))
+        await stdin.drain()
+        header = (await stdout.readline()).split()
+        if len(header) != 3 or header[0].decode("ascii") != oid or header[1] != b"tree":
+            raise RepositoryTransportError(f"git cat-file did not return tree {oid}")
+        size = int(header[2])
+        raw = await stdout.readexactly(size + 1)
+        if raw[-1:] != b"\n":
+            raise RepositoryTransportError(
+                "git cat-file returned malformed tree framing"
+            )
+        return _parse_tree_payload(oid, raw[:-1])
 
-        Tree objects are content addressed, so common subtrees are read once
-        even when many branch tips have different root trees
-        (SDK-REPOSITORY-TRANSPORT-R003).
-        """
-        roots = tuple(dict.fromkeys(oid for oid in tree_ids if oid not in self._trees))
-        if not roots:
-            return
+    async def _read_trees_batch(self, roots: tuple[str, ...]) -> TreeObjects:
+        """Read every tree reachable from ``roots`` through one batch process."""
         process = await asyncio.create_subprocess_exec(
             "git",
             "-C",
@@ -114,7 +171,7 @@ class LocalGitRepositoryProvider:
         )
         if process.stdin is None or process.stdout is None:
             raise RepositoryTransportError("git cat-file did not open its pipes")
-        objects: dict[str, tuple[tuple[bytes, str, str], ...]] = {}
+        objects: TreeObjects = {}
         pending = deque(roots)
         requested: set[str] = set()
         try:
@@ -123,65 +180,33 @@ class LocalGitRepositoryProvider:
                 if oid in requested:
                     continue
                 requested.add(oid)
-                process.stdin.write(f"{oid}\n".encode("ascii"))
-                await process.stdin.drain()
-                header = (await process.stdout.readline()).split()
-                if (
-                    len(header) != 3
-                    or header[0].decode("ascii") != oid
-                    or header[1] != b"tree"
-                ):
-                    raise RepositoryTransportError(
-                        f"git cat-file did not return tree {oid}"
-                    )
-                size = int(header[2])
-                raw = await process.stdout.readexactly(size + 1)
-                if raw[-1:] != b"\n":
-                    raise RepositoryTransportError(
-                        "git cat-file returned malformed tree framing"
-                    )
-                record_size = len(bytes.fromhex(oid))
-                records: list[tuple[bytes, str, str]] = []
-                payload = raw[:-1]
-                offset = 0
-                while offset < len(payload):
-                    boundary = payload.find(b"\0", offset)
-                    if boundary < 0 or boundary + 1 + record_size > len(payload):
-                        raise RepositoryTransportError(
-                            "git cat-file returned malformed tree"
-                        )
-                    mode_name = payload[offset:boundary]
-                    object_id = payload[boundary + 1 : boundary + 1 + record_size]
-                    offset = boundary + 1 + record_size
-                    mode, name_bytes = mode_name.split(b" ", 1)
-                    child = object_id.hex()
-                    records.append((mode, name_bytes.decode("utf-8"), child))
-                    if mode == b"40000" and child not in requested:
-                        pending.append(child)
-                objects[oid] = tuple(records)
+                records = await self._read_one_tree(process.stdin, process.stdout, oid)
+                objects[oid] = records
+                pending.extend(
+                    child
+                    for mode, _, child in records
+                    if mode == _TREE_MODE and child not in requested
+                )
         finally:
             process.stdin.close()
             await process.stdin.wait_closed()
             await process.wait()
-        if process.returncode != 0:
-            if process.stderr is None:
-                raise RepositoryTransportError(
-                    "git cat-file failed with no stderr pipe"
-                )
-            message = (await process.stderr.read()).decode("utf-8", "replace").strip()
-            raise RepositoryTransportError(f"git cat-file failed: {message}")
+        await _check_batch_exit(process)
+        return objects
+
+    async def prime_trees(self, tree_ids: tuple[str, ...]) -> None:
+        """Read all distinct root trees through one Git batch process.
+
+        Tree objects are content addressed, so common subtrees are read once
+        even when many branch tips have different root trees
+        (SDK-REPOSITORY-TRANSPORT-R003).
+        """
+        roots = tuple(dict.fromkeys(oid for oid in tree_ids if oid not in self._trees))
+        if not roots:
+            return
+        objects = await self._read_trees_batch(roots)
         for root in roots:
-            entries: list[RepositoryTreeEntry] = []
-            stack = [(root, "")]
-            while stack:
-                oid, prefix = stack.pop()
-                for mode, name, child in objects[oid]:
-                    path = f"{prefix}{name}"
-                    if mode == b"40000":
-                        stack.append((child, f"{path}/"))
-                    elif mode in (b"100644", b"100755", b"120000"):
-                        entries.append(RepositoryTreeEntry(path=path, blob_id=child))
-            self._trees[root] = tuple(sorted(entries, key=lambda item: item.path))
+            self._trees[root] = _flatten_tree(root, objects)
 
     async def _tree(
         self, revision: RepositoryRevision
