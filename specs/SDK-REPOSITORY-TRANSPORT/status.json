@@ -3,11 +3,61 @@
   "spec_id": "SDK-REPOSITORY-TRANSPORT",
   "owner_repo": "agent-connector-sdk",
   "requirement_ids": [
-    "RF-031",
-    "EH-340",
-    "EH-637"
+    "SDK-REPOSITORY-TRANSPORT-R001",
+    "SDK-REPOSITORY-TRANSPORT-R002",
+    "SDK-REPOSITORY-TRANSPORT-R003",
+    "SDK-REPOSITORY-TRANSPORT-R004",
+    "SDK-REPOSITORY-TRANSPORT-R005"
   ],
   "delivery_state": "UNKNOWN",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": []
+  "evidence": [],
+  "requirements": [
+    {
+      "id": "SDK-REPOSITORY-TRANSPORT-R001",
+      "title": "Repository transport hydrates code and specification sources from Git",
+      "delivery_state": "BUILDING",
+      "evidence": [
+        {
+          "kind": "branch",
+          "result": "passed",
+          "commit": "e46f872849e2914cf81ef229e88af75aa4efa1ba",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/e46f872849e2914cf81ef229e88af75aa4efa1ba",
+          "description": "Implementation commit is published on a branch; not yet merged to the default branch."
+        }
+      ]
+    },
+    {
+      "id": "SDK-REPOSITORY-TRANSPORT-R002",
+      "title": "SDK is the sole path for repository-native codebase hydration",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-REPOSITORY-TRANSPORT-R003",
+      "title": "Repository ref walk traverses each Git tree once with batched reads",
+      "delivery_state": "BUILT",
+      "evidence": [
+        {
+          "kind": "branch",
+          "result": "passed",
+          "commit": "296316e6626b87fe77337b6830c8d9fd238b23f8",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/296316e6626b87fe77337b6830c8d9fd238b23f8",
+          "description": "Implementation commit is published on a branch; not yet merged to the default branch."
+        }
+      ]
+    },
+    {
+      "id": "SDK-REPOSITORY-TRANSPORT-R004",
+      "title": "Repository transport submits bounded, outcome-complete index batches",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-REPOSITORY-TRANSPORT-R005",
+      "title": "Branch-aware transport batches indexing into one call per batch",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    }
+  ]
 }

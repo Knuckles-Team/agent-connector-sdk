@@ -3,12 +3,45 @@
   "spec_id": "SDK-FINANCE-SOURCES",
   "owner_repo": "agent-connector-sdk",
   "requirement_ids": [
-    "EH-412",
-    "EH-701",
-    "EH-709",
-    "EH-713"
+    "SDK-FINANCE-SOURCES-R001",
+    "SDK-FINANCE-SOURCES-R002",
+    "SDK-FINANCE-SOURCES-R003",
+    "SDK-FINANCE-SOURCES-R004",
+    "SDK-FINANCE-SOURCES-R005"
   ],
   "delivery_state": "SPECIFIED",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": []
+  "evidence": [],
+  "requirements": [
+    {
+      "id": "SDK-FINANCE-SOURCES-R001",
+      "title": "Market-data adapters: exchange history fix, CoinMarketCap, FRED/ALFRED",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R002",
+      "title": "Alpaca stocks adapter: history, quotes, fundamentals, calendars",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R003",
+      "title": "FX, commodities, and real-estate adapters with roll and staleness rules",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R004",
+      "title": "Alpaca account reads and idempotent CSV activity import",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R005",
+      "title": "Macro and liquidity panels: FRED series, ETF flows, sentiment, on-chain",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    }
+  ]
 }

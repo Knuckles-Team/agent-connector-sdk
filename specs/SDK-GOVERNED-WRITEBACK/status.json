@@ -3,12 +3,53 @@
   "spec_id": "SDK-GOVERNED-WRITEBACK",
   "owner_repo": "agent-connector-sdk",
   "requirement_ids": [
-    "EH-043",
-    "EH-216",
-    "EH-341",
-    "EH-671"
+    "SDK-GOVERNED-WRITEBACK-R001",
+    "SDK-GOVERNED-WRITEBACK-R002",
+    "SDK-GOVERNED-WRITEBACK-R003",
+    "SDK-GOVERNED-WRITEBACK-R004",
+    "SDK-GOVERNED-WRITEBACK-R005"
   ],
   "delivery_state": "UNKNOWN",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": []
+  "evidence": [],
+  "requirements": [
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R001",
+      "title": "Write-back proposals route through governed authorization, not direct action",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R002",
+      "title": "Source-side WriteBackPort composes a durable graph write-back adapter",
+      "delivery_state": "BUILDING",
+      "evidence": [
+        {
+          "kind": "branch",
+          "result": "passed",
+          "commit": "d9ab174f5d7af8d156a12a69492c5c8c588fa2d0",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d9ab174f5d7af8d156a12a69492c5c8c588fa2d0",
+          "description": "Implementation commit is published on a branch; not yet merged to the default branch."
+        }
+      ]
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R003",
+      "title": "Full write-back requires an authorization resolver and restart recovery",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004",
+      "title": "Governed write-back: approval, idempotency, and an audit reservation",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R005",
+      "title": "Write-back implementation passes its full durable test suite together",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    }
+  ]
 }

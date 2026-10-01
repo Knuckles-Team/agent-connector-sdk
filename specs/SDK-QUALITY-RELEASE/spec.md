@@ -1,6 +1,6 @@
 # Portable SDK quality, Pages, and release
 
-**Program IDs:** EH-212, EH-369, SDK final release lane, SDK public docs lane.
+**Requirement IDs:** SDK-QUALITY-RELEASE-R001, SDK-QUALITY-RELEASE-R002, SDK-QUALITY-RELEASE-R003, SDK-QUALITY-RELEASE-R004, SDK-QUALITY-RELEASE-R005.
 **Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 
 ## Outcome
@@ -17,7 +17,9 @@ Public-doc privacy scanning searches Markdown, HTML source, examples and generat
 
 ## Fresh-checkout workflow
 
-Install Python and `uv` as pinned in `pyproject.toml`; run `uv sync`, `uv run --frozen python -m pytest -q`, lint/type/wiring hooks, and `python -m build` or the repository's pinned wheel command. The Pages source build runs in CI with its declared theme dependency. Contributors may run it locally using the same lock, but source PR validation never assumes a pre-existing sibling checkout.
+Install Python and `uv` as pinned in `pyproject.toml`; run `uv sync`, `uv run --frozen python -m pytest -q`, lint/type/wiring hooks, and `python -m build` or the repository's pinned wheel command (SDK-QUALITY-RELEASE-R003). The build must execute under that pinned interpreter rather than falling back to the hosting runner's system Python. The Pages source build runs in CI with its declared theme dependency. Contributors may run it locally using the same lock, and the resulting dependency import graph must reproduce the hosted continuous-integration run's recorded result exactly (SDK-QUALITY-RELEASE-R005); source PR validation never assumes a pre-existing sibling checkout.
+
+The public README follows a fixed section order leading with a one-file connector quick start, and the published documentation site presents a task-first tutorial and architecture guide rather than an API-reference-first structure (SDK-QUALITY-RELEASE-R004).
 
 ## Evidence and completion
 
@@ -28,3 +30,5 @@ Install Python and `uv` as pinned in `pyproject.toml`; run `uv sync`, `uv run --
 | Published Pages and wheel consumer | OPEN | Pending URLs, artifact digest and release run |
 
 **LANDED** means exact merged gate and docs source. **ACCEPTED** means cloud PR tests pass from fresh checkout and release evidence passes independently. Removing a stale gate does not waive source correctness checks.
+
+Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.

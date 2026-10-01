@@ -1,6 +1,6 @@
 # Operational event feeds through the source adapter contract
 
-**Program ID:** EH-410. **Owner:** agent-connector-sdk contract; each event connector owns provider transport. **Delivery state:** SPECIFIED. **Acceptance state:** OPEN.
+**Requirement ID:** SDK-OBSERVABILITY-FEEDS-R001. **Owner:** agent-connector-sdk contract; each event connector owns provider transport. **Delivery state:** SPECIFIED. **Acceptance state:** OPEN.
 
 ## Outcome and model
 

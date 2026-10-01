@@ -3,10 +3,69 @@
   "spec_id": "SDK-QUALITY-RELEASE",
   "owner_repo": "agent-connector-sdk",
   "requirement_ids": [
-    "EH-212",
-    "EH-369"
+    "SDK-QUALITY-RELEASE-R001",
+    "SDK-QUALITY-RELEASE-R002",
+    "SDK-QUALITY-RELEASE-R003",
+    "SDK-QUALITY-RELEASE-R004",
+    "SDK-QUALITY-RELEASE-R005"
   ],
   "delivery_state": "UNKNOWN",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": []
+  "evidence": [],
+  "requirements": [
+    {
+      "id": "SDK-QUALITY-RELEASE-R001",
+      "title": "SDK release builds against a published compatible graph-client wheel",
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "9353853c96a040790ec1b3b9cb8e2b5e0c558c65",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/9353853c96a040790ec1b3b9cb8e2b5e0c558c65",
+          "description": "Implementing commit is reachable from the default branch."
+        }
+      ]
+    },
+    {
+      "id": "SDK-QUALITY-RELEASE-R002",
+      "title": "Public-documentation scanner catches private addresses and hosts",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-QUALITY-RELEASE-R003",
+      "title": "Release workflow builds with the pinned managed Python, not the system one",
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "26b377ff7d02ef644f25810e28fda5ee4d12474c",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/26b377ff7d02ef644f25810e28fda5ee4d12474c",
+          "description": "Implementing commit is reachable from the default branch."
+        }
+      ]
+    },
+    {
+      "id": "SDK-QUALITY-RELEASE-R004",
+      "title": "Public documentation follows a task-first README and site structure",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-QUALITY-RELEASE-R005",
+      "title": "Hosted CI reproduces the exact pinned dependency import locally",
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "9353853c96a040790ec1b3b9cb8e2b5e0c558c65",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/9353853c96a040790ec1b3b9cb8e2b5e0c558c65",
+          "description": "Implementing commit is reachable from the default branch."
+        }
+      ]
+    }
+  ]
 }

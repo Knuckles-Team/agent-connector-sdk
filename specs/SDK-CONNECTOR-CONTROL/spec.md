@@ -1,6 +1,6 @@
 # SDK connector control, certification, and pack publication
 
-**Program IDs:** EH-079, EH-135, EH-198, EH-199, EH-213, EH-214, EH-215, EH-217, EH-480–EH-486, EH-491, SDK hosted generated-contract repair lane, SDK hardened network serving lane.
+**Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R018.
 **Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 **Boundary:** This SDK owns source-side connector hosting, discovery, certification, pack construction, and submission. A graph service owns durable pack records and receipts; a control-plane service owns routing and activation policy. Vendor packages own their API calls.
 
@@ -8,7 +8,7 @@
 
 A fresh connector package can use one SDK server factory, one manifest, one credential-reference and HTTP/TLS stack, one certification command, and one generated graph client. Its published pack and tool pins are reproducible from the connector artifact, and the runner refuses uncertified or mismatched packages. Every migrated connector builds without importing `agent_utilities`. This is an SDK contract, not a requirement to copy any private fleet inventory.
 
-The migration is five independently reviewable alphabetical batches: A–E (EH-480), F–J (EH-481), K–O (EH-482), P–S (EH-483), and T–Z (EH-484). Packages in a batch are selected from public connector repositories at implementation time, not from a hard-coded count. Those packages own their migration commits. EH-485 removes an old duplicate toolkit in the control-plane repository after consumers have migrated; EH-486 establishes the SDK as source lifecycle and certification owner while retiring the duplicate there. Connector base settings move into `agent_connector_sdk/config.py`; deployment settings and agent/model settings stay with their owners (EH-491).
+The migration is five independently reviewable alphabetical batches: A–E (SDK-CONNECTOR-CONTROL-R009), F–J (SDK-CONNECTOR-CONTROL-R010), K–O (SDK-CONNECTOR-CONTROL-R011), P–S (SDK-CONNECTOR-CONTROL-R012), and T–Z (SDK-CONNECTOR-CONTROL-R013). Packages in a batch are selected from public connector repositories at implementation time, not from a hard-coded count. Those packages own their migration commits. SDK-CONNECTOR-CONTROL-R014 removes an old duplicate toolkit in the control-plane repository after consumers have migrated; SDK-CONNECTOR-CONTROL-R015 establishes the SDK as source lifecycle and certification owner while retiring the duplicate there. Connector base settings move into `agent_connector_sdk/config.py`; deployment settings and agent/model settings stay with their owners (SDK-CONNECTOR-CONTROL-R016).
 
 ## Architecture and contracts
 
@@ -31,6 +31,7 @@ vendor connector package ──manifest and entry point──▶ SDK discovery/c
 6. `mcp/server.py`, `mcp/action_dispatch.py`, `auth/`, `http/`, `tls/`, `credentials/`, and `ports/` remain the sole shared connector toolkit. `env://` and `openbao://` references may appear in manifests; resolved values may appear only in request memory, never logs, exceptions, packs, or reports. Unknown auth, public network exposure, or uncertified package tuple fails closed.
 7. Connector-internal tool choice or inbound event triage may request a proposal from a decision service. This proposal is observational only. It never directly authorizes a side effect or bypasses deterministic write-back rules.
 8. The release contract locks a published compatible graph-client wheel and verifies its generated types, native kernels, and error catalog in an isolated installed consumer. A source overlay, unpinned wheel, or stale lock cannot stand in for the release dependency.
+9. Every connector package performs HTTPS calls through the SDK's shared TLS profile in `tls/`; no connector may disable certificate verification with a bare boolean flag or silence the underlying TLS warning library (SDK-CONNECTOR-CONTROL-R017). The SDK's full test suite, strict type checking, and documentation build must pass cleanly against the connector control implementation from a fresh checkout, with no partial or broken module left in the merged source tree (SDK-CONNECTOR-CONTROL-R018).
 
 ## Portable development and contribution
 
@@ -48,3 +49,5 @@ Source is **LANDED** only after an exact merged commit contains the required imp
 | Five batch consumer conformance | Pending batch receipts | OPEN |
 | Published-wheel isolated consumer | Pending artifact digest and CI run | OPEN |
 | Live pack publication and idempotent retry | Pending redacted receipt | OPEN |
+
+Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.

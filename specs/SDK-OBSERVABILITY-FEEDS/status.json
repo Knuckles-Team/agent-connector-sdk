@@ -2,8 +2,18 @@
   "schema_version": 1,
   "spec_id": "SDK-OBSERVABILITY-FEEDS",
   "owner_repo": "agent-connector-sdk",
-  "requirement_ids": ["EH-410"],
+  "requirement_ids": [
+    "SDK-OBSERVABILITY-FEEDS-R001"
+  ],
   "delivery_state": "SPECIFIED",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": []
+  "evidence": [],
+  "requirements": [
+    {
+      "id": "SDK-OBSERVABILITY-FEEDS-R001",
+      "title": "RUM, security-audit, and CI/CD events join the durable source pipeline",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    }
+  ]
 }
