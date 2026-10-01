@@ -15,7 +15,11 @@ set -euo pipefail
 # upstream v1.6.0 tag by its immutable commit.
 CCCC_GIT=https://github.com/moznion/cccc
 CCCC_REV=d728759323be5d9977b7390a27133e8eaf481f26
-KISS_VERSION=0.4.10
+# kiss: the fleet's own fork build (upstream 0.4.12 + the inline-module
+# resolution fix); crates.io 0.4.12 aborts the census (see
+# pipelines_hooks/core/kiss_fork.py in Knuckles-Team/pipelines).
+KISS_GIT=https://github.com/Knucklessg1/kiss
+KISS_REV=7f1c6785697d3fe9a41ceb8b8e5d0f615fb1f3d9
 DUPEHOUND_VERSION=0.1.2
 JSCPD_VERSION=5.0.16
 
@@ -31,7 +35,7 @@ bin="$HOME/.local/bin"
 mkdir -p "$root" "$bin"
 
 cargo install --locked --git "$CCCC_GIT" --rev "$CCCC_REV" --root "$root/cccc" cccc-cli
-cargo install --locked --version "$KISS_VERSION" --root "$root/kiss" kiss-ai
+cargo install --locked --git "$KISS_GIT" --rev "$KISS_REV" --root "$root/kiss" kiss-ai
 cargo install --locked --version "$DUPEHOUND_VERSION" --root "$root/dupehound" dupehound
 npm install --prefix "$root/npm" --no-package-lock --ignore-scripts --no-save \
   --no-audit --no-fund "jscpd@$JSCPD_VERSION"
