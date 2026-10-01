@@ -68,7 +68,7 @@
           "description": "Part of the requirement is implemented on the default branch."
         }
       ],
-      "remaining": "README.md on main does not lead with Quick Start: current section order is Overview, Key Capabilities, Documentation, Architecture, Quick Start, Contributing, License (Quick Start is section 5 of 7, not first). A one-file connector quick start and task-first docs/tutorial.md + docs/architecture.md d"
+      "remaining": "The README now leads with Quick Start. Remaining: a continuous-integration check of the README section order and of the documentation build and links."
     },
     {
       "id": "SDK-QUALITY-RELEASE-R005",
