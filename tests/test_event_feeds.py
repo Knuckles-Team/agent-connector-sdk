@@ -35,7 +35,11 @@ from agent_connector_sdk.adapters.event_identity import (
     EventIdentityOutcome,
     EventIdentityTracker,
 )
-from agent_connector_sdk.manifest.live_contract import validate_live_tool_contract
+from agent_connector_sdk.manifest.live_contract import (
+    describe_preset_adapter,
+    discover_tool_backed_stream,
+    validate_live_tool_contract,
+)
 from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.ports.errors import (
     MalformedSourceDataError,
@@ -549,6 +553,24 @@ async def test_reconcile_is_refused_for_append_only_event_feeds() -> None:
     session = FakeEventSession(descriptor=_tool_descriptor(preset.tool), pages=[])
     with pytest.raises(SourceContractError, match="reconcile"):
         await adapter.reconcile(session, frozenset())
+
+
+async def test_discover_tool_backed_stream_and_describe_preset_adapter_are_shared() -> (
+    None
+):
+    preset = _preset("rum-stream", "rum_events")
+    descriptor = _tool_descriptor(preset.tool)
+    pinned = _compatibility_sha256(descriptor)
+    session = FakeEventSession(descriptor=descriptor, pages=[])
+    verified, stream_descriptor = await discover_tool_backed_stream(
+        session, preset, pinned_schema_sha256=pinned
+    )
+    assert verified == pinned
+    assert stream_descriptor.stream == preset.name
+    capability = describe_preset_adapter("event_feed:rum", preset, incremental=True)
+    assert capability.kind == "event_feed:rum"
+    assert capability.incremental is True
+    assert capability.pagination == (preset.pagination,)
 
 
 def test_describe_names_the_feed_specific_kind() -> None:
