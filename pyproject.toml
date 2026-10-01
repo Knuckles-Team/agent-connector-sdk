@@ -108,6 +108,7 @@ exclude_dirs = ["tests", "scripts"]
 # every entry-point target as roots; every other module must be imported by one.
 public_modules = [
     "agent_connector_sdk.adapters.event_feed",
+    "agent_connector_sdk.adapters.event_feed_bindings",
     "agent_connector_sdk.adapters.mcp_tool",
     "agent_connector_sdk.certify.cli",
     "agent_connector_sdk.artifacts.pack",
