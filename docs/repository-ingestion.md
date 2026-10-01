@@ -49,7 +49,7 @@ the run before another engine call. Durable repository admission, watermarks,
 acknowledgements, reconciliation, parsing, cross-file linking, RDF/OWL/SHACL, and
 projection receipts remain epistemic-graph responsibilities.
 
-## The ref-walk phase (SDK-REPOSITORY-TRANSPORT-R003)
+## The ref-walk phase
 
 Before any content is fetched, a provider that also implements
 `RepositoryRefWalkProvider` (`agent_connector_sdk.repository.provider`) can be

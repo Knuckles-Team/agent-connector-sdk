@@ -112,7 +112,8 @@ class LocalGitRepositoryProvider:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
-        assert process.stdin is not None and process.stdout is not None
+        if process.stdin is None or process.stdout is None:
+            raise RepositoryTransportError("git cat-file did not open its pipes")
         objects: dict[str, tuple[tuple[bytes, str, str], ...]] = {}
         pending = deque(roots)
         requested: set[str] = set()
@@ -163,7 +164,8 @@ class LocalGitRepositoryProvider:
             await process.stdin.wait_closed()
             await process.wait()
         if process.returncode != 0:
-            assert process.stderr is not None
+            if process.stderr is None:
+                raise RepositoryTransportError("git cat-file failed with no stderr pipe")
             message = (await process.stderr.read()).decode("utf-8", "replace").strip()
             raise RepositoryTransportError(f"git cat-file failed: {message}")
         for root in roots:
