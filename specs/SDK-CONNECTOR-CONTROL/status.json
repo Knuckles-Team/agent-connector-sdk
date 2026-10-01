@@ -92,8 +92,17 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R006",
       "title": "Decision-service proposals for tool choice and triage stay observational",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "BUILDING",
+      "evidence": [
+        {
+          "kind": "implementation",
+          "result": "passed",
+          "commit": "daeb199f91c099eed08020c1b8cbd314a2351d9a",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/daeb199f91c099eed08020c1b8cbd314a2351d9a",
+          "description": "Tool-choice proposals stay observational; exercised by tests/test_decide_consumers.py and tests/test_decide_epistemic_graph.py."
+        }
+      ],
+      "remaining": "The triage half has no call site in this repository yet, and the decision runner is not wired into the default service composition."
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R007",

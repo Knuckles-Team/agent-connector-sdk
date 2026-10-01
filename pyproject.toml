@@ -125,6 +125,8 @@ public_modules = [
     "agent_connector_sdk.credentials.references",
     "agent_connector_sdk.credentials.resolution",
     "agent_connector_sdk.credentials.resolver",
+    "agent_connector_sdk.decide.consumers",
+    "agent_connector_sdk.decide.epistemic_graph",
     "agent_connector_sdk.discovery",
     "agent_connector_sdk.exceptions",
     "agent_connector_sdk.http.bodies",

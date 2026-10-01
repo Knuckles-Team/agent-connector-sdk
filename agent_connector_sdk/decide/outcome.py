@@ -1,0 +1,137 @@
+"""What one SDK-owned ``Decide`` call concluded, and why.
+
+The ``Reading``/``read_batch``/``request_for``/``sampled`` halves are ported
+(not imported) from ``agent_utilities.decide.outcome``'s identical contract:
+nothing here performs I/O, so :class:`~agent_connector_sdk.decide.epistemic_graph.EpistemicGraphDecisionRunner`'s
+sync and async paths share it byte for byte. The reading enforces the one
+safety rule this package owns: EG may only pick an option the caller
+offered. Anything else -- an unknown option, an advisory score, an
+abstention -- leaves the call site on its deterministic fallback.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Iterable, Mapping
+from dataclasses import dataclass, field
+from typing import Any
+
+from agent_connector_sdk.decide.points import Binding, DecisionPoint
+
+#: EG outcomes that execute an option.
+_EXECUTING = frozenset({"acted", "explored"})
+
+
+@dataclass(frozen=True, slots=True)
+class Choice:
+    """What a decision point concluded, and why.
+
+    ``decided`` is true only when EG executed an option a call site offered;
+    otherwise ``option_id`` is the deterministic fallback's answer and
+    ``reason`` names why EG did not decide (``no_runner``, ``unbound``,
+    ``unavailable: ...``, ``abstained: ...``, ``advisory``,
+    ``foreign_option: ...``). ``advisory`` carries EG's uncalibrated scores
+    when it gave any: they are shown, never obeyed. A call site never needs
+    to re-derive the fallback -- ``option_id`` is always a concrete answer.
+    """
+
+    option_id: str
+    decided: bool
+    reason: str
+    advisory: Mapping[str, int] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class Reading:
+    """EG's answer, before the fallback fills any gap."""
+
+    option_id: str | None
+    reason: str
+    record: Mapping[str, Any] | None
+    advisory: Mapping[str, int]
+
+
+def request_for(
+    point: DecisionPoint,
+    binding: Binding,
+    *,
+    tenant: str,
+    candidates: Mapping[str, Any],
+    params: Iterable[Mapping[str, Any]] = (),
+) -> dict[str, Any]:
+    """The ``Decide`` request for one point (params sorted by name, as EG requires)."""
+    return {
+        "tenant_id": tenant,
+        "question": {
+            "question_id": point.question_id,
+            "kind": point.kind,
+            "safety": point.safety,
+        },
+        "candidates": dict(candidates),
+        "feature_schema": dict(binding.feature_schema),
+        "head": None if binding.head is None else dict(binding.head),
+        "policy": dict(binding.policy),
+        "params": sorted((dict(p) for p in params), key=lambda p: str(p["name"])),
+        "max_records": 1,
+    }
+
+
+def _record_of(batch: Any) -> Mapping[str, Any] | None:
+    records = batch.get("records") if isinstance(batch, Mapping) else None
+    if not records or not isinstance(records[0], Mapping):
+        return None
+    return records[0]
+
+
+def _reasons(outcome: Mapping[str, Any]) -> str:
+    reasons = outcome.get("reasons") or []
+    names = [str(r.get("reason")) for r in reasons if isinstance(r, Mapping)]
+    return ",".join(names) or "unspecified"
+
+
+def _advisory(outcome: Mapping[str, Any]) -> dict[str, int]:
+    scores = outcome.get("scores") or []
+    return {
+        str(s["option_id"]): int(s["score"]["value"])
+        for s in scores
+        if isinstance(s, Mapping) and isinstance(s.get("score"), Mapping)
+    }
+
+
+def _read_outcome(
+    outcome: Mapping[str, Any], record: Mapping[str, Any], offered: frozenset[str]
+) -> Reading:
+    """Read a well-formed outcome: executed-and-offered, foreign, advisory, abstained."""
+    kind = str(outcome.get("outcome"))
+    if kind in _EXECUTING:
+        chosen = str(outcome.get("option_id"))
+        if chosen in offered:
+            return Reading(chosen, kind, record, {})
+        return Reading(None, f"foreign_option: {chosen}", record, {})
+    if kind == "advisory":
+        return Reading(None, "advisory", record, _advisory(outcome))
+    return Reading(None, f"abstained: {_reasons(outcome)}", record, {})
+
+
+def read_batch(batch: Any, offered: frozenset[str]) -> Reading:
+    """Read one ``DecisionBatch``: an executed, offered option, or why not."""
+    record = _record_of(batch)
+    if record is None:
+        return Reading(None, "unavailable: empty decision batch", None, {})
+    outcome = record.get("outcome")
+    if not isinstance(outcome, Mapping):
+        return Reading(None, "unavailable: malformed outcome", record, {})
+    return _read_outcome(outcome, record, offered)
+
+
+def sampled(point: DecisionPoint, record: Mapping[str, Any]) -> bool:
+    """Whether ``record`` falls in the point's reproducible log sample."""
+    every = max(1, point.sample_every)
+    digest = str(record.get("record_digest") or "")
+    tail = digest.rsplit(":", 1)[-1][-8:] or "0"
+    try:
+        return int(tail, 16) % every == 0
+    except ValueError:
+        return False
+
+
+__all__ = ["Choice", "Reading", "read_batch", "request_for", "sampled"]
