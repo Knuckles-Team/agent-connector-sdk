@@ -12,8 +12,16 @@
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001",
       "title": "RUM, security-audit, and CI/CD events join the durable source pipeline",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "9635897a4cb799bd0e8f7eca6095ff54978f47d4",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/9635897a4cb799bd0e8f7eca6095ff54978f47d4",
+          "description": "Implemented on the default branch; exercised by tests/test_event_feeds.py"
+        }
+      ]
     }
   ]
 }
