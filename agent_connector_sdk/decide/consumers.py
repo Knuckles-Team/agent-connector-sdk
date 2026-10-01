@@ -55,7 +55,7 @@ def _heuristic_options(
 
 
 def _bounded_choice(
-    question_id: str, connector: str, candidates: Sequence[str], picked: str
+    question_id: str, candidates: Sequence[str], picked: str, *, connector: str
 ) -> str:
     """Confirm or redirect ``picked`` among ``candidates``, never outside them.
 
@@ -75,7 +75,7 @@ def _bounded_choice(
 
 def connector_tool(connector: str, tools: Sequence[str], picked: str) -> str:
     """Which of ``tools`` serves one request; ``picked`` is the fallback."""
-    return _bounded_choice("au.connector.tool", connector, tools, picked)
+    return _bounded_choice("au.connector.tool", tools, picked, connector=connector)
 
 
 def triage_event(connector: str, actions: Sequence[str], picked: str) -> str:
@@ -88,7 +88,7 @@ def triage_event(connector: str, actions: Sequence[str], picked: str) -> str:
     side-effecting API -- a call site still executes exactly the action
     returned, through its own ordinary (non-write-back) path.
     """
-    return _bounded_choice("au.connector.triage", connector, actions, picked)
+    return _bounded_choice("au.connector.triage", actions, picked, connector=connector)
 
 
 def propose_writeback(
