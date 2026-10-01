@@ -1,4 +1,4 @@
-"""Provider port for authenticated, immutable repository snapshots."""
+"""Provider ports for authenticated, immutable repository snapshots."""
 
 from __future__ import annotations
 
@@ -9,8 +9,9 @@ from agent_connector_sdk.repository.models import (
     RepositoryPage,
     RepositoryRevision,
 )
+from agent_connector_sdk.repository.ref_walk_provider import RepositoryRefWalkProvider
 
-__all__ = ["RepositorySnapshotProvider"]
+__all__ = ["RepositoryRefWalkProvider", "RepositorySnapshotProvider"]
 
 
 @runtime_checkable

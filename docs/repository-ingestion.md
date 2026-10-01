@@ -48,3 +48,21 @@ duplicate paths across pages, oversized files, or mismatched authentication stop
 the run before another engine call. Durable repository admission, watermarks,
 acknowledgements, reconciliation, parsing, cross-file linking, RDF/OWL/SHACL, and
 projection receipts remain epistemic-graph responsibilities.
+
+## The ref-walk phase
+
+Before any content is fetched, a provider that also implements
+`RepositoryRefWalkProvider` (`agent_connector_sdk.repository.provider`) can be
+walked with `walk_refs(provider, page_size=...)`: it lists every ref, then
+walks each distinct immutable tree exactly once — refs pinned to the same tree
+share one walk — and returns each ref's complete, sorted `(path, Git blob id)`
+listing without blob content.
+
+The walk visits each distinct tree only once per run and reads tree objects in
+batches rather than issuing one call per object: when the provider also exposes
+`prime_trees(tree_ids)`, every distinct tree id across all refs (including
+nested, content-addressed subtrees shared between branches) is requested
+through it up front. `LocalGitRepositoryProvider`
+(`agent_connector_sdk.repository.local_git`) is the reference implementation;
+its `prime_trees` reads every distinct tree through one `git cat-file --batch`
+process instead of one Git invocation per tree.
