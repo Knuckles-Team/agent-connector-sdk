@@ -8,6 +8,7 @@ epistemic-graph owns those contracts and effects.
 from __future__ import annotations
 
 import hashlib
+from abc import ABC, abstractmethod
 from typing import Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -31,6 +32,25 @@ __all__ = [
 
 class _Frozen(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class _PathsPage(_Frozen, ABC):
+    """One paged listing whose items carry a path: unique, no empty continuation.
+
+    Shared by every provider page type (file pages, tree pages, ...): a
+    subclass supplies the paths its own items carry.
+    """
+
+    next_cursor: str | None = Field(default=None, min_length=1)
+
+    @abstractmethod
+    def _page_paths(self) -> list[str]:
+        """The paths this page's items carry, in provider order."""
+
+    @model_validator(mode="after")
+    def _paths_are_unique(self) -> Self:
+        _validate_page(self._page_paths(), self.next_cursor, label=type(self).__name__)
+        return self
 
 
 class RepositoryRevision(_Frozen):
@@ -115,20 +135,17 @@ class RepositoryTombstone(_Frozen):
         return self
 
 
-class RepositoryPage(_Frozen):
+class RepositoryPage(_PathsPage):
     """One provider page bound to the exact requested immutable revision."""
 
     revision: RepositoryRevision
     files: tuple[RepositoryFile, ...] = ()
     tombstones: tuple[RepositoryTombstone, ...] = ()
-    next_cursor: str | None = Field(default=None, min_length=1)
 
-    @model_validator(mode="after")
-    def _paths_are_unique(self) -> Self:
+    def _page_paths(self) -> list[str]:
         paths = [item.path for item in self.files]
         paths.extend(item.path for item in self.tombstones)
-        _validate_page(paths, self.next_cursor, label="repository page")
-        return self
+        return paths
 
 
 class RepositoryBatchLimits(_Frozen):

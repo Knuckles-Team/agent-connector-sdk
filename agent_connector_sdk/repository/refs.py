@@ -11,12 +11,12 @@ from typing import Self
 
 from pydantic import Field, model_validator
 
-from agent_connector_sdk.repository.identity import (
-    _immutable_git_id,
-    _logical_path,
-    _validate_page,
+from agent_connector_sdk.repository.identity import _immutable_git_id, _logical_path
+from agent_connector_sdk.repository.models import (
+    RepositoryRevision,
+    _Frozen,
+    _PathsPage,
 )
-from agent_connector_sdk.repository.models import RepositoryRevision, _Frozen
 
 __all__ = ["RepositoryRef", "RepositoryTreeEntry", "RepositoryTreePage"]
 
@@ -49,15 +49,11 @@ class RepositoryTreeEntry(_Frozen):
         return self
 
 
-class RepositoryTreePage(_Frozen):
+class RepositoryTreePage(_PathsPage):
     """One bounded page of a revision tree, bound to the requested revision."""
 
     revision: RepositoryRevision
     entries: tuple[RepositoryTreeEntry, ...] = ()
-    next_cursor: str | None = Field(default=None, min_length=1)
 
-    @model_validator(mode="after")
-    def _paths_are_unique(self) -> Self:
-        paths = [item.path for item in self.entries]
-        _validate_page(paths, self.next_cursor, label="repository tree page")
-        return self
+    def _page_paths(self) -> list[str]:
+        return [item.path for item in self.entries]
