@@ -3,7 +3,7 @@
 
 ``docs/architecture/universal-graph-connectors.md`` and
 ``docs/architecture/privacy-safe-ingestion.md`` moved here from agent-utilities'
-own ``scripts/check_external_graph_contract.py`` gate (RF-ADR-009: this repo owns
+own ``scripts/check_external_graph_contract.py`` gate (this repo owns
 connectors/transport). That gate verified two things about the docs directly: a
 fixed set of required content markers (so the page cannot silently drop mention
 of a supported backend or the governed-ingestion vocabulary), and an

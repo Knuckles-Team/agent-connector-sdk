@@ -30,14 +30,14 @@
     {
       "id": "SDK-QUALITY-RELEASE-R002",
       "title": "Public-documentation scanner catches private addresses and hosts",
-      "delivery_state": "BUILT",
+      "delivery_state": "LANDED",
       "evidence": [
         {
-          "kind": "branch",
+          "kind": "merged_head",
           "result": "passed",
           "commit": "42d6c942703e7174fdaf908b68f5d3e0b35a7453",
           "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/42d6c942703e7174fdaf908b68f5d3e0b35a7453",
-          "description": "Implementation commit is published on a branch; not yet merged to the default branch."
+          "description": "Implemented on the default branch; exercised by scripts/check_documentation_privacy.py"
         }
       ]
     },

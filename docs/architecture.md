@@ -135,7 +135,7 @@ See [Extension ports](extension-ports.md) for protocol details and
 ## Connector subsystem architecture
 
 Deep-dive pages for individual connector families and the ingestion machinery
-they share, relocated here from agent-utilities per RF-ADR-009 (SDK owns
+they share, relocated here from agent-utilities (the SDK owns
 connectors, transport, repository hydration, and write-back):
 
 - [Connectors & ingestion](architecture/connectors-and-ingestion.md) — the

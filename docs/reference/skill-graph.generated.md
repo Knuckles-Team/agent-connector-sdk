@@ -5,7 +5,7 @@
 
 <div class="man-page" markdown>
 
-Every concept and component this repo's own registries and documentation nav declare, generated from the same cross-repo [skill graph](https://knuckles-team.github.io/pipelines/) corpus (RF-ADR-009 D1) that indexes all seven repos. This page is this repo's own slice of that corpus, not a duplicate authority -- the full machine corpus, with typed links, is published from `pipelines`.
+Every concept and component this repo's own registries and documentation nav declare, generated from the same cross-repo [skill graph](https://knuckles-team.github.io/pipelines/) corpus that indexes all seven repos. This page is this repo's own slice of that corpus, not a duplicate authority -- the full machine corpus, with typed links, is published from `pipelines`.
 
 ## Architecture
 

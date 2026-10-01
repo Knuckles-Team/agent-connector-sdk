@@ -51,8 +51,8 @@ ENVIRONMENT_DNS = re.compile(
 
 # Short internal host-alias vocabulary this fleet actually uses (matches the
 # strength of epistemic-graph's tests/test_documentation_privacy.py, which
-# itself widened to this same set after finding "gr"-prefixed hosts, e.g.
-# gr1080, went uncaught -- see that repo's EH-366 commit).
+# itself widened to this same set after finding that "gr"-prefixed hosts
+# went uncaught).
 _HOST_ALIAS_PREFIXES = ("rw?", "gr", "host")
 MACHINE_HOST_ALIAS = re.compile(
     rf"(?i)\b(?:{'|'.join(_HOST_ALIAS_PREFIXES)})\d{{3,}}\b"
