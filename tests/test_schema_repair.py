@@ -34,7 +34,7 @@ from agent_connector_sdk.schema_drift import (
     SchemaDriftReport,
     classify_schema_drift,
 )
-from agent_connector_sdk.schema_repair import propose_repair
+from agent_connector_sdk.schema_repair import RepairProposal, propose_repair
 from agent_connector_sdk.testing.repair_proposals import InMemoryRepairProposalStore
 from agent_connector_sdk.testing.results import SessionFactory
 from agent_connector_sdk.testing.sinks import InMemorySink
@@ -129,6 +129,7 @@ def test_propose_repair_needs_a_noncompatible_report_and_full_identity() -> None
     with pytest.raises(ValueError, match="proposer"):
         propose_repair(drifted, {"id": "identifier"}, proposer=" ")
     proposal = propose_repair(drifted, {"id": "identifier"}, proposer="decider")
+    assert isinstance(proposal, RepairProposal)
     assert proposal.report is drifted
     assert proposal.proposer == "decider"
     assert proposal.proposed_mapping == {"id": "identifier"}
