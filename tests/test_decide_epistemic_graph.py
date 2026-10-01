@@ -48,6 +48,15 @@ _SCHEMA = {
 }
 
 
+def _published(module: str, name: str) -> bool:
+    """Whether the installed EG contract already generates ``module.name``."""
+    try:
+        _generated(module, name)
+    except DecideUnavailable:
+        return False
+    return True
+
+
 def _record(
     outcome: dict[str, Any], *, digest: str = "sha256:" + "0" * 64
 ) -> dict[str, Any]:
@@ -220,7 +229,10 @@ def test_generated_sender_lookup_is_dynamic_and_costs_only_unavailable() -> None
 
 async def test_generated_transport_calls_egs_real_send_decide() -> None:
     """Proves the wire request this runner builds reaches EG's own generated
-    ``send_decide`` wrapper without raising -- not a hand-rolled fake of it.
+    ``send_decide`` wrapper without raising, once EG publishes it; until
+    then, the same lookup costs exactly :class:`DecideUnavailable`, proving
+    the fallback contract holds for this real sender name too -- not only
+    for a hand-rolled unknown one.
     """
 
     @dataclass
@@ -249,6 +261,10 @@ async def test_generated_transport_calls_egs_real_send_decide() -> None:
         "params": [],
         "max_records": 1,
     }
+    if not _published("query", "send_decide"):
+        with pytest.raises(DecideUnavailable, match="does not yet generate"):
+            await transport.decide(request)
+        return
     result = await transport.decide(request)
     assert result == acted("search")
     method, params, _graph = client.calls[0]
