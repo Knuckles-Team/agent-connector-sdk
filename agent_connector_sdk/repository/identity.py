@@ -31,3 +31,11 @@ def _immutable_git_id(value: str, *, field_name: str) -> str:
     if not valid:
         raise ValueError(f"{field_name} must be an immutable lowercase Git object id")
     return value
+
+
+def _validate_page(paths: list[str], next_cursor: str | None, *, label: str) -> None:
+    """Enforce one page's shared invariants: unique paths, no empty continuation."""
+    if len(paths) != len(set(paths)):
+        raise ValueError(f"{label} paths must be unique")
+    if not paths and next_cursor is not None:
+        raise ValueError(f"an empty {label} cannot continue")
