@@ -36,14 +36,14 @@
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R003",
       "title": "Repository ref walk traverses each Git tree once with batched reads",
-      "delivery_state": "BUILT",
+      "delivery_state": "LANDED",
       "evidence": [
         {
-          "kind": "branch",
+          "kind": "merged_head",
           "result": "passed",
-          "commit": "296316e6626b87fe77337b6830c8d9fd238b23f8",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/296316e6626b87fe77337b6830c8d9fd238b23f8",
-          "description": "Implementation commit is published on a branch; not yet merged to the default branch."
+          "commit": "10f03be4cabffd7c9d9f918465f519003e6e3ea0",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/10f03be4cabffd7c9d9f918465f519003e6e3ea0",
+          "description": "Implemented on the default branch; exercised by tests/test_repository_refwalk_fastpath.py"
         }
       ]
     },
