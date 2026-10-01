@@ -14,10 +14,15 @@ from epistemic_graph.generated.source_ingestion import (
 )
 
 from agent_connector_sdk.contracts import RecordPage, StreamDescriptor
+from agent_connector_sdk.ports.repair_proposals import RepairProposalStore
 from agent_connector_sdk.ports.session import McpSession
 from agent_connector_sdk.ports.sink import Sink
 from agent_connector_sdk.ports.source_adapter import SourceAdapter
-from agent_connector_sdk.runner.errors import SchemaDriftQuarantined, SinkReceiptError
+from agent_connector_sdk.runner.errors import (
+    SchemaDriftQuarantined,
+    SinkReceiptError,
+    StreamPaused,
+)
 from agent_connector_sdk.runner.logs import structured
 from agent_connector_sdk.schema_drift import (
     DriftClassification,
@@ -42,6 +47,7 @@ class SyncTarget:
     schema_contract: SchemaContract | None = None
     evolution_policy: EvolutionPolicy = EvolutionPolicy.REVIEW
     tenant: str | None = None
+    repair_proposals: RepairProposalStore | None = None
 
     @classmethod
     def configured(
@@ -194,10 +200,19 @@ def _discovered_target(target: SyncTarget, descriptor: StreamDescriptor) -> Sync
 async def sync_stream(
     session: McpSession, adapter: SourceAdapter, target: SyncTarget
 ) -> SyncOutcome:
-    """Resume from EG status and commit each provider page before extracting next."""
+    """Resume from EG status and commit each provider page before extracting next.
+
+    Raises:
+        StreamPaused: ``target.repair_proposals`` names an unresolved repair
+            proposal for this stream; no page is extracted or submitted.
+    """
     descriptor = await adapter.discover(session)
     stream = descriptor.stream
     target = _discovered_target(target, descriptor)
+    if target.repair_proposals is not None and await target.repair_proposals.paused(
+        target.connector, stream
+    ):
+        raise StreamPaused(target.connector, stream)
     status = await target.sink.source_status(target.connector, stream)
     checkpoint = status.accepted_checkpoint
     pages = records = accepted = 0
