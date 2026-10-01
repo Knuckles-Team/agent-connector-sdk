@@ -82,6 +82,7 @@ def _sink_arguments(
 def _decide_runner(
     sink_name: str,
     sink_client: object | None,
+    *,
     decide_tenant: str | None,
     decide_bindings: Bindings | None,
 ) -> DecisionRunner | None:
@@ -192,7 +193,12 @@ def default_services(
     if not isinstance(transport, Transport) or not isinstance(sink, Sink):
         raise ExtensionDiscoveryError("transport or sink extension has the wrong port")
     window = max(3 * settings.registry_refresh_seconds, _MIN_LIVENESS_WINDOW_SECONDS)
-    runner = _decide_runner(sink_name, sink_client, decide_tenant, decide_bindings)
+    runner = _decide_runner(
+        sink_name,
+        sink_client,
+        decide_tenant=decide_tenant,
+        decide_bindings=decide_bindings,
+    )
     if runner is not None:
         decide.install_runner(runner)
     return RunnerServices(
