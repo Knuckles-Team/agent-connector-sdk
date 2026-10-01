@@ -94,6 +94,7 @@ async def _check_batch_exit(process: asyncio.subprocess.Process) -> None:
 def _tree_children(
     stack: list[tuple[str, str]],
     entries: list[RepositoryTreeEntry],
+    *,
     prefix: str,
     records: tuple[TreeRecord, ...],
 ) -> None:
@@ -112,5 +113,5 @@ def _flatten_tree(root: str, objects: TreeObjects) -> tuple[RepositoryTreeEntry,
     stack = [(root, "")]
     while stack:
         oid, prefix = stack.pop()
-        _tree_children(stack, entries, prefix, objects[oid])
+        _tree_children(stack, entries, prefix=prefix, records=objects[oid])
     return tuple(sorted(entries, key=lambda item: item.path))
