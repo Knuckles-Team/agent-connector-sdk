@@ -60,7 +60,7 @@ repos:
     stages: [manual]
 # ── Shared gates (Knuckles-Team/pipelines, pinned) ─────────────────────────────
 - repo: https://github.com/Knuckles-Team/pipelines
-  rev: 444b232c7975e125a24b17d53ff615f5ad26a4cd
+  rev: main # sanctioned exception to immutable pins; shared gate repository tracked at head
   hooks:
   # Native scanners (pinned versions; never installed by a hook). Manual only:
   # install them with `scripts/bootstrap.sh --scanners`; hosted CI runs them

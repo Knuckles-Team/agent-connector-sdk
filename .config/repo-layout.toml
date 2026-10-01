@@ -5,7 +5,7 @@
 [dirs]
 ".specify" = "tracked Spec Kit constitution; generated tooling files remain ignored"
 specs = "tracked repository-owned specifications and contribution templates"
-".config" = "explicit tool configuration files"
+".config" = "explicit tool configuration files: pre-commit (-c), KISS thresholds (--config), and this manifest"
 agent_connector_sdk = "the importable SDK package"
 scripts = "contributor bootstrap, pinned scanner install, and the SDK's own gates run by pre-commit and CI"
 tests = "the test suite, including the in-process fixture connector"
@@ -13,7 +13,6 @@ docs = "public GitHub Pages sources and generated shared-theme assets"
 overrides = "shared MkDocs Material template overrides"
 ".github" = "GitHub Actions workflows (release and Pages)"
 ".claude" = "Claude Code project settings and the cloud-session SessionStart hook (runs scripts/bootstrap.sh)"
-".kiss" = "hand-set KISS thresholds (.kiss/kiss.toml), not a baseline"
 
 [files]
 "AGENTS.md" = "agent-facing repository guide"

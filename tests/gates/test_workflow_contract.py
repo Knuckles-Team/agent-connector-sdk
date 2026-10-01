@@ -3,6 +3,11 @@
 These tests pin no revision or version by value: each pin lives in exactly one
 source file, and the tests prove the files agree with each other and stay
 immutable (full commit digests), so bumping a pin never needs a test edit.
+Knuckles-Team/pipelines is the one sanctioned exception to that immutability
+rule: every repository consumes it at its `main` branch, never a commit SHA or
+tag (fleet standard, enforced by
+pipelines_hooks/supply_chain/{precommit,workflows}.py), so pins to it are
+checked against `main` instead of a commit digest.
 """
 
 import re
@@ -19,6 +24,7 @@ BOOTSTRAP = ROOT / "scripts" / "bootstrap.sh"
 CONTRACT = ROOT / "scripts" / "bootstrap_epistemic_graph_contract.sh"
 SCANNERS = ROOT / "scripts" / "install_scanners.sh"
 PIPELINES = "https://github.com/Knuckles-Team/pipelines"
+PIPELINES_USES_RE = re.compile(r"^Knuckles-Team/pipelines(?:/|$)", re.IGNORECASE)
 COMMIT = re.compile(r"[0-9a-f]{40}")
 UV_ACTION = "astral-sh/setup-uv@"
 
@@ -36,8 +42,8 @@ def _runs(job: dict[str, Any]) -> list[str]:
     return [str(step.get("run", "")) for step in job.get("steps", [])]
 
 
-def test_shared_hooks_are_pinned_to_an_immutable_commit() -> None:
-    assert COMMIT.fullmatch(_pipelines_rev())
+def test_shared_hooks_pin_pipelines_to_the_sanctioned_main_exception() -> None:
+    assert _pipelines_rev() == "main"
 
 
 def test_pages_uses_the_same_pipelines_revision_as_the_hooks() -> None:
@@ -97,8 +103,11 @@ def test_workflow_actions_are_pinned_to_immutable_commits() -> None:
         for line in path.read_text(encoding="utf-8").splitlines():
             match = re.search(r"uses:\s*([^\s#]+)", line)
             if match and not match.group(1).startswith("./"):
-                ref = match.group(1).rpartition("@")[2]
-                assert COMMIT.fullmatch(ref), (path.name, line.strip())
+                action, _, ref = match.group(1).rpartition("@")
+                if PIPELINES_USES_RE.match(action):
+                    assert ref == "main", (path.name, line.strip())
+                else:
+                    assert COMMIT.fullmatch(ref), (path.name, line.strip())
 
 
 def test_scanner_toolchain_comes_from_the_single_install_script() -> None:

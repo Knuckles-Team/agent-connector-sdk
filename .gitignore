@@ -36,5 +36,7 @@ scratch/
 *.log
 .env
 .envrc
-.kiss/*
-!.kiss/kiss.toml
+# kiss check writes a working cache under .kiss/; its thresholds are tracked
+# in .config/kiss.toml.
+.kiss/
+*maturin.lock
