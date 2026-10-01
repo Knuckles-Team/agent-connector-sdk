@@ -322,12 +322,25 @@ def test_unreachable_or_misconfigured_engine_is_unavailable(
         connect_ingest(closed_port, timeout_s=5.0)
 
 
+class _BlobClientDouble:
+    """A minimal double for ``epistemic_graph.client.BlobClient.store``."""
+
+    def __init__(self) -> None:
+        self.stored: dict[str, bytes] = {}
+
+    async def store(self, data: bytes) -> str:
+        digest = hashlib.sha256(data).hexdigest()
+        self.stored[digest] = data
+        return digest
+
+
 class _GeneratedClient:
-    """A generated-client double speaking SourceIngest and Status."""
+    """A generated-client double speaking SourceIngest, Status and Blob."""
 
     def __init__(self, error: str | None = None) -> None:
         self.sink = InMemorySink()
         self.error = error
+        self.blob = _BlobClientDouble()
 
     async def _send(
         self, method: str, params: Any, graph: Any, *, idempotency_key: Any = None
@@ -358,17 +371,19 @@ async def test_epistemic_graph_transport_uses_the_generated_contract() -> None:
         SourceIngestChannel(None)
 
 
-async def test_epistemic_graph_transport_has_no_media_storage_yet() -> None:
-    """The generated client exposes no single-call blob store yet (see
-    ``agent_connector_sdk.ingest.transport``'s module docstring); a change set
-    with a media asset fails closed through ``KnowledgeIngest`` instead of
-    raising a bare ``AttributeError`` against a client shape that does not
-    exist.
+async def test_epistemic_graph_transport_stores_media_via_the_client_blob_api() -> None:
+    """``store_blob`` delegates to the verified client's chunked-upload
+    convenience (``client.blob.store``), so a change set with a media asset
+    commits end to end through ``KnowledgeIngest``.
     """
-    transport = EpistemicGraphIngestTransport(_GeneratedClient())
-    with pytest.raises(IngestUnavailableError, match="chunked upload"):
-        await transport.store_blob(b"x")
-    with pytest.raises(IngestError, match="media storage is not implemented"):
-        await KnowledgeIngest(transport).submit(
-            BINDING, ChangeSet(media=(MediaAsset(b"x", "text/plain"),))
-        )
+    client = _GeneratedClient()
+    transport = EpistemicGraphIngestTransport(client)
+    digest = await transport.store_blob(b"x")
+    assert digest == hashlib.sha256(b"x").hexdigest()
+    assert client.blob.stored == {digest: b"x"}
+    receipt = await KnowledgeIngest(transport).submit(
+        BINDING, ChangeSet(media=(MediaAsset(b"x", "text/plain", name="cover"),))
+    )
+    assert receipt.affected_count == 1
+    (record,) = client.sink.batches[next(iter(client.sink.batches))].records
+    assert record.record_id == f"blob:{digest}"
