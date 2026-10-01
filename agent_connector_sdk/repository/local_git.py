@@ -165,7 +165,9 @@ class LocalGitRepositoryProvider:
             await process.wait()
         if process.returncode != 0:
             if process.stderr is None:
-                raise RepositoryTransportError("git cat-file failed with no stderr pipe")
+                raise RepositoryTransportError(
+                    "git cat-file failed with no stderr pipe"
+                )
             message = (await process.stderr.read()).decode("utf-8", "replace").strip()
             raise RepositoryTransportError(f"git cat-file failed: {message}")
         for root in roots:
