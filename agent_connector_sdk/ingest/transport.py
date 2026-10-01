@@ -42,18 +42,6 @@ class IngestTransport(Protocol):
         ...
 
 
-class _BlobConvenience(Protocol):
-    """The one method this transport needs from a client's ``blob`` attribute."""
-
-    async def store(self, data: bytes) -> str: ...
-
-
-class _BlobCapableClient(Protocol):
-    """A verified client shaped like the generated ``EpistemicGraphClient``."""
-
-    blob: _BlobConvenience
-
-
 class EpistemicGraphIngestTransport:
     """The ingest transport over a verified epistemic-graph client.
 
@@ -90,5 +78,5 @@ class EpistemicGraphIngestTransport:
         committed manifest's stable content digest. Identical bytes always
         yield the same digest (the engine dedups on arrival).
         """
-        client = cast(_BlobCapableClient, self._client)
-        return await client.blob.store(data)
+        digest = await self._client.blob.store(data)
+        return cast(str, digest)
