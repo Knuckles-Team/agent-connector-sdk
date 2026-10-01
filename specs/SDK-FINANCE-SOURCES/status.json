@@ -16,7 +16,7 @@
     {
       "id": "SDK-FINANCE-SOURCES-R001",
       "title": "Market-data adapters: exchange history fix, CoinMarketCap, FRED/ALFRED",
-      "delivery_state": "UNKNOWN",
+      "delivery_state": "SPECIFIED",
       "evidence": []
     },
     {
@@ -40,7 +40,7 @@
     {
       "id": "SDK-FINANCE-SOURCES-R005",
       "title": "Macro and liquidity panels: FRED series, ETF flows, sentiment, on-chain",
-      "delivery_state": "UNKNOWN",
+      "delivery_state": "SPECIFIED",
       "evidence": []
     }
   ]

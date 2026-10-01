@@ -12,7 +12,7 @@
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001",
       "title": "RUM, security-audit, and CI/CD events join the durable source pipeline",
-      "delivery_state": "UNKNOWN",
+      "delivery_state": "SPECIFIED",
       "evidence": []
     }
   ]
