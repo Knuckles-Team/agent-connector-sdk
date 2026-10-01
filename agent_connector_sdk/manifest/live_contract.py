@@ -6,7 +6,7 @@ from collections.abc import Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from agent_connector_sdk.contracts import StreamDescriptor
+from agent_connector_sdk.contracts import CapabilityDescriptor, StreamDescriptor
 from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.manifest.tool_schema import (
     ToolSchemaContractError,
@@ -22,6 +22,7 @@ from agent_connector_sdk.schema_drift import SchemaContract
 
 __all__ = [
     "LiveToolContract",
+    "describe_preset_adapter",
     "discover_tool_backed_stream",
     "validate_live_tool_contract",
     "validate_preset_tool_contract",
@@ -230,6 +231,18 @@ def validate_preset_tool_contract(
         expected_schema_sha256=expected_schema_sha256,
         required_argument_types=required_types,
         required_argument_enums=required_enums,
+    )
+
+
+def describe_preset_adapter(
+    kind: str, preset: ToolPreset, *, incremental: bool
+) -> CapabilityDescriptor:
+    """The capability descriptor every ``mcp_tool``-shaped adapter declares."""
+    return CapabilityDescriptor(
+        kind=kind,
+        pagination=(preset.pagination,),
+        incremental=incremental,
+        certified_for_ingestion=True,
     )
 
 

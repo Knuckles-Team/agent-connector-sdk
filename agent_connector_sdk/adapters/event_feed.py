@@ -57,6 +57,7 @@ from agent_connector_sdk.contracts import (
     StreamDescriptor,
 )
 from agent_connector_sdk.manifest.live_contract import (
+    describe_preset_adapter,
     discover_tool_backed_stream,
     validate_preset_tool_contract,
 )
@@ -267,11 +268,8 @@ class EventFeedSourceAdapter:
         return self._preset.name
 
     def describe(self) -> CapabilityDescriptor:
-        return CapabilityDescriptor(
-            kind=self.kind,
-            pagination=(self._preset.pagination,),
-            incremental=bool(self._preset.updated_since_param),
-            certified_for_ingestion=True,
+        return describe_preset_adapter(
+            self.kind, self._preset, incremental=bool(self._preset.updated_since_param)
         )
 
     async def discover(self, session: McpSession) -> StreamDescriptor:
