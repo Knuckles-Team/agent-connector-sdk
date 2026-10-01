@@ -357,6 +357,18 @@ async def test_ci_retry_is_not_conflated_with_first_attempt() -> None:
 # ---------------------------------------------------------------------------
 
 
+async def _collect_record_ids(
+    adapter: EventFeedSourceAdapter, session: FakeEventSession, *, pages: int
+) -> list[str]:
+    checkpoint: SourceCheckpoint | None = None
+    seen: list[str] = []
+    for _ in range(pages):
+        page = await adapter.extract(session, checkpoint)
+        seen.extend(record.record_id for record in page.records)
+        checkpoint = page.checkpoint
+    return seen
+
+
 async def test_identical_duplicate_is_idempotent_across_pages() -> None:
     preset = _preset("rum-stream", "rum_events")
     first = _rum_event("dup-1")
@@ -366,13 +378,7 @@ async def test_identical_duplicate_is_idempotent_across_pages() -> None:
     )
     adapter = _adapter(rum_source_adapter, preset)
     await adapter.discover(session)
-    checkpoint: SourceCheckpoint | None = None
-    seen: list[str] = []
-    for _ in range(2):
-        page = await adapter.extract(session, checkpoint)
-        seen.extend(record.record_id for record in page.records)
-        checkpoint = page.checkpoint
-    assert seen == ["dup-1"]
+    assert await _collect_record_ids(adapter, session, pages=2) == ["dup-1"]
 
 
 async def test_changed_digest_for_a_known_id_is_a_conflict_not_an_overwrite() -> None:
@@ -400,13 +406,10 @@ async def test_out_of_order_arrival_does_not_skip_a_durable_event() -> None:
     )
     adapter = _adapter(rum_source_adapter, preset)
     await adapter.discover(session)
-    checkpoint: SourceCheckpoint | None = None
-    seen: list[str] = []
-    for _ in range(2):
-        page = await adapter.extract(session, checkpoint)
-        seen.extend(record.record_id for record in page.records)
-        checkpoint = page.checkpoint
-    assert seen == ["order-2", "order-1"]
+    assert await _collect_record_ids(adapter, session, pages=2) == [
+        "order-2",
+        "order-1",
+    ]
 
 
 # ---------------------------------------------------------------------------

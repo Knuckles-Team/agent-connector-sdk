@@ -56,9 +56,11 @@ from agent_connector_sdk.contracts import (
     RecordPage,
     StreamDescriptor,
 )
-from agent_connector_sdk.manifest.live_contract import validate_preset_tool_contract
+from agent_connector_sdk.manifest.live_contract import (
+    discover_tool_backed_stream,
+    validate_preset_tool_contract,
+)
 from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.manifest.tool_schema import ToolSchemaContractError
 from agent_connector_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
@@ -274,24 +276,10 @@ class EventFeedSourceAdapter:
 
     async def discover(self, session: McpSession) -> StreamDescriptor:
         """Verify the live tool against its pinned compatibility fingerprint."""
-        preset = self._preset
-        try:
-            contract = validate_preset_tool_contract(
-                await session.list_tools(),
-                tool_name=preset.tool,
-                presets=(preset,),
-                expected_schema_sha256=self._pinned,
-            )
-        except ToolSchemaContractError as exc:
-            raise SourceContractError(str(exc)) from exc
-        self._verified_sha256 = contract.compatibility_sha256
-        return StreamDescriptor(
-            stream=self.stream,
-            tool=preset.tool,
-            schema_sha256=contract.compatibility_sha256,
-            schema_contract=contract.schema_contract,
-            evolution_policy=preset.evolution_policy,
+        self._verified_sha256, descriptor = await discover_tool_backed_stream(
+            session, self._preset, pinned_schema_sha256=self._pinned
         )
+        return descriptor
 
     async def extract(
         self, session: McpSession, checkpoint: SourceCheckpoint | None

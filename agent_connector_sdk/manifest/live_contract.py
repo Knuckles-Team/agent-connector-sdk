@@ -6,6 +6,7 @@ from collections.abc import Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
+from agent_connector_sdk.contracts import StreamDescriptor
 from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.manifest.tool_schema import (
     ToolSchemaContractError,
@@ -15,10 +16,13 @@ from agent_connector_sdk.manifest.tool_schema import (
     read_field,
     schema_fingerprint,
 )
+from agent_connector_sdk.ports.errors import SourceContractError
+from agent_connector_sdk.ports.session import McpSession
 from agent_connector_sdk.schema_drift import SchemaContract
 
 __all__ = [
     "LiveToolContract",
+    "discover_tool_backed_stream",
     "validate_live_tool_contract",
     "validate_preset_tool_contract",
 ]
@@ -227,3 +231,50 @@ def validate_preset_tool_contract(
         required_argument_types=required_types,
         required_argument_enums=required_enums,
     )
+
+
+async def discover_tool_backed_stream(
+    session: McpSession,
+    preset: ToolPreset,
+    *,
+    pinned_schema_sha256: str,
+    identifier_fields: tuple[str, ...] | None = None,
+) -> tuple[str, StreamDescriptor]:
+    """Verify ``preset``'s live tool and describe the stream it extracts.
+
+    Every ``mcp_tool``-shaped source adapter discovers its stream the same
+    way: verify the live tool against its pinned compatibility fingerprint,
+    then describe the stream from what was observed. ``identifier_fields``
+    names the schema contract's identifier for adapters whose records carry
+    one; adapters without a per-record identifier (such as an event feed)
+    leave it unset.
+
+    Returns the verified compatibility fingerprint alongside the descriptor
+    so a caller can pin it for later extraction calls.
+
+    Raises:
+        SourceContractError: the live tool does not satisfy its pinned
+            contract, or was not verified.
+    """
+    try:
+        contract = validate_preset_tool_contract(
+            await session.list_tools(),
+            tool_name=preset.tool,
+            presets=(preset,),
+            expected_schema_sha256=pinned_schema_sha256,
+        )
+    except ToolSchemaContractError as exc:
+        raise SourceContractError(str(exc)) from exc
+    schema_contract = contract.schema_contract
+    if identifier_fields is not None:
+        schema_contract = schema_contract.model_copy(
+            update={"identifier_fields": identifier_fields}
+        )
+    descriptor = StreamDescriptor(
+        stream=preset.name,
+        tool=preset.tool,
+        schema_sha256=contract.compatibility_sha256,
+        schema_contract=schema_contract,
+        evolution_policy=preset.evolution_policy,
+    )
+    return contract.compatibility_sha256, descriptor
