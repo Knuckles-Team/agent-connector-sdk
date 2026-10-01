@@ -1,7 +1,9 @@
 # Qualified finance source adapters
 
-**Program IDs:** EH-412, EH-701, EH-709, EH-713.
+**Requirement IDs:** SDK-FINANCE-SOURCES-R001, SDK-FINANCE-SOURCES-R002, SDK-FINANCE-SOURCES-R003, SDK-FINANCE-SOURCES-R004, SDK-FINANCE-SOURCES-R005.
 **Owner:** agent-connector-sdk contract and source adapter APIs; each vendor connector owns its credentials and API implementation. **Delivery state:** SPECIFIED. **Acceptance state:** OPEN.
+
+Every requirement ID above is defined in [requirements.md](requirements.md); delivery state and evidence for each one are tracked in [status.json](status.json).
 
 ## Outcome
 
@@ -13,9 +15,11 @@ All records include `tenant_id`, `source_id`, `provider`, `instrument_id`, `sour
 
 `SourceAdapter` discovery declares supported asset class, interval/date-range limits, session calendar, entitlement, rate limit, adjustment semantics, and whether streams are historical or live. An unsupported interval, missing entitlement, unlicensed logo, absent extended-hours data, or incomplete page yields an explicit typed outcome, never a silent default. Pagination continues until the requested inclusive/exclusive interval is covered or a named incompleteness result is returned; no arbitrary first-50/first-365 truncation. Historical and live events share identity and deduplication rules.
 
-For stocks, a vendor adapter supports history/quotes/streams with split/dividend adjustments, regular and pre/post-market flags, profile/fundamentals, licensed logos, news and earnings/dividend calendars (EH-701). Macro feeds such as FRED/ALFRED and a central-bank calendar preserve vintage and announcement time (EH-412). FX quotes identify base/quote and rate direction; gold/commodities distinguish spot from futures contract, expiry and explicit roll rule; real estate is a dated, potentially stale valuation rather than a live market quote (EH-709). Broker account/position reads and CSV activity import provide a mapping preview, reject ambiguous columns/currencies, and use stable provider event ID or file digest plus row ID so re-import is idempotent (EH-713).
+For stocks, a vendor adapter supports history/quotes/streams with split/dividend adjustments, regular and pre/post-market flags, profile/fundamentals, licensed logos, news and earnings/dividend calendars (SDK-FINANCE-SOURCES-R002). Macro feeds such as FRED/ALFRED and a central-bank calendar preserve vintage and announcement time (SDK-FINANCE-SOURCES-R001). FX quotes identify base/quote and rate direction; gold/commodities distinguish spot from futures contract, expiry and explicit roll rule; real estate is a dated, potentially stale valuation rather than a live market quote (SDK-FINANCE-SOURCES-R003). Broker account/position reads and CSV activity import provide a mapping preview, reject ambiguous columns/currencies, and use stable provider event ID or file digest plus row ID so re-import is idempotent (SDK-FINANCE-SOURCES-R004).
 
 The connector uses SDK `http/`, `credentials/`, `runner/`, `manifest/`, and `ports/source_adapter.py`; it never writes directly into graph storage. Credential references, entitlements and source licensing are validated before network calls. Provider outages, 429 retry-after, stale data, and partial pages preserve the last accepted checkpoint and report typed status to the caller.
+
+Macro and liquidity panels provide Federal Reserve FRED series with preserved vintage, a versioned liquidity composite and heat-strip panel, ETF fund-flow data, sentiment data, and on-chain position data, each tagged with its source and observation time (SDK-FINANCE-SOURCES-R005).
 
 ## Portable development and evidence
 

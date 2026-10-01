@@ -10,7 +10,10 @@ Delivery status is recorded here with exact merged revision and test evidence.
 
 Create `specs/<stable-id>/` with `spec.md` (user outcome, requirements, acceptance), `plan.md`
 (architecture, reuse, interfaces, live wiring, decisions), `test-spec.md` (positive, negative,
-integration, quality and release proof), and `tasks.md` (ordered implementation and verification), plus `status.json` (machine-readable delivery, acceptance, and public receipts).
+integration, quality and release proof), `tasks.md` (ordered implementation and verification),
+`requirements.md` (the definition of every requirement ID this spec owns, one row per ID), and
+`status.json` (machine-readable delivery, acceptance, and public receipts, including a
+per-requirement `requirements` array with its own `delivery_state` and evidence for each ID).
 Start from [`_template/`](_template/). Keep status and evidence explicit; a planned or tested item
 is not a landed item. Put durable evidence links in the spec directory, never local scratch output.
 This follows GitHub Spec Kit's specify/plan/tasks flow with an explicit test contract. The tracked [constitution](../.specify/memory/constitution.md) records this repository's governing principles.
@@ -34,7 +37,12 @@ or `IN REVIEW` may describe current work, but they do not prove delivery.
 `LANDED` requires a public merged-head receipt for the exact owning-repository revision.
 `ACCEPTED` additionally requires the checked-in test and consumer or release receipts.
 Record public issue, PR, check, and commit links in the owner spec and evidence array.
-An obligation can be landed while acceptance remains open.
+An obligation can be landed while acceptance remains open. A requirement counts as delivered
+only once a merged-head commit on the default branch backs it.
+
+Each `status.json` carries a top-level `requirement_ids` list plus a `requirements` array with
+one entry per ID: its own `delivery_state` and evidence, independent of the spec-level summary.
+`requirements.md` is the source of truth for what each requirement ID means.
 
 ## Graph OS owner map
 

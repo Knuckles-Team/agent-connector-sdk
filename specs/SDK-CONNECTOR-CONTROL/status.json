@@ -3,24 +3,152 @@
   "spec_id": "SDK-CONNECTOR-CONTROL",
   "owner_repo": "agent-connector-sdk",
   "requirement_ids": [
-    "EH-079",
-    "EH-135",
-    "EH-198",
-    "EH-199",
-    "EH-213",
-    "EH-214",
-    "EH-215",
-    "EH-217",
-    "EH-480",
-    "EH-481",
-    "EH-482",
-    "EH-483",
-    "EH-484",
-    "EH-485",
-    "EH-486",
-    "EH-491"
+    "SDK-CONNECTOR-CONTROL-R001",
+    "SDK-CONNECTOR-CONTROL-R002",
+    "SDK-CONNECTOR-CONTROL-R003",
+    "SDK-CONNECTOR-CONTROL-R004",
+    "SDK-CONNECTOR-CONTROL-R005",
+    "SDK-CONNECTOR-CONTROL-R006",
+    "SDK-CONNECTOR-CONTROL-R007",
+    "SDK-CONNECTOR-CONTROL-R008",
+    "SDK-CONNECTOR-CONTROL-R009",
+    "SDK-CONNECTOR-CONTROL-R010",
+    "SDK-CONNECTOR-CONTROL-R011",
+    "SDK-CONNECTOR-CONTROL-R012",
+    "SDK-CONNECTOR-CONTROL-R013",
+    "SDK-CONNECTOR-CONTROL-R014",
+    "SDK-CONNECTOR-CONTROL-R015",
+    "SDK-CONNECTOR-CONTROL-R016",
+    "SDK-CONNECTOR-CONTROL-R017",
+    "SDK-CONNECTOR-CONTROL-R018"
   ],
   "delivery_state": "UNKNOWN",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": []
+  "evidence": [],
+  "requirements": [
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R001",
+      "title": "ConnectorPackClient uses a deterministic idempotency key",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R002",
+      "title": "Contract pin travels as a claim attribute, not recomputed downstream",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R003",
+      "title": "Canonical output-schema digest on every certified tool pin",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R004",
+      "title": "Contract-pin verification owned by the SDK's own test kit",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R005",
+      "title": "Pack publisher and source submission use generated graph-client types",
+      "delivery_state": "BUILDING",
+      "evidence": [
+        {
+          "kind": "branch",
+          "result": "passed",
+          "commit": "c1deaf7431b6ad4baf1f85621b317f6087c59a1a",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/c1deaf7431b6ad4baf1f85621b317f6087c59a1a",
+          "description": "Implementation commit is published on a branch; not yet merged to the default branch."
+        }
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R006",
+      "title": "Decision-service proposals for tool choice and triage stay observational",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007",
+      "title": "Fleet-wide re-certification yields nonempty schema fingerprints",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R008",
+      "title": "Closed, canonical pack annotation map across the connector fleet",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R009",
+      "title": "Connector batch A-E migrates fully onto the SDK client",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R010",
+      "title": "Connector batch F-J migrates fully onto the SDK client",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R011",
+      "title": "Connector batch K-O migrates fully onto the SDK client",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R012",
+      "title": "Connector batch P-S migrates fully onto the SDK client",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R013",
+      "title": "Connector batch T-Z migrates fully onto the SDK client",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014",
+      "title": "SDK fully supersedes the duplicated connector toolkit",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R015",
+      "title": "SDK is sole owner of connector source lifecycle and certification",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R016",
+      "title": "Connector base settings live in the SDK's own config module",
+      "delivery_state": "BUILDING",
+      "evidence": [
+        {
+          "kind": "branch",
+          "result": "passed",
+          "commit": "ee760b3fbc05197d8bfd732e7957de64fe061652",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/ee760b3fbc05197d8bfd732e7957de64fe061652",
+          "description": "Implementation commit is published on a branch; not yet merged to the default branch."
+        }
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R017",
+      "title": "Every connector uses the shared TLS profile, no bare verify bypass",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R018",
+      "title": "SDK source and test suite build cleanly from a fresh checkout",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    }
+  ]
 }

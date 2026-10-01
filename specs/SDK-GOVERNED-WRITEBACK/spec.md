@@ -1,7 +1,9 @@
 # Governed write-back to attached sources
 
-**Program IDs:** EH-043, EH-216, EH-341, EH-671, SDK durable WriteBack lane.
+**Requirement IDs:** SDK-GOVERNED-WRITEBACK-R001, SDK-GOVERNED-WRITEBACK-R002, SDK-GOVERNED-WRITEBACK-R003, SDK-GOVERNED-WRITEBACK-R004, SDK-GOVERNED-WRITEBACK-R005.
 **Owner:** agent-connector-sdk source-side protocol. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
+
+Every requirement ID above is defined in [requirements.md](requirements.md); delivery state and evidence for each one are tracked in [status.json](status.json).
 
 ## Outcome and boundary
 
@@ -11,7 +13,7 @@ A tenant can propose a scoped change to an attached source, see the exact dry-ru
 
 The generated `SourceChangeSet` binds tenant, connector, source, change-set ID/digest, idempotency key, base source version, exact field scope, desired patch, field provenance, expiry, input/output contract digests, and authorization claim. `WriteBackPort` exposes `current_version`, `dry_run`, `apply`, and `reconcile`. `DurableWritableConnector` composes `WriteBackTransport` with a durable `WriteBackLedger` and must be reused. There is one source mutation attempt authority; no parallel connector-local approval database may replace graph receipts.
 
-1. Register and read the exact canonical change set from the ledger before every operation. Reject a missing, changed, expired, wrong-tenant, or wrong-connector record. Dry-run reads current version and returns a digest-bound preview without mutation.
+1. Register and read the exact canonical change set from the `WriteBackLedger` before every operation. Reject a missing, changed, expired, wrong-tenant, or wrong-connector record. Dry-run reads current version and returns a digest-bound preview without mutation.
 2. Before apply, check optimistic source version, exact field scope and provenance, contract pin, deterministic authorization mode, approval bound to the same digest, and an audit reservation. A decision-system proposal is never approval. A denial or stale version makes zero source calls.
 3. A successful application records a durable attempt and source effect identity before a caller can report completion. Repeating the same idempotency key returns the proven prior effect. Reusing the key with different digest refuses.
 4. On timeout or ambiguous result, record `OUTCOME_UNCERTAIN` and stop automatic retries. After restart, replay durable receipts. Only source reconciliation proving `NO_EFFECT` permits another attempt; `APPLIED` returns the original effect and unresolved status remains closed to retry.

@@ -3,15 +3,89 @@
   "spec_id": "SDK-SOURCE-INGEST",
   "owner_repo": "agent-connector-sdk",
   "requirement_ids": [
-    "EH-339",
-    "EH-402",
-    "EH-403",
-    "EH-499",
-    "EH-500",
-    "EH-501",
-    "EH-510"
+    "SDK-SOURCE-INGEST-R001",
+    "SDK-SOURCE-INGEST-R002",
+    "SDK-SOURCE-INGEST-R003",
+    "SDK-SOURCE-INGEST-R004",
+    "SDK-SOURCE-INGEST-R005",
+    "SDK-SOURCE-INGEST-R006",
+    "SDK-SOURCE-INGEST-R007",
+    "SDK-SOURCE-INGEST-R008",
+    "SDK-SOURCE-INGEST-R009"
   ],
   "delivery_state": "UNKNOWN",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": []
+  "evidence": [],
+  "requirements": [
+    {
+      "id": "SDK-SOURCE-INGEST-R001",
+      "title": "SDK runner completes on generated ConnectorPack and SourceIngest contracts",
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "4e3b83bfd7c07826f693410f9b967073c3312e1d",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/4e3b83bfd7c07826f693410f9b967073c3312e1d",
+          "description": "Implementing commit is reachable from the default branch."
+        }
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R002",
+      "title": "SDK drift classifier quarantines incompatible schema changes",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R003",
+      "title": "SDK records and pauses on proposed schema repairs",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004",
+      "title": "SDK runner performs enterprise source synchronization",
+      "delivery_state": "BUILDING",
+      "evidence": [
+        {
+          "kind": "branch",
+          "result": "passed",
+          "commit": "4ea8bbb289fc5cc8064f046d922fec7113d8840b",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/4ea8bbb289fc5cc8064f046d922fec7113d8840b",
+          "description": "Implementation commit is published on a branch; not yet merged to the default branch."
+        }
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005",
+      "title": "SDK adapters cover document, conversation, and feed sources",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006",
+      "title": "SDK packs own vendor enrichment extraction and write-back",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R007",
+      "title": "Drift gate runs inside the SDK connector-sync runner",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R008",
+      "title": "Connectors ingest occurrence and weather observations",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R009",
+      "title": "Taxonomy connector ingests NCBI/GBIF taxa as kg:Taxon",
+      "delivery_state": "UNKNOWN",
+      "evidence": []
+    }
+  ]
 }
