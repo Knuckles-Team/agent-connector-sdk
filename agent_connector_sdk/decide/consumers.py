@@ -54,17 +54,28 @@ def _heuristic_options(
     ]
 
 
-def connector_tool(connector: str, tools: Sequence[str], picked: str) -> str:
-    """Which of ``tools`` serves one request; ``picked`` is the fallback."""
-    if picked not in tools:
+def _bounded_choice(
+    question_id: str, connector: str, candidates: Sequence[str], picked: str
+) -> str:
+    """Confirm or redirect ``picked`` among ``candidates``, never outside them.
+
+    A pick outside ``candidates`` is a caller bug, not a decision: EG is
+    never asked about it, and it stays the fallback.
+    """
+    if picked not in candidates:
         return picked
     choice = decide.choose(
-        "au.connector.tool",
-        _heuristic_options(sorted(set(tools)), picked),
+        question_id,
+        _heuristic_options(sorted(set(candidates)), picked),
         lambda: picked,
         params=[text_param("connector", connector)],
     )
     return str(choice.option_id or picked)
+
+
+def connector_tool(connector: str, tools: Sequence[str], picked: str) -> str:
+    """Which of ``tools`` serves one request; ``picked`` is the fallback."""
+    return _bounded_choice("au.connector.tool", connector, tools, picked)
 
 
 def triage_event(connector: str, actions: Sequence[str], picked: str) -> str:
@@ -72,24 +83,12 @@ def triage_event(connector: str, actions: Sequence[str], picked: str) -> str:
 
     ``picked`` -- the connector's own deterministic read of the batch (for
     example ``agent_connector_sdk.runner.plans.change_plan``'s classification
-    of it) -- is both the fallback and the only pick honored when it is not
-    among ``actions``: a batch classified outside the declared vocabulary is
-    a caller bug, not a decision, so EG is never asked about it. Otherwise EG
-    may only confirm or redirect to one of ``actions``; it cannot name an
-    action the deterministic rule did not already offer, and nothing here
-    calls the write-back port or any other side-effecting API -- a call site
-    still executes exactly the action returned, through its own ordinary
-    (non-write-back) path.
+    of it) -- is both the fallback and the only pick ever honored outside
+    ``actions``. Nothing here calls the write-back port or any other
+    side-effecting API -- a call site still executes exactly the action
+    returned, through its own ordinary (non-write-back) path.
     """
-    if picked not in actions:
-        return picked
-    choice = decide.choose(
-        "au.connector.triage",
-        _heuristic_options(sorted(set(actions)), picked),
-        lambda: picked,
-        params=[text_param("connector", connector)],
-    )
-    return str(choice.option_id or picked)
+    return _bounded_choice("au.connector.triage", connector, actions, picked)
 
 
 def propose_writeback(
