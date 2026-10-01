@@ -5,7 +5,7 @@ source file, and the tests prove the files agree with each other and stay
 immutable (full commit digests), so bumping a pin never needs a test edit.
 Knuckles-Team/pipelines is the one sanctioned exception to that immutability
 rule: every repository consumes it at its `main` branch, never a commit SHA or
-tag (operator ruling, plans/refactor/DECISIONS.md; enforced fleet-wide by
+tag (fleet standard, enforced by
 pipelines_hooks/supply_chain/{precommit,workflows}.py), so pins to it are
 checked against `main` instead of a commit digest.
 """
