@@ -2,12 +2,14 @@
 
 ``EpistemicGraphIngestTransport`` wraps the shared
 :class:`~agent_connector_sdk.ingest.channel.SourceIngestChannel` and marks
-checkpoint races as retryable.
+checkpoint races as retryable. Media bytes are stored through the verified
+client's own ``blob`` convenience, which drives the generated chunked-upload
+protocol (``BlobBegin``/``BlobChunkPut``/``BlobCommit``) in one call.
 """
 
 from __future__ import annotations
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Protocol, cast, runtime_checkable
 
 from epistemic_graph.generated.source_ingestion import (
     SourceIngestionReceipt,
@@ -16,10 +18,7 @@ from epistemic_graph.generated.source_ingestion import (
 )
 
 from agent_connector_sdk.ingest.channel import SourceIngestChannel
-from agent_connector_sdk.ingest.errors import (
-    IngestConflictError,
-    IngestUnavailableError,
-)
+from agent_connector_sdk.ingest.errors import IngestConflictError
 
 __all__ = ["EpistemicGraphIngestTransport", "IngestTransport"]
 
@@ -47,13 +46,15 @@ class EpistemicGraphIngestTransport:
     """The ingest transport over a verified epistemic-graph client.
 
     Implements :class:`IngestTransport` for everything the generated client
-    already exposes -- ``submit`` and ``source_status``, both over the shared
-    :class:`~agent_connector_sdk.ingest.channel.SourceIngestChannel`. Media
-    storage is not implemented: see ``store_blob``.
+    exposes -- ``submit`` and ``source_status`` over the shared
+    :class:`~agent_connector_sdk.ingest.channel.SourceIngestChannel`, and
+    ``store_blob`` over the client's own ``blob`` convenience (see
+    ``store_blob``).
     """
 
     def __init__(self, client: Any) -> None:
         self._channel = SourceIngestChannel(client)
+        self._client = client
 
     async def submit(self, request: SourceIngestionRequest) -> SourceIngestionReceipt:
         """Commit ``request``; a checkpoint race becomes ``IngestConflictError``."""
@@ -69,22 +70,13 @@ class EpistemicGraphIngestTransport:
         return await self._channel.source_status(connector, stream)
 
     async def store_blob(self, data: bytes) -> str:
-        """Not implemented against the current generated client.
+        """Store ``data`` content-addressed; return its digest.
 
-        The generated epistemic-graph client exposes only a chunked blob
-        upload protocol (``MethodBlobBegin``/``MethodBlobChunkPut``/
-        ``MethodBlobCommit``), not a single-call store; this transport does
-        not yet drive that sequence. A change set with no :class:`MediaAsset
-        <agent_connector_sdk.ingest.model.MediaAsset>` entries never reaches
-        this method.
-
-        Raises:
-            IngestUnavailableError: always, until a chunked-upload
-                implementation exists over the generated blob methods.
+        Delegates to the verified client's ``blob.store`` convenience, which
+        drives the generated chunked-upload protocol (``BlobBegin`` ->
+        ``BlobChunkPut`` x N -> ``BlobCommit``) in one call and returns the
+        committed manifest's stable content digest. Identical bytes always
+        yield the same digest (the engine dedups on arrival).
         """
-        del data
-        raise IngestUnavailableError(
-            "media storage is not implemented: the generated epistemic-graph "
-            "client has no single-call blob store, only a chunked upload "
-            "protocol this transport does not yet drive"
-        )
+        digest = await self._client.blob.store(data)
+        return cast(str, digest)
