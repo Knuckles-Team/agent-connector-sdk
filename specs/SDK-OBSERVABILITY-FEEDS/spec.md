@@ -2,8 +2,6 @@
 
 **Requirement ID:** SDK-OBSERVABILITY-FEEDS-R001. **Owner:** agent-connector-sdk contract; each event connector owns provider transport. **Delivery state:** SPECIFIED. **Acceptance state:** OPEN.
 
-This requirement ID is defined in [requirements.md](requirements.md); delivery state and evidence are tracked in [status.json](status.json).
-
 ## Outcome and model
 
 Real-user monitoring (RUM), security audit, and CI/CD events can enter the same durable source pipeline as other systems of record. The SDK provides authenticated transport, bounded paging/streaming, stable event identity, manifests, checkpointing, and schema drift quarantine. It does not interpret an event as a verified incident, vulnerability, release, or user outcome; graph-side policy and analysis own those conclusions.
@@ -15,3 +13,5 @@ An event envelope carries tenant/source/stream IDs; provider event ID or canonic
 ## Portable contribution and completion
 
 Use synthetic RUM, audit and CI event fixtures with fake sessions and generated-client ports after `uv sync`; no production telemetry, private fleet, or hosted service is necessary for source tests. **LANDED** requires exact merged adapter contract and one provider implementation per feed kind. **ACCEPTED** requires the tests below, a graph-backed receipt and restart replay. No source implementation or live evidence is claimed by this spec.
+
+Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.

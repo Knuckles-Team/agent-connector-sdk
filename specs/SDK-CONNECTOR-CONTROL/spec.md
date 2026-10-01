@@ -4,8 +4,6 @@
 **Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 **Boundary:** This SDK owns source-side connector hosting, discovery, certification, pack construction, and submission. A graph service owns durable pack records and receipts; a control-plane service owns routing and activation policy. Vendor packages own their API calls.
 
-Every requirement ID above is defined in [requirements.md](requirements.md); delivery state and evidence for each one are tracked in [status.json](status.json).
-
 ## Outcome and scope
 
 A fresh connector package can use one SDK server factory, one manifest, one credential-reference and HTTP/TLS stack, one certification command, and one generated graph client. Its published pack and tool pins are reproducible from the connector artifact, and the runner refuses uncertified or mismatched packages. Every migrated connector builds without importing `agent_utilities`. This is an SDK contract, not a requirement to copy any private fleet inventory.
@@ -51,3 +49,5 @@ Source is **LANDED** only after an exact merged commit contains the required imp
 | Five batch consumer conformance | Pending batch receipts | OPEN |
 | Published-wheel isolated consumer | Pending artifact digest and CI run | OPEN |
 | Live pack publication and idempotent retry | Pending redacted receipt | OPEN |
+
+Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.

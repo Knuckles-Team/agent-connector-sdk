@@ -1,10 +1,5 @@
 # SDK-SOURCE-INGEST requirements
 
-Every requirement this specification owns, with the proof that closes it. Delivery state and
-public evidence for each ID are recorded in [`status.json`](status.json); this file defines what
-each ID means. The design is in [`spec.md`](spec.md) and [`plan.md`](plan.md), the test contract
-in [`test-spec.md`](test-spec.md), and the work order in [`tasks.md`](tasks.md).
-
 | ID | Requirement | Verification |
 |---|---|---|
 | `SDK-SOURCE-INGEST-R001` | **SDK runner completes on generated ConnectorPack and SourceIngest contracts.** The connector SDK's runner implementation replaces placeholder sink and progress-tracking stubs with the generated ConnectorPack and SourceIngest contracts, tracks progress through SourceCheckpoint, and composes connector configuration from one root structure. | Integration tests run the runner against the generated SourceIngest client and confirm SourceCheckpoint state matches the contract after each page. |

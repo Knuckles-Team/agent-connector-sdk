@@ -1,10 +1,5 @@
 # SDK-FINANCE-SOURCES requirements
 
-Every requirement this specification owns, with the proof that closes it. Delivery state and
-public evidence for each ID are recorded in [`status.json`](status.json); this file defines what
-each ID means. The design is in [`spec.md`](spec.md) and [`plan.md`](plan.md), the test contract
-in [`test-spec.md`](test-spec.md), and the work order in [`tasks.md`](tasks.md).
-
 | ID | Requirement | Verification |
 |---|---|---|
 | `SDK-FINANCE-SOURCES-R001` | **Market-data adapters: exchange history fix, CoinMarketCap, FRED/ALFRED.** Market-data source adapters correct historical price retrieval for the exchange market-data connector, add CoinMarketCap market data, and add Federal Reserve FRED/ALFRED series with a central-bank announcement calendar, each preserving data vintage and announcement time per the shared adapter contract. | Offline conformance tests using recorded or synthetic responses for each adapter verifying corrected history retrieval and vintage and announcement-time fields. |

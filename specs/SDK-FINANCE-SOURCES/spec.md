@@ -3,8 +3,6 @@
 **Requirement IDs:** SDK-FINANCE-SOURCES-R001, SDK-FINANCE-SOURCES-R002, SDK-FINANCE-SOURCES-R003, SDK-FINANCE-SOURCES-R004, SDK-FINANCE-SOURCES-R005.
 **Owner:** agent-connector-sdk contract and source adapter APIs; each vendor connector owns its credentials and API implementation. **Delivery state:** SPECIFIED. **Acceptance state:** OPEN.
 
-Every requirement ID above is defined in [requirements.md](requirements.md); delivery state and evidence for each one are tracked in [status.json](status.json).
-
 ## Outcome
 
 Finance consumers receive source data with instrument identity, entitlement, time basis, adjustment policy, completeness, and provenance explicit. The first vertical slice covers stocks and ETFs; later slices add FX, metals/commodities, real-estate valuations, and account import. The SDK supplies shared bounded pagination, credentials, transport, manifest presets, provenance and data-quality checks. Trading decisions, portfolio accounting, chart rendering, strategy evaluation and order execution belong to their owners.
@@ -32,3 +30,5 @@ Run `uv sync`; use deterministic recorded or synthetic responses with no paid ke
 | Licensed live provider and graph receipt | OPEN | Pending redacted provenance/entitlement receipt |
 
 **LANDED** requires exact merged source. **ACCEPTED** requires all test cases below with licensed source and graph receipt; no backtest or trade-performance claim follows from that acceptance.
+
+Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.

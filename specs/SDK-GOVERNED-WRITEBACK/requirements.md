@@ -1,10 +1,5 @@
 # SDK-GOVERNED-WRITEBACK requirements
 
-Every requirement this specification owns, with the proof that closes it. Delivery state and
-public evidence for each ID are recorded in [`status.json`](status.json); this file defines what
-each ID means. The design is in [`spec.md`](spec.md) and [`plan.md`](plan.md), the test contract
-in [`test-spec.md`](test-spec.md), and the work order in [`tasks.md`](tasks.md).
-
 | ID | Requirement | Verification |
 |---|---|---|
 | `SDK-GOVERNED-WRITEBACK-R001` | **Write-back proposals route through governed authorization, not direct action.** A proposed change to an attached source is evaluated only through the governed write-back protocol's deterministic authorization modes; a decision-service suggestion is never itself an approval and cannot directly authorize applying the change. | A contract test that submits a decision-service proposal and asserts apply is refused without a separate deterministic authorization and approval record. |

@@ -3,8 +3,6 @@
 **Requirement IDs:** SDK-SOURCE-INGEST-R001, SDK-SOURCE-INGEST-R002, SDK-SOURCE-INGEST-R003, SDK-SOURCE-INGEST-R004, SDK-SOURCE-INGEST-R005, SDK-SOURCE-INGEST-R006, SDK-SOURCE-INGEST-R007, SDK-SOURCE-INGEST-R008, SDK-SOURCE-INGEST-R009.
 **Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 
-Every requirement ID above is defined in [requirements.md](requirements.md); delivery state and evidence for each one are tracked in [status.json](status.json).
-
 ## Outcome and authority
 
 One SDK runner discovers certified sources, extracts bounded pages, classifies contract drift, and submits them through the graph service's generated `SourceIngest` client. The graph service alone commits data, stores checkpoints, renders candidate graph schemas, and activates repairs. The SDK does not maintain a competing cursor or semantic store. Source adapters for enterprise systems, documents, sessions, feeds, and vendor enrichment all use this same lifecycle.
@@ -45,3 +43,5 @@ Two source-adapter families extend this same contract. Adapters for GBIF and iNa
 | Durable graph checkpoint and quarantine probe | OPEN | Pending redacted runtime receipts |
 
 **LANDED** requires an exact merged source commit. **ACCEPTED** requires all `test-spec.md` assertions, including a graph-backed receipt and restart proof, attached here. Existing runner, adapter, and sink modules are an implementation base, not acceptance evidence.
+
+Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.

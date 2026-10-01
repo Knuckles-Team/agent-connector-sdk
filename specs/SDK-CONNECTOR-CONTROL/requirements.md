@@ -1,10 +1,5 @@
 # SDK-CONNECTOR-CONTROL requirements
 
-Every requirement this specification owns, with the proof that closes it. Delivery state and
-public evidence for each ID are recorded in [`status.json`](status.json); this file defines what
-each ID means. The design is in [`spec.md`](spec.md) and [`plan.md`](plan.md), the test contract
-in [`test-spec.md`](test-spec.md), and the work order in [`tasks.md`](tasks.md).
-
 | ID | Requirement | Verification |
 |---|---|---|
 | `SDK-CONNECTOR-CONTROL-R001` | **ConnectorPackClient uses a deterministic idempotency key.** The SDK's ConnectorPackClient submits pack publication requests through the generated ConnectorPack types and computes a deterministic idempotency key from tenant, connector identity, canonical pack digest, and operation, so repeating an identical request returns the same durable result. | Unit tests that retry an identical publish request after a simulated transport loss and assert the same import operation key is reused, using only the generated wire types for status and import. |

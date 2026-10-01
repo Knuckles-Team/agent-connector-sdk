@@ -3,8 +3,6 @@
 **Requirement IDs:** SDK-REPOSITORY-TRANSPORT-R001, SDK-REPOSITORY-TRANSPORT-R002, SDK-REPOSITORY-TRANSPORT-R003, SDK-REPOSITORY-TRANSPORT-R004, SDK-REPOSITORY-TRANSPORT-R005.
 **Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 
-Every requirement ID above is defined in [requirements.md](requirements.md); delivery state and evidence for each one are tracked in [status.json](status.json).
-
 ## Outcome and boundary
 
 The SDK fetches an authenticated immutable repository revision, pages bounded file blobs and tombstones, and submits them to the graph service's generated `IndexRepository` operation. The graph service parses symbols, resolves cross-file references, stores graph projections, and owns durable indexing receipts. The SDK never invents symbol or semantic identities. This enables a repository contributor to hydrate code and specification sources from their own Git provider.
@@ -34,3 +32,5 @@ For performance (SDK-REPOSITORY-TRANSPORT-R003), traverse each distinct Git tree
 | Large-repo parity/performance and graph receipt | OPEN | Pending benchmark and redacted receipt |
 
 **LANDED** means exact merged SDK code. **ACCEPTED** means the tests below pass and the measured transport plus graph receipt are attached. The existing repository package is a source slice, not a whole-program completion claim.
+
+Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.

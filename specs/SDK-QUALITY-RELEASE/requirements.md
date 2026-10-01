@@ -1,10 +1,5 @@
 # SDK-QUALITY-RELEASE requirements
 
-Every requirement this specification owns, with the proof that closes it. Delivery state and
-public evidence for each ID are recorded in [`status.json`](status.json); this file defines what
-each ID means. The design is in [`spec.md`](spec.md) and [`plan.md`](plan.md), the test contract
-in [`test-spec.md`](test-spec.md), and the work order in [`tasks.md`](tasks.md).
-
 | ID | Requirement | Verification |
 |---|---|---|
 | `SDK-QUALITY-RELEASE-R001` | **SDK release builds against a published compatible graph-client wheel.** The SDK release pipeline builds and publishes an installed wheel verified against a published, version-compatible graph-client wheel, confirming generated-type and native-kernel compatibility in an isolated installed consumer rather than a source overlay. | A release job that installs the published wheel in an isolated environment and verifies generated-type and kernel compatibility against the graph-client release. |

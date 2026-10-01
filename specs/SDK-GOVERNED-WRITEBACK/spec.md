@@ -3,8 +3,6 @@
 **Requirement IDs:** SDK-GOVERNED-WRITEBACK-R001, SDK-GOVERNED-WRITEBACK-R002, SDK-GOVERNED-WRITEBACK-R003, SDK-GOVERNED-WRITEBACK-R004, SDK-GOVERNED-WRITEBACK-R005.
 **Owner:** agent-connector-sdk source-side protocol. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 
-Every requirement ID above is defined in [requirements.md](requirements.md); delivery state and evidence for each one are tracked in [status.json](status.json).
-
 ## Outcome and boundary
 
 A tenant can propose a scoped change to an attached source, see the exact dry-run, approve it, apply it once, and reconcile an uncertain outcome after process restart. A durable graph service owns the canonical `SourceChangeSet`, authorization and append-only `WriteBackAttempt`/reconciliation receipts. The SDK owns source-side verification and transport. A vendor adapter owns the actual app API call. If an application exposes business rules through its API, the adapter uses that API; direct database writes are not an interchangeable shortcut.
@@ -32,3 +30,5 @@ Run `uv sync` and focused `uv run --frozen python -m pytest -q tests/test_writeb
 | Live approval/apply/reconcile receipt | OPEN | Pending redacted receipts |
 
 **LANDED** requires exact merged source. **ACCEPTED** requires all tests below on that source, a contributor-owned writable adapter, and cross-process receipts. Current SDK write-back modules implement a source slice; they do not prove fleet or live acceptance.
+
+Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.

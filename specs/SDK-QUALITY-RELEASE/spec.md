@@ -3,8 +3,6 @@
 **Requirement IDs:** SDK-QUALITY-RELEASE-R001, SDK-QUALITY-RELEASE-R002, SDK-QUALITY-RELEASE-R003, SDK-QUALITY-RELEASE-R004, SDK-QUALITY-RELEASE-R005.
 **Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 
-Every requirement ID above is defined in [requirements.md](requirements.md); delivery state and evidence for each one are tracked in [status.json](status.json).
-
 ## Outcome
 
 An external contributor can validate code and public documentation from a fresh checkout without access to a running platform. The release pipeline then builds an installed SDK wheel against a published compatible graph-client wheel and publishes public guides through GitHub Pages. No stale checked-in `/docs` deployment copy is a quality prerequisite. Source docs needed to build Pages may remain in the repository until replaced by a single maintained Pages source; the source of truth must be explicit and generated outputs must not block unrelated code pull requests.
@@ -32,3 +30,5 @@ The public README follows a fixed section order leading with a one-file connecto
 | Published Pages and wheel consumer | OPEN | Pending URLs, artifact digest and release run |
 
 **LANDED** means exact merged gate and docs source. **ACCEPTED** means cloud PR tests pass from fresh checkout and release evidence passes independently. Removing a stale gate does not waive source correctness checks.
+
+Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.

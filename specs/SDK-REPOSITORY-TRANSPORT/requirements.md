@@ -1,10 +1,5 @@
 # SDK-REPOSITORY-TRANSPORT requirements
 
-Every requirement this specification owns, with the proof that closes it. Delivery state and
-public evidence for each ID are recorded in [`status.json`](status.json); this file defines what
-each ID means. The design is in [`spec.md`](spec.md) and [`plan.md`](plan.md), the test contract
-in [`test-spec.md`](test-spec.md), and the work order in [`tasks.md`](tasks.md).
-
 | ID | Requirement | Verification |
 |---|---|---|
 | `SDK-REPOSITORY-TRANSPORT-R001` | **Repository transport hydrates code and specification sources from Git.** The SDK fetches an authenticated, immutable repository revision and pages its file blobs and tombstones to the graph service's generated IndexRepository operation, letting a contributor hydrate both code and specification sources from their own Git provider without the SDK inventing symbol or semantic identity itself. | Integration tests using a local Git fixture that submit a revision through IndexRepository and confirm the graph service, not the SDK, produces the resulting symbol and specification identities. |
