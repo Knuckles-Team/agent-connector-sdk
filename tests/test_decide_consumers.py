@@ -1,10 +1,7 @@
 """SDK-CONNECTOR-CONTROL-R006 / SDK-GOVERNED-WRITEBACK-R001: the SDK's own
-``Decide`` call sites are evaluate-only and never authorize; both paths (no
-runner installed, EG abstains) fall back deterministically.
-
-Connector inbound event triage has no SDK-owned call site -- see
-``agent_connector_sdk/decide/__init__.py``'s module docstring -- so it has
-no tests here.
+``Decide`` call sites are evaluate-only and never authorize; all three paths
+(no runner installed, EG abstains, EG names something outside the offered
+set) fall back deterministically.
 """
 
 from __future__ import annotations
@@ -21,6 +18,7 @@ from agent_connector_sdk.decide.consumers import (
     NO_WRITE,
     connector_tool,
     propose_writeback,
+    triage_event,
 )
 from agent_connector_sdk.decide.options import (
     Q32_ONE,
@@ -123,6 +121,48 @@ def test_connector_tool_honors_an_executed_offered_option(eg: FakeRunner) -> Non
 def test_connector_tool_falls_back_when_decide_abstains(eg: FakeRunner) -> None:
     eg.answer = _abstained
     assert connector_tool("jira", ["search", "get"], "get") == "get"
+
+
+def test_triage_with_no_runner_returns_the_deterministic_pick() -> None:
+    assert decide.current_runner() is None
+    assert (
+        triage_event("freshrss-agent", ["provision", "sync", "skip"], "sync") == "sync"
+    )
+
+
+def test_triage_never_consults_decide_for_an_undeclared_classification(
+    eg: FakeRunner,
+) -> None:
+    """A pick outside ``actions`` is a caller bug, not a decision -- no EG call."""
+    assert triage_event("freshrss-agent", ["provision", "sync"], "unclassified") == (
+        "unclassified"
+    )
+    assert eg.calls == []
+
+
+def test_triage_honors_an_executed_offered_action(eg: FakeRunner) -> None:
+    eg.answer = _acted("provision")
+    assert triage_event("freshrss-agent", ["provision", "sync", "skip"], "sync") == (
+        "provision"
+    )
+    assert eg.calls == [("au.connector.triage", ("provision", "skip", "sync"))]
+
+
+def test_triage_falls_back_when_decide_abstains(eg: FakeRunner) -> None:
+    eg.answer = _abstained
+    assert (
+        triage_event("freshrss-agent", ["provision", "sync", "skip"], "sync") == "sync"
+    )
+
+
+def test_triage_proposal_never_reaches_write_back(eg: FakeRunner) -> None:
+    """A triage proposal is observational: it returns a plain action string,
+    never a write-back change-set, and never asks the write-back question."""
+    eg.answer = _acted("provision")
+    chosen = triage_event("freshrss-agent", ["provision", "sync", "skip"], "sync")
+    assert chosen == "provision" and isinstance(chosen, str)
+    assert eg.calls == [("au.connector.triage", ("provision", "skip", "sync"))]
+    assert all(question != "au.connector.writeback" for question, _ in eg.calls)
 
 
 def test_writeback_with_no_runner_defaults_to_no_write() -> None:

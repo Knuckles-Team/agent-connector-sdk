@@ -16,7 +16,11 @@ the runtime key ``default`` removed, string lists such as ``required`` and
 ``enum`` sorted, serialized compactly. The extraction adapter verifies pins with
 the same function, so a certified pin is exactly what a sync run checks.
 The separate :func:`output_schema_digest` field makes output drift easy to audit
-in a report without replacing the combined contract pin.
+in a report without replacing the combined contract pin; a tool that declares no
+output schema still gets a canonical, nonempty digest (a reserved sentinel
+distinct from the digest of any real declared schema, including a literal empty
+object schema), so "no output schema was ever declared" is never silently
+indistinguishable from "the digest could not be computed".
 """
 
 from __future__ import annotations
@@ -41,6 +45,11 @@ __all__ = [
     "tool_fingerprint",
     "tool_name",
 ]
+
+#: Domain-separated marker hashed in place of a declared output schema when a
+#: tool declares none at all, so the digest is canonical and nonempty without
+#: colliding with the digest of any real (possibly empty) declared schema.
+_NO_OUTPUT_SCHEMA_DOMAIN = b"agent-connector-sdk:mcp-tool-output-schema:missing:v1\x00"
 
 
 class EmptyToolSchemaError(ToolSchemaContractError):
@@ -83,9 +92,15 @@ def tool_fingerprint(tool: Any) -> str:
 
 
 def output_schema_digest(tool: Any) -> str:
-    """SHA-256 of the canonical output schema, or ``""`` when none is served."""
+    """SHA-256 of the canonical output schema.
+
+    A tool that declares no output schema at all is still fingerprinted
+    canonically: the digest of a reserved missing-schema marker, never an
+    empty string and never the digest of an empty object schema (``{}``,
+    which a tool can declare explicitly and means something different).
+    """
     canonical = canonical_output_schema(tool, include_presentation=False)
     if canonical is None:
-        return ""
+        return hashlib.sha256(_NO_OUTPUT_SCHEMA_DOMAIN).hexdigest()
     payload = json.dumps(canonical, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()

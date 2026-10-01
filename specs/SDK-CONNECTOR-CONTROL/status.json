@@ -57,9 +57,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R003",
       "title": "Canonical output-schema digest on every certified tool pin",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
-      "remaining": "The standalone output_schema_digest() returns '' (empty, not a canonical nonempty digest) for a tool with no declared output schema -- explicitly asserted by tests/test_certify_pins.py:118 (output_schema_digest({\"name\": \"t\"}) == \"\"), the opposite of the required behavior. Only the combined tool_fing"
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "14c82b51df3eb65a9772dcf70adade89a88a5c5b",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/14c82b51df3eb65a9772dcf70adade89a88a5c5b",
+          "description": "Implemented on the default branch; exercised by tests/test_certify_pins.py"
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R004",
@@ -92,23 +99,23 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R006",
       "title": "Decision-service proposals for tool choice and triage stay observational",
-      "delivery_state": "BUILDING",
+      "delivery_state": "LANDED",
       "evidence": [
         {
-          "kind": "implementation",
+          "kind": "merged_head",
           "result": "passed",
-          "commit": "daeb199f91c099eed08020c1b8cbd314a2351d9a",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/daeb199f91c099eed08020c1b8cbd314a2351d9a",
-          "description": "Tool-choice proposals stay observational; exercised by tests/test_decide_consumers.py and tests/test_decide_epistemic_graph.py."
+          "commit": "14c82b51df3eb65a9772dcf70adade89a88a5c5b",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/14c82b51df3eb65a9772dcf70adade89a88a5c5b",
+          "description": "Implemented on the default branch; exercised by tests/test_decide_consumers.py"
         }
-      ],
-      "remaining": "The decision runner is now wired into the default service composition and the command line, with tests through both. Remaining: the triage half still has no call site in this repository."
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R007",
       "title": "Fleet-wide re-certification yields nonempty schema fingerprints",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "BUILDING",
+      "evidence": [],
+      "remaining": "A test on the default branch certifies every connector package this repository ships in one run, asserts each pin has nonempty input and output fingerprints, and proves a drifted server fails the live-contract comparison. Remaining: the same certification run across the connector fleet in its own repositories."
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R008",

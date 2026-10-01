@@ -18,13 +18,14 @@ this process was given a tenant to decide as; tests install fakes. This
 mirrors agent-utilities' own equivalent ``Decide`` consumer contract so the
 SAME EG question is asked whichever side calls it, but is implemented
 independently: the SDK never imports ``agent_utilities`` (the agent control
-plane) -- only the port, the EG-backed runner, and the two evaluate-only call
-sites in :mod:`agent_connector_sdk.decide.consumers` (connector-internal tool
-choice and write-back proposals).
+plane) -- only the port, the EG-backed runner, and the three evaluate-only
+call sites in :mod:`agent_connector_sdk.decide.consumers` (connector-internal
+tool choice, inbound event triage, and write-back proposals).
 
-Connector inbound event triage has no SDK-owned call site: that decision is
-wired entirely inside ``agent_utilities``, which dispatches its own fleet
-events, not anything the SDK's connectors receive.
+Connector inbound event triage asks about a batch of events the SDK's own
+connectors receive (for example a ``subscriptions/listen`` delivery), which
+is distinct from ``agent_utilities``' unrelated fleet-event dispatch; see
+:func:`agent_connector_sdk.decide.consumers.triage_event`.
 """
 
 from __future__ import annotations
