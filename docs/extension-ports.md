@@ -124,25 +124,21 @@ authorization modes are `proposal_approval`, `standing_policy`, and
 `manual_trigger`; a mode or reference supplied by a caller grants nothing by
 itself.
 
-```mermaid
-sequenceDiagram
-    participant EG as EG change set
-    participant SDK as GovernedWriteBack
-    participant Auth as AuthorizationVerifier
-    participant Source as WriteBackTransport
-    SDK->>Source: read_current
-    SDK->>SDK: compare base version and field scope
-    SDK->>Auth: verify exact digest/mode/ref/policy
-    SDK->>Source: compare-and-apply(idempotency key)
-    alt acknowledgement certain
-        Source-->>SDK: source observation
-    else possible effect
-        Source--xSDK: outcome uncertain
-        SDK->>Source: reconcile key + source version
-        Source-->>SDK: applied / no effect / still uncertain
-    end
-    SDK-->>EG: source observations for durable receipts
-```
+<div class="admonition architecture" markdown>
+<p class="admonition-title">Write-back sequence</p>
+
+`GovernedWriteBack` reads the source's current state (`read_current`),
+compares the base version and field scope, then has
+`AuthorizationVerifier` verify the exact digest/mode/ref/policy before
+calling the `WriteBackTransport`'s `compare-and-apply` with an idempotency
+key. When acknowledgement is certain, the transport returns a source
+observation directly. When the effect is only possible (an ambiguous
+response), the transport reports the outcome as uncertain and
+`GovernedWriteBack` reconciles using the key and source version, which
+resolves to applied, no-effect, or still-uncertain. Either way, the final
+source observations go back to EG's change set for durable receipts.
+
+</div>
 
 The canonical models come from `epistemic_graph.generated.write_back`.
 `SourceChangeSet.canonical_digest()` and `.patch_digest()` implement EG's framed
