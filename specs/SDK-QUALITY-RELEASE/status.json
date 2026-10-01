@@ -30,8 +30,16 @@
     {
       "id": "SDK-QUALITY-RELEASE-R002",
       "title": "Public-documentation scanner catches private addresses and hosts",
-      "delivery_state": "UNKNOWN",
-      "evidence": []
+      "delivery_state": "BUILT",
+      "evidence": [
+        {
+          "kind": "branch",
+          "result": "passed",
+          "commit": "42d6c942703e7174fdaf908b68f5d3e0b35a7453",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/42d6c942703e7174fdaf908b68f5d3e0b35a7453",
+          "description": "Implementation commit is published on a branch; not yet merged to the default branch."
+        }
+      ]
     },
     {
       "id": "SDK-QUALITY-RELEASE-R003",
@@ -50,8 +58,17 @@
     {
       "id": "SDK-QUALITY-RELEASE-R004",
       "title": "Public documentation follows a task-first README and site structure",
-      "delivery_state": "UNKNOWN",
-      "evidence": []
+      "delivery_state": "BUILDING",
+      "evidence": [
+        {
+          "kind": "implementation",
+          "result": "passed",
+          "commit": "581d76e7b861637b664c22ec6b4f55ecd0081df7",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/581d76e7b861637b664c22ec6b4f55ecd0081df7",
+          "description": "Part of the requirement is implemented on the default branch."
+        }
+      ],
+      "remaining": "README.md on main does not lead with Quick Start: current section order is Overview, Key Capabilities, Documentation, Architecture, Quick Start, Contributing, License (Quick Start is section 5 of 7, not first). A one-file connector quick start and task-first docs/tutorial.md + docs/architecture.md d"
     },
     {
       "id": "SDK-QUALITY-RELEASE-R005",

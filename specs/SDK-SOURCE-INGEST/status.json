@@ -34,13 +34,21 @@
     {
       "id": "SDK-SOURCE-INGEST-R002",
       "title": "SDK drift classifier quarantines incompatible schema changes",
-      "delivery_state": "UNKNOWN",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "c45d87f9e0c4110f7d13c8cea452a4bb86472aec",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/c45d87f9e0c4110f7d13c8cea452a4bb86472aec",
+          "description": "Implemented on the default branch; exercised by tests/test_schema_drift.py::test_quarantine_has_zero_writes_and_zero_checkpoint_advance"
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R003",
       "title": "SDK records and pauses on proposed schema repairs",
-      "delivery_state": "UNKNOWN",
+      "delivery_state": "SPECIFIED",
       "evidence": []
     },
     {
@@ -72,19 +80,27 @@
     {
       "id": "SDK-SOURCE-INGEST-R007",
       "title": "Drift gate runs inside the SDK connector-sync runner",
-      "delivery_state": "UNKNOWN",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "cb1416a5ac0524ede279c94b079cbeac6a133965",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/cb1416a5ac0524ede279c94b079cbeac6a133965",
+          "description": "Implemented on the default branch; exercised by tests/test_schema_drift.py::test_quarantine_has_zero_writes_and_zero_checkpoint_advance"
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R008",
       "title": "Connectors ingest occurrence and weather observations",
-      "delivery_state": "UNKNOWN",
+      "delivery_state": "SPECIFIED",
       "evidence": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R009",
       "title": "Taxonomy connector ingests NCBI/GBIF taxa as kg:Taxon",
-      "delivery_state": "UNKNOWN",
+      "delivery_state": "SPECIFIED",
       "evidence": []
     }
   ]

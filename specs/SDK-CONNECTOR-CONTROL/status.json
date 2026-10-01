@@ -29,45 +29,70 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R001",
       "title": "ConnectorPackClient uses a deterministic idempotency key",
-      "delivery_state": "UNKNOWN",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "06aaa76638a72706779d09b7f856541db3d470d3",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/06aaa76638a72706779d09b7f856541db3d470d3",
+          "description": "Implemented on the default branch; exercised by tests/test_contracts_and_sink.py::test_epistemic_graph_sink_retries_one_pack_head_conflict"
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R002",
       "title": "Contract pin travels as a claim attribute, not recomputed downstream",
-      "delivery_state": "UNKNOWN",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "c16072c5508af1e59e3017bbd24e0265f7c0d714",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/c16072c5508af1e59e3017bbd24e0265f7c0d714",
+          "description": "Implemented on the default branch; exercised by tests/test_artifacts_discovery.py::test_contract_pin_normalization_passes_for_a_real_tool"
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R003",
       "title": "Canonical output-schema digest on every certified tool pin",
-      "delivery_state": "UNKNOWN",
-      "evidence": []
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "The standalone output_schema_digest() returns '' (empty, not a canonical nonempty digest) for a tool with no declared output schema -- explicitly asserted by tests/test_certify_pins.py:118 (output_schema_digest({\"name\": \"t\"}) == \"\"), the opposite of the required behavior. Only the combined tool_fing"
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R004",
       "title": "Contract-pin verification owned by the SDK's own test kit",
-      "delivery_state": "UNKNOWN",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "c16072c5508af1e59e3017bbd24e0265f7c0d714",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/c16072c5508af1e59e3017bbd24e0265f7c0d714",
+          "description": "Implemented on the default branch; exercised by tests/test_artifacts_discovery.py::test_contract_pin_normalization_catches_a_drifted_pin"
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R005",
       "title": "Pack publisher and source submission use generated graph-client types",
-      "delivery_state": "BUILDING",
+      "delivery_state": "LANDED",
       "evidence": [
         {
-          "kind": "branch",
+          "kind": "merged_head",
           "result": "passed",
-          "commit": "c1deaf7431b6ad4baf1f85621b317f6087c59a1a",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/c1deaf7431b6ad4baf1f85621b317f6087c59a1a",
-          "description": "Implementation commit is published on a branch; not yet merged to the default branch."
+          "commit": "06aaa76638a72706779d09b7f856541db3d470d3",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/06aaa76638a72706779d09b7f856541db3d470d3",
+          "description": "Implemented on the default branch; exercised by tests/test_contracts_and_sink.py::test_sdk_does_not_redeclare_generated_graph_boundary_models"
         }
       ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R006",
       "title": "Decision-service proposals for tool choice and triage stay observational",
-      "delivery_state": "UNKNOWN",
+      "delivery_state": "SPECIFIED",
       "evidence": []
     },
     {
@@ -79,37 +104,46 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R008",
       "title": "Closed, canonical pack annotation map across the connector fleet",
-      "delivery_state": "UNKNOWN",
-      "evidence": []
+      "delivery_state": "BUILDING",
+      "evidence": [
+        {
+          "kind": "implementation",
+          "result": "passed",
+          "commit": "06aaa76638a72706779d09b7f856541db3d470d3",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/06aaa76638a72706779d09b7f856541db3d470d3",
+          "description": "Part of the requirement is implemented on the default branch."
+        }
+      ],
+      "remaining": "cost/latency_declared are fields on the generated PackAnnotations model but are never populated or unit-validated by any code in this repo (zero hits for 'cost'/'latency' in source); no test demonstrates a semantic annotation change shifts the pack digest. Closed-map validation (extra=forbid), tool "
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R009",
       "title": "Connector batch A-E migrates fully onto the SDK client",
-      "delivery_state": "UNKNOWN",
+      "delivery_state": "SPECIFIED",
       "evidence": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R010",
       "title": "Connector batch F-J migrates fully onto the SDK client",
-      "delivery_state": "UNKNOWN",
+      "delivery_state": "SPECIFIED",
       "evidence": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R011",
       "title": "Connector batch K-O migrates fully onto the SDK client",
-      "delivery_state": "UNKNOWN",
+      "delivery_state": "SPECIFIED",
       "evidence": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R012",
       "title": "Connector batch P-S migrates fully onto the SDK client",
-      "delivery_state": "UNKNOWN",
+      "delivery_state": "SPECIFIED",
       "evidence": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R013",
       "title": "Connector batch T-Z migrates fully onto the SDK client",
-      "delivery_state": "UNKNOWN",
+      "delivery_state": "SPECIFIED",
       "evidence": []
     },
     {
@@ -130,19 +164,28 @@
       "delivery_state": "BUILDING",
       "evidence": [
         {
-          "kind": "branch",
+          "kind": "implementation",
           "result": "passed",
-          "commit": "ee760b3fbc05197d8bfd732e7957de64fe061652",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/ee760b3fbc05197d8bfd732e7957de64fe061652",
-          "description": "Implementation commit is published on a branch; not yet merged to the default branch."
+          "commit": "4f8b0022945ecd71698535649a583cd260914930",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/4f8b0022945ecd71698535649a583cd260914930",
+          "description": "Part of the requirement is implemented on the default branch."
         }
       ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R017",
       "title": "Every connector uses the shared TLS profile, no bare verify bypass",
-      "delivery_state": "UNKNOWN",
-      "evidence": []
+      "delivery_state": "BUILDING",
+      "evidence": [
+        {
+          "kind": "implementation",
+          "result": "passed",
+          "commit": "830be1c11cfefe3d043c6926e4f214ed65eae299",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/830be1c11cfefe3d043c6926e4f214ed65eae299",
+          "description": "Part of the requirement is implemented on the default branch."
+        }
+      ],
+      "remaining": "The SDK's shared TLS profile structurally rejects 'verify'/'allow_insecure' bypass keys and this is tested on main. Whether every connector package (separate repos: aris-mcp, freshrss-agent, hdhomerun-mcp, vector-mcp, etc.) actually routes HTTPS through this profile with no bare verify flags is outs"
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R018",
