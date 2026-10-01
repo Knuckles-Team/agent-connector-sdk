@@ -24,12 +24,16 @@ def _git(root: Path, *args: str) -> str:
     return result.stdout.strip()
 
 
-async def test_distinct_commits_with_one_tree_walk_once(tmp_path: Path) -> None:
-    root = tmp_path / "repo"
+def _init_repo(root: Path) -> None:
     root.mkdir()
     _git(root, "init", "-q", "-b", "main")
     _git(root, "config", "user.name", "fixture")
     _git(root, "config", "user.email", "fixture@example.invalid")
+
+
+async def test_distinct_commits_with_one_tree_walk_once(tmp_path: Path) -> None:
+    root = tmp_path / "repo"
+    _init_repo(root)
     (root / "nested").mkdir()
     (root / "nested" / "file.txt").write_text("shared\n")
     (root / "run.sh").write_text("#!/bin/sh\nexit 0\n")
@@ -67,10 +71,7 @@ async def test_distinct_commits_with_one_tree_walk_once(tmp_path: Path) -> None:
 
 async def test_batch_matches_git_recursive_listing(tmp_path: Path) -> None:
     root = tmp_path / "repo"
-    root.mkdir()
-    _git(root, "init", "-q", "-b", "main")
-    _git(root, "config", "user.name", "fixture")
-    _git(root, "config", "user.email", "fixture@example.invalid")
+    _init_repo(root)
     for depth in ("a", "b/c", "b/d"):
         directory = root / depth
         directory.mkdir(parents=True)

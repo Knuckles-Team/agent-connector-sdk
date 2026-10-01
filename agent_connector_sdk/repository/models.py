@@ -16,6 +16,7 @@ from agent_connector_sdk.repository.identity import (
     _immutable_git_id,
     _logical_path,
     _sha256_digest,
+    _validate_page,
 )
 
 __all__ = [
@@ -126,10 +127,7 @@ class RepositoryPage(_Frozen):
     def _paths_are_unique(self) -> Self:
         paths = [item.path for item in self.files]
         paths.extend(item.path for item in self.tombstones)
-        if len(paths) != len(set(paths)):
-            raise ValueError("repository page paths must be unique")
-        if not paths and self.next_cursor is not None:
-            raise ValueError("an empty repository page cannot continue")
+        _validate_page(paths, self.next_cursor, label="repository page")
         return self
 
 

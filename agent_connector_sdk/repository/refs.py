@@ -11,7 +11,11 @@ from typing import Self
 
 from pydantic import Field, model_validator
 
-from agent_connector_sdk.repository.identity import _immutable_git_id, _logical_path
+from agent_connector_sdk.repository.identity import (
+    _immutable_git_id,
+    _logical_path,
+    _validate_page,
+)
 from agent_connector_sdk.repository.models import RepositoryRevision, _Frozen
 
 __all__ = ["RepositoryRef", "RepositoryTreeEntry", "RepositoryTreePage"]
@@ -55,8 +59,5 @@ class RepositoryTreePage(_Frozen):
     @model_validator(mode="after")
     def _paths_are_unique(self) -> Self:
         paths = [item.path for item in self.entries]
-        if len(paths) != len(set(paths)):
-            raise ValueError("repository tree page paths must be unique")
-        if not paths and self.next_cursor is not None:
-            raise ValueError("an empty repository tree page cannot continue")
+        _validate_page(paths, self.next_cursor, label="repository tree page")
         return self
