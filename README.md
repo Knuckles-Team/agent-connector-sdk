@@ -40,65 +40,21 @@
 
 ## Quick Start
 
-Create a project, install the SDK, and run a one-file connector:
+Create a project and install the SDK:
 
 ```bash
 uv init --bare demo-connector
 cd demo-connector
 uv add agent-connector-sdk
+uv sync
+uv run connector-sync --help
 ```
 
-Create `connector.py`:
-
-```python
-from typing import Literal
-
-from agent_connector_sdk.mcp.server import create_mcp_server
-from agent_connector_sdk.mcp.tool_surface import register_tool_surface
-
-
-def register_status_tools(server) -> None:
-    @server.tool
-    async def demo(action: Literal["ping"] = "ping") -> dict[str, str]:
-        """Return the connector's observable status."""
-        return {"action": action, "connector": "demo", "status": "ok"}
-
-
-def main() -> None:
-    args, server, middlewares = create_mcp_server(
-        "demo-connector",
-        version="0.1.0",
-        instructions="A minimal observable connector.",
-    )
-    register_tool_surface(
-        server, service="demo-connector", registrars=[register_status_tools]
-    )
-    for middleware in middlewares:
-        server.add_middleware(middleware)
-    if args.transport == "stdio":
-        server.run(transport="stdio")
-    else:
-        server.run(transport=args.transport, host=args.host, port=args.port)
-
-
-if __name__ == "__main__":
-    main()
-```
-
-Run it (in one terminal) and check its health (from another):
-
-```bash
-uv run python connector.py --transport streamable-http --host 127.0.0.1 --port 8000
-```
-
-```bash
-curl -s http://127.0.0.1:8000/health
-```
-
-Continue with the
+The command prints the supervised synchronization options without opening a
+source session. Continue with the
 [connector tutorial](https://knuckles-team.github.io/agent-connector-sdk/tutorial/)
-to add declarative content, certify the live schema, and join source
-synchronization.
+to build and run a one-file MCP connector, observe its health response, add
+declarative content, certify the live schema, and join source synchronization.
 
 ## Overview
 

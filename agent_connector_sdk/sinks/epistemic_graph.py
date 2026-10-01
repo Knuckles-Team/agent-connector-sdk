@@ -20,11 +20,6 @@ from epistemic_graph.generated.connector_pack import (
     PackImportResultUnchanged,
     PackProducer,
 )
-from epistemic_graph.generated.ingestion import (
-    SourceIngestStatusRequest,
-    send_source_ingest,
-    send_source_ingest_status,
-)
 from epistemic_graph.generated.source_ingestion import (
     SourceIngestionReceipt,
     SourceIngestionRequest,
@@ -33,6 +28,7 @@ from epistemic_graph.generated.source_ingestion import (
 
 from agent_connector_sdk._version import __version__
 from agent_connector_sdk.artifacts.pack import CapturedConnectorPack
+from agent_connector_sdk.ingest.channel import SourceIngestChannel
 from agent_connector_sdk.ports.sink import SinkReadiness
 
 __all__ = [
@@ -57,18 +53,6 @@ def _require_pack_authority(
     return resolver
 
 
-def _validate_source_receipt(
-    request: SourceIngestionRequest, receipt: SourceIngestionReceipt, digest: str
-) -> None:
-    if (
-        receipt.batch_digest != digest
-        or receipt.accepted_checkpoint != request.provider_checkpoint
-        or receipt.mode != request.mode
-        or receipt.content_hash != request.provider_checkpoint.content_hash
-    ):
-        raise ValueError("SourceIngest receipt does not bind the request")
-
-
 def _validate_pack_result(result: PackImportResult, expected_digest: str) -> None:
     actual: str | None
     if isinstance(result, PackImportResultImported):
@@ -89,28 +73,23 @@ class EpistemicGraphSink:
     ) -> None:
         resolver = _require_pack_authority(client, pack_import_authority)
         self._client = client
+        self._channel = SourceIngestChannel(client)
         self._packs = ConnectorPackClient(client)
         self._pack_import_authority = resolver
 
     async def submit(self, batch: SourceIngestionRequest) -> SourceIngestionReceipt:
-        """Commit one exact generated ``SourceIngest`` request."""
-        request = SourceIngestionRequest.model_validate(batch)
-        digest = request.canonical_digest()
-        receipt = await send_source_ingest(
-            self._client,
-            {"request": request.model_dump(mode="json", exclude_none=True)},
-            idempotency_key=f"source-ingest:{request.connector}:{digest}",
-        )
-        _validate_source_receipt(request, receipt, digest)
-        return receipt
+        """Commit one exact generated ``SourceIngest`` request.
+
+        Delegates to the shared :class:`~agent_connector_sdk.ingest.channel.
+        SourceIngestChannel` -- the knowledge-ingest facade uses the exact
+        same channel, so the wire call and receipt-binding check live in one
+        place.
+        """
+        return await self._channel.submit(batch)
 
     async def source_status(self, connector: str, stream: str) -> SourceIngestStatus:
         """Read the sole durable checkpoint from EG's generated status method."""
-        request = SourceIngestStatusRequest(connector=connector, stream=stream)
-        status = await send_source_ingest_status(self._client, request)
-        if status.connector != connector or status.stream != stream:
-            raise ValueError("SourceIngest status does not bind the requested stream")
-        return status
+        return await self._channel.source_status(connector, stream)
 
     def import_pack(self, pack: CapturedConnectorPack) -> Awaitable[PackImportResult]:
         """Resolve current authority and import through the generated facade."""
