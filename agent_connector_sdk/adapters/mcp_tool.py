@@ -23,6 +23,10 @@ from agent_connector_sdk.adapters.mcp_tool_lifecycle import (
 )
 from agent_connector_sdk.adapters.mcp_tool_paging import page_params, tool_arguments
 from agent_connector_sdk.adapters.mcp_tool_records import raw_records
+from agent_connector_sdk.adapters.tool_contract import (
+    describe_preset_adapter,
+    discover_tool_backed_stream,
+)
 from agent_connector_sdk.contracts import (
     CapabilityDescriptor,
     ReconciliationReport,
@@ -32,7 +36,6 @@ from agent_connector_sdk.contracts import (
 from agent_connector_sdk.manifest.live_contract import validate_preset_tool_contract
 from agent_connector_sdk.manifest.model import ResourceSpec, SchemaMapping, SyncSpec
 from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.manifest.tool_schema import ToolSchemaContractError
 from agent_connector_sdk.ports.errors import SourceContractError
 from agent_connector_sdk.ports.session import McpSession
 
@@ -97,35 +100,20 @@ class McpToolSourceAdapter:
         return self._preset.name
 
     def describe(self) -> CapabilityDescriptor:
-        return CapabilityDescriptor(
-            kind=self.kind,
-            pagination=(self._preset.pagination,),
-            incremental=bool(self._preset.updated_field),
-            certified_for_ingestion=True,
+        return describe_preset_adapter(
+            self.kind, self._preset, incremental=bool(self._preset.updated_field)
         )
 
     async def discover(self, session: McpSession) -> StreamDescriptor:
         """Verify the live tool against its pinned compatibility fingerprint."""
         preset = self._preset
-        try:
-            contract = validate_preset_tool_contract(
-                await session.list_tools(),
-                tool_name=preset.tool,
-                presets=(preset,),
-                expected_schema_sha256=self._pinned,
-            )
-        except ToolSchemaContractError as exc:
-            raise SourceContractError(str(exc)) from exc
-        self._verified_sha256 = contract.compatibility_sha256
-        return StreamDescriptor(
-            stream=self.stream,
-            tool=preset.tool,
-            schema_sha256=contract.compatibility_sha256,
-            schema_contract=contract.schema_contract.model_copy(
-                update={"identifier_fields": (preset.id_field,)}
-            ),
-            evolution_policy=preset.evolution_policy,
+        self._verified_sha256, descriptor = await discover_tool_backed_stream(
+            session,
+            preset,
+            pinned_schema_sha256=self._pinned,
+            identifier_fields=(preset.id_field,),
         )
+        return descriptor
 
     async def extract(
         self, session: McpSession, checkpoint: SourceCheckpoint | None
