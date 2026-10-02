@@ -83,22 +83,18 @@ direction enforceable by the `phase-direction` gate.
 
 ## How to test it
 
-From a fresh clone (or automatically in a Claude Code cloud session via
-`.claude/hooks/session-start.sh`):
+`AGENTS.md` "Setup" and "Commands" are the source of truth; read them first.
+In short:
 
-```bash
-scripts/bootstrap.sh              # uv >= 0.9, pinned Python, EG contract, locked env, git hooks
-scripts/bootstrap.sh --scanners   # also the pinned cccc/KISS/dupehound/jscpd (needs cargo + npm)
-```
-
-Then, exactly as `AGENTS.md` "Commands" lists:
-
-```bash
-uv run --frozen python -m pytest -q
-uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files
-uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage pre-push
-uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage manual
-```
+1. Bootstrap once: `scripts/bootstrap.sh` (idempotent; add `--scanners` for
+   the pinned native cccc, KISS, dupehound and jscpd scanners, which need
+   cargo and npm). A Claude Code cloud session runs it through
+   `.claude/hooks/session-start.sh`.
+2. Tests: `uv run --frozen python -m pytest -q`.
+3. Gates: `uvx --from pre-commit==4.6.0 pre-commit run --config
+   .config/pre-commit.yaml --all-files`, then the same command with
+   `--hook-stage pre-push` (tests, wheel build, secret history) and with
+   `--hook-stage manual` (native scanners, privacy, fleet gates).
 
 The wiring gates run inside the pre-commit stage as `check-orphan-modules` and
 `check-public-api-tested` (`uv run --frozen python scripts/check_wiring.py
