@@ -9,6 +9,7 @@ from epistemic_graph.generated.write_back import (
 )
 from pydantic import ValidationError
 
+from agent_connector_sdk.ports.audit_reservation import AuditReservationPort
 from agent_connector_sdk.ports.authorization_verifier import AuthorizationVerifier
 from agent_connector_sdk.ports.writeback import WriteBackPort
 from agent_connector_sdk.ports.writeback_transport import WriteBackTransport
@@ -62,6 +63,7 @@ async def test_public_writeback_contracts_are_live() -> None:
     assert isinstance(fixture.transport, InMemoryWriteBackTransport)
     assert isinstance(fixture.transport, WriteBackTransport)
     assert isinstance(verifier, AuthorizationVerifier)
+    assert isinstance(fixture.audit, AuditReservationPort)
     current = await fixture.port.current_version(fixture.change_set)
     assert isinstance(current, SourceSnapshot)
     require_base(fixture.change_set, current)

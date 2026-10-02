@@ -58,8 +58,16 @@
     {
       "id": "SDK-GOVERNED-WRITEBACK-R004",
       "title": "Governed write-back: approval, idempotency, and an audit reservation",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "73cf528de6d33177ad0347b6dcef53a274910117",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/73cf528de6d33177ad0347b6dcef53a274910117",
+          "description": "Implemented on the default branch; exercised by tests/test_writeback_audit_reservation.py"
+        }
+      ]
     },
     {
       "id": "SDK-GOVERNED-WRITEBACK-R005",

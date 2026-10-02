@@ -30,8 +30,9 @@
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R002",
       "title": "SDK is the sole path for repository-native codebase hydration",
-      "delivery_state": "UNKNOWN",
-      "evidence": []
+      "delivery_state": "BUILDING",
+      "evidence": [],
+      "remaining": "Inside this repository the repository transport is the only codebase-hydration path, and no connector package reimplements it. Remaining, in another repository: agent-utilities still fetches GitLab project files and indexes them directly; that path has to be rerouted through this transport before the requirement holds."
     },
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R003",

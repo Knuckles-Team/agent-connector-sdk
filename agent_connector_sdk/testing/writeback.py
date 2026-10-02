@@ -15,10 +15,12 @@ from epistemic_graph.generated.write_back import (
 
 from agent_connector_sdk.ports.writeback import WriteBackPort
 from agent_connector_sdk.testing.results import ConformanceResult
+from agent_connector_sdk.testing.writeback_audit import InMemoryAuditReservation
 from agent_connector_sdk.writeback.authorization import (
     DeterministicAuthorizationVerifier,
 )
 from agent_connector_sdk.writeback.errors import (
+    AuditReservationUnavailableError,
     AuthorizationDeniedError,
     ReconciliationRequiredError,
     SourceVersionConflictError,
@@ -44,6 +46,7 @@ class WriteBackFixture:
     port: WriteBackPort
     unauthorized_port: WriteBackPort
     transport: InMemoryWriteBackTransport
+    audit: InMemoryAuditReservation
     change_set: SourceChangeSet
 
 
@@ -88,12 +91,14 @@ def make_writeback_fixture() -> WriteBackFixture:
     transport.seed(change.entity_id, "v1", {"status": "new"})
     verifier = DeterministicAuthorizationVerifier()
     verifier.grant(change)
+    audit = InMemoryAuditReservation()
     return WriteBackFixture(
-        port=GovernedWriteBack(transport, verifier),
+        port=GovernedWriteBack(transport, verifier, audit),
         unauthorized_port=GovernedWriteBack(
-            transport, DeterministicAuthorizationVerifier()
+            transport, DeterministicAuthorizationVerifier(), audit
         ),
         transport=transport,
+        audit=audit,
         change_set=change,
     )
 
@@ -183,6 +188,22 @@ async def _check_no_effect_retry(factory: WriteBackFixtureFactory) -> Conformanc
     return ConformanceResult("writeback-proven-no-effect-retry", passed)
 
 
+async def _check_audit_reservation(
+    factory: WriteBackFixtureFactory,
+) -> ConformanceResult:
+    fixture = factory()
+    fixture.audit.deny_next(fixture.change_set.idempotency_key)
+    try:
+        await fixture.port.apply(fixture.change_set)
+    except AuditReservationUnavailableError:
+        return ConformanceResult(
+            "writeback-audit-reservation", fixture.transport.attempts == 0
+        )
+    return ConformanceResult(
+        "writeback-audit-reservation", False, "write proceeded without a reservation"
+    )
+
+
 async def run_writeback_suite(
     factory: WriteBackFixtureFactory,
 ) -> list[ConformanceResult]:
@@ -194,4 +215,5 @@ async def run_writeback_suite(
         await _check_idempotency(factory),
         await _check_uncertain(factory),
         await _check_no_effect_retry(factory),
+        await _check_audit_reservation(factory),
     ]
