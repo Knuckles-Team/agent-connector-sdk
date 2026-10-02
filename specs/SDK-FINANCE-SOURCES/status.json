@@ -28,14 +28,16 @@
     {
       "id": "SDK-FINANCE-SOURCES-R003",
       "title": "FX, commodities, and real-estate adapters with roll and staleness rules",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "BUILDING",
+      "evidence": [],
+      "remaining": "Record contracts for FX rates (base, quote, direction, inversion), commodity prices (spot versus a futures contract with expiry and roll rule) and dated real-estate valuations with staleness are on the default branch with tests (tests/test_finance_records.py). Remaining: the source adapters that produce them, and their offline conformance tests per asset class."
     },
     {
       "id": "SDK-FINANCE-SOURCES-R004",
       "title": "Alpaca account reads and idempotent CSV activity import",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "BUILDING",
+      "evidence": [],
+      "remaining": "The CSV activity import (column-mapping preview, refusal of ambiguous columns or currencies, idempotent rows keyed by file digest and row identity) and the vendor-neutral account records are on the default branch with tests (tests/test_finance_csv_import.py). Remaining: the brokerage account and position read through a source adapter, and its re-import conformance test."
     },
     {
       "id": "SDK-FINANCE-SOURCES-R005",
