@@ -4,10 +4,8 @@ from __future__ import annotations
 
 from epistemic_graph.generated.write_back import WriteBackEffectStatus
 
-from agent_connector_sdk.testing.writeback import (
-    InMemoryAuditReservation,
-    make_writeback_fixture,
-)
+from agent_connector_sdk.testing.writeback import make_writeback_fixture
+from agent_connector_sdk.testing.writeback_audit import InMemoryAuditReservation
 from agent_connector_sdk.writeback.errors import AuditReservationUnavailableError
 
 
