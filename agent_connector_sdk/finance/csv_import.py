@@ -85,9 +85,7 @@ def _rows(content: bytes) -> list[dict[str, str]]:
 
 
 def _is_currency_code(value: str) -> bool:
-    return (
-        len(value) == _CURRENCY_CODE_LENGTH and value.isalpha() and value.isupper()
-    )
+    return len(value) == _CURRENCY_CODE_LENGTH and value.isalpha() and value.isupper()
 
 
 def _require_unambiguous_mapping(
@@ -107,15 +105,21 @@ def _require_resolved_currencies(
     rows: list[dict[str, str]], mapping: ColumnMapping
 ) -> None:
     currency_header = next(
-        (header for header, field in mapping.header_to_field.items()
-         if field == "currency"),
+        (
+            header
+            for header, field in mapping.header_to_field.items()
+            if field == "currency"
+        ),
         None,
     )
     if currency_header is None:
         return
     bad = sorted(
-        {row[currency_header] for row in rows
-         if not _is_currency_code(row.get(currency_header, ""))}
+        {
+            row[currency_header]
+            for row in rows
+            if not _is_currency_code(row.get(currency_header, ""))
+        }
     )
     if bad:
         raise AmbiguousCurrencyError(f"unrecognized currency codes: {bad}")

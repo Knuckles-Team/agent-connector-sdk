@@ -74,7 +74,6 @@ class AccountActivity(FinanceRecordBase):
         has_file_row = bool(self.source_file_digest) and bool(self.row_id)
         if not (has_broker_id or has_file_row):
             raise ValueError(
-                "activity requires broker_event_id or "
-                "(source_file_digest and row_id)"
+                "activity requires broker_event_id or (source_file_digest and row_id)"
             )
         return self

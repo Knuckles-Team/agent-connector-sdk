@@ -9,6 +9,7 @@ from agent_connector_sdk.finance.csv_import import (
     AmbiguousColumnMappingError,
     AmbiguousCurrencyError,
     ColumnMapping,
+    CsvImportPreview,
     import_activities,
     preview_csv_mapping,
 )
@@ -43,13 +44,16 @@ _CSV = (
 
 def test_preview_reports_row_count_and_stable_file_digest() -> None:
     preview = preview_csv_mapping(_CSV, _MAPPING)
+    assert isinstance(preview, CsvImportPreview)
     assert preview.row_count == 2
     assert preview.file_digest == preview_csv_mapping(_CSV, _MAPPING).file_digest
 
 
 def test_preview_rejects_a_mapping_missing_a_required_field() -> None:
     incomplete = ColumnMapping(
-        header_to_field={k: v for k, v in _MAPPING.header_to_field.items() if v != "fees"}
+        header_to_field={
+            k: v for k, v in _MAPPING.header_to_field.items() if v != "fees"
+        }
     )
     with pytest.raises(AmbiguousColumnMappingError, match="missing"):
         preview_csv_mapping(_CSV, incomplete)

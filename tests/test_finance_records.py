@@ -7,7 +7,11 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.finance.account import AccountActivity, AccountSnapshot, Position
+from agent_connector_sdk.finance.account import (
+    AccountActivity,
+    AccountSnapshot,
+    Position,
+)
 from agent_connector_sdk.finance.multi_asset import (
     CommodityPrice,
     CommodityPriceBasis,
@@ -15,9 +19,11 @@ from agent_connector_sdk.finance.multi_asset import (
     RealEstateValuation,
 )
 from agent_connector_sdk.finance.records import (
+    FINANCE_SCHEMA_VERSION,
     AdjustmentMode,
     Completeness,
     CorporateAction,
+    FinanceRecordBase,
     OhlcvBar,
     Quote,
 )
@@ -62,6 +68,8 @@ def test_ohlcv_bar_requires_explicit_adjustment_and_completeness() -> None:
     bar = _bar()
     assert bar.adjustment_mode is AdjustmentMode.RAW
     assert bar.completeness is Completeness.COMPLETE
+    assert isinstance(bar, FinanceRecordBase)
+    assert bar.schema_version == FINANCE_SCHEMA_VERSION
 
 
 def test_ohlcv_bar_rejects_high_low_that_do_not_bound_open_close() -> None:
@@ -91,9 +99,7 @@ def test_corporate_action_rejects_ex_date_after_effective_date() -> None:
 
 
 def test_fx_rate_inversion_swaps_base_quote_and_rate() -> None:
-    rate = FxRate(
-        **_base_fields(), base_currency="EUR", quote_currency="USD", rate=1.1
-    )
+    rate = FxRate(**_base_fields(), base_currency="EUR", quote_currency="USD", rate=1.1)
 
     inverted = rate.inverted()
 

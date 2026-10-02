@@ -20,8 +20,8 @@ from pydantic import Field, model_validator
 from agent_connector_sdk.finance.records import FinanceRecordBase
 
 __all__ = [
-    "CommodityPriceBasis",
     "CommodityPrice",
+    "CommodityPriceBasis",
     "FxRate",
     "RealEstateValuation",
 ]
