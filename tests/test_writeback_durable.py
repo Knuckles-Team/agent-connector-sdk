@@ -208,7 +208,9 @@ async def _registered_with_uncertainty(
     audit = InMemoryAuditReservation()
     connector = _reference_connector(fixture, ledger, audit)
     await connector.register(fixture.change_set)
-    fixture.transport.inject_uncertainty(fixture.change_set.idempotency_key, uncertainty)
+    fixture.transport.inject_uncertainty(
+        fixture.change_set.idempotency_key, uncertainty
+    )
     return _RestartableApply(fixture, ledger, audit, connector)
 
 
