@@ -46,6 +46,13 @@ connector-certify = "agent_connector_sdk.certify.cli:main"
 [project.entry-points."agent_connector_sdk.source_adapters"]
 mcp_tool = "agent_connector_sdk.adapters.mcp_tool:McpToolSourceAdapter"
 
+# Expose this SDK's development skill to the same provider federation
+# epistemic-graph and agent-webui use. This is metadata only: consumers
+# discover the entry point when agent-utilities is installed, without
+# imposing it as an agent-connector-sdk runtime dependency.
+[project.entry-points."agent_utilities.skill_providers"]
+agent-connector-sdk = "agent_connector_sdk.skills"
+
 [project.entry-points."agent_connector_sdk.artifact_kinds"]
 tools = "agent_connector_sdk.artifacts.tools:ToolArtifactKind"
 skills = "agent_connector_sdk.artifacts.skills:SkillArtifactKind"
@@ -66,7 +73,7 @@ where = ["."]
 include = ["agent_connector_sdk*"]
 
 [tool.setuptools.package-data]
-agent_connector_sdk = ["py.typed"]
+agent_connector_sdk = ["py.typed", "skills/**/*"]
 
 [dependency-groups]
 test = [
