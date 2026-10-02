@@ -16,6 +16,7 @@ from epistemic_graph.generated.write_back import (
     WriteBackOutcome,
 )
 
+from agent_connector_sdk.ports.audit_reservation import AuditReservationPort
 from agent_connector_sdk.ports.authorization_verifier import AuthorizationVerifier
 from agent_connector_sdk.ports.writeback_transport import WriteBackTransport
 from agent_connector_sdk.writeback.errors import (
@@ -42,11 +43,13 @@ class GovernedWriteBack:
         self,
         transport: WriteBackTransport,
         verifier: AuthorizationVerifier,
+        audit: AuditReservationPort,
         *,
         clock_ms: Callable[[], int] | None = None,
     ) -> None:
         self._transport = transport
         self._verifier = verifier
+        self._audit = audit
         self._clock_ms = clock_ms or (lambda: time.time_ns() // 1_000_000)
         self._unresolved: dict[str, str] = {}
 
@@ -80,6 +83,7 @@ class GovernedWriteBack:
         require_base(change_set, current)
         decision = await self._verifier.verify(change_set)
         require_authorized(change_set, decision)
+        await self._audit.reserve(change_set)
         try:
             result = await self._transport.apply(change_set, current.source_version)
             require_effect(change_set, result)

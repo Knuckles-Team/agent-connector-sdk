@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 __all__ = [
+    "AuditReservationUnavailableError",
     "AuthorizationDeniedError",
     "ChangeSetExpiredError",
     "ChangeSetValidationError",
@@ -21,6 +22,10 @@ class WriteBackError(RuntimeError):
 
 class ChangeSetValidationError(WriteBackError, ValueError):
     """The generated change-set projection violates the SDK boundary."""
+
+
+class AuditReservationUnavailableError(WriteBackError):
+    """No audit reservation is available; the source call must not be made."""
 
 
 class ChangeSetExpiredError(WriteBackError):

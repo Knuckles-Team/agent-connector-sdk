@@ -29,6 +29,7 @@ from epistemic_graph.generated.write_back import (
     WriteBackEffectStatus,
 )
 
+from agent_connector_sdk.writeback.audit import InMemoryAuditReservation
 from agent_connector_sdk.writeback.connector import DurableWritableConnector
 from agent_connector_sdk.writeback.durable_ledger import FileWriteBackLedger
 from agent_connector_sdk.writeback.durable_transport import FileWriteBackTransport
@@ -89,7 +90,9 @@ async def _register_and_apply_until_killed(
     root = Path(directory)
     ledger = FileWriteBackLedger(root / "ledger")
     transport = _KillAfterApplyTransport(root / "transport")
-    connector = DurableWritableConnector(change_set.connector_id, transport, ledger)
+    connector = DurableWritableConnector(
+        change_set.connector_id, transport, ledger, audit=InMemoryAuditReservation()
+    )
     await connector.register(change_set)
     await connector.apply(change_set)  # never returns: SIGKILL fires inside apply()
 
@@ -118,7 +121,10 @@ def test_writable_connector_survives_a_kill_mid_attempt(tmp_path: Path) -> None:
     restarted_ledger = FileWriteBackLedger(tmp_path / "ledger")
     restarted_transport = FileWriteBackTransport(tmp_path / "transport")
     restarted = DurableWritableConnector(
-        change_set.connector_id, restarted_transport, restarted_ledger
+        change_set.connector_id,
+        restarted_transport,
+        restarted_ledger,
+        audit=InMemoryAuditReservation(),
     )
 
     async def _after_restart() -> None:
