@@ -19,7 +19,10 @@ from epistemic_graph.generated.write_back import (
 )
 
 from agent_connector_sdk.ports.writeback_ledger import WriteBackLedger
-from agent_connector_sdk.testing.writeback import WriteBackFixture, make_writeback_fixture
+from agent_connector_sdk.testing.writeback import (
+    WriteBackFixture,
+    make_writeback_fixture,
+)
 from agent_connector_sdk.writeback.audit import InMemoryAuditReservation
 from agent_connector_sdk.writeback.authorization import DurableAuthorizationResolver
 from agent_connector_sdk.writeback.connector import DurableWritableConnector
