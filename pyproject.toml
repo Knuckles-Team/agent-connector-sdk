@@ -207,7 +207,6 @@ public_modules = [
     "agent_connector_sdk.tls.resolve",
     "agent_connector_sdk.transports.mcp",
     "agent_connector_sdk.utilities",
-    "agent_connector_sdk.writeback.audit",
     "agent_connector_sdk.writeback.authorization",
     "agent_connector_sdk.writeback.connector",
     "agent_connector_sdk.writeback.durable_ledger",
