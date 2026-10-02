@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 import pytest
@@ -189,47 +190,57 @@ def _reference_connector(
     )
 
 
-async def test_uncertain_effect_is_reconciled_after_process_restart() -> None:
+@dataclass(frozen=True)
+class _RestartableApply:
+    """A registered connector whose next apply loses its acknowledgement."""
+
+    fixture: WriteBackFixture
+    ledger: MemoryLedger
+    audit: InMemoryAuditReservation
+    connector: DurableWritableConnector
+
+
+async def _registered_with_uncertainty(
+    uncertainty: FixtureUncertainty,
+) -> _RestartableApply:
     fixture = make_writeback_fixture()
     ledger = MemoryLedger()
     audit = InMemoryAuditReservation()
     connector = _reference_connector(fixture, ledger, audit)
     await connector.register(fixture.change_set)
-    fixture.transport.inject_uncertainty(
-        fixture.change_set.idempotency_key, FixtureUncertainty.AFTER_EFFECT
-    )
+    fixture.transport.inject_uncertainty(fixture.change_set.idempotency_key, uncertainty)
+    return _RestartableApply(fixture, ledger, audit, connector)
 
-    uncertain = await connector.apply(fixture.change_set)
+
+async def test_uncertain_effect_is_reconciled_after_process_restart() -> None:
+    state = await _registered_with_uncertainty(FixtureUncertainty.AFTER_EFFECT)
+    fixture = state.fixture
+
+    uncertain = await state.connector.apply(fixture.change_set)
     assert uncertain.effect_status is WriteBackEffectStatus.OUTCOME_UNCERTAIN
 
-    restarted = _reference_connector(fixture, ledger, audit)
+    restarted = _reference_connector(fixture, state.ledger, state.audit)
     with pytest.raises(ReconciliationRequiredError):
         await restarted.apply(fixture.change_set)
     reconciled = await restarted.reconcile(fixture.change_set)
     assert reconciled.effect_status is WriteBackEffectStatus.APPLIED
 
-    restarted_again = _reference_connector(fixture, ledger, audit)
+    restarted_again = _reference_connector(fixture, state.ledger, state.audit)
     applied = await restarted_again.apply(fixture.change_set)
     assert applied.effect_status is WriteBackEffectStatus.APPLIED
     assert fixture.transport.attempts == 1
 
 
 async def test_proven_no_effect_allows_one_restart_retry() -> None:
-    fixture = make_writeback_fixture()
-    ledger = MemoryLedger()
-    audit = InMemoryAuditReservation()
-    connector = _reference_connector(fixture, ledger, audit)
-    await connector.register(fixture.change_set)
-    fixture.transport.inject_uncertainty(
-        fixture.change_set.idempotency_key, FixtureUncertainty.BEFORE_EFFECT
-    )
-    await connector.apply(fixture.change_set)
+    state = await _registered_with_uncertainty(FixtureUncertainty.BEFORE_EFFECT)
+    fixture = state.fixture
+    await state.connector.apply(fixture.change_set)
 
-    restarted = _reference_connector(fixture, ledger, audit)
+    restarted = _reference_connector(fixture, state.ledger, state.audit)
     reconciled = await restarted.reconcile(fixture.change_set)
     assert reconciled.effect_status is WriteBackEffectStatus.NO_EFFECT
 
-    restarted_again = _reference_connector(fixture, ledger, audit)
+    restarted_again = _reference_connector(fixture, state.ledger, state.audit)
     applied = await restarted_again.apply(fixture.change_set)
     assert applied.effect_status is WriteBackEffectStatus.APPLIED
     assert fixture.transport.attempts == 2
