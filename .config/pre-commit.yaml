@@ -94,6 +94,10 @@ repos:
   # public documentation
   - id: public-surface
     stages: [pre-commit, manual]
+  - id: ste-staged
+    stages: [pre-commit, manual]
+  - id: ste-staleness-staged
+    stages: [pre-commit, manual]
   - id: swallowed-errors
     stages: [pre-commit, manual]
   - id: event-loop-blocking
