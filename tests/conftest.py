@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Callable
 from contextlib import AbstractAsyncContextManager
 from pathlib import Path
@@ -57,3 +58,11 @@ def adapter() -> McpToolSourceAdapter:
         schema_mappings=manifest.schema_mappings,
         resources=manifest.resources,
     )
+
+
+@pytest.fixture
+def isolated_git_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep temporary repositories independent of the invoking Git hook."""
+    for name in tuple(os.environ):
+        if name.startswith("GIT_"):
+            monkeypatch.delenv(name)

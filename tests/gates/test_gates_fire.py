@@ -11,6 +11,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
+pytestmark = pytest.mark.usefixtures("isolated_git_environment")
+
+
 WIRING = Path(__file__).resolve().parents[2] / "scripts" / "check_wiring.py"
 
 
