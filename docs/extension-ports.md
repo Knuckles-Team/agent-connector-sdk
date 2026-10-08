@@ -15,7 +15,7 @@ distribution and declares an entry point; nothing in the SDK changes.
 
 | Method | Contract |
 |---|---|
-| `describe()` | capabilities, without I/O |
+| `describe()` | capabilities, without `I/O` |
 | `discover(session)` | verify the live source contract; required before extraction |
 | `extract(session, checkpoint)` | one page and the provider checkpoint that resumes after it |
 | `reconcile(session, known_ids)` | ids missing from the source and unknown to the sink |
@@ -116,7 +116,7 @@ checkpoint and live-set state are read directly from EG's generated
 
 ## WriteBackPort
 
-`WriteBackPort` is the D18 source-I/O boundary. It reads the current source
+`WriteBackPort` is the D18 source-`I/O` boundary. It reads the current source
 version, produces a side-effect-free field diff, rejects an optimistic conflict
 before mutation, verifies an exact durable authorization decision, applies under
 an idempotency key, and reconciles every possible effect before retry. The only

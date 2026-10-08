@@ -70,7 +70,7 @@ body is not copied, because it can echo request data.
 | `HttpRateLimitedError` | 429 |
 | `UpstreamTimeoutError` | a timeout that is not retried |
 | `UpstreamUnavailableError` | no connection |
-| `TlsVerificationError` | the certificate did not verify |
+| `TlsVerificationError` | the certificate did not check |
 | `RetriesExhaustedError` | every allowed attempt failed; `problem.extensions["attempts"]` |
 | `ResponseTooLargeError` | a body exceeded its bound |
 
@@ -114,7 +114,7 @@ rotated secret is picked up. `ClientCredentialsConfig.from_settings()` reads
 fleet MCP servers.
 
 Delegation exchanges only the access token the connector's own MCP server
-authentication verified; with no verified caller it raises `LoginRequiredError`.
+authentication checked; with no checked caller it raises `LoginRequiredError`.
 
 ### MCP endpoints
 

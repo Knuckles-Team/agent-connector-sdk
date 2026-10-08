@@ -36,7 +36,7 @@ See [`docs/quality-gates.md`](docs/quality-gates.md) for what each gate checks.
 
 ## Branches and pull requests
 
-1. Branch from `main` (use a separate `git worktree` when working on several
+1. Branch from `main` (use a separate `git worktree` when working on multiple
    changes at once; never `git stash`).
 2. Stage explicit paths, run the gates, and commit in logical steps. Never use
    `--no-verify`.

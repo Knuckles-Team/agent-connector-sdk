@@ -46,7 +46,7 @@ entries to the admitted catalog snapshot and canonical pack digest.
 
 Pack facts are carried by EG's generated `PackAnnotations`: capability,
 modality, cost, latency, and contract-version declarations come from the exact
-`eg.annotations` key in MCP `_meta` (or skill front matter). Tools additionally
+`eg.annotations` key in MCP `_meta` (or skill front matter). Tools also
 carry all explicitly served MCP safety hints and the SDK compatibility
 fingerprint of their input/output contract. Conflicting declarations fail
 closed instead of silently choosing one.

@@ -1,7 +1,7 @@
 # Architecture
 
 The Agent Connector SDK is the connector transport and lifecycle layer between
-MCP clients, vendor systems, GraphOS, and epistemic-graph. It keeps vendor I/O
+MCP clients, vendor systems, GraphOS, and epistemic-graph. It keeps vendor `I/O`
 replaceable while one generated graph contract owns durable identity and state.
 
 ![Agent ecosystem runtime architecture](assets/runtime-architecture.svg)
@@ -42,7 +42,7 @@ SDK does not copy graph request DTOs, receipt types, or digest algorithms.
   </li>
   <li class="site-flow__step">
     <div class="site-flow__title">Authorize</div>
-    <div class="site-flow__body">Graph OS hands the SDK runtime a verified identity and authority; the runtime discovers and extracts through the connector server.</div>
+    <div class="site-flow__body">Graph OS hands the SDK runtime a verified identity and authority. The runtime discovers and extracts through the connector server.</div>
   </li>
   <li class="site-flow__step">
     <div class="site-flow__title">Write back</div>
@@ -134,7 +134,7 @@ See [Extension ports](extension-ports.md) for protocol details and
 
 ## Connector subsystem architecture
 
-Deep-dive pages for individual connector families and the ingestion machinery
+Detailed review pages for individual connector families and the ingestion machinery
 they share, relocated here from agent-utilities (the SDK owns
 connectors, transport, repository hydration, and write-back):
 

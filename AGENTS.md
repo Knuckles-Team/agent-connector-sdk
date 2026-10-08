@@ -58,7 +58,7 @@ The runner activates an extension only after its exact group, name,
 distribution, and version are certified. Sink readiness is capability based.
 The bundled epistemic-graph sink reads durable SourceIngest status and commits
 through generated SourceIngest, ConnectorPack, and WriteBack contracts; it does
-not retain a parallel cursor authority. Construction requires a verified
+not retain a parallel cursor authority. Construction requires a checked
 generated client and live ConnectorPack authority resolver.
 
 ## Setup
@@ -139,7 +139,7 @@ a gate to land a change.
   established thread boundary.
 - Use current names without version suffixes, compatibility aliases, or parallel
   implementations.
-- Add focused positive and adversarial tests for each invariant. Verify discovery
+- Add focused positive and adversarial tests for each invariant. Check discovery
   as well as direct construction for entry-point features.
 - Keep public examples synthetic and portable. Do not publish machine paths,
   private endpoints, credentials, internal plans, or implementation history.

@@ -23,7 +23,7 @@ everything:
 ## Composition and running
 
 The SDK does not discover epistemic-graph or mint its request identity. GraphOS
-constructs the verified generated client from its authenticated runtime context
+builds the checked generated client from its authenticated runtime context
 and injects it at the public composition seam:
 
 ```python
@@ -65,7 +65,7 @@ connector-sync --config runner.yml --once         # one cycle per connector
 | `--health-addr` | unset | `PORT` or `HOST:PORT` serving `/health` and `/health/ready` (env `RUNNER_HEALTH_ADDR`); disabled unless set, and never started for `--once` |
 | `--health-allow-non-loopback` | off | required to bind `--health-addr` to a non-loopback host |
 
-Exit `2` means the runner could not start: an invalid configuration, an
+Exit `2` means the runner can not start: an invalid configuration, an
 uncertified extension, a malformed credential setting, or a malformed or
 disallowed `--health-addr`.
 
@@ -179,10 +179,10 @@ Any failure fails that connector closed and retries it with backoff.
 
 ## Source contract drift
 
-Discovery verifies the MCP tool against the manifest's pinned compatibility
+Discovery checks the MCP tool against the manifest's pinned compatibility
 fingerprint. Each extracted page carries a normalized snapshot of the live
 input and output contract. Before submission, the runner compares that snapshot
-with discovery's verified contract (or the explicit `SyncTarget.schema_contract`).
+with discovery's checked contract (or the explicit `SyncTarget.schema_contract`).
 A direct `commit_page` caller must supply that prior contract too. Missing
 contracts fail closed. Custom adapters supply `StreamDescriptor.schema_contract`
 and `RecordPage.schema_contract`.

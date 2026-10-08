@@ -1,7 +1,7 @@
-# Build your first connector
+# Build the operator's first connector
 
 This tutorial creates one MCP server in one Python file, runs it safely on
-loopback, and verifies an observable SDK health response. It uses the same
+loopback, and checks an observable SDK health response. It uses the same
 server factory and tool-surface registration path as a packaged connector.
 
 ## 1. Create the project
@@ -120,7 +120,7 @@ Certification lists tools without invoking them or reaching the vendor API. Use
 
 ## 6. Join the source lifecycle
 
-Durable source sync is composed by GraphOS with a verified epistemic-graph
+Durable source sync is composed by GraphOS with a checked epistemic-graph
 client and current ConnectorPack authority. The SDK discovers and extracts
 source pages; generated epistemic-graph requests own mapping, checkpoint CAS,
 provenance, and durable receipts.

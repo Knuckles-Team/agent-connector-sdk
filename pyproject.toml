@@ -242,3 +242,6 @@ repository = "Knuckles-Team/agent-connector-sdk"
 distribution = "agent-connector-sdk"
 pages_url = "https://knuckles-team.github.io/agent-connector-sdk/"
 mcp_server = false
+
+[tool.pipelines_hooks.ste]
+exempt = ["specs/*", "specs/**/*"]
