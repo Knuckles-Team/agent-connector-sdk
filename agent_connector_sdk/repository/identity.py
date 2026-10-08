@@ -10,7 +10,7 @@ _SHA256_PREFIX = "sha256:"
 def _logical_path(value: str) -> str:
     """Return a normalized repository-relative POSIX path."""
     path = PurePosixPath(value)
-    if not value or value.startswith("/") or path.as_posix() != value:
+    if not path.parts or value.startswith("/") or path.as_posix() != value:
         raise ValueError("repository path must be a normalized relative POSIX path")
     if any(part in {"", ".", ".."} for part in path.parts):
         raise ValueError("repository path must not contain empty or relative segments")
