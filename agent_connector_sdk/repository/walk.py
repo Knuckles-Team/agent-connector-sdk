@@ -61,8 +61,9 @@ async def _walk_tree(
         if page.revision != revision:
             raise RepositoryTransportError("provider page changed immutable revision")
         for entry in page.entries:
-            if entries.setdefault(entry.path, entry) is not entry:
+            if entry.path in entries:
                 raise RepositoryTransportError("provider repeated a repository path")
+            entries[entry.path] = entry
         cursor = page.next_cursor
         if cursor is None:
             return tuple(entries[path] for path in sorted(entries)), pages

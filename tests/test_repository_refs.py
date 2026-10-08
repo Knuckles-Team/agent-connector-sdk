@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from agent_connector_sdk.repository.errors import RepositoryTransportError
 from agent_connector_sdk.repository.local_git import LocalGitRepositoryProvider
 from agent_connector_sdk.repository.models import RepositoryRevision
 from agent_connector_sdk.repository.provider import RepositoryRefWalkProvider
@@ -15,6 +16,7 @@ from agent_connector_sdk.repository.refs import (
     RepositoryTreeEntry,
     RepositoryTreePage,
 )
+from agent_connector_sdk.repository.walk import walk_refs
 
 
 def _revision() -> RepositoryRevision:
@@ -62,3 +64,44 @@ def test_local_git_provider_satisfies_the_ref_walk_protocol(tmp_path: Path) -> N
     provider = LocalGitRepositoryProvider(tmp_path, repository_id="fixture")
 
     assert isinstance(provider, RepositoryRefWalkProvider)
+
+
+@pytest.mark.parametrize("repeat", ["same_instance", "equal_instance", "changed_blob"])
+async def test_ref_walk_rejects_repeated_path_across_pages(
+    tmp_path: Path, repeat: str
+) -> None:
+    revision = _revision().model_copy(
+        update={"provider": "local-git", "repository_id": "fixture"}
+    )
+    entry = RepositoryTreeEntry(path="main.py", blob_id="e" * 40)
+    repeated = {
+        "same_instance": entry,
+        "equal_instance": entry.model_copy(),
+        "changed_blob": entry.model_copy(update={"blob_id": "f" * 40}),
+    }[repeat]
+    entries = (entry, repeated)
+    cursors: list[str | None] = []
+
+    class _PagedProvider(LocalGitRepositoryProvider):
+        async def list_refs(self) -> tuple[RepositoryRef, ...]:
+            return (RepositoryRef(name="refs/heads/main", revision=revision),)
+
+        async def prime_trees(self, tree_ids: tuple[str, ...]) -> None:
+            assert tree_ids == (revision.tree_id,)
+
+        async def list_tree(
+            self, revision: RepositoryRevision, *, cursor: str | None, page_size: int
+        ) -> RepositoryTreePage:
+            cursors.append(cursor)
+            index = len(cursors) - 1
+            return RepositoryTreePage(
+                revision=revision,
+                entries=(entries[index],),
+                next_cursor="1" if index == 0 else None,
+            )
+
+    provider = _PagedProvider(tmp_path, repository_id="fixture")
+    with pytest.raises(RepositoryTransportError, match="repeated a repository path"):
+        await walk_refs(provider, page_size=1)
+
+    assert cursors == [None, "1"]
