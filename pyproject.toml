@@ -73,7 +73,7 @@ where = ["."]
 include = ["agent_connector_sdk*"]
 
 [tool.setuptools.package-data]
-agent_connector_sdk = ["py.typed", "skills/**/*"]
+agent_connector_sdk = ["py.typed", "skills/**/*", "ontology/*.ttl"]
 
 [dependency-groups]
 test = [
@@ -114,6 +114,7 @@ exclude_dirs = ["tests", "scripts"]
 # The documented public surface. scripts/check_wiring.py orphans treats these and
 # every entry-point target as roots; every other module must be imported by one.
 public_modules = [
+    "agent_connector_sdk.access_contract",
     "agent_connector_sdk.adapters.event_feed",
     "agent_connector_sdk.adapters.event_feed_bindings",
     "agent_connector_sdk.adapters.mcp_tool",

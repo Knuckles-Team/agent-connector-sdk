@@ -22,7 +22,8 @@
     "SDK-CONNECTOR-CONTROL-R017",
     "SDK-CONNECTOR-CONTROL-R018",
     "SDK-CONNECTOR-CONTROL-R019",
-    "SDK-CONNECTOR-CONTROL-R020"
+    "SDK-CONNECTOR-CONTROL-R020",
+    "SDK-CONNECTOR-CONTROL-R021"
   ],
   "delivery_state": "UNKNOWN",
   "acceptance_state": "NOT_AUDITED",
@@ -219,6 +220,12 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R020",
       "title": "One condensed intent contract: MCP_TOOL_MODE retired",
+      "delivery_state": "BUILDING",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R021",
+      "title": "Connector ontologies declare access contracts for virtual reads",
       "delivery_state": "BUILDING",
       "evidence": []
     }
