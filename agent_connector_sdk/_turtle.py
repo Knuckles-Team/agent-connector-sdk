@@ -1,8 +1,7 @@
-"""Flat Turtle reader for connector access contracts.
+"""Flat Turtle reader used by the access-contract parser.
 
-The reader accepts ``@prefix`` lines, prefixed names, ``<IRIs>``, ``a``,
-string and integer literals, and ``;`` ``,`` ``.``. Blank nodes and
-collections are refused.
+It tokenizes one restricted profile (see :mod:`agent_connector_sdk.access_contract`)
+and raises :class:`AccessContractError` on anything outside it.
 """
 
 from __future__ import annotations
