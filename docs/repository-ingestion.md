@@ -21,7 +21,7 @@ authority for the ingested content.
 Call `index_repository_snapshot(provider, client, revision, limits=...)`. The
 revision uses the provider/project identity plus immutable revision and tree
 identifiers. Each file carries a normalized repository-relative POSIX path, its
-content, and a verified SHA-256 blob digest. Rename and deletion evidence travels
+content, and a checked SHA-256 blob digest. Rename and deletion evidence travels
 as `RepositoryTombstone`; it is preserved in the receipt and is never disguised
 as parser input.
 

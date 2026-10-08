@@ -88,7 +88,7 @@ Package version: 0.1.0.
 
 ## Documentation
 
-Start with [Build your first connector](https://knuckles-team.github.io/agent-connector-sdk/tutorial/),
+Start with [Build the operator's first connector](https://knuckles-team.github.io/agent-connector-sdk/tutorial/),
 then choose the reference that matches the work:
 
 - [Documentation home](https://knuckles-team.github.io/agent-connector-sdk/)
@@ -106,7 +106,7 @@ owns authenticated runtime composition.
 
 ## Architecture
 
-![Runtime architecture: people and clients enter through Graph OS; source systems flow through Agent Connector SDK into Epistemic Graph.](docs/assets/runtime-architecture.svg)
+![Runtime architecture: people and clients enter through Graph OS. Source systems flow through Agent Connector SDK into Epistemic Graph.](docs/assets/runtime-architecture.svg)
 
 | Boundary | Owned here | Owned elsewhere |
 |---|---|---|
@@ -114,7 +114,7 @@ owns authenticated runtime composition.
 | Source ingest | Discovery, bounded extraction, transport, receipt verification | Epistemic Graph owns mapping, checkpoints, provenance, and commit receipts. |
 | Repository ingest | Authenticated snapshots, stable manifests, bounded object transport | Epistemic Graph owns indexing, graph projection, and semantic interpretation. |
 | Write-back | Preview, source-version checks, apply, and reconciliation | Epistemic Graph owns change sets, authorization decisions, and durable outcomes. |
-| Runtime composition | Typed ports and verified dependency requirements | Graph OS supplies authenticated identity, clients, and live authority. |
+| Runtime composition | Typed ports and checked dependency requirements | Graph OS supplies authenticated identity, clients, and live authority. |
 
 The SDK depends directly on `epistemic-graph>=2.27.0`. Generated SourceIngest,
 ConnectorPack, IndexRepository, and WriteBack clients and models are the graph
