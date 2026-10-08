@@ -38,7 +38,9 @@ __all__ = [
     "ConnectorContent",
     "ContentError",
     "ContentRegistration",
+    "ontology_resources",
     "register_connector_content",
+    "register_ontology_resources",
 ]
 
 MANIFEST_RESOURCE_URI = "manifest://connector"
@@ -117,18 +119,37 @@ def _file_resource(uri: str, path: Path, mime_type: str) -> FileResource:
     )
 
 
-def _content_resources(content: ConnectorContent) -> list[FileResource]:
-    ontology = content.package_root / "ontology"
-    resources = [
-        _file_resource(
-            f"{scheme}://{content.connector}/{path.name}", path, "text/turtle"
-        )
+def ontology_resources(connector: str, ontology_dir: Path) -> list[FileResource]:
+    """Build the ``ontology://`` and ``shapes://`` resources of one ontology directory.
+
+    ``ontology_dir/*.ttl`` become ``ontology://<connector>/<file>.ttl`` and
+    ``ontology_dir/shapes/*.ttl`` become ``shapes://<connector>/<file>.ttl``.
+    A missing directory yields no resources.
+    """
+    return [
+        _file_resource(f"{scheme}://{connector}/{path.name}", path, "text/turtle")
         for scheme, directory in (
-            ("ontology", ontology),
-            ("shapes", ontology / "shapes"),
+            ("ontology", ontology_dir),
+            ("shapes", ontology_dir / "shapes"),
         )
         for path in sorted(directory.glob("*.ttl"))
     ]
+
+
+def register_ontology_resources(mcp: Any, connector: str, ontology_dir: Path) -> int:
+    """Register one ontology directory's resources on ``mcp``; return the count.
+
+    The host-side half of :func:`register_connector_content` for servers that
+    already serve skills and prompts through their own providers.
+    """
+    resources = ontology_resources(connector, ontology_dir)
+    for resource in resources:
+        mcp.add_resource(resource)
+    return len(resources)
+
+
+def _content_resources(content: ConnectorContent) -> list[FileResource]:
+    resources = ontology_resources(content.connector, content.package_root / "ontology")
     if content.manifest_path is None:
         return resources
     if not content.manifest_path.is_file():
