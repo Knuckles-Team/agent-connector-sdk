@@ -7,3 +7,5 @@
 - [ ] Retire duplicate toolkit/certification/config paths only after consumer import scans (SDK-CONNECTOR-CONTROL-R014, SDK-CONNECTOR-CONTROL-R015, SDK-CONNECTOR-CONTROL-R016).
 - [ ] Attach exact merged commit, artifact digest, CI result, typed SQL receipt and live redacted pack receipt; mark accepted only when CC-01–CC-10 pass.
 - [ ] Verify every connector uses the shared TLS profile with no bare verify-bypass, and that the full test suite, strict type check and docs build pass cleanly from a fresh checkout (SDK-CONNECTOR-CONTROL-R017, SDK-CONNECTOR-CONTROL-R018).
+- [x] Expose `ontology_resources` and `register_ontology_resources` for host servers; reuse them in `register_connector_content` (SDK-CONNECTOR-CONTROL-R019).
+- [ ] Release the SDK so agent-utilities can raise its SDK floor (SDK-CONNECTOR-CONTROL-R019).

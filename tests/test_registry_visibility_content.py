@@ -19,7 +19,9 @@ from agent_connector_sdk.mcp.content import (
     ConnectorContent,
     ContentError,
     ContentRegistration,
+    ontology_resources,
     register_connector_content,
+    register_ontology_resources,
 )
 from agent_connector_sdk.mcp.middleware import (
     build_middleware,
@@ -269,3 +271,23 @@ def test_connector_content_requires_identity(tmp_path: Path, field: str) -> None
             package_root=tmp_path,
             package_version="" if field == "package_version" else "1.0.0",
         )
+
+
+async def test_ontology_resources_are_served_alone(package_root: Path) -> None:
+    mcp: FastMCP[Any] = FastMCP("host")
+    count = register_ontology_resources(mcp, "demo-agent", package_root / "ontology")
+    assert count == 2
+    async with Client(mcp) as client:
+        uris = {str(resource.uri) for resource in await client.list_resources()}
+        body = await client.read_resource("ontology://demo-agent/demo.ttl")
+        prompts = await client.list_prompts()
+    assert uris == {
+        "ontology://demo-agent/demo.ttl",
+        "shapes://demo-agent/demo.shapes.ttl",
+    }
+    assert body[0].mime_type == "text/turtle"
+    assert prompts == []
+
+
+def test_ontology_resources_of_a_missing_directory_are_empty(tmp_path: Path) -> None:
+    assert ontology_resources("demo-agent", tmp_path / "absent") == []

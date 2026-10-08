@@ -20,7 +20,8 @@
     "SDK-CONNECTOR-CONTROL-R015",
     "SDK-CONNECTOR-CONTROL-R016",
     "SDK-CONNECTOR-CONTROL-R017",
-    "SDK-CONNECTOR-CONTROL-R018"
+    "SDK-CONNECTOR-CONTROL-R018",
+    "SDK-CONNECTOR-CONTROL-R019"
   ],
   "delivery_state": "UNKNOWN",
   "acceptance_state": "NOT_AUDITED",
@@ -206,6 +207,12 @@
       "id": "SDK-CONNECTOR-CONTROL-R018",
       "title": "SDK source and test suite build cleanly from a fresh checkout",
       "delivery_state": "UNKNOWN",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R019",
+      "title": "Host servers register ontology resources without duplicate skills or prompts",
+      "delivery_state": "BUILDING",
       "evidence": []
     }
   ]
