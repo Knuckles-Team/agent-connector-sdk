@@ -5,11 +5,12 @@ from __future__ import annotations
 import hashlib
 
 import pytest
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from agent_connector_sdk.repository import (
     RepositoryManifestFile,
     RepositorySnapshotManifest,
+    RepositoryTreeEntry,
 )
 from agent_connector_sdk.repository.models import (
     RepositoryAuthentication,
@@ -118,3 +119,45 @@ def test_snapshot_manifest_fingerprint_is_order_independent() -> None:
     assert left.files == (first, second)
     assert right.files == left.files
     assert right.fingerprint == left.fingerprint
+
+
+@pytest.mark.parametrize("path", ["\0", "src/invalid\0.py", "trailing.py\0"])
+@pytest.mark.parametrize(
+    ("model", "field"),
+    [
+        (RepositoryFile, "path"),
+        (RepositoryTreeEntry, "path"),
+        (RepositoryManifestFile, "path"),
+        (RepositoryTombstone, "path"),
+        (RepositoryTombstone, "successor_path"),
+    ],
+)
+def test_repository_identities_reject_nul(
+    path: str,
+    model: type[BaseModel],
+    field: str,
+) -> None:
+    payload: dict[str, object] = {
+        "path": "valid.py",
+        "blob_digest": _digest(b"source"),
+        "content": b"source",
+    }
+    if model is RepositoryManifestFile:
+        payload = {
+            "path": "valid.py",
+            "blob_digest": _digest(b"source"),
+            "byte_length": 6,
+        }
+    elif model is RepositoryTreeEntry:
+        payload = {"path": "valid.py", "blob_id": "a" * 40}
+    elif model is RepositoryTombstone:
+        payload = {"path": "old.py", "prior_blob_digest": _digest(b"source")}
+    payload[field] = path
+
+    with pytest.raises(ValidationError, match="NUL"):
+        model.model_validate(payload)
+
+
+@pytest.mark.parametrize("path", ["src/café.py", "space name.py", "line\nbreak.py"])
+def test_repository_file_preserves_valid_posix_names(path: str) -> None:
+    assert _file(path, b"source").path == path
