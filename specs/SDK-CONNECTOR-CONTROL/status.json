@@ -23,7 +23,8 @@
     "SDK-CONNECTOR-CONTROL-R018",
     "SDK-CONNECTOR-CONTROL-R019",
     "SDK-CONNECTOR-CONTROL-R020",
-    "SDK-CONNECTOR-CONTROL-R021"
+    "SDK-CONNECTOR-CONTROL-R021",
+    "SDK-CONNECTOR-CONTROL-R022"
   ],
   "delivery_state": "UNKNOWN",
   "acceptance_state": "NOT_AUDITED",
@@ -226,6 +227,12 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R021",
       "title": "Connector ontologies declare access contracts for virtual reads",
+      "delivery_state": "BUILDING",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R022",
+      "title": "The pack builder scopes owl:imports to the pack",
       "delivery_state": "BUILDING",
       "evidence": []
     }

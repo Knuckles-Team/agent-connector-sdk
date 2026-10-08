@@ -15,6 +15,7 @@ from epistemic_graph.generated.connector_pack import PackEntryKind
 from fastmcp import FastMCP
 
 from agent_connector_sdk.artifacts.common import json_object
+from agent_connector_sdk.artifacts.ontology_imports import scope_ontology_imports
 from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
 from agent_connector_sdk.mcp.content import (
     ConnectorContent,
@@ -103,6 +104,20 @@ async def _capture_entries(
     return tuple(entries)
 
 
+def _scope_imports(
+    entries: Sequence[CapturedArtifact],
+) -> tuple[CapturedArtifact, ...]:
+    ontology_uris = frozenset(
+        entry.uri for entry in entries if entry.uri.startswith("ontology://")
+    )
+    return tuple(
+        scope_ontology_imports(entry, ontology_uris)
+        if entry.kind == "resource" and entry.uri in ontology_uris
+        else entry
+        for entry in entries
+    )
+
+
 def _require_unique_uris(entries: Sequence[CapturedArtifact]) -> None:
     uris = [entry.uri for entry in entries]
     if len(uris) != len(set(uris)):
@@ -120,6 +135,7 @@ async def build_content_pack(
     server = await session.server_identity()
     entries = await _capture_entries(session, kinds, server)
     _require_unique_uris(entries)
+    entries = _scope_imports(entries)
     server_entry = ConnectorPackEntryContent(
         kind=PackEntryKind.MCP_SERVER,
         uri=f"mcp-server://{connector}",

@@ -1,6 +1,6 @@
 # SDK connector control, certification, and pack publication
 
-**Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R021.
+**Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R022.
 **Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 **Boundary:** This SDK owns source-side connector hosting, discovery, certification, pack construction, and submission. A graph service owns durable pack records and receipts; a control-plane service owns routing and activation policy. Vendor packages own their API calls.
 
@@ -58,3 +58,13 @@ Requirement IDs are defined in [requirements.md](requirements.md); delivery stat
 Each connector ontology declares how a consumer reads each class live. The `ac:` vocabulary in `agent_connector_sdk/ontology/access_contract.ttl` defines `ac:AccessContract` and `ac:PropertyBinding`. A contract names the class, the source, the entity and the key field. It names the access kind: `mcp_tool`, `http_endpoint`, `graphql_query` or `a2a_skill`. It names the operation, its parameters, the pagination mode and the pushdown operations. Pushdown operations are `filter`, `sort`, `limit` and `project`. `ac:authRef` holds an `env://` or `openbao://` reference, never a secret. Rate limit, freshness and cost hints let a consumer choose a live read or a copied hot slice. A missing hint means unknown.
 
 `parse_access_contracts` reads the flat Turtle profile and returns typed `AccessContract` values. `virtual_mapping_fields` returns the agent-utilities `VirtualMapping` arguments. graph-os onboarding imports these contracts as unapproved mappings. EG-UNIFIED-DATA-PLANE-R037/R038 and EG-FEDERATED-QUERY-R072/R073 consume the result.
+
+## Pack-scoped ontology imports (SDK-CONNECTOR-CONTROL-R022)
+
+epistemic-graph accepts an `owl:imports` only when it names an ontology entry of the same pack.
+Fleet ontologies import shared hub ontologies such as `http://knuckles.team/kg`.
+The tenant schema composes every attached pack, so the hub import is redundant at pack scope.
+`build_content_pack` removes each import outside the pack from every ontology body.
+It records each removed IRI as `ontology-import:<iri>` in the entry's `requires_capabilities` annotation.
+The builder handles Turtle and RDF/XML bodies.
+A body without external imports stays byte-identical.
