@@ -192,7 +192,8 @@ async def test_readiness_reflects_sink_usability() -> None:
     graph = _health(sink=EpistemicGraphSink(object(), pack_authority_unexpected))
     graph.sync_registry(())
     report = await graph.readiness()
-    assert (report.status, report.body["reasons"]) == (200, [])
+    assert report.status == 503
+    assert "engine capability probe unavailable" in report.body["reasons"]
 
     memory = _health(sink=InMemorySink())
     memory.sync_registry(())
@@ -200,9 +201,50 @@ async def test_readiness_reflects_sink_usability() -> None:
     assert (report.status, report.body["reasons"]) == (200, [])
 
 
-async def test_epistemic_graph_sink_reports_its_reason() -> None:
-    state = await EpistemicGraphSink(object(), pack_authority_unexpected).readiness()
+async def test_epistemic_graph_sink_requires_live_commit_capabilities() -> None:
+    class CapabilityClient:
+        def __init__(self, advertised: frozenset[str]) -> None:
+            self.advertised = advertised
+            self.probed: list[str] = []
+
+        async def supports(self, method: str) -> bool:
+            self.probed.append(method)
+            return method in self.advertised
+
+    methods = frozenset({"SourceIngest", "SourceIngestStatus", "ConnectorPack"})
+    ready_client = CapabilityClient(methods)
+    state = await EpistemicGraphSink(
+        ready_client, pack_authority_unexpected
+    ).readiness()
     assert state == SinkReadiness(ready=True)
+    assert ready_client.probed == [
+        "SourceIngest",
+        "SourceIngestStatus",
+        "ConnectorPack",
+    ]
+
+    stale_client = CapabilityClient(methods - {"ConnectorPack"})
+    state = await EpistemicGraphSink(
+        stale_client, pack_authority_unexpected
+    ).readiness()
+    assert state == SinkReadiness(
+        ready=False, reason="engine does not advertise ConnectorPack"
+    )
+    state = await EpistemicGraphSink(object(), pack_authority_unexpected).readiness()
+    assert state == SinkReadiness(
+        ready=False, reason="engine capability probe unavailable"
+    )
+
+
+async def test_epistemic_graph_sink_hides_probe_failure_details() -> None:
+    class FailedProbe:
+        async def supports(self, _method: str) -> bool:
+            raise RuntimeError("secret in transport URL")
+
+    state = await EpistemicGraphSink(
+        FailedProbe(), pack_authority_unexpected
+    ).readiness()
+    assert state == SinkReadiness(ready=False, reason="engine capability probe failed")
 
 
 async def test_readiness_names_a_not_ready_sinks_reason() -> None:
