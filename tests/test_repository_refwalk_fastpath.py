@@ -7,6 +7,7 @@ recursive ``git ls-tree`` listing.
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -104,3 +105,49 @@ async def test_batch_matches_git_recursive_listing(tmp_path: Path) -> None:
         tree.ref.name: {entry.path: entry.blob_id for entry in tree.entries}
         for tree in trees
     } == expected
+
+
+@pytest.mark.parametrize("linked", [False, True])
+async def test_provider_ignores_inherited_repository_selectors(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, linked: bool
+) -> None:
+    target = tmp_path / "target"
+    foreign = tmp_path / "foreign"
+    for root in (target, foreign):
+        _init_repo(root)
+        (root / "content.txt").write_text(root.name)
+        _git(root, "add", "--", "content.txt")
+        _git(root, "-c", "commit.gpgsign=false", "commit", "-qm", root.name)
+    if linked:
+        worktree = tmp_path / "linked"
+        _git(target, "worktree", "add", "-qb", "linked", str(worktree))
+        target = worktree
+    provider = LocalGitRepositoryProvider(target, repository_id="requested")
+    refs = await provider.list_refs()
+    revision = refs[0].revision
+    expected = await provider.list_tree(revision, cursor=None, page_size=10)
+    selectors = {
+        "GIT_DIR": str(foreign / ".git"),
+        "GIT_COMMON_DIR": str(foreign / ".git"),
+        "GIT_WORK_TREE": str(foreign),
+        "GIT_INDEX_FILE": str(foreign / ".git" / "index"),
+        "GIT_OBJECT_DIRECTORY": str(foreign / ".git" / "objects"),
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": str(foreign / ".git" / "objects"),
+        "GIT_NAMESPACE": "foreign",
+        "GIT_PREFIX": "foreign/",
+    }
+    for name, value in selectors.items():
+        monkeypatch.setenv(name, value)
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", "fixture.retained")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_0", "retained")
+
+    direct = LocalGitRepositoryProvider(target, repository_id="requested")
+    assert await direct.list_refs() == refs
+    assert await direct.list_tree(revision, cursor=None, page_size=10) == expected
+    assert await direct.fetch_blob(revision, expected.entries[0].blob_id) == b"target"
+    batched = LocalGitRepositoryProvider(target, repository_id="requested")
+    await batched.prime_trees((revision.tree_id,))
+    assert await batched.list_tree(revision, cursor=None, page_size=10) == expected
+    assert await batched._git("config", "--get", "fixture.retained") == b"retained\n"
+    assert {name: os.environ[name] for name in selectors} == selectors
