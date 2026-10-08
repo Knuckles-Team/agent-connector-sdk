@@ -61,7 +61,7 @@ def test_repository_transport_models_preserve_revision_auth_and_tombstone() -> N
     assert page.tombstones == (deleted,)
 
 
-@pytest.mark.parametrize("path", ["", "/root.py", "a/../b.py", "a//b.py"])
+@pytest.mark.parametrize("path", ["", ".", "/root.py", "a/../b.py", "a//b.py"])
 def test_repository_file_rejects_non_logical_paths(path: str) -> None:
     with pytest.raises(ValidationError, match=r"normalized|relative"):
         _file(path, b"source")
