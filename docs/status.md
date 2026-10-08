@@ -10,14 +10,14 @@ authoritative detail.
 | Connector MCP server | Available | `create_mcp_server` with the shared security, health, content, and tool-surface policies |
 | Connector certification | Available | `connector-certify` checks live MCP schemas and pinned fingerprints without invoking vendor actions |
 | Source synchronization | Available | `connector-sync` supervises certified adapters and advances only from matching Epistemic Graph receipts |
-| Epistemic Graph sink | Available through verified composition | Requires an injected generated client and live ConnectorPack authority resolver |
+| Epistemic Graph sink | Available through checked composition | Requires an injected generated client and live ConnectorPack authority resolver |
 | Repository ingestion | Available | Immutable snapshot paging into the generated `IndexRepository` operation with bounded transfer and typed outcomes |
 | Governed write-back | Available | Generated change sets and authorization decisions drive preview, apply, and reconciliation |
 | Extension conformance | Available | Reusable suites cover source adapters, artifact kinds, transports, sinks, and write-back ports |
 
 ## Runtime authority
 
-Graph-bound operation is composed by Graph OS. It injects verified identity,
+Graph-bound operation is composed by Graph OS. It injects checked identity,
 the generated Epistemic Graph client, and current catalog authority. The SDK
 fails closed when a required dependency, source receipt, authorization decision,
 or extension certification is absent or does not match.

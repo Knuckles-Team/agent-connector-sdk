@@ -58,7 +58,7 @@ else:
 
 The typed configuration enforces exact Host and browser/WebSocket Origin
 allowlists, a bounded request body with a read timeout, and the immediate-peer
-CIDR for TLS-terminating ingress. Its Uvicorn policy disables forwarded-header
+CIDR for TLS-stop ingress. Its Uvicorn policy disables forwarded-header
 trust and bounds concurrency, listen backlog, keepalive, graceful shutdown, and
 the incomplete HTTP-event buffer. Direct TLS certificate and key paths are
 validated before the listener starts.
@@ -79,7 +79,7 @@ Invalid values refuse startup; they never fall back to an unbounded listener.
 | `--auth-type` | Needs |
 |---|---|
 | `static` | `--static-tokens-ref` naming a JSON token map |
-| `jwt` | `--token-issuer`, `--token-audience`, and a JWKS URI, public key, or `--token-secret-ref` for HMAC; comma lists configure several realms |
+| `jwt` | `--token-issuer`, `--token-audience`, and a JWKS URI, public key, or `--token-secret-ref` for HMAC; comma lists configure multiple realms |
 | `oauth-proxy` | upstream endpoints, client id, `--oauth-upstream-client-secret-ref`, base URL and JWT settings |
 | `oidc-proxy` | `--oidc-config-url`, client id, `--oidc-client-secret-ref`, base URL and token audience |
 | `remote-oauth` | authorization servers, base URL and JWT settings |

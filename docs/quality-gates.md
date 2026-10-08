@@ -17,7 +17,7 @@ Run `scripts/bootstrap.sh` once to make every default-stage hook runnable.
 | jscpd | 5.0.16 | pushed range and full tree | no new copied blocks; census printed |
 | scanner census | cccc and KISS | every package module | zero findings, absolutely |
 
-Scanner versions are verified before each run; a missing or different binary
+Scanner versions are checked before each run; a missing or different binary
 stops the gate rather than passing it. `scripts/install_scanners.sh` is the one
 place these versions are installed from, locally and in CI.
 
@@ -45,4 +45,4 @@ durable `AGENTS.md` structure. Its repository identity is configured in
 
 No graph-boundary stub is allowed. SourceIngest, ConnectorPack, and WriteBack
 must use epistemic-graph's generated contracts and clients, and readiness must
-fail closed when required verified authority has not been injected.
+fail closed when required checked authority has not been injected.

@@ -8,7 +8,7 @@ part of the current public package.
 |---|---|---|
 | MCP server | FastMCP construction, authentication, exposure checks, health, visibility, rate limiting, change subscriptions, and tool registration | [Connector servers](connector-servers.md) |
 | Connector content | Typed publication and capture of tools, skills, prompts, resources, ontologies, SHACL shapes, and manifests | [Content over MCP](content-over-mcp.md) |
-| Source synchronization | Certified discovery, bounded extraction, explicit lifecycle modes, durable status reads, and receipt-verified checkpoint progression | [Connector sync](connector-sync.md) |
+| Source synchronization | Certified discovery, bounded extraction, explicit lifecycle modes, durable status reads, and receipt-checked checkpoint progression | [Connector sync](connector-sync.md) |
 | ConnectorPack | Deterministic archives whose exact served content crosses generated Epistemic Graph contracts | [Architecture](architecture.md#connectorpack-lifecycle) |
 | Repository ingestion | Authenticated immutable snapshots, stable manifests, bounded object transfer, tombstones, and typed per-file outcomes | [Repository ingestion](repository-ingestion.md) |
 | Write-back | Side-effect-free preview, authorization verification, optimistic source versions, idempotent apply, and uncertain-effect reconciliation | [Architecture](architecture.md#writeback-lifecycle) |
@@ -19,7 +19,7 @@ part of the current public package.
 
 The SDK depends on `epistemic-graph>=2.27.0`. SourceIngest, ConnectorPack,
 IndexRepository, and WriteBack graph models come from Epistemic Graph's
-generated surface. Graph OS supplies the verified client, identity, and live
+generated surface. Graph OS provides the checked client, identity, and live
 authority required for graph-bound runtime composition.
 
 The SDK owns connector transport and lifecycle behavior. Connector packages own
@@ -30,6 +30,6 @@ checkpoint, content-identity, provenance, and receipt authority.
 
 Connector distributions can use the [conformance kit](conformance-kit.md), and
 running MCP packages can be checked with
-[`connector-certify`](connector-certify.md). Repository gates verify public API
+[`connector-certify`](connector-certify.md). Repository gates check public API
 wiring, live schema fingerprints, generated contract freshness, type safety,
 tests, packaging, and this documentation surface.

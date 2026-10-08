@@ -6,7 +6,7 @@
     write-back boundary for the agent ecosystem.
   </p>
   <div class="site-hero__actions">
-    <a class="md-button md-button--primary" href="tutorial/">Build your first connector</a>
+    <a class="md-button md-button--primary" href="tutorial/">Build the operator's first connector</a>
     <a class="md-button" href="architecture/">Explore the architecture</a>
   </div>
 </section>
@@ -87,7 +87,7 @@ checkpoints, provenance, and receipts stay authoritative in epistemic-graph.
 
 ## Choose a path
 
-- **New connector:** follow [Build your first connector](tutorial.md).
+- **New connector:** follow [Build the operator's first connector](tutorial.md).
 - **Runtime owner:** read [Architecture](architecture.md) and
   [Connector sync](connector-sync.md).
 - **Repository operator:** use [Repository ingestion](repository-ingestion.md)

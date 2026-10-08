@@ -23,7 +23,7 @@ name, canonical input schema and canonical output schema. Object keys are
 sorted; string lists such as `required` and `enum` are sorted; presentation
 fields (`title`, `description`, `examples`, `$comment`) and runtime defaults are
 removed. Output-schema changes therefore invalidate the same pin that
-`connector-sync` verifies before extraction.
+`connector-sync` checks before extraction.
 
 An empty input schema is refused. If a preset selects an action, the tool's
 action property must constrain that value with JSON Schema `enum`, or with
@@ -71,11 +71,11 @@ digest, and any defect. It does not include endpoint URLs or credentials.
 |---|---|
 | `0` | every pin matches, or all certifiable pins were written |
 | `1` | drift, an invalid empty-schema pin, an unpinned tool, or a refused write |
-| `2` | invalid checkout or the server could not list tools |
+| `2` | invalid checkout or the server can not list tools |
 
 `--write` replaces `connectors/tool_schema_fingerprints.json` and only the
 `tool_schema_sha256` lines of `connector_manifest.yml`. It writes nothing unless
-every preset tool has one live, non-empty, action-valid contract and verifies
+every preset tool has one live, non-empty, action-valid contract and checks
 the reparsed manifest before replacing either file. A durable transaction
 journal restores the previous consistent pair if either replacement fails or a
 later certification starts after an interrupted write.
