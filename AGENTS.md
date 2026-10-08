@@ -47,7 +47,7 @@ the `phase-direction` gate.
 | `agent_connector_sdk/testing/` | reusable connector conformance suites |
 | `tests/` | unit, integration, contract, and gate tests |
 | `docs/` | public GitHub Pages sources and generated shared-theme assets |
-| `overrides/` | shared MkDocs Material template overrides |
+| `.config/mkdocs-overrides/` | shared MkDocs Material template overrides |
 
 The public Python surface is declared in
 `pyproject.toml` under `[tool.agent_connector_sdk.wiring]`. Every module must be

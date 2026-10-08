@@ -96,3 +96,12 @@ checkpoints, provenance, and receipts stay authoritative in epistemic-graph.
   the [Conformance kit](conformance-kit.md).
 - **Security reviewer:** start with [Connector servers](connector-servers.md),
   [HTTP clients](http-clients.md), and [Credentials](credentials.md).
+
+## Specification delivery
+
+[Open the specification dashboard](https://knuckles-team.github.io/agent-connector-sdk/spec-delivery/)
+for documented specifications, separate requirement status, delivery evidence,
+and open pull request and issue snapshots. It refreshes on pushes to `main`.
+Completion requires recorded delivery and acceptance; a merged requirement does
+not complete its parent specification. Dates and trends remain unknown until
+supported by recorded evidence.
