@@ -262,3 +262,54 @@ async def test_missing_per_file_outcomes_fail_closed() -> None:
 
     with pytest.raises(RepositoryTransportError, match="lacks typed file_outcomes"):
         await index_repository_snapshot(provider, _client(_OldGraph()), revision)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("initial_status", [_Status.ERROR, _Status.UNSUPPORTED])
+async def test_failed_parse_remains_visible_and_is_resubmitted_on_replay(
+    initial_status: _Status,
+) -> None:
+    revision = _revision()
+    pages = [
+        RepositoryPage(
+            revision=revision,
+            files=(_file("good.py", b"good"),),
+            next_cursor="page:2",
+        ),
+        RepositoryPage(
+            revision=revision,
+            files=(_file("retry.py", b"retry"),),
+        ),
+    ]
+    provider = _Provider(pages * 2)
+    graph = _Graph({"retry.py": initial_status})
+    client = _client(graph)
+    limits = RepositoryBatchLimits(max_files=1)
+
+    first = await index_repository_snapshot(provider, client, revision, limits=limits)
+    failed_result = first.batches[1].result
+    assert failed_result is graph.results[1]
+    assert failed_result.file_outcomes[0].status == initial_status
+
+    graph.statuses["retry.py"] = _Status.SUCCESS
+    retried = await index_repository_snapshot(provider, client, revision, limits=limits)
+
+    assert (
+        graph.calls
+        == [
+            [("good.py", b"good")],
+            [("retry.py", b"retry")],
+        ]
+        * 2
+    )
+    assert [call[1] for call in provider.calls] == [None, "page:2", None, "page:2"]
+    assert retried.manifest == first.manifest
+    assert retried.revision == first.revision == revision
+    assert first.provider_pages == retried.provider_pages == 2
+    assert all(
+        batch.result.file_outcomes[0].status == _Status.SUCCESS
+        for batch in retried.batches
+    )
+    assert retried.batches[1].result is graph.results[3]
+    assert retried.batches[1].result is not failed_result
+    assert failed_result.file_outcomes[0].status == initial_status
