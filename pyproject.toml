@@ -173,7 +173,6 @@ public_modules = [
     "agent_connector_sdk.mcp.network",
     "agent_connector_sdk.mcp.registry",
     "agent_connector_sdk.mcp.server",
-    "agent_connector_sdk.mcp.tool_mode",
     "agent_connector_sdk.mcp.tool_surface",
     "agent_connector_sdk.ports.artifact_kind",
     "agent_connector_sdk.ports.audit_reservation",

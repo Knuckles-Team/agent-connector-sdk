@@ -89,16 +89,11 @@ An unknown mode is an error, never an unauthenticated server. With
 
 ## Tool surface
 
-`register_tool_surface(mcp, service=..., ...)` registers condensed
-action-routed tools and, in `verbose` or `both` mode, one tool per API method
-plus `tool__action` aliases derived from the condensed tools.
-
-| `MCP_TOOL_MODE` | Condensed tools | Verbose tools |
-|---|---|---|
-| `intent` (default) | registered and tagged `gated` | no |
-| `condensed` | registered | no |
-| `verbose` | registered; gated when a verbose surface exists | yes |
-| `both` | registered | yes |
+`register_tool_surface(mcp, service=..., ...)` registers one condensed,
+action-routed tool per registrar, tagged `gated` so a fleet gateway holds it
+back from a default session view and reveals it on demand — the one condensed
+intent contract; `MCP_TOOL_MODE` and its `condensed`/`verbose`/`both`/`intent`
+modes are gone.
 
 Each condensed registrar honours a `<TAG>TOOL` setting. A destructive operation
 asks the connected user to confirm and is cancelled when it cannot.
