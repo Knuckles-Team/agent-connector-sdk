@@ -1,6 +1,6 @@
 # SDK connector control, certification, and pack publication
 
-**Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R018.
+**Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R021.
 **Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 **Boundary:** This SDK owns source-side connector hosting, discovery, certification, pack construction, and submission. A graph service owns durable pack records and receipts; a control-plane service owns routing and activation policy. Vendor packages own their API calls.
 
@@ -52,3 +52,9 @@ Source is **LANDED** only after an exact merged commit contains the required imp
 | Live pack publication and idempotent retry | Pending redacted receipt | OPEN |
 
 Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.
+
+## Access contracts (SDK-CONNECTOR-CONTROL-R021)
+
+Each connector ontology declares how a consumer reads each class live. The `ac:` vocabulary in `agent_connector_sdk/ontology/access_contract.ttl` defines `ac:AccessContract` and `ac:PropertyBinding`. A contract names the class, the source, the entity and the key field. It names the access kind: `mcp_tool`, `http_endpoint`, `graphql_query` or `a2a_skill`. It names the operation, its parameters, the pagination mode and the pushdown operations. Pushdown operations are `filter`, `sort`, `limit` and `project`. `ac:authRef` holds an `env://` or `openbao://` reference, never a secret. Rate limit, freshness and cost hints let a consumer choose a live read or a copied hot slice. A missing hint means unknown.
+
+`parse_access_contracts` reads the flat Turtle profile and returns typed `AccessContract` values. `virtual_mapping_fields` returns the agent-utilities `VirtualMapping` arguments. graph-os onboarding imports these contracts as unapproved mappings. EG-UNIFIED-DATA-PLANE-R037/R038 and EG-FEDERATED-QUERY-R072/R073 consume the result.

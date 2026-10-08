@@ -1,0 +1,50 @@
+# Access-contract vocabulary (SDK-CONNECTOR-CONTROL-R021).
+#
+# A connector ontology declares, per ontology class, how a consumer reads it
+# live. Field names align with agent-utilities VirtualMapping:
+# sourceId, entity, classIri, keyField and PropertyBinding (property -> field).
+# Contracts use the flat Turtle profile that access_contract.py parses:
+# prefixed names or <IRIs>, string or integer literals, no blank nodes.
+
+@prefix ac:   <https://knuckles-team.github.io/agent-connector-sdk/access#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+ac:AccessContract a owl:Class ;
+    rdfs:comment "How one ontology class is answered live by one source operation." .
+
+ac:PropertyBinding a owl:Class ;
+    rdfs:comment "One ontology property bound to one source field of a contract." .
+
+ac:classIri a owl:ObjectProperty ; rdfs:domain ac:AccessContract ;
+    rdfs:comment "The ontology class this contract answers (VirtualMapping.class_iri)." .
+ac:sourceId a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
+    rdfs:comment "The source connection identifier (VirtualMapping.source_id)." .
+ac:entity a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
+    rdfs:comment "The source entity name (VirtualMapping.entity)." .
+ac:keyField a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
+    rdfs:comment "The source field holding the entity key (VirtualMapping.key_field)." .
+
+ac:accessKind a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
+    rdfs:comment "One of mcp_tool, http_endpoint, graphql_query, a2a_skill." .
+ac:operation a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
+    rdfs:comment "The MCP tool name, endpoint path, GraphQL query name or A2A skill id." .
+ac:parameter a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
+    rdfs:comment "One parameter name the operation accepts. Repeatable." .
+ac:pagination a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
+    rdfs:comment "One of none, cursor, offset, page." .
+ac:pushdown a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
+    rdfs:comment "One operation the source executes itself: filter, sort, limit or project. Repeatable." .
+ac:authRef a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
+    rdfs:comment "A credential reference (env://NAME or openbao://mount/path#field). Never a secret." .
+ac:rateLimitPerMinute a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:integer .
+ac:freshnessSeconds a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:integer ;
+    rdfs:comment "Maximum acceptable staleness. Small values favour live reads." .
+ac:costHint a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
+    rdfs:comment "One of low, medium, high. High cost favours a copied hot slice." .
+
+ac:contract a owl:ObjectProperty ; rdfs:domain ac:PropertyBinding ; rdfs:range ac:AccessContract .
+ac:property a owl:ObjectProperty ; rdfs:domain ac:PropertyBinding .
+ac:field a owl:DatatypeProperty ; rdfs:domain ac:PropertyBinding ; rdfs:range xsd:string .
