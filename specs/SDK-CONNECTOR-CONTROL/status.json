@@ -20,7 +20,8 @@
     "SDK-CONNECTOR-CONTROL-R015",
     "SDK-CONNECTOR-CONTROL-R016",
     "SDK-CONNECTOR-CONTROL-R017",
-    "SDK-CONNECTOR-CONTROL-R018"
+    "SDK-CONNECTOR-CONTROL-R018",
+    "SDK-CONNECTOR-CONTROL-R019"
   ],
   "delivery_state": "UNKNOWN",
   "acceptance_state": "NOT_AUDITED",
@@ -207,6 +208,19 @@
       "title": "SDK source and test suite build cleanly from a fresh checkout",
       "delivery_state": "UNKNOWN",
       "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R019",
+      "title": "One condensed intent contract: MCP_TOOL_MODE retired",
+      "delivery_state": "BUILDING",
+      "evidence": [
+        {
+          "kind": "pull_request",
+          "result": "pending",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/pull/TBD",
+          "description": "feat/retire-tool-mode: deletes mcp/tool_mode.py, mcp/verbose_tools.py, mcp/verbose_autowire.py, mcp/verbose_naming.py; register_tool_surface always registers the condensed, gated surface."
+        }
+      ]
     }
   ]
 }

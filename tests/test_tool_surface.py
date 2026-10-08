@@ -1,34 +1,21 @@
-"""Tool modes, verbose tools, auto-wire and the tool surface entry point."""
+"""The condensed, intent-gated tool surface entry point."""
 
 from __future__ import annotations
 
-from types import SimpleNamespace
 from typing import Any, Literal
 
 import pytest
 from fastmcp import Client, FastMCP
 
-from agent_connector_sdk.mcp.tool_mode import (
+from agent_connector_sdk.mcp.tool_surface import (
     GATED_TAG,
     GATED_TOOLS_ATTRIBUTE,
     GRANULAR_TAG,
-    VALID_TOOL_MODES,
+    CondensedEntry,
     gated_tool_names,
+    register_tool_surface,
     registered_tools,
-    tool_mode,
 )
-from agent_connector_sdk.mcp.tool_surface import CondensedEntry, register_tool_surface
-from agent_connector_sdk.mcp.verbose_autowire import (
-    autowire_verbose_from_condensed,
-    register_action_provider,
-)
-from agent_connector_sdk.mcp.verbose_naming import (
-    derive_domains,
-    domain_methods,
-    service_tool_prefix,
-    verbose_tool_name,
-)
-from agent_connector_sdk.mcp.verbose_tools import register_verbose_tools
 
 
 class DemoApiBase:
@@ -72,131 +59,87 @@ def register_free_tools(mcp: FastMCP[Any]) -> None:
         return action
 
 
-def test_naming_helpers() -> None:
-    owners = domain_methods(DemoApiUsers)
-    assert set(owners) == {"get_item", "delete_item", "list_users"}
-    assert derive_domains(owners) == {
-        "get_item": "items",
-        "delete_item": "items",
-        "list_users": "users",
-    }
-    assert service_tool_prefix("demo-api") == "demo"
-    assert verbose_tool_name("demo_get", "demo") == "demo_get"
-    assert verbose_tool_name("get", "demo") == "demo_get"
-
-
-def test_tool_mode_reads_setting(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("MCP_TOOL_MODE", "verbose")
-    assert tool_mode() == "verbose"
-    monkeypatch.setenv("MCP_TOOL_MODE", "surprise")
-    assert tool_mode() == "intent"
-    assert "intent" in VALID_TOOL_MODES
-
-
-async def test_register_verbose_tools_typed_and_params_json() -> None:
+def test_condensed_tools_always_register_gated() -> None:
     mcp: FastMCP[Any] = FastMCP("demo")
-    manifest = [
-        {
-            "method": "get_item",
-            "summary": "Typed get",
-            "params": [{"name": "item_id", "type": "string", "required": True}],
-        },
-        {"method": "not_on_client"},
-    ]
-    names = register_verbose_tools(
-        mcp, DemoApiUsers, get_client, service="demo-api", manifest=manifest
-    )
-    assert names == ["demo_delete_item", "demo_get_item", "demo_list_users"]
-    assert GRANULAR_TAG in registered_tools(mcp)["demo_get_item"].tags
-    async with Client(mcp) as client:
-        typed = await client.call_tool("demo_get_item", {"item_id": "7"})
-        listed = await client.call_tool("demo_list_users", {"params_json": "{}"})
-        cancelled = await client.call_tool(
-            "demo_delete_item", {"params_json": '{"item_id": "7"}'}
-        )
-    assert typed.structured_content == {"id": "7"}
-    assert [block.text for block in listed.content] == ['["u1"]']
-    assert cancelled.structured_content == {
-        "cancelled": True,
-        "operation": "delete_item",
-    }
-
-
-def test_intent_mode_gates_condensed_tools(monkeypatch: pytest.MonkeyPatch) -> None:
-    mcp: FastMCP[Any] = FastMCP("demo")
-    module = SimpleNamespace(
-        register_items_tools=register_items_tools,
-        register_tool_surface=register_tool_surface,
-    )
     tags = register_tool_surface(
-        mcp, service="demo-api", tools_module=module, mode_override="intent"
+        mcp,
+        service="demo-api",
+        registrars=[register_items_tools],
     )
     assert tags == ["items"]
     assert gated_tool_names(mcp) == {"demo_items"}
     assert getattr(mcp, GATED_TOOLS_ATTRIBUTE) == {"demo_items"}
-    assert GATED_TAG in registered_tools(mcp)["demo_items"].tags
+    tool = registered_tools(mcp)["demo_items"]
+    assert {GRANULAR_TAG, GATED_TAG, "items"} <= tool.tags
+
+
+def test_tools_module_auto_discovery_and_toggle(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from types import SimpleNamespace
+
+    module = SimpleNamespace(
+        register_items_tools=register_items_tools,
+        register_tool_surface=register_tool_surface,
+    )
+    mcp: FastMCP[Any] = FastMCP("demo")
+    assert register_tool_surface(mcp, service="demo-api", tools_module=module) == [
+        "items"
+    ]
+
     monkeypatch.setenv("ITEMSTOOL", "false")
     other: FastMCP[Any] = FastMCP("demo")
-    assert (
-        register_tool_surface(
-            other, service="demo-api", tools_module=module, mode_override="condensed"
-        )
-        == []
-    )
+    assert register_tool_surface(other, service="demo-api", tools_module=module) == []
 
 
-def test_both_mode_builds_verbose_and_autowired_surface() -> None:
+def test_tool_registry_wins_over_registrars() -> None:
     mcp: FastMCP[Any] = FastMCP("demo")
     registry: list[CondensedEntry] = [("items", "ITEMSTOOL", register_items_tools)]
     register_tool_surface(
         mcp,
         service="demo-api",
-        client_cls=DemoApiUsers,
-        get_client=get_client,
         tool_registry=registry,
         registrars=[register_free_tools],
-        action_providers={"demo_free": ["ping", "help"]},
-        mode_override="both",
     )
     names = set(registered_tools(mcp))
-    assert {
-        "demo_items",
-        "demo_get_item",
-        "demo_items__get_item",
-        "demo_items__list_users",
-    } <= names
+    assert "demo_items" in names
     assert "demo_free" not in names  # tool_registry wins over registrars
 
 
-def test_registrars_and_action_providers() -> None:
+async def test_condensed_tool_is_callable() -> None:
+    mcp: FastMCP[Any] = FastMCP("demo")
+    register_tool_surface(mcp, service="demo-api", registrars=[register_items_tools])
+    async with Client(mcp) as client:
+        result = await client.call_tool("demo_items", {"action": "get_item"})
+    assert result.content[0].text == "get_item"
+
+
+def test_retired_verbose_parameters_are_accepted_and_ignored() -> None:
+    """``client_cls``/``get_client``/etc. built the retired verbose surface.
+
+    They stay in the signature so the fleet's existing call sites (``client_cls=``,
+    ``get_client=``, ...) need no edit, but they register nothing.
+    """
     mcp: FastMCP[Any] = FastMCP("demo")
     register_tool_surface(
         mcp,
         service="demo-api",
-        registrars=[register_free_tools],
-        verbose_register=lambda server: register_action_provider(
-            server, "demo_free", DemoApiItems
-        ),
-        mode_override="verbose",
+        client_cls=DemoApiUsers,
+        get_client=get_client,
+        registrars=[register_items_tools],
+        manifest=[{"method": "get_item"}],
+        tool_prefix="demo",
+        verbose_targets=[{"client_cls": DemoApiUsers, "get_client": get_client}],
+        verbose_register=lambda server: None,
+        action_providers={"demo_items": ["get_item"]},
     )
-    assert {"demo_free__get_item", "demo_free__delete_item"} <= set(
-        registered_tools(mcp)
-    )
-    assert autowire_verbose_from_condensed(mcp) == []
+    names = set(registered_tools(mcp))
+    assert names == {"demo_items"}
 
 
 def test_invalid_surface_declarations() -> None:
     mcp: FastMCP[Any] = FastMCP("demo")
     with pytest.raises(ValueError):
-        register_tool_surface(mcp, service="demo", mode_override="loud")
+        register_tool_surface(mcp, service="demo", registrars=[("items", "ITEMSTOOL")])
     with pytest.raises(ValueError):
-        register_tool_surface(
-            mcp,
-            service="demo",
-            registrars=[("items", "ITEMSTOOL")],
-            mode_override="condensed",
-        )
-    with pytest.raises(ValueError):
-        register_tool_surface(
-            mcp, service="demo", registrars=["not callable"], mode_override="condensed"
-        )
+        register_tool_surface(mcp, service="demo", registrars=["not callable"])
