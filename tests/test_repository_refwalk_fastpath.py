@@ -10,8 +10,12 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from agent_connector_sdk.repository.local_git import LocalGitRepositoryProvider
 from agent_connector_sdk.repository.walk import RefTree, walk_refs
+
+pytestmark = pytest.mark.usefixtures("isolated_git_environment")
 
 
 def _git(root: Path, *args: str) -> str:
