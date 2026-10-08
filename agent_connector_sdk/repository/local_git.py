@@ -12,6 +12,7 @@ import asyncio
 import hashlib
 from pathlib import Path
 
+from agent_connector_sdk.config import _repository_git_environment
 from agent_connector_sdk.repository.errors import RepositoryTransportError
 from agent_connector_sdk.repository.models import (
     RepositoryAuthentication,
@@ -67,6 +68,7 @@ class LocalGitRepositoryProvider:
             *args,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            env=_repository_git_environment(),
         )
         stdout, stderr = await process.communicate()
         if process.returncode != 0:
@@ -108,6 +110,7 @@ class LocalGitRepositoryProvider:
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            env=_repository_git_environment(),
         )
         if process.stdin is None or process.stdout is None:
             raise RepositoryTransportError("git cat-file did not open its pipes")
