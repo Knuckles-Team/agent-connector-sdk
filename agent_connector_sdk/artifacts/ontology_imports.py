@@ -69,7 +69,7 @@ def _rewrite_rdfxml(text: str, keep: Callable[[str], bool], dropped: list[str]) 
 def _with_requirements(
     annotations: PackAnnotations, iris: list[str]
 ) -> PackAnnotations:
-    requirements = list(annotations.requires_capabilities)
+    requirements = list(annotations.requires_capabilities or ())
     for iri in sorted(set(iris)):
         token = f"{IMPORT_REQUIREMENT_PREFIX}{iri}"
         if token not in requirements:
