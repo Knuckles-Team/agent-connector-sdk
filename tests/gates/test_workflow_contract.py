@@ -53,7 +53,11 @@ def test_pages_uses_the_same_pipelines_revision_as_the_hooks() -> None:
     assert workflow == "Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml"
     assert rev == _pipelines_rev()
     assert "steps" not in pages
-    assert pages["with"] == {"content_source": "docs", "shared_theme_enabled": True}
+    assert pages["with"] == {
+        "content_source": "docs",
+        "shared_theme_enabled": True,
+        "spec_dashboard_enabled": True,
+    }
     assert pages["permissions"] == {
         "contents": "read",
         "pages": "write",
