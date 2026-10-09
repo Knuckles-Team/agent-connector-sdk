@@ -45,6 +45,7 @@ connector-certify = "agent_connector_sdk.certify.cli:main"
 
 [project.entry-points."agent_connector_sdk.source_adapters"]
 mcp_tool = "agent_connector_sdk.adapters.mcp_tool:McpToolSourceAdapter"
+web_fetch = "agent_connector_sdk.adapters.web_fetch:WebFetchSourceAdapter"
 
 # Expose this SDK's development skill to the same provider federation
 # epistemic-graph and agent-webui use. This is metadata only: consumers
