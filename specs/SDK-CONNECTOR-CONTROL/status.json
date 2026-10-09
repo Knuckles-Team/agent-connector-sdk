@@ -985,37 +985,72 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R032",
       "title": "SDK provides opt-in verbose, one-tool-per-method surface derivation via register_tool_surface",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
-      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (data-science-mcp, vector-mcp, twenty-mcp). Not yet built."
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "0000000000000000000000000000000000000000",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
+          "description": "Implemented on branch sdk-control-r032-r036; exercised by tests/test_tool_surface.py::test_verbose_register_runs_alongside_condensed. Orchestrator re-promotes with the real merge SHA."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R033",
       "title": "SDK's governed HTTP layer provides a safe_post_json helper with the same private-host allowance as its GET path",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
-      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (audiobookshelf-mcp, pulselink-mcp, data-science-mcp). Not yet built."
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "0000000000000000000000000000000000000000",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
+          "description": "Implemented on branch sdk-control-r032-r036; exercised by tests/test_safe_post.py. Orchestrator re-promotes with the real merge SHA."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R034",
       "title": "SDK provides shared library-file-path resolution and cross-process file locking utilities",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
-      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (systems-manager, fan-manager, repository-manager). Not yet built."
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "0000000000000000000000000000000000000000",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
+          "description": "Implemented on branch sdk-control-r032-r036; exercised by tests/test_library_state.py. Orchestrator re-promotes with the real merge SHA."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R035",
       "title": "SDK provides a CredentialProvider/SecretsClient abstraction for connectors, not only a credential-reference string",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
-      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (vaultwarden-mcp, keycloak-agent, repository-manager). Not yet built."
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "0000000000000000000000000000000000000000",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
+          "description": "Implemented on branch sdk-control-r032-r036; exercised by tests/test_credential_provider.py. Orchestrator re-promotes with the real merge SHA."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R036",
       "title": "SDK's identity-scoped resource entitlements cover the backend-resource catalogs these connectors manage",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
-      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (keycloak-agent, systems-manager, vaultwarden-mcp). Not yet built."
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "0000000000000000000000000000000000000000",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
+          "description": "Implemented on branch sdk-control-r032-r036; exercised by tests/test_entitlement_catalogs.py. Orchestrator re-promotes with the real merge SHA."
+        }
+      ]
     }
   ]
 }
