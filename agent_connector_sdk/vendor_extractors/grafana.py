@@ -64,22 +64,8 @@ def _service_from_title(title: Any) -> str | None:
     return match.group(1) if match else None
 
 
-def extract(config: Any) -> ChangeSet:
-    """Extract Grafana observability objects into a uniform ``ChangeSet``.
-
-    Dashboards become ``Dashboard`` entities; panels become ``Panel`` entities
-    linked ``PART_OF`` their dashboard. Alerts and datasources become
-    ``Alert`` and ``DataSource`` entities. Panels/alerts referencing a service
-    (via labels or an explicit ``service=`` title marker) emit a ``MONITORS``
-    relationship to ``service:<name>``.
-    """
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-
-    entities: list[Entity] = []
-    relationships: list[Relationship] = []
-
+def _extract_datasources(client: Any, entities: list[Entity]) -> None:
+    """Append ``DataSource`` entities for every client-reported datasource."""
     for datasource in _call(client, "datasources"):
         uid = _scalar(_get(datasource, "uid")) or _scalar(_get(datasource, "name"))
         if not uid:
@@ -99,6 +85,51 @@ def extract(config: Any) -> ChangeSet:
             )
         )
 
+
+def _extract_panel(
+    panel: Any,
+    dash_uid: str,
+    dash_id: str,
+    *,
+    entities: list[Entity],
+    relationships: list[Relationship],
+) -> None:
+    """Append a dashboard's ``Panel`` entity plus its ``PART_OF``/``MONITORS`` edges."""
+    panel_id = _scalar(_get(panel, "id")) or _scalar(_get(panel, "panel_id"))
+    if not panel_id:
+        return
+    node_id = f"panel:{dash_uid}:{panel_id}"
+    targets = _get(panel, "targets", []) or []
+    entities.append(
+        Entity(
+            id=node_id,
+            node_type="Panel",
+            properties={
+                "title": _get(panel, "title"),
+                "targets": list(targets),
+            },
+        )
+    )
+    relationships.append(
+        Relationship(source=node_id, target=dash_id, relationship="PART_OF")
+    )
+    service = _service_from_labels(_get(panel, "labels")) or _service_from_title(
+        _get(panel, "title")
+    )
+    if service:
+        relationships.append(
+            Relationship(
+                source=node_id,
+                target=f"service:{service}",
+                relationship="MONITORS",
+            )
+        )
+
+
+def _extract_dashboards(
+    client: Any, entities: list[Entity], relationships: list[Relationship]
+) -> None:
+    """Append ``Dashboard`` entities and their panels for every client dashboard."""
     for dashboard in _call(client, "dashboards"):
         dash_uid = _scalar(_get(dashboard, "uid"))
         if not dash_uid:
@@ -114,36 +145,15 @@ def extract(config: Any) -> ChangeSet:
             )
         )
         for panel in _get(dashboard, "panels", []) or []:
-            panel_id = _scalar(_get(panel, "id")) or _scalar(_get(panel, "panel_id"))
-            if not panel_id:
-                continue
-            node_id = f"panel:{dash_uid}:{panel_id}"
-            targets = _get(panel, "targets", []) or []
-            entities.append(
-                Entity(
-                    id=node_id,
-                    node_type="Panel",
-                    properties={
-                        "title": _get(panel, "title"),
-                        "targets": list(targets),
-                    },
-                )
+            _extract_panel(
+                panel, dash_uid, dash_id, entities=entities, relationships=relationships
             )
-            relationships.append(
-                Relationship(source=node_id, target=dash_id, relationship="PART_OF")
-            )
-            service = _service_from_labels(
-                _get(panel, "labels")
-            ) or _service_from_title(_get(panel, "title"))
-            if service:
-                relationships.append(
-                    Relationship(
-                        source=node_id,
-                        target=f"service:{service}",
-                        relationship="MONITORS",
-                    )
-                )
 
+
+def _extract_alerts(
+    client: Any, entities: list[Entity], relationships: list[Relationship]
+) -> None:
+    """Append ``Alert`` entities and their ``MONITORS`` edges for every alert rule."""
     for alert in _call(client, "alert_rules"):
         uid = _scalar(_get(alert, "uid"))
         if not uid:
@@ -174,6 +184,27 @@ def extract(config: Any) -> ChangeSet:
                     relationship="MONITORS",
                 )
             )
+
+
+def extract(config: Any) -> ChangeSet:
+    """Extract Grafana observability objects into a uniform ``ChangeSet``.
+
+    Dashboards become ``Dashboard`` entities; panels become ``Panel`` entities
+    linked ``PART_OF`` their dashboard. Alerts and datasources become
+    ``Alert`` and ``DataSource`` entities. Panels/alerts referencing a service
+    (via labels or an explicit ``service=`` title marker) emit a ``MONITORS``
+    relationship to ``service:<name>``.
+    """
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+
+    _extract_datasources(client, entities)
+    _extract_dashboards(client, entities, relationships)
+    _extract_alerts(client, entities, relationships)
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 
