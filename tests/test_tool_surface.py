@@ -16,31 +16,7 @@ from agent_connector_sdk.mcp.tool_surface import (
     register_tool_surface,
     registered_tools,
 )
-
-
-class DemoApiBase:
-    def authenticate(self) -> None:
-        """Infrastructure, never a tool."""
-
-
-class DemoApiItems(DemoApiBase):
-    def get_item(self, item_id: str) -> dict[str, str]:
-        """Fetch one item."""
-        return {"id": item_id}
-
-    def delete_item(self, item_id: str) -> str:
-        """Delete one item."""
-        return item_id
-
-
-class DemoApiUsers(DemoApiItems):
-    def list_users(self) -> list[str]:
-        """List users."""
-        return ["u1"]
-
-
-def get_client() -> DemoApiUsers:
-    return DemoApiUsers()
+from tests.demo_api_fixture import DemoApiUsers, get_client
 
 
 def register_items_tools(mcp: FastMCP[Any]) -> None:

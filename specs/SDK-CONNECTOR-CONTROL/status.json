@@ -29,7 +29,8 @@
     "SDK-CONNECTOR-CONTROL-R022",
     "SDK-CONNECTOR-CONTROL-R023",
     "SDK-CONNECTOR-CONTROL-R024",
-    "SDK-CONNECTOR-CONTROL-R025"
+    "SDK-CONNECTOR-CONTROL-R025",
+    "SDK-CONNECTOR-CONTROL-R026"
   ],
   "delivery_state": "BUILDING",
   "acceptance_state": "NOT_AUDITED",
@@ -836,6 +837,13 @@
         }
       ],
       "remaining": "Implemented and unit-tested in this PR's branch; LANDED evidence (a merged_head commit in this repository) is recorded by the orchestrator's promoter after merge."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R026",
+      "title": "SDK provides opt-in per-client-method MCP tool derivation",
+      "delivery_state": "BUILDING",
+      "evidence": [],
+      "remaining": "Implemented and unit-tested in this PR's branch; LANDED evidence (a merged_head commit in this repository) is recorded by the orchestrator's promoter after merge. data-science-mcp migrating its own server off agent_utilities.mcp.verbose_tools is separate, future work in that repository."
     }
   ]
 }

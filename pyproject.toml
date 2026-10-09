@@ -182,6 +182,7 @@ public_modules = [
     "agent_connector_sdk.mcp.context",
     "agent_connector_sdk.mcp.network",
     "agent_connector_sdk.mcp.registry",
+    "agent_connector_sdk.mcp.method_tools",
     "agent_connector_sdk.mcp.server",
     "agent_connector_sdk.mcp.tool_surface",
     "agent_connector_sdk.ports.artifact_kind",
