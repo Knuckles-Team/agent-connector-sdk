@@ -122,10 +122,44 @@ async def test_prompt_capture_preserves_order_types_and_content_identity() -> No
     assert changed.archive.data != pack.archive.data
 
 
+async def test_prompt_capture_binds_required_arguments_as_template() -> None:
+    prompt = mcp_types.Prompt(
+        name="demo",
+        description="listed description",
+        arguments=[
+            mcp_types.PromptArgument(name="topic", required=True),
+            mcp_types.PromptArgument(name="tone", required=False),
+        ],
+    )
+    result = mcp_types.GetPromptResult(
+        messages=[
+            mcp_types.PromptMessage(
+                role="user",
+                content=mcp_types.TextContent(type="text", text="about {{topic}}"),
+            )
+        ]
+    )
+    session = SimpleNamespace(
+        server_identity=AsyncMock(return_value=SERVER),
+        list_prompts=AsyncMock(return_value=[prompt]),
+        get_prompt=AsyncMock(return_value=result),
+    )
+    kind = PromptArtifactKind()
+    entries = await kind.list_entries(session, SERVER)
+    session.get_prompt.assert_awaited_once_with("demo", {"topic": "{{topic}}"})
+    entry = entries[0]
+    kind.validate(entry)
+    body = json.loads(entry.body)
+    assert body["capture"] == {
+        "method": "prompts/get",
+        "bound_arguments": {"topic": "{{topic}}"},
+        "kind": "template",
+    }
+
+
 @pytest.mark.parametrize(
     "failure",
     [
-        "required",
         "empty",
         "incomplete",
         "unknown_content",
@@ -141,8 +175,6 @@ async def test_prompt_capture_fails_closed(
     result = {
         "messages": [{"role": "user", "content": {"type": "text", "text": "body"}}]
     }
-    if failure == "required":
-        prompt.arguments = [mcp_types.PromptArgument(name="topic", required=True)]
     if failure == "empty":
         result = {"messages": []}
     if failure == "incomplete":
@@ -180,8 +212,6 @@ async def test_prompt_capture_fails_closed(
             )
         else:
             await kind.list_entries(session, SERVER)
-    if failure == "required":
-        session.get_prompt.assert_not_awaited()
 
 
 @pytest.mark.parametrize(
