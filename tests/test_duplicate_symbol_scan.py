@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from agent_connector_sdk.testing.duplicate_symbol_scan import (
+    MANIFEST_AND_CERTIFY_SURFACE_SYMBOLS,
     DuplicateDefinitionResult,
     scan_for_duplicate_manifest_or_certify_definitions,
 )
@@ -13,6 +14,13 @@ from agent_connector_sdk.testing.duplicate_symbol_scan import (
 def _write(path: Path, source: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(source, encoding="utf-8")
+
+
+def test_the_tracked_surface_names_the_sdks_manifest_and_certify_exports() -> None:
+    assert (
+        frozenset({"ConnectorManifest", "CertificationReport", "certify_connector"})
+        == MANIFEST_AND_CERTIFY_SURFACE_SYMBOLS
+    )
 
 
 def test_a_package_importing_the_sdk_symbol_is_clean(tmp_path: Path) -> None:
