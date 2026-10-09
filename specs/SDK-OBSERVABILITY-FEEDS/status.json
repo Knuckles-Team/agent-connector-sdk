@@ -5,9 +5,17 @@
   "requirement_ids": [
     "SDK-OBSERVABILITY-FEEDS-R001"
   ],
-  "delivery_state": "SPECIFIED",
+  "delivery_state": "LANDED",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": [],
+  "evidence": [
+    {
+      "kind": "merged_head",
+      "result": "passed",
+      "commit": "9635897a4cb799bd0e8f7eca6095ff54978f47d4",
+      "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/9635897a4cb799bd0e8f7eca6095ff54978f47d4",
+      "description": "Every requirement in this spec is merged to the default branch."
+    }
+  ],
   "requirements": [
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001",

@@ -9,9 +9,17 @@
     "SDK-REPOSITORY-TRANSPORT-R004",
     "SDK-REPOSITORY-TRANSPORT-R005"
   ],
-  "delivery_state": "UNKNOWN",
+  "delivery_state": "LANDED",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": [],
+  "evidence": [
+    {
+      "kind": "merged_head",
+      "result": "passed",
+      "commit": "d95840ce6bee0a5e3314f35c6c23bf4df26fb23d",
+      "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d95840ce6bee0a5e3314f35c6c23bf4df26fb23d",
+      "description": "Every requirement in this spec is merged to the default branch."
+    }
+  ],
   "requirements": [
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R001",
@@ -30,8 +38,16 @@
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R002",
       "title": "SDK is the sole path for repository-native codebase hydration",
-      "delivery_state": "BUILDING",
-      "evidence": [],
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "a0d3aa8baf9aef1dc1542d6b63ca2ce8777c2c49",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/a0d3aa8baf9aef1dc1542d6b63ca2ce8777c2c49",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
+        }
+      ],
       "remaining": "Inside this repository the repository transport is the only codebase-hydration path, and no connector package reimplements it. Remaining, in another repository: agent-utilities still fetches GitLab project files and indexes them directly; that path has to be rerouted through this transport before the requirement holds."
     },
     {

@@ -9,9 +9,17 @@
     "SDK-QUALITY-RELEASE-R004",
     "SDK-QUALITY-RELEASE-R005"
   ],
-  "delivery_state": "UNKNOWN",
+  "delivery_state": "LANDED",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": [],
+  "evidence": [
+    {
+      "kind": "merged_head",
+      "result": "passed",
+      "commit": "9353853c96a040790ec1b3b9cb8e2b5e0c558c65",
+      "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/9353853c96a040790ec1b3b9cb8e2b5e0c558c65",
+      "description": "Every requirement in this spec is merged to the default branch."
+    }
+  ],
   "requirements": [
     {
       "id": "SDK-QUALITY-RELEASE-R001",
@@ -58,7 +66,7 @@
     {
       "id": "SDK-QUALITY-RELEASE-R004",
       "title": "Public documentation follows a task-first README and site structure",
-      "delivery_state": "BUILDING",
+      "delivery_state": "LANDED",
       "evidence": [
         {
           "kind": "implementation",
@@ -66,6 +74,13 @@
           "commit": "581d76e7b861637b664c22ec6b4f55ecd0081df7",
           "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/581d76e7b861637b664c22ec6b4f55ecd0081df7",
           "description": "Part of the requirement is implemented on the default branch."
+        },
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "ced5e1fcdf096ca94813b0ea2ae5f1e20ac36caa",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/ced5e1fcdf096ca94813b0ea2ae5f1e20ac36caa",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
         }
       ],
       "remaining": "The README now leads with Quick Start. Remaining: a continuous-integration check of the README section order and of the documentation build and links."

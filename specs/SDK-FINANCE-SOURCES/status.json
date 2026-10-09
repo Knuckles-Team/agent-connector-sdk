@@ -28,8 +28,16 @@
     {
       "id": "SDK-FINANCE-SOURCES-R003",
       "title": "FX, commodities, and real-estate adapters with roll and staleness rules",
-      "delivery_state": "BUILDING",
-      "evidence": [],
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "a0d3aa8baf9aef1dc1542d6b63ca2ce8777c2c49",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/a0d3aa8baf9aef1dc1542d6b63ca2ce8777c2c49",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
+        }
+      ],
       "remaining": "Record contracts for FX rates (base, quote, direction, inversion), commodity prices (spot versus a futures contract with expiry and roll rule) and dated real-estate valuations with staleness are on the default branch with tests (tests/test_finance_records.py). Remaining: the source adapters that produce them, and their offline conformance tests per asset class."
     },
     {

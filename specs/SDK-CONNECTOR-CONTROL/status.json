@@ -118,8 +118,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R007",
       "title": "Fleet-wide re-certification yields nonempty schema fingerprints",
-      "delivery_state": "BUILDING",
-      "evidence": [],
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "487b65748b2579af5d5c65e6cde569a540fc7748",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/487b65748b2579af5d5c65e6cde569a540fc7748",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
+        }
+      ],
       "remaining": "A test on the default branch certifies every connector package this repository ships in one run, asserts each pin has nonempty input and output fingerprints, and proves a drifted server fails the live-contract comparison. Remaining: the same certification run across the connector fleet in its own repositories."
     },
     {
@@ -195,7 +203,7 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R017",
       "title": "Every connector uses the shared TLS profile, no bare verify bypass",
-      "delivery_state": "BUILDING",
+      "delivery_state": "LANDED",
       "evidence": [
         {
           "kind": "implementation",
@@ -203,6 +211,13 @@
           "commit": "830be1c11cfefe3d043c6926e4f214ed65eae299",
           "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/830be1c11cfefe3d043c6926e4f214ed65eae299",
           "description": "Part of the requirement is implemented on the default branch."
+        },
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "830be1c11cfefe3d043c6926e4f214ed65eae299",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/830be1c11cfefe3d043c6926e4f214ed65eae299",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
         }
       ],
       "remaining": "The SDK's shared TLS profile structurally rejects 'verify'/'allow_insecure' bypass keys and this is tested on main. Whether every connector package (separate repos: aris-mcp, freshrss-agent, hdhomerun-mcp, vector-mcp, etc.) actually routes HTTPS through this profile with no bare verify flags is outs"
@@ -216,8 +231,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R019",
       "title": "Host servers register ontology resources without duplicate skills or prompts",
-      "delivery_state": "BUILDING",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "64acdc30c34ed45c7df64302954b34e3ccdeb81e",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/64acdc30c34ed45c7df64302954b34e3ccdeb81e",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R020",
@@ -228,20 +251,44 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R021",
       "title": "Connector ontologies declare access contracts for virtual reads",
-      "delivery_state": "BUILDING",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "b29c0c01a04412ade5ad277abe0f60586aa78f8e",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/b29c0c01a04412ade5ad277abe0f60586aa78f8e",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R022",
       "title": "The pack builder scopes owl:imports to the pack",
-      "delivery_state": "BUILDING",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "78ea5b9531dbe5aa896d8815f7961b12503462b0",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/78ea5b9531dbe5aa896d8815f7961b12503462b0",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R023",
       "title": "A prompt with a required argument is captured as a template, never refused",
-      "delivery_state": "BUILDING",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "d1c580006f08bcd4aa8cc943de16c18359fa7fe3",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d1c580006f08bcd4aa8cc943de16c18359fa7fe3",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
+        }
+      ]
     }
   ]
 }
