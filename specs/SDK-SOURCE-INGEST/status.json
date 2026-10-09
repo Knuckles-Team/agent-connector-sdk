@@ -44,9 +44,17 @@
     "SDK-SOURCE-INGEST-R008",
     "SDK-SOURCE-INGEST-R009"
   ],
-  "delivery_state": "BUILDING",
+  "delivery_state": "LANDED",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": [],
+  "evidence": [
+    {
+      "kind": "merged_head",
+      "result": "passed",
+      "commit": "4e3b83bfd7c07826f693410f9b967073c3312e1d",
+      "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/4e3b83bfd7c07826f693410f9b967073c3312e1d",
+      "description": "Every requirement in this spec is merged to the default branch."
+    }
+  ],
   "requirements": [
     {
       "id": "SDK-SOURCE-INGEST-R001",
@@ -129,195 +137,451 @@
     {
       "id": "SDK-SOURCE-INGEST-R006",
       "title": "SDK packs own vendor enrichment extraction and write-back",
-      "delivery_state": "BUILDING",
-      "evidence": [],
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "b55555566da2bbed610c8bf6f98d677c4ffe3263",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/b55555566da2bbed610c8bf6f98d677c4ffe3263",
+          "description": "SDK-SOURCE-INGEST-R006 merged to the default branch in this commit."
+        }
+      ],
       "remaining": "Rollup of 31 child requirements (SDK-SOURCE-INGEST-R006.1..SDK-SOURCE-INGEST-R006.31), one per ported vendor extractor; LANDED only once every child is LANDED."
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.1",
       "title": "SDK ports the Uptime Kuma monitor extractor; defines the typed vendor-extractor contract",
-      "delivery_state": "BUILDING",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "bd6e0d836c9216ab6fc181e7ad43486f1495e3d9",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/bd6e0d836c9216ab6fc181e7ad43486f1495e3d9",
+          "description": "SDK-SOURCE-INGEST-R006.1 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.2",
       "title": "SDK ports the Ansible Automation inventory and job extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "bd6e0d836c9216ab6fc181e7ad43486f1495e3d9",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/bd6e0d836c9216ab6fc181e7ad43486f1495e3d9",
+          "description": "SDK-SOURCE-INGEST-R006.2 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.3",
       "title": "SDK ports the Caddy reverse-proxy route extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "9511ab38c04c245c5eacf48f1ede960affb347ab",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/9511ab38c04c245c5eacf48f1ede960affb347ab",
+          "description": "SDK-SOURCE-INGEST-R006.3 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.4",
       "title": "SDK ports the Home Assistant entity and scene extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "9511ab38c04c245c5eacf48f1ede960affb347ab",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/9511ab38c04c245c5eacf48f1ede960affb347ab",
+          "description": "SDK-SOURCE-INGEST-R006.4 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.5",
       "title": "SDK ports the ArchiMate model element extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "36d2c92e439ceb3502f75f2404dac24f94c291f1",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/36d2c92e439ceb3502f75f2404dac24f94c291f1",
+          "description": "SDK-SOURCE-INGEST-R006.5 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.6",
       "title": "SDK ports the Kafka topic and cluster extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "36d2c92e439ceb3502f75f2404dac24f94c291f1",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/36d2c92e439ceb3502f75f2404dac24f94c291f1",
+          "description": "SDK-SOURCE-INGEST-R006.6 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.7",
       "title": "SDK ports the Salesforce CRM record extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "36d2c92e439ceb3502f75f2404dac24f94c291f1",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/36d2c92e439ceb3502f75f2404dac24f94c291f1",
+          "description": "SDK-SOURCE-INGEST-R006.7 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.8",
       "title": "SDK ports the Grafana LGTM observability-stack extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "bbf11894fed517c1d17dfcff943dd3ff345f5ac9",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/bbf11894fed517c1d17dfcff943dd3ff345f5ac9",
+          "description": "SDK-SOURCE-INGEST-R006.8 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.9",
       "title": "SDK ports the Microsoft 365 mail, calendar, and Teams extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "bbf11894fed517c1d17dfcff943dd3ff345f5ac9",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/bbf11894fed517c1d17dfcff943dd3ff345f5ac9",
+          "description": "SDK-SOURCE-INGEST-R006.9 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.10",
       "title": "SDK ports the Technitium DNS zone and record extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "bbf11894fed517c1d17dfcff943dd3ff345f5ac9",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/bbf11894fed517c1d17dfcff943dd3ff345f5ac9",
+          "description": "SDK-SOURCE-INGEST-R006.10 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.11",
       "title": "SDK ports the Portainer container and stack extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "e4f6426897ba1f95a532ecbb3e635e7f88e5baf9",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/e4f6426897ba1f95a532ecbb3e635e7f88e5baf9",
+          "description": "SDK-SOURCE-INGEST-R006.11 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.12",
       "title": "SDK ports the Emerald Exchange market extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "e4f6426897ba1f95a532ecbb3e635e7f88e5baf9",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/e4f6426897ba1f95a532ecbb3e635e7f88e5baf9",
+          "description": "SDK-SOURCE-INGEST-R006.12 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.13",
       "title": "SDK ports the Mealie recipe and meal-plan extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "e4f6426897ba1f95a532ecbb3e635e7f88e5baf9",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/e4f6426897ba1f95a532ecbb3e635e7f88e5baf9",
+          "description": "SDK-SOURCE-INGEST-R006.13 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.14",
       "title": "SDK ports the Keycloak realm, client, and identity extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "bd6e0d836c9216ab6fc181e7ad43486f1495e3d9",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/bd6e0d836c9216ab6fc181e7ad43486f1495e3d9",
+          "description": "SDK-SOURCE-INGEST-R006.14 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.15",
       "title": "SDK ports the Odoo ERP record extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "bd6e0d836c9216ab6fc181e7ad43486f1495e3d9",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/bd6e0d836c9216ab6fc181e7ad43486f1495e3d9",
+          "description": "SDK-SOURCE-INGEST-R006.15 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.16",
       "title": "SDK ports the Nextcloud file and share extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "bd6e0d836c9216ab6fc181e7ad43486f1495e3d9",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/bd6e0d836c9216ab6fc181e7ad43486f1495e3d9",
+          "description": "SDK-SOURCE-INGEST-R006.16 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.17",
       "title": "SDK ports the wger workout and exercise extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "10376b1e9728dd2e1c2d1597a2c9cd66bfa10504",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/10376b1e9728dd2e1c2d1597a2c9cd66bfa10504",
+          "description": "SDK-SOURCE-INGEST-R006.17 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.18",
       "title": "SDK ports the Okta identity and directory extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "7f190c51f090878bd87539001f2dba96b8027573",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/7f190c51f090878bd87539001f2dba96b8027573",
+          "description": "SDK-SOURCE-INGEST-R006.18 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.19",
       "title": "SDK ports the Twenty CRM record extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "7f190c51f090878bd87539001f2dba96b8027573",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/7f190c51f090878bd87539001f2dba96b8027573",
+          "description": "SDK-SOURCE-INGEST-R006.19 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.20",
       "title": "SDK ports the RSA Archer GRC record extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "e626b457bb1d46ea7a814e829de454d31446ea86",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/e626b457bb1d46ea7a814e829de454d31446ea86",
+          "description": "SDK-SOURCE-INGEST-R006.20 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.21",
       "title": "SDK ports the Infrastructure inventory extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "0833a8040ba8f03368fe521c59fe2e8e11cdef1a",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0833a8040ba8f03368fe521c59fe2e8e11cdef1a",
+          "description": "SDK-SOURCE-INGEST-R006.21 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.22",
       "title": "SDK ports the A2A agent-registry extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "0833a8040ba8f03368fe521c59fe2e8e11cdef1a",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0833a8040ba8f03368fe521c59fe2e8e11cdef1a",
+          "description": "SDK-SOURCE-INGEST-R006.22 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.23",
       "title": "SDK ports the Grafana dashboard extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "1cbd1de01d8312c27936ae9074a47cfcf74f4dd5",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/1cbd1de01d8312c27936ae9074a47cfcf74f4dd5",
+          "description": "SDK-SOURCE-INGEST-R006.23 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.24",
       "title": "SDK ports the LeanIX enterprise-architecture factsheet extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "1238f5a2ab17095ebac4ff8ccaa4661717b32070",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/1238f5a2ab17095ebac4ff8ccaa4661717b32070",
+          "description": "SDK-SOURCE-INGEST-R006.24 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.25",
       "title": "SDK ports the ERPNext record extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "1238f5a2ab17095ebac4ff8ccaa4661717b32070",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/1238f5a2ab17095ebac4ff8ccaa4661717b32070",
+          "description": "SDK-SOURCE-INGEST-R006.25 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.26",
       "title": "SDK ports the ServiceNow ITSM record extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "9d8b3f7f89f11d6d5e348e42efb4eb9cce86f3ea",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/9d8b3f7f89f11d6d5e348e42efb4eb9cce86f3ea",
+          "description": "SDK-SOURCE-INGEST-R006.26 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.27",
       "title": "SDK ports the CISO Assistant compliance extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "4b5e8342ad55be28297a9592e05c77f9f0860129",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/4b5e8342ad55be28297a9592e05c77f9f0860129",
+          "description": "SDK-SOURCE-INGEST-R006.27 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.28",
       "title": "SDK ports the social-platform extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "4b5e8342ad55be28297a9592e05c77f9f0860129",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/4b5e8342ad55be28297a9592e05c77f9f0860129",
+          "description": "SDK-SOURCE-INGEST-R006.28 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.29",
       "title": "SDK ports the ARIS process-model extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "10376b1e9728dd2e1c2d1597a2c9cd66bfa10504",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/10376b1e9728dd2e1c2d1597a2c9cd66bfa10504",
+          "description": "SDK-SOURCE-INGEST-R006.29 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.30",
       "title": "SDK ports the Egeria governance and glossary extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "9a2a5273774b6b8f29b034f956197c3f82814569",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/9a2a5273774b6b8f29b034f956197c3f82814569",
+          "description": "SDK-SOURCE-INGEST-R006.30 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.31",
       "title": "SDK ports the Camunda process extractor",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "9a2a5273774b6b8f29b034f956197c3f82814569",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/9a2a5273774b6b8f29b034f956197c3f82814569",
+          "description": "SDK-SOURCE-INGEST-R006.31 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R007",
