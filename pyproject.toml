@@ -143,6 +143,7 @@ public_modules = [
     "agent_connector_sdk.entitlements",
     "agent_connector_sdk.exceptions",
     "agent_connector_sdk.finance.account",
+    "agent_connector_sdk.finance.alpaca_account",
     "agent_connector_sdk.finance.alpaca_stocks",
     "agent_connector_sdk.finance.central_bank_calendar",
     "agent_connector_sdk.finance.csv_import",
