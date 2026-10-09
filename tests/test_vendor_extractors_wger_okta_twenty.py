@@ -9,6 +9,7 @@ each public contract name.
 
 from __future__ import annotations
 
+import pytest
 from agent_connector_sdk.ingest import ChangeSet
 from agent_connector_sdk.vendor_extractors import (
     VendorExtractFn,
@@ -37,6 +38,7 @@ class _FakeClient:
         raise AttributeError(name)
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.18", "SDK-SOURCE-INGEST-R006.19")
 def test_contract_registry_accepts_a_typed_vendor_extractor() -> None:
     def extract(config: object) -> ChangeSet:  # pragma: no cover - trivial
         return ChangeSet()
@@ -51,6 +53,7 @@ def test_contract_registry_accepts_a_typed_vendor_extractor() -> None:
     assert "test_contract_probe" in [v.category for v in list_vendor_extractors()]
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.18", "SDK-SOURCE-INGEST-R006.19")
 def test_discover_vendor_extractors_imports_every_module_at_least_once() -> None:
     assert discover_vendor_extractors() >= 1
 
@@ -58,6 +61,7 @@ def test_discover_vendor_extractors_imports_every_module_at_least_once() -> None
 # --- wger ------------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.18", "SDK-SOURCE-INGEST-R006.19")
 def test_wger_extract_maps_weight_and_sessions_to_body_measurement_entities() -> None:
     client = _FakeClient(
         get_weight_entries=[{"id": 1, "weight": 80.5, "date": "2026-01-01"}],

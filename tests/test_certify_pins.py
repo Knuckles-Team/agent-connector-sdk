@@ -106,6 +106,7 @@ def test_empty_and_nameless_schemas_are_refused() -> None:
     assert not is_empty_schema_pin("t", tool_fingerprint(json.loads(COMPACT)))
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R003", "SDK-CONNECTOR-CONTROL-R006", "SDK-CONNECTOR-CONTROL-R007")
 async def test_server_side_tools_are_refused_and_client_tools_certify() -> None:
     server_side = (await build_reader_server(with_content=False).list_tools())[0]
     # The agent-utilities certifier hashed this object and got the empty schema.

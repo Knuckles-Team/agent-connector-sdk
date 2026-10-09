@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
 from agent_connector_sdk.vendor_extractors import (
     get_vendor_extractor,
@@ -40,6 +41,7 @@ class _FakeClient:
         return self._positions
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.11", "SDK-SOURCE-INGEST-R006.12", "SDK-SOURCE-INGEST-R006.13")
 def test_extract_returns_portfolio_account_and_position_entities() -> None:
     config = {"client": _FakeClient(_Account(), [_Position("AAPL")])}
 
@@ -64,6 +66,7 @@ def test_extract_returns_portfolio_account_and_position_entities() -> None:
     assert relationship.relationship == "HELD_IN"
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.11", "SDK-SOURCE-INGEST-R006.12", "SDK-SOURCE-INGEST-R006.13")
 def test_extract_returns_only_a_default_portfolio_without_a_client_account() -> None:
     config = {"client": _FakeClient(None, [])}
 
@@ -73,6 +76,7 @@ def test_extract_returns_only_a_default_portfolio_without_a_client_account() -> 
     assert result.entities[0].id == "emerald:portfolio:emerald"
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.11", "SDK-SOURCE-INGEST-R006.12", "SDK-SOURCE-INGEST-R006.13")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 

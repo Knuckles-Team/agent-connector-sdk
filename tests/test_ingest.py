@@ -92,6 +92,7 @@ def uninstalled() -> Iterator[None]:
     install_ingest(None)
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004")
 def test_change_set_maps_to_exact_manifest_references() -> None:
     request = build_request(BINDING, _changes(), previous=None)
     assert [r.mapping_reference for r in request.records] == [
@@ -114,6 +115,7 @@ def test_change_set_maps_to_exact_manifest_references() -> None:
     assert provenance.tool_schema_sha256 == BINDING.identity_digest()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004")
 def test_properties_are_sanitized_but_identities_are_not() -> None:
     changes = ChangeSet(
         entities=(
@@ -142,6 +144,7 @@ def test_properties_are_sanitized_but_identities_are_not() -> None:
     )
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004")
 def test_relationship_source_type_is_never_guessed() -> None:
     orphan = ChangeSet(relationships=(Relationship("demo:x", "demo:y", "rel"),))
     with pytest.raises(IngestError, match="no node_type"):
@@ -309,6 +312,7 @@ def test_engine_settings_are_fail_closed(monkeypatch: pytest.MonkeyPatch) -> Non
         EngineSettings("http://x:1", "env://S", "t", "g").address()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R003")
 def test_unreachable_or_misconfigured_engine_is_unavailable(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -371,6 +375,7 @@ async def test_epistemic_graph_transport_uses_the_generated_contract() -> None:
         SourceIngestChannel(None)
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R003")
 async def test_epistemic_graph_transport_stores_media_via_the_client_blob_api() -> None:
     """``store_blob`` delegates to the verified client's chunked-upload
     convenience (``client.blob.store``), so a change set with a media asset

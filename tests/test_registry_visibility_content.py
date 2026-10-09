@@ -263,6 +263,7 @@ def test_connector_content_errors(tmp_path: Path) -> None:
         )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019")
 @pytest.mark.parametrize("field", ["connector", "package_version"])
 def test_connector_content_requires_identity(tmp_path: Path, field: str) -> None:
     with pytest.raises(ValueError, match="connector and package_version"):
@@ -273,6 +274,7 @@ def test_connector_content_requires_identity(tmp_path: Path, field: str) -> None
         )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019")
 async def test_ontology_resources_are_served_alone(package_root: Path) -> None:
     mcp: FastMCP[Any] = FastMCP("host")
     count = register_ontology_resources(mcp, "demo-agent", package_root / "ontology")
@@ -289,5 +291,6 @@ async def test_ontology_resources_are_served_alone(package_root: Path) -> None:
     assert prompts == []
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019")
 def test_ontology_resources_of_a_missing_directory_are_empty(tmp_path: Path) -> None:
     assert ontology_resources("demo-agent", tmp_path / "absent") == []

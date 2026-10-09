@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from agent_connector_sdk.adapters.web_fetch import (
     FetchedPage,
     extract_og_metadata,
@@ -23,6 +24,7 @@ _HTML = b"""
 """
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005")
 async def test_fetch_page_normalizes_markdown_and_og_metadata() -> None:
     with ScriptedHttpServer(
         ScriptedResponse(status=200, body=_HTML, headers={"Content-Type": "text/html"})
@@ -37,6 +39,7 @@ async def test_fetch_page_normalizes_markdown_and_og_metadata() -> None:
     assert page.backend == "requests"
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005")
 async def test_fetch_page_returns_none_on_a_server_error() -> None:
     with ScriptedHttpServer(ScriptedResponse(status=503, body=b"nope")) as server:
         page = await fetch_page(f"{server.base_url}/down")
@@ -44,6 +47,7 @@ async def test_fetch_page_returns_none_on_a_server_error() -> None:
     assert page is None
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005")
 async def test_fetch_page_returns_none_for_an_empty_body() -> None:
     with ScriptedHttpServer(ScriptedResponse(status=200, body=b"   ")) as server:
         page = await fetch_page(f"{server.base_url}/blank")

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from agent_connector_sdk.ingest import ChangeSet, Entity
 from agent_connector_sdk.vendor_extractors import (
     get_vendor_extractor,
@@ -26,6 +27,7 @@ class _FakeClient:
         return self._datasources
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.8", "SDK-SOURCE-INGEST-R006.9", "SDK-SOURCE-INGEST-R006.10")
 def test_extract_returns_dashboard_alert_and_datasource_entities() -> None:
     config = {
         "client": _FakeClient(
@@ -51,6 +53,7 @@ def test_extract_returns_dashboard_alert_and_datasource_entities() -> None:
     assert result.relationships == ()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.8", "SDK-SOURCE-INGEST-R006.9", "SDK-SOURCE-INGEST-R006.10")
 def test_extract_unwraps_a_dict_shaped_response() -> None:
     config = {
         "client": _FakeClient(
@@ -65,6 +68,7 @@ def test_extract_unwraps_a_dict_shaped_response() -> None:
     assert [entity.id for entity in result.entities] == ["lgtm_dash:d1"]
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.8", "SDK-SOURCE-INGEST-R006.9", "SDK-SOURCE-INGEST-R006.10")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 

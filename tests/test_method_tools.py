@@ -27,6 +27,7 @@ class _DecliningContext:
         return SimpleNamespace(action="decline", data=False)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020", "SDK-CONNECTOR-CONTROL-R026")
 def test_registers_one_tool_per_public_method_with_domain_tags() -> None:
     mcp: FastMCP[Any] = FastMCP("demo")
     names = register_method_tools(mcp, DemoApiUsers, get_client, prefix="demo")
@@ -36,12 +37,14 @@ def test_registers_one_tool_per_public_method_with_domain_tags() -> None:
     assert {GRANULAR_TAG, "users"} <= tools["demo_list_users"].tags
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020", "SDK-CONNECTOR-CONTROL-R026")
 def test_base_infrastructure_method_is_excluded() -> None:
     mcp: FastMCP[Any] = FastMCP("demo")
     register_method_tools(mcp, DemoApiUsers, get_client, prefix="demo")
     assert "demo_authenticate" not in registered_tools(mcp)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020", "SDK-CONNECTOR-CONTROL-R026")
 def test_no_doubled_prefix_when_method_already_carries_it() -> None:
     class PrefixedApi:
         def postiz_create_post(self) -> str:

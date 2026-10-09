@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from agent_connector_sdk.ingest import ChangeSet, Entity
 from agent_connector_sdk.vendor_extractors import (
     get_vendor_extractor,
@@ -18,6 +19,7 @@ class _FakeClient:
         return self._hosts
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.1", "SDK-SOURCE-INGEST-R006.2", "SDK-SOURCE-INGEST-R006.3", "SDK-SOURCE-INGEST-R006.4")
 def test_extract_returns_a_change_set_of_server_entities() -> None:
     config = {
         "client": _FakeClient(
@@ -40,6 +42,7 @@ def test_extract_returns_a_change_set_of_server_entities() -> None:
     assert result.relationships == ()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.1", "SDK-SOURCE-INGEST-R006.2", "SDK-SOURCE-INGEST-R006.3", "SDK-SOURCE-INGEST-R006.4")
 def test_extract_skips_hosts_missing_a_name() -> None:
     config = {"client": _FakeClient([{"id": 1}])}
 
@@ -48,6 +51,7 @@ def test_extract_skips_hosts_missing_a_name() -> None:
     assert result.entities == ()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.1", "SDK-SOURCE-INGEST-R006.2", "SDK-SOURCE-INGEST-R006.3", "SDK-SOURCE-INGEST-R006.4")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 

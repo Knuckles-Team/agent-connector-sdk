@@ -99,6 +99,7 @@ def _target(sink: InMemorySink, max_pages: int) -> SyncTarget:
     )
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R007")
 async def test_passes_commit_before_advancing(tmp_path: Path) -> None:
     sink = InMemorySink()
     server = build_enumerated_archivebox_server(

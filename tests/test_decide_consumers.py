@@ -87,18 +87,21 @@ def eg() -> Iterator[FakeRunner]:
     decide._RUNNER.reset(token)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R006", "SDK-GOVERNED-WRITEBACK-R001")
 def test_no_runner_installed_is_exactly_the_fallback() -> None:
     assert decide.current_runner() is None
     choice = decide.choose("au.connector.tool", [Option("a")], lambda: "a")
     assert choice == Choice("a", False, "no_runner")
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R006", "SDK-GOVERNED-WRITEBACK-R001")
 async def test_no_runner_installed_is_exactly_the_fallback_async() -> None:
     assert decide.current_runner() is None
     choice = await decide.achoose("au.connector.tool", [Option("a")], lambda: "a")
     assert choice == Choice("a", False, "no_runner")
 
 
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R001")
 def test_connector_tool_with_no_runner_returns_the_connector_s_pick() -> None:
     assert decide.current_runner() is None
     assert connector_tool("jira", ["search", "get"], "get") == "get"
@@ -123,6 +126,7 @@ def test_connector_tool_falls_back_when_decide_abstains(eg: FakeRunner) -> None:
     assert connector_tool("jira", ["search", "get"], "get") == "get"
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R003", "SDK-CONNECTOR-CONTROL-R007")
 def test_triage_with_no_runner_returns_the_deterministic_pick() -> None:
     assert decide.current_runner() is None
     assert (
@@ -130,6 +134,7 @@ def test_triage_with_no_runner_returns_the_deterministic_pick() -> None:
     )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R003", "SDK-CONNECTOR-CONTROL-R007")
 def test_triage_never_consults_decide_for_an_undeclared_classification(
     eg: FakeRunner,
 ) -> None:

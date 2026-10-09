@@ -277,6 +277,7 @@ async def test_declared_content_providers_import_as_separate_pack_heads(
         ]
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R008")
 async def test_content_pack_rejects_duplicate_uris(sessions: SessionFactory) -> None:
     async with sessions() as session:
         with pytest.raises(MalformedArtifactError):
@@ -311,6 +312,7 @@ async def _annotated_tool_pack(
     return annotations
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R008")
 async def test_tool_annotations_and_certified_pin_reach_generated_pack() -> None:
     annotations = await _annotated_tool_pack(
         "annotated",
@@ -331,6 +333,7 @@ async def test_tool_annotations_and_certified_pin_reach_generated_pack() -> None
     assert len(annotations.sdk_contract_pin) == 64
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R008")
 async def test_tool_annotation_conflict_fails_closed() -> None:
     tool = mcp_types.Tool.model_validate(
         {

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from agent_connector_sdk.ingest import ChangeSet
 from agent_connector_sdk.vendor_extractors.erpnext import CATEGORY as ERPNEXT_CATEGORY
 from agent_connector_sdk.vendor_extractors.erpnext import extract as erpnext_extract
@@ -25,6 +26,7 @@ class _FakeClient:
 # --- grafana ------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.23", "SDK-SOURCE-INGEST-R006.24", "SDK-SOURCE-INGEST-R006.25")
 def test_grafana_extract_links_panels_to_dashboards_and_monitored_services() -> None:
     client = _FakeClient(
         datasources=[{"uid": "ds1", "name": "Prometheus", "type": "prometheus"}],
@@ -57,6 +59,7 @@ def test_grafana_extract_links_panels_to_dashboards_and_monitored_services() -> 
     assert GRAFANA_CATEGORY == "grafana"
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.23", "SDK-SOURCE-INGEST-R006.24", "SDK-SOURCE-INGEST-R006.25")
 def test_grafana_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert grafana_extract({}) == ChangeSet()
 
@@ -64,6 +67,7 @@ def test_grafana_extract_returns_an_empty_change_set_without_a_client() -> None:
 # --- leanix ------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.23", "SDK-SOURCE-INGEST-R006.24", "SDK-SOURCE-INGEST-R006.25")
 def test_leanix_extract_maps_factsheets_and_known_relations() -> None:
     def factsheets(type: str, since: object = None, ids: object = None) -> list[dict]:
         if type == "Application":

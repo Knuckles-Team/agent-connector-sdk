@@ -117,6 +117,7 @@ class _StaticAdapter:
         )
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R003")
 def test_propose_repair_needs_a_noncompatible_report_and_full_identity() -> None:
     compatible = _report(_contract(SCHEMA))
     assert compatible.classification is DriftClassification.COMPATIBLE

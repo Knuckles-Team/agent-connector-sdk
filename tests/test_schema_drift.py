@@ -87,6 +87,7 @@ def changed_schema(change: str) -> dict[str, Any]:
     return schema
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R007")
 def test_normalized_digest_preserves_semantic_property_names() -> None:
     reordered = deepcopy(SCHEMA)
     reordered["required"].reverse()
@@ -101,6 +102,7 @@ def test_normalized_digest_preserves_semantic_property_names() -> None:
     assert contract(titled).digest() != contract(SCHEMA).digest()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R007")
 def test_optional_addition_requires_declared_policy() -> None:
     current = contract(changed_schema("optional"))
     assert classify(current).classification is DriftClassification.REQUIRES_REVIEW
@@ -330,6 +332,7 @@ async def test_empty_polling_page_cannot_bypass_quarantine(
     ).accepted_checkpoint == checkpoint
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R002")
 def test_unknown_keyword_values_are_not_treated_as_presentation() -> None:
     before = deepcopy(SCHEMA)
     after = deepcopy(SCHEMA)
@@ -361,6 +364,7 @@ def test_unknown_keyword_values_are_not_treated_as_presentation() -> None:
         ({"items": None}, {}),
     ],
 )
+@pytest.mark.spec("SDK-SOURCE-INGEST-R002")
 @pytest.mark.parametrize("policy", list(EvolutionPolicy))
 @pytest.mark.parametrize("reverse", [False, True])
 def test_json_types_and_keyword_presence_require_review(
@@ -385,6 +389,7 @@ def test_json_types_and_keyword_presence_require_review(
     assert report.reason_codes and report.affected_fields
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R002")
 @pytest.mark.parametrize("keyword", ["const", "enum", "x-policy"])
 def test_json_numbers_remain_semantically_equivalent(keyword: str) -> None:
     report = classify_schema_drift(

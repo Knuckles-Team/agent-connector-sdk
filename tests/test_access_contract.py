@@ -52,6 +52,7 @@ def _variant(old: str, new: str) -> str:
     return _FAKE.replace(old, new)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R021")
 def test_parses_typed_contract_from_fake_connector() -> None:
     (contract,) = parse_access_contracts(_FAKE)
     assert isinstance(contract, AccessContract)
@@ -76,6 +77,7 @@ def test_parses_typed_contract_from_fake_connector() -> None:
     }
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R021")
 def test_optional_hints_default_to_unknown() -> None:
     text = _variant('    ac:costHint "low" .', '    ac:keyField2 "x" .')
     text = text.replace("    ac:rateLimitPerMinute 120 ;\n", "")
@@ -103,6 +105,7 @@ def test_optional_hints_default_to_unknown() -> None:
         ),
     ],
 )
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R021")
 def test_refuses_invalid_contract(old: str, new: str, message: str) -> None:
     with pytest.raises(AccessContractError, match=message) as info:
         parse_access_contracts(_variant(old, new))

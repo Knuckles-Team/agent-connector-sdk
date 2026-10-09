@@ -36,16 +36,19 @@ def check_public_specs():
     return _load_check_public_specs()
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R009", "SDK-CONNECTOR-CONTROL-R010", "SDK-CONNECTOR-CONTROL-R011", "SDK-CONNECTOR-CONTROL-R012", "SDK-CONNECTOR-CONTROL-R013")
 def test_gitlab_api_connector_name_is_not_forbidden(check_public_specs):
     content = "Migrated `gitlab-api` in pull request https://github.com/Knuckles-Team/gitlab-api/pull/13."
     assert not any(pattern.search(content) for pattern in check_public_specs.FORBIDDEN)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R009", "SDK-CONNECTOR-CONTROL-R010", "SDK-CONNECTOR-CONTROL-R011", "SDK-CONNECTOR-CONTROL-R012", "SDK-CONNECTOR-CONTROL-R013")
 def test_bare_gitlab_mention_is_still_forbidden(check_public_specs):
     content = "Configure the outbound token against our internal gitlab server."
     assert any(pattern.search(content) for pattern in check_public_specs.FORBIDDEN)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R009", "SDK-CONNECTOR-CONTROL-R010", "SDK-CONNECTOR-CONTROL-R011", "SDK-CONNECTOR-CONTROL-R012", "SDK-CONNECTOR-CONTROL-R013")
 def test_homelab_mention_is_still_forbidden(check_public_specs):
     content = "This runs on the homelab control plane."
     assert any(pattern.search(content) for pattern in check_public_specs.FORBIDDEN)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from agent_connector_sdk.ingest import ChangeSet
 from agent_connector_sdk.vendor_extractors.aris import CATEGORY as ARIS_CATEGORY
 from agent_connector_sdk.vendor_extractors.aris import extract as aris_extract
@@ -25,6 +26,7 @@ class _FakeClient:
 # --- aris ------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.17", "SDK-SOURCE-INGEST-R006.29", "SDK-SOURCE-INGEST-R006.30", "SDK-SOURCE-INGEST-R006.31")
 def test_aris_extract_distinguishes_process_and_architecture_models() -> None:
     client = _FakeClient(
         list_models=[
@@ -48,6 +50,7 @@ def test_aris_extract_distinguishes_process_and_architecture_models() -> None:
     assert ARIS_CATEGORY == "aris"
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.17", "SDK-SOURCE-INGEST-R006.29", "SDK-SOURCE-INGEST-R006.30", "SDK-SOURCE-INGEST-R006.31")
 def test_aris_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert aris_extract({}) == ChangeSet()
 
@@ -55,6 +58,7 @@ def test_aris_extract_returns_an_empty_change_set_without_a_client() -> None:
 # --- egeria ------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.17", "SDK-SOURCE-INGEST-R006.29", "SDK-SOURCE-INGEST-R006.30", "SDK-SOURCE-INGEST-R006.31")
 def test_egeria_extract_links_lineage_data_flows_through_a_process() -> None:
     client = _FakeClient(
         list_assets=[{"guid": "a1", "typeName": "RelationalTable", "name": "orders"}],

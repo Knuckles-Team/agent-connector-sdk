@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import pytest
 from datetime import UTC, datetime
 
 from agent_connector_sdk.finance.central_bank_calendar import (
@@ -42,6 +43,7 @@ def _calendar(**overrides: object) -> tuple[CentralBankAnnouncement, ...]:
     return central_bank_calendar_from_source(**fields)
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R001", "SDK-FINANCE-SOURCES-R005")
 def test_each_announcement_preserves_its_scheduled_time_and_vintage() -> None:
     events = _calendar()
 
@@ -51,6 +53,7 @@ def test_each_announcement_preserves_its_scheduled_time_and_vintage() -> None:
     assert events[0].event_time_utc == events[0].announcement_time_utc
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R001", "SDK-FINANCE-SOURCES-R005")
 def test_a_reschedule_is_a_distinct_vintage_record_not_an_overwrite() -> None:
     rescheduled_page = {
         "events": [
@@ -75,6 +78,7 @@ def test_a_reschedule_is_a_distinct_vintage_record_not_an_overwrite() -> None:
     assert rate_decisions[0].source_event_id != rate_decisions[1].source_event_id
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R001", "SDK-FINANCE-SOURCES-R005")
 def test_a_naive_announcement_time_is_treated_as_utc() -> None:
     naive_page = {
         "events": [

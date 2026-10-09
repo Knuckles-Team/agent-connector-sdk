@@ -42,6 +42,7 @@ _CSV = (
 )
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R003", "SDK-GOVERNED-WRITEBACK-R004")
 def test_preview_reports_row_count_and_stable_file_digest() -> None:
     preview = preview_csv_mapping(_CSV, _MAPPING)
     assert isinstance(preview, CsvImportPreview)
@@ -49,6 +50,7 @@ def test_preview_reports_row_count_and_stable_file_digest() -> None:
     assert preview.file_digest == preview_csv_mapping(_CSV, _MAPPING).file_digest
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R003", "SDK-GOVERNED-WRITEBACK-R004")
 def test_preview_rejects_a_mapping_missing_a_required_field() -> None:
     incomplete = ColumnMapping(
         header_to_field={
@@ -59,6 +61,7 @@ def test_preview_rejects_a_mapping_missing_a_required_field() -> None:
         preview_csv_mapping(_CSV, incomplete)
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R003", "SDK-GOVERNED-WRITEBACK-R004")
 def test_preview_rejects_a_mapping_naming_two_headers_for_one_field() -> None:
     duplicated = ColumnMapping(
         header_to_field={**_MAPPING.header_to_field, "Price": "quantity"}

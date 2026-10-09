@@ -28,6 +28,7 @@ def _revision() -> RepositoryRevision:
     )
 
 
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R003")
 def test_repository_tree_page_preserves_entries() -> None:
     page = RepositoryTreePage(
         revision=_revision(),
@@ -38,12 +39,14 @@ def test_repository_tree_page_preserves_entries() -> None:
     assert page.entries[0].path == "src/main.py"
 
 
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R003")
 def test_repository_tree_page_rejects_duplicate_paths() -> None:
     entry = RepositoryTreeEntry(path="main.py", blob_id="e" * 40)
     with pytest.raises(ValidationError, match="unique"):
         RepositoryTreePage(revision=_revision(), entries=(entry, entry))
 
 
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R003")
 def test_repository_tree_page_rejects_an_empty_continued_page() -> None:
     with pytest.raises(ValidationError, match="empty"):
         RepositoryTreePage(revision=_revision(), entries=(), next_cursor="1")

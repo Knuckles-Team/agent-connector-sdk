@@ -70,6 +70,7 @@ def test_orphan_module_gate_fires_on_a_planted_orphan(tmp_path: Path) -> None:
     assert _run("orphans", root).returncode == 0
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R017")
 def test_public_api_gate_fires_on_an_untested_name(tmp_path: Path) -> None:
     root = _repository(
         tmp_path,
@@ -107,6 +108,7 @@ def _fleet_gate(root: Path, ci: bool) -> subprocess.CompletedProcess[str]:
     )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R017")
 def test_fleet_gate_skips_locally_and_fails_closed_in_ci(tmp_path: Path) -> None:
     root = tmp_path / "standalone"
     root.mkdir()

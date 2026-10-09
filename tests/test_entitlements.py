@@ -31,14 +31,17 @@ def _actor(
     )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R025")
 def test_namespaced_capability_entitles_one_resource() -> None:
     assert entitled_resources(["k8s:prod"], "k8s", ["prod", "staging"]) == ("prod",)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R025")
 def test_bare_capability_entitles_the_zero_config_resource() -> None:
     assert entitled_resources(["prod"], "k8s", ["prod", "staging"]) == ("prod",)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R025")
 def test_namespace_wildcard_grants_every_available_resource() -> None:
     assert entitled_resources(["k8s:*"], "k8s", ["prod", "staging"]) == (
         "prod",
