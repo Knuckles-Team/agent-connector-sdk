@@ -202,7 +202,7 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R017",
       "title": "Every connector uses the shared TLS profile, no bare verify bypass",
-      "delivery_state": "BUILDING",
+      "delivery_state": "LANDED",
       "evidence": [
         {
           "kind": "implementation",
@@ -210,6 +210,13 @@
           "commit": "830be1c11cfefe3d043c6926e4f214ed65eae299",
           "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/830be1c11cfefe3d043c6926e4f214ed65eae299",
           "description": "Part of the requirement is implemented on the default branch."
+        },
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "830be1c11cfefe3d043c6926e4f214ed65eae299",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/830be1c11cfefe3d043c6926e4f214ed65eae299",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
         }
       ],
       "remaining": "The SDK's shared TLS profile structurally rejects 'verify'/'allow_insecure' bypass keys and this is tested on main. Whether every connector package (separate repos: aris-mcp, freshrss-agent, hdhomerun-mcp, vector-mcp, etc.) actually routes HTTPS through this profile with no bare verify flags is outs"
