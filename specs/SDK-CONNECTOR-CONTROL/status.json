@@ -265,14 +265,30 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R022",
       "title": "The pack builder scopes owl:imports to the pack",
-      "delivery_state": "BUILDING",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "78ea5b9531dbe5aa896d8815f7961b12503462b0",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/78ea5b9531dbe5aa896d8815f7961b12503462b0",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R023",
       "title": "A prompt with a required argument is captured as a template, never refused",
-      "delivery_state": "BUILDING",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "d1c580006f08bcd4aa8cc943de16c18359fa7fe3",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d1c580006f08bcd4aa8cc943de16c18359fa7fe3",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
+        }
+      ]
     }
   ]
 }
