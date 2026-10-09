@@ -17,6 +17,7 @@
     "SDK-CONNECTOR-CONTROL-R012",
     "SDK-CONNECTOR-CONTROL-R013",
     "SDK-CONNECTOR-CONTROL-R014",
+    "SDK-CONNECTOR-CONTROL-R014.1",
     "SDK-CONNECTOR-CONTROL-R015",
     "SDK-CONNECTOR-CONTROL-R016",
     "SDK-CONNECTOR-CONTROL-R017",
@@ -679,6 +680,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014",
       "title": "SDK fully supersedes the duplicated connector toolkit",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Rollup; delivered once R014.1 (reusable census call site) extends to a real fleet-wide run across every connector package and each toolkit area's replacement-completeness tests land."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.1",
+      "title": "One reusable cross-repository import-scan call site",
       "delivery_state": "SPECIFIED",
       "evidence": []
     },
