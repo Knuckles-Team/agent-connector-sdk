@@ -30,7 +30,17 @@
     "SDK-CONNECTOR-CONTROL-R023",
     "SDK-CONNECTOR-CONTROL-R024",
     "SDK-CONNECTOR-CONTROL-R025",
-    "SDK-CONNECTOR-CONTROL-R026"
+    "SDK-CONNECTOR-CONTROL-R026",
+    "SDK-CONNECTOR-CONTROL-R027",
+    "SDK-CONNECTOR-CONTROL-R028",
+    "SDK-CONNECTOR-CONTROL-R029",
+    "SDK-CONNECTOR-CONTROL-R030",
+    "SDK-CONNECTOR-CONTROL-R031",
+    "SDK-CONNECTOR-CONTROL-R032",
+    "SDK-CONNECTOR-CONTROL-R033",
+    "SDK-CONNECTOR-CONTROL-R034",
+    "SDK-CONNECTOR-CONTROL-R035",
+    "SDK-CONNECTOR-CONTROL-R036"
   ],
   "delivery_state": "LANDED",
   "acceptance_state": "NOT_AUDITED",
@@ -936,6 +946,76 @@
         }
       ],
       "remaining": "Implemented and unit-tested in this PR's branch; LANDED evidence (a merged_head commit in this repository) is recorded by the orchestrator's promoter after merge. data-science-mcp migrating its own server off agent_utilities.mcp.verbose_tools is separate, future work in that repository."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R027",
+      "title": "SDK resolves the selected provider-runtime profile for a multi-backend connector",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (audiobookshelf-mcp, pulselink-mcp, fan-manager, vector-mcp). Not yet built."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R028",
+      "title": "SDK's governed HTTP client controls egress with named escape hatches, not ad hoc trust",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (vaultwarden-mcp, gitlab-api, pulselink-mcp). Not yet built."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R029",
+      "title": "SDK exposes a structured configuration singleton, not only a flat setting() lookup",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (vector-mcp, systems-manager, repository-manager). Not yet built."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R030",
+      "title": "SDK provides GraphQL introspection context helpers for connector tools",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (leanix-agent, twenty-mcp). Not yet built."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R031",
+      "title": "SDK's client-credentials token provider accepts a literal client secret, matching the signature connectors already call",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (keycloak-agent, gitlab-api). Not yet built."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R032",
+      "title": "SDK provides opt-in verbose, one-tool-per-method surface derivation via register_tool_surface",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (data-science-mcp, vector-mcp, twenty-mcp). Not yet built."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R033",
+      "title": "SDK's governed HTTP layer provides a safe_post_json helper with the same private-host allowance as its GET path",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (audiobookshelf-mcp, pulselink-mcp, data-science-mcp). Not yet built."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R034",
+      "title": "SDK provides shared library-file-path resolution and cross-process file locking utilities",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (systems-manager, fan-manager, repository-manager). Not yet built."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R035",
+      "title": "SDK provides a CredentialProvider/SecretsClient abstraction for connectors, not only a credential-reference string",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (vaultwarden-mcp, keycloak-agent, repository-manager). Not yet built."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R036",
+      "title": "SDK's identity-scoped resource entitlements cover the backend-resource catalogs these connectors manage",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (keycloak-agent, systems-manager, vaultwarden-mcp). Not yet built."
     }
   ]
 }
