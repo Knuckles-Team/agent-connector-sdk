@@ -7,6 +7,7 @@ from pathlib import Path
 from agent_connector_sdk.testing.fleet_migration import (
     PackageScanResult,
     scan_for_agent_utilities_imports,
+    scan_many_packages,
 )
 
 
@@ -82,3 +83,21 @@ def test_a_file_that_fails_to_parse_is_skipped_not_fabricated_clean(
     result = scan_for_agent_utilities_imports(tmp_path / "pkg")
 
     assert result.offending_files == ()
+
+
+def test_scan_many_packages_reports_each_root_by_name(tmp_path: Path) -> None:
+    """SDK-CONNECTOR-CONTROL-R014.1: one call site scans a whole fleet of
+    connector package roots and keys each result by package name, so a
+    cross-repository census is one function call, not a hand-rolled loop."""
+    _write(
+        tmp_path / "clean_pkg" / "server.py",
+        "from agent_connector_sdk.mcp.server import build_server\n",
+    )
+    _write(tmp_path / "legacy_pkg" / "a.py", "import agent_utilities.core.config\n")
+
+    results = scan_many_packages([tmp_path / "clean_pkg", tmp_path / "legacy_pkg"])
+
+    assert set(results) == {"clean_pkg", "legacy_pkg"}
+    assert results["clean_pkg"].migrated
+    assert not results["legacy_pkg"].migrated
+    assert results["legacy_pkg"].offending_files == ("a.py",)
