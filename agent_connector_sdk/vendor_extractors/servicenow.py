@@ -71,23 +71,120 @@ def _federation(raw_id: str, **extra: Any) -> dict[str, Any]:
     return properties
 
 
-def _risk_props(record: Any) -> dict[str, Any]:
-    """Lifecycle/risk attributes (vendor-neutral TRM props), field-tolerant."""
-    out: dict[str, Any] = {}
-    stage = _first(
-        record, "lifecycle_stage", "lifecycle", "install_status", "life_cycle_stage"
+_RISK_FIELDS = (
+    (
+        "lifecycleStage",
+        ("lifecycle_stage", "lifecycle", "install_status", "life_cycle_stage"),
+    ),
+    (
+        "endOfLifeDate",
+        ("end_of_life", "eol_date", "end_of_support", "decommission_date"),
+    ),
+    ("riskRating", ("risk_rating", "risk", "risk_score")),
+)
+
+
+def _itsm_record(
+    label: str, prefix: str, record: Any
+) -> tuple[Entity, list[Relationship]] | None:
+    key = _key(record)
+    if not key:
+        return None
+    node_id = f"{prefix}:{key}"
+    entity = Entity(
+        id=node_id,
+        node_type=label,
+        properties=_federation(
+            key,
+            number=_ref(_get(record, "number")),
+            short_description=_get(record, "short_description"),
+            state=_ref(_get(record, "state")),
+            priority=_ref(_get(record, "priority")),
+        ),
     )
-    if stage:
-        out["lifecycleStage"] = stage
-    eol = _first(
-        record, "end_of_life", "eol_date", "end_of_support", "decommission_date"
-    )
-    if eol:
-        out["endOfLifeDate"] = eol
-    rating = _first(record, "risk_rating", "risk", "risk_score")
-    if rating:
-        out["riskRating"] = rating
-    return out
+    relationships: list[Relationship] = []
+    ci = _ref(_get(record, "cmdb_ci"))
+    if ci:
+        relationships.append(
+            Relationship(source=node_id, target=f"ci:{ci}", relationship="AFFECTS")
+        )
+    assignee = _ref(_get(record, "assigned_to"))
+    if assignee:
+        relationships.append(
+            Relationship(
+                source=node_id, target=f"person:{assignee}", relationship="ASSIGNED_TO"
+            )
+        )
+    return entity, relationships
+
+
+def _trm_properties(node_type: str, record: Any) -> dict[str, Any]:
+    """Type-specific display properties for one TRM record, before risk props."""
+    if node_type == "ConfigurationItem":
+        return {
+            "name": _get(record, "name"),
+            "short_description": _get(record, "short_description"),
+            "ci_class": _ref(_get(record, "ci_class")),
+            "state": _ref(_get(record, "state")),
+        }
+    if node_type == "TechnologyProduct":
+        return {
+            "name": _first(record, "display_name", "name"),
+            "manufacturer": _first(record, "manufacturer", "vendor"),
+        }
+    return {"name": _first(record, "display_name", "name", "asset_tag")}
+
+
+def _trm_record(
+    record: Any, *, prefix: str, node_type: str, model_keys: tuple[str, ...]
+) -> tuple[list[Entity], list[Relationship]] | None:
+    """A CMDB/TRM record (CI, product, or asset instance) -- all share the same
+    key/risk/INSTANCE_OF shape, differing only in prefix, label, and which
+    fields become display properties."""
+    key = _key(record)
+    if not key:
+        return None
+    node_id = f"{prefix}:{key}"
+    risk = {
+        name: value for name, keys in _RISK_FIELDS if (value := _first(record, *keys))
+    }
+    entities = [
+        Entity(
+            id=node_id,
+            node_type=node_type,
+            properties=_federation(key, **_trm_properties(node_type, record), **risk),
+        )
+    ]
+    relationships: list[Relationship] = []
+    if risk.get("riskRating") or risk.get("endOfLifeDate"):
+        risk_id = f"snrisk:{node_id}"
+        entities.append(
+            Entity(
+                id=risk_id,
+                node_type="TechnologyRisk",
+                properties=_federation(
+                    node_id, name=f"Risk: {_get(record, 'name') or node_id}", **risk
+                ),
+            )
+        )
+        relationships.append(
+            Relationship(source=node_id, target=risk_id, relationship="HAS_RISK")
+        )
+    model = _first(record, *model_keys) if model_keys else None
+    if model:
+        relationships.append(
+            Relationship(
+                source=node_id, target=f"snproduct:{model}", relationship="INSTANCE_OF"
+            )
+        )
+    return entities, relationships
+
+
+_TRM_GROUPS = (
+    ("cmdb_cis", "ci", "ConfigurationItem", ("model_id", "model")),
+    ("cmdb_models", "snproduct", "TechnologyProduct", ()),
+    ("assets", "asset", "AssetInstance", ("model", "model_id", "model_category")),
+)
 
 
 def extract(config: Any) -> ChangeSet:
@@ -98,144 +195,28 @@ def extract(config: Any) -> ChangeSet:
 
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-
-    def _emit_risk_entity(owner_id: str, record: Any, risk: dict[str, Any]) -> None:
-        """A TechnologyRisk entity + HAS_RISK relationship on risk/EOL signal."""
-        if not (risk.get("riskRating") or risk.get("endOfLifeDate")):
-            return
-        risk_id = f"snrisk:{owner_id}"
-        entities.append(
-            Entity(
-                id=risk_id,
-                node_type="TechnologyRisk",
-                properties=_federation(
-                    owner_id,
-                    name=f"Risk: {_get(record, 'name') or owner_id}",
-                    **risk,
-                ),
-            )
-        )
-        relationships.append(
-            Relationship(source=owner_id, target=risk_id, relationship="HAS_RISK")
-        )
-
     for method, label, prefix in (
         ("incidents", "Incident", "incident"),
         ("changes", "Change", "change"),
     ):
         for record in _call(client, method):
-            key = _key(record)
-            if not key:
+            built = _itsm_record(label, prefix, record)
+            if built is None:
                 continue
-            node_id = f"{prefix}:{key}"
-            entities.append(
-                Entity(
-                    id=node_id,
-                    node_type=label,
-                    properties=_federation(
-                        key,
-                        number=_ref(_get(record, "number")),
-                        short_description=_get(record, "short_description"),
-                        state=_ref(_get(record, "state")),
-                        priority=_ref(_get(record, "priority")),
-                    ),
-                )
-            )
-            ci = _ref(_get(record, "cmdb_ci"))
-            if ci:
-                relationships.append(
-                    Relationship(
-                        source=node_id, target=f"ci:{ci}", relationship="AFFECTS"
-                    )
-                )
-            assignee = _ref(_get(record, "assigned_to"))
-            if assignee:
-                relationships.append(
-                    Relationship(
-                        source=node_id,
-                        target=f"person:{assignee}",
-                        relationship="ASSIGNED_TO",
-                    )
-                )
+            entity, rels = built
+            entities.append(entity)
+            relationships.extend(rels)
 
-    for record in _call(client, "cmdb_cis"):
-        key = _key(record)
-        if not key:
-            continue
-        node_id = f"ci:{key}"
-        risk = _risk_props(record)
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="ConfigurationItem",
-                properties=_federation(
-                    key,
-                    name=_get(record, "name"),
-                    short_description=_get(record, "short_description"),
-                    ci_class=_ref(_get(record, "ci_class")),
-                    state=_ref(_get(record, "state")),
-                    **risk,
-                ),
+    for method, prefix, node_type, model_keys in _TRM_GROUPS:
+        for record in _call(client, method):
+            built = _trm_record(
+                record, prefix=prefix, node_type=node_type, model_keys=model_keys
             )
-        )
-        _emit_risk_entity(node_id, record, risk)
-        model = _first(record, "model_id", "model")
-        if model:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"snproduct:{model}",
-                    relationship="INSTANCE_OF",
-                )
-            )
-
-    for record in _call(client, "cmdb_models"):
-        key = _key(record)
-        if not key:
-            continue
-        node_id = f"snproduct:{key}"
-        risk = _risk_props(record)
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="TechnologyProduct",
-                properties=_federation(
-                    key,
-                    name=_first(record, "display_name", "name"),
-                    manufacturer=_first(record, "manufacturer", "vendor"),
-                    **risk,
-                ),
-            )
-        )
-        _emit_risk_entity(node_id, record, risk)
-
-    for record in _call(client, "assets"):
-        key = _key(record)
-        if not key:
-            continue
-        node_id = f"asset:{key}"
-        risk = _risk_props(record)
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="AssetInstance",
-                properties=_federation(
-                    key,
-                    name=_first(record, "display_name", "name", "asset_tag"),
-                    **risk,
-                ),
-            )
-        )
-        _emit_risk_entity(node_id, record, risk)
-        model = _first(record, "model", "model_id", "model_category")
-        if model:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"snproduct:{model}",
-                    relationship="INSTANCE_OF",
-                )
-            )
+            if built is None:
+                continue
+            built_entities, built_relationships = built
+            entities.extend(built_entities)
+            relationships.extend(built_relationships)
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 
