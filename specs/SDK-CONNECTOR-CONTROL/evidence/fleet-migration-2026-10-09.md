@@ -107,4 +107,3 @@ Total connectors migrated: 69.
 | `uptime-kuma-agent` | [#5](https://github.com/Knuckles-Team/uptime-kuma-agent/pull/5) | `34185d1c4cffb59dec1341bac71d95ce6f7a1274` |
 | `vector-mcp` | [#8](https://github.com/Knuckles-Team/vector-mcp/pull/8) | `699cb005a0b2062a187b4c510af4daab727cd7b3` |
 | `wger-agent` | [#6](https://github.com/Knuckles-Team/wger-agent/pull/6) | `c1b75c9243555ab24ce796a3f8fdd3cbc32cf744` |
-
