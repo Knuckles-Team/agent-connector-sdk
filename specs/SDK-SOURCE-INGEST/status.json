@@ -62,7 +62,7 @@
     {
       "id": "SDK-SOURCE-INGEST-R004",
       "title": "SDK runner performs enterprise source synchronization",
-      "delivery_state": "BUILDING",
+      "delivery_state": "LANDED",
       "evidence": [
         {
           "kind": "branch",
@@ -70,6 +70,13 @@
           "commit": "4ea8bbb289fc5cc8064f046d922fec7113d8840b",
           "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/4ea8bbb289fc5cc8064f046d922fec7113d8840b",
           "description": "Implementation commit is published on a branch; not yet merged to the default branch."
+        },
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "4ce2308afe64d1cc491ca6547d370ec618ae0def",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/4ce2308afe64d1cc491ca6547d370ec618ae0def",
+          "description": "Implementation merged to the default branch; the commit names this requirement."
         }
       ],
       "remaining": "The ingest package is on the default branch: the engine ingest transport, channel and service, tested for full, delta and reconcile submission, checkpoint chaining, conflict retry, privacy sanitization, and media storage through the engine client blob upload. Remaining: the runner-level enterprise source-sync adapter (manifest presets, connection profiling, data preparation) and its integration tests through the runner with receipt parity."

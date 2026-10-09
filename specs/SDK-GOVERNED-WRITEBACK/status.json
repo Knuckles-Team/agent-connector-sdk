@@ -9,9 +9,17 @@
     "SDK-GOVERNED-WRITEBACK-R004",
     "SDK-GOVERNED-WRITEBACK-R005"
   ],
-  "delivery_state": "UNKNOWN",
+  "delivery_state": "LANDED",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": [],
+  "evidence": [
+    {
+      "kind": "merged_head",
+      "result": "passed",
+      "commit": "1ebd0d6ff8807ee83eabc5672ec537c8eeb0c542",
+      "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/1ebd0d6ff8807ee83eabc5672ec537c8eeb0c542",
+      "description": "Every requirement in this spec is merged to the default branch."
+    }
+  ],
   "requirements": [
     {
       "id": "SDK-GOVERNED-WRITEBACK-R001",
