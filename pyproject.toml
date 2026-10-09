@@ -203,6 +203,7 @@ public_modules = [
     "agent_connector_sdk.runner.supervisor",
     "agent_connector_sdk.testing.artifact_kinds",
     "agent_connector_sdk.testing.certificates",
+    "agent_connector_sdk.testing.fleet_migration",
     "agent_connector_sdk.testing.http_clients",
     "agent_connector_sdk.testing.http_server",
     "agent_connector_sdk.testing.repair_proposals",
