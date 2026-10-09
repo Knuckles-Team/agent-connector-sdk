@@ -25,6 +25,29 @@ def _get(config: Any, key: str) -> Any:
     return config.get(key) if isinstance(config, dict) else getattr(config, key, None)
 
 
+def _records_from_connection(conn: Any) -> list[dict[str, Any]] | None:
+    """A GraphQL ``{edges:[{node:...}]}`` or plain-list connection, if shaped so."""
+    if isinstance(conn, dict) and isinstance(conn.get("edges"), list):
+        return [
+            edge["node"]
+            for edge in conn["edges"]
+            if isinstance(edge, dict) and edge.get("node")
+        ]
+    if isinstance(conn, list):
+        return [row for row in conn if isinstance(row, dict)]
+    return None
+
+
+def _records_from_data(data: Any, plural: str) -> list[dict[str, Any]]:
+    if isinstance(data, dict) and plural in data:
+        resolved = _records_from_connection(data[plural])
+        if resolved is not None:
+            return resolved
+    if isinstance(data, list):
+        return [row for row in data if isinstance(row, dict)]
+    return []
+
+
 def _records(res: Any, plural: str) -> list[dict[str, Any]]:
     """Pull records from REST ``{data:[...]}`` or GraphQL connection shapes."""
     if not isinstance(res, dict):
@@ -33,20 +56,7 @@ def _records(res: Any, plural: str) -> list[dict[str, Any]]:
             if isinstance(res, list)
             else []
         )
-    data = res.get("data", res)
-    if isinstance(data, dict) and plural in data:
-        conn = data[plural]
-        if isinstance(conn, dict) and isinstance(conn.get("edges"), list):
-            return [
-                edge["node"]
-                for edge in conn["edges"]
-                if isinstance(edge, dict) and edge.get("node")
-            ]
-        if isinstance(conn, list):
-            return [row for row in conn if isinstance(row, dict)]
-    if isinstance(data, list):
-        return [row for row in data if isinstance(row, dict)]
-    return []
+    return _records_from_data(res.get("data", res), plural)
 
 
 def _call(client: Any, name: str) -> Any:
@@ -73,6 +83,78 @@ def _props(**fields: Any) -> dict[str, Any]:
     return {key: value for key, value in fields.items() if value is not None}
 
 
+def _record_built(
+    record: dict[str, Any],
+    *,
+    prefix: str,
+    node_type: str,
+    properties_fn: Any,
+    relationship_kind: str | None,
+) -> tuple[Entity, Relationship | None] | None:
+    """A ``Customer``/``Person``/``SalesOrder`` entity -- all three share the
+    same id/properties/optional-company-relationship shape, differing only in
+    prefix, label, which fields become display properties, and whether (and
+    as what kind) they relate back to their company."""
+    record_id = record.get("id")
+    if not record_id:
+        return None
+    node_id = f"{prefix}:{record_id}"
+    entity = Entity(
+        id=node_id,
+        node_type=node_type,
+        properties=_props(
+            **properties_fn(record), externalToolId=str(record_id), domain=_DOMAIN
+        ),
+    )
+    relationship = None
+    if relationship_kind:
+        company_ref = record.get("companyId") or (record.get("company") or {}).get("id")
+        if company_ref:
+            relationship = Relationship(
+                source=node_id,
+                target=f"twcompany:{company_ref}",
+                relationship=relationship_kind,
+            )
+    return entity, relationship
+
+
+def _opportunity_properties(opportunity: dict[str, Any]) -> dict[str, Any]:
+    amount = opportunity.get("amount")
+    return {
+        "name": _name(opportunity, "name"),
+        "stage": opportunity.get("stage"),
+        "amount": amount.get("amountMicros") if isinstance(amount, dict) else amount,
+    }
+
+
+_GROUPS = (
+    (
+        "get_companies",
+        "companies",
+        "twcompany",
+        "Customer",
+        lambda r: {"name": _name(r, "name")},
+        None,
+    ),
+    (
+        "get_people",
+        "people",
+        "twperson",
+        "Person",
+        lambda r: {"name": _name(r, "name", "displayName"), "email": _name(r, "email")},
+        "BELONGS_TO",
+    ),
+    (
+        "get_opportunities",
+        "opportunities",
+        "twopp",
+        "SalesOrder",
+        _opportunity_properties,
+        "PLACED_BY",
+    ),
+)
+
+
 def extract(config: Any) -> ChangeSet:
     client = _get(config, "client")
     if client is None:
@@ -80,81 +162,21 @@ def extract(config: Any) -> ChangeSet:
 
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-
-    for company in _records(_call(client, "get_companies"), "companies"):
-        company_id = company.get("id")
-        if company_id:
-            entities.append(
-                Entity(
-                    id=f"twcompany:{company_id}",
-                    node_type="Customer",
-                    properties=_props(
-                        name=_name(company, "name"),
-                        externalToolId=str(company_id),
-                        domain=_DOMAIN,
-                    ),
-                )
+    for method, plural, prefix, node_type, properties_fn, relationship_kind in _GROUPS:
+        for record in _records(_call(client, method), plural):
+            built = _record_built(
+                record,
+                prefix=prefix,
+                node_type=node_type,
+                properties_fn=properties_fn,
+                relationship_kind=relationship_kind,
             )
-
-    for person in _records(_call(client, "get_people"), "people"):
-        person_id = person.get("id")
-        if not person_id:
-            continue
-        node_id = f"twperson:{person_id}"
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="Person",
-                properties=_props(
-                    name=_name(person, "name", "displayName"),
-                    email=_name(person, "email"),
-                    externalToolId=str(person_id),
-                    domain=_DOMAIN,
-                ),
-            )
-        )
-        company_ref = person.get("companyId") or (person.get("company") or {}).get("id")
-        if company_ref:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"twcompany:{company_ref}",
-                    relationship="BELONGS_TO",
-                )
-            )
-
-    for opportunity in _records(_call(client, "get_opportunities"), "opportunities"):
-        opp_id = opportunity.get("id")
-        if not opp_id:
-            continue
-        node_id = f"twopp:{opp_id}"
-        amount = opportunity.get("amount")
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="SalesOrder",
-                properties=_props(
-                    name=_name(opportunity, "name"),
-                    stage=opportunity.get("stage"),
-                    amount=amount.get("amountMicros")
-                    if isinstance(amount, dict)
-                    else amount,
-                    externalToolId=str(opp_id),
-                    domain=_DOMAIN,
-                ),
-            )
-        )
-        company_ref = opportunity.get("companyId") or (
-            opportunity.get("company") or {}
-        ).get("id")
-        if company_ref:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"twcompany:{company_ref}",
-                    relationship="PLACED_BY",
-                )
-            )
+            if built is None:
+                continue
+            entity, relationship = built
+            entities.append(entity)
+            if relationship is not None:
+                relationships.append(relationship)
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 

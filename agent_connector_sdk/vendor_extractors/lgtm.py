@@ -56,34 +56,37 @@ def _dashboards(client: Any) -> list[Entity]:
     return entities
 
 
+def _alert_entity(alert: dict[str, Any]) -> Entity | None:
+    """Build one ``Alert`` entity from a tolerant alert record, or ``None``."""
+    alert_id = (
+        alert.get("fingerprint")
+        or alert.get("id")
+        or (alert.get("labels") or {}).get("alertname")
+    )
+    if not alert_id:
+        return None
+    return Entity(
+        id=f"lgtm_alert:{alert_id}",
+        node_type="Alert",
+        properties={
+            key: value
+            for key, value in {
+                "name": (alert.get("labels") or {}).get("alertname") or str(alert_id),
+                "state": alert.get("status") or alert.get("state"),
+                "externalToolId": str(alert_id),
+                "domain": CATEGORY,
+            }.items()
+            if value is not None
+        },
+    )
+
+
 def _alerts(client: Any) -> list[Entity]:
-    entities: list[Entity] = []
-    for alert in _call(client, "get_alerts"):
-        alert_id = (
-            alert.get("fingerprint")
-            or alert.get("id")
-            or (alert.get("labels") or {}).get("alertname")
-        )
-        if not alert_id:
-            continue
-        entities.append(
-            Entity(
-                id=f"lgtm_alert:{alert_id}",
-                node_type="Alert",
-                properties={
-                    key: value
-                    for key, value in {
-                        "name": (alert.get("labels") or {}).get("alertname")
-                        or str(alert_id),
-                        "state": alert.get("status") or alert.get("state"),
-                        "externalToolId": str(alert_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
-            )
-        )
-    return entities
+    return [
+        entity
+        for alert in _call(client, "get_alerts")
+        if (entity := _alert_entity(alert)) is not None
+    ]
 
 
 def _datasources(client: Any) -> list[Entity]:

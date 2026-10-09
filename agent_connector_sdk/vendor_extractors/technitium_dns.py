@@ -33,18 +33,92 @@ def _call(client: Any, name: str, *args: Any) -> Any:
         return None
 
 
-def _rows(result: Any, *keys: str) -> list[dict[str, Any]]:
-    if isinstance(result, dict):
-        for key in keys:
-            value = result.get(key)
-            if isinstance(value, list):
-                return [row for row in value if isinstance(row, dict)]
-        return []
+def _rows_from_mapping(
+    result: dict[str, Any], keys: tuple[str, ...]
+) -> list[dict[str, Any]]:
+    for key in keys:
+        value = result.get(key)
+        if isinstance(value, list):
+            return [row for row in value if isinstance(row, dict)]
+    return []
+
+
+def _rows_from_sequence(result: Any) -> list[dict[str, Any]]:
     return (
         [row for row in result if isinstance(row, dict)]
         if isinstance(result, list)
         else []
     )
+
+
+def _rows(result: Any, *keys: str) -> list[dict[str, Any]]:
+    if isinstance(result, dict):
+        return _rows_from_mapping(result, keys)
+    return _rows_from_sequence(result)
+
+
+def _zone_entity(zone_row: dict[str, Any]) -> tuple[str, str, Entity] | None:
+    zone = zone_row.get("name") or zone_row.get("zone")
+    if not zone:
+        return None
+    zone_id = f"dnszone:{zone}"
+    entity = Entity(
+        id=zone_id,
+        node_type="ConfigurationItem",
+        properties={
+            "name": zone,
+            "ci_class": "dns_zone",
+            "externalToolId": zone,
+            "domain": CATEGORY,
+        },
+    )
+    return zone, zone_id, entity
+
+
+def _record_value(record: dict[str, Any]) -> Any:
+    r_data = record.get("rData")
+    return r_data.get("value") if isinstance(r_data, dict) else record.get("value")
+
+
+def _record_entity(
+    zone: str, zone_id: str, record: dict[str, Any]
+) -> tuple[Entity, Relationship]:
+    record_name = record.get("name") or zone
+    record_type = record.get("type") or "A"
+    record_id = f"dnsrecord:{zone}:{record_name}:{record_type}"
+    entity = Entity(
+        id=record_id,
+        node_type="ConfigurationItem",
+        properties={
+            key: value
+            for key, value in {
+                "name": record_name,
+                "ci_class": f"dns_{record_type.lower()}",
+                "record_type": record_type,
+                "value": _record_value(record),
+                "externalToolId": record_id.split(":", 1)[1],
+                "domain": CATEGORY,
+            }.items()
+            if value is not None
+        },
+    )
+    relationship = Relationship(
+        source=zone_id, target=record_id, relationship="CONTAINS"
+    )
+    return entity, relationship
+
+
+def _zone_records(
+    client: Any, zone: str, zone_id: str
+) -> tuple[list[Entity], list[Relationship]]:
+    records = _rows(_call(client, "get_records", zone), "records", "value", "data")
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+    for record in records:
+        entity, relationship = _record_entity(zone, zone_id, record)
+        entities.append(entity)
+        relationships.append(relationship)
+    return entities, relationships
 
 
 def extract(config: Any) -> ChangeSet:
@@ -55,51 +129,14 @@ def extract(config: Any) -> ChangeSet:
     entities: list[Entity] = []
     relationships: list[Relationship] = []
     for zone_row in _rows(_call(client, "list_zones"), "zones", "value", "data"):
-        zone = zone_row.get("name") or zone_row.get("zone")
-        if not zone:
+        built = _zone_entity(zone_row)
+        if built is None:
             continue
-        zone_id = f"dnszone:{zone}"
-        entities.append(
-            Entity(
-                id=zone_id,
-                node_type="ConfigurationItem",
-                properties={
-                    "name": zone,
-                    "ci_class": "dns_zone",
-                    "externalToolId": zone,
-                    "domain": CATEGORY,
-                },
-            )
-        )
-        records = _rows(_call(client, "get_records", zone), "records", "value", "data")
-        for record in records:
-            record_name = record.get("name") or zone
-            record_type = record.get("type") or "A"
-            record_id = f"dnsrecord:{zone}:{record_name}:{record_type}"
-            r_data = record.get("rData")
-            entities.append(
-                Entity(
-                    id=record_id,
-                    node_type="ConfigurationItem",
-                    properties={
-                        key: value
-                        for key, value in {
-                            "name": record_name,
-                            "ci_class": f"dns_{record_type.lower()}",
-                            "record_type": record_type,
-                            "value": r_data.get("value")
-                            if isinstance(r_data, dict)
-                            else record.get("value"),
-                            "externalToolId": record_id.split(":", 1)[1],
-                            "domain": CATEGORY,
-                        }.items()
-                        if value is not None
-                    },
-                )
-            )
-            relationships.append(
-                Relationship(source=zone_id, target=record_id, relationship="CONTAINS")
-            )
+        zone, zone_id, zone_entity = built
+        entities.append(zone_entity)
+        record_entities, record_relationships = _zone_records(client, zone, zone_id)
+        entities.extend(record_entities)
+        relationships.extend(record_relationships)
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 

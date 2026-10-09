@@ -46,6 +46,106 @@ def _props(**fields: Any) -> dict[str, Any]:
     return {key: value for key, value in fields.items() if value is not None}
 
 
+def _record_built(
+    record: dict[str, Any], *, prefix: str, node_type: str, properties_fn: Any
+) -> tuple[str, Entity] | None:
+    """A wger entity -- weight/measurement/session/plan all share the same
+    id/properties shape, differing only in prefix, label, and which fields
+    become display properties."""
+    record_id = record.get("id")
+    if record_id is None:
+        return None
+    node_id = f"{prefix}:{record_id}"
+    entity = Entity(
+        id=node_id,
+        node_type=node_type,
+        properties=_props(
+            **properties_fn(record), externalToolId=str(record_id), domain=_DOMAIN
+        ),
+    )
+    return node_id, entity
+
+
+def _session_relationship(node_id: str, session: dict[str, Any]) -> Relationship | None:
+    routine = session.get("routine")
+    if routine is None:
+        return None
+    return Relationship(
+        source=node_id, target=f"wger:routine:{routine}", relationship="PART_OF"
+    )
+
+
+_GROUPS = (
+    (
+        "get_weight_entries",
+        "wger:weight",
+        "BodyMeasurement",
+        lambda w: {"kind": "weight", "value": w.get("weight"), "date": w.get("date")},
+        None,
+    ),
+    (
+        "get_measurements",
+        "wger:meas",
+        "BodyMeasurement",
+        lambda m: {
+            "kind": "measurement",
+            "category": m.get("category"),
+            "value": m.get("value"),
+            "date": m.get("date"),
+        },
+        None,
+    ),
+    (
+        "get_workout_sessions",
+        "wger:session",
+        "WorkoutSession",
+        lambda s: {
+            "date": s.get("date"),
+            "impression": s.get("impression"),
+            "notes": s.get("notes"),
+        },
+        _session_relationship,
+    ),
+    (
+        "get_nutrition_plans",
+        "wger:nutplan",
+        "MealPlan",
+        lambda p: {
+            "description": p.get("description"),
+            "only_logging": p.get("only_logging"),
+        },
+        None,
+    ),
+)
+
+
+def _extract_group(
+    client: Any,
+    *,
+    method: str,
+    prefix: str,
+    node_type: str,
+    properties_fn: Any,
+    relationship_fn: Any,
+) -> tuple[list[Entity], list[Relationship]]:
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+    for record in _rows(_call(client, method)):
+        built = _record_built(
+            record, prefix=prefix, node_type=node_type, properties_fn=properties_fn
+        )
+        if built is None:
+            continue
+        node_id, entity = built
+        entities.append(entity)
+        relationship = (
+            relationship_fn(node_id, record) if relationship_fn is not None else None
+        )
+        if relationship is not None:
+            relationships.append(relationship)
+    return entities, relationships
+
+
 def extract(config: Any) -> ChangeSet:
     client = _get(config, "client")
     if client is None:
@@ -53,88 +153,17 @@ def extract(config: Any) -> ChangeSet:
 
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-
-    for weight in _rows(_call(client, "get_weight_entries")):
-        weight_id = weight.get("id")
-        if weight_id is None:
-            continue
-        entities.append(
-            Entity(
-                id=f"wger:weight:{weight_id}",
-                node_type="BodyMeasurement",
-                properties=_props(
-                    kind="weight",
-                    value=weight.get("weight"),
-                    date=weight.get("date"),
-                    externalToolId=str(weight_id),
-                    domain=_DOMAIN,
-                ),
-            )
+    for method, prefix, node_type, properties_fn, relationship_fn in _GROUPS:
+        group_entities, group_relationships = _extract_group(
+            client,
+            method=method,
+            prefix=prefix,
+            node_type=node_type,
+            properties_fn=properties_fn,
+            relationship_fn=relationship_fn,
         )
-
-    for measurement in _rows(_call(client, "get_measurements")):
-        measurement_id = measurement.get("id")
-        if measurement_id is None:
-            continue
-        entities.append(
-            Entity(
-                id=f"wger:meas:{measurement_id}",
-                node_type="BodyMeasurement",
-                properties=_props(
-                    kind="measurement",
-                    category=measurement.get("category"),
-                    value=measurement.get("value"),
-                    date=measurement.get("date"),
-                    externalToolId=str(measurement_id),
-                    domain=_DOMAIN,
-                ),
-            )
-        )
-
-    for session in _rows(_call(client, "get_workout_sessions")):
-        session_id = session.get("id")
-        if session_id is None:
-            continue
-        node_id = f"wger:session:{session_id}"
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="WorkoutSession",
-                properties=_props(
-                    date=session.get("date"),
-                    impression=session.get("impression"),
-                    notes=session.get("notes"),
-                    externalToolId=str(session_id),
-                    domain=_DOMAIN,
-                ),
-            )
-        )
-        routine = session.get("routine")
-        if routine is not None:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"wger:routine:{routine}",
-                    relationship="PART_OF",
-                )
-            )
-
-    for plan in _rows(_call(client, "get_nutrition_plans")):
-        plan_id = plan.get("id")
-        if plan_id is None:
-            continue
-        entities.append(
-            Entity(
-                id=f"wger:nutplan:{plan_id}",
-                node_type="MealPlan",
-                properties=_props(
-                    description=plan.get("description"),
-                    only_logging=plan.get("only_logging"),
-                    externalToolId=str(plan_id),
-                    domain=_DOMAIN,
-                ),
-            )
-        )
+        entities.extend(group_entities)
+        relationships.extend(group_relationships)
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 
