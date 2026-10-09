@@ -141,6 +141,7 @@ public_modules = [
     "agent_connector_sdk.exceptions",
     "agent_connector_sdk.finance.account",
     "agent_connector_sdk.finance.csv_import",
+    "agent_connector_sdk.finance.fred_series",
     "agent_connector_sdk.finance.multi_asset",
     "agent_connector_sdk.finance.records",
     "agent_connector_sdk.http.bodies",
