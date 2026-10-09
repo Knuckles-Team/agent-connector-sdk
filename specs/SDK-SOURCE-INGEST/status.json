@@ -9,6 +9,37 @@
     "SDK-SOURCE-INGEST-R004",
     "SDK-SOURCE-INGEST-R005",
     "SDK-SOURCE-INGEST-R006",
+    "SDK-SOURCE-INGEST-R006.1",
+    "SDK-SOURCE-INGEST-R006.2",
+    "SDK-SOURCE-INGEST-R006.3",
+    "SDK-SOURCE-INGEST-R006.4",
+    "SDK-SOURCE-INGEST-R006.5",
+    "SDK-SOURCE-INGEST-R006.6",
+    "SDK-SOURCE-INGEST-R006.7",
+    "SDK-SOURCE-INGEST-R006.8",
+    "SDK-SOURCE-INGEST-R006.9",
+    "SDK-SOURCE-INGEST-R006.10",
+    "SDK-SOURCE-INGEST-R006.11",
+    "SDK-SOURCE-INGEST-R006.12",
+    "SDK-SOURCE-INGEST-R006.13",
+    "SDK-SOURCE-INGEST-R006.14",
+    "SDK-SOURCE-INGEST-R006.15",
+    "SDK-SOURCE-INGEST-R006.16",
+    "SDK-SOURCE-INGEST-R006.17",
+    "SDK-SOURCE-INGEST-R006.18",
+    "SDK-SOURCE-INGEST-R006.19",
+    "SDK-SOURCE-INGEST-R006.20",
+    "SDK-SOURCE-INGEST-R006.21",
+    "SDK-SOURCE-INGEST-R006.22",
+    "SDK-SOURCE-INGEST-R006.23",
+    "SDK-SOURCE-INGEST-R006.24",
+    "SDK-SOURCE-INGEST-R006.25",
+    "SDK-SOURCE-INGEST-R006.26",
+    "SDK-SOURCE-INGEST-R006.27",
+    "SDK-SOURCE-INGEST-R006.28",
+    "SDK-SOURCE-INGEST-R006.29",
+    "SDK-SOURCE-INGEST-R006.30",
+    "SDK-SOURCE-INGEST-R006.31",
     "SDK-SOURCE-INGEST-R007",
     "SDK-SOURCE-INGEST-R008",
     "SDK-SOURCE-INGEST-R009"
@@ -98,6 +129,193 @@
     {
       "id": "SDK-SOURCE-INGEST-R006",
       "title": "SDK packs own vendor enrichment extraction and write-back",
+      "delivery_state": "BUILDING",
+      "evidence": [],
+      "remaining": "Rollup of 31 child requirements (SDK-SOURCE-INGEST-R006.1..SDK-SOURCE-INGEST-R006.31), one per ported vendor extractor; LANDED only once every child is LANDED."
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.1",
+      "title": "SDK ports the Uptime Kuma monitor extractor; defines the typed vendor-extractor contract",
+      "delivery_state": "BUILDING",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.2",
+      "title": "SDK ports the Ansible Automation inventory and job extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.3",
+      "title": "SDK ports the Caddy reverse-proxy route extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.4",
+      "title": "SDK ports the Home Assistant entity and scene extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.5",
+      "title": "SDK ports the ArchiMate model element extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.6",
+      "title": "SDK ports the Kafka topic and cluster extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.7",
+      "title": "SDK ports the Salesforce CRM record extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.8",
+      "title": "SDK ports the Grafana LGTM observability-stack extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.9",
+      "title": "SDK ports the Microsoft 365 mail, calendar, and Teams extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.10",
+      "title": "SDK ports the Technitium DNS zone and record extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.11",
+      "title": "SDK ports the Portainer container and stack extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.12",
+      "title": "SDK ports the Emerald Exchange market extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.13",
+      "title": "SDK ports the Mealie recipe and meal-plan extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.14",
+      "title": "SDK ports the Keycloak realm, client, and identity extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.15",
+      "title": "SDK ports the Odoo ERP record extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.16",
+      "title": "SDK ports the Nextcloud file and share extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.17",
+      "title": "SDK ports the wger workout and exercise extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.18",
+      "title": "SDK ports the Okta identity and directory extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.19",
+      "title": "SDK ports the Twenty CRM record extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.20",
+      "title": "SDK ports the RSA Archer GRC record extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.21",
+      "title": "SDK ports the Infrastructure inventory extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.22",
+      "title": "SDK ports the A2A agent-registry extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.23",
+      "title": "SDK ports the Grafana dashboard extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.24",
+      "title": "SDK ports the LeanIX enterprise-architecture factsheet extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.25",
+      "title": "SDK ports the ERPNext record extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.26",
+      "title": "SDK ports the ServiceNow ITSM record extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.27",
+      "title": "SDK ports the CISO Assistant compliance extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.28",
+      "title": "SDK ports the social-platform extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.29",
+      "title": "SDK ports the ARIS process-model extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.30",
+      "title": "SDK ports the Egeria governance and glossary extractor",
+      "delivery_state": "SPECIFIED",
+      "evidence": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.31",
+      "title": "SDK ports the Camunda process extractor",
       "delivery_state": "SPECIFIED",
       "evidence": []
     },

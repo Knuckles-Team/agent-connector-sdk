@@ -15,10 +15,15 @@ than a brittle text search.
 from __future__ import annotations
 
 import ast
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
-__all__ = ["PackageScanResult", "scan_for_agent_utilities_imports"]
+__all__ = [
+    "PackageScanResult",
+    "scan_for_agent_utilities_imports",
+    "scan_many_packages",
+]
 
 _DEFAULT_EXCLUDED_DIRS = frozenset({".venv", "build", "__pycache__"})
 
@@ -80,3 +85,22 @@ def scan_for_agent_utilities_imports(
     return PackageScanResult(
         package=package_root.name, offending_files=tuple(offending)
     )
+
+
+def scan_many_packages(
+    package_roots: Iterable[Path],
+    *,
+    exclude_dirs: frozenset[str] = _DEFAULT_EXCLUDED_DIRS,
+) -> dict[str, PackageScanResult]:
+    """Scan several package roots and return each one's result, keyed by name.
+
+    SDK-CONNECTOR-CONTROL-R014 asks for "a cross-repository import scan
+    showing no connector still depends on the superseded implementation".
+    This is that scan's one call site: every batch requirement (R009-R013)
+    and R014's own fleet-wide census share this function instead of each
+    re-deriving a loop over :func:`scan_for_agent_utilities_imports`.
+    """
+    return {
+        root.name: scan_for_agent_utilities_imports(root, exclude_dirs=exclude_dirs)
+        for root in package_roots
+    }
