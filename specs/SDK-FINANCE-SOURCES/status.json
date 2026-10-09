@@ -9,7 +9,7 @@
     "SDK-FINANCE-SOURCES-R004",
     "SDK-FINANCE-SOURCES-R005"
   ],
-  "delivery_state": "SPECIFIED",
+  "delivery_state": "BUILDING",
   "acceptance_state": "NOT_AUDITED",
   "evidence": [],
   "requirements": [
@@ -22,8 +22,16 @@
     {
       "id": "SDK-FINANCE-SOURCES-R002",
       "title": "Alpaca stocks adapter: history, quotes, fundamentals, calendars",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "3e7c3cc68de37717dad36574ebe259eabfc536a1",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/3e7c3cc68de37717dad36574ebe259eabfc536a1",
+          "description": "SDK-FINANCE-SOURCES-R002 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R003",
@@ -50,8 +58,16 @@
     {
       "id": "SDK-FINANCE-SOURCES-R005",
       "title": "Macro and liquidity panels: FRED series, ETF flows, sentiment, on-chain",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "ea90460962d257bf2a2c1894862dd7550da46e5b",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/ea90460962d257bf2a2c1894862dd7550da46e5b",
+          "description": "SDK-FINANCE-SOURCES-R005 merged to the default branch in this commit."
+        }
+      ]
     }
   ]
 }

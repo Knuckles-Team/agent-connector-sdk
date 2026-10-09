@@ -28,7 +28,7 @@
     "SDK-CONNECTOR-CONTROL-R023",
     "SDK-CONNECTOR-CONTROL-R024"
   ],
-  "delivery_state": "UNKNOWN",
+  "delivery_state": "BUILDING",
   "acceptance_state": "NOT_AUDITED",
   "evidence": [],
   "requirements": [
@@ -148,8 +148,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R009",
       "title": "Connector batch A-E migrates fully onto the SDK client",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "8e2d7c50896a9e416ec76e53c4a9a585cc5f4d28",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/8e2d7c50896a9e416ec76e53c4a9a585cc5f4d28",
+          "description": "SDK-CONNECTOR-CONTROL-R009 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R010",
@@ -294,8 +302,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R024",
       "title": "A prompt the server rejects for its bound placeholder still captures as a template",
-      "delivery_state": "BUILDING",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "7abfccb06bb9433bde8ed7b0c3861d205b84b441",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/7abfccb06bb9433bde8ed7b0c3861d205b84b441",
+          "description": "SDK-CONNECTOR-CONTROL-R024 merged to the default branch in this commit."
+        }
+      ]
     }
   ]
 }
