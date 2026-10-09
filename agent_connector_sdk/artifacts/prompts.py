@@ -30,13 +30,25 @@ def _definition(value: Any) -> mcp_types.Prompt:
     names = [argument.name for argument in arguments]
     if not prompt.name.strip() or any(not name.strip() for name in names):
         raise MalformedArtifactError("MCP prompt requires nonempty names")
-    if len(names) != len(set(names)) or any(
-        argument.required for argument in arguments
-    ):
+    if len(names) != len(set(names)):
         raise MalformedArtifactError(
-            f"prompt {prompt.name!r} cannot be captured without bound required arguments"
+            f"prompt {prompt.name!r} declares a duplicate argument name"
         )
     return prompt
+
+
+def _bound_arguments(prompt: mcp_types.Prompt) -> dict[str, str]:
+    """Placeholder text bound to each required argument, deterministic and stable.
+
+    A required argument has no real value at capture time. Binding it to a
+    `{{name}}` placeholder lets the server render a template instead of
+    refusing the prompt. Optional arguments stay unbound.
+    """
+    return {
+        argument.name: f"{{{{{argument.name}}}}}"
+        for argument in prompt.arguments or []
+        if argument.required
+    }
 
 
 def _result(value: Any) -> mcp_types.GetPromptResult:
@@ -74,10 +86,19 @@ def _validate_identity(entry: CapturedArtifact, prompt: mcp_types.Prompt) -> Non
         )
 
 
+def _capture_metadata(prompt: mcp_types.Prompt) -> dict[str, Any]:
+    bound = _bound_arguments(prompt)
+    return {
+        "method": "prompts/get",
+        "bound_arguments": bound,
+        "kind": "template" if bound else "rendered",
+    }
+
+
 def _validate_contract(
     document: dict[str, Any], prompt: mcp_types.Prompt, entry: CapturedArtifact
 ) -> None:
-    expected = {"method": "prompts/get", "bound_arguments": {}, "kind": "rendered"}
+    expected = _capture_metadata(prompt)
     if document.get("capture") != expected or document.get("name") != entry.name:
         raise MalformedArtifactError(f"{entry.uri} has a malformed prompt capture")
     if document.get("description") != (prompt.description or ""):
@@ -107,7 +128,7 @@ def _prompt_entry(
             for argument in prompt.arguments or []
         ],
         "definition": prompt.model_dump(mode="json", by_alias=True, exclude_none=True),
-        "capture": {"method": "prompts/get", "bound_arguments": {}, "kind": "rendered"},
+        "capture": _capture_metadata(prompt),
         "result": result.model_dump(mode="json", by_alias=True, exclude_none=True),
     }
     return CapturedArtifact(
@@ -122,7 +143,12 @@ def _prompt_entry(
 
 
 class PromptArtifactKind:
-    """Rendered prompts with listing metadata, ordered messages and content types."""
+    """Captured prompts with listing metadata, ordered messages and content types.
+
+    A prompt with no required argument is captured as a render. A prompt with
+    a required argument is captured as a template: each required argument is
+    bound to a `{{name}}` placeholder so the capture stays deterministic.
+    """
 
     kind = "prompt"
 
@@ -131,14 +157,17 @@ class PromptArtifactKind:
     ) -> tuple[CapturedArtifact, ...]:
         """Get each prompt with no invented values; bound the aggregate capture.
 
-        Required arguments are unavailable to pack provisioning and fail closed.
-        Optional arguments are omitted; this captures a render, never a template.
+        A required argument has no real value at capture time, so it is bound
+        to a `{{name}}` placeholder and the capture is recorded as a template.
+        Optional arguments stay unbound. A prompt with no required arguments
+        is still captured as a render, exactly as before.
         """
         entries: list[CapturedArtifact] = []
         remaining = DEFAULT_MAX_RESPONSE_BYTES
         for listed in await session.list_prompts():
             prompt = _definition(listed)
-            result = _result(await session.get_prompt(prompt.name, {}))
+            bound = _bound_arguments(prompt)
+            result = _result(await session.get_prompt(prompt.name, bound))
             entry = _prompt_entry(prompt, server, result, remaining=remaining)
             self.validate(entry)
             remaining -= len(entry.body)
