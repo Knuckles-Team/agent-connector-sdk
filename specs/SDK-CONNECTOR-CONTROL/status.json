@@ -817,8 +817,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R025",
       "title": "SDK provides identity-scoped resource entitlement resolution",
-      "delivery_state": "BUILDING",
-      "evidence": [],
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "7b0c0405e4a517d7714631944fc63b49a0bc8c7f",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/7b0c0405e4a517d7714631944fc63b49a0bc8c7f",
+          "description": "SDK-CONNECTOR-CONTROL-R025 merged to the default branch in this commit."
+        }
+      ],
       "remaining": "Implemented and unit-tested in this PR's branch; LANDED evidence (a merged_head commit in this repository) is recorded by the orchestrator's promoter after merge."
     }
   ]
