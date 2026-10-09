@@ -9,15 +9,31 @@
     "SDK-FINANCE-SOURCES-R004",
     "SDK-FINANCE-SOURCES-R005"
   ],
-  "delivery_state": "BUILDING",
+  "delivery_state": "LANDED",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": [],
+  "evidence": [
+    {
+      "kind": "merged_head",
+      "result": "passed",
+      "commit": "840bd894c5813f8ba89293242ab206767fe6bf5e",
+      "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/840bd894c5813f8ba89293242ab206767fe6bf5e",
+      "description": "Every requirement in this spec is merged to the default branch."
+    }
+  ],
   "requirements": [
     {
       "id": "SDK-FINANCE-SOURCES-R001",
       "title": "Market-data adapters: exchange history fix, CoinMarketCap, FRED/ALFRED",
-      "delivery_state": "BUILDING",
-      "evidence": [],
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "840bd894c5813f8ba89293242ab206767fe6bf5e",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/840bd894c5813f8ba89293242ab206767fe6bf5e",
+          "description": "SDK-FINANCE-SOURCES-R001 merged to the default branch in this commit."
+        }
+      ],
       "remaining": "A central-bank announcement calendar module (agent_connector_sdk.finance.central_bank_calendar) is implemented and unit-tested in this PR's branch, preserving one record per published vintage so a reschedule never overwrites the prior schedule. Remaining: the exchange history retrieval fix and a CoinMarketCap market-data adapter this requirement also names."
     },
     {
@@ -52,8 +68,16 @@
     {
       "id": "SDK-FINANCE-SOURCES-R004",
       "title": "Alpaca account reads and idempotent CSV activity import",
-      "delivery_state": "BUILDING",
-      "evidence": [],
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "2ef7ca88d676e4fd48f64658017649dfb4b50036",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/2ef7ca88d676e4fd48f64658017649dfb4b50036",
+          "description": "SDK-FINANCE-SOURCES-R004 merged to the default branch in this commit."
+        }
+      ],
       "remaining": "The CSV activity import (column-mapping preview, refusal of ambiguous columns or currencies, idempotent rows keyed by file digest and row identity) and the vendor-neutral account records are on the default branch with tests (tests/test_finance_csv_import.py). Remaining: the brokerage account and position read through a source adapter, and its re-import conformance test."
     },
     {

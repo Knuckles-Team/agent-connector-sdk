@@ -32,9 +32,17 @@
     "SDK-CONNECTOR-CONTROL-R025",
     "SDK-CONNECTOR-CONTROL-R026"
   ],
-  "delivery_state": "BUILDING",
+  "delivery_state": "LANDED",
   "acceptance_state": "NOT_AUDITED",
-  "evidence": [],
+  "evidence": [
+    {
+      "kind": "merged_head",
+      "result": "passed",
+      "commit": "06aaa76638a72706779d09b7f856541db3d470d3",
+      "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/06aaa76638a72706779d09b7f856541db3d470d3",
+      "description": "Every requirement in this spec is merged to the default branch."
+    }
+  ],
   "requirements": [
     {
       "id": "SDK-CONNECTOR-CONTROL-R001",
@@ -300,7 +308,7 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R010",
       "title": "Connector batch F-J migrates fully onto the SDK client",
-      "delivery_state": "BUILT",
+      "delivery_state": "LANDED",
       "evidence": [
         {
           "kind": "consumer",
@@ -371,6 +379,13 @@
           "commit": "2e4e910edf99b523aa0ffc284c85ea6d4f5bd31e",
           "url": "https://github.com/Knuckles-Team/jena-mcp/pull/4",
           "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
+        },
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "51f9ab30052954c57a3b52731e5fcea341e0abaa",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/51f9ab30052954c57a3b52731e5fcea341e0abaa",
+          "description": "SDK-CONNECTOR-CONTROL-R010 merged to the default branch in this commit."
         }
       ],
       "remaining": "Every connector package in this batch has a merged migration pull request in its own repository (table: evidence/fleet-migration-2026-10-09.md). Remaining: run agent_connector_sdk.testing.fleet_migration.scan_for_agent_utilities_imports against each package's own test suite and record a passing per-package import scan and EG-client ingestion run, per this requirement's verification column."
@@ -378,7 +393,7 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R011",
       "title": "Connector batch K-O migrates fully onto the SDK client",
-      "delivery_state": "BUILT",
+      "delivery_state": "LANDED",
       "evidence": [
         {
           "kind": "consumer",
@@ -512,6 +527,13 @@
           "commit": "a5e10b35b167d2930c6b11c8ac6f0e7782c2dcc6",
           "url": "https://github.com/Knuckles-Team/owncast-agent/pull/5",
           "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
+        },
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "51f9ab30052954c57a3b52731e5fcea341e0abaa",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/51f9ab30052954c57a3b52731e5fcea341e0abaa",
+          "description": "SDK-CONNECTOR-CONTROL-R011 merged to the default branch in this commit."
         }
       ],
       "remaining": "Every connector package in this batch has a merged migration pull request in its own repository (table: evidence/fleet-migration-2026-10-09.md). Remaining: run agent_connector_sdk.testing.fleet_migration.scan_for_agent_utilities_imports against each package's own test suite and record a passing per-package import scan and EG-client ingestion run, per this requirement's verification column."
@@ -519,7 +541,7 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R012",
       "title": "Connector batch P-S migrates fully onto the SDK client",
-      "delivery_state": "BUILT",
+      "delivery_state": "LANDED",
       "evidence": [
         {
           "kind": "consumer",
@@ -625,6 +647,13 @@
           "commit": "45ac1db3794d64fac77e1acaa74bb42ec8c50ee2",
           "url": "https://github.com/Knuckles-Team/systems-manager/pull/6",
           "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
+        },
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "7a38ee433346f4d1c5e6009c1f7a6a6ff5b69554",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/7a38ee433346f4d1c5e6009c1f7a6a6ff5b69554",
+          "description": "SDK-CONNECTOR-CONTROL-R012 merged to the default branch in this commit."
         }
       ],
       "remaining": "Every connector package in this batch has a merged migration pull request in its own repository (table: evidence/fleet-migration-2026-10-09.md). Remaining: run agent_connector_sdk.testing.fleet_migration.scan_for_agent_utilities_imports against each package's own test suite and record a passing per-package import scan and EG-client ingestion run, per this requirement's verification column."
@@ -632,7 +661,7 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R013",
       "title": "Connector batch T-Z migrates fully onto the SDK client",
-      "delivery_state": "BUILT",
+      "delivery_state": "LANDED",
       "evidence": [
         {
           "kind": "consumer",
@@ -675,6 +704,13 @@
           "commit": "c1b75c9243555ab24ce796a3f8fdd3cbc32cf744",
           "url": "https://github.com/Knuckles-Team/wger-agent/pull/6",
           "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
+        },
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "51f9ab30052954c57a3b52731e5fcea341e0abaa",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/51f9ab30052954c57a3b52731e5fcea341e0abaa",
+          "description": "SDK-CONNECTOR-CONTROL-R013 merged to the default branch in this commit."
         }
       ],
       "remaining": "Every connector package in this batch has a merged migration pull request in its own repository (table: evidence/fleet-migration-2026-10-09.md). Remaining: run agent_connector_sdk.testing.fleet_migration.scan_for_agent_utilities_imports against each package's own test suite and record a passing per-package import scan and EG-client ingestion run, per this requirement's verification column."
@@ -682,28 +718,60 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014",
       "title": "SDK fully supersedes the duplicated connector toolkit",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "ac403a24d45ebb743f6480103989bcdbd362363a",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/ac403a24d45ebb743f6480103989bcdbd362363a",
+          "description": "SDK-CONNECTOR-CONTROL-R014 merged to the default branch in this commit."
+        }
+      ],
       "remaining": "Rollup; delivered once R014.1 (reusable census call site) extends to a real fleet-wide run across every connector package and each toolkit area's replacement-completeness tests land."
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.1",
       "title": "One reusable cross-repository import-scan call site",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "ab73ea5005a0170814be04d5d152cfc52ae560de",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/ab73ea5005a0170814be04d5d152cfc52ae560de",
+          "description": "SDK-CONNECTOR-CONTROL-R014.1 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R015",
       "title": "SDK is sole owner of connector source lifecycle and certification",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "c6e280cdd1e89cd99b3be952c195306361014206",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/c6e280cdd1e89cd99b3be952c195306361014206",
+          "description": "SDK-CONNECTOR-CONTROL-R015 merged to the default branch in this commit."
+        }
+      ],
       "remaining": "Rollup; delivered once R015.1's scan mechanism extends to a real fleet-wide run across every dependent repository."
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R015.1",
       "title": "A duplicate-definition scan for the manifest/certify surface",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "061f9b58abb2ee6f8d56fba4a622c27dd142660a",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/061f9b58abb2ee6f8d56fba4a622c27dd142660a",
+          "description": "SDK-CONNECTOR-CONTROL-R015.1 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R016",
@@ -744,8 +812,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R018",
       "title": "SDK source and test suite build cleanly from a fresh checkout",
-      "delivery_state": "UNKNOWN",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "b0c376748245ef97f8e83efbe7730fc328e08d3c",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/b0c376748245ef97f8e83efbe7730fc328e08d3c",
+          "description": "SDK-CONNECTOR-CONTROL-R018 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R019",
@@ -764,8 +840,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R020",
       "title": "One condensed intent contract: MCP_TOOL_MODE retired",
-      "delivery_state": "BUILDING",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "d3617301012c6597e1574a432c5b9409c352450a",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d3617301012c6597e1574a432c5b9409c352450a",
+          "description": "SDK-CONNECTOR-CONTROL-R020 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R021",
@@ -841,8 +925,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R026",
       "title": "SDK provides opt-in per-client-method MCP tool derivation",
-      "delivery_state": "BUILDING",
-      "evidence": [],
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "d3617301012c6597e1574a432c5b9409c352450a",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d3617301012c6597e1574a432c5b9409c352450a",
+          "description": "SDK-CONNECTOR-CONTROL-R026 merged to the default branch in this commit."
+        }
+      ],
       "remaining": "Implemented and unit-tested in this PR's branch; LANDED evidence (a merged_head commit in this repository) is recorded by the orchestrator's promoter after merge. data-science-mcp migrating its own server off agent_utilities.mcp.verbose_tools is separate, future work in that repository."
     }
   ]
