@@ -13,7 +13,7 @@
     "SDK-SOURCE-INGEST-R008",
     "SDK-SOURCE-INGEST-R009"
   ],
-  "delivery_state": "UNKNOWN",
+  "delivery_state": "BUILDING",
   "acceptance_state": "NOT_AUDITED",
   "evidence": [],
   "requirements": [
@@ -84,8 +84,16 @@
     {
       "id": "SDK-SOURCE-INGEST-R005",
       "title": "SDK adapters cover document, conversation, and feed sources",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "db3659c92a3bf781d7c77d22503fcd5feb2bc60d",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/db3659c92a3bf781d7c77d22503fcd5feb2bc60d",
+          "description": "SDK-SOURCE-INGEST-R005 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006",
@@ -110,14 +118,30 @@
     {
       "id": "SDK-SOURCE-INGEST-R008",
       "title": "Connectors ingest occurrence and weather observations",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "83b7dd3f33eb223a08e5f25d2a579e2f57d8e9f4",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/83b7dd3f33eb223a08e5f25d2a579e2f57d8e9f4",
+          "description": "SDK-SOURCE-INGEST-R008 merged to the default branch in this commit."
+        }
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R009",
       "title": "Taxonomy connector ingests NCBI/GBIF taxa as kg:Taxon",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "ff4c1aaafc8a98ccfdfcf78e023d8f76211bd7a9",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/ff4c1aaafc8a98ccfdfcf78e023d8f76211bd7a9",
+          "description": "SDK-SOURCE-INGEST-R009 merged to the default branch in this commit."
+        }
+      ]
     }
   ]
 }
