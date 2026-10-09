@@ -85,6 +85,26 @@ jobs:
           printf '%s' "$PROHIBITED_IDENTITY_CATALOG" > "$HOME/.config/agent-utilities/governance/prohibited-identities.json"
           uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml tracked-privacy --hook-stage manual --all-files
 
+  # Spec-status lifecycle gates (SPEC-STATUS-LIFECYCLE.md): independent of the
+  # release pipeline above -- never a `needs:` of gates/build/publish-pypi,
+  # and not configured as a required check, so it can land ahead of branch
+  # protection catching up.
+  spec-gates:
+    name: spec-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - *checkout
+      - name: Spec status (schema v2 status.json matches requirements/history/tests)
+        run: uvx --from 'git+https://github.com/Knuckles-Team/pipelines@main' pipelines-hook spec-status
+      - name: Spec decomposition (requirements/tasks/test-spec/status.json IDs agree)
+        run: uvx --from 'git+https://github.com/Knuckles-Team/pipelines@main' pipelines-hook spec-decomposition
+      - name: "Spec trailers (delivering commits on this PR carry a verified Spec: trailer)"
+        if: github.event_name == 'pull_request'
+        run: |
+          uvx --from 'git+https://github.com/Knuckles-Team/pipelines@main' \
+            pipelines-hook spec-trailers --base-ref "origin/${{ github.base_ref }}"
+
   scanner-quality:
     name: scanner-quality
     continue-on-error: true

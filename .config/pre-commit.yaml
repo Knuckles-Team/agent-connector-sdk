@@ -84,6 +84,14 @@ repos:
     stages: [manual]
   - id: scanner-versions
     stages: [manual]
+  # spec-status lifecycle: schema_version 2 status.json, decomposition size
+  # caps, and (pre-push) the delivering-commit `Spec: <ID>` trailer.
+  - id: spec-status
+    stages: [pre-commit, manual]
+  - id: spec-decomposition
+    stages: [pre-commit, manual]
+  - id: spec-trailers
+    stages: [pre-push, manual]
   # code shape
   - id: no-stub
     stages: [pre-commit, manual]

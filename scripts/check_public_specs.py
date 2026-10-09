@@ -21,6 +21,10 @@ DELIVERY_STATES = frozenset(
         "REJECTED",
     }
 )
+# schema_version 2 (the spec-status-lifecycle generator owns these files): a
+# flat four-state lifecycle, no evidence/receipt bookkeeping -- the generator
+# derives landed_in/verified_by from the merged history itself.
+DELIVERY_STATES_V2 = frozenset({"SPECIFIED", "LANDED", "VERIFIED", "RETIRED"})
 ACCEPTANCE_STATES = frozenset({"NOT_AUDITED", "PENDING", "ACCEPTED", "FAILED"})
 EVIDENCE_KINDS = frozenset(
     {
@@ -160,12 +164,71 @@ def _status_errors(root: Path, path: Path) -> list[str]:
         return [f"{path}: invalid JSON ({exc})"]
     if not isinstance(data, dict):
         return [f"{path}: status must be an object"]
+    if data.get("schema_version") == 2:
+        return _status_errors_v2(root, path, data)
     entries = data.get("evidence")
     return (
         _status_field_errors(path, data)
         + _evidence_errors(path, entries)
         + _receipt_errors(path, data, entries)
         + _requirement_errors(root, path, data)
+    )
+
+
+def _requirement_entry_errors_v2(path: Path, owner: str, entry: dict) -> list[str]:
+    label = f"{path}: {entry.get('id')}"
+    errors = []
+    state = entry.get("delivery_state")
+    if state not in DELIVERY_STATES_V2 or not entry.get("title"):
+        errors.append(f"{label}: requires a title and a valid delivery_state")
+    if not isinstance(entry.get("landed_in"), list):
+        errors.append(f"{label}: landed_in must be an array")
+    if not isinstance(entry.get("verified_by"), list):
+        errors.append(f"{label}: verified_by must be an array")
+    return errors
+
+
+def _requirement_errors_v2(root: Path, path: Path, data: dict) -> list[str]:
+    entries = data.get("requirements")
+    if entries is None:
+        return []
+    if not isinstance(entries, list) or any(
+        not isinstance(entry, dict) for entry in entries
+    ):
+        return [f"{path}: requirements must be an array of objects"]
+    errors = []
+    if [entry.get("id") for entry in entries] != data.get("requirement_ids"):
+        errors.append(f"{path}: requirements must match requirement_ids in order")
+    register = root / path.parent / "requirements.md"
+    defined = register.read_text(encoding="utf-8") if register.is_file() else ""
+    owner = data.get("owner_repo", "")
+    for entry in entries:
+        if f"`{entry.get('id')}`" not in defined:
+            errors.append(f"{path}: {entry.get('id')} lacks a definition")
+        errors.extend(_requirement_entry_errors_v2(path, owner, entry))
+    return errors
+
+
+def _status_field_errors_v2(path: Path, data: dict) -> list[str]:
+    errors = []
+    ids = data.get("requirement_ids")
+    if data.get("schema_version") != 2 or not data.get("spec_id") or not data.get(
+        "owner_repo"
+    ):
+        errors.append(f"{path}: schema_version, spec_id, and owner_repo are required")
+    if not _valid_ids(ids):
+        errors.append(f"{path}: nonempty real requirement_ids are required")
+    if data.get("delivery_state") not in DELIVERY_STATES_V2:
+        errors.append(f"{path}: invalid delivery_state")
+    return errors
+
+
+def _status_errors_v2(root: Path, path: Path, data: dict) -> list[str]:
+    """schema_version 2: the generator owns delivery-state derivation and the
+    landed_in/verified_by receipts, so no evidence/merged-head/acceptance
+    rules apply here -- only shape and cross-reference checks."""
+    return _status_field_errors_v2(path, data) + _requirement_errors_v2(
+        root, path, data
     )
 
 
