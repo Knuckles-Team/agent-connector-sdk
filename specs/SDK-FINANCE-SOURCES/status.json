@@ -16,8 +16,9 @@
     {
       "id": "SDK-FINANCE-SOURCES-R001",
       "title": "Market-data adapters: exchange history fix, CoinMarketCap, FRED/ALFRED",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "BUILDING",
+      "evidence": [],
+      "remaining": "A central-bank announcement calendar module (agent_connector_sdk.finance.central_bank_calendar) is implemented and unit-tested in this PR's branch, preserving one record per published vintage so a reschedule never overwrites the prior schedule. Remaining: the exchange history retrieval fix and a CoinMarketCap market-data adapter this requirement also names."
     },
     {
       "id": "SDK-FINANCE-SOURCES-R002",
