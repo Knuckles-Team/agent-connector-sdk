@@ -1,6 +1,6 @@
 # SDK connector control, certification, and pack publication
 
-**Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R022.
+**Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R023.
 **Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 **Boundary:** This SDK owns source-side connector hosting, discovery, certification, pack construction, and submission. A graph service owns durable pack records and receipts; a control-plane service owns routing and activation policy. Vendor packages own their API calls.
 
@@ -68,3 +68,13 @@ The tenant schema composes every attached pack, so the hub import is redundant a
 It records each removed IRI as `ontology-import:<iri>` in the entry's `requires_capabilities` annotation.
 The builder handles Turtle and RDF/XML bodies.
 A body without external imports stays byte-identical.
+
+## Prompt capture with required arguments (SDK-CONNECTOR-CONTROL-R023)
+
+A prompt with no required argument is captured by rendering it, unchanged from prior behavior.
+A prompt with a required argument is captured as a template instead of refused.
+`PromptArtifactKind` binds each required argument to a deterministic `{{name}}` placeholder.
+It calls `prompts/get` with those bound placeholders and leaves optional arguments unbound.
+The captured body records `capture.kind` as `template` and `capture.bound_arguments` as the placeholder map.
+`build_content_pack` treats a template capture the same as a rendered capture; the pack entry body is opaque bytes to the archive.
+A prompt onboarding path that previously raised `MalformedArtifactError` for a required argument now succeeds.

@@ -24,7 +24,8 @@
     "SDK-CONNECTOR-CONTROL-R019",
     "SDK-CONNECTOR-CONTROL-R020",
     "SDK-CONNECTOR-CONTROL-R021",
-    "SDK-CONNECTOR-CONTROL-R022"
+    "SDK-CONNECTOR-CONTROL-R022",
+    "SDK-CONNECTOR-CONTROL-R023"
   ],
   "delivery_state": "UNKNOWN",
   "acceptance_state": "NOT_AUDITED",
@@ -233,6 +234,12 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R022",
       "title": "The pack builder scopes owl:imports to the pack",
+      "delivery_state": "BUILDING",
+      "evidence": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R023",
+      "title": "A prompt with a required argument is captured as a template, never refused",
       "delivery_state": "BUILDING",
       "evidence": []
     }
