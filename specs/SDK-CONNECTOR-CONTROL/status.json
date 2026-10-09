@@ -26,7 +26,8 @@
     "SDK-CONNECTOR-CONTROL-R021",
     "SDK-CONNECTOR-CONTROL-R022",
     "SDK-CONNECTOR-CONTROL-R023",
-    "SDK-CONNECTOR-CONTROL-R024"
+    "SDK-CONNECTOR-CONTROL-R024",
+    "SDK-CONNECTOR-CONTROL-R025"
   ],
   "delivery_state": "BUILDING",
   "acceptance_state": "NOT_AUDITED",
@@ -312,6 +313,13 @@
           "description": "SDK-CONNECTOR-CONTROL-R024 merged to the default branch in this commit."
         }
       ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R025",
+      "title": "SDK provides identity-scoped resource entitlement resolution",
+      "delivery_state": "BUILDING",
+      "evidence": [],
+      "remaining": "Implemented and unit-tested in this PR's branch; LANDED evidence (a merged_head commit in this repository) is recorded by the orchestrator's promoter after merge."
     }
   ]
 }
