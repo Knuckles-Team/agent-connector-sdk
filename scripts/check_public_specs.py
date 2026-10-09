@@ -36,7 +36,11 @@ EVIDENCE_KINDS = frozenset(
 )
 FORBIDDEN = (
     re.compile(r"plans/", re.IGNORECASE),
-    re.compile(r"\bgitlab\b", re.IGNORECASE),
+    # Excludes the public connector repository literally named "gitlab-api"
+    # (Knuckles-Team/gitlab-api, a GitLab REST API connector) so a batch
+    # migration table can name it; a bare "gitlab" mention (the internal
+    # instance this check guards against) still matches.
+    re.compile(r"\bgitlab\b(?!-api\b)", re.IGNORECASE),
     re.compile(r"\bhomelab\b", re.IGNORECASE),
     re.compile(r"(?:file://|/(?:home|Users|tmp|workspace)/)", re.IGNORECASE),
     re.compile(r"\b(?:EH-\d{1,3}|RF-\d{3})\b"),
