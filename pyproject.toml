@@ -137,6 +137,7 @@ public_modules = [
     "agent_connector_sdk.decide.consumers",
     "agent_connector_sdk.decide.epistemic_graph",
     "agent_connector_sdk.discovery",
+    "agent_connector_sdk.earth_observations.records",
     "agent_connector_sdk.exceptions",
     "agent_connector_sdk.finance.account",
     "agent_connector_sdk.finance.csv_import",
