@@ -1,6 +1,6 @@
 # SDK connector control, certification, and pack publication
 
-**Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R023.
+**Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R024.
 **Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 **Boundary:** This SDK owns source-side connector hosting, discovery, certification, pack construction, and submission. A graph service owns durable pack records and receipts; a control-plane service owns routing and activation policy. Vendor packages own their API calls.
 
@@ -78,3 +78,15 @@ It calls `prompts/get` with those bound placeholders and leaves optional argumen
 The captured body records `capture.kind` as `template` and `capture.bound_arguments` as the placeholder map.
 `build_content_pack` treats a template capture the same as a rendered capture; the pack entry body is opaque bytes to the archive.
 A prompt onboarding path that previously raised `MalformedArtifactError` for a required argument now succeeds.
+
+## Prompt capture when the server rejects the bound placeholder (SDK-CONNECTOR-CONTROL-R024)
+
+A typed required prompt argument (`int`, `float`, `bool`, `list`, or an enum) can refuse the string `{{name}}` placeholder SDK-CONNECTOR-CONTROL-R023 binds for it.
+Capture must never depend on the server accepting a placeholder value for a typed argument.
+`McpClientSession.get_prompt` distinguishes a well-formed MCP protocol error from every other failure.
+A protocol error (`mcp.shared.exceptions.MCPError`) raises `McpPromptRejectedError`, a subclass of `McpTransportError`.
+Every other failure, including a transport failure such as a timeout or dropped connection, still raises the plain `McpTransportError` it always has.
+`PromptArtifactKind.list_entries` catches `McpPromptRejectedError` only for a prompt that bound at least one required argument.
+On that catch it builds the captured `result` from the prompt's own listed name and arguments alone, with no server-rendered content, and keeps `capture.kind` as `template`.
+A prompt with no required argument never bound a placeholder, so the same error there is a genuine rejection and still raises.
+Any failure that is not `McpPromptRejectedError` always raises, so a server that is truly unreachable still fails the capture.
