@@ -41,11 +41,72 @@ def _rows(result: Any) -> list[dict[str, Any]]:
     )
 
 
-def extract(config: Any) -> ChangeSet:
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
+def _endpoint_entity(
+    endpoint: dict[str, Any], endpoint_id: Any, endpoint_node: str
+) -> Entity:
+    return Entity(
+        id=endpoint_node,
+        node_type="Server",
+        properties={
+            "name": endpoint.get("Name")
+            or endpoint.get("name")
+            or f"endpoint-{endpoint_id}",
+            "externalToolId": str(endpoint_id),
+            "domain": CATEGORY,
+        },
+    )
 
+
+def _container_entity_and_relationship(
+    container: dict[str, Any], endpoint_id: Any, endpoint_node: str
+) -> tuple[Entity, Relationship]:
+    names = container.get("Names") or [container.get("name")]
+    container_name = (
+        names[0]
+        if isinstance(names, list) and names
+        else container.get("Id") or "container"
+    )
+    container_id = (
+        f"portainer_container:{endpoint_id}:{container.get('Id') or container_name}"
+    )
+    entity = Entity(
+        id=container_id,
+        node_type="AssetInstance",
+        properties={
+            key: value
+            for key, value in {
+                "name": str(container_name).lstrip("/"),
+                "image": container.get("Image"),
+                "state": container.get("State"),
+                "externalToolId": container_id.split(":", 1)[1],
+                "domain": CATEGORY,
+            }.items()
+            if value is not None
+        },
+    )
+    relationship = Relationship(
+        source=container_id, target=endpoint_node, relationship="RUNS_ON"
+    )
+    return entity, relationship
+
+
+def _containers_for_endpoint(
+    client: Any, endpoint_id: Any, endpoint_node: str
+) -> tuple[list[Entity], list[Relationship]]:
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+    for container in _rows(_call(client, "list_containers", endpoint_id)):
+        entity, relationship = _container_entity_and_relationship(
+            container, endpoint_id, endpoint_node
+        )
+        entities.append(entity)
+        relationships.append(relationship)
+    return entities, relationships
+
+
+def _endpoints_and_containers(
+    client: Any,
+) -> tuple[list[Entity], list[Relationship]]:
     entities: list[Entity] = []
     relationships: list[Relationship] = []
     for endpoint in _rows(_call(client, "get_endpoints")):
@@ -53,53 +114,17 @@ def extract(config: Any) -> ChangeSet:
         if endpoint_id is None:
             continue
         endpoint_node = f"portainer_endpoint:{endpoint_id}"
-        entities.append(
-            Entity(
-                id=endpoint_node,
-                node_type="Server",
-                properties={
-                    "name": endpoint.get("Name")
-                    or endpoint.get("name")
-                    or f"endpoint-{endpoint_id}",
-                    "externalToolId": str(endpoint_id),
-                    "domain": CATEGORY,
-                },
-            )
+        entities.append(_endpoint_entity(endpoint, endpoint_id, endpoint_node))
+        container_entities, container_relationships = _containers_for_endpoint(
+            client, endpoint_id, endpoint_node
         )
-        for container in _rows(_call(client, "list_containers", endpoint_id)):
-            names = container.get("Names") or [container.get("name")]
-            container_name = (
-                names[0]
-                if isinstance(names, list) and names
-                else container.get("Id") or "container"
-            )
-            container_id = (
-                f"portainer_container:{endpoint_id}:"
-                f"{container.get('Id') or container_name}"
-            )
-            entities.append(
-                Entity(
-                    id=container_id,
-                    node_type="AssetInstance",
-                    properties={
-                        key: value
-                        for key, value in {
-                            "name": str(container_name).lstrip("/"),
-                            "image": container.get("Image"),
-                            "state": container.get("State"),
-                            "externalToolId": container_id.split(":", 1)[1],
-                            "domain": CATEGORY,
-                        }.items()
-                        if value is not None
-                    },
-                )
-            )
-            relationships.append(
-                Relationship(
-                    source=container_id, target=endpoint_node, relationship="RUNS_ON"
-                )
-            )
+        entities.extend(container_entities)
+        relationships.extend(container_relationships)
+    return entities, relationships
 
+
+def _stack_entities(client: Any) -> list[Entity]:
+    entities: list[Entity] = []
     for stack in _rows(_call(client, "list_stacks")):
         stack_id = stack.get("Id") or stack.get("id")
         if stack_id is None:
@@ -118,6 +143,16 @@ def extract(config: Any) -> ChangeSet:
                 },
             )
         )
+    return entities
+
+
+def extract(config: Any) -> ChangeSet:
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+
+    entities, relationships = _endpoints_and_containers(client)
+    entities.extend(_stack_entities(client))
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 

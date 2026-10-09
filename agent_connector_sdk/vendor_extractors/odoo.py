@@ -36,19 +36,27 @@ def _first(record: Any, *keys: str) -> Any:
     return None
 
 
+def _invoke_with_empty_dict(method: Any) -> Any:
+    try:
+        return method({})
+    except Exception:
+        return None
+
+
+def _invoke(method: Any) -> Any:
+    try:
+        return method()
+    except TypeError:
+        return _invoke_with_empty_dict(method)
+    except Exception:
+        return None
+
+
 def _call(client: Any, name: str) -> list[Any]:
     method = getattr(client, name, None)
     if not callable(method):
         return []
-    try:
-        result = method()
-    except TypeError:
-        try:
-            result = method({})
-        except Exception:
-            return []
-    except Exception:
-        return []
+    result = _invoke(method)
     if isinstance(result, dict):
         result = (
             result.get("records") or result.get("items") or result.get("data") or []

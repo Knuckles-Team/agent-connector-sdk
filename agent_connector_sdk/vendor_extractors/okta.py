@@ -65,15 +65,8 @@ def _props(**fields: Any) -> dict[str, Any]:
     return {key: value for key, value in fields.items() if value is not None}
 
 
-def extract(config: Any) -> ChangeSet:
-    """Extract Okta users/groups/apps into a uniform ``ChangeSet``."""
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-
+def _user_entities(client: Any) -> list[Entity]:
     entities: list[Entity] = []
-    relationships: list[Relationship] = []
-
     for user in _call(client, "list_users"):
         user_id = _first(user, "id")
         if not user_id:
@@ -91,7 +84,31 @@ def extract(config: Any) -> ChangeSet:
                 ),
             )
         )
+    return entities
 
+
+def _group_member_relationships(
+    client: Any, group_id: Any, group_node: str
+) -> list[Relationship]:
+    relationships: list[Relationship] = []
+    for member in _call(client, "list_group_members", group_id):
+        member_id = _first(member, "id")
+        if member_id:
+            relationships.append(
+                Relationship(
+                    source=f"okta_user:{member_id}",
+                    target=group_node,
+                    relationship="MEMBER_OF_GROUP",
+                )
+            )
+    return relationships
+
+
+def _group_entities_and_relationships(
+    client: Any,
+) -> tuple[list[Entity], list[Relationship]]:
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
     for group in _call(client, "list_groups"):
         group_id = _first(group, "id")
         if not group_id:
@@ -108,17 +125,12 @@ def extract(config: Any) -> ChangeSet:
                 ),
             )
         )
-        for member in _call(client, "list_group_members", group_id):
-            member_id = _first(member, "id")
-            if member_id:
-                relationships.append(
-                    Relationship(
-                        source=f"okta_user:{member_id}",
-                        target=group_node,
-                        relationship="MEMBER_OF_GROUP",
-                    )
-                )
+        relationships.extend(_group_member_relationships(client, group_id, group_node))
+    return entities, relationships
 
+
+def _app_entities(client: Any) -> list[Entity]:
+    entities: list[Entity] = []
     for app in _call(client, "list_apps"):
         app_id = _first(app, "id")
         if not app_id:
@@ -135,6 +147,23 @@ def extract(config: Any) -> ChangeSet:
                 ),
             )
         )
+    return entities
+
+
+def extract(config: Any) -> ChangeSet:
+    """Extract Okta users/groups/apps into a uniform ``ChangeSet``."""
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+
+    entities: list[Entity] = list(_user_entities(client))
+    relationships: list[Relationship] = []
+
+    group_entities, group_relationships = _group_entities_and_relationships(client)
+    entities.extend(group_entities)
+    relationships.extend(group_relationships)
+
+    entities.extend(_app_entities(client))
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 
