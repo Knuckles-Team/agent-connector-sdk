@@ -16,8 +16,9 @@
     {
       "id": "SDK-FINANCE-SOURCES-R001",
       "title": "Market-data adapters: exchange history fix, CoinMarketCap, FRED/ALFRED",
-      "delivery_state": "SPECIFIED",
-      "evidence": []
+      "delivery_state": "BUILDING",
+      "evidence": [],
+      "remaining": "A central-bank announcement calendar module (agent_connector_sdk.finance.central_bank_calendar) is implemented and unit-tested in this PR's branch, preserving one record per published vintage so a reschedule never overwrites the prior schedule. Remaining: the exchange history retrieval fix and a CoinMarketCap market-data adapter this requirement also names."
     },
     {
       "id": "SDK-FINANCE-SOURCES-R002",
@@ -67,7 +68,8 @@
           "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/ea90460962d257bf2a2c1894862dd7550da46e5b",
           "description": "SDK-FINANCE-SOURCES-R005 merged to the default branch in this commit."
         }
-      ]
+      ],
+      "remaining": "FRED/ALFRED macro series (vintage-preserved) and an ETF fund-flow panel (net flow and AUM per fund per day) are implemented and tested on the default branch. Remaining: a versioned liquidity composite and heat-strip panel, sentiment data, and on-chain position data."
     }
   ]
 }
