@@ -38,49 +38,44 @@ def _call(client: Any, name: str) -> Any:
         return None
 
 
-def extract(config: Any) -> ChangeSet:
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
+def _portfolio_entity(exchange: str) -> Entity:
+    return Entity(
+        id=f"emerald:portfolio:{exchange}",
+        node_type="Portfolio",
+        properties={
+            "exchange": exchange,
+            "externalToolId": exchange,
+            "domain": CATEGORY,
+        },
+    )
 
+
+def _account_entity(account: Any, exchange: str) -> Entity | None:
+    if account is None:
+        return None
+    return Entity(
+        id=f"emerald:account:{exchange}",
+        node_type="Account",
+        properties={
+            key: value
+            for key, value in {
+                "equity": _attr(account, "equity"),
+                "cash": _attr(account, "cash"),
+                "buying_power": _attr(account, "buying_power"),
+                "currency": _attr(account, "currency"),
+                "externalToolId": f"account:{exchange}",
+                "domain": CATEGORY,
+            }.items()
+            if value is not None
+        },
+    )
+
+
+def _position_items(
+    positions: Any, exchange: str, portfolio_id: str
+) -> tuple[list[Entity], list[Relationship]]:
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-
-    account = _call(client, "get_account")
-    exchange = str(_attr(account, "exchange", "emerald") or "emerald")
-    portfolio_id = f"emerald:portfolio:{exchange}"
-    entities.append(
-        Entity(
-            id=portfolio_id,
-            node_type="Portfolio",
-            properties={
-                "exchange": exchange,
-                "externalToolId": exchange,
-                "domain": CATEGORY,
-            },
-        )
-    )
-    if account is not None:
-        entities.append(
-            Entity(
-                id=f"emerald:account:{exchange}",
-                node_type="Account",
-                properties={
-                    key: value
-                    for key, value in {
-                        "equity": _attr(account, "equity"),
-                        "cash": _attr(account, "cash"),
-                        "buying_power": _attr(account, "buying_power"),
-                        "currency": _attr(account, "currency"),
-                        "externalToolId": f"account:{exchange}",
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
-            )
-        )
-
-    positions = _call(client, "get_positions") or []
     for position in positions if isinstance(positions, list) else []:
         symbol = _attr(position, "symbol")
         if not symbol:
@@ -111,6 +106,28 @@ def extract(config: Any) -> ChangeSet:
                 source=position_id, target=portfolio_id, relationship="HELD_IN"
             )
         )
+    return entities, relationships
+
+
+def extract(config: Any) -> ChangeSet:
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+
+    account = _call(client, "get_account")
+    exchange = str(_attr(account, "exchange", "emerald") or "emerald")
+    portfolio_id = f"emerald:portfolio:{exchange}"
+
+    entities: list[Entity] = [_portfolio_entity(exchange)]
+    account_entity = _account_entity(account, exchange)
+    if account_entity is not None:
+        entities.append(account_entity)
+
+    positions = _call(client, "get_positions") or []
+    position_entities, relationships = _position_items(
+        positions, exchange, portfolio_id
+    )
+    entities.extend(position_entities)
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 

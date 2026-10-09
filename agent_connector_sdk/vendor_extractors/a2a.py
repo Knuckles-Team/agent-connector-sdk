@@ -72,6 +72,18 @@ def _tags(value: Any) -> list[str]:
     return out
 
 
+def _cards_from_payload(data: Any) -> list[dict[str, Any]]:
+    """Normalise a parsed JSON payload into a list of card dicts."""
+    if isinstance(data, list):
+        return [item for item in data if isinstance(item, dict)]
+    if not isinstance(data, dict):
+        return []
+    inner = data.get("cards")
+    if isinstance(inner, list):
+        return [item for item in inner if isinstance(item, dict)]
+    return [data]
+
+
 def _load_json(path: str) -> list[dict[str, Any]]:
     """Read+json.load a card file, returning a list of card dicts (tolerant)."""
     try:
@@ -79,14 +91,7 @@ def _load_json(path: str) -> list[dict[str, Any]]:
             data = json.load(handle)
     except Exception:
         return []
-    if isinstance(data, dict):
-        inner = data.get("cards")
-        if isinstance(inner, list):
-            return [card for card in inner if isinstance(card, dict)]
-        return [data]
-    if isinstance(data, list):
-        return [card for card in data if isinstance(card, dict)]
-    return []
+    return _cards_from_payload(data)
 
 
 def _collect_cards(config: Any) -> list[dict[str, Any]]:
@@ -114,6 +119,73 @@ def _collect_cards(config: Any) -> list[dict[str, Any]]:
     return cards
 
 
+def _card_entity(card: dict[str, Any]) -> tuple[str, str, Entity] | None:
+    """Build the ``A2AAgentCard`` entity for one card; ``None`` if unnamed."""
+    name = _scalar(_get(card, "name"))
+    if not name:
+        return None
+    card_slug = _slug(name)
+    card_id = f"a2a:{card_slug}"
+    url = _scalar(_get(card, "url")) or _scalar(_get(card, "endpoint"))
+    entity = Entity(
+        id=card_id,
+        node_type="A2AAgentCard",
+        properties={
+            key: value
+            for key, value in (
+                ("name", name),
+                ("description", _scalar(_get(card, "description"))),
+                ("url", url),
+                ("version", _scalar(_get(card, "version"))),
+                ("provider", _scalar(_get(card, "provider"))),
+            )
+            if value is not None
+        },
+    )
+    return card_id, card_slug, entity
+
+
+def _card_skill_items(
+    card_id: str, card_slug: str, card: Any
+) -> tuple[list[Entity], list[Relationship]]:
+    """Build the skill entities and ``EXPOSES_SKILL`` relationships for a card."""
+    skills = _get(card, "skills") or []
+    if isinstance(skills, dict):
+        skills = list(skills.values())
+    if not isinstance(skills, list | tuple):
+        skills = []
+
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+    for skill in skills:
+        skill_name = _scalar(_get(skill, "name")) or _scalar(_get(skill, "id"))
+        if not skill_name:
+            continue
+        skill_id = f"skill:a2a:{card_slug}:{_slug(skill_name)}"
+        entities.append(
+            Entity(
+                id=skill_id,
+                node_type="Skill",
+                properties={
+                    key: value
+                    for key, value in (
+                        ("description", _scalar(_get(skill, "description"))),
+                        ("tags", _tags(_get(skill, "tags"))),
+                    )
+                    if value
+                },
+            )
+        )
+        relationships.append(
+            Relationship(
+                source=card_id,
+                target=skill_id,
+                relationship="EXPOSES_SKILL",
+            )
+        )
+    return entities, relationships
+
+
 def extract(config: Any) -> ChangeSet:
     """Extract A2A agent cards into a uniform ``ChangeSet``.
 
@@ -124,61 +196,17 @@ def extract(config: Any) -> ChangeSet:
     relationships: list[Relationship] = []
 
     for card in _collect_cards(config):
-        name = _scalar(_get(card, "name"))
-        if not name:
+        built = _card_entity(card)
+        if built is None:
             continue
-        card_slug = _slug(name)
-        card_id = f"a2a:{card_slug}"
-        url = _scalar(_get(card, "url")) or _scalar(_get(card, "endpoint"))
-        entities.append(
-            Entity(
-                id=card_id,
-                node_type="A2AAgentCard",
-                properties={
-                    key: value
-                    for key, value in (
-                        ("name", name),
-                        ("description", _scalar(_get(card, "description"))),
-                        ("url", url),
-                        ("version", _scalar(_get(card, "version"))),
-                        ("provider", _scalar(_get(card, "provider"))),
-                    )
-                    if value is not None
-                },
-            )
-        )
+        card_id, card_slug, card_entity_obj = built
+        entities.append(card_entity_obj)
 
-        skills = _get(card, "skills") or []
-        if isinstance(skills, dict):
-            skills = list(skills.values())
-        if not isinstance(skills, list | tuple):
-            continue
-        for skill in skills:
-            skill_name = _scalar(_get(skill, "name")) or _scalar(_get(skill, "id"))
-            if not skill_name:
-                continue
-            skill_id = f"skill:a2a:{card_slug}:{_slug(skill_name)}"
-            entities.append(
-                Entity(
-                    id=skill_id,
-                    node_type="Skill",
-                    properties={
-                        key: value
-                        for key, value in (
-                            ("description", _scalar(_get(skill, "description"))),
-                            ("tags", _tags(_get(skill, "tags"))),
-                        )
-                        if value
-                    },
-                )
-            )
-            relationships.append(
-                Relationship(
-                    source=card_id,
-                    target=skill_id,
-                    relationship="EXPOSES_SKILL",
-                )
-            )
+        skill_entities, skill_relationships = _card_skill_items(
+            card_id, card_slug, card
+        )
+        entities.extend(skill_entities)
+        relationships.extend(skill_relationships)
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 

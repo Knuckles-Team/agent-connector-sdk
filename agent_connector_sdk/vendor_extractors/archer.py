@@ -36,38 +36,34 @@ def _first(record: Any, *keys: str) -> Any:
     return None
 
 
+def _call_result(method: Any) -> Any:
+    """Invoke a duck-typed accessor method, tolerating a required-arg form."""
+    for call in (lambda: method(), lambda: method({})):
+        try:
+            return call()
+        except TypeError:
+            continue
+        except Exception:
+            return None
+    return None
+
+
 def _call(client: Any, name: str) -> list[Any]:
     """Call a client method if present, returning a list (tolerant)."""
     method = getattr(client, name, None)
     if not callable(method):
         return []
-    try:
-        result = method()
-    except TypeError:
-        try:
-            result = method({})
-        except Exception:
-            return []
-    except Exception:
+    result = _call_result(method)
+    if result is None:
         return []
     if isinstance(result, dict):
         result = result.get("value") or result.get("items") or result.get("data") or []
     return list(result) if result else []
 
 
-def extract(config: Any) -> ChangeSet:
-    """Extract Archer GRC records into a uniform ``ChangeSet``.
-
-    Risks/controls/findings become typed governance entities; controls link
-    ``MITIGATES`` their risk and findings link ``AFFECTS`` their control.
-    """
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-
+def _risk_entities(client: Any) -> list[Entity]:
+    """Build ``Risk`` entities from the client's risk records."""
     entities: list[Entity] = []
-    relationships: list[Relationship] = []
-
     for record in _call(client, "list_risks"):
         risk_id = _first(record, "id", "Id", "name", "Name")
         if not risk_id:
@@ -82,7 +78,13 @@ def extract(config: Any) -> ChangeSet:
                 },
             )
         )
+    return entities
 
+
+def _control_items(client: Any) -> tuple[list[Entity], list[Relationship]]:
+    """Build ``ComplianceControl`` entities and their ``MITIGATES`` links."""
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
     for record in _call(client, "list_controls"):
         control_id = _first(record, "id", "Id", "name", "Name")
         if not control_id:
@@ -107,7 +109,13 @@ def extract(config: Any) -> ChangeSet:
                     relationship="MITIGATES",
                 )
             )
+    return entities, relationships
 
+
+def _finding_items(client: Any) -> tuple[list[Entity], list[Relationship]]:
+    """Build ``Finding`` entities and their ``AFFECTS`` links."""
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
     for record in _call(client, "list_findings"):
         finding_id = _first(record, "id", "Id", "name", "Name")
         if not finding_id:
@@ -132,6 +140,29 @@ def extract(config: Any) -> ChangeSet:
                     relationship="AFFECTS",
                 )
             )
+    return entities, relationships
+
+
+def extract(config: Any) -> ChangeSet:
+    """Extract Archer GRC records into a uniform ``ChangeSet``.
+
+    Risks/controls/findings become typed governance entities; controls link
+    ``MITIGATES`` their risk and findings link ``AFFECTS`` their control.
+    """
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+
+    entities: list[Entity] = list(_risk_entities(client))
+    relationships: list[Relationship] = []
+
+    control_entities, control_relationships = _control_items(client)
+    entities.extend(control_entities)
+    relationships.extend(control_relationships)
+
+    finding_entities, finding_relationships = _finding_items(client)
+    entities.extend(finding_entities)
+    relationships.extend(finding_relationships)
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 

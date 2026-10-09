@@ -52,6 +52,18 @@ def _first(record: Any, *keys: str) -> Any:
     return None
 
 
+def _call_result(method: Any) -> Any:
+    """Invoke a duck-typed accessor method, tolerating a required-arg form."""
+    for call in (lambda: method(), lambda: method({})):
+        try:
+            return call()
+        except TypeError:
+            continue
+        except Exception:
+            return None
+    return None
+
+
 def _call(client: Any, name: str) -> list[Any]:
     """Call a client method if present, returning a list (tolerant).
 
@@ -61,34 +73,20 @@ def _call(client: Any, name: str) -> list[Any]:
     method = getattr(client, name, None)
     if not callable(method):
         return []
-    try:
-        result = method()
-    except TypeError:
-        try:
-            result = method({})
-        except Exception:
-            return []
-    except Exception:
+    result = _call_result(method)
+    if result is None:
         return []
     if isinstance(result, dict):
         result = result.get("items") or result.get("results") or []
     return list(result) if result else []
 
 
-def extract(config: Any) -> ChangeSet:
-    """Extract Camunda BPMN artifacts into a uniform ``ChangeSet``.
-
-    Process definitions become ``BusinessProcess`` entities; tasks become
-    ``BusinessTask`` entities linked ``PART_OF`` their process; incidents
-    become ``Incident`` entities linked ``AFFECTS`` their process.
-    """
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-
+def _process_definition_items(
+    client: Any,
+) -> tuple[list[Entity], list[Relationship]]:
+    """Build ``BusinessProcess`` entities and their Egeria crosswalk links."""
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-
     for record in _call(client, "list_process_definitions"):
         proc_id = _first(record, "id", "key", "bpmnProcessId")
         if not proc_id:
@@ -112,7 +110,13 @@ def extract(config: Any) -> ChangeSet:
         entities.append(
             Entity(id=proc_node_id, node_type="BusinessProcess", properties=properties)
         )
+    return entities, relationships
 
+
+def _task_items(client: Any) -> tuple[list[Entity], list[Relationship]]:
+    """Build ``BusinessTask`` entities and their ``PART_OF`` process links."""
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
     for record in _call(client, "list_tasks"):
         task_id = _first(record, "id", "key")
         if not task_id:
@@ -141,7 +145,13 @@ def extract(config: Any) -> ChangeSet:
                     relationship="PART_OF",
                 )
             )
+    return entities, relationships
 
+
+def _incident_items(client: Any) -> tuple[list[Entity], list[Relationship]]:
+    """Build ``Incident`` entities and their ``AFFECTS`` process links."""
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
     for record in _call(client, "list_incidents"):
         incident_id = _first(record, "id", "key")
         if not incident_id:
@@ -173,6 +183,27 @@ def extract(config: Any) -> ChangeSet:
                     relationship="AFFECTS",
                 )
             )
+    return entities, relationships
+
+
+def extract(config: Any) -> ChangeSet:
+    """Extract Camunda BPMN artifacts into a uniform ``ChangeSet``.
+
+    Process definitions become ``BusinessProcess`` entities; tasks become
+    ``BusinessTask`` entities linked ``PART_OF`` their process; incidents
+    become ``Incident`` entities linked ``AFFECTS`` their process.
+    """
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+
+    for builder in (_process_definition_items, _task_items, _incident_items):
+        section_entities, section_relationships = builder(client)
+        entities.extend(section_entities)
+        relationships.extend(section_relationships)
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 

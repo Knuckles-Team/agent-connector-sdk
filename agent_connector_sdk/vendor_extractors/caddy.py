@@ -40,35 +40,45 @@ def _config(client: Any) -> dict[str, Any] | None:
     return cfg if isinstance(cfg, dict) else None
 
 
+def _route_entity(server_name: str, index: int, route: Any) -> Entity | None:
+    """Build the ``Service`` entity for one route; ``None`` if malformed."""
+    if not isinstance(route, dict):
+        return None
+    hosts = _route_hosts(route)
+    label = hosts[0] if hosts else f"{server_name}-route-{index}"
+    route_id = f"caddy_route:{server_name}:{label}"
+    properties = {
+        "name": label,
+        "ci_class": "reverse_proxy_route",
+        "hosts": ",".join(hosts) or None,
+        "server": server_name,
+        "externalToolId": route_id.split(":", 1)[1],
+        "domain": CATEGORY,
+    }
+    return Entity(
+        id=route_id,
+        node_type="Service",
+        properties={
+            key: value for key, value in properties.items() if value is not None
+        },
+    )
+
+
+def _server_entities(server_name: str, server: Any) -> list[Entity]:
+    """Build the route entities for one Caddy HTTP server."""
+    entities: list[Entity] = []
+    for index, route in enumerate(server.get("routes", []) or []):
+        entity = _route_entity(server_name, index, route)
+        if entity is not None:
+            entities.append(entity)
+    return entities
+
+
 def _entities(cfg: dict[str, Any]) -> list[Entity]:
     servers = ((cfg.get("apps") or {}).get("http") or {}).get("servers") or {}
     entities: list[Entity] = []
     for server_name, server in servers.items() if isinstance(servers, dict) else []:
-        for index, route in enumerate(server.get("routes", []) or []):
-            if not isinstance(route, dict):
-                continue
-            hosts = _route_hosts(route)
-            label = hosts[0] if hosts else f"{server_name}-route-{index}"
-            route_id = f"caddy_route:{server_name}:{label}"
-            properties = {
-                "name": label,
-                "ci_class": "reverse_proxy_route",
-                "hosts": ",".join(hosts) or None,
-                "server": server_name,
-                "externalToolId": route_id.split(":", 1)[1],
-                "domain": CATEGORY,
-            }
-            entities.append(
-                Entity(
-                    id=route_id,
-                    node_type="Service",
-                    properties={
-                        key: value
-                        for key, value in properties.items()
-                        if value is not None
-                    },
-                )
-            )
+        entities.extend(_server_entities(server_name, server))
     return entities
 
 

@@ -54,19 +54,25 @@ def _first(record: Any, *keys: str) -> Any:
     return None
 
 
+def _call_result(method: Any) -> Any:
+    """Invoke a duck-typed accessor method, tolerating a required-arg form."""
+    for call in (lambda: method(), lambda: method({})):
+        try:
+            return call()
+        except TypeError:
+            continue
+        except Exception:
+            return None
+    return None
+
+
 def _call(client: Any, name: str) -> list[Any]:
     """Call a no-arg client method if present, returning a list (tolerant)."""
     method = getattr(client, name, None)
     if not callable(method):
         return []
-    try:
-        result = method()
-    except TypeError:
-        try:
-            result = method({})
-        except Exception:
-            return []
-    except Exception:
+    result = _call_result(method)
+    if result is None:
         return []
     if isinstance(result, dict):
         result = result.get("items") or result.get("models") or result.get("data") or []

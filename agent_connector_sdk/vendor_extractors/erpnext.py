@@ -7,19 +7,58 @@ Warehouse, Issue) into typed entities and relationships.
 
 The injected ``config.client`` is duck-typed: it only needs a
 ``get_list(doctype) -> list[dict]`` method returning Frappe rows. No network
-or ERPNext import happens in this module; the client is supplied by the
-caller.
+or ERPNext import happens in this module; the client is supplied by the caller.
 """
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, NamedTuple
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "erpnext"
 _DOMAIN = "erpnext"
+
+
+class _DoctypeSpec(NamedTuple):
+    """A doctype with no outgoing relationships: just name + flat properties."""
+
+    doctype: str
+    id_prefix: str
+    node_type: str
+    name_keys: tuple[str, ...]
+    prop_specs: tuple[tuple[str, tuple[str, ...]], ...]
+
+
+_SIMPLE_DOCTYPES = (
+    _DoctypeSpec(
+        "Customer",
+        "customer",
+        "Customer",
+        ("name", "customer", "customer_name"),
+        (("customer_name", ("customer_name", "name")),),
+    ),
+    _DoctypeSpec(
+        "Item",
+        "item",
+        "Item",
+        ("name", "item_code", "item_name"),
+        (
+            ("item_name", ("item_name", "name")),
+            ("item_group", ("item_group",)),
+            ("stock_uom", ("stock_uom",)),
+            ("actual_qty", ("actual_qty", "opening_stock")),
+        ),
+    ),
+    _DoctypeSpec(
+        "Warehouse",
+        "warehouse",
+        "Warehouse",
+        ("name", "warehouse_name"),
+        (("name", ("warehouse_name", "name")),),
+    ),
+)
 
 
 def _first(row: dict[str, Any], *keys: str) -> Any:
@@ -52,22 +91,31 @@ def _props(**fields: Any) -> dict[str, Any]:
     return {key: value for key, value in fields.items() if value is not None}
 
 
-def extract(config: Any) -> ChangeSet:
-    """Build a ``ChangeSet`` from ERPNext/Frappe doctypes.
+def _doctype_entities(client: Any, spec: _DoctypeSpec) -> list[Entity]:
+    """Build entities for a doctype that emits no outgoing relationships."""
+    entities: list[Entity] = []
+    for row in _get_list(client, spec.doctype):
+        name = _first(row, *spec.name_keys)
+        if name is None:
+            continue
+        props = {key: _first(row, *keys) for key, keys in spec.prop_specs}
+        entities.append(
+            Entity(
+                id=f"{spec.id_prefix}:{name}",
+                node_type=spec.node_type,
+                properties=_props(**props),
+            )
+        )
+    return entities
 
-    Maps Employee/Customer/Sales Order/Item/Asset/Warehouse/Issue rows to
-    typed entities and emits ``MEMBER_OF`` (Employee->OrgUnit), ``PLACED_BY``
-    (SalesOrder->Customer), ``INSTANCE_OF``/``LOCATED_IN`` (Asset->Item /
-    Warehouse), and ``RAISED_BY`` (Issue->Customer) relationships.
-    """
-    client = _get_client(config)
-    if client is None:
-        return ChangeSet()
 
+def _employee_items(
+    client: Any,
+) -> tuple[list[Entity], list[Entity], list[Relationship]]:
+    """Build Employee entities, implied OrgUnit entities, and ``MEMBER_OF`` links."""
     entities: list[Entity] = []
     relationships: list[Relationship] = []
     org_units: dict[str, Entity] = {}
-
     for row in _get_list(client, "Employee"):
         name = _first(row, "name", "employee", "employee_name")
         if name is None:
@@ -93,19 +141,13 @@ def extract(config: Any) -> ChangeSet:
             relationships.append(
                 Relationship(source=node_id, target=org_id, relationship="MEMBER_OF")
             )
+    return entities, list(org_units.values()), relationships
 
-    for row in _get_list(client, "Customer"):
-        name = _first(row, "name", "customer", "customer_name")
-        if name is None:
-            continue
-        entities.append(
-            Entity(
-                id=f"customer:{name}",
-                node_type="Customer",
-                properties=_props(customer_name=_first(row, "customer_name", "name")),
-            )
-        )
 
+def _sales_order_items(client: Any) -> tuple[list[Entity], list[Relationship]]:
+    """Build SalesOrder entities and their ``PLACED_BY`` customer links."""
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
     for row in _get_list(client, "Sales Order"):
         name = _first(row, "name", "order")
         if name is None:
@@ -127,24 +169,13 @@ def extract(config: Any) -> ChangeSet:
                     relationship="PLACED_BY",
                 )
             )
+    return entities, relationships
 
-    for row in _get_list(client, "Item"):
-        name = _first(row, "name", "item_code", "item_name")
-        if name is None:
-            continue
-        entities.append(
-            Entity(
-                id=f"item:{name}",
-                node_type="Item",
-                properties=_props(
-                    item_name=_first(row, "item_name", "name"),
-                    item_group=_first(row, "item_group"),
-                    stock_uom=_first(row, "stock_uom"),
-                    actual_qty=_first(row, "actual_qty", "opening_stock"),
-                ),
-            )
-        )
 
+def _asset_items(client: Any) -> tuple[list[Entity], list[Relationship]]:
+    """Build AssetInstance entities and their item/warehouse links."""
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
     for row in _get_list(client, "Asset"):
         name = _first(row, "name", "asset_name")
         if name is None:
@@ -180,19 +211,13 @@ def extract(config: Any) -> ChangeSet:
                     relationship="LOCATED_IN",
                 )
             )
+    return entities, relationships
 
-    for row in _get_list(client, "Warehouse"):
-        name = _first(row, "name", "warehouse_name")
-        if name is None:
-            continue
-        entities.append(
-            Entity(
-                id=f"warehouse:{name}",
-                node_type="Warehouse",
-                properties=_props(name=_first(row, "warehouse_name", "name")),
-            )
-        )
 
+def _issue_items(client: Any) -> tuple[list[Entity], list[Relationship]]:
+    """Build ErpNextIssue entities and their ``RAISED_BY`` customer links."""
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
     for row in _get_list(client, "Issue"):
         name = _first(row, "name", "subject")
         if name is None:
@@ -218,8 +243,38 @@ def extract(config: Any) -> ChangeSet:
                     relationship="RAISED_BY",
                 )
             )
+    return entities, relationships
 
-    entities.extend(org_units.values())
+
+def extract(config: Any) -> ChangeSet:
+    """Build a ``ChangeSet`` from ERPNext/Frappe doctypes.
+
+    Maps Employee/Customer/Sales Order/Item/Asset/Warehouse/Issue rows to
+    typed entities and emits ``MEMBER_OF`` (Employee->OrgUnit), ``PLACED_BY``
+    (SalesOrder->Customer), ``INSTANCE_OF``/``LOCATED_IN`` (Asset->Item /
+    Warehouse), and ``RAISED_BY`` (Issue->Customer) relationships.
+    """
+    client = _get_client(config)
+    if client is None:
+        return ChangeSet()
+
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+
+    emp_entities, org_entities, emp_relationships = _employee_items(client)
+    entities.extend(emp_entities)
+    relationships.extend(emp_relationships)
+
+    for spec in _SIMPLE_DOCTYPES:
+        entities.extend(_doctype_entities(client, spec))
+
+    for section in (_sales_order_items, _asset_items, _issue_items):
+        section_entities, section_relationships = section(client)
+        entities.extend(section_entities)
+        relationships.extend(section_relationships)
+
+    entities.extend(org_entities)
+
     # Stamp the federation key on every entity (externalToolId = Frappe doc
     # name = the entity id suffix; domain="erpnext") so write-back can resolve
     # KG entity -> ERPNext doc and reconcile across sources.
