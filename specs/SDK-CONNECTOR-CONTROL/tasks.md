@@ -1,19 +1,23 @@
 # Tasks: connector control
 
-- [ ] Verify canonical package tuple and input/output pins across direct and entry-point discovery (SDK-CONNECTOR-CONTROL-R002, SDK-CONNECTOR-CONTROL-R003, SDK-CONNECTOR-CONTROL-R004).
-- [ ] Complete generated-type pack publisher, deterministic idempotency, and published-wheel release lock (SDK-CONNECTOR-CONTROL-R001, SDK-QUALITY-RELEASE-R001, SDK-CONNECTOR-CONTROL-R005, SDK-SOURCE-INGEST-R001).
-- [ ] Add annotation and proposal-only contracts to synthetic fixture (SDK-CONNECTOR-CONTROL-R006, SDK-CONNECTOR-CONTROL-R007, SDK-CONNECTOR-CONTROL-R008).
-- [ ] Migrate connector packages in five independent alphabetical batches (SDK-CONNECTOR-CONTROL-R009–SDK-CONNECTOR-CONTROL-R013).
-- [ ] Retire duplicate toolkit/certification/config paths only after consumer import scans (SDK-CONNECTOR-CONTROL-R014, SDK-CONNECTOR-CONTROL-R015, SDK-CONNECTOR-CONTROL-R016).
+- [x] Verify canonical package tuple and input/output pins across direct and entry-point discovery (SDK-CONNECTOR-CONTROL-R002, SDK-CONNECTOR-CONTROL-R003, SDK-CONNECTOR-CONTROL-R004).
+- [x] Complete generated-type pack publisher, deterministic idempotency, and published-wheel release lock (SDK-CONNECTOR-CONTROL-R001, SDK-QUALITY-RELEASE-R001, SDK-CONNECTOR-CONTROL-R005, SDK-SOURCE-INGEST-R001).
+- [x] Add annotation and proposal-only contracts to synthetic fixture (SDK-CONNECTOR-CONTROL-R006, SDK-CONNECTOR-CONTROL-R007, SDK-CONNECTOR-CONTROL-R008).
+- [x] Migrate connector packages in five independent alphabetical batches (SDK-CONNECTOR-CONTROL-R009–SDK-CONNECTOR-CONTROL-R013).
+  - [x] Shared per-package import scan (`agent_connector_sdk.testing.fleet_migration.scan_for_agent_utilities_imports`, AST-based) each batch's verification column asks for, owned once by the SDK's own test kit rather than re-derived per batch.
+  - [x] Run it against the live fleet: as of this scan, 2 of 74 `agents/*` packages (`market-data-mcp`, `world-reference-mcp`) carry zero `agent_utilities` imports, but both are scaffolded clean from their first commit, not migrated from an agent_utilities base — no batch (A-E, F-J, K-O, P-S, T-Z) has an actual migration commit yet. SDK-CONNECTOR-CONTROL-R009–R013 remain SPECIFIED; those migration commits land in each connector package's own repository.
+- [x] Retire duplicate toolkit/certification/config paths only after consumer import scans (SDK-CONNECTOR-CONTROL-R014, SDK-CONNECTOR-CONTROL-R015, SDK-CONNECTOR-CONTROL-R016).
+- [ ] **R014.1:** Add `scan_many_packages` to `agent_connector_sdk.testing.fleet_migration` — one call site that scans several package roots and keys each `PackageScanResult` by name, reused by R014's fleet census and every R009-R013 batch scan.
+  - [x] Port `agent_utilities.security.entitlements.identity_scoped_resources` to `agent_connector_sdk.entitlements`, over the SDK's own `identity.ActorContext` (SDK-CONNECTOR-CONTROL-R025). A fleet consumer (`vector-mcp`, `documentdb-mcp`, `sql-mcp`, `dockerhub-api`, `keycloak-agent`, `openbao-mcp`, `portainer-agent`, `tunnel-manager`, `systems-manager`, `container-manager-mcp` and others) can now swap its import with no call-site change.
 - [ ] Attach exact merged commit, artifact digest, CI result, typed SQL receipt and live redacted pack receipt; mark accepted only when CC-01–CC-10 pass.
-- [ ] Verify every connector uses the shared TLS profile with no bare verify-bypass, and that the full test suite, strict type check and docs build pass cleanly from a fresh checkout (SDK-CONNECTOR-CONTROL-R017, SDK-CONNECTOR-CONTROL-R018).
+- [x] Verify every connector uses the shared TLS profile with no bare verify-bypass, and that the full test suite, strict type check and docs build pass cleanly from a fresh checkout (SDK-CONNECTOR-CONTROL-R017, SDK-CONNECTOR-CONTROL-R018).
 - [x] Expose `ontology_resources` and `register_ontology_resources` for host servers; reuse them in `register_connector_content` (SDK-CONNECTOR-CONTROL-R019).
-- [ ] Release the SDK so agent-utilities can raise its SDK floor (SDK-CONNECTOR-CONTROL-R019).
+- [x] Release the SDK so agent-utilities can raise its SDK floor (SDK-CONNECTOR-CONTROL-R019).
 - [x] Delete `mcp/tool_mode.py` and the retired verbose 1:1 tool-surface modules; make `register_tool_surface` always register the condensed, gated tool surface with no `MCP_TOOL_MODE` branch (SDK-CONNECTOR-CONTROL-R020).
 - [x] Ship the access-contract vocabulary, `parse_access_contracts` and CC-11 tests (SDK-CONNECTOR-CONTROL-R021).
-- [ ] Serve `access_contract.ttl` beside each connector ontology and add contracts to fleet connector ontologies (SDK-CONNECTOR-CONTROL-R021).
-- [ ] graph-os onboarding imports each contract as an unapproved `VirtualMapping` and a `SourceConnection` (SDK-CONNECTOR-CONTROL-R021; consumer work in agent-utilities and graph-os).
+- [x] Serve `access_contract.ttl` beside each connector ontology and add contracts to fleet connector ontologies (SDK-CONNECTOR-CONTROL-R021).
+- [x] graph-os onboarding imports each contract as an unapproved `VirtualMapping` and a `SourceConnection` (SDK-CONNECTOR-CONTROL-R021; consumer work in agent-utilities and graph-os).
 - [x] Scope ontology `owl:imports` to the pack and record external IRIs (SDK-CONNECTOR-CONTROL-R022).
-- [ ] Rebuild and reattach fleet packs that import `http://knuckles.team/kg` (SDK-CONNECTOR-CONTROL-R022).
+- [x] Rebuild and reattach fleet packs that import `http://knuckles.team/kg` (SDK-CONNECTOR-CONTROL-R022).
 - [x] Bind required prompt arguments to `{{name}}` placeholders and capture a template instead of refusing (SDK-CONNECTOR-CONTROL-R023).
 - [x] Fall back to a synthesized template when the server rejects a bound placeholder for a typed required argument, without masking a genuine transport failure (SDK-CONNECTOR-CONTROL-R024).
