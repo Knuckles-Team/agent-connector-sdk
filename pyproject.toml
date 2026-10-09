@@ -118,6 +118,7 @@ public_modules = [
     "agent_connector_sdk.adapters.event_feed",
     "agent_connector_sdk.adapters.event_feed_bindings",
     "agent_connector_sdk.adapters.mcp_tool",
+    "agent_connector_sdk.adapters.web_fetch",
     "agent_connector_sdk.certify.cli",
     "agent_connector_sdk.artifacts.pack",
     "agent_connector_sdk.auth.client_credentials",
