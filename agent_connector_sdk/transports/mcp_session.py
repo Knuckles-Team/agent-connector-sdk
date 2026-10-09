@@ -11,6 +11,7 @@ import anyio
 import mcp_types
 from anyio.abc import TaskGroup
 from fastmcp import Client
+from mcp.shared.exceptions import MCPError
 
 from agent_connector_sdk.contracts import ServerIdentity
 from agent_connector_sdk.ports.change_source import ChangeEvent
@@ -19,11 +20,28 @@ from agent_connector_sdk.transports.mcp_changes import (
     forward_listen_events,
 )
 
-__all__ = ["McpClientSession", "McpTransportError", "decode_tool_result"]
+__all__ = [
+    "McpClientSession",
+    "McpPromptRejectedError",
+    "McpTransportError",
+    "decode_tool_result",
+]
 
 
 class McpTransportError(RuntimeError):
     """An MCP operation failed; the message names the operation, not the payload."""
+
+
+class McpPromptRejectedError(McpTransportError):
+    """``prompts/get`` reached the server, which then returned a protocol error.
+
+    Raised only for a well-formed :class:`mcp.shared.exceptions.MCPError`
+    response -- the server is reachable and answered, it just rejected the
+    bound arguments (for example a typed parameter refusing the `{{name}}`
+    placeholder). A transport failure such as a timeout or a dropped
+    connection never surfaces as this error; it stays a plain
+    :class:`McpTransportError`.
+    """
 
 
 def decode_tool_result(result: Any) -> Any:
@@ -108,10 +126,19 @@ class McpClientSession:
     async def get_prompt(
         self, name: str, arguments: Mapping[str, str]
     ) -> mcp_types.GetPromptResult:
-        """``prompts/get``; failures name the operation without source content."""
+        """``prompts/get``; failures name the operation without source content.
+
+        A server-returned protocol error raises :class:`McpPromptRejectedError`
+        so a caller can tell "the server rejected this call" apart from any
+        other failure, which stays a plain :class:`McpTransportError`.
+        """
         try:
             result = await self.client.get_prompt(name, dict(arguments))
             return mcp_types.GetPromptResult.model_validate(result)
+        except MCPError as exc:
+            raise McpPromptRejectedError(
+                f"MCP prompts/get failed for {name!r}"
+            ) from exc
         except Exception as exc:
             raise McpTransportError(f"MCP prompts/get failed for {name!r}") from exc
 

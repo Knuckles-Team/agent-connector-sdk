@@ -7,3 +7,18 @@
 5. Lock the published graph-client wheel, build the SDK wheel, run offline unit/conformance checks, then run an opt-in environment-backed pack publication and retry probe. Record commit, wheel digest, and redacted receipt in `spec.md`.
 
 Each slice is mergeable with its own conformance tests. No step requires a live home deployment for ordinary pull-request validation.
+
+## Prompt capture fallback (SDK-CONNECTOR-CONTROL-R024)
+
+`transports/mcp_session.py` gains `McpPromptRejectedError(McpTransportError)`, raised from
+`McpClientSession.get_prompt` only when the underlying failure is `mcp.shared.exceptions.MCPError`
+-- a well-formed protocol error the server returned, as opposed to a transport-level failure
+(timeout, dropped connection, malformed response) which keeps raising the existing
+`McpTransportError`. `artifacts/prompts.py` already imports from `transports/mcp.py`'s sibling
+module through `artifacts/pack.py`, so `artifacts/prompts.py` importing `McpPromptRejectedError`
+from `transports/mcp_session.py` keeps the same dependency direction. `PromptArtifactKind.list_entries`
+catches that one error type around `session.get_prompt`, and only when the prompt bound at least
+one required argument; it then builds the entry from a synthesized `GetPromptResult` listing the
+prompt's own argument names, never from server content. No change to `_capture_metadata`,
+`_validate_contract`, or `validate` is needed: `capture.kind` already depends only on whether an
+argument is required, not on how the result was obtained.

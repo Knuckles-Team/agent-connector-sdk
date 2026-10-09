@@ -17,6 +17,10 @@ from agent_connector_sdk.artifacts.tools import ToolArtifactKind
 from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
 from agent_connector_sdk.ports.errors import MalformedArtifactError
 from agent_connector_sdk.testing.results import SessionFactory
+from agent_connector_sdk.transports.mcp_session import (
+    McpPromptRejectedError,
+    McpTransportError,
+)
 
 SERVER = ServerIdentity(name="demo-mcp", version="1.4.0")
 
@@ -155,6 +159,83 @@ async def test_prompt_capture_binds_required_arguments_as_template() -> None:
         "bound_arguments": {"topic": "{{topic}}"},
         "kind": "template",
     }
+
+
+async def test_prompt_capture_falls_back_to_template_when_server_rejects_bound_argument() -> (
+    None
+):
+    """A typed required argument can refuse the `{{name}}` placeholder.
+
+    FastMCP coerces each `prompts/get` argument to its declared type before
+    rendering. A required `int`/`float`/`bool`/`list`/enum argument then
+    refuses the string placeholder and the server answers with a protocol
+    error, surfaced here as `McpPromptRejectedError`. The capture must still
+    succeed, as a template built from the listed metadata alone.
+    """
+    prompt = mcp_types.Prompt(
+        name="demo",
+        description="listed description",
+        arguments=[
+            mcp_types.PromptArgument(name="count", required=True),
+            mcp_types.PromptArgument(name="tone", required=False),
+        ],
+    )
+    session = SimpleNamespace(
+        server_identity=AsyncMock(return_value=SERVER),
+        list_prompts=AsyncMock(return_value=[prompt]),
+        get_prompt=AsyncMock(
+            side_effect=McpPromptRejectedError("MCP prompts/get failed for 'demo'")
+        ),
+    )
+    kind = PromptArtifactKind()
+    entries = await kind.list_entries(session, SERVER)
+    session.get_prompt.assert_awaited_once_with("demo", {"count": "{{count}}"})
+    entry = entries[0]
+    kind.validate(entry)
+    body = json.loads(entry.body)
+    assert body["capture"] == {
+        "method": "prompts/get",
+        "bound_arguments": {"count": "{{count}}"},
+        "kind": "template",
+    }
+    assert body["result"]["messages"][0]["content"]["text"] == (
+        "Prompt 'demo' takes arguments: count, tone."
+    )
+
+
+async def test_prompt_capture_still_fails_when_rejected_with_no_required_argument() -> (
+    None
+):
+    """No placeholder was ever sent, so a rejection here is not a type refusal."""
+    session = SimpleNamespace(
+        list_prompts=AsyncMock(return_value=[mcp_types.Prompt(name="demo")]),
+        get_prompt=AsyncMock(
+            side_effect=McpPromptRejectedError("MCP prompts/get failed for 'demo'")
+        ),
+    )
+    kind = PromptArtifactKind()
+    with pytest.raises(McpPromptRejectedError):
+        await kind.list_entries(session, SERVER)
+
+
+async def test_prompt_capture_propagates_genuine_transport_failures() -> None:
+    """A server-unreachable failure must still fail the capture, never fall back."""
+    session = SimpleNamespace(
+        list_prompts=AsyncMock(
+            return_value=[
+                mcp_types.Prompt(
+                    name="demo",
+                    arguments=[mcp_types.PromptArgument(name="count", required=True)],
+                )
+            ]
+        ),
+        get_prompt=AsyncMock(
+            side_effect=McpTransportError("MCP prompts/get failed for 'demo'")
+        ),
+    )
+    kind = PromptArtifactKind()
+    with pytest.raises(McpTransportError):
+        await kind.list_entries(session, SERVER)
 
 
 @pytest.mark.parametrize(
