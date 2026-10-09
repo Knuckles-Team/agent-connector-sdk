@@ -53,7 +53,9 @@ def extract(config: Any) -> ChangeSet:
     entities: list[Entity] = []
     relationships: list[Relationship] = []
     for sobject, label, prefix in _OBJECTS:
-        soql = f"SELECT Id, Name, AccountId FROM {sobject} LIMIT 2000"
+        # sobject is one of the three literals in _OBJECTS above, never
+        # caller/request data, so there is no injectable input here.
+        soql = f"SELECT Id, Name, AccountId FROM {sobject} LIMIT 2000"  # nosec B608
         for record in _records(client, soql):
             record_id = record.get("Id")
             if not record_id:
