@@ -149,6 +149,13 @@ repos:
     pass_filenames: false
     always_run: true
     stages: [manual, pre-push]
+  - id: mkdocs-build
+    name: documentation build (strict)
+    entry: bash -c 'bash scripts/bootstrap_pipeline_theme.sh && uv run --frozen --group docs mkdocs build --strict -d "$(mktemp -d)"'
+    language: system
+    pass_filenames: false
+    always_run: true
+    stages: [manual, pre-push]
   # ── Docs contract ──────────────────────────────────────────────────────────
   - id: check-external-graph-contract
     name: External-graph docs — required markers + no environment literals
