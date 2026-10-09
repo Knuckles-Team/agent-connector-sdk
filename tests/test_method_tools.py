@@ -10,35 +10,7 @@ from fastmcp import Client, FastMCP
 
 from agent_connector_sdk.mcp.method_tools import register_method_tools
 from agent_connector_sdk.mcp.tool_surface import GRANULAR_TAG, registered_tools
-
-
-class DemoApiBase:
-    def authenticate(self) -> None:
-        """Infrastructure, never a tool."""
-
-
-class DemoApiItems(DemoApiBase):
-    def get_item(self, item_id: str) -> dict[str, str]:
-        """Fetch one item."""
-        return {"id": item_id}
-
-    def delete_item(self, item_id: str) -> dict[str, str]:
-        """Delete one item."""
-        return {"deleted": item_id}
-
-
-class DemoApiUsers(DemoApiItems):
-    def list_users(self) -> list[str]:
-        """List users."""
-        return ["u1"]
-
-
-def get_client() -> DemoApiUsers:
-    return DemoApiUsers()
-
-
-async def get_client_async() -> DemoApiUsers:
-    return DemoApiUsers()
+from tests.demo_api_fixture import DemoApiUsers, get_client, get_client_async
 
 
 class _AcceptingContext:
@@ -100,7 +72,7 @@ async def test_destructive_tool_requires_confirmation() -> None:
     accepted = await tool.fn(
         params_json=json.dumps({"item_id": "x"}), ctx=_AcceptingContext()
     )
-    assert accepted == {"deleted": "x"}
+    assert accepted == "x"
     declined = await tool.fn(
         params_json=json.dumps({"item_id": "x"}), ctx=_DecliningContext()
     )

@@ -1,4 +1,4 @@
-"""Opt-in: one directly-invokable MCP tool per public API-client method.
+"""Opt-in: one directly-invocable MCP tool per public API-client method.
 
 Extracted from the untyped-parameter tier of
 ``agent_utilities.mcp.verbose_tools.register_verbose_tools``.
@@ -7,7 +7,7 @@ verbose 1:1 tool surface in :mod:`agent_connector_sdk.mcp.tool_surface`: every
 connector now always registers exactly the condensed, action-routed,
 intent-gated tools. That retirement did not remove the need for the
 primitive itself -- a connector whose already-served tool surface genuinely
-depends on one separately-invokable tool per client method (not routed
+depends on one separately-invocable tool per client method (not routed
 through a condensed ``action`` + ``params_json`` tool) still needs it, now as
 an explicit call its own server module makes, never as a hidden env-toggle
 branch.
