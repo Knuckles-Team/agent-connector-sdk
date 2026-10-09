@@ -18,6 +18,7 @@
     "SDK-CONNECTOR-CONTROL-R013",
     "SDK-CONNECTOR-CONTROL-R014",
     "SDK-CONNECTOR-CONTROL-R015",
+    "SDK-CONNECTOR-CONTROL-R015.1",
     "SDK-CONNECTOR-CONTROL-R016",
     "SDK-CONNECTOR-CONTROL-R017",
     "SDK-CONNECTOR-CONTROL-R018",
@@ -685,6 +686,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R015",
       "title": "SDK is sole owner of connector source lifecycle and certification",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Rollup; delivered once R015.1's scan mechanism extends to a real fleet-wide run across every dependent repository."
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R015.1",
+      "title": "A duplicate-definition scan for the manifest/certify surface",
       "delivery_state": "SPECIFIED",
       "evidence": []
     },
