@@ -46,13 +46,8 @@ def _call(client: Any, name: str, *args: Any) -> list[Any]:
     return list(result) if isinstance(result, (list, tuple)) else []
 
 
-def extract(config: Any) -> ChangeSet:
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-    realm = _get(config, "realm", "master")
-
-    entities: list[Entity] = []
+def _extract_users(client: Any, realm: str, entities: list[Entity]) -> None:
+    """Append an ``IdentityUser`` entity for every realm user."""
     for user in _call(client, "list_users", realm):
         user_id = _first(user, "id", "username")
         if not user_id:
@@ -76,6 +71,9 @@ def extract(config: Any) -> ChangeSet:
             )
         )
 
+
+def _extract_groups(client: Any, realm: str, entities: list[Entity]) -> None:
+    """Append an ``IdentityGroup`` entity for every realm group."""
     for group in _call(client, "list_groups", realm) or _call(
         client, "get_groups", realm
     ):
@@ -99,6 +97,9 @@ def extract(config: Any) -> ChangeSet:
             )
         )
 
+
+def _extract_clients(client: Any, realm: str, entities: list[Entity]) -> None:
+    """Append an ``Application`` entity for every realm client."""
     for client_row in _call(client, "list_clients", realm) or _call(
         client, "get_clients", realm
     ):
@@ -121,6 +122,18 @@ def extract(config: Any) -> ChangeSet:
                 },
             )
         )
+
+
+def extract(config: Any) -> ChangeSet:
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+    realm = _get(config, "realm", "master")
+
+    entities: list[Entity] = []
+    _extract_users(client, realm, entities)
+    _extract_groups(client, realm, entities)
+    _extract_clients(client, realm, entities)
 
     return ChangeSet(entities=tuple(entities))
 

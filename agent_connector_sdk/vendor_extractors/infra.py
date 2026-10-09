@@ -29,15 +29,6 @@ _IP_KEYS = ("ansible_host", "ip", "ansible_ssh_host", "host", "address")
 _NODE_KEYS = ("node", "host", "server", "hostname", "placement")
 
 
-def _get(config: Any, key: str, default: Any = None) -> Any:
-    """Read ``key`` from a dict-like or attribute-bearing config object."""
-    if config is None:
-        return default
-    if isinstance(config, dict):
-        return config.get(key, default)
-    return getattr(config, key, default)
-
-
 def _load_inventory(inventory: Any) -> dict[str, Any]:
     """Return a parsed inventory mapping from a dict or a YAML path string."""
     if inventory is None:
@@ -52,6 +43,51 @@ def _load_inventory(inventory: Any) -> dict[str, Any]:
     return inventory
 
 
+def _absorb_hosts(mapping: Any, hosts: dict[str, dict[str, Any]]) -> None:
+    """Merge a flat ``{host: host_vars}`` mapping into ``hosts``, tolerantly."""
+    if not isinstance(mapping, dict):
+        return
+    for name, host_vars in mapping.items():
+        if not isinstance(name, str):
+            continue
+        hosts[name] = host_vars if isinstance(host_vars, dict) else {}
+
+
+def _walk_ansible_group(node: Any, hosts: dict[str, dict[str, Any]]) -> None:
+    """Recurse an Ansible ``{hosts, children}`` group, absorbing every host."""
+    if not isinstance(node, dict):
+        return
+    if isinstance(node.get("hosts"), dict):
+        _absorb_hosts(node["hosts"], hosts)
+    children = node.get("children")
+    if isinstance(children, dict):
+        for child in children.values():
+            _walk_ansible_group(child, hosts)
+
+
+def _absorb_grouped_shapes(
+    inventory: dict[str, Any], hosts: dict[str, dict[str, Any]]
+) -> bool:
+    """Absorb the recognised grouped shapes (``all``/``hosts``/``tunnels``).
+
+    Returns whether any grouped shape was present, so the caller knows
+    whether to fall back to treating the inventory as a flat host map.
+    """
+    grouped = False
+    if isinstance(inventory.get("all"), dict) and (
+        "hosts" in inventory["all"] or "children" in inventory["all"]
+    ):
+        _walk_ansible_group(inventory["all"], hosts)
+        grouped = True
+    if isinstance(inventory.get("hosts"), dict):
+        _absorb_hosts(inventory["hosts"], hosts)
+        grouped = True
+    if isinstance(inventory.get("tunnels"), dict):
+        _absorb_hosts(inventory["tunnels"], hosts)
+        grouped = True
+    return grouped
+
+
 def _iter_host_maps(inventory: dict[str, Any]) -> dict[str, dict[str, Any]]:
     """Normalise tolerant inventory shapes into ``{host_name: host_vars}``.
 
@@ -61,36 +97,7 @@ def _iter_host_maps(inventory: dict[str, Any]) -> dict[str, dict[str, Any]]:
     """
     hosts: dict[str, dict[str, Any]] = {}
 
-    def _absorb(mapping: Any) -> None:
-        if not isinstance(mapping, dict):
-            return
-        for name, host_vars in mapping.items():
-            if not isinstance(name, str):
-                continue
-            hosts[name] = host_vars if isinstance(host_vars, dict) else {}
-
-    def _walk(node: Any) -> None:
-        if not isinstance(node, dict):
-            return
-        if isinstance(node.get("hosts"), dict):
-            _absorb(node["hosts"])
-        children = node.get("children")
-        if isinstance(children, dict):
-            for child in children.values():
-                _walk(child)
-
-    grouped = False
-    if isinstance(inventory.get("all"), dict) and (
-        "hosts" in inventory["all"] or "children" in inventory["all"]
-    ):
-        _walk(inventory["all"])
-        grouped = True
-    if isinstance(inventory.get("hosts"), dict):
-        _absorb(inventory["hosts"])
-        grouped = True
-    if isinstance(inventory.get("tunnels"), dict):
-        _absorb(inventory["tunnels"])
-        grouped = True
+    grouped = _absorb_grouped_shapes(inventory, hosts)
 
     if not grouped:
         for name, host_vars in inventory.items():
@@ -118,22 +125,15 @@ def _as_list(value: Any) -> list[str]:
     return [str(value)]
 
 
-def extract(config: Any) -> ChangeSet:
-    """Build a ``ChangeSet`` of Servers, Services, and ``RUNS_ON`` edges."""
-    inventory = _load_inventory(_get(config, "inventory"))
-    services = _get(config, "services") or []
-
-    entities: list[Entity] = []
-    relationships: list[Relationship] = []
-
+def _extract_servers(inventory: dict[str, Any], entities: list[Entity]) -> None:
+    """Append a ``Server`` entity for every host in the normalised inventory."""
     for name, host_vars in _iter_host_maps(inventory).items():
-        server_id = f"server:{name}"
         ip = _first(host_vars, _IP_KEYS)
         roles = _as_list(host_vars.get("roles") or host_vars.get("role"))
         groups = _as_list(host_vars.get("groups") or host_vars.get("group"))
         entities.append(
             Entity(
-                id=server_id,
+                id=f"server:{name}",
                 node_type="Server",
                 properties={
                     "hostname": name,
@@ -144,6 +144,11 @@ def extract(config: Any) -> ChangeSet:
             )
         )
 
+
+def _extract_services(
+    services: Any, entities: list[Entity], relationships: list[Relationship]
+) -> None:
+    """Append a ``Service`` entity (and ``RUNS_ON`` edge) for every service."""
     for service in services:
         if not isinstance(service, dict):
             continue
@@ -171,6 +176,20 @@ def extract(config: Any) -> ChangeSet:
                     relationship="RUNS_ON",
                 )
             )
+
+
+def extract(config: Any) -> ChangeSet:
+    """Build a ``ChangeSet`` of Servers, Services, and ``RUNS_ON`` edges."""
+    is_dict = isinstance(config, dict)
+    raw_inventory = config.get("inventory") if is_dict else getattr(config, "inventory", None)
+    inventory = _load_inventory(raw_inventory)
+    services = (config.get("services") if is_dict else getattr(config, "services", None)) or []
+
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+
+    _extract_servers(inventory, entities)
+    _extract_services(services, entities, relationships)
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 

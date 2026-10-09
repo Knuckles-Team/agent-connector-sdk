@@ -22,29 +22,32 @@ def _get(config: Any, key: str) -> Any:
     return config.get(key) if isinstance(config, dict) else getattr(config, key, None)
 
 
+def _unwrap_list(result: Any) -> Any:
+    """Unwrap a dict envelope (``{"topics": [...]}`` etc) to its inner list."""
+    if not isinstance(result, dict):
+        return result
+    for key in ("topics", "data", "value", "groups"):
+        value = result.get(key)
+        if isinstance(value, list):
+            return value
+    return result
+
+
+def _row_name(row: Any) -> str | None:
+    """Pull a name out of a native (string) or REST (dict) list row."""
+    if isinstance(row, str):
+        return row
+    if not isinstance(row, dict):
+        return None
+    name = row.get("name") or row.get("topic") or row.get("group_id") or row.get("groupId")
+    return str(name) if name else None
+
+
 def _names(result: Any) -> list[str]:
-    if isinstance(result, dict):
-        for key in ("topics", "data", "value", "groups"):
-            value = result.get(key)
-            if isinstance(value, list):
-                result = value
-                break
-    if isinstance(result, list):
-        names: list[str] = []
-        for row in result:
-            if isinstance(row, str):
-                names.append(row)
-            elif isinstance(row, dict):
-                name = (
-                    row.get("name")
-                    or row.get("topic")
-                    or row.get("group_id")
-                    or row.get("groupId")
-                )
-                if name:
-                    names.append(str(name))
-        return names
-    return []
+    result = _unwrap_list(result)
+    if not isinstance(result, list):
+        return []
+    return [name for row in result if (name := _row_name(row)) is not None]
 
 
 def _call(client: Any, name: str) -> Any:
