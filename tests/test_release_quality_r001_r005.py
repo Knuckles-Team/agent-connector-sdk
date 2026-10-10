@@ -16,7 +16,9 @@ SCRIPTS_DIR = Path(__file__).resolve().parents[1] / "scripts"
 
 def _load(module_name: str):
     module_path = SCRIPTS_DIR / f"{module_name}.py"
-    spec = importlib.util.spec_from_file_location(f"{module_name}_under_test", module_path)
+    spec = importlib.util.spec_from_file_location(
+        f"{module_name}_under_test", module_path
+    )
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
@@ -69,7 +71,9 @@ def test_isolated_install_plan_never_installs_from_the_source_overlay() -> None:
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R001")
 def test_isolated_install_plan_rejects_a_non_wheel_path() -> None:
     with pytest.raises(CompatibilityGateError):
-        isolated_install_plan(Path("dist/not-a-wheel.tar.gz"), "epistemic-graph>=2.27.0,<3", Path("venv"))
+        isolated_install_plan(
+            Path("dist/not-a-wheel.tar.gz"), "epistemic-graph>=2.27.0,<3", Path("venv")
+        )
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")

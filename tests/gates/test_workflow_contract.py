@@ -102,9 +102,13 @@ def test_build_job_pins_the_managed_python_not_the_system_one() -> None:
     for job_name in ("gates", "build"):
         job = workflow["jobs"][job_name]
         uv_setup_steps = [
-            step for step in job["steps"] if str(step.get("uses", "")).startswith(UV_ACTION)
+            step
+            for step in job["steps"]
+            if str(step.get("uses", "")).startswith(UV_ACTION)
         ]
-        pinned = [step for step in uv_setup_steps if "python-version" in step.get("with", {})]
+        pinned = [
+            step for step in uv_setup_steps if "python-version" in step.get("with", {})
+        ]
         assert pinned, f"{job_name} job's setup-uv step must pin python-version"
         assert pinned[0]["with"]["python-version"] == pinned_version
 
@@ -122,7 +126,9 @@ def test_build_job_verifies_installed_wheel_against_graph_client() -> None:
     names = [step.get("name", "") for step in build["steps"]]
     compat_index = next(i for i, name in enumerate(names) if "graph-client" in name)
     build_index = next(i for i, name in enumerate(names) if "Build the wheel" in name)
-    upload_index = next(i for i, name in enumerate(names) if "Upload the publish candidate" in name)
+    upload_index = next(
+        i for i, name in enumerate(names) if "Upload the publish candidate" in name
+    )
     assert build_index < compat_index < upload_index
 
 

@@ -56,7 +56,11 @@ def pinned_graph_client_requirement(pyproject_text: str | None = None) -> str:
     ``pyproject.toml`` rather than a value copied into this script, so a
     version bump never needs a script edit.
     """
-    text = pyproject_text if pyproject_text is not None else PYPROJECT.read_text(encoding="utf-8")
+    text = (
+        pyproject_text
+        if pyproject_text is not None
+        else PYPROJECT.read_text(encoding="utf-8")
+    )
     data = tomllib.loads(text)
     candidates: list[str] = list(data.get("project", {}).get("dependencies", []))
     for extra_deps in data.get("project", {}).get("optional-dependencies", {}).values():
@@ -69,7 +73,9 @@ def pinned_graph_client_requirement(pyproject_text: str | None = None) -> str:
     )
 
 
-def isolated_install_plan(wheel_path: Path, graph_client_requirement: str, venv_dir: Path) -> list[list[str]]:
+def isolated_install_plan(
+    wheel_path: Path, graph_client_requirement: str, venv_dir: Path
+) -> list[list[str]]:
     """Return the shell command plan for an isolated installed consumer.
 
     Every step targets ``venv_dir`` explicitly and installs from a built
@@ -108,7 +114,9 @@ def main(argv: list[str] | None = None) -> int:
         requirement = pinned_graph_client_requirement()
         plan = isolated_install_plan(Path(args.wheel), requirement, Path(args.venv))
     except CompatibilityGateError as error:
-        print(f"check_wheel_consumer_compatibility: CANNOT RUN: {error}", file=sys.stderr)
+        print(
+            f"check_wheel_consumer_compatibility: CANNOT RUN: {error}", file=sys.stderr
+        )
         return 2
 
     import subprocess

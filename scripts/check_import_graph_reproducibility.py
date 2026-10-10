@@ -60,7 +60,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.record:
         FIXTURE.parent.mkdir(parents=True, exist_ok=True)
         FIXTURE.write_text("\n".join(live) + "\n", encoding="utf-8")
-        print(f"check_import_graph_reproducibility: recorded {len(live)} distributions to {FIXTURE}")
+        print(
+            f"check_import_graph_reproducibility: recorded {len(live)} distributions to {FIXTURE}"
+        )
         return 0
 
     if not FIXTURE.exists():
@@ -74,14 +76,19 @@ def main(argv: list[str] | None = None) -> int:
     if live != recorded:
         only_local = sorted(set(live) - set(recorded))
         only_recorded = sorted(set(recorded) - set(live))
-        print("check_import_graph_reproducibility: import graph drifted from the recorded hosted result", file=sys.stderr)
+        print(
+            "check_import_graph_reproducibility: import graph drifted from the recorded hosted result",
+            file=sys.stderr,
+        )
         if only_local:
             print(f"  only in the local resolve: {only_local}", file=sys.stderr)
         if only_recorded:
             print(f"  only in the recorded result: {only_recorded}", file=sys.stderr)
         return 1
 
-    print(f"check_import_graph_reproducibility: {len(live)} distributions match the recorded hosted result")
+    print(
+        f"check_import_graph_reproducibility: {len(live)} distributions match the recorded hosted result"
+    )
     return 0
 
 
