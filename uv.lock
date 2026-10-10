@@ -34,7 +34,7 @@ test = [
 requires-dist = [
     { name = "anyio", specifier = ">=4.13.0" },
     { name = "cryptography", specifier = ">=50.0.1" },
-    { name = "epistemic-graph", editable = ".uv-workspace-siblings/epistemic-graph" },
+    { name = "epistemic-graph", specifier = ">=2.23.0,<3" },
     { name = "fastmcp", specifier = ">=4.0.3,<5" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "httpx2", specifier = ">=2.12.0" },
@@ -461,31 +461,18 @@ wheels = [
 
 [[package]]
 name = "epistemic-graph"
-source = { editable = ".uv-workspace-siblings/epistemic-graph" }
+version = "2.23.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "httpx" },
     { name = "msgpack" },
-    { name = "pydantic" },
-    { name = "pyoxigraph" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "httpx", specifier = ">=0.24.0" },
-    { name = "httpx", marker = "extra == 'lmcache'", specifier = ">=0.24.0" },
-    { name = "maturin", marker = "extra == 'test'", specifier = ">=1.0,<2.0" },
-    { name = "msgpack", specifier = ">=1.2.1" },
-    { name = "pydantic", specifier = ">=2,<3" },
-    { name = "pyoxigraph", specifier = ">=0.3.22" },
-    { name = "pyoxigraph", marker = "extra == 'owl'", specifier = ">=0.3.22" },
-    { name = "pytest", marker = "extra == 'test'", specifier = ">=7.0.0" },
-    { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=0.23.0" },
-    { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=4.0.0" },
-    { name = "pytest-timeout", marker = "extra == 'test'", specifier = ">=2.1.0" },
-    { name = "pytest-xdist", marker = "extra == 'test'", specifier = ">=3.0.0" },
-    { name = "pyyaml", marker = "extra == 'test'", specifier = ">=6.0.3" },
+sdist = { url = "https://files.pythonhosted.org/packages/d7/31/0371fee399e0ef7ad7d31f9f7018c26a88714d9bddea7edcee90274d14fd/epistemic_graph-2.23.0.tar.gz", hash = "sha256:efef1a47f37230dc69e5c1c482f5260951b490a89cb2cc938603811d617002e9", size = 3994880, upload-time = "2026-07-13T13:42:09.371Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f3/ef/823128fefb1840a0f381c09c3dfe54f84feb27458838df311241fa3bb99d/epistemic_graph-2.23.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:b67a98f29720eb405ab7fde317322eed6698e10466d588ca89b1acdb7193b45b", size = 36338954, upload-time = "2026-07-13T13:41:54.997Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/77/3325fcff639cc4006d54da43a04429887d3c3749fc620a067eaf19dacb89/epistemic_graph-2.23.0-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:16485b469286cefcd7059dc16c6f297edcbaf0ebfd7466e794f59b2dd4b30adb", size = 36552556, upload-time = "2026-07-13T13:41:58.205Z" },
+    { url = "https://files.pythonhosted.org/packages/24/8b/f0241761ac9c62b22bcf054b4b364956afb3a6978bcd41e51203ce37066c/epistemic_graph-2.23.0-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:b515014acad782c637f00ef7c8bed751437130319b88d129b0e8cf0543f681b8", size = 39665349, upload-time = "2026-07-13T13:42:02.179Z" },
+    { url = "https://files.pythonhosted.org/packages/47/d4/f766d43ccfadffb3b2845d88739c6563a7531bd91345900519c0ebdb1f11/epistemic_graph-2.23.0-py3-none-win_amd64.whl", hash = "sha256:5d84daf81fb32545f07071fc4d40d7a0bec1ec0835ac66a363cfdb62528ab429", size = 41606487, upload-time = "2026-07-13T13:42:06.407Z" },
 ]
-provides-extras = ["all", "ast", "datascience", "finance", "full", "lake-parity", "lmcache", "numeric", "owl", "quant", "reasoning", "server", "test"]
 
 [[package]]
 name = "exceptiongroup"
@@ -1337,37 +1324,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ad/17/2db4b414de89659144488e0d9c6c0bf0c8395841dc12d81d0532cc6ef310/pymdown_extensions-11.0.2.tar.gz", hash = "sha256:9506fcbe66fa355a775b768084334238dd6805020ac4b92bea0c0dda6f8f223d", size = 855419, upload-time = "2026-08-22T19:28:47.236Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a6/43/9f45ec4d14e596efc32c925a78104934790438b0c0628b70d741016734ad/pymdown_extensions-11.0.2-py3-none-any.whl", hash = "sha256:259910762019732caa1dfd76f3faa62c59f191d46573e80bcb1d13c0f675bbe5", size = 269929, upload-time = "2026-08-22T19:28:45.389Z" },
-]
-
-[[package]]
-name = "pyoxigraph"
-version = "0.5.11"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/52/bb/df1eebcf8cfe6783a63b871f53bddeb461cac663505b18028ad44f0ccabf/pyoxigraph-0.5.11.tar.gz", hash = "sha256:2b7d9bf02e7ed89cb0cbcf6c376aef361f1c3c9de49a7a8fb3ac231544bb6ba8", size = 5303115, upload-time = "2026-09-02T20:05:42.8Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/19/a6/d074486e9dc33ba3e7ebe1dced90e79f0fe220bf5c8720335c151f208a0c/pyoxigraph-0.5.11-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:e405b50389c0b41601516479fb81030dcada459a1b01d204371f09e6283c6c76", size = 7682857, upload-time = "2026-09-02T20:04:48.058Z" },
-    { url = "https://files.pythonhosted.org/packages/76/72/58d553f050049ef2666abca85bc60ebaf1b4ca972d73e74b80e0a8b6070c/pyoxigraph-0.5.11-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:e3097d62e4fb903238ef074744ecf54c4328cf20e7787e925e670f6f7d33d345", size = 8185478, upload-time = "2026-09-02T20:04:49.86Z" },
-    { url = "https://files.pythonhosted.org/packages/c6/91/f4e5dbfef1fc44fa673f7f614d9fe619372fa1a364c9bb11dbdd3f662639/pyoxigraph-0.5.11-cp312-cp312-win_amd64.whl", hash = "sha256:11bdebeb6d1725a885d39bd2c8d31927c2f375c23375f6a61c85e5802809e217", size = 5426489, upload-time = "2026-09-02T20:04:51.83Z" },
-    { url = "https://files.pythonhosted.org/packages/ac/33/6a5fe4bf238753c620c5c6f7e53b9b912488c792a2c1c47367077825304a/pyoxigraph-0.5.11-cp312-cp312-win_arm64.whl", hash = "sha256:d4847b3ba44796e2f796e939c89ebc6b0a37f8d70e02b4843d75e4ef01117d5f", size = 5082561, upload-time = "2026-09-02T20:04:53.464Z" },
-    { url = "https://files.pythonhosted.org/packages/f3/70/470f1fd094ad6931e6c63b1130ff75000f2e01d69d75e293c0d2910bebdf/pyoxigraph-0.5.11-cp313-cp313-manylinux_2_28_aarch64.whl", hash = "sha256:f2e94296ce723ed030784a79c02f7e780522588840c5a8c44e118bd7c0d280a4", size = 7683421, upload-time = "2026-09-02T20:04:55.259Z" },
-    { url = "https://files.pythonhosted.org/packages/2c/0a/4ee81724aa7817aa0d15d762c8acec8a90cc0e843f57c883d2e108afe543/pyoxigraph-0.5.11-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:3de0588f90a467fe2467ec76588bccb8c18e57f05f63c89b6ea921b057b37365", size = 8186692, upload-time = "2026-09-02T20:04:57.22Z" },
-    { url = "https://files.pythonhosted.org/packages/ae/29/816040a8fd51026aefa5323939424a190cd69068d5beddf91e651243f2ad/pyoxigraph-0.5.11-cp313-cp313-win_amd64.whl", hash = "sha256:8aaebe4656b9e9d7ee575dad1c1fd810bb52bfa0690f13bdd408e975ae28b868", size = 5427768, upload-time = "2026-09-02T20:04:59.647Z" },
-    { url = "https://files.pythonhosted.org/packages/01/b0/bcde9432c0044369eb1b2e48c826559787ab7b1e713a38362f1e6bc1f9f2/pyoxigraph-0.5.11-cp313-cp313-win_arm64.whl", hash = "sha256:acbc9f82b75d8c39aa80fcf3c6d9f897c9bb23776af868fb6e9e39dc054e0d2e", size = 5084241, upload-time = "2026-09-02T20:05:01.934Z" },
-    { url = "https://files.pythonhosted.org/packages/50/d2/873dad18e44c49c6d395c6b50e3dd97e45807dc645f46a9efa0f5c07798d/pyoxigraph-0.5.11-cp313-cp313t-win_amd64.whl", hash = "sha256:f6caa21919d0ebd4f165a4ade703e1f24cdd9cdb0a12fffa56440228d1106873", size = 5423392, upload-time = "2026-09-02T20:05:03.881Z" },
-    { url = "https://files.pythonhosted.org/packages/de/9c/1618c0fd2e68608c2034d122fc620a080294b26bf3c2e039ef6706e50d91/pyoxigraph-0.5.11-cp314-cp314-manylinux_2_28_aarch64.whl", hash = "sha256:18143baee09f6a3f17c096d6d58dbb3b1bf023ac5d6a52521cb2437cbf24b4a3", size = 7680302, upload-time = "2026-09-02T20:05:05.611Z" },
-    { url = "https://files.pythonhosted.org/packages/bc/e4/9ae9d8014cf039a12c1d174e202587d2b3947226f9da173391cd3e344fa0/pyoxigraph-0.5.11-cp314-cp314-manylinux_2_28_x86_64.whl", hash = "sha256:e02906504ad2ac399d1f30cbae2e47b85932d39bf89ef5c7508268faa6ae3bc4", size = 8182140, upload-time = "2026-09-02T20:05:07.496Z" },
-    { url = "https://files.pythonhosted.org/packages/5c/85/e8d325f5c001d16a67df710d14a8d8e2eb9a68c806a92dc62621ecb6bbd7/pyoxigraph-0.5.11-cp314-cp314-win_amd64.whl", hash = "sha256:81ccae2810d6f6b699c49f39a157a060b5713421e91ab7edb0ef354be04af583", size = 5421318, upload-time = "2026-09-02T20:05:09.182Z" },
-    { url = "https://files.pythonhosted.org/packages/f1/8a/0a40ecae761d3e559873e20ac07f138ede16d3ce9f23f2cbd2f6a7cf239f/pyoxigraph-0.5.11-cp314-cp314t-manylinux_2_28_aarch64.whl", hash = "sha256:b5167ed8771e9cdfeb8640c8f04aed06c295e5049752899d0ca221477ed327bb", size = 7674974, upload-time = "2026-09-02T20:05:10.997Z" },
-    { url = "https://files.pythonhosted.org/packages/50/7b/f5582bab4d251ab9fbd4de20dfee17fe88d5fa3e73fb96683ea692c66421/pyoxigraph-0.5.11-cp314-cp314t-manylinux_2_28_x86_64.whl", hash = "sha256:13ed2633b72cf4a7cd6ef405d225e1a3e505228ffadb73c5f0aea4fd65f95cd9", size = 8178709, upload-time = "2026-09-02T20:05:12.938Z" },
-    { url = "https://files.pythonhosted.org/packages/4d/d7/ba4406bdc3d3fe7a5f0e3718e2838d1b40aa73f61090d801c36ca0591468/pyoxigraph-0.5.11-cp314-cp314t-win_amd64.whl", hash = "sha256:f58294bd2695f2fc8074f9bf8a381281c737f2903159ca602f5bfc3834559174", size = 5418434, upload-time = "2026-09-02T20:05:15.458Z" },
-    { url = "https://files.pythonhosted.org/packages/38/c0/824cdec1e1ea9f6d4d05da51a843be668d3a2d02d223b780c138fcc4b2f9/pyoxigraph-0.5.11-cp38-abi3-macosx_10_14_x86_64.whl", hash = "sha256:aae8c162fd349a33255f580c665d8f950aaa875d65f64fae4a6c6fb93b5b7ccd", size = 6305518, upload-time = "2026-09-02T20:05:17.462Z" },
-    { url = "https://files.pythonhosted.org/packages/18/fe/23899fc8e17fb6bfa37d606f8afc755c05dd081bd690d360d3754ea7d520/pyoxigraph-0.5.11-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:3b67839b598fc806dbed8e99eb2d75b26b0ded6d52ca8bff1496d6a3cc002036", size = 5817955, upload-time = "2026-09-02T20:05:19.199Z" },
-    { url = "https://files.pythonhosted.org/packages/2c/27/175c5099548c76f85b1b80a8017ad98bff5bc92adc568b472d615e1f712d/pyoxigraph-0.5.11-cp38-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:96c9c4d117a0f4d0eae2c9092a490c6c51b0b8114ab7b126b8dfb0a8f0be2745", size = 7681128, upload-time = "2026-09-02T20:05:21.084Z" },
-    { url = "https://files.pythonhosted.org/packages/9e/3a/9ec824aca0377ba56a7834222454c19392ff85b00e55fff9894f5211d655/pyoxigraph-0.5.11-cp38-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:ed906c05164d4766046a899f5944b4cf63309e717e3f464b2c0c80e8de91fa16", size = 8185704, upload-time = "2026-09-02T20:05:23.211Z" },
-    { url = "https://files.pythonhosted.org/packages/98/25/5b0b9ecdebbd7600c3642be4b090cbe1c9ac5bae440c4bf2e5f82311cd0c/pyoxigraph-0.5.11-cp38-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:1c0462f03c4e3789fdee48faaab0edf780379fe812d1d70073eae14da86eadc9", size = 8879152, upload-time = "2026-09-02T20:05:25.423Z" },
-    { url = "https://files.pythonhosted.org/packages/ff/b4/fda0014c1ee5bc7950dfb7b9ce1c5f0bbb611d61560a9ef7e38dba9b83af/pyoxigraph-0.5.11-cp38-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:c4f2c4c907dd751cc7f7966217dcb33ecb89c89c30b1992665ae965ec5064f01", size = 9412532, upload-time = "2026-09-02T20:05:27.772Z" },
-    { url = "https://files.pythonhosted.org/packages/72/83/1588895bad95d257529a0b5bf47872f0c49602dae3cf2f6f1bbe9a5d583c/pyoxigraph-0.5.11-cp38-abi3-win_amd64.whl", hash = "sha256:1057b853663e3fa296f92dba3bb4145f545600261da0943266f4f449d8f7f0a9", size = 5424225, upload-time = "2026-09-02T20:05:29.95Z" },
-    { url = "https://files.pythonhosted.org/packages/8a/61/fdb038cff915024cbfd5f6b8637e747c2e054261206a376aede1ee71588b/pyoxigraph-0.5.11-cp38-abi3-win_arm64.whl", hash = "sha256:ec99a70bfc9683dcecaea1f3000b6d6ba9c34a641dda48e660c456454f642ee6", size = 5083910, upload-time = "2026-09-02T20:05:31.573Z" },
 ]
 
 [[package]]

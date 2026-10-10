@@ -89,24 +89,6 @@ docs = [
 [tool.uv]
 default-groups = ["test"]
 
-[tool.uv.sources]
-# D-UVN-1 (mirrors agent-utilities' own [tool.uv.sources]): PyPI and the
-# versioned epistemic-graph GitHub releases stop at 2.23.0, below this SDK's
-# >=2.27.0 floor (the `connector_pack`/`generated.source_ingestion` contracts
-# this SDK imports). epistemic-graph's real 2.27.0 wheel is only published as
-# an asset on its rolling `engine-main` GitHub pre-release (too large for
-# PyPI), so a plain PyPI dependency can never let `uv lock` resolve.
-#
-# Keep the engine as a plain editable PATH source, exactly like AU's
-# `.uv-workspace-siblings/epistemic-graph`, so lock/resolution reads real
-# 2.27.0 metadata without a Rust/maturin source build. CI never actually
-# builds through this path: `scripts/bootstrap.sh` already runs
-# `uv sync --frozen --no-install-package epistemic-graph` and gets the
-# generated contract from the separate `.ci/epistemic-graph` checkout (see
-# scripts/bootstrap_epistemic_graph_contract.sh); this source exists only so
-# `uv lock`/`uv sync --frozen` have a resolvable 2.27.0+ metadata source.
-epistemic-graph = { path = ".uv-workspace-siblings/epistemic-graph", editable = true }
-
 [tool.ruff]
 line-length = 88
 target-version = "py312"

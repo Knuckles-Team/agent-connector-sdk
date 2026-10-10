@@ -37,9 +37,6 @@ scratch/
 *.log
 .env
 .envrc
-# AU-style local fast-path vendor sibling for epistemic-graph (see
-# [tool.uv.sources] in pyproject.toml); never committed, machine-local only.
-.uv-workspace-siblings/
 # kiss check writes a working cache under .kiss/; its thresholds are tracked
 # in .config/kiss.toml.
 .kiss/
