@@ -21,10 +21,8 @@
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R002",
       "title": "SDK is the sole path for repository-native codebase hydration",
-      "delivery_state": "LANDED",
-      "landed_in": [
-        "a0d3aa8baf9a"
-      ],
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
       "verified_by": []
     },
     {
@@ -32,7 +30,6 @@
       "title": "Repository ref walk traverses each Git tree once with batched reads",
       "delivery_state": "LANDED",
       "landed_in": [
-        "10f03be4cabf",
         "9a6fe1ddcf26"
       ],
       "verified_by": []

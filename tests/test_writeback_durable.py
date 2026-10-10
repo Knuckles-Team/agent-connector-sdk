@@ -140,6 +140,7 @@ class RecordingEgClient:
         return self.responses.pop(0)
 
 
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R002")
 async def test_generated_eg_adapter_uses_typed_ops_and_idempotency_keys() -> None:
     fixture = make_writeback_fixture()
     memory = MemoryLedger()
@@ -214,6 +215,7 @@ async def _registered_with_uncertainty(
     return _RestartableApply(fixture, ledger, audit, connector)
 
 
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R005")
 async def test_uncertain_effect_is_reconciled_after_process_restart() -> None:
     state = await _registered_with_uncertainty(FixtureUncertainty.AFTER_EFFECT)
     fixture = state.fixture
@@ -233,6 +235,7 @@ async def test_uncertain_effect_is_reconciled_after_process_restart() -> None:
     assert fixture.transport.attempts == 1
 
 
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R005")
 async def test_proven_no_effect_allows_one_restart_retry() -> None:
     state = await _registered_with_uncertainty(FixtureUncertainty.BEFORE_EFFECT)
     fixture = state.fixture
@@ -248,6 +251,7 @@ async def test_proven_no_effect_allows_one_restart_retry() -> None:
     assert fixture.transport.attempts == 2
 
 
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R003")
 async def test_durable_authorization_resolver_fails_closed() -> None:
     fixture = make_writeback_fixture()
     ledger = MemoryLedger()

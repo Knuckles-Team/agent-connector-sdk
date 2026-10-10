@@ -12,7 +12,6 @@
       "title": "RUM, security-audit, and CI/CD events join the durable source pipeline",
       "delivery_state": "LANDED",
       "landed_in": [
-        "9635897a4cb7",
         "c44284a671b3"
       ],
       "verified_by": []
