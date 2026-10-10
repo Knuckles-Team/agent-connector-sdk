@@ -64,6 +64,7 @@
       "title": "Hosted CI reproduces the exact pinned dependency import locally",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "0c1f49ced769",
         "42b930057c3e"
       ],
       "verified_by": [
