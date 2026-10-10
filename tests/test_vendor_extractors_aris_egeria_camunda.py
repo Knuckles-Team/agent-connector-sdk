@@ -1,6 +1,7 @@
 """SDK-SOURCE-INGEST-R006.29/30/31: ARIS, Egeria, Camunda vendor extractor ports."""
 
 from __future__ import annotations
+
 import pytest
 
 from agent_connector_sdk.ingest import ChangeSet

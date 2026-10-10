@@ -56,8 +56,8 @@
         "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_writeback_audit_reservation.py:12",
-        "tests/test_writeback_audit_reservation.py:26"
+        "tests/test_writeback_audit_reservation.py:13",
+        "tests/test_writeback_audit_reservation.py:27"
       ]
     },
     {

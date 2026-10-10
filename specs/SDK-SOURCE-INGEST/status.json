@@ -161,11 +161,11 @@
         "9511ab38c04c"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_contract.py:29",
-        "tests/test_vendor_extractors_contract.py:39",
-        "tests/test_vendor_extractors_contract.py:50",
-        "tests/test_vendor_extractors_uptime_kuma.py:22",
-        "tests/test_vendor_extractors_uptime_kuma.py:52"
+        "tests/test_vendor_extractors_contract.py:30",
+        "tests/test_vendor_extractors_contract.py:40",
+        "tests/test_vendor_extractors_contract.py:51",
+        "tests/test_vendor_extractors_uptime_kuma.py:23",
+        "tests/test_vendor_extractors_uptime_kuma.py:53"
       ]
     },
     {
@@ -178,11 +178,11 @@
         "bd6e0d836c92"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_ansible.py:22",
-        "tests/test_vendor_extractors_ansible.py:45",
-        "tests/test_vendor_extractors_ansible.py:54",
-        "tests/test_vendor_extractors_ansible.py:59",
-        "tests/test_vendor_extractors_ansible.py:68"
+        "tests/test_vendor_extractors_ansible.py:23",
+        "tests/test_vendor_extractors_ansible.py:46",
+        "tests/test_vendor_extractors_ansible.py:55",
+        "tests/test_vendor_extractors_ansible.py:60",
+        "tests/test_vendor_extractors_ansible.py:69"
       ]
     },
     {
@@ -194,11 +194,11 @@
         "9511ab38c04c"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_caddy.py:37",
-        "tests/test_vendor_extractors_caddy.py:55",
-        "tests/test_vendor_extractors_caddy.py:60",
-        "tests/test_vendor_extractors_caddy.py:65",
-        "tests/test_vendor_extractors_caddy.py:74"
+        "tests/test_vendor_extractors_caddy.py:38",
+        "tests/test_vendor_extractors_caddy.py:56",
+        "tests/test_vendor_extractors_caddy.py:61",
+        "tests/test_vendor_extractors_caddy.py:66",
+        "tests/test_vendor_extractors_caddy.py:75"
       ]
     },
     {
@@ -210,11 +210,11 @@
         "9511ab38c04c"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_home_assistant.py:22",
-        "tests/test_vendor_extractors_home_assistant.py:52",
-        "tests/test_vendor_extractors_home_assistant.py:59",
-        "tests/test_vendor_extractors_home_assistant.py:64",
-        "tests/test_vendor_extractors_home_assistant.py:73"
+        "tests/test_vendor_extractors_home_assistant.py:23",
+        "tests/test_vendor_extractors_home_assistant.py:53",
+        "tests/test_vendor_extractors_home_assistant.py:60",
+        "tests/test_vendor_extractors_home_assistant.py:65",
+        "tests/test_vendor_extractors_home_assistant.py:74"
       ]
     },
     {
@@ -226,11 +226,11 @@
         "3735e4434463"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_archimate.py:26",
-        "tests/test_vendor_extractors_archimate.py:56",
-        "tests/test_vendor_extractors_archimate.py:71",
-        "tests/test_vendor_extractors_archimate.py:76",
-        "tests/test_vendor_extractors_archimate.py:88"
+        "tests/test_vendor_extractors_archimate.py:27",
+        "tests/test_vendor_extractors_archimate.py:57",
+        "tests/test_vendor_extractors_archimate.py:72",
+        "tests/test_vendor_extractors_archimate.py:77",
+        "tests/test_vendor_extractors_archimate.py:89"
       ]
     },
     {
@@ -242,11 +242,11 @@
         "3735e4434463"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_kafka.py:26",
-        "tests/test_vendor_extractors_kafka.py:51",
-        "tests/test_vendor_extractors_kafka.py:60",
-        "tests/test_vendor_extractors_kafka.py:65",
-        "tests/test_vendor_extractors_kafka.py:77"
+        "tests/test_vendor_extractors_kafka.py:27",
+        "tests/test_vendor_extractors_kafka.py:52",
+        "tests/test_vendor_extractors_kafka.py:61",
+        "tests/test_vendor_extractors_kafka.py:66",
+        "tests/test_vendor_extractors_kafka.py:78"
       ]
     },
     {
@@ -258,10 +258,10 @@
         "3735e4434463"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_salesforce.py:25",
-        "tests/test_vendor_extractors_salesforce.py:58",
-        "tests/test_vendor_extractors_salesforce.py:63",
-        "tests/test_vendor_extractors_salesforce.py:72"
+        "tests/test_vendor_extractors_salesforce.py:26",
+        "tests/test_vendor_extractors_salesforce.py:59",
+        "tests/test_vendor_extractors_salesforce.py:64",
+        "tests/test_vendor_extractors_salesforce.py:73"
       ]
     },
     {
@@ -273,11 +273,11 @@
         "bbf11894fed5"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_lgtm.py:30",
-        "tests/test_vendor_extractors_lgtm.py:56",
-        "tests/test_vendor_extractors_lgtm.py:71",
-        "tests/test_vendor_extractors_lgtm.py:76",
-        "tests/test_vendor_extractors_lgtm.py:91"
+        "tests/test_vendor_extractors_lgtm.py:31",
+        "tests/test_vendor_extractors_lgtm.py:57",
+        "tests/test_vendor_extractors_lgtm.py:72",
+        "tests/test_vendor_extractors_lgtm.py:77",
+        "tests/test_vendor_extractors_lgtm.py:92"
       ]
     },
     {
@@ -289,10 +289,10 @@
         "bbf11894fed5"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_microsoft.py:26",
-        "tests/test_vendor_extractors_microsoft.py:59",
-        "tests/test_vendor_extractors_microsoft.py:64",
-        "tests/test_vendor_extractors_microsoft.py:76"
+        "tests/test_vendor_extractors_microsoft.py:27",
+        "tests/test_vendor_extractors_microsoft.py:60",
+        "tests/test_vendor_extractors_microsoft.py:65",
+        "tests/test_vendor_extractors_microsoft.py:77"
       ]
     },
     {
@@ -304,10 +304,10 @@
         "bbf11894fed5"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_technitium_dns.py:26",
-        "tests/test_vendor_extractors_technitium_dns.py:57",
-        "tests/test_vendor_extractors_technitium_dns.py:62",
-        "tests/test_vendor_extractors_technitium_dns.py:74"
+        "tests/test_vendor_extractors_technitium_dns.py:27",
+        "tests/test_vendor_extractors_technitium_dns.py:58",
+        "tests/test_vendor_extractors_technitium_dns.py:63",
+        "tests/test_vendor_extractors_technitium_dns.py:75"
       ]
     },
     {
@@ -319,10 +319,10 @@
         "e4f6426897ba"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_portainer.py:35",
-        "tests/test_vendor_extractors_portainer.py:75",
-        "tests/test_vendor_extractors_portainer.py:80",
-        "tests/test_vendor_extractors_portainer.py:92"
+        "tests/test_vendor_extractors_portainer.py:36",
+        "tests/test_vendor_extractors_portainer.py:76",
+        "tests/test_vendor_extractors_portainer.py:81",
+        "tests/test_vendor_extractors_portainer.py:93"
       ]
     },
     {
@@ -334,10 +334,10 @@
         "e4f6426897ba"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_emerald.py:44",
-        "tests/test_vendor_extractors_emerald.py:69",
-        "tests/test_vendor_extractors_emerald.py:79",
-        "tests/test_vendor_extractors_emerald.py:84"
+        "tests/test_vendor_extractors_emerald.py:45",
+        "tests/test_vendor_extractors_emerald.py:70",
+        "tests/test_vendor_extractors_emerald.py:80",
+        "tests/test_vendor_extractors_emerald.py:85"
       ]
     },
     {
@@ -349,11 +349,11 @@
         "e4f6426897ba"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_mealie.py:32",
-        "tests/test_vendor_extractors_mealie.py:62",
-        "tests/test_vendor_extractors_mealie.py:77",
-        "tests/test_vendor_extractors_mealie.py:82",
-        "tests/test_vendor_extractors_mealie.py:97"
+        "tests/test_vendor_extractors_mealie.py:33",
+        "tests/test_vendor_extractors_mealie.py:63",
+        "tests/test_vendor_extractors_mealie.py:78",
+        "tests/test_vendor_extractors_mealie.py:83",
+        "tests/test_vendor_extractors_mealie.py:98"
       ]
     },
     {
@@ -365,11 +365,11 @@
         "bd6e0d836c92"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_keycloak.py:30",
-        "tests/test_vendor_extractors_keycloak.py:57",
-        "tests/test_vendor_extractors_keycloak.py:71",
-        "tests/test_vendor_extractors_keycloak.py:76",
-        "tests/test_vendor_extractors_keycloak.py:91"
+        "tests/test_vendor_extractors_keycloak.py:31",
+        "tests/test_vendor_extractors_keycloak.py:58",
+        "tests/test_vendor_extractors_keycloak.py:72",
+        "tests/test_vendor_extractors_keycloak.py:77",
+        "tests/test_vendor_extractors_keycloak.py:92"
       ]
     },
     {
@@ -381,10 +381,10 @@
         "bd6e0d836c92"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_odoo.py:26",
-        "tests/test_vendor_extractors_odoo.py:54",
-        "tests/test_vendor_extractors_odoo.py:59",
-        "tests/test_vendor_extractors_odoo.py:71"
+        "tests/test_vendor_extractors_odoo.py:27",
+        "tests/test_vendor_extractors_odoo.py:55",
+        "tests/test_vendor_extractors_odoo.py:60",
+        "tests/test_vendor_extractors_odoo.py:72"
       ]
     },
     {
@@ -396,11 +396,11 @@
         "bd6e0d836c92"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_nextcloud.py:104",
-        "tests/test_vendor_extractors_nextcloud.py:40",
-        "tests/test_vendor_extractors_nextcloud.py:68",
-        "tests/test_vendor_extractors_nextcloud.py:87",
-        "tests/test_vendor_extractors_nextcloud.py:92"
+        "tests/test_vendor_extractors_nextcloud.py:105",
+        "tests/test_vendor_extractors_nextcloud.py:41",
+        "tests/test_vendor_extractors_nextcloud.py:69",
+        "tests/test_vendor_extractors_nextcloud.py:88",
+        "tests/test_vendor_extractors_nextcloud.py:93"
       ]
     },
     {
@@ -413,8 +413,8 @@
         "a41cc47d27d3"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_wger_okta_twenty.py:62",
-        "tests/test_vendor_extractors_wger_okta_twenty.py:89"
+        "tests/test_vendor_extractors_wger_okta_twenty.py:63",
+        "tests/test_vendor_extractors_wger_okta_twenty.py:90"
       ]
     },
     {
@@ -427,8 +427,8 @@
         "a41cc47d27d3"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_wger_okta_twenty.py:121",
-        "tests/test_vendor_extractors_wger_okta_twenty.py:97"
+        "tests/test_vendor_extractors_wger_okta_twenty.py:122",
+        "tests/test_vendor_extractors_wger_okta_twenty.py:98"
       ]
     },
     {
@@ -441,8 +441,8 @@
         "a41cc47d27d3"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_wger_okta_twenty.py:129",
-        "tests/test_vendor_extractors_wger_okta_twenty.py:166"
+        "tests/test_vendor_extractors_wger_okta_twenty.py:130",
+        "tests/test_vendor_extractors_wger_okta_twenty.py:167"
       ]
     },
     {
@@ -454,8 +454,8 @@
         "e626b457bb1d"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_archer_infra_a2a.py:29",
-        "tests/test_vendor_extractors_archer_infra_a2a.py:51"
+        "tests/test_vendor_extractors_archer_infra_a2a.py:30",
+        "tests/test_vendor_extractors_archer_infra_a2a.py:52"
       ]
     },
     {
@@ -467,8 +467,8 @@
         "e626b457bb1d"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_archer_infra_a2a.py:59",
-        "tests/test_vendor_extractors_archer_infra_a2a.py:83"
+        "tests/test_vendor_extractors_archer_infra_a2a.py:60",
+        "tests/test_vendor_extractors_archer_infra_a2a.py:84"
       ]
     },
     {
@@ -480,8 +480,8 @@
         "e626b457bb1d"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_archer_infra_a2a.py:117",
-        "tests/test_vendor_extractors_archer_infra_a2a.py:91"
+        "tests/test_vendor_extractors_archer_infra_a2a.py:118",
+        "tests/test_vendor_extractors_archer_infra_a2a.py:92"
       ]
     },
     {
@@ -493,8 +493,8 @@
         "3735e4434463"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:29",
-        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:62"
+        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:30",
+        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:63"
       ]
     },
     {
@@ -506,8 +506,8 @@
         "3735e4434463"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:102",
-        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:70"
+        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:103",
+        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:71"
       ]
     },
     {
@@ -519,8 +519,8 @@
         "3735e4434463"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:110",
-        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:151"
+        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:111",
+        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:152"
       ]
     },
     {
@@ -532,8 +532,8 @@
         "9d8b3f7f89f1"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_servicenow_ciso_social.py:37",
-        "tests/test_vendor_extractors_servicenow_ciso_social.py:67"
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:38",
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:68"
       ]
     },
     {
@@ -545,8 +545,8 @@
         "9d8b3f7f89f1"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_servicenow_ciso_social.py:110",
-        "tests/test_vendor_extractors_servicenow_ciso_social.py:75"
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:111",
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:76"
       ]
     },
     {
@@ -558,9 +558,9 @@
         "9d8b3f7f89f1"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_servicenow_ciso_social.py:118",
-        "tests/test_vendor_extractors_servicenow_ciso_social.py:142",
-        "tests/test_vendor_extractors_servicenow_ciso_social.py:151"
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:119",
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:143",
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:152"
       ]
     },
     {
@@ -572,8 +572,8 @@
         "3735e4434463"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_aris_egeria_camunda.py:29",
-        "tests/test_vendor_extractors_aris_egeria_camunda.py:53"
+        "tests/test_vendor_extractors_aris_egeria_camunda.py:30",
+        "tests/test_vendor_extractors_aris_egeria_camunda.py:54"
       ]
     },
     {
@@ -585,8 +585,8 @@
         "3735e4434463"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_aris_egeria_camunda.py:61",
-        "tests/test_vendor_extractors_aris_egeria_camunda.py:92"
+        "tests/test_vendor_extractors_aris_egeria_camunda.py:62",
+        "tests/test_vendor_extractors_aris_egeria_camunda.py:93"
       ]
     },
     {
@@ -598,8 +598,8 @@
         "3735e4434463"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_aris_egeria_camunda.py:100",
-        "tests/test_vendor_extractors_aris_egeria_camunda.py:121"
+        "tests/test_vendor_extractors_aris_egeria_camunda.py:101",
+        "tests/test_vendor_extractors_aris_egeria_camunda.py:122"
       ]
     },
     {
@@ -610,7 +610,7 @@
         "ffb9260d7602"
       ],
       "verified_by": [
-        "tests/test_schema_drift.py:208"
+        "tests/test_schema_drift.py:206"
       ]
     },
     {

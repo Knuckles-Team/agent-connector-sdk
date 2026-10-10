@@ -1,6 +1,7 @@
 """SDK-SOURCE-INGEST-R006.20/21/22: Archer, Infra, A2A vendor extractor ports."""
 
 from __future__ import annotations
+
 import pytest
 
 from agent_connector_sdk.ingest import ChangeSet
