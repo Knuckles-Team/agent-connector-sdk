@@ -56,21 +56,25 @@
     {
       "id": "SDK-SOURCE-INGEST-R002",
       "title": "SDK drift classifier quarantines incompatible schema changes",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "c45d87f9e0c4"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_schema_drift.py:181"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R003",
       "title": "SDK records and pauses on proposed schema repairs",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "05bcf5184cb3",
         "23f241b07560"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_schema_repair.py:138"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R004",
@@ -426,11 +430,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R007",
       "title": "Drift gate runs inside the SDK connector-sync runner",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "cb1416a5ac05"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_schema_drift.py:208"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R008",
