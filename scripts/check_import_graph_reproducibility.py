@@ -9,9 +9,9 @@ release check. Both sides install from the same committed ``uv.lock``, so the
 graph is deterministic by construction; this script makes that graph an
 explicit, comparable artifact instead of an implicit assumption.
 
-``compute_import_graph`` returns the sorted ``name==version`` list of every
-distribution installed in the current interpreter (the pinned environment
-``uv sync --frozen`` built). Hosted CI's recorded result is committed at
+``compute_import_graph`` returns the sorted ``name==version`` runtime
+dependency closure of the package (extras, groups and inapplicable markers
+excluded, so extra groups installed by other gates do not matter). Hosted CI's recorded result is committed at
 ``tests/fixtures/pinned_import_graph.txt`` (regenerate it with
 ``--record`` whenever ``uv.lock`` changes, from a hosted or an equivalently
 pinned run); a local run that drifts from that recording -- a stale lock, an
@@ -24,6 +24,7 @@ Usage: ``python3 scripts/check_import_graph_reproducibility.py`` (compare) or
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from importlib import metadata
 from pathlib import Path
@@ -32,14 +33,39 @@ ROOT = Path(__file__).resolve().parent.parent
 FIXTURE = ROOT / "tests" / "fixtures" / "pinned_import_graph.txt"
 
 
-def compute_import_graph() -> list[str]:
-    """Return the sorted ``name==version`` graph of the current environment."""
+ROOT_DISTRIBUTION = "agent-connector-sdk"
+
+
+def _canonical(name: str) -> str:
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def compute_import_graph(root: str = ROOT_DISTRIBUTION) -> list[str]:
+    """Return the sorted ``name==version`` runtime closure of ``root``.
+
+    Walks ``importlib.metadata.requires`` from the root distribution, skipping
+    requirements whose environment marker does not apply and any extra or
+    dependency group that was not requested, so optional groups installed by
+    other gates (docs, test) never change the result.
+    """
+    from packaging.requirements import Requirement
+
     seen: dict[str, str] = {}
-    for dist in metadata.distributions():
-        name = dist.metadata.get("Name")
-        version = dist.version
-        if name and version:
-            seen[name.lower()] = f"{name.lower()}=={version}"
+    pending = [root]
+    while pending:
+        key = _canonical(pending.pop())
+        if key in seen:
+            continue
+        try:
+            dist = metadata.distribution(key)
+        except metadata.PackageNotFoundError:
+            continue
+        seen[key] = f"{key}=={dist.version}"
+        for raw in dist.requires or []:
+            req = Requirement(raw)
+            if req.marker is not None and not req.marker.evaluate({"extra": ""}):
+                continue
+            pending.append(req.name)
     return sorted(seen.values())
 
 
