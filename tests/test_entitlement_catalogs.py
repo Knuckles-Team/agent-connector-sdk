@@ -42,7 +42,10 @@ def test_vaultwarden_shaped_catalog_resolves_matching_subset() -> None:
 
 
 def test_unmatched_capability_resolves_empty_fail_closed() -> None:
-    assert catalog_entitled_resources(["managed-host:host-z"], _SYSTEMS_MANAGER_CATALOG) == ()
+    assert (
+        catalog_entitled_resources(["managed-host:host-z"], _SYSTEMS_MANAGER_CATALOG)
+        == ()
+    )
     assert catalog_entitled_resources([], _KEYCLOAK_CATALOG) == ()
 
 

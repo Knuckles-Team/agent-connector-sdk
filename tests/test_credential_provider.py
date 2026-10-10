@@ -6,7 +6,10 @@ import logging
 
 import pytest
 
-from agent_connector_sdk.credentials.provider import CredentialProvider, CredentialScopeError
+from agent_connector_sdk.credentials.provider import (
+    CredentialProvider,
+    CredentialScopeError,
+)
 from agent_connector_sdk.credentials.references import parse_secret_reference
 
 

@@ -58,9 +58,8 @@ def test_file_lock_times_out_when_held(tmp_path: Path) -> None:
     thread.start()
     assert ready.wait(timeout=5)
     try:
-        with pytest.raises(TimeoutError):
-            with file_lock(target, timeout=0.1):
-                pass
+        with pytest.raises(TimeoutError), file_lock(target, timeout=0.1):
+            pass
     finally:
         release.set()
         thread.join(timeout=5)

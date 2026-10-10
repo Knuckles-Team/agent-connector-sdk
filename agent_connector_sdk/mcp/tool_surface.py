@@ -160,7 +160,15 @@ def register_tool_surface(
         ValueError: a registrar entry is malformed, or a verbose tool name
             collides with an already-registered condensed tool name.
     """
-    del service, client_cls, get_client, manifest, tool_prefix, verbose_targets, action_providers
+    del (
+        service,
+        client_cls,
+        get_client,
+        manifest,
+        tool_prefix,
+        verbose_targets,
+        action_providers,
+    )
     tags = _register_condensed(
         mcp, _condensed_entries(tool_registry, tools_module, registrars)
     )
