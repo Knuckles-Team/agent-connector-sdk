@@ -37,6 +37,7 @@ def _series(**overrides: object) -> tuple[MacroSeriesObservation, ...]:
     return macro_series_from_fred(**fields)
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R005")
 def test_each_observation_preserves_its_own_vintage_date() -> None:
     observations = _series()
 
