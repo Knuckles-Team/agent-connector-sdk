@@ -263,6 +263,7 @@ async def _single_page_sweep(
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001")
 async def test_rum_event_carries_identity_time_privacy_and_digest() -> None:
     preset = _preset("rum-stream", "rum_events")
     session = FakeEventSession(
@@ -280,6 +281,7 @@ async def test_rum_event_carries_identity_time_privacy_and_digest() -> None:
     assert len(record.payload["payload_digest"]) == 64
 
 
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001")
 async def test_rum_event_refuses_raw_credential_fields() -> None:
     preset = _preset("rum-stream", "rum_events")
     session = FakeEventSession(
@@ -295,6 +297,7 @@ async def test_rum_event_refuses_raw_credential_fields() -> None:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001")
 async def test_audit_event_retains_outcome_and_chain_reference() -> None:
     preset = _preset("audit-stream", "audit_events")
     session = FakeEventSession(

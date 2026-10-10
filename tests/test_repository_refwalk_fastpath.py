@@ -36,6 +36,7 @@ def _init_repo(root: Path) -> None:
     _git(root, "config", "user.email", "fixture@example.invalid")
 
 
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R003")
 async def test_distinct_commits_with_one_tree_walk_once(tmp_path: Path) -> None:
     root = tmp_path / "repo"
     _init_repo(root)
@@ -74,6 +75,7 @@ async def test_distinct_commits_with_one_tree_walk_once(tmp_path: Path) -> None:
     ]
 
 
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R003")
 async def test_batch_matches_git_recursive_listing(tmp_path: Path) -> None:
     root = tmp_path / "repo"
     _init_repo(root)

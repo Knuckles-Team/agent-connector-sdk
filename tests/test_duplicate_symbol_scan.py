@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from agent_connector_sdk.testing.duplicate_symbol_scan import (
     MANIFEST_AND_CERTIFY_SURFACE_SYMBOLS,
     DuplicateDefinitionResult,
@@ -23,6 +25,7 @@ def test_the_tracked_surface_names_the_sdks_manifest_and_certify_exports() -> No
     )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R015.1")
 def test_a_package_importing_the_sdk_symbol_is_clean(tmp_path: Path) -> None:
     _write(
         tmp_path / "clean_pkg" / "server.py",
@@ -36,6 +39,7 @@ def test_a_package_importing_the_sdk_symbol_is_clean(tmp_path: Path) -> None:
     assert result.offending_files == ()
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R015.1")
 def test_a_locally_defined_class_is_caught(tmp_path: Path) -> None:
     _write(
         tmp_path / "legacy_pkg" / "schema.py",
@@ -48,6 +52,7 @@ def test_a_locally_defined_class_is_caught(tmp_path: Path) -> None:
     assert result.offending_files == ("schema.py",)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R015.1")
 def test_a_locally_defined_function_is_caught(tmp_path: Path) -> None:
     _write(
         tmp_path / "legacy_pkg" / "publisher.py",
@@ -60,6 +65,7 @@ def test_a_locally_defined_function_is_caught(tmp_path: Path) -> None:
     assert result.offending_files == ("publisher.py",)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R015.1")
 def test_a_mention_in_a_string_or_comment_is_not_a_false_positive(
     tmp_path: Path,
 ) -> None:
@@ -73,6 +79,7 @@ def test_a_mention_in_a_string_or_comment_is_not_a_false_positive(
     assert result.clean
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R015.1")
 def test_a_file_that_fails_to_parse_is_skipped_not_fabricated_clean(
     tmp_path: Path,
 ) -> None:
