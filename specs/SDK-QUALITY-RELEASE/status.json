@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "SDK-QUALITY-RELEASE",
   "owner_repo": "agent-connector-sdk",
-  "delivery_state": "SPECIFIED",
+  "delivery_state": "LANDED",
   "requirement_ids": [
     "SDK-QUALITY-RELEASE-R001",
     "SDK-QUALITY-RELEASE-R002",
@@ -14,9 +14,17 @@
     {
       "id": "SDK-QUALITY-RELEASE-R001",
       "title": "SDK release builds against a published compatible graph-client wheel",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "42b930057c3e"
+      ],
+      "verified_by": [
+        "tests/gates/test_workflow_contract.py:116",
+        "tests/test_release_quality_r001_r005.py:40",
+        "tests/test_release_quality_r001_r005.py:47",
+        "tests/test_release_quality_r001_r005.py:53",
+        "tests/test_release_quality_r001_r005.py:71"
+      ]
     },
     {
       "id": "SDK-QUALITY-RELEASE-R002",
@@ -28,9 +36,13 @@
     {
       "id": "SDK-QUALITY-RELEASE-R003",
       "title": "Release workflow builds with the pinned managed Python, not the system one",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "42b930057c3e"
+      ],
+      "verified_by": [
+        "tests/gates/test_workflow_contract.py:91"
+      ]
     },
     {
       "id": "SDK-QUALITY-RELEASE-R004",
@@ -44,9 +56,14 @@
     {
       "id": "SDK-QUALITY-RELEASE-R005",
       "title": "Hosted CI reproduces the exact pinned dependency import locally",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "42b930057c3e"
+      ],
+      "verified_by": [
+        "tests/test_release_quality_r001_r005.py:79",
+        "tests/test_release_quality_r001_r005.py:94"
+      ]
     }
   ]
 }
