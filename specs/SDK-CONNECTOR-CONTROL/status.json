@@ -49,8 +49,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R001",
       "title": "ConnectorPackClient uses a deterministic idempotency key",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "dcc7d285ccc9"
+      ],
       "verified_by": [
         "tests/test_contracts_and_sink.py:511"
       ]
@@ -58,8 +60,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R002",
       "title": "Contract pin travels as a claim attribute, not recomputed downstream",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "dcc7d285ccc9"
+      ],
       "verified_by": [
         "tests/test_artifacts_discovery.py:102"
       ]
@@ -77,8 +81,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R004",
       "title": "Contract-pin verification owned by the SDK's own test kit",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "dcc7d285ccc9"
+      ],
       "verified_by": [
         "tests/test_artifacts_discovery.py:111"
       ]
@@ -86,8 +92,11 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R005",
       "title": "Pack publisher and source submission use generated graph-client types",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "584fb45cdf24",
+        "602215e2ddd8"
+      ],
       "verified_by": [
         "tests/test_contracts_and_sink.py:54"
       ]
@@ -227,8 +236,11 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R016",
       "title": "Connector base settings live in the SDK's own config module",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "584fb45cdf24",
+        "602215e2ddd8"
+      ],
       "verified_by": [
         "tests/test_foundation.py:139"
       ]
@@ -334,8 +346,12 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R027",
       "title": "SDK resolves the selected provider-runtime profile for a multi-backend connector",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "284fb12a19ed",
+        "584fb45cdf24",
+        "602215e2ddd8"
+      ],
       "verified_by": []
     },
     {
@@ -352,8 +368,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R028.1",
       "title": "A standalone, typed SSRF egress-destination check and pinned-address transport",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "284fb12a19ed"
+      ],
       "verified_by": []
     },
     {
@@ -366,22 +384,28 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R029",
       "title": "SDK exposes a structured configuration singleton, not only a flat `setting()` lookup",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "284fb12a19ed"
+      ],
       "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R030",
       "title": "SDK provides GraphQL introspection context helpers for connector tools",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "284fb12a19ed"
+      ],
       "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R031",
       "title": "SDK's client-credentials token provider accepts a literal client secret, matching the signature connectors already call",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "284fb12a19ed"
+      ],
       "verified_by": []
     },
     {
