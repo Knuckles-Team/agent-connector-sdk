@@ -107,6 +107,9 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 timeout = 120
 addopts = "-p no:cacheprovider"
+markers = [
+    "spec: binds a test to a spec requirement ID",
+]
 
 [tool.bandit]
 exclude_dirs = ["tests", "scripts"]
