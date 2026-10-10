@@ -92,7 +92,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
       - name: Full test suite (push to main / release tag; manual-stage hook)
         if: github.event_name != 'pull_request'
-        run: uvx --from pre-commit==4.6.0 pre-commit run pytest --hook-stage pre-push --all-files
+        run: uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml pytest --hook-stage pre-push --all-files
       - name: Test suite -- pull request fast subset
         if: github.event_name == 'pull_request'
         env:
