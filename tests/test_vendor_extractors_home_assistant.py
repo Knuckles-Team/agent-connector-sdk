@@ -1,6 +1,7 @@
 """SDK-SOURCE-INGEST-R006.4: the Home Assistant vendor extractor port."""
 
 from __future__ import annotations
+import pytest
 
 from agent_connector_sdk.ingest import ChangeSet, Entity
 from agent_connector_sdk.vendor_extractors import (
@@ -18,6 +19,7 @@ class _FakeClient:
         return self._states
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.4")
 def test_extract_returns_a_change_set_of_configuration_item_entities() -> None:
     config = {
         "client": _FakeClient(
@@ -47,16 +49,19 @@ def test_extract_returns_a_change_set_of_configuration_item_entities() -> None:
     assert result.relationships == ()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.4")
 def test_extract_skips_states_without_an_entity_id() -> None:
     config = {"client": _FakeClient([{"state": "on"}])}
 
     assert extract(config).entities == ()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.4")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.4")
 def test_extract_returns_an_empty_change_set_when_get_states_raises() -> None:
     class _BrokenClient:
         def get_states(self) -> object:
@@ -65,6 +70,7 @@ def test_extract_returns_an_empty_change_set_when_get_states_raises() -> None:
     assert extract({"client": _BrokenClient()}) == ChangeSet()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.4")
 def test_home_assistant_self_registers_under_the_vendor_extractor_registry() -> None:
     registered = get_vendor_extractor(CATEGORY)
 

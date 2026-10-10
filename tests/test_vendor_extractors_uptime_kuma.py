@@ -1,6 +1,7 @@
 """SDK-SOURCE-INGEST-R006.1: the typed vendor-extractor contract + Uptime Kuma port."""
 
 from __future__ import annotations
+import pytest
 
 from agent_connector_sdk.ingest import ChangeSet, Entity
 from agent_connector_sdk.vendor_extractors import (
@@ -18,6 +19,7 @@ class _FakeClient:
         return self._monitors
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.1")
 def test_extract_returns_a_change_set_of_entities_for_dict_shaped_monitors() -> None:
     config = {
         "client": _FakeClient(
@@ -47,6 +49,7 @@ def test_extract_returns_a_change_set_of_entities_for_dict_shaped_monitors() -> 
     assert result.relationships == ()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.1")
 def test_extract_accepts_list_shaped_monitors_and_skips_unidentified_ones() -> None:
     config = {"client": _FakeClient([{"name": "db"}, {"url": "https://no-id.example"}])}
 
@@ -56,10 +59,12 @@ def test_extract_accepts_list_shaped_monitors_and_skips_unidentified_ones() -> N
     assert result.entities[0].id == "uptime_monitor:db"
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.1")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.1")
 def test_extract_returns_an_empty_change_set_when_get_monitors_raises() -> None:
     class _BrokenClient:
         def get_monitors(self) -> object:
@@ -68,6 +73,7 @@ def test_extract_returns_an_empty_change_set_when_get_monitors_raises() -> None:
     assert extract({"client": _BrokenClient()}) == ChangeSet()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.1")
 def test_uptime_kuma_self_registers_under_the_vendor_extractor_registry() -> None:
     registered = get_vendor_extractor(CATEGORY)
 
