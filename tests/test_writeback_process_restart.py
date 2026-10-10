@@ -22,6 +22,7 @@ import signal
 import time
 from pathlib import Path
 
+import pytest
 from epistemic_graph.generated.write_back import (
     SourceChangeSet,
     WriteBackAuthorizationDecision,
@@ -101,6 +102,7 @@ def _run_child(directory: str, change_set_payload: dict[str, object]) -> None:
     asyncio.run(_register_and_apply_until_killed(directory, change_set_payload))
 
 
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R003")
 def test_writable_connector_survives_a_kill_mid_attempt(tmp_path: Path) -> None:
     change_set = _reference_change_set()
     seed_transport = FileWriteBackTransport(tmp_path / "transport")
