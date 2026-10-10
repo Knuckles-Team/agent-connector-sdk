@@ -10,6 +10,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+import pytest
 from fastmcp import FastMCP
 from fixture_server import PACKAGE_ROOT, build_reader_server
 from fleet_fixtures import (
@@ -50,6 +51,7 @@ async def _certify(
     )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R007")
 async def test_fleet_wide_recertification_fingerprints_every_pin() -> None:
     reports = [await _certify(root, build) for root, build in _FLEET]
     assert len(reports) == len(_FLEET) == 3
