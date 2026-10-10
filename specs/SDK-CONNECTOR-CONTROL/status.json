@@ -71,11 +71,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R003",
       "title": "Canonical output-schema digest on every certified tool pin",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "0f826d4ca6db"
+        "0f826d4ca6db",
+        "93afc6b075df"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_certify_pins.py:109"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R004",
@@ -118,11 +121,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R007",
       "title": "Fleet-wide re-certification yields nonempty schema fingerprints",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "0f826d4ca6db"
+        "0f826d4ca6db",
+        "93afc6b075df"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_fleet_recertification.py:54"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R008",
