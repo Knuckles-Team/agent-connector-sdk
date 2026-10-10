@@ -301,7 +301,7 @@
         "ffb9260d7602"
       ],
       "verified_by": [
-        "tests/test_tool_surface.py:166"
+        "tests/test_tool_surface.py:167"
       ]
     },
     {
