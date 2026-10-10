@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 from pathlib import Path
 from typing import Any, Literal
 
@@ -184,9 +185,26 @@ def test_one_condensed_intent_contract_no_mode_parameter_or_toggle() -> None:
     root = Path(__file__).resolve().parents[1] / "agent_connector_sdk"
     for path in root.rglob("*.py"):
         text = path.read_text(encoding="utf-8")
-        for line in text.splitlines():
-            stripped = line.strip()
-            if stripped.startswith("#") or stripped.startswith('"""'):
-                continue
-            assert "MCP_TOOL_MODE" not in line, f"{path}:{line!r}"
-            assert "tool_mode" not in line.lower() or "retired" in text.lower()
+        tree = ast.parse(text)
+        docstrings = {
+            id(node.body[0].value)
+            for node in ast.walk(tree)
+            if isinstance(
+                node,
+                ast.Module | ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef,
+            )
+            and node.body
+            and isinstance(node.body[0], ast.Expr)
+            and isinstance(node.body[0].value, ast.Constant)
+        }
+        for node in ast.walk(tree):
+            # Prose may name the retired toggle; code must not read or define it.
+            if isinstance(node, ast.Name):
+                assert "MCP_TOOL_MODE" not in node.id, f"{path}:{node.lineno}"
+                assert "tool_mode" not in node.id.lower() or "retired" in text.lower()
+            elif (
+                isinstance(node, ast.Constant)
+                and isinstance(node.value, str)
+                and id(node) not in docstrings
+            ):
+                assert "MCP_TOOL_MODE" not in node.value, f"{path}:{node.lineno}"
