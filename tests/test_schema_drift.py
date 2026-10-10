@@ -6,7 +6,6 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
-import agent_connector_sdk
 import pytest
 from epistemic_graph.generated.source_ingestion import (
     SourceCheckpoint,
@@ -15,6 +14,7 @@ from epistemic_graph.generated.source_ingestion import (
     SourceRecordProvenance,
 )
 
+import agent_connector_sdk
 from agent_connector_sdk.contracts import (
     CapabilityDescriptor,
     ReconciliationReport,
@@ -200,9 +200,7 @@ async def test_classifier_contract_covers_representative_changes_and_quarantine(
                 session, source, SyncTarget("synthetic", sink, 1, tenant="t")
             )
     assert sink.batches == {}
-    assert (
-        await sink.source_status("synthetic", "items")
-    ).accepted_checkpoint is None
+    assert (await sink.source_status("synthetic", "items")).accepted_checkpoint is None
 
 
 @pytest.mark.spec("SDK-SOURCE-INGEST-R007")
@@ -217,9 +215,11 @@ async def test_drift_gate_runs_between_drain_and_apply_with_no_shacl_or_activati
             await sync_stream(session, source, SyncTarget("synthetic", sink, 1))
     assert source.seen == [None], "the page was drained (extracted)"
     assert sink.batches == {}, "the page was never applied (submitted)"
-    sdk_root = Path(agent_connector_sdk.__file__).resolve().parent
+    # Scope: the ingest package owns the drift gate. Other packages may name
+    # SHACL as a content kind they serve (``mcp/content.py``).
+    ingest_root = Path(agent_connector_sdk.__file__).resolve().parent / "ingest"
     source_text = "\n".join(
-        path.read_text(encoding="utf-8") for path in sdk_root.rglob("*.py")
+        path.read_text(encoding="utf-8") for path in ingest_root.rglob("*.py")
     ).lower()
     assert "shacl" not in source_text
     assert "activate_schema" not in source_text

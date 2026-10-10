@@ -1,6 +1,7 @@
 """SDK-SOURCE-INGEST-R006.10: the Technitium DNS vendor extractor port."""
 
 from __future__ import annotations
+
 import pytest
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship

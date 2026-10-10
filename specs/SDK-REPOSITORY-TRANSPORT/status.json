@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "SDK-REPOSITORY-TRANSPORT",
   "owner_repo": "agent-connector-sdk",
-  "delivery_state": "LANDED",
+  "delivery_state": "SPECIFIED",
   "requirement_ids": [
     "SDK-REPOSITORY-TRANSPORT-R001",
     "SDK-REPOSITORY-TRANSPORT-R002",
@@ -34,7 +34,9 @@
       "title": "Repository ref walk traverses each Git tree once with batched reads",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "9a6fe1ddcf26"
+        "077a14c9f3d3",
+        "9a6fe1ddcf26",
+        "fad5328aee62"
       ],
       "verified_by": [
         "tests/test_repository_refwalk_fastpath.py:39",

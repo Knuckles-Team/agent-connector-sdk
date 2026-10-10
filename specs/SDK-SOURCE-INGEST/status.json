@@ -56,45 +56,61 @@
     {
       "id": "SDK-SOURCE-INGEST-R002",
       "title": "SDK drift classifier quarantines incompatible schema changes",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ffb9260d7602"
+      ],
+      "verified_by": [
+        "tests/test_schema_drift.py:181"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R003",
       "title": "SDK records and pauses on proposed schema repairs",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "23f241b07560"
+        "23f241b07560",
+        "ffb9260d7602"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_schema_repair.py:138"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R004",
       "title": "SDK runner performs enterprise source synchronization",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "23f241b07560",
+        "3735e4434463",
         "4ce2308afe64",
         "55bab2b23000"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_ingest.py:177",
+        "tests/test_ingest.py:194",
+        "tests/test_ingest.py:222"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R005",
       "title": "SDK adapters cover document, conversation, and feed sources",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "45c6c7c1fd37",
         "8e87ef9675f0",
         "db3659c92a3b"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_adapters_web_fetch_source_adapter.py:54",
+        "tests/test_adapters_web_fetch_source_adapter.py:66"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006",
       "title": "SDK packs own vendor enrichment extraction and write-back",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "b55555566da2"
       ],
@@ -136,316 +152,496 @@
     {
       "id": "SDK-SOURCE-INGEST-R006.1",
       "title": "SDK ports the Uptime Kuma monitor extractor; defines the typed vendor-extractor contract",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "10376b1e9728",
         "1cbd1de01d83",
         "36d2c92e439c",
-        "9511ab38c04c",
-        "9d8b3f7f89f1"
+        "3735e4434463",
+        "9511ab38c04c"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_contract.py:30",
+        "tests/test_vendor_extractors_contract.py:40",
+        "tests/test_vendor_extractors_contract.py:51",
+        "tests/test_vendor_extractors_uptime_kuma.py:23",
+        "tests/test_vendor_extractors_uptime_kuma.py:53"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.2",
       "title": "SDK ports the Ansible Automation inventory and job extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "9511ab38c04c",
         "bd6e0d836c92"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_ansible.py:23",
+        "tests/test_vendor_extractors_ansible.py:46",
+        "tests/test_vendor_extractors_ansible.py:55",
+        "tests/test_vendor_extractors_ansible.py:60",
+        "tests/test_vendor_extractors_ansible.py:69"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.3",
       "title": "SDK ports the Caddy reverse-proxy route extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "9511ab38c04c"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_caddy.py:38",
+        "tests/test_vendor_extractors_caddy.py:56",
+        "tests/test_vendor_extractors_caddy.py:61",
+        "tests/test_vendor_extractors_caddy.py:66",
+        "tests/test_vendor_extractors_caddy.py:75"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.4",
       "title": "SDK ports the Home Assistant entity and scene extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "9511ab38c04c"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_home_assistant.py:23",
+        "tests/test_vendor_extractors_home_assistant.py:53",
+        "tests/test_vendor_extractors_home_assistant.py:60",
+        "tests/test_vendor_extractors_home_assistant.py:65",
+        "tests/test_vendor_extractors_home_assistant.py:74"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.5",
       "title": "SDK ports the ArchiMate model element extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "36d2c92e439c"
+        "36d2c92e439c",
+        "3735e4434463"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_archimate.py:27",
+        "tests/test_vendor_extractors_archimate.py:57",
+        "tests/test_vendor_extractors_archimate.py:72",
+        "tests/test_vendor_extractors_archimate.py:77",
+        "tests/test_vendor_extractors_archimate.py:89"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.6",
       "title": "SDK ports the Kafka topic and cluster extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "36d2c92e439c"
+        "36d2c92e439c",
+        "3735e4434463"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_kafka.py:27",
+        "tests/test_vendor_extractors_kafka.py:52",
+        "tests/test_vendor_extractors_kafka.py:61",
+        "tests/test_vendor_extractors_kafka.py:66",
+        "tests/test_vendor_extractors_kafka.py:78"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.7",
       "title": "SDK ports the Salesforce CRM record extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "36d2c92e439c"
+        "36d2c92e439c",
+        "3735e4434463"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_salesforce.py:26",
+        "tests/test_vendor_extractors_salesforce.py:59",
+        "tests/test_vendor_extractors_salesforce.py:64",
+        "tests/test_vendor_extractors_salesforce.py:73"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.8",
       "title": "SDK ports the Grafana LGTM observability-stack extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "bbf11894fed5"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_lgtm.py:31",
+        "tests/test_vendor_extractors_lgtm.py:57",
+        "tests/test_vendor_extractors_lgtm.py:72",
+        "tests/test_vendor_extractors_lgtm.py:77",
+        "tests/test_vendor_extractors_lgtm.py:92"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.9",
       "title": "SDK ports the Microsoft 365 mail, calendar, and Teams extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "bbf11894fed5"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_microsoft.py:27",
+        "tests/test_vendor_extractors_microsoft.py:60",
+        "tests/test_vendor_extractors_microsoft.py:65",
+        "tests/test_vendor_extractors_microsoft.py:77"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.10",
       "title": "SDK ports the Technitium DNS zone and record extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "bbf11894fed5"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_technitium_dns.py:27",
+        "tests/test_vendor_extractors_technitium_dns.py:58",
+        "tests/test_vendor_extractors_technitium_dns.py:63",
+        "tests/test_vendor_extractors_technitium_dns.py:75"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.11",
       "title": "SDK ports the Portainer container and stack extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "e4f6426897ba"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_portainer.py:36",
+        "tests/test_vendor_extractors_portainer.py:76",
+        "tests/test_vendor_extractors_portainer.py:81",
+        "tests/test_vendor_extractors_portainer.py:93"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.12",
       "title": "SDK ports the Emerald Exchange market extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "e4f6426897ba"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_emerald.py:45",
+        "tests/test_vendor_extractors_emerald.py:70",
+        "tests/test_vendor_extractors_emerald.py:80",
+        "tests/test_vendor_extractors_emerald.py:85"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.13",
       "title": "SDK ports the Mealie recipe and meal-plan extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "e4f6426897ba"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_mealie.py:33",
+        "tests/test_vendor_extractors_mealie.py:63",
+        "tests/test_vendor_extractors_mealie.py:78",
+        "tests/test_vendor_extractors_mealie.py:83",
+        "tests/test_vendor_extractors_mealie.py:98"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.14",
       "title": "SDK ports the Keycloak realm, client, and identity extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "bd6e0d836c92"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_keycloak.py:31",
+        "tests/test_vendor_extractors_keycloak.py:58",
+        "tests/test_vendor_extractors_keycloak.py:72",
+        "tests/test_vendor_extractors_keycloak.py:77",
+        "tests/test_vendor_extractors_keycloak.py:92"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.15",
       "title": "SDK ports the Odoo ERP record extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "bd6e0d836c92"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_odoo.py:27",
+        "tests/test_vendor_extractors_odoo.py:55",
+        "tests/test_vendor_extractors_odoo.py:60",
+        "tests/test_vendor_extractors_odoo.py:72"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.16",
       "title": "SDK ports the Nextcloud file and share extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "bd6e0d836c92"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_nextcloud.py:105",
+        "tests/test_vendor_extractors_nextcloud.py:41",
+        "tests/test_vendor_extractors_nextcloud.py:69",
+        "tests/test_vendor_extractors_nextcloud.py:88",
+        "tests/test_vendor_extractors_nextcloud.py:93"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.17",
       "title": "SDK ports the wger workout and exercise extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "10376b1e9728",
+        "3735e4434463",
         "a41cc47d27d3"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_wger_okta_twenty.py:63",
+        "tests/test_vendor_extractors_wger_okta_twenty.py:90"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.18",
       "title": "SDK ports the Okta identity and directory extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "7f190c51f090",
         "a41cc47d27d3"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_wger_okta_twenty.py:122",
+        "tests/test_vendor_extractors_wger_okta_twenty.py:98"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.19",
       "title": "SDK ports the Twenty CRM record extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "7f190c51f090",
         "a41cc47d27d3"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_wger_okta_twenty.py:130",
+        "tests/test_vendor_extractors_wger_okta_twenty.py:167"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.20",
       "title": "SDK ports the RSA Archer GRC record extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "e626b457bb1d"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_archer_infra_a2a.py:30",
+        "tests/test_vendor_extractors_archer_infra_a2a.py:52"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.21",
       "title": "SDK ports the Infrastructure inventory extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "e626b457bb1d"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_archer_infra_a2a.py:60",
+        "tests/test_vendor_extractors_archer_infra_a2a.py:84"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.22",
       "title": "SDK ports the A2A agent-registry extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "e626b457bb1d"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_archer_infra_a2a.py:118",
+        "tests/test_vendor_extractors_archer_infra_a2a.py:92"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.23",
       "title": "SDK ports the Grafana dashboard extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "1cbd1de01d83"
+        "1cbd1de01d83",
+        "3735e4434463"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:30",
+        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:63"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.24",
       "title": "SDK ports the LeanIX enterprise-architecture factsheet extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "1cbd1de01d83"
+        "1cbd1de01d83",
+        "3735e4434463"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:103",
+        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:71"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.25",
       "title": "SDK ports the ERPNext record extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "1cbd1de01d83"
+        "1cbd1de01d83",
+        "3735e4434463"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:111",
+        "tests/test_vendor_extractors_grafana_leanix_erpnext.py:152"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.26",
       "title": "SDK ports the ServiceNow ITSM record extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "9d8b3f7f89f1"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:38",
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:68"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.27",
       "title": "SDK ports the CISO Assistant compliance extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "9d8b3f7f89f1"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:111",
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:76"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.28",
       "title": "SDK ports the social-platform extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "9d8b3f7f89f1"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:119",
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:143",
+        "tests/test_vendor_extractors_servicenow_ciso_social.py:152"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.29",
       "title": "SDK ports the ARIS process-model extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "10376b1e9728"
+        "10376b1e9728",
+        "3735e4434463"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_aris_egeria_camunda.py:30",
+        "tests/test_vendor_extractors_aris_egeria_camunda.py:54"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.30",
       "title": "SDK ports the Egeria governance and glossary extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "10376b1e9728"
+        "10376b1e9728",
+        "3735e4434463"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_aris_egeria_camunda.py:62",
+        "tests/test_vendor_extractors_aris_egeria_camunda.py:93"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.31",
       "title": "SDK ports the Camunda process extractor",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "10376b1e9728"
+        "10376b1e9728",
+        "3735e4434463"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_aris_egeria_camunda.py:101",
+        "tests/test_vendor_extractors_aris_egeria_camunda.py:122"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R007",
       "title": "Drift gate runs inside the SDK connector-sync runner",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ffb9260d7602"
+      ],
+      "verified_by": [
+        "tests/test_schema_drift.py:206"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R008",
       "title": "Connectors ingest occurrence and weather observations",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "289aadb634d8",
+        "3735e4434463",
         "83b7dd3f33eb"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_earth_observation_records.py:38",
+        "tests/test_earth_observation_records.py:54",
+        "tests/test_earth_observation_records.py:66"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R009",
       "title": "Taxonomy connector ingests NCBI/GBIF taxa as kg:Taxon",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "3735e4434463",
         "bfe88b9d8521",
         "ff4c1aaafc8a"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_taxonomy_records.py:29",
+        "tests/test_taxonomy_records.py:40",
+        "tests/test_taxonomy_records.py:50"
+      ]
     }
   ]
 }

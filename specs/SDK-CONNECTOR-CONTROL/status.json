@@ -105,9 +105,11 @@
       "title": "Decision-service proposals for tool choice and triage stay observational",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "077a14c9f3d3",
         "0f826d4ca6db",
         "91801315ccaf",
-        "daeb199f91c0"
+        "daeb199f91c0",
+        "fad5328aee62"
       ],
       "verified_by": [
         "tests/test_decide_consumers.py:158"
@@ -127,7 +129,9 @@
       "title": "Closed, canonical pack annotation map across the connector fleet",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "e444b35a4c21"
+        "077a14c9f3d3",
+        "e444b35a4c21",
+        "fad5328aee62"
       ],
       "verified_by": [
         "tests/test_artifacts_discovery.py:350",
@@ -203,7 +207,9 @@
       "title": "One reusable cross-repository import-scan call site",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "ab73ea5005a0"
+        "077a14c9f3d3",
+        "ab73ea5005a0",
+        "fad5328aee62"
       ],
       "verified_by": [
         "tests/test_fleet_migration_scan.py:90"
@@ -227,14 +233,16 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "061f9b58abb2",
-        "9cec9cea7d37"
+        "077a14c9f3d3",
+        "9cec9cea7d37",
+        "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_duplicate_symbol_scan.py:28",
-        "tests/test_duplicate_symbol_scan.py:42",
-        "tests/test_duplicate_symbol_scan.py:55",
-        "tests/test_duplicate_symbol_scan.py:68",
-        "tests/test_duplicate_symbol_scan.py:82"
+        "tests/test_duplicate_symbol_scan.py:21",
+        "tests/test_duplicate_symbol_scan.py:29",
+        "tests/test_duplicate_symbol_scan.py:43",
+        "tests/test_duplicate_symbol_scan.py:56",
+        "tests/test_duplicate_symbol_scan.py:69"
       ]
     },
     {
@@ -252,9 +260,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R017",
       "title": "Every connector uses the shared TLS profile, no bare verify bypass",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "fad5328aee62"
+      ],
+      "verified_by": [
+        "tests/test_tls_profiles.py:200"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R018",
@@ -271,7 +283,9 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "045ba48df230",
-        "d9c0db1b19cf"
+        "077a14c9f3d3",
+        "d9c0db1b19cf",
+        "fad5328aee62"
       ],
       "verified_by": [
         "tests/test_registry_visibility_content.py:276",
@@ -283,27 +297,33 @@
       "title": "One condensed intent contract: `MCP_TOOL_MODE` retired",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "d3617301012c"
+        "d3617301012c",
+        "ffb9260d7602"
       ],
       "verified_by": [
-        "tests/test_tool_surface.py:166"
+        "tests/test_tool_surface.py:167"
       ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R021",
       "title": "Connector ontologies declare access contracts for virtual reads",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "0a10559775ea"
+        "0a10559775ea",
+        "fad5328aee62"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_access_contract.py:55"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R022",
       "title": "The pack builder scopes `owl:imports` to the pack",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "e6b835dcad49"
+        "077a14c9f3d3",
+        "e6b835dcad49",
+        "fad5328aee62"
       ],
       "verified_by": [
         "tests/test_pack_ontology_imports.py:109",

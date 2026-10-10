@@ -1,6 +1,7 @@
 """SDK-SOURCE-INGEST-R006.1: the typed vendor-extractor contract + Uptime Kuma port."""
 
 from __future__ import annotations
+
 import pytest
 
 from agent_connector_sdk.ingest import ChangeSet, Entity

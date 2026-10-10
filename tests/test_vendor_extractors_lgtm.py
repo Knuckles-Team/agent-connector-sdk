@@ -1,6 +1,7 @@
 """SDK-SOURCE-INGEST-R006.8: the LGTM vendor extractor port."""
 
 from __future__ import annotations
+
 import pytest
 
 from agent_connector_sdk.ingest import ChangeSet, Entity

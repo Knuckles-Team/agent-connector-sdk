@@ -1,6 +1,7 @@
 """SDK-SOURCE-INGEST-R006.15: the Odoo CRM vendor extractor port."""
 
 from __future__ import annotations
+
 import pytest
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship

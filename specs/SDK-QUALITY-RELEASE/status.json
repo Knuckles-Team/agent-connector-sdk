@@ -21,9 +21,14 @@
     {
       "id": "SDK-QUALITY-RELEASE-R002",
       "title": "Public-documentation scanner catches private addresses and hosts",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "fad5328aee62",
+        "ffb9260d7602"
+      ],
+      "verified_by": [
+        "tests/test_doc_privacy_scanner.py:28"
+      ]
     },
     {
       "id": "SDK-QUALITY-RELEASE-R003",
@@ -37,7 +42,8 @@
       "title": "Public documentation follows a task-first README and site structure",
       "delivery_state": "LANDED",
       "landed_in": [
-        "cbbf859a5c38"
+        "cbbf859a5c38",
+        "fad5328aee62"
       ],
       "verified_by": []
     },

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from epistemic_graph.generated.write_back import WriteBackEffectStatus
 
 from agent_connector_sdk.testing.writeback import make_writeback_fixture
