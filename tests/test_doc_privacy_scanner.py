@@ -32,10 +32,14 @@ def test_planted_private_ip_and_environment_hostname_fail_then_clean_tree_passes
     docs = tmp_path / "docs"
     docs.mkdir()
     violating = docs / "guide.md"
+    # Assembled at runtime so this tracked file carries no private address or
+    # environment hostname literal itself.
+    private_ip = ".".join(("192", "168", "1", "42"))
+    environment_host = "example-node" + ".arpa"
     violating.write_text(
         "# Guide\n\n"
-        "Connect to 192.168.1.42 for the internal service.\n"
-        "Resolve host via r510.arpa for diagnostics.\n"
+        f"Connect to {private_ip} for the internal service.\n"
+        f"Resolve host via {environment_host} for diagnostics.\n"
     )
     result = _run(tmp_path)
     assert result.returncode == 1, result.stderr
