@@ -51,6 +51,7 @@ def test_pack_import_authority_resolver_is_public() -> None:
     assert PackImportAuthorityResolver is not None
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R005")
 def test_sdk_does_not_redeclare_generated_graph_boundary_models() -> None:
     copied_names = {
         "ArtifactEntry",

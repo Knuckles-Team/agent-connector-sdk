@@ -107,6 +107,9 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 timeout = 120
 addopts = "-p no:cacheprovider"
+markers = [
+    "spec: binds a test to a spec requirement ID",
+]
 
 [tool.bandit]
 exclude_dirs = ["tests", "scripts"]
@@ -129,6 +132,7 @@ public_modules = [
     "agent_connector_sdk.auth.tokens",
     "agent_connector_sdk.auth.values",
     "agent_connector_sdk.config",
+    "agent_connector_sdk.provider_runtime",
     "agent_connector_sdk.contracts",
     "agent_connector_sdk.schema_drift",
     "agent_connector_sdk.schema_repair",
