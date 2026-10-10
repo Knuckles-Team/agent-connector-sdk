@@ -507,6 +507,7 @@ async def test_epistemic_graph_sink_replays_matching_pack_without_upload() -> No
     assert [method for method, _, _ in client.calls] == ["ConnectorPack"]
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R001")
 async def test_epistemic_graph_sink_retries_one_pack_head_conflict() -> None:
     async def authority(
         _connector: str,
