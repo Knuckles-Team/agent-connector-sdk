@@ -174,6 +174,7 @@ def test_malformed_change_sets_fail_before_io() -> None:
         IngestBinding(connector="demo-mcp", stream=" ")
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004")
 def test_reconcile_and_withdrawals_are_explicit() -> None:
     reconcile = ChangeSet(
         entities=(Entity("a", "T"),),
@@ -190,6 +191,7 @@ def test_reconcile_and_withdrawals_are_explicit() -> None:
     )
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004")
 async def test_submissions_chain_the_durable_checkpoint() -> None:
     transport = _Transport()
     service = KnowledgeIngest(transport)
@@ -217,6 +219,7 @@ async def test_media_bytes_go_to_blob_storage_first() -> None:
         )
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004")
 async def test_checkpoint_races_retry_then_give_up() -> None:
     transport = _Transport(conflicts=DEFAULT_ATTEMPTS - 1)
     receipt = await KnowledgeIngest(transport).submit(BINDING, _changes())
