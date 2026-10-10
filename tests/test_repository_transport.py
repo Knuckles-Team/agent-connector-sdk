@@ -114,6 +114,7 @@ class _Provider:
 
 
 @pytest.mark.asyncio
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R001")
 async def test_pages_are_combined_into_one_native_repository_batch() -> None:
     revision = _revision()
     provider = _Provider(
@@ -175,6 +176,8 @@ async def test_typed_outcomes_tombstones_and_revision_metadata_are_preserved() -
 
 
 @pytest.mark.asyncio
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R004")
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R005")
 async def test_batch_limits_create_one_call_per_bounded_batch() -> None:
     revision = _revision()
     files = tuple(_file(f"{index}.py", b"xx") for index in range(3))
@@ -194,6 +197,7 @@ async def test_batch_limits_create_one_call_per_bounded_batch() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R004")
 async def test_oversized_file_fails_before_engine_call() -> None:
     revision = _revision()
     provider = _Provider(
@@ -250,6 +254,7 @@ async def test_repeated_provider_cursor_fails_before_cyclic_page_effects() -> No
 
 
 @pytest.mark.asyncio
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R004")
 async def test_missing_per_file_outcomes_fail_closed() -> None:
     revision = _revision()
     provider = _Provider(
