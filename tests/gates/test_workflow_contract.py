@@ -14,6 +14,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -85,6 +86,50 @@ def test_every_pre_commit_invocation_uses_the_relocated_config() -> None:
         for line in path.read_text(encoding="utf-8").splitlines():
             if re.search(r"pre-commit (run|install)\b", line):
                 assert "--config .config/pre-commit.yaml" in line, (path, line)
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
+def test_build_job_pins_the_managed_python_not_the_system_one() -> None:
+    """The `build` job produces the released wheel, so -- like `gates` -- it
+    must declare `python-version` on its setup-uv step rather than letting
+    `uv build` fall back to whatever interpreter the hosting runner ships."""
+    workflow = _yaml(RELEASE)
+    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    floor = re.search(r'requires-python\s*=\s*">=(\d+\.\d+)', pyproject)
+    assert floor is not None
+    pinned_version = floor.group(1)
+
+    for job_name in ("gates", "build"):
+        job = workflow["jobs"][job_name]
+        uv_setup_steps = [
+            step
+            for step in job["steps"]
+            if str(step.get("uses", "")).startswith(UV_ACTION)
+        ]
+        pinned = [
+            step for step in uv_setup_steps if "python-version" in step.get("with", {})
+        ]
+        assert pinned, f"{job_name} job's setup-uv step must pin python-version"
+        assert pinned[0]["with"]["python-version"] == pinned_version
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R001")
+def test_build_job_verifies_installed_wheel_against_graph_client() -> None:
+    """The release job must check the built wheel in an isolated installed
+    consumer against the published graph-client wheel, not rely on the
+    source-overlay test suite's own import of the repository checkout."""
+    build = _yaml(RELEASE)["jobs"]["build"]
+    runs = _runs(build)
+    assert any("check_wheel_consumer_compatibility.py" in command for command in runs)
+    # The compatibility step must run after the wheel exists and before the
+    # artifact is published, so a failing check blocks the release.
+    names = [step.get("name", "") for step in build["steps"]]
+    compat_index = next(i for i, name in enumerate(names) if "graph-client" in name)
+    build_index = next(i for i, name in enumerate(names) if "Build the wheel" in name)
+    upload_index = next(
+        i for i, name in enumerate(names) if "Upload the publish candidate" in name
+    )
+    assert build_index < compat_index < upload_index
 
 
 def test_every_release_job_using_uvx_installs_uv_first() -> None:
