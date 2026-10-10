@@ -56,10 +56,8 @@
     {
       "id": "SDK-SOURCE-INGEST-R002",
       "title": "SDK drift classifier quarantines incompatible schema changes",
-      "delivery_state": "LANDED",
-      "landed_in": [
-        "c45d87f9e0c4"
-      ],
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
       "verified_by": []
     },
     {
@@ -67,7 +65,6 @@
       "title": "SDK records and pauses on proposed schema repairs",
       "delivery_state": "LANDED",
       "landed_in": [
-        "05bcf5184cb3",
         "23f241b07560"
       ],
       "verified_by": []
@@ -78,7 +75,6 @@
       "delivery_state": "LANDED",
       "landed_in": [
         "23f241b07560",
-        "4ce2308afe64",
         "55bab2b23000"
       ],
       "verified_by": []
@@ -89,8 +85,7 @@
       "delivery_state": "LANDED",
       "landed_in": [
         "45c6c7c1fd37",
-        "8e87ef9675f0",
-        "db3659c92a3b"
+        "8e87ef9675f0"
       ],
       "verified_by": []
     },
@@ -300,7 +295,6 @@
       "title": "SDK ports the Okta identity and directory extractor",
       "delivery_state": "LANDED",
       "landed_in": [
-        "7f190c51f090",
         "a41cc47d27d3"
       ],
       "verified_by": []
@@ -310,7 +304,6 @@
       "title": "SDK ports the Twenty CRM record extractor",
       "delivery_state": "LANDED",
       "landed_in": [
-        "7f190c51f090",
         "a41cc47d27d3"
       ],
       "verified_by": []
@@ -426,10 +419,8 @@
     {
       "id": "SDK-SOURCE-INGEST-R007",
       "title": "Drift gate runs inside the SDK connector-sync runner",
-      "delivery_state": "LANDED",
-      "landed_in": [
-        "cb1416a5ac05"
-      ],
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
       "verified_by": []
     },
     {
@@ -437,8 +428,7 @@
       "title": "Connectors ingest occurrence and weather observations",
       "delivery_state": "LANDED",
       "landed_in": [
-        "289aadb634d8",
-        "83b7dd3f33eb"
+        "289aadb634d8"
       ],
       "verified_by": []
     },
@@ -447,8 +437,7 @@
       "title": "Taxonomy connector ingests NCBI/GBIF taxa as kg:Taxon",
       "delivery_state": "LANDED",
       "landed_in": [
-        "bfe88b9d8521",
-        "ff4c1aaafc8a"
+        "bfe88b9d8521"
       ],
       "verified_by": []
     }
