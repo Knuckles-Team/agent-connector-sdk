@@ -64,7 +64,11 @@ jobs:
         run: scripts/bootstrap.sh
       - name: Verify the finalized generated contract source
         run: |
-          uv run --frozen python -c "from pathlib import Path; import epistemic_graph.generated.source_ingestion as source; assert '.ci/epistemic-graph' in str(Path(source.__file__).resolve())"
+          # --no-sync: scripts/bootstrap.sh already synced the environment above
+          # with `--no-install-package epistemic-graph`; a second sync here
+          # (even --frozen) would try to build/install from the machine-local,
+          # gitignored `[tool.uv.sources]` editable path and fail in CI.
+          uv run --no-sync python -c "from pathlib import Path; import epistemic_graph.generated.source_ingestion as source; assert '.ci/epistemic-graph' in str(Path(source.__file__).resolve())"
       - name: Pre-commit stage (lint, format, types, wiring, shared gates)
         run: uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage pre-commit --show-diff-on-failure
       - name: Pre-push stage (wheel build, secret history, patch safety)

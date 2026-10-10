@@ -84,6 +84,10 @@ uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --a
 uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage manual
 ```
 
+Fresh worktree tests: `uv sync --frozen && uv run --frozen pytest tests/test_contracts_and_sink.py -q`
+(epistemic-graph >=2.27.0 resolves via the `[tool.uv.sources]` editable
+fast-path vendor sibling — see that section's comment in `pyproject.toml`).
+
 Hosted CI (`.github/workflows/release.yml`) runs the same configuration: the
 whole pre-commit stage, then the pre-push stage (tests, wheel build, secret
 history). Run the shared documentation contract directly while editing public
