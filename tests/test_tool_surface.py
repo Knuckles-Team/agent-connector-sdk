@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Literal
 
 import pytest
@@ -160,3 +161,32 @@ def test_verbose_register_name_collision_with_condensed_rejected() -> None:
             registrars=[register_items_tools],
             verbose_register=register_colliding,
         )
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+def test_one_condensed_intent_contract_no_mode_parameter_or_toggle() -> None:
+    """``register_tool_surface`` always registers condensed, gated tools.
+
+    There is no ``MCP_TOOL_MODE``/mode parameter or branch; a repository-wide
+    scan confirms no live reference to a mode toggle or a separate verbose
+    1:1 tool-surface module remains outside explanatory retirement notes.
+    """
+    import inspect
+
+    mcp: FastMCP[Any] = FastMCP("demo")
+    tags = register_tool_surface(
+        mcp, service="demo-api", registrars=[register_items_tools]
+    )
+    assert tags == ["items"]
+    assert gated_tool_names(mcp) == {"demo_items"}
+    assert "mode" not in inspect.signature(register_tool_surface).parameters
+
+    root = Path(__file__).resolve().parents[1] / "agent_connector_sdk"
+    for path in root.rglob("*.py"):
+        text = path.read_text(encoding="utf-8")
+        for line in text.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("#") or stripped.startswith('"""'):
+                continue
+            assert "MCP_TOOL_MODE" not in line, f"{path}:{line!r}"
+            assert "tool_mode" not in line.lower() or "retired" in text.lower()
