@@ -133,7 +133,33 @@ def create_mcp_server(
             VisibilityPolicy.from_settings(args.tools, args.disabled_tools)
         )
     )
+    _register_native_primitives(mcp, name)
     serve_change_subscriptions(mcp)
     if content is not None:
         register_connector_content(mcp, content)
     return args, mcp, build_middleware()
+
+
+def _register_native_primitives(mcp: FastMCP[Any], name: str) -> None:
+    """Register native prompt/resource/resource-template primitives.
+
+    GRAPHOS-FLEET-R007.1: every connector server answers a native prompt
+    list, a native resource read and a native resource-template list,
+    independent of any connector content and alongside its ``.tool()``/
+    Skills-over-MCP registrations.
+    """
+
+    @mcp.prompt(name="connector-status")
+    def _connector_status_prompt() -> str:
+        """Ask for this connector server's current operational status."""
+        return f"Report the operational status of the {name} connector server."
+
+    @mcp.resource("connector://status", mime_type="application/json")
+    def _connector_status_resource() -> dict[str, str]:
+        """Native resource exposing this server's static status payload."""
+        return {"server": name, "status": "ok"}
+
+    @mcp.resource("connector://capability/{capability}", mime_type="application/json")
+    def _connector_capability_resource(capability: str) -> dict[str, str]:
+        """Native resource template describing one capability by name."""
+        return {"server": name, "capability": capability}
