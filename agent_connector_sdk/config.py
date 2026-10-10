@@ -22,6 +22,7 @@ import json
 import os
 import threading
 from collections.abc import Callable, Mapping
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -29,7 +30,12 @@ from agent_connector_sdk.utilities import to_boolean, to_dict, to_list
 
 __all__ = [
     "CONFIG_FILE_SETTING",
+    "AgentConfig",
+    "AuthConfigSection",
     "ConfigurationError",
+    "LimitsConfigSection",
+    "TransportConfigSection",
+    "agent_config",
     "config_file_path",
     "csv_values",
     "load_config",
@@ -176,6 +182,93 @@ def _validated_value(key: str, value: object) -> str:
             "reference, not a credential value"
         )
     return rendered
+
+
+@dataclass(frozen=True)
+class AuthConfigSection:
+    """Structured auth settings a connector reads instead of ad hoc ``setting()`` calls."""
+
+    token_url: str = ""
+    client_id: str = ""
+
+
+@dataclass(frozen=True)
+class TransportConfigSection:
+    """Structured transport settings."""
+
+    timeout_seconds: float = 30.0
+    allow_plaintext: bool = False
+
+    def __post_init__(self) -> None:
+        if self.timeout_seconds <= 0:
+            raise ConfigurationError("transport.timeout_seconds must be positive")
+
+
+@dataclass(frozen=True)
+class LimitsConfigSection:
+    """Structured connection-pool limits."""
+
+    max_connections: int = 100
+    max_keepalive_connections: int = 20
+
+    def __post_init__(self) -> None:
+        if self.max_connections <= 0 or self.max_keepalive_connections <= 0:
+            raise ConfigurationError("limits.* must be positive")
+        if self.max_keepalive_connections > self.max_connections:
+            raise ConfigurationError(
+                "limits.max_keepalive_connections must not exceed max_connections"
+            )
+
+
+@dataclass(frozen=True)
+class AgentConfig:
+    """Validated, structured configuration grouped into named sections.
+
+    Reads related settings once, at construction, instead of re-parsing
+    individual :func:`setting` calls at each use site. Use :func:`agent_config`
+    for the process-wide singleton; construct directly only in tests.
+    """
+
+    auth: AuthConfigSection = field(default_factory=AuthConfigSection)
+    transport: TransportConfigSection = field(default_factory=TransportConfigSection)
+    limits: LimitsConfigSection = field(default_factory=LimitsConfigSection)
+
+
+_agent_config_lock = threading.Lock()
+_agent_config: AgentConfig | None = None
+
+
+def agent_config(*, reload: bool = False) -> AgentConfig:
+    """The process-wide :class:`AgentConfig` singleton, built from :func:`setting`.
+
+    The same validated instance is returned across call sites until
+    ``reload`` is set.
+
+    Raises:
+        ConfigurationError: the environment holds an invalid combination of
+            settings (see each section's validation).
+    """
+    global _agent_config
+    with _agent_config_lock:
+        if _agent_config is not None and not reload:
+            return _agent_config
+        _agent_config = AgentConfig(
+            auth=AuthConfigSection(
+                token_url=setting("CONNECTOR_AUTH_TOKEN_URL", ""),
+                client_id=setting("CONNECTOR_AUTH_CLIENT_ID", ""),
+            ),
+            transport=TransportConfigSection(
+                timeout_seconds=setting("CONNECTOR_TRANSPORT_TIMEOUT_SECONDS", 30.0),
+                allow_plaintext=setting("CONNECTOR_TRANSPORT_ALLOW_PLAINTEXT", False),
+            ),
+            limits=LimitsConfigSection(
+                max_connections=setting("CONNECTOR_LIMITS_MAX_CONNECTIONS", 100),
+                max_keepalive_connections=setting(
+                    "CONNECTOR_LIMITS_MAX_KEEPALIVE_CONNECTIONS", 20
+                ),
+            ),
+        )
+        return _agent_config
 
 
 def _repository_git_environment() -> dict[str, str]:

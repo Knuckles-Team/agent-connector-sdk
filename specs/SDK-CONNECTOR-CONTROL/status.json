@@ -40,7 +40,9 @@
     "SDK-CONNECTOR-CONTROL-R033",
     "SDK-CONNECTOR-CONTROL-R034",
     "SDK-CONNECTOR-CONTROL-R035",
-    "SDK-CONNECTOR-CONTROL-R036"
+    "SDK-CONNECTOR-CONTROL-R036",
+    "SDK-CONNECTOR-CONTROL-R028.1",
+    "SDK-CONNECTOR-CONTROL-R028.2"
   ],
   "delivery_state": "LANDED",
   "acceptance_state": "NOT_AUDITED",
@@ -950,37 +952,65 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R027",
       "title": "SDK resolves the selected provider-runtime profile for a multi-backend connector",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
-      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (audiobookshelf-mcp, pulselink-mcp, fan-manager, vector-mcp). Not yet built."
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "0000000000000000000000000000000000000000",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
+          "description": "Placeholder evidence pending orchestrator promotion; branch sdk-control-r027-r031. Implemented and exercised by tests/test_provider_runtime.py."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R028",
       "title": "SDK's governed HTTP client controls egress with named escape hatches, not ad hoc trust",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "BUILDING",
       "evidence": [],
-      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (vaultwarden-mcp, gitlab-api, pulselink-mcp). Not yet built."
+      "remaining": "The typed SSRF policy check and pinned-address transport are implemented and tested (R028.1, LANDED). Remaining: wire pin_egress/allowed_private_hosts/allow_loopback into create_http_client itself and have it call check_egress_destination before opening a connection (R028.2, SPECIFIED)."
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R029",
       "title": "SDK exposes a structured configuration singleton, not only a flat setting() lookup",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
-      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (vector-mcp, systems-manager, repository-manager). Not yet built."
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "0000000000000000000000000000000000000000",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
+          "description": "Placeholder evidence pending orchestrator promotion; branch sdk-control-r027-r031. Implemented and exercised by tests/test_agent_config.py."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R030",
       "title": "SDK provides GraphQL introspection context helpers for connector tools",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
-      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (leanix-agent, twenty-mcp). Not yet built."
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "0000000000000000000000000000000000000000",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
+          "description": "Placeholder evidence pending orchestrator promotion; branch sdk-control-r027-r031. Implemented and exercised by tests/test_mcp_graphql_context.py."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R031",
       "title": "SDK's client-credentials token provider accepts a literal client secret, matching the signature connectors already call",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
-      "remaining": "Design complete in requirements.md; gap surfaced by the 2026-10-09 connector migrations (keycloak-agent, gitlab-api). Not yet built."
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "0000000000000000000000000000000000000000",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
+          "description": "Placeholder evidence pending orchestrator promotion; branch sdk-control-r027-r031. Implemented and exercised by tests/test_client_credentials_literal_secret.py."
+        }
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R032",
@@ -1051,6 +1081,27 @@
           "description": "Implemented on branch sdk-control-r032-r036; exercised by tests/test_entitlement_catalogs.py. Orchestrator re-promotes with the real merge SHA."
         }
       ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R028.1",
+      "title": "Typed SSRF egress-destination check and pinned-address transport (check_egress_destination, pinned_egress_transport)",
+      "delivery_state": "LANDED",
+      "evidence": [
+        {
+          "kind": "merged_head",
+          "result": "passed",
+          "commit": "0000000000000000000000000000000000000000",
+          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
+          "description": "Placeholder evidence pending orchestrator promotion; branch sdk-control-r027-r031. Implemented and exercised by tests/test_http_egress.py."
+        }
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R028.2",
+      "title": "create_http_client wires the SSRF egress policy into construction",
+      "delivery_state": "SPECIFIED",
+      "evidence": [],
+      "remaining": "Design complete; builds on the typed check_egress_destination and pinned_egress_transport primitives landed under R028.1. Not yet wired into create_http_client/HttpClientOptions."
     }
   ]
 }

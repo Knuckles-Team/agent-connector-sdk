@@ -136,6 +136,7 @@ def test_config_file_path(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> No
     assert config_file_path() == tmp_path / "explicit.json"
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R016")
 def test_load_config_projects_without_overriding(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
