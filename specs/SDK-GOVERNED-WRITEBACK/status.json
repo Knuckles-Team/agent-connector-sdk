@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "SDK-GOVERNED-WRITEBACK",
   "owner_repo": "agent-connector-sdk",
-  "delivery_state": "SPECIFIED",
+  "delivery_state": "LANDED",
   "requirement_ids": [
     "SDK-GOVERNED-WRITEBACK-R001",
     "SDK-GOVERNED-WRITEBACK-R002",
@@ -23,8 +23,10 @@
     {
       "id": "SDK-GOVERNED-WRITEBACK-R002",
       "title": "Source-side WriteBackPort composes a durable graph write-back adapter",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2d39be956d8d"
+      ],
       "verified_by": [
         "tests/test_writeback_durable.py:143"
       ]
@@ -32,8 +34,10 @@
     {
       "id": "SDK-GOVERNED-WRITEBACK-R003",
       "title": "Full write-back requires an authorization resolver and restart recovery",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2d39be956d8d"
+      ],
       "verified_by": [
         "tests/test_writeback_durable.py:254",
         "tests/test_writeback_process_restart.py:105"
@@ -51,8 +55,10 @@
     {
       "id": "SDK-GOVERNED-WRITEBACK-R005",
       "title": "Write-back implementation passes its full durable test suite together",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2d39be956d8d"
+      ],
       "verified_by": [
         "tests/test_writeback_durable.py:218",
         "tests/test_writeback_durable.py:238"
