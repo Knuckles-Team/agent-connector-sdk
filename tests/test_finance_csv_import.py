@@ -73,6 +73,7 @@ def test_preview_rejects_an_unrecognized_currency_code() -> None:
         preview_csv_mapping(bad_currency_csv, _MAPPING)
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004")
 def test_reimporting_identical_bytes_yields_the_same_activity_identity() -> None:
     first = import_activities(_CSV, _MAPPING, _CONTEXT)
     second = import_activities(_CSV, _MAPPING, _CONTEXT)

@@ -104,14 +104,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R006",
       "title": "Decision-service proposals for tool choice and triage stay observational",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "0f826d4ca6db",
         "14c82b51df3e",
         "91801315ccaf",
         "daeb199f91c0"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_decide_consumers.py:158"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R007",
@@ -126,12 +128,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R008",
       "title": "Closed, canonical pack annotation map across the connector fleet",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "6a6c626b5708",
         "e444b35a4c21"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_artifacts_discovery.py:350",
+        "tests/test_artifacts_discovery.py:367",
+        "tests/test_artifacts_discovery.py:383"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R009",
@@ -191,7 +197,7 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014",
       "title": "SDK fully supersedes the duplicated connector toolkit",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "5e1bd9257555",
         "ac403a24d45e"
@@ -204,16 +210,18 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.1",
       "title": "One reusable cross-repository import-scan call site",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "ab73ea5005a0"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_fleet_migration_scan.py:88"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R015",
       "title": "SDK is sole owner of connector source lifecycle and certification",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "5e1bd9257555",
         "c6e280cdd1e8"
@@ -226,12 +234,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R015.1",
       "title": "A duplicate-definition scan for the manifest/certify surface",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "061f9b58abb2",
         "9cec9cea7d37"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_duplicate_symbol_scan.py:19",
+        "tests/test_duplicate_symbol_scan.py:27",
+        "tests/test_duplicate_symbol_scan.py:41"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R016",
@@ -248,11 +260,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R017",
       "title": "Every connector uses the shared TLS profile, no bare verify bypass",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "830be1c11cfe"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_tls_profiles.py:200"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R018",
@@ -266,13 +280,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R019",
       "title": "Host servers register ontology resources without duplicate skills or prompts",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "045ba48df230",
         "64acdc30c34e",
         "d9c0db1b19cf"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_registry_visibility_content.py:276",
+        "tests/test_registry_visibility_content.py:293"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R020",
@@ -286,22 +303,28 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R021",
       "title": "Connector ontologies declare access contracts for virtual reads",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "0a10559775ea",
         "b29c0c01a044"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_access_contract.py:55"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R022",
       "title": "The pack builder scopes `owl:imports` to the pack",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "78ea5b9531db",
         "e6b835dcad49"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_pack_ontology_imports.py:32",
+        "tests/test_pack_ontology_imports.py:47",
+        "tests/test_pack_ontology_imports.py:66"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R023",

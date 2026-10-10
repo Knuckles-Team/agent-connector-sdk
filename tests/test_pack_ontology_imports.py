@@ -29,6 +29,7 @@ def _requirements(entry: CapturedArtifact) -> list[str]:
     return list(entry.annotations.requires_capabilities)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
 def test_external_import_is_removed_and_recorded() -> None:
     body = (
         "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
@@ -43,6 +44,7 @@ def test_external_import_is_removed_and_recorded() -> None:
     assert _requirements(scoped) == [f"{IMPORT_REQUIREMENT_PREFIX}{HUB}"]
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
 def test_trailing_import_and_mixed_list() -> None:
     body = (
         "<http://x/demo> a owl:Ontology ;\n"
@@ -61,6 +63,7 @@ def test_trailing_import_and_mixed_list() -> None:
     ]
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
 def test_lone_statement_and_full_iri_predicate() -> None:
     body = (
         "<http://x/demo> a owl:Ontology .\n"

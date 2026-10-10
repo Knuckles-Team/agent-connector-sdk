@@ -53,6 +53,7 @@ def test_position_without_its_own_currency_inherits_the_account_currency() -> No
     assert snapshot.positions[0].currency == "USD"
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004")
 def test_rereading_the_same_account_at_the_same_instant_is_idempotent() -> None:
     first = account_snapshot_from_alpaca(**_snapshot())
     second = account_snapshot_from_alpaca(**_snapshot())

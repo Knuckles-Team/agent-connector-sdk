@@ -52,6 +52,7 @@ def _variant(old: str, new: str) -> str:
     return _FAKE.replace(old, new)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R021")
 def test_parses_typed_contract_from_fake_connector() -> None:
     (contract,) = parse_access_contracts(_FAKE)
     assert isinstance(contract, AccessContract)

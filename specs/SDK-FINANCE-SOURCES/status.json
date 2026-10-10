@@ -23,12 +23,16 @@
     {
       "id": "SDK-FINANCE-SOURCES-R002",
       "title": "Alpaca stocks adapter: history, quotes, fundamentals, calendars",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "3e7c3cc68de3",
         "823197633ebb"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_finance_alpaca_stocks.py:54",
+        "tests/test_finance_alpaca_stocks.py:67",
+        "tests/test_finance_alpaca_stocks.py:73"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R003",
@@ -43,24 +47,30 @@
     {
       "id": "SDK-FINANCE-SOURCES-R004",
       "title": "Alpaca account reads and idempotent CSV activity import",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "2ef7ca88d676",
         "6ef04661acc2"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_finance_account_read.py:56",
+        "tests/test_finance_csv_import.py:76"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R005",
       "title": "Macro and liquidity panels: FRED series, ETF flows, sentiment, on-chain",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "36f3c76a370c",
         "840bd894c581",
         "887c201cbff5",
         "ea90460962d2"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_finance_etf_flows.py:54",
+        "tests/test_finance_fred_series.py:40"
+      ]
     }
   ]
 }

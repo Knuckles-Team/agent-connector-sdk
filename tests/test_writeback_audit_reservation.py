@@ -9,6 +9,7 @@ from agent_connector_sdk.testing.writeback_audit import InMemoryAuditReservation
 from agent_connector_sdk.writeback.errors import AuditReservationUnavailableError
 
 
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004")
 async def test_apply_without_an_available_reservation_makes_no_source_call() -> None:
     fixture = make_writeback_fixture()
     fixture.audit.deny_next(fixture.change_set.idempotency_key)
@@ -22,6 +23,7 @@ async def test_apply_without_an_available_reservation_makes_no_source_call() -> 
     assert fixture.transport.attempts == 0
 
 
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004")
 async def test_replayed_apply_returns_the_identical_effect_and_key() -> None:
     fixture = make_writeback_fixture()
 

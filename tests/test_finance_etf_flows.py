@@ -51,6 +51,7 @@ def test_one_record_per_fund_per_day() -> None:
     assert flows[0].aum_usd == 512_000_000_000.0
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R005")
 def test_each_record_is_tagged_with_source_and_observation_time() -> None:
     flows = _flows()
     assert all(f.source_id == "etf-flow-vendor" for f in flows)
