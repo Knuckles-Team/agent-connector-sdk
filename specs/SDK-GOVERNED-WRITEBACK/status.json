@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "SDK-GOVERNED-WRITEBACK",
   "owner_repo": "agent-connector-sdk",
-  "delivery_state": "LANDED",
+  "delivery_state": "VERIFIED",
   "requirement_ids": [
     "SDK-GOVERNED-WRITEBACK-R001",
     "SDK-GOVERNED-WRITEBACK-R002",
@@ -16,7 +16,8 @@
       "title": "Write-back proposals route through governed authorization, not direct action",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "daeb199f91c0"
+        "daeb199f91c0",
+        "fad5328aee62"
       ],
       "verified_by": [
         "tests/test_decide_consumers.py:169",
@@ -51,7 +52,8 @@
       "title": "Governed write-back: approval, idempotency, and an audit reservation",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "6ef04661acc2"
+        "6ef04661acc2",
+        "fad5328aee62"
       ],
       "verified_by": [
         "tests/test_writeback_audit_reservation.py:12",
