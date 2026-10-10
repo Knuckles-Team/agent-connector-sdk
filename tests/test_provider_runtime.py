@@ -12,7 +12,7 @@ from agent_connector_sdk.manifest.provider_runtime import (
 
 _SELF_HOSTED = ProviderRuntimeProfile(
     identifier="self-hosted",
-    base_url="https://self-hosted.example.internal",
+    base_url="https://self-hosted.example.com",
     auth_mode="api_key",
     capabilities=frozenset({"bulk_export"}),
 )
