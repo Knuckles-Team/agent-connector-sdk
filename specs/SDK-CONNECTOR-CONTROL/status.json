@@ -281,11 +281,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R020",
       "title": "One condensed intent contract: `MCP_TOOL_MODE` retired",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "d3617301012c"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_tool_surface.py:166"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R021",
