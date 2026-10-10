@@ -51,6 +51,7 @@ def test_unused_session_satisfies_the_mcp_session_protocol() -> None:
     assert isinstance(_SESSION, McpSession)
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005")
 def test_describe_declares_pagination_and_the_seam_schema_version() -> None:
     adapter = WebFetchSourceAdapter(
         ("http://example.invalid",), connector="test-connector", mapping_reference="v1"
@@ -62,6 +63,7 @@ def test_describe_declares_pagination_and_the_seam_schema_version() -> None:
     assert descriptor.pagination
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005")
 async def test_sweeping_two_urls_recovers_from_a_checkpoint() -> None:
     with (
         ScriptedHttpServer(ScriptedResponse(status=200, body=_PAGE_A)) as server_a,

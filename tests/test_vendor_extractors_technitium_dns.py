@@ -1,6 +1,7 @@
 """SDK-SOURCE-INGEST-R006.10: the Technitium DNS vendor extractor port."""
 
 from __future__ import annotations
+import pytest
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
 from agent_connector_sdk.vendor_extractors import (
@@ -22,6 +23,7 @@ class _FakeClient:
         return self._records_by_zone.get(zone, [])
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.10")
 def test_extract_returns_zone_and_record_entities_with_contains_relationships() -> None:
     config = {
         "client": _FakeClient(
@@ -52,10 +54,12 @@ def test_extract_returns_zone_and_record_entities_with_contains_relationships() 
     assert relationship.relationship == "CONTAINS"
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.10")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.10")
 def test_extract_returns_an_empty_change_set_when_list_zones_raises() -> None:
     class _BrokenClient:
         def list_zones(self) -> object:
@@ -67,6 +71,7 @@ def test_extract_returns_an_empty_change_set_when_list_zones_raises() -> None:
     assert extract({"client": _BrokenClient()}) == ChangeSet()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.10")
 def test_technitium_dns_self_registers_under_the_vendor_extractor_registry() -> None:
     registered = get_vendor_extractor(CATEGORY)
 

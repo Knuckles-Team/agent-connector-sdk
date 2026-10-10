@@ -35,6 +35,7 @@ def _base_fields(**overrides: object) -> dict[str, object]:
     return fields
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R008")
 def test_organism_observation_carries_schema_version_and_base_fields() -> None:
     observation = OrganismObservation(
         **_base_fields(),
@@ -50,6 +51,7 @@ def test_organism_observation_carries_schema_version_and_base_fields() -> None:
     assert observation.schema_version == EARTH_OBSERVATION_SCHEMA_VERSION
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R008")
 def test_naive_timestamp_is_rejected() -> None:
     with pytest.raises(ValidationError, match="timezone-aware"):
         WeatherObservation(
@@ -61,6 +63,7 @@ def test_naive_timestamp_is_rejected() -> None:
         )
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R008")
 def test_weather_event_names_its_weather_system() -> None:
     event = WeatherEvent(
         **_base_fields(),
