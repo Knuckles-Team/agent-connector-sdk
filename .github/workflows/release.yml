@@ -208,6 +208,11 @@ jobs:
       - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           version: '0.11.7'
+          # SDK-QUALITY-RELEASE-R003: pin the managed interpreter here too --
+          # this job builds the released wheel, so it must never fall back to
+          # the hosting runner's system Python the way the gates job's own
+          # explicit pin already prevents.
+          python-version: '3.12'
       - name: Build the wheel twice
         run: |
           uv build --wheel --out-dir dist-primary
@@ -217,6 +222,8 @@ jobs:
           python3 -c "from hashlib import sha256; from pathlib import Path; a=sorted(Path('dist-primary').glob('*.whl')); b=sorted(Path('dist-reproduction').glob('*.whl')); assert len(a)==len(b)==1 and a[0].name==b[0].name; assert sha256(a[0].read_bytes()).digest()==sha256(b[0].read_bytes()).digest(), 'wheel is not reproducible'; print('reproducible', a[0].name)"
           mkdir dist
           cp dist-primary/*.whl dist/
+      - name: Verify the installed wheel against the published graph-client (SDK-QUALITY-RELEASE-R001)
+        run: python3 scripts/check_wheel_consumer_compatibility.py --wheel dist/*.whl
       - name: Upload the publish candidate
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
