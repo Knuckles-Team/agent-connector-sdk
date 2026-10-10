@@ -212,8 +212,10 @@ def _requirement_errors_v2(root: Path, path: Path, data: dict) -> list[str]:
 def _status_field_errors_v2(path: Path, data: dict) -> list[str]:
     errors = []
     ids = data.get("requirement_ids")
-    if data.get("schema_version") != 2 or not data.get("spec_id") or not data.get(
-        "owner_repo"
+    if (
+        data.get("schema_version") != 2
+        or not data.get("spec_id")
+        or not data.get("owner_repo")
     ):
         errors.append(f"{path}: schema_version, spec_id, and owner_repo are required")
     if not _valid_ids(ids):
