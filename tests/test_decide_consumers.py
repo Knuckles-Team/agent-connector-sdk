@@ -155,6 +155,7 @@ def test_triage_falls_back_when_decide_abstains(eg: FakeRunner) -> None:
     )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R006")
 def test_triage_proposal_never_reaches_write_back(eg: FakeRunner) -> None:
     """A triage proposal is observational: it returns a plain action string,
     never a write-back change-set, and never asks the write-back question."""

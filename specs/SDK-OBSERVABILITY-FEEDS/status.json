@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "SDK-OBSERVABILITY-FEEDS",
   "owner_repo": "agent-connector-sdk",
-  "delivery_state": "LANDED",
+  "delivery_state": "VERIFIED",
   "requirement_ids": [
     "SDK-OBSERVABILITY-FEEDS-R001"
   ],
@@ -10,12 +10,16 @@
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001",
       "title": "RUM, security-audit, and CI/CD events join the durable source pipeline",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "9635897a4cb7",
         "c44284a671b3"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_event_feeds.py:266",
+        "tests/test_event_feeds.py:284",
+        "tests/test_event_feeds.py:300"
+      ]
     }
   ]
 }
