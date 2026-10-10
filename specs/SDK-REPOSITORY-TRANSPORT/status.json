@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "SDK-REPOSITORY-TRANSPORT",
   "owner_repo": "agent-connector-sdk",
-  "delivery_state": "LANDED",
+  "delivery_state": "SPECIFIED",
   "requirement_ids": [
     "SDK-REPOSITORY-TRANSPORT-R001",
     "SDK-REPOSITORY-TRANSPORT-R002",
@@ -25,21 +25,23 @@
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R002",
       "title": "SDK is the sole path for repository-native codebase hydration",
-      "delivery_state": "LANDED",
-      "landed_in": [
-        "a0d3aa8baf9a"
-      ],
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R003",
       "title": "Repository ref walk traverses each Git tree once with batched reads",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "10f03be4cabf",
-        "9a6fe1ddcf26"
+        "077a14c9f3d3",
+        "9a6fe1ddcf26",
+        "fad5328aee62"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_repository_refwalk_fastpath.py:39",
+        "tests/test_repository_refwalk_fastpath.py:78"
+      ]
     },
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R004",

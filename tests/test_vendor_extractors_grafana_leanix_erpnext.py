@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from agent_connector_sdk.ingest import ChangeSet
 from agent_connector_sdk.vendor_extractors.erpnext import CATEGORY as ERPNEXT_CATEGORY
 from agent_connector_sdk.vendor_extractors.erpnext import extract as erpnext_extract
@@ -25,6 +27,7 @@ class _FakeClient:
 # --- grafana ------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.23")
 def test_grafana_extract_links_panels_to_dashboards_and_monitored_services() -> None:
     client = _FakeClient(
         datasources=[{"uid": "ds1", "name": "Prometheus", "type": "prometheus"}],
@@ -57,6 +60,7 @@ def test_grafana_extract_links_panels_to_dashboards_and_monitored_services() -> 
     assert GRAFANA_CATEGORY == "grafana"
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.23")
 def test_grafana_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert grafana_extract({}) == ChangeSet()
 
@@ -64,6 +68,7 @@ def test_grafana_extract_returns_an_empty_change_set_without_a_client() -> None:
 # --- leanix ------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.24")
 def test_leanix_extract_maps_factsheets_and_known_relations() -> None:
     def factsheets(type: str, since: object = None, ids: object = None) -> list[dict]:
         if type == "Application":
@@ -95,6 +100,7 @@ def test_leanix_extract_maps_factsheets_and_known_relations() -> None:
     assert LEANIX_CATEGORY == "leanix"
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.24")
 def test_leanix_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert leanix_extract({}) == ChangeSet()
 
@@ -102,6 +108,7 @@ def test_leanix_extract_returns_an_empty_change_set_without_a_client() -> None:
 # --- erpnext ------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.25")
 def test_erpnext_extract_maps_doctypes_and_relationships() -> None:
     def get_list(doctype: str) -> list[dict]:
         return {
@@ -142,5 +149,6 @@ def test_erpnext_extract_maps_doctypes_and_relationships() -> None:
     assert employee.properties["externalToolId"] == "EMP-1"
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.25")
 def test_erpnext_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert erpnext_extract({}) == ChangeSet()

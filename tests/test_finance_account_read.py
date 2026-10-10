@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from agent_connector_sdk.finance.alpaca_account import account_snapshot_from_alpaca
 from agent_connector_sdk.finance.csv_import import AccountContext
 
@@ -38,6 +40,7 @@ def _snapshot(**overrides: object) -> dict[str, object]:
     return fields
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004")
 def test_snapshot_maps_cash_balance_and_every_position() -> None:
     snapshot = account_snapshot_from_alpaca(**_snapshot())
 
@@ -48,11 +51,13 @@ def test_snapshot_maps_cash_balance_and_every_position() -> None:
     assert snapshot.positions[0].average_cost == 100.0
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004")
 def test_position_without_its_own_currency_inherits_the_account_currency() -> None:
     snapshot = account_snapshot_from_alpaca(**_snapshot())
     assert snapshot.positions[0].currency == "USD"
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004")
 def test_rereading_the_same_account_at_the_same_instant_is_idempotent() -> None:
     first = account_snapshot_from_alpaca(**_snapshot())
     second = account_snapshot_from_alpaca(**_snapshot())

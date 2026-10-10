@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from datetime import UTC, date, datetime
 
+import pytest
+
 from agent_connector_sdk.finance.etf_flows import (
     EtfFundFlow,
     etf_fund_flows_from_source,
@@ -43,6 +45,7 @@ def _flows(**overrides: object) -> tuple[EtfFundFlow, ...]:
     return etf_fund_flows_from_source(**fields)
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R005")
 def test_one_record_per_fund_per_day() -> None:
     flows = _flows()
     assert [f.fund_ticker for f in flows] == ["SPY", "QQQ"]
@@ -51,6 +54,7 @@ def test_one_record_per_fund_per_day() -> None:
     assert flows[0].aum_usd == 512_000_000_000.0
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R005")
 def test_each_record_is_tagged_with_source_and_observation_time() -> None:
     flows = _flows()
     assert all(f.source_id == "etf-flow-vendor" for f in flows)
@@ -59,6 +63,7 @@ def test_each_record_is_tagged_with_source_and_observation_time() -> None:
     assert all(f.instrument_id == f.fund_ticker for f in flows)
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R005")
 def test_outflow_is_a_negative_net_flow() -> None:
     flows = _flows()
     assert flows[1].net_flow_usd < 0

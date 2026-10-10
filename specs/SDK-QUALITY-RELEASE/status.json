@@ -21,11 +21,14 @@
     {
       "id": "SDK-QUALITY-RELEASE-R002",
       "title": "Public-documentation scanner catches private addresses and hosts",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "42d6c942703e"
+        "fad5328aee62",
+        "ffb9260d7602"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_doc_privacy_scanner.py:28"
+      ]
     },
     {
       "id": "SDK-QUALITY-RELEASE-R003",
@@ -40,7 +43,7 @@
       "delivery_state": "LANDED",
       "landed_in": [
         "cbbf859a5c38",
-        "ced5e1fcdf09"
+        "fad5328aee62"
       ],
       "verified_by": []
     },

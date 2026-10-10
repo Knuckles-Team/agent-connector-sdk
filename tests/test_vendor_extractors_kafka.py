@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from agent_connector_sdk.ingest import ChangeSet, Entity
 from agent_connector_sdk.vendor_extractors import (
     get_vendor_extractor,
@@ -22,6 +24,7 @@ class _FakeClient:
         return self._groups
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.6")
 def test_extract_returns_topic_and_service_entities() -> None:
     config = {
         "client": _FakeClient(
@@ -46,6 +49,7 @@ def test_extract_returns_topic_and_service_entities() -> None:
     assert result.relationships == ()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.6")
 def test_extract_unwraps_a_dict_shaped_topics_response() -> None:
     config = {"client": _FakeClient(topics={"data": ["orders"]}, groups=[])}
 
@@ -54,10 +58,12 @@ def test_extract_unwraps_a_dict_shaped_topics_response() -> None:
     assert [entity.id for entity in result.entities] == ["kafka_topic:orders"]
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.6")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.6")
 def test_extract_returns_an_empty_change_set_when_list_topics_raises() -> None:
     class _BrokenClient:
         def list_topics(self) -> object:
@@ -69,6 +75,7 @@ def test_extract_returns_an_empty_change_set_when_list_topics_raises() -> None:
     assert extract({"client": _BrokenClient()}) == ChangeSet()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.6")
 def test_kafka_self_registers_under_the_vendor_extractor_registry() -> None:
     registered = get_vendor_extractor(CATEGORY)
 

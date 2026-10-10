@@ -197,6 +197,7 @@ def test_selection_errors(monkeypatch: pytest.MonkeyPatch) -> None:
         )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R017")
 def test_resolution_rejects_unsafe_profiles(
     certificates: CertificateSet, tmp_path: Path
 ) -> None:

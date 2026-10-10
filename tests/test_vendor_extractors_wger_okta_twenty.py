@@ -9,6 +9,8 @@ each public contract name.
 
 from __future__ import annotations
 
+import pytest
+
 from agent_connector_sdk.ingest import ChangeSet
 from agent_connector_sdk.vendor_extractors import (
     VendorExtractFn,
@@ -58,6 +60,7 @@ def test_discover_vendor_extractors_imports_every_module_at_least_once() -> None
 # --- wger ------------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.17")
 def test_wger_extract_maps_weight_and_sessions_to_body_measurement_entities() -> None:
     client = _FakeClient(
         get_weight_entries=[{"id": 1, "weight": 80.5, "date": "2026-01-01"}],
@@ -84,6 +87,7 @@ def test_wger_extract_maps_weight_and_sessions_to_body_measurement_entities() ->
     assert rel.relationship == "PART_OF"
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.17")
 def test_wger_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert wger_extract({}) == ChangeSet()
 
@@ -91,6 +95,7 @@ def test_wger_extract_returns_an_empty_change_set_without_a_client() -> None:
 # --- okta --------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.18")
 def test_okta_extract_links_group_members_and_maps_apps() -> None:
     client = _FakeClient(
         list_users=[{"id": "u1", "profile": {"email": "a@example.com"}}],
@@ -114,6 +119,7 @@ def test_okta_extract_links_group_members_and_maps_apps() -> None:
     assert app.properties["domain"] == OKTA_CATEGORY
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.18")
 def test_okta_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert okta_extract({}) == ChangeSet()
 
@@ -121,6 +127,7 @@ def test_okta_extract_returns_an_empty_change_set_without_a_client() -> None:
 # --- twenty --------------------------------------------------------------
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.19")
 def test_twenty_extract_maps_companies_people_and_opportunities() -> None:
     client = _FakeClient(
         get_companies={
@@ -157,5 +164,6 @@ def test_twenty_extract_maps_companies_people_and_opportunities() -> None:
     assert opp.properties["domain"] == TWENTY_CATEGORY
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.19")
 def test_twenty_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert twenty_extract({}) == ChangeSet()

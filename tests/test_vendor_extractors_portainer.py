@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
 from agent_connector_sdk.vendor_extractors import (
     get_vendor_extractor,
@@ -31,6 +33,7 @@ class _FakeClient:
         return self._stacks
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.11")
 def test_extract_returns_server_asset_and_service_entities() -> None:
     config = {
         "client": _FakeClient(
@@ -70,10 +73,12 @@ def test_extract_returns_server_asset_and_service_entities() -> None:
     assert relationship.relationship == "RUNS_ON"
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.11")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.11")
 def test_extract_returns_an_empty_change_set_when_get_endpoints_raises() -> None:
     class _BrokenClient:
         def get_endpoints(self) -> object:
@@ -85,6 +90,7 @@ def test_extract_returns_an_empty_change_set_when_get_endpoints_raises() -> None
     assert extract({"client": _BrokenClient()}) == ChangeSet()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R006.11")
 def test_portainer_self_registers_under_the_vendor_extractor_registry() -> None:
     registered = get_vendor_extractor(CATEGORY)
 

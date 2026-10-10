@@ -73,8 +73,7 @@
       "title": "Canonical output-schema digest on every certified tool pin",
       "delivery_state": "LANDED",
       "landed_in": [
-        "0f826d4ca6db",
-        "14c82b51df3e"
+        "0f826d4ca6db"
       ],
       "verified_by": []
     },
@@ -104,34 +103,41 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R006",
       "title": "Decision-service proposals for tool choice and triage stay observational",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "077a14c9f3d3",
         "0f826d4ca6db",
-        "14c82b51df3e",
         "91801315ccaf",
-        "daeb199f91c0"
+        "daeb199f91c0",
+        "fad5328aee62"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_decide_consumers.py:158"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R007",
       "title": "Fleet-wide re-certification yields nonempty schema fingerprints",
       "delivery_state": "LANDED",
       "landed_in": [
-        "0f826d4ca6db",
-        "487b65748b25"
+        "0f826d4ca6db"
       ],
       "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R008",
       "title": "Closed, canonical pack annotation map across the connector fleet",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "6a6c626b5708",
-        "e444b35a4c21"
+        "077a14c9f3d3",
+        "e444b35a4c21",
+        "fad5328aee62"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_artifacts_discovery.py:350",
+        "tests/test_artifacts_discovery.py:367",
+        "tests/test_artifacts_discovery.py:383"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R009",
@@ -140,7 +146,6 @@
       "landed_in": [
         "5e1bd9257555",
         "7a38ee433346",
-        "8e2d7c50896a",
         "d3617301012c"
       ],
       "verified_by": []
@@ -150,7 +155,6 @@
       "title": "Connector batch F-J migrates fully onto the SDK client",
       "delivery_state": "LANDED",
       "landed_in": [
-        "51f9ab300529",
         "5e1bd9257555",
         "7a38ee433346"
       ],
@@ -161,7 +165,6 @@
       "title": "Connector batch K-O migrates fully onto the SDK client",
       "delivery_state": "LANDED",
       "landed_in": [
-        "51f9ab300529",
         "5e1bd9257555",
         "7a38ee433346"
       ],
@@ -182,7 +185,6 @@
       "title": "Connector batch T-Z migrates fully onto the SDK client",
       "delivery_state": "LANDED",
       "landed_in": [
-        "51f9ab300529",
         "5e1bd9257555",
         "7a38ee433346"
       ],
@@ -191,10 +193,9 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014",
       "title": "SDK fully supersedes the duplicated connector toolkit",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "5e1bd9257555",
-        "ac403a24d45e"
+        "5e1bd9257555"
       ],
       "verified_by": [],
       "rollup_of": [
@@ -204,19 +205,22 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.1",
       "title": "One reusable cross-repository import-scan call site",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "ab73ea5005a0"
+        "077a14c9f3d3",
+        "ab73ea5005a0",
+        "fad5328aee62"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_fleet_migration_scan.py:90"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R015",
       "title": "SDK is sole owner of connector source lifecycle and certification",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "5e1bd9257555",
-        "c6e280cdd1e8"
+        "5e1bd9257555"
       ],
       "verified_by": [],
       "rollup_of": [
@@ -226,12 +230,20 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R015.1",
       "title": "A duplicate-definition scan for the manifest/certify surface",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "061f9b58abb2",
-        "9cec9cea7d37"
+        "077a14c9f3d3",
+        "9cec9cea7d37",
+        "fad5328aee62"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_duplicate_symbol_scan.py:21",
+        "tests/test_duplicate_symbol_scan.py:29",
+        "tests/test_duplicate_symbol_scan.py:43",
+        "tests/test_duplicate_symbol_scan.py:56",
+        "tests/test_duplicate_symbol_scan.py:69"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R016",
@@ -248,11 +260,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R017",
       "title": "Every connector uses the shared TLS profile, no bare verify bypass",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "830be1c11cfe"
+        "fad5328aee62"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_tls_profiles.py:200"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R018",
@@ -266,42 +280,58 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R019",
       "title": "Host servers register ontology resources without duplicate skills or prompts",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "045ba48df230",
-        "64acdc30c34e",
-        "d9c0db1b19cf"
+        "077a14c9f3d3",
+        "d9c0db1b19cf",
+        "fad5328aee62"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_registry_visibility_content.py:276",
+        "tests/test_registry_visibility_content.py:293"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R020",
       "title": "One condensed intent contract: `MCP_TOOL_MODE` retired",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "d3617301012c"
+        "d3617301012c",
+        "ffb9260d7602"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_tool_surface.py:167"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R021",
       "title": "Connector ontologies declare access contracts for virtual reads",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "0a10559775ea",
-        "b29c0c01a044"
+        "fad5328aee62"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_access_contract.py:55"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R022",
       "title": "The pack builder scopes `owl:imports` to the pack",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "78ea5b9531db",
-        "e6b835dcad49"
+        "077a14c9f3d3",
+        "e6b835dcad49",
+        "fad5328aee62"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_pack_ontology_imports.py:109",
+        "tests/test_pack_ontology_imports.py:34",
+        "tests/test_pack_ontology_imports.py:49",
+        "tests/test_pack_ontology_imports.py:68",
+        "tests/test_pack_ontology_imports.py:82"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R023",
@@ -309,8 +339,7 @@
       "delivery_state": "LANDED",
       "landed_in": [
         "713782e7901c",
-        "b9a9652c0135",
-        "d1c580006f08"
+        "b9a9652c0135"
       ],
       "verified_by": []
     },
@@ -319,8 +348,7 @@
       "title": "A prompt the server rejects for its bound placeholder still captures as a template",
       "delivery_state": "LANDED",
       "landed_in": [
-        "713782e7901c",
-        "7abfccb06bb9"
+        "713782e7901c"
       ],
       "verified_by": []
     },
@@ -329,8 +357,7 @@
       "title": "SDK provides identity-scoped resource entitlement resolution",
       "delivery_state": "LANDED",
       "landed_in": [
-        "5a476653a386",
-        "7b0c0405e4a5"
+        "5a476653a386"
       ],
       "verified_by": []
     },
