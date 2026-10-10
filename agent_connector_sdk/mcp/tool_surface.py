@@ -147,11 +147,18 @@ def register_tool_surface(
     accepted and ignored. They built the retired verbose 1:1 tool surface;
     they stay so existing call sites across the fleet need no edit.
 
+    ``verbose_register``, when given, is called after condensed registration
+    (SDK-CONNECTOR-CONTROL-R032): an explicit opt-in, verbose, one-tool-per-method
+    surface for a connector still migrating off a verbose predecessor (see
+    :func:`agent_connector_sdk.mcp.method_tools.register_method_tools`). The
+    condensed surface always registers first and is never replaced by it.
+
     Returns:
         The condensed tags that registered.
 
     Raises:
-        ValueError: a registrar entry is malformed.
+        ValueError: a registrar entry is malformed, or a verbose tool name
+            collides with an already-registered condensed tool name.
     """
     del (
         service,
@@ -160,9 +167,20 @@ def register_tool_surface(
         manifest,
         tool_prefix,
         verbose_targets,
-        verbose_register,
         action_providers,
     )
-    return _register_condensed(
+    tags = _register_condensed(
         mcp, _condensed_entries(tool_registry, tools_module, registrars)
     )
+    if verbose_register is not None:
+        before = registered_tools(mcp)
+        verbose_register(mcp)
+        after = registered_tools(mcp)
+        collisions = {
+            name for name in before if name in after and after[name] is not before[name]
+        }
+        if collisions:
+            raise ValueError(
+                f"verbose tool name collides with a condensed tool: {sorted(collisions)}"
+            )
+    return tags
