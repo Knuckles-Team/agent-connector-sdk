@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "SDK-REPOSITORY-TRANSPORT",
   "owner_repo": "agent-connector-sdk",
-  "delivery_state": "SPECIFIED",
+  "delivery_state": "LANDED",
   "requirement_ids": [
     "SDK-REPOSITORY-TRANSPORT-R001",
     "SDK-REPOSITORY-TRANSPORT-R002",
@@ -14,9 +14,13 @@
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R001",
       "title": "Repository transport hydrates code and specification sources from Git",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "acf470ac4906"
+      ],
+      "verified_by": [
+        "tests/test_repository_transport.py:117"
+      ]
     },
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R002",
@@ -40,16 +44,26 @@
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R004",
       "title": "Repository transport submits bounded, outcome-complete index batches",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "acf470ac4906"
+      ],
+      "verified_by": [
+        "tests/test_repository_transport.py:179",
+        "tests/test_repository_transport.py:200",
+        "tests/test_repository_transport.py:257"
+      ]
     },
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R005",
       "title": "Branch-aware transport batches indexing into one call per batch",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "acf470ac4906"
+      ],
+      "verified_by": [
+        "tests/test_repository_transport.py:180"
+      ]
     }
   ]
 }
