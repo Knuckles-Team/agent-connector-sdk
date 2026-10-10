@@ -107,6 +107,9 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 timeout = 120
 addopts = "-p no:cacheprovider"
+markers = [
+    "spec: binds a test to a spec requirement ID",
+]
 
 [tool.bandit]
 exclude_dirs = ["tests", "scripts"]
@@ -153,6 +156,7 @@ public_modules = [
     "agent_connector_sdk.finance.records",
     "agent_connector_sdk.http.bodies",
     "agent_connector_sdk.http.client",
+    "agent_connector_sdk.http.egress",
     "agent_connector_sdk.http.errors",
     "agent_connector_sdk.http.options",
     "agent_connector_sdk.http.pagination",
@@ -174,6 +178,7 @@ public_modules = [
     "agent_connector_sdk.manifest.model",
     "agent_connector_sdk.manifest.ontology_pack",
     "agent_connector_sdk.manifest.presets",
+    "agent_connector_sdk.manifest.provider_runtime",
     "agent_connector_sdk.manifest.tool_schema",
     "agent_connector_sdk.mcp.action_dispatch",
     "agent_connector_sdk.mcp.auth.factory",

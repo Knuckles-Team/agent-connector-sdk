@@ -99,6 +99,7 @@ async def test_artifact_kinds_pass_the_conformance_kit(
     )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R002")
 async def test_contract_pin_normalization_passes_for_a_real_tool(
     sessions: SessionFactory,
 ) -> None:
@@ -107,6 +108,7 @@ async def test_contract_pin_normalization_passes_for_a_real_tool(
     assert result.passed, result.detail
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R004")
 async def test_contract_pin_normalization_catches_a_drifted_pin(
     sessions: SessionFactory,
 ) -> None:

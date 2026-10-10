@@ -51,6 +51,7 @@ def test_pack_import_authority_resolver_is_public() -> None:
     assert PackImportAuthorityResolver is not None
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R005")
 def test_sdk_does_not_redeclare_generated_graph_boundary_models() -> None:
     copied_names = {
         "ArtifactEntry",
@@ -507,6 +508,7 @@ async def test_epistemic_graph_sink_replays_matching_pack_without_upload() -> No
     assert [method for method, _, _ in client.calls] == ["ConnectorPack"]
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R001")
 async def test_epistemic_graph_sink_retries_one_pack_head_conflict() -> None:
     async def authority(
         _connector: str,

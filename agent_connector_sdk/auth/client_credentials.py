@@ -39,11 +39,21 @@ class ClientCredentialsTokenProvider:
     Args:
         token_url: The token endpoint.
         client_id: The OAuth client identifier.
-        client_secret_ref: A secret reference to the client secret.
+        client_secret_ref: A secret reference to the client secret. Exactly
+            one of ``client_secret_ref`` and ``client_secret`` must be set.
+        client_secret: A literal client secret, for a connector migrating
+            from a prior client-credentials helper that already calls this
+            constructor with a secret value in hand. It is held only in
+            memory and never logged, repr'd, or serialized.
         http_client: The governed client used for the token endpoint.
         audience: Optional ``audience`` parameter.
         scope: Optional space-separated scopes.
-        resolver: Resolves the secret reference.
+        resolver: Resolves the secret reference; unused when ``client_secret``
+            is given.
+
+    Raises:
+        ValueError: both or neither of ``client_secret_ref`` and
+            ``client_secret`` are set.
     """
 
     def __init__(
@@ -51,15 +61,21 @@ class ClientCredentialsTokenProvider:
         *,
         token_url: str,
         client_id: str,
-        client_secret_ref: str,
+        client_secret_ref: str = "",
+        client_secret: str | None = None,
         http_client: httpx.Client,
         audience: str = "",
         scope: str = "",
         resolver: CredentialResolver | None = None,
     ) -> None:
+        if bool(client_secret_ref) == (client_secret is not None):
+            raise ValueError(
+                "exactly one of client_secret_ref and client_secret must be set"
+            )
         self._token_url = token_url
         self._client_id = header_safe(client_id, what="client id")
         self._secret_ref = client_secret_ref
+        self._literal_secret = client_secret
         self._client = http_client
         self._form = {"grant_type": "client_credentials"}
         self._form.update(
@@ -75,10 +91,13 @@ class ClientCredentialsTokenProvider:
         return self._token.ttl_seconds if self._token else None
 
     def _mint(self) -> AccessToken:
-        try:
-            secret = resolve_secret_reference(self._secret_ref, self._resolver)
-        except (SecretReferenceError, CredentialUnavailableError) as exc:
-            raise TokenRequestError("client secret is unavailable") from exc
+        if self._literal_secret is not None:
+            secret = self._literal_secret
+        else:
+            try:
+                secret = resolve_secret_reference(self._secret_ref, self._resolver)
+            except (SecretReferenceError, CredentialUnavailableError) as exc:
+                raise TokenRequestError("client secret is unavailable") from exc
         return request_access_token(
             self._client,
             self._token_url,
