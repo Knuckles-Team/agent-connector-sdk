@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from agent_connector_sdk.finance.alpaca_stocks import ohlcv_bars_from_alpaca
 from agent_connector_sdk.finance.records import AdjustmentMode, Completeness
 
@@ -51,6 +53,7 @@ def _bars(**overrides: object) -> tuple:
     return ohlcv_bars_from_alpaca(**fields)
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R002")
 def test_every_bar_in_the_page_maps_in_deterministic_order() -> None:
     bars = _bars()
 
@@ -63,11 +66,13 @@ def test_every_bar_in_the_page_maps_in_deterministic_order() -> None:
     assert bars[0].close == 100.5
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R002")
 def test_adjustment_mode_is_the_caller_s_explicit_request() -> None:
     bars = _bars(adjustment_mode=AdjustmentMode.ADJUSTED)
     assert all(bar.adjustment_mode is AdjustmentMode.ADJUSTED for bar in bars)
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R002")
 def test_a_page_with_no_next_token_is_complete() -> None:
     bars = _bars()
     assert all(bar.completeness is Completeness.COMPLETE for bar in bars)

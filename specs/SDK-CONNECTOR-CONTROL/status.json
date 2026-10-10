@@ -103,13 +103,15 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R006",
       "title": "Decision-service proposals for tool choice and triage stay observational",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "0f826d4ca6db",
         "91801315ccaf",
         "daeb199f91c0"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_decide_consumers.py:158"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R007",
@@ -123,11 +125,15 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R008",
       "title": "Closed, canonical pack annotation map across the connector fleet",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "e444b35a4c21"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_artifacts_discovery.py:350",
+        "tests/test_artifacts_discovery.py:367",
+        "tests/test_artifacts_discovery.py:383"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R009",
@@ -183,7 +189,7 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014",
       "title": "SDK fully supersedes the duplicated connector toolkit",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "5e1bd9257555"
       ],
@@ -195,16 +201,18 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.1",
       "title": "One reusable cross-repository import-scan call site",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "ab73ea5005a0"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_fleet_migration_scan.py:90"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R015",
       "title": "SDK is sole owner of connector source lifecycle and certification",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "5e1bd9257555"
       ],
@@ -216,12 +224,18 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R015.1",
       "title": "A duplicate-definition scan for the manifest/certify surface",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "061f9b58abb2",
         "9cec9cea7d37"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_duplicate_symbol_scan.py:28",
+        "tests/test_duplicate_symbol_scan.py:42",
+        "tests/test_duplicate_symbol_scan.py:55",
+        "tests/test_duplicate_symbol_scan.py:68",
+        "tests/test_duplicate_symbol_scan.py:82"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R016",
@@ -254,12 +268,15 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R019",
       "title": "Host servers register ontology resources without duplicate skills or prompts",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "045ba48df230",
         "d9c0db1b19cf"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_registry_visibility_content.py:276",
+        "tests/test_registry_visibility_content.py:293"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R020",
@@ -282,11 +299,17 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R022",
       "title": "The pack builder scopes `owl:imports` to the pack",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "e6b835dcad49"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_pack_ontology_imports.py:109",
+        "tests/test_pack_ontology_imports.py:34",
+        "tests/test_pack_ontology_imports.py:49",
+        "tests/test_pack_ontology_imports.py:68",
+        "tests/test_pack_ontology_imports.py:82"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R023",

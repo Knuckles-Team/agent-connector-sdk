@@ -347,6 +347,7 @@ async def test_tool_annotation_conflict_fails_closed() -> None:
         await ToolArtifactKind().list_entries(session, SERVER)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R008")
 async def test_tool_cost_and_latency_annotations_reach_generated_pack() -> None:
     annotations = await _annotated_tool_pack(
         "priced",
@@ -363,6 +364,7 @@ async def test_tool_cost_and_latency_annotations_reach_generated_pack() -> None:
 
 
 @pytest.mark.parametrize("currency", ["usd", "US", "USDD", "US1", "", "  USD"])
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R008")
 async def test_tool_cost_rejects_non_iso4217_currency(currency: str) -> None:
     tool = mcp_types.Tool.model_validate(
         {
@@ -378,6 +380,7 @@ async def test_tool_cost_rejects_non_iso4217_currency(currency: str) -> None:
         await ToolArtifactKind().list_entries(session, SERVER)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R008")
 async def test_tool_latency_rejects_p50_above_p95() -> None:
     tool = mcp_types.Tool.model_validate(
         {

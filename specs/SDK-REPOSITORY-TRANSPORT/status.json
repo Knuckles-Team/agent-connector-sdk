@@ -32,11 +32,14 @@
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R003",
       "title": "Repository ref walk traverses each Git tree once with batched reads",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "9a6fe1ddcf26"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_repository_refwalk_fastpath.py:39",
+        "tests/test_repository_refwalk_fastpath.py:78"
+      ]
     },
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R004",
