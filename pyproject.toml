@@ -132,7 +132,6 @@ public_modules = [
     "agent_connector_sdk.auth.tokens",
     "agent_connector_sdk.auth.values",
     "agent_connector_sdk.config",
-    "agent_connector_sdk.provider_runtime",
     "agent_connector_sdk.contracts",
     "agent_connector_sdk.schema_drift",
     "agent_connector_sdk.schema_repair",
