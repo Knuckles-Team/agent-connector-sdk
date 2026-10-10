@@ -73,7 +73,8 @@
       "title": "Canonical output-schema digest on every certified tool pin",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "0f826d4ca6db"
+        "0f826d4ca6db",
+        "93afc6b075df"
       ],
       "verified_by": [
         "tests/test_certify_pins.py:109"
@@ -122,7 +123,8 @@
       "title": "Fleet-wide re-certification yields nonempty schema fingerprints",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "0f826d4ca6db"
+        "0f826d4ca6db",
+        "93afc6b075df"
       ],
       "verified_by": [
         "tests/test_fleet_recertification.py:54"
