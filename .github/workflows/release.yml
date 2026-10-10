@@ -95,6 +95,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - *checkout
+      - *uv
       - name: Spec status (schema v2 status.json matches requirements/history/tests)
         run: uvx --from 'git+https://github.com/Knuckles-Team/pipelines@main' pipelines-hook spec-status
       - name: Spec decomposition (requirements/tasks/test-spec/status.json IDs agree)

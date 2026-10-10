@@ -411,36 +411,51 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R032",
       "title": "SDK provides opt-in verbose, one-tool-per-method surface derivation via `register_tool_surface`",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
       "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R033",
       "title": "SDK's governed HTTP layer provides a `safe_post_json` helper with the same private-host allowance as its GET path",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
       "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R034",
       "title": "SDK provides shared library-file-path resolution and cross-process file locking utilities",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
       "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R035",
       "title": "SDK provides a CredentialProvider/SecretsClient abstraction for connectors, not only a credential-reference string",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
       "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R036",
       "title": "SDK's identity-scoped resource entitlements cover the backend-resource catalogs these connectors manage",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
       "verified_by": []
     }
   ]
