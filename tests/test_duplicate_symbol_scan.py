@@ -18,6 +18,7 @@ def _write(path: Path, source: str) -> None:
     path.write_text(source, encoding="utf-8")
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R015.1")
 def test_the_tracked_surface_names_the_sdks_manifest_and_certify_exports() -> None:
     assert (
         frozenset({"ConnectorManifest", "CertificationReport", "certify_connector"})
