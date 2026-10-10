@@ -32,11 +32,14 @@ default resource) -- the resolver never invents access.
 from __future__ import annotations
 
 from collections.abc import Iterable
+from dataclasses import dataclass
 
 from agent_connector_sdk.identity import ActorContext, current_actor
 
 __all__ = [
     "DEFAULT_SUPER_CAPS",
+    "CatalogResource",
+    "catalog_entitled_resources",
     "entitled_resources",
     "grants_all_in_namespace",
     "identity_scoped_resources",
@@ -167,3 +170,48 @@ def identity_scoped_resources(
         )
     capabilities = (*getattr(ctx, "roles", ()), *getattr(ctx, "groups", ()))
     return entitled_resources(capabilities, namespace, available, super_caps=super_caps)
+
+
+@dataclass(frozen=True)
+class CatalogResource:
+    """One backend resource a connector's own catalog exposes.
+
+    A connector's native catalog shape (a Keycloak realm or client, a
+    systems-manager managed host, a Vaultwarden vault or collection, ...) maps
+    to this one pair so :func:`catalog_entitled_resources` can resolve
+    entitlements against it without the connector reimplementing the
+    capability grammar (SDK-CONNECTOR-CONTROL-R036).
+    """
+
+    identifier: str
+    namespace: str
+
+
+def catalog_entitled_resources(
+    capabilities: Iterable[str],
+    catalog: Iterable[CatalogResource],
+    *,
+    super_caps: Iterable[str] = DEFAULT_SUPER_CAPS,
+) -> tuple[str, ...]:
+    """Resolve entitled identifiers across a connector's own resource catalog.
+
+    Groups ``catalog`` by :attr:`CatalogResource.namespace` and resolves each
+    namespace's entitled subset with :func:`entitled_resources`, so a
+    connector with multiple resource kinds (e.g. Keycloak realms AND clients)
+    gets one call instead of reimplementing the grammar per kind.
+
+    Returns:
+        An order-stable tuple of entitled identifiers, grouped by the order
+        namespaces first appear in ``catalog``. Empty when nothing matches
+        (fail-closed, same as :func:`entitled_resources`).
+    """
+    caps = list(capabilities)
+    by_namespace: dict[str, list[str]] = {}
+    for resource in catalog:
+        by_namespace.setdefault(resource.namespace, []).append(resource.identifier)
+    resolved: list[str] = []
+    for namespace, identifiers in by_namespace.items():
+        resolved.extend(
+            entitled_resources(caps, namespace, identifiers, super_caps=super_caps)
+        )
+    return tuple(resolved)

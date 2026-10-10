@@ -119,3 +119,44 @@ def test_invalid_surface_declarations() -> None:
         register_tool_surface(mcp, service="demo", registrars=[("items", "ITEMSTOOL")])
     with pytest.raises(ValueError):
         register_tool_surface(mcp, service="demo", registrars=["not callable"])
+
+
+def test_verbose_register_runs_alongside_condensed() -> None:
+    """SDK-CONNECTOR-CONTROL-R032: an opt-in verbose registrar runs too."""
+    mcp: FastMCP[Any] = FastMCP("demo")
+
+    def register_verbose(server: FastMCP[Any]) -> None:
+        @server.tool()
+        def demo_get_item(params_json: str = "{}") -> str:
+            """Verbose per-method tool."""
+            return params_json
+
+    tags = register_tool_surface(
+        mcp,
+        service="demo-api",
+        registrars=[register_items_tools],
+        verbose_register=register_verbose,
+    )
+    assert tags == ["items"]
+    names = set(registered_tools(mcp))
+    assert names == {"demo_items", "demo_get_item"}
+    assert gated_tool_names(mcp) == {"demo_items"}
+
+
+def test_verbose_register_name_collision_with_condensed_rejected() -> None:
+    """A verbose tool reusing a condensed tool's name is refused."""
+    mcp: FastMCP[Any] = FastMCP("demo")
+
+    def register_colliding(server: FastMCP[Any]) -> None:
+        @server.tool(name="demo_items")
+        def demo_items_again(params_json: str = "{}") -> str:
+            """Collides with the condensed tool name."""
+            return params_json
+
+    with pytest.raises(ValueError, match="collides"):
+        register_tool_surface(
+            mcp,
+            service="demo-api",
+            registrars=[register_items_tools],
+            verbose_register=register_colliding,
+        )
