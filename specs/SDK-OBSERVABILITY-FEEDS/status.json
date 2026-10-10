@@ -1,35 +1,21 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "spec_id": "SDK-OBSERVABILITY-FEEDS",
   "owner_repo": "agent-connector-sdk",
+  "delivery_state": "LANDED",
   "requirement_ids": [
     "SDK-OBSERVABILITY-FEEDS-R001"
-  ],
-  "delivery_state": "LANDED",
-  "acceptance_state": "NOT_AUDITED",
-  "evidence": [
-    {
-      "kind": "merged_head",
-      "result": "passed",
-      "commit": "9635897a4cb799bd0e8f7eca6095ff54978f47d4",
-      "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/9635897a4cb799bd0e8f7eca6095ff54978f47d4",
-      "description": "Every requirement in this spec is merged to the default branch."
-    }
   ],
   "requirements": [
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001",
       "title": "RUM, security-audit, and CI/CD events join the durable source pipeline",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "9635897a4cb799bd0e8f7eca6095ff54978f47d4",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/9635897a4cb799bd0e8f7eca6095ff54978f47d4",
-          "description": "Implemented on the default branch; exercised by tests/test_event_feeds.py"
-        }
-      ]
+      "landed_in": [
+        "9635897a4cb7",
+        "c44284a671b3"
+      ],
+      "verified_by": []
     }
   ]
 }

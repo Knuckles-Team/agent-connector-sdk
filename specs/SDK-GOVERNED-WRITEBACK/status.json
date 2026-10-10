@@ -1,7 +1,8 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "spec_id": "SDK-GOVERNED-WRITEBACK",
   "owner_repo": "agent-connector-sdk",
+  "delivery_state": "SPECIFIED",
   "requirement_ids": [
     "SDK-GOVERNED-WRITEBACK-R001",
     "SDK-GOVERNED-WRITEBACK-R002",
@@ -9,87 +10,46 @@
     "SDK-GOVERNED-WRITEBACK-R004",
     "SDK-GOVERNED-WRITEBACK-R005"
   ],
-  "delivery_state": "LANDED",
-  "acceptance_state": "NOT_AUDITED",
-  "evidence": [
-    {
-      "kind": "merged_head",
-      "result": "passed",
-      "commit": "1ebd0d6ff8807ee83eabc5672ec537c8eeb0c542",
-      "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/1ebd0d6ff8807ee83eabc5672ec537c8eeb0c542",
-      "description": "Every requirement in this spec is merged to the default branch."
-    }
-  ],
   "requirements": [
     {
       "id": "SDK-GOVERNED-WRITEBACK-R001",
       "title": "Write-back proposals route through governed authorization, not direct action",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "1ebd0d6ff8807ee83eabc5672ec537c8eeb0c542",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/1ebd0d6ff8807ee83eabc5672ec537c8eeb0c542",
-          "description": "Implemented on the default branch; exercised by tests/test_writeback.py::test_unknown_authorization_mode_fails_closed"
-        }
-      ]
+      "landed_in": [
+        "daeb199f91c0"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-GOVERNED-WRITEBACK-R002",
       "title": "Source-side WriteBackPort composes a durable graph write-back adapter",
-      "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "1ebd0d6ff8807ee83eabc5672ec537c8eeb0c542",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/1ebd0d6ff8807ee83eabc5672ec537c8eeb0c542",
-          "description": "Implemented on the default branch; exercised by tests/test_writeback_durable.py::test_generated_eg_adapter_uses_typed_ops_and_idempotency_keys"
-        }
-      ]
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-GOVERNED-WRITEBACK-R003",
       "title": "Full write-back requires an authorization resolver and restart recovery",
-      "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "c16072c5508af1e59e3017bbd24e0265f7c0d714",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/c16072c5508af1e59e3017bbd24e0265f7c0d714",
-          "description": "Implemented on the default branch; exercised by tests/test_writeback_process_restart.py::test_writable_connector_survives_a_kill_mid_attempt"
-        }
-      ]
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-GOVERNED-WRITEBACK-R004",
       "title": "Governed write-back: approval, idempotency, and an audit reservation",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "73cf528de6d33177ad0347b6dcef53a274910117",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/73cf528de6d33177ad0347b6dcef53a274910117",
-          "description": "Implemented on the default branch; exercised by tests/test_writeback_audit_reservation.py"
-        }
-      ]
+      "landed_in": [
+        "6ef04661acc2",
+        "73cf528de6d3"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-GOVERNED-WRITEBACK-R005",
       "title": "Write-back implementation passes its full durable test suite together",
-      "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "c16072c5508af1e59e3017bbd24e0265f7c0d714",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/c16072c5508af1e59e3017bbd24e0265f7c0d714",
-          "description": "Implemented on the default branch; exercised by tests/test_writeback_durable.py and tests/test_writeback_process_restart.py (run together under the standard pytest suite in .github/workflows/release.yml's pre-push gate)"
-        }
-      ]
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }

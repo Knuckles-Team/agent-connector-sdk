@@ -1,7 +1,8 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "spec_id": "SDK-CONNECTOR-CONTROL",
   "owner_repo": "agent-connector-sdk",
+  "delivery_state": "SPECIFIED",
   "requirement_ids": [
     "SDK-CONNECTOR-CONTROL-R001",
     "SDK-CONNECTOR-CONTROL-R002",
@@ -33,6 +34,8 @@
     "SDK-CONNECTOR-CONTROL-R026",
     "SDK-CONNECTOR-CONTROL-R027",
     "SDK-CONNECTOR-CONTROL-R028",
+    "SDK-CONNECTOR-CONTROL-R028.1",
+    "SDK-CONNECTOR-CONTROL-R028.2",
     "SDK-CONNECTOR-CONTROL-R029",
     "SDK-CONNECTOR-CONTROL-R030",
     "SDK-CONNECTOR-CONTROL-R031",
@@ -40,1068 +43,420 @@
     "SDK-CONNECTOR-CONTROL-R033",
     "SDK-CONNECTOR-CONTROL-R034",
     "SDK-CONNECTOR-CONTROL-R035",
-    "SDK-CONNECTOR-CONTROL-R036",
-    "SDK-CONNECTOR-CONTROL-R028.1",
-    "SDK-CONNECTOR-CONTROL-R028.2"
-  ],
-  "delivery_state": "LANDED",
-  "acceptance_state": "NOT_AUDITED",
-  "evidence": [
-    {
-      "kind": "merged_head",
-      "result": "passed",
-      "commit": "06aaa76638a72706779d09b7f856541db3d470d3",
-      "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/06aaa76638a72706779d09b7f856541db3d470d3",
-      "description": "Every requirement in this spec is merged to the default branch."
-    }
+    "SDK-CONNECTOR-CONTROL-R036"
   ],
   "requirements": [
     {
       "id": "SDK-CONNECTOR-CONTROL-R001",
       "title": "ConnectorPackClient uses a deterministic idempotency key",
-      "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "06aaa76638a72706779d09b7f856541db3d470d3",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/06aaa76638a72706779d09b7f856541db3d470d3",
-          "description": "Implemented on the default branch; exercised by tests/test_contracts_and_sink.py::test_epistemic_graph_sink_retries_one_pack_head_conflict"
-        }
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "dcc7d285ccc9"
+      ],
+      "verified_by": [
+        "tests/test_contracts_and_sink.py:511"
       ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R002",
       "title": "Contract pin travels as a claim attribute, not recomputed downstream",
-      "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "c16072c5508af1e59e3017bbd24e0265f7c0d714",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/c16072c5508af1e59e3017bbd24e0265f7c0d714",
-          "description": "Implemented on the default branch; exercised by tests/test_artifacts_discovery.py::test_contract_pin_normalization_passes_for_a_real_tool"
-        }
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "dcc7d285ccc9"
+      ],
+      "verified_by": [
+        "tests/test_artifacts_discovery.py:102"
       ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R003",
       "title": "Canonical output-schema digest on every certified tool pin",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "14c82b51df3eb65a9772dcf70adade89a88a5c5b",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/14c82b51df3eb65a9772dcf70adade89a88a5c5b",
-          "description": "Implemented on the default branch; exercised by tests/test_certify_pins.py"
-        }
-      ]
+      "landed_in": [
+        "0f826d4ca6db",
+        "14c82b51df3e"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R004",
       "title": "Contract-pin verification owned by the SDK's own test kit",
-      "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "c16072c5508af1e59e3017bbd24e0265f7c0d714",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/c16072c5508af1e59e3017bbd24e0265f7c0d714",
-          "description": "Implemented on the default branch; exercised by tests/test_artifacts_discovery.py::test_contract_pin_normalization_catches_a_drifted_pin"
-        }
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "dcc7d285ccc9"
+      ],
+      "verified_by": [
+        "tests/test_artifacts_discovery.py:111"
       ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R005",
       "title": "Pack publisher and source submission use generated graph-client types",
-      "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "06aaa76638a72706779d09b7f856541db3d470d3",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/06aaa76638a72706779d09b7f856541db3d470d3",
-          "description": "Implemented on the default branch; exercised by tests/test_contracts_and_sink.py::test_sdk_does_not_redeclare_generated_graph_boundary_models"
-        }
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "584fb45cdf24",
+        "602215e2ddd8"
+      ],
+      "verified_by": [
+        "tests/test_contracts_and_sink.py:54"
       ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R006",
       "title": "Decision-service proposals for tool choice and triage stay observational",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "14c82b51df3eb65a9772dcf70adade89a88a5c5b",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/14c82b51df3eb65a9772dcf70adade89a88a5c5b",
-          "description": "Implemented on the default branch; exercised by tests/test_decide_consumers.py"
-        }
-      ]
+      "landed_in": [
+        "0f826d4ca6db",
+        "14c82b51df3e",
+        "91801315ccaf",
+        "daeb199f91c0"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R007",
       "title": "Fleet-wide re-certification yields nonempty schema fingerprints",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "487b65748b2579af5d5c65e6cde569a540fc7748",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/487b65748b2579af5d5c65e6cde569a540fc7748",
-          "description": "Implementation merged to the default branch; the commit names this requirement."
-        }
+      "landed_in": [
+        "0f826d4ca6db",
+        "487b65748b25"
       ],
-      "remaining": "A test on the default branch certifies every connector package this repository ships in one run, asserts each pin has nonempty input and output fingerprints, and proves a drifted server fails the live-contract comparison. Remaining: the same certification run across the connector fleet in its own repositories."
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R008",
       "title": "Closed, canonical pack annotation map across the connector fleet",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "6a6c626b5708204d8719fc500b338b1f8f4f880b",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/6a6c626b5708204d8719fc500b338b1f8f4f880b",
-          "description": "Implemented on the default branch; exercised by tests/test_artifacts_discovery.py"
-        }
-      ]
+      "landed_in": [
+        "6a6c626b5708",
+        "e444b35a4c21"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R009",
       "title": "Connector batch A-E migrates fully onto the SDK client",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "8e2d7c50896a9e416ec76e53c4a9a585cc5f4d28",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/8e2d7c50896a9e416ec76e53c4a9a585cc5f4d28",
-          "description": "SDK-CONNECTOR-CONTROL-R009 merged to the default branch in this commit."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "889660fc92db3d88633f75f71c1cc443bef87f6e",
-          "url": "https://github.com/Knuckles-Team/ansible-tower-mcp/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "5e0154272c18f28431c1e616176bbd7833dc5c03",
-          "url": "https://github.com/Knuckles-Team/archimate-mcp/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "39fe1cf92addccf00fcf0d130cd9957703cab489",
-          "url": "https://github.com/Knuckles-Team/archivebox-api/pull/8",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "b675980f7fb16ad8b405c6b57427fe179e1ffe78",
-          "url": "https://github.com/Knuckles-Team/aris-mcp/pull/2",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "180ee4b2620ebc59ad36b57538560ba582119894",
-          "url": "https://github.com/Knuckles-Team/arr-mcp/pull/12",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "b76dae74d1263fbcd23bf7235087d9c83fb603f0",
-          "url": "https://github.com/Knuckles-Team/atlassian-agent/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "55124d5d80518c601654df5b1234ce567e307305",
-          "url": "https://github.com/Knuckles-Team/audio-transcriber/pull/8",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "2dbe3377d12c6e20854adf5e8572785d71d69f46",
-          "url": "https://github.com/Knuckles-Team/audiobookshelf-mcp/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "623c952ae9202065f75e72dead93dd0ed1bc6c3a",
-          "url": "https://github.com/Knuckles-Team/caddy-mcp/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "989dfe4996240e10e9cf71788c05c7255ae6eb36",
-          "url": "https://github.com/Knuckles-Team/camunda-mcp/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "2db26dc5b49330929ae6d48506a805c7756d01e6",
-          "url": "https://github.com/Knuckles-Team/ciso-assistant-api/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "06b3b3cae2556bab5480062ed00cd3e759d14ded",
-          "url": "https://github.com/Knuckles-Team/clarity-api/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "9c05eee8f0a6aef3f9c466ff0eceffc4acea4da8",
-          "url": "https://github.com/Knuckles-Team/container-manager-mcp/pull/10",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "08416588eace87b475398e14af3190c9b62be37a",
-          "url": "https://github.com/Knuckles-Team/data-science-mcp/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "414a05d2e60f5cf3565a982673df9709cf78036d",
-          "url": "https://github.com/Knuckles-Team/dockerhub-api/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "f5e7f0f585dce0c37fc26f644b009706701d10d7",
-          "url": "https://github.com/Knuckles-Team/documentdb-mcp/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "bc05f6743b37e4a0df398390a6adda8d5fa13245",
-          "url": "https://github.com/Knuckles-Team/egeria-mcp/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "4a575925d1e317fa724698fb5a4d589e2048e994",
-          "url": "https://github.com/Knuckles-Team/emerald-exchange/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "0c8ddfce2aa8b1f8b0989b8cd092ac787142c3ce",
-          "url": "https://github.com/Knuckles-Team/erpnext-agent/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        }
+      "landed_in": [
+        "5e1bd9257555",
+        "7a38ee433346",
+        "8e2d7c50896a",
+        "d3617301012c"
       ],
-      "remaining": "Every connector package in this batch has a merged migration pull request in its own repository (table: evidence/fleet-migration-2026-10-09.md). Remaining: run agent_connector_sdk.testing.fleet_migration.scan_for_agent_utilities_imports against each package's own test suite and record a passing per-package import scan and EG-client ingestion run, per this requirement's verification column."
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R010",
       "title": "Connector batch F-J migrates fully onto the SDK client",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "b726413efddfe1d9604836037f99ea8820b03a09",
-          "url": "https://github.com/Knuckles-Team/fan-manager/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "401f59b9c357ecd3d0934cf155710ca16fcaf201",
-          "url": "https://github.com/Knuckles-Team/firefly-iii-mcp/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "e7569dfd26b916a11c5de0a6a0bbab3e202d83e8",
-          "url": "https://github.com/Knuckles-Team/freshrss-agent/pull/2",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "b8d5ccfd7e71c3153a6bd8f7ed5470144d926cbc",
-          "url": "https://github.com/Knuckles-Team/github-agent/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "a5c1e4822801a369f532b958ce43c502ef8f1942",
-          "url": "https://github.com/Knuckles-Team/gitlab-api/pull/13",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "d0ed578d133e4c16cd72ae43c506ac70520ebe88",
-          "url": "https://github.com/Knuckles-Team/gramps-mcp/pull/8",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "45507a795bc9bb3b3baf872358b144ab93e86714",
-          "url": "https://github.com/Knuckles-Team/hdhomerun-mcp/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "131d1fbf2d419dbaf601bfd2de47e003ddd38555",
-          "url": "https://github.com/Knuckles-Team/home-assistant-agent/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "0767cc9f57e5c0307061901abd954d993d599a5a",
-          "url": "https://github.com/Knuckles-Team/jellyfin-mcp/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "2e4e910edf99b523aa0ffc284c85ea6d4f5bd31e",
-          "url": "https://github.com/Knuckles-Team/jena-mcp/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "51f9ab30052954c57a3b52731e5fcea341e0abaa",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/51f9ab30052954c57a3b52731e5fcea341e0abaa",
-          "description": "SDK-CONNECTOR-CONTROL-R010 merged to the default branch in this commit."
-        }
+      "landed_in": [
+        "51f9ab300529",
+        "5e1bd9257555",
+        "7a38ee433346"
       ],
-      "remaining": "Every connector package in this batch has a merged migration pull request in its own repository (table: evidence/fleet-migration-2026-10-09.md). Remaining: run agent_connector_sdk.testing.fleet_migration.scan_for_agent_utilities_imports against each package's own test suite and record a passing per-package import scan and EG-client ingestion run, per this requirement's verification column."
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R011",
       "title": "Connector batch K-O migrates fully onto the SDK client",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "a0ed641396b0b5420d69dfe248aa1b2e304d51b1",
-          "url": "https://github.com/Knuckles-Team/kafka-mcp/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "b2639e8e0e5fb3eb58b306113af64893eef6119c",
-          "url": "https://github.com/Knuckles-Team/keycloak-agent/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "9d5e64e847aafce4e71ec6fe47900c889acc1e1d",
-          "url": "https://github.com/Knuckles-Team/lakekeeper-mcp/pull/2",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "f6a718bec928d0d29cf3ebcb2ba887b8d6bc1b42",
-          "url": "https://github.com/Knuckles-Team/langfuse-agent/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "c8108c00d6025ffc33e0c06b2d48b5bbf2a9dcda",
-          "url": "https://github.com/Knuckles-Team/leanix-agent/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "d2d24d1d25d783bc8bb4f4148d975eccf9c2e0d2",
-          "url": "https://github.com/Knuckles-Team/legal-peripherals-mcp/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "a96ba86612e020c91b9cb43704dc499f31598647",
-          "url": "https://github.com/Knuckles-Team/lgtm-mcp/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "72f09da58ca77857f3ac2ad43027677d29b54076",
-          "url": "https://github.com/Knuckles-Team/listmonk-api/pull/9",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "4e34926829340b81e7eb59af1b5f071222371a22",
-          "url": "https://github.com/Knuckles-Team/mattermost-mcp/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "6648f52568a05d26d6e2d63461b132ed8789e19f",
-          "url": "https://github.com/Knuckles-Team/mealie-mcp/pull/8",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "707785dd3d019e064b28e9702bfd205960f7ae70",
-          "url": "https://github.com/Knuckles-Team/media-downloader/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "505e2bfff75756d7625629501d4356a32839ab00",
-          "url": "https://github.com/Knuckles-Team/microsoft-agent/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "92e52bb83d86069a5719f0b9b43abaadb563e027",
-          "url": "https://github.com/Knuckles-Team/nextcloud-agent/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "2825b299b7118bd1845a14d55e0020914a84b707",
-          "url": "https://github.com/Knuckles-Team/objectstore-mcp/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "adaae9e31adaf7fa68bf21d2db91db17463eec21",
-          "url": "https://github.com/Knuckles-Team/okta-agent/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "3323878aeca68052e55601bde5115be84ed903e4",
-          "url": "https://github.com/Knuckles-Team/onetrust-api/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "795c09f183a8e870b1831a16c0560f1561011083",
-          "url": "https://github.com/Knuckles-Team/openbao-mcp/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "2aa0b1f7549274ab6314361109e4c0606e8c2757",
-          "url": "https://github.com/Knuckles-Team/opensearch-mcp/pull/2",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "a5e10b35b167d2930c6b11c8ac6f0e7782c2dcc6",
-          "url": "https://github.com/Knuckles-Team/owncast-agent/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "51f9ab30052954c57a3b52731e5fcea341e0abaa",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/51f9ab30052954c57a3b52731e5fcea341e0abaa",
-          "description": "SDK-CONNECTOR-CONTROL-R011 merged to the default branch in this commit."
-        }
+      "landed_in": [
+        "51f9ab300529",
+        "5e1bd9257555",
+        "7a38ee433346"
       ],
-      "remaining": "Every connector package in this batch has a merged migration pull request in its own repository (table: evidence/fleet-migration-2026-10-09.md). Remaining: run agent_connector_sdk.testing.fleet_migration.scan_for_agent_utilities_imports against each package's own test suite and record a passing per-package import scan and EG-client ingestion run, per this requirement's verification column."
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R012",
       "title": "Connector batch P-S migrates fully onto the SDK client",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "7ded81d89de848d9a4bc5df0703da8ecde63536e",
-          "url": "https://github.com/Knuckles-Team/paperless-ngx-mcp/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "8c7164dc310fd4540c6cd8b38dbad4300ed6ddfa",
-          "url": "https://github.com/Knuckles-Team/plane-agent/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "e4d171e0acc2f8a011bf9aef78975d4e70161f3e",
-          "url": "https://github.com/Knuckles-Team/portainer-agent/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "890ebf8c31b5ce5c0d2c1af256153be6d31c6fdc",
-          "url": "https://github.com/Knuckles-Team/postiz-agent/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "2b8355f15710e1837a8440521bbf23ea7e784426",
-          "url": "https://github.com/Knuckles-Team/pulselink-mcp/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "f692d14570ff536d126aba06b8e592631f8ae473",
-          "url": "https://github.com/Knuckles-Team/qbittorrent-agent/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "7d533b37d9d21a07944e086838b784904f6df1fb",
-          "url": "https://github.com/Knuckles-Team/rom-manager/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "011f0e012673ed573d0500c76e51c8d8eb447eb3",
-          "url": "https://github.com/Knuckles-Team/salesforce-agent/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "84449a4aa897c38fb9b943b52ef1d4101305a3bf",
-          "url": "https://github.com/Knuckles-Team/scholarx/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "629a67c2f065c543ce567e7e8a08a7fd4436c0a1",
-          "url": "https://github.com/Knuckles-Team/searxng-mcp/pull/10",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "16c8f0b0dbb3b14c927e981227579eabb8b6f6ac",
-          "url": "https://github.com/Knuckles-Team/servicenow-api/pull/20",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "6bc843581053741a926003900f8f0ab15829164c",
-          "url": "https://github.com/Knuckles-Team/spark-mcp/pull/2",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "d2dd6565cab65f10caac1fc5a918eeda17c181ca",
-          "url": "https://github.com/Knuckles-Team/sql-mcp/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "1a13f65b7940159af010ba2e1265c776ce7109cc",
-          "url": "https://github.com/Knuckles-Team/stirlingpdf-agent/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "45ac1db3794d64fac77e1acaa74bb42ec8c50ee2",
-          "url": "https://github.com/Knuckles-Team/systems-manager/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "7a38ee433346f4d1c5e6009c1f7a6a6ff5b69554",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/7a38ee433346f4d1c5e6009c1f7a6a6ff5b69554",
-          "description": "SDK-CONNECTOR-CONTROL-R012 merged to the default branch in this commit."
-        }
+      "landed_in": [
+        "5e1bd9257555",
+        "7a38ee433346"
       ],
-      "remaining": "Every connector package in this batch has a merged migration pull request in its own repository (table: evidence/fleet-migration-2026-10-09.md). Remaining: run agent_connector_sdk.testing.fleet_migration.scan_for_agent_utilities_imports against each package's own test suite and record a passing per-package import scan and EG-client ingestion run, per this requirement's verification column."
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R013",
       "title": "Connector batch T-Z migrates fully onto the SDK client",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "fb2cb3341ebc7f5426dbe70bdea06f61169141c9",
-          "url": "https://github.com/Knuckles-Team/technitium-dns-mcp/pull/10",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "609256b6cc8efb2af6e2bf5d88302a2ddd467996",
-          "url": "https://github.com/Knuckles-Team/tunnel-manager/pull/9",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "0104b0e3ed6a51fcded3029b1270f766163179bd",
-          "url": "https://github.com/Knuckles-Team/twenty-mcp/pull/4",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "34185d1c4cffb59dec1341bac71d95ce6f7a1274",
-          "url": "https://github.com/Knuckles-Team/uptime-kuma-agent/pull/5",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "699cb005a0b2062a187b4c510af4daab727cd7b3",
-          "url": "https://github.com/Knuckles-Team/vector-mcp/pull/8",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "consumer",
-          "result": "passed",
-          "commit": "c1b75c9243555ab24ce796a3f8fdd3cbc32cf744",
-          "url": "https://github.com/Knuckles-Team/wger-agent/pull/6",
-          "description": "Connector repository migrated off agent_utilities onto agent_connector_sdk in its own merged pull request; see specs/SDK-CONNECTOR-CONTROL/evidence/fleet-migration-2026-10-09.md."
-        },
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "51f9ab30052954c57a3b52731e5fcea341e0abaa",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/51f9ab30052954c57a3b52731e5fcea341e0abaa",
-          "description": "SDK-CONNECTOR-CONTROL-R013 merged to the default branch in this commit."
-        }
+      "landed_in": [
+        "51f9ab300529",
+        "5e1bd9257555",
+        "7a38ee433346"
       ],
-      "remaining": "Every connector package in this batch has a merged migration pull request in its own repository (table: evidence/fleet-migration-2026-10-09.md). Remaining: run agent_connector_sdk.testing.fleet_migration.scan_for_agent_utilities_imports against each package's own test suite and record a passing per-package import scan and EG-client ingestion run, per this requirement's verification column."
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014",
       "title": "SDK fully supersedes the duplicated connector toolkit",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "ac403a24d45ebb743f6480103989bcdbd362363a",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/ac403a24d45ebb743f6480103989bcdbd362363a",
-          "description": "SDK-CONNECTOR-CONTROL-R014 merged to the default branch in this commit."
-        }
+      "landed_in": [
+        "5e1bd9257555",
+        "ac403a24d45e"
       ],
-      "remaining": "Rollup; delivered once R014.1 (reusable census call site) extends to a real fleet-wide run across every connector package and each toolkit area's replacement-completeness tests land."
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R014.1"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.1",
       "title": "One reusable cross-repository import-scan call site",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "ab73ea5005a0170814be04d5d152cfc52ae560de",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/ab73ea5005a0170814be04d5d152cfc52ae560de",
-          "description": "SDK-CONNECTOR-CONTROL-R014.1 merged to the default branch in this commit."
-        }
-      ]
+      "landed_in": [
+        "ab73ea5005a0"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R015",
       "title": "SDK is sole owner of connector source lifecycle and certification",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "c6e280cdd1e89cd99b3be952c195306361014206",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/c6e280cdd1e89cd99b3be952c195306361014206",
-          "description": "SDK-CONNECTOR-CONTROL-R015 merged to the default branch in this commit."
-        }
+      "landed_in": [
+        "5e1bd9257555",
+        "c6e280cdd1e8"
       ],
-      "remaining": "Rollup; delivered once R015.1's scan mechanism extends to a real fleet-wide run across every dependent repository."
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R015.1"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R015.1",
       "title": "A duplicate-definition scan for the manifest/certify surface",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "061f9b58abb2ee6f8d56fba4a622c27dd142660a",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/061f9b58abb2ee6f8d56fba4a622c27dd142660a",
-          "description": "SDK-CONNECTOR-CONTROL-R015.1 merged to the default branch in this commit."
-        }
-      ]
+      "landed_in": [
+        "061f9b58abb2",
+        "9cec9cea7d37"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R016",
       "title": "Connector base settings live in the SDK's own config module",
-      "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "4f8b0022945ecd71698535649a583cd260914930",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/4f8b0022945ecd71698535649a583cd260914930",
-          "description": "Implemented on the default branch; exercised by tests/test_foundation.py"
-        }
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "584fb45cdf24",
+        "602215e2ddd8"
+      ],
+      "verified_by": [
+        "tests/test_foundation.py:139"
       ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R017",
       "title": "Every connector uses the shared TLS profile, no bare verify bypass",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "implementation",
-          "result": "passed",
-          "commit": "830be1c11cfefe3d043c6926e4f214ed65eae299",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/830be1c11cfefe3d043c6926e4f214ed65eae299",
-          "description": "Part of the requirement is implemented on the default branch."
-        },
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "830be1c11cfefe3d043c6926e4f214ed65eae299",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/830be1c11cfefe3d043c6926e4f214ed65eae299",
-          "description": "Implementation merged to the default branch; the commit names this requirement."
-        }
+      "landed_in": [
+        "830be1c11cfe"
       ],
-      "remaining": "The SDK's shared TLS profile structurally rejects 'verify'/'allow_insecure' bypass keys and this is tested on main. Whether every connector package (separate repos: aris-mcp, freshrss-agent, hdhomerun-mcp, vector-mcp, etc.) actually routes HTTPS through this profile with no bare verify flags is outs"
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R018",
       "title": "SDK source and test suite build cleanly from a fresh checkout",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "b0c376748245ef97f8e83efbe7730fc328e08d3c",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/b0c376748245ef97f8e83efbe7730fc328e08d3c",
-          "description": "SDK-CONNECTOR-CONTROL-R018 merged to the default branch in this commit."
-        }
-      ]
+      "landed_in": [
+        "b0c376748245"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R019",
       "title": "Host servers register ontology resources without duplicate skills or prompts",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "64acdc30c34ed45c7df64302954b34e3ccdeb81e",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/64acdc30c34ed45c7df64302954b34e3ccdeb81e",
-          "description": "Implementation merged to the default branch; the commit names this requirement."
-        }
-      ]
+      "landed_in": [
+        "045ba48df230",
+        "64acdc30c34e",
+        "d9c0db1b19cf"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R020",
-      "title": "One condensed intent contract: MCP_TOOL_MODE retired",
+      "title": "One condensed intent contract: `MCP_TOOL_MODE` retired",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "d3617301012c6597e1574a432c5b9409c352450a",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d3617301012c6597e1574a432c5b9409c352450a",
-          "description": "SDK-CONNECTOR-CONTROL-R020 merged to the default branch in this commit."
-        }
-      ]
+      "landed_in": [
+        "d3617301012c"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R021",
       "title": "Connector ontologies declare access contracts for virtual reads",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "b29c0c01a04412ade5ad277abe0f60586aa78f8e",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/b29c0c01a04412ade5ad277abe0f60586aa78f8e",
-          "description": "Implementation merged to the default branch; the commit names this requirement."
-        }
-      ]
+      "landed_in": [
+        "0a10559775ea",
+        "b29c0c01a044"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R022",
-      "title": "The pack builder scopes owl:imports to the pack",
+      "title": "The pack builder scopes `owl:imports` to the pack",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "78ea5b9531dbe5aa896d8815f7961b12503462b0",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/78ea5b9531dbe5aa896d8815f7961b12503462b0",
-          "description": "Implementation merged to the default branch; the commit names this requirement."
-        }
-      ]
+      "landed_in": [
+        "78ea5b9531db",
+        "e6b835dcad49"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R023",
       "title": "A prompt with a required argument is captured as a template, never refused",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "d1c580006f08bcd4aa8cc943de16c18359fa7fe3",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d1c580006f08bcd4aa8cc943de16c18359fa7fe3",
-          "description": "Implementation merged to the default branch; the commit names this requirement."
-        }
-      ]
+      "landed_in": [
+        "713782e7901c",
+        "b9a9652c0135",
+        "d1c580006f08"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R024",
       "title": "A prompt the server rejects for its bound placeholder still captures as a template",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "7abfccb06bb9433bde8ed7b0c3861d205b84b441",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/7abfccb06bb9433bde8ed7b0c3861d205b84b441",
-          "description": "SDK-CONNECTOR-CONTROL-R024 merged to the default branch in this commit."
-        }
-      ]
+      "landed_in": [
+        "713782e7901c",
+        "7abfccb06bb9"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R025",
       "title": "SDK provides identity-scoped resource entitlement resolution",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "7b0c0405e4a517d7714631944fc63b49a0bc8c7f",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/7b0c0405e4a517d7714631944fc63b49a0bc8c7f",
-          "description": "SDK-CONNECTOR-CONTROL-R025 merged to the default branch in this commit."
-        }
+      "landed_in": [
+        "5a476653a386",
+        "7b0c0405e4a5"
       ],
-      "remaining": "Implemented and unit-tested in this PR's branch; LANDED evidence (a merged_head commit in this repository) is recorded by the orchestrator's promoter after merge."
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R026",
       "title": "SDK provides opt-in per-client-method MCP tool derivation",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "d3617301012c6597e1574a432c5b9409c352450a",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d3617301012c6597e1574a432c5b9409c352450a",
-          "description": "SDK-CONNECTOR-CONTROL-R026 merged to the default branch in this commit."
-        }
+      "landed_in": [
+        "d3617301012c"
       ],
-      "remaining": "Implemented and unit-tested in this PR's branch; LANDED evidence (a merged_head commit in this repository) is recorded by the orchestrator's promoter after merge. data-science-mcp migrating its own server off agent_utilities.mcp.verbose_tools is separate, future work in that repository."
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R027",
       "title": "SDK resolves the selected provider-runtime profile for a multi-backend connector",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "0000000000000000000000000000000000000000",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
-          "description": "Placeholder evidence pending orchestrator promotion; branch sdk-control-r027-r031. Implemented and exercised by tests/test_provider_runtime.py."
-        }
-      ]
+      "landed_in": [
+        "284fb12a19ed",
+        "584fb45cdf24",
+        "602215e2ddd8"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R028",
       "title": "SDK's governed HTTP client controls egress with named escape hatches, not ad hoc trust",
-      "delivery_state": "BUILDING",
-      "evidence": [],
-      "remaining": "The typed SSRF policy check and pinned-address transport are implemented and tested (R028.1, LANDED). Remaining: wire pin_egress/allowed_private_hosts/allow_loopback into create_http_client itself and have it call check_egress_destination before opening a connection (R028.2, SPECIFIED)."
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R028.1",
+        "SDK-CONNECTOR-CONTROL-R028.2"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R028.1",
+      "title": "A standalone, typed SSRF egress-destination check and pinned-address transport",
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "284fb12a19ed"
+      ],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R028.2",
+      "title": "`create_http_client` wires the SSRF egress policy into construction",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R029",
-      "title": "SDK exposes a structured configuration singleton, not only a flat setting() lookup",
+      "title": "SDK exposes a structured configuration singleton, not only a flat `setting()` lookup",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "0000000000000000000000000000000000000000",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
-          "description": "Placeholder evidence pending orchestrator promotion; branch sdk-control-r027-r031. Implemented and exercised by tests/test_agent_config.py."
-        }
-      ]
+      "landed_in": [
+        "284fb12a19ed"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R030",
       "title": "SDK provides GraphQL introspection context helpers for connector tools",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "0000000000000000000000000000000000000000",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
-          "description": "Placeholder evidence pending orchestrator promotion; branch sdk-control-r027-r031. Implemented and exercised by tests/test_mcp_graphql_context.py."
-        }
-      ]
+      "landed_in": [
+        "284fb12a19ed"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R031",
       "title": "SDK's client-credentials token provider accepts a literal client secret, matching the signature connectors already call",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "0000000000000000000000000000000000000000",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
-          "description": "Placeholder evidence pending orchestrator promotion; branch sdk-control-r027-r031. Implemented and exercised by tests/test_client_credentials_literal_secret.py."
-        }
-      ]
+      "landed_in": [
+        "284fb12a19ed"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R032",
-      "title": "SDK provides opt-in verbose, one-tool-per-method surface derivation via register_tool_surface",
+      "title": "SDK provides opt-in verbose, one-tool-per-method surface derivation via `register_tool_surface`",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "0000000000000000000000000000000000000000",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
-          "description": "Implemented on branch sdk-control-r032-r036; exercised by tests/test_tool_surface.py::test_verbose_register_runs_alongside_condensed. Orchestrator re-promotes with the real merge SHA."
-        }
-      ]
+      "landed_in": [
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R033",
-      "title": "SDK's governed HTTP layer provides a safe_post_json helper with the same private-host allowance as its GET path",
+      "title": "SDK's governed HTTP layer provides a `safe_post_json` helper with the same private-host allowance as its GET path",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "0000000000000000000000000000000000000000",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
-          "description": "Implemented on branch sdk-control-r032-r036; exercised by tests/test_safe_post.py. Orchestrator re-promotes with the real merge SHA."
-        }
-      ]
+      "landed_in": [
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R034",
       "title": "SDK provides shared library-file-path resolution and cross-process file locking utilities",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "0000000000000000000000000000000000000000",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
-          "description": "Implemented on branch sdk-control-r032-r036; exercised by tests/test_library_state.py. Orchestrator re-promotes with the real merge SHA."
-        }
-      ]
+      "landed_in": [
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R035",
       "title": "SDK provides a CredentialProvider/SecretsClient abstraction for connectors, not only a credential-reference string",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "0000000000000000000000000000000000000000",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
-          "description": "Implemented on branch sdk-control-r032-r036; exercised by tests/test_credential_provider.py. Orchestrator re-promotes with the real merge SHA."
-        }
-      ]
+      "landed_in": [
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R036",
       "title": "SDK's identity-scoped resource entitlements cover the backend-resource catalogs these connectors manage",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "0000000000000000000000000000000000000000",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
-          "description": "Implemented on branch sdk-control-r032-r036; exercised by tests/test_entitlement_catalogs.py. Orchestrator re-promotes with the real merge SHA."
-        }
-      ]
-    },
-    {
-      "id": "SDK-CONNECTOR-CONTROL-R028.1",
-      "title": "Typed SSRF egress-destination check and pinned-address transport (check_egress_destination, pinned_egress_transport)",
-      "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "0000000000000000000000000000000000000000",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/0000000000000000000000000000000000000000",
-          "description": "Placeholder evidence pending orchestrator promotion; branch sdk-control-r027-r031. Implemented and exercised by tests/test_http_egress.py."
-        }
-      ]
-    },
-    {
-      "id": "SDK-CONNECTOR-CONTROL-R028.2",
-      "title": "create_http_client wires the SSRF egress policy into construction",
-      "delivery_state": "SPECIFIED",
-      "evidence": [],
-      "remaining": "Design complete; builds on the typed check_egress_destination and pinned_egress_transport primitives landed under R028.1. Not yet wired into create_http_client/HttpClientOptions."
+      "landed_in": [
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
+      "verified_by": []
     }
   ]
 }

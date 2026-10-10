@@ -1,7 +1,8 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "spec_id": "SDK-FINANCE-SOURCES",
   "owner_repo": "agent-connector-sdk",
+  "delivery_state": "LANDED",
   "requirement_ids": [
     "SDK-FINANCE-SOURCES-R001",
     "SDK-FINANCE-SOURCES-R002",
@@ -9,91 +10,57 @@
     "SDK-FINANCE-SOURCES-R004",
     "SDK-FINANCE-SOURCES-R005"
   ],
-  "delivery_state": "LANDED",
-  "acceptance_state": "NOT_AUDITED",
-  "evidence": [
-    {
-      "kind": "merged_head",
-      "result": "passed",
-      "commit": "840bd894c5813f8ba89293242ab206767fe6bf5e",
-      "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/840bd894c5813f8ba89293242ab206767fe6bf5e",
-      "description": "Every requirement in this spec is merged to the default branch."
-    }
-  ],
   "requirements": [
     {
       "id": "SDK-FINANCE-SOURCES-R001",
       "title": "Market-data adapters: exchange history fix, CoinMarketCap, FRED/ALFRED",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "840bd894c5813f8ba89293242ab206767fe6bf5e",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/840bd894c5813f8ba89293242ab206767fe6bf5e",
-          "description": "SDK-FINANCE-SOURCES-R001 merged to the default branch in this commit."
-        }
+      "landed_in": [
+        "840bd894c581"
       ],
-      "remaining": "A central-bank announcement calendar module (agent_connector_sdk.finance.central_bank_calendar) is implemented and unit-tested in this PR's branch, preserving one record per published vintage so a reschedule never overwrites the prior schedule. Remaining: the exchange history retrieval fix and a CoinMarketCap market-data adapter this requirement also names."
+      "verified_by": []
     },
     {
       "id": "SDK-FINANCE-SOURCES-R002",
       "title": "Alpaca stocks adapter: history, quotes, fundamentals, calendars",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "3e7c3cc68de37717dad36574ebe259eabfc536a1",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/3e7c3cc68de37717dad36574ebe259eabfc536a1",
-          "description": "SDK-FINANCE-SOURCES-R002 merged to the default branch in this commit."
-        }
-      ]
+      "landed_in": [
+        "3e7c3cc68de3",
+        "823197633ebb"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-FINANCE-SOURCES-R003",
       "title": "FX, commodities, and real-estate adapters with roll and staleness rules",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "a0d3aa8baf9aef1dc1542d6b63ca2ce8777c2c49",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/a0d3aa8baf9aef1dc1542d6b63ca2ce8777c2c49",
-          "description": "Implementation merged to the default branch; the commit names this requirement."
-        }
+      "landed_in": [
+        "6ef04661acc2",
+        "a0d3aa8baf9a"
       ],
-      "remaining": "Record contracts for FX rates (base, quote, direction, inversion), commodity prices (spot versus a futures contract with expiry and roll rule) and dated real-estate valuations with staleness are on the default branch with tests (tests/test_finance_records.py). Remaining: the source adapters that produce them, and their offline conformance tests per asset class."
+      "verified_by": []
     },
     {
       "id": "SDK-FINANCE-SOURCES-R004",
       "title": "Alpaca account reads and idempotent CSV activity import",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "2ef7ca88d676e4fd48f64658017649dfb4b50036",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/2ef7ca88d676e4fd48f64658017649dfb4b50036",
-          "description": "SDK-FINANCE-SOURCES-R004 merged to the default branch in this commit."
-        }
+      "landed_in": [
+        "2ef7ca88d676",
+        "6ef04661acc2"
       ],
-      "remaining": "The CSV activity import (column-mapping preview, refusal of ambiguous columns or currencies, idempotent rows keyed by file digest and row identity) and the vendor-neutral account records are on the default branch with tests (tests/test_finance_csv_import.py). Remaining: the brokerage account and position read through a source adapter, and its re-import conformance test."
+      "verified_by": []
     },
     {
       "id": "SDK-FINANCE-SOURCES-R005",
       "title": "Macro and liquidity panels: FRED series, ETF flows, sentiment, on-chain",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "ea90460962d257bf2a2c1894862dd7550da46e5b",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/ea90460962d257bf2a2c1894862dd7550da46e5b",
-          "description": "SDK-FINANCE-SOURCES-R005 merged to the default branch in this commit."
-        }
+      "landed_in": [
+        "36f3c76a370c",
+        "840bd894c581",
+        "887c201cbff5",
+        "ea90460962d2"
       ],
-      "remaining": "FRED/ALFRED macro series (vintage-preserved) and an ETF fund-flow panel (net flow and AUM per fund per day) are implemented and tested on the default branch. Remaining: a versioned liquidity composite and heat-strip panel, sentiment data, and on-chain position data."
+      "verified_by": []
     }
   ]
 }

@@ -1,7 +1,8 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "spec_id": "SDK-REPOSITORY-TRANSPORT",
   "owner_repo": "agent-connector-sdk",
+  "delivery_state": "SPECIFIED",
   "requirement_ids": [
     "SDK-REPOSITORY-TRANSPORT-R001",
     "SDK-REPOSITORY-TRANSPORT-R002",
@@ -9,88 +10,46 @@
     "SDK-REPOSITORY-TRANSPORT-R004",
     "SDK-REPOSITORY-TRANSPORT-R005"
   ],
-  "delivery_state": "LANDED",
-  "acceptance_state": "NOT_AUDITED",
-  "evidence": [
-    {
-      "kind": "merged_head",
-      "result": "passed",
-      "commit": "d95840ce6bee0a5e3314f35c6c23bf4df26fb23d",
-      "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d95840ce6bee0a5e3314f35c6c23bf4df26fb23d",
-      "description": "Every requirement in this spec is merged to the default branch."
-    }
-  ],
   "requirements": [
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R001",
       "title": "Repository transport hydrates code and specification sources from Git",
-      "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "d95840ce6bee0a5e3314f35c6c23bf4df26fb23d",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d95840ce6bee0a5e3314f35c6c23bf4df26fb23d",
-          "description": "Implemented on the default branch; exercised by tests/test_repository_transport.py::test_typed_outcomes_tombstones_and_revision_metadata_are_preserved"
-        }
-      ]
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R002",
       "title": "SDK is the sole path for repository-native codebase hydration",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "a0d3aa8baf9aef1dc1542d6b63ca2ce8777c2c49",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/a0d3aa8baf9aef1dc1542d6b63ca2ce8777c2c49",
-          "description": "Implementation merged to the default branch; the commit names this requirement."
-        }
+      "landed_in": [
+        "a0d3aa8baf9a"
       ],
-      "remaining": "Inside this repository the repository transport is the only codebase-hydration path, and no connector package reimplements it. Remaining, in another repository: agent-utilities still fetches GitLab project files and indexes them directly; that path has to be rerouted through this transport before the requirement holds."
+      "verified_by": []
     },
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R003",
       "title": "Repository ref walk traverses each Git tree once with batched reads",
       "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "10f03be4cabffd7c9d9f918465f519003e6e3ea0",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/10f03be4cabffd7c9d9f918465f519003e6e3ea0",
-          "description": "Implemented on the default branch; exercised by tests/test_repository_refwalk_fastpath.py"
-        }
-      ]
+      "landed_in": [
+        "10f03be4cabf",
+        "9a6fe1ddcf26"
+      ],
+      "verified_by": []
     },
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R004",
       "title": "Repository transport submits bounded, outcome-complete index batches",
-      "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "d95840ce6bee0a5e3314f35c6c23bf4df26fb23d",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d95840ce6bee0a5e3314f35c6c23bf4df26fb23d",
-          "description": "Implemented on the default branch; exercised by tests/test_repository_transport.py::test_oversized_file_fails_before_engine_call and test_missing_per_file_outcomes_fail_closed"
-        }
-      ]
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R005",
       "title": "Branch-aware transport batches indexing into one call per batch",
-      "delivery_state": "LANDED",
-      "evidence": [
-        {
-          "kind": "merged_head",
-          "result": "passed",
-          "commit": "d95840ce6bee0a5e3314f35c6c23bf4df26fb23d",
-          "url": "https://github.com/Knuckles-Team/agent-connector-sdk/commit/d95840ce6bee0a5e3314f35c6c23bf4df26fb23d",
-          "description": "Implemented on the default branch; exercised by tests/test_repository_transport.py::test_batch_limits_create_one_call_per_bounded_batch"
-        }
-      ]
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
