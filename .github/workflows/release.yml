@@ -222,8 +222,12 @@ jobs:
           python3 -c "from hashlib import sha256; from pathlib import Path; a=sorted(Path('dist-primary').glob('*.whl')); b=sorted(Path('dist-reproduction').glob('*.whl')); assert len(a)==len(b)==1 and a[0].name==b[0].name; assert sha256(a[0].read_bytes()).digest()==sha256(b[0].read_bytes()).digest(), 'wheel is not reproducible'; print('reproducible', a[0].name)"
           mkdir dist
           cp dist-primary/*.whl dist/
+      - name: Download the epistemic-graph engine wheel (engine-main release)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download engine-main -R Knuckles-Team/epistemic-graph --pattern 'epistemic_graph-*manylinux*x86_64.whl' --dir dist-engine
       - name: Verify the installed wheel against the published graph-client (SDK-QUALITY-RELEASE-R001)
-        run: python3 scripts/check_wheel_consumer_compatibility.py --wheel dist/*.whl
+        run: python3 scripts/check_wheel_consumer_compatibility.py --wheel dist/*.whl --engine-wheel dist-engine/epistemic_graph-*.whl
       - name: Upload the publish candidate
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

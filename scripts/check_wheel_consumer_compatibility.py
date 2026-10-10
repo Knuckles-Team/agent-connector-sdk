@@ -74,17 +74,23 @@ def pinned_graph_client_requirement(pyproject_text: str | None = None) -> str:
 
 
 def isolated_install_plan(
-    wheel_path: Path, graph_client_requirement: str, venv_dir: Path
+    wheel_path: Path,
+    graph_client_requirement: str,
+    venv_dir: Path,
+    engine_wheel: Path | None = None,
 ) -> list[list[str]]:
     """Return the shell command plan for an isolated installed consumer.
 
     Every step targets ``venv_dir`` explicitly and installs from a built
     artifact path or a published requirement string -- never ``-e .`` and
     never the repository root -- so the check exercises what a real consumer
-    receives, not this source overlay.
+    receives, not this source overlay. When ``engine_wheel`` is given, that
+    wheel file replaces the PyPI requirement (the engine wheel exceeds the
+    PyPI size limit and is published only as a GitHub Release asset).
     """
     if not str(wheel_path).endswith(".whl"):
         raise CompatibilityGateError(f"not a built wheel: {wheel_path}")
+    engine = str(engine_wheel) if engine_wheel else graph_client_requirement
     return [
         ["uv", "venv", "--clear", str(venv_dir)],
         [
@@ -94,7 +100,7 @@ def isolated_install_plan(
             "--python",
             str(venv_dir),
             str(wheel_path),
-            graph_client_requirement,
+            engine,
         ],
         ["uv", "run", "--python", str(venv_dir), "python3", "-c", _IMPORT_SMOKE],
     ]
@@ -108,11 +114,19 @@ def main(argv: list[str] | None = None) -> int:
         default="dist-consumer-venv",
         help="isolated venv directory to build and install into (default: dist-consumer-venv)",
     )
+    parser.add_argument(
+        "--engine-wheel",
+        default=None,
+        help="epistemic-graph engine wheel file to install instead of the PyPI requirement",
+    )
     args = parser.parse_args(argv)
+    engine_wheel = Path(args.engine_wheel) if args.engine_wheel else None
 
     try:
         requirement = pinned_graph_client_requirement()
-        plan = isolated_install_plan(Path(args.wheel), requirement, Path(args.venv))
+        plan = isolated_install_plan(
+            Path(args.wheel), requirement, Path(args.venv), engine_wheel
+        )
     except CompatibilityGateError as error:
         print(
             f"check_wheel_consumer_compatibility: CANNOT RUN: {error}", file=sys.stderr
