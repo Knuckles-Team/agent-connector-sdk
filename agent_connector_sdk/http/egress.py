@@ -12,10 +12,12 @@ from __future__ import annotations
 
 import ipaddress
 from collections.abc import Collection
+from dataclasses import dataclass
 
 import httpx
 
 __all__ = [
+    "EgressOptions",
     "EgressPolicyError",
     "PinnedAddressTransport",
     "check_egress_destination",
@@ -42,30 +44,44 @@ def _is_private(host: str) -> bool:
     return address.is_private and not address.is_loopback
 
 
-def check_egress_destination(
-    host: str,
-    *,
-    pin_egress: bool = True,
-    allowed_private_hosts: Collection[str] = (),
-    allow_loopback: bool = False,
-) -> None:
-    """Reject ``host`` unless the policy explicitly allows it.
+@dataclass(frozen=True)
+class EgressOptions:
+    """The knobs of the egress policy; the defaults enforce it strictly.
 
-    Args:
-        host: The outbound request's destination hostname or address.
+    Attributes:
         pin_egress: When ``False``, the policy is not enforced at all (an
             explicit, named escape hatch; the default enforces it).
         allowed_private_hosts: Private-network hosts this policy allows,
             compared exactly against ``host``.
         allow_loopback: Permit a loopback destination (``127.0.0.1``,
             ``::1``, ``localhost``).
+    """
+
+    pin_egress: bool = True
+    allowed_private_hosts: Collection[str] = ()
+    allow_loopback: bool = False
+
+
+_STRICT_EGRESS = EgressOptions()
+
+
+def check_egress_destination(
+    host: str, options: EgressOptions = _STRICT_EGRESS
+) -> None:
+    """Reject ``host`` unless the policy explicitly allows it.
+
+    Args:
+        host: The outbound request's destination hostname or address.
+        options: The :class:`EgressOptions` policy; strict by default.
 
     Raises:
         EgressPolicyError: ``host`` is loopback or a private-network address
             and not named by ``allowed_private_hosts`` or ``allow_loopback``.
     """
-    if not pin_egress:
+    if not options.pin_egress:
         return
+    allow_loopback = options.allow_loopback
+    allowed_private_hosts = options.allowed_private_hosts
     if _is_loopback(host):
         if not allow_loopback and host not in allowed_private_hosts:
             raise EgressPolicyError(f"loopback destination is not permitted: {host}")
