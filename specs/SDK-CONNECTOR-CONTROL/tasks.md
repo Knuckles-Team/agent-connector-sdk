@@ -35,3 +35,31 @@
 - [ ] **R045.9:** Add `ToolFixture` and `check_read_only`, then call it from `tool_verdicts` for each `read_only` tool. (SDK-CONNECTOR-CONTROL-R045.9).
 - [ ] **R045.10:** Return the `unproven` verdict and exclude the tool from `_certified`. (SDK-CONNECTOR-CONTROL-R045.10).
 - [ ] **R045.11:** Extend `write_certified_pins` to render the facts; add the certification-to-pack end-to-end test. (SDK-CONNECTOR-CONTROL-R045.11).
+- [ ] **R046:** Browser authorization-code flow with PKCE as a reusable auth manager. (SDK-CONNECTOR-CONTROL-R046).
+  - [ ] **R046.1:** Model row. (SDK-CONNECTOR-CONTROL-R046.1).
+  - [ ] **R046.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R046.2).
+  - [ ] **R046.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R046.3).
+  - [ ] **R046.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R046.4).
+  - [ ] **R046.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R046.5).
+  - [ ] **R046.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R046.6).
+- [ ] **R047:** Agent-card discovery from the standard well-known path. (SDK-CONNECTOR-CONTROL-R047).
+  - [ ] **R047.1:** Model row. (SDK-CONNECTOR-CONTROL-R047.1).
+  - [ ] **R047.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R047.2).
+  - [ ] **R047.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R047.3).
+  - [ ] **R047.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R047.4).
+  - [ ] **R047.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R047.5).
+  - [ ] **R047.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R047.6).
+- [ ] **R048:** Agent-readable text form in tool contracts. (SDK-CONNECTOR-CONTROL-R048).
+  - [ ] **R048.1:** Model row. (SDK-CONNECTOR-CONTROL-R048.1).
+  - [ ] **R048.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R048.2).
+  - [ ] **R048.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R048.3).
+  - [ ] **R048.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R048.4).
+  - [ ] **R048.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R048.5).
+  - [ ] **R048.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R048.6).
+- [ ] **R049:** Budget-limited, approval-gated payment challenge handling. (SDK-CONNECTOR-CONTROL-R049).
+  - [ ] **R049.1:** Model row. (SDK-CONNECTOR-CONTROL-R049.1).
+  - [ ] **R049.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R049.2).
+  - [ ] **R049.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R049.3).
+  - [ ] **R049.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R049.4).
+  - [ ] **R049.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R049.5).
+  - [ ] **R049.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R049.6).
