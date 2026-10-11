@@ -46,14 +46,8 @@ def _props(**fields: Any) -> dict[str, Any]:
     return {key: value for key, value in fields.items() if value is not None}
 
 
-def extract(config: Any) -> ChangeSet:
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-
+def _weights(client: Any) -> list[Entity]:
     entities: list[Entity] = []
-    relationships: list[Relationship] = []
-
     for weight in _rows(_call(client, "get_weight_entries")):
         weight_id = weight.get("id")
         if weight_id is None:
@@ -71,7 +65,11 @@ def extract(config: Any) -> ChangeSet:
                 ),
             )
         )
+    return entities
 
+
+def _measurements(client: Any) -> list[Entity]:
+    entities: list[Entity] = []
     for measurement in _rows(_call(client, "get_measurements")):
         measurement_id = measurement.get("id")
         if measurement_id is None:
@@ -90,7 +88,12 @@ def extract(config: Any) -> ChangeSet:
                 ),
             )
         )
+    return entities
 
+
+def _sessions(client: Any) -> tuple[list[Entity], list[Relationship]]:
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
     for session in _rows(_call(client, "get_workout_sessions")):
         session_id = session.get("id")
         if session_id is None:
@@ -118,7 +121,11 @@ def extract(config: Any) -> ChangeSet:
                     relationship="PART_OF",
                 )
             )
+    return entities, relationships
 
+
+def _plans(client: Any) -> list[Entity]:
+    entities: list[Entity] = []
     for plan in _rows(_call(client, "get_nutrition_plans")):
         plan_id = plan.get("id")
         if plan_id is None:
@@ -135,7 +142,20 @@ def extract(config: Any) -> ChangeSet:
                 ),
             )
         )
+    return entities
 
+
+def extract(config: Any) -> ChangeSet:
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+    session_entities, relationships = _sessions(client)
+    entities = [
+        *_weights(client),
+        *_measurements(client),
+        *session_entities,
+        *_plans(client),
+    ]
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 
 
