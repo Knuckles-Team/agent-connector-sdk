@@ -12,3 +12,9 @@
 - [ ] Record exact merged commit, CI run, fixture results, and graph-backed restart receipt before acceptance.
 - [x] Add occurrence/weather adapters (GBIF, iNaturalist, NOAA GHCN/ISD, Open-Meteo, NOAA storm events) and the NCBI/GBIF taxonomy connector validated against `TaxonShape` (SDK-SOURCE-INGEST-R008, SDK-SOURCE-INGEST-R009).
 - [ ] Add the ingest worker runner and the `ingest-worker` command; the engine decides admission, lane floors and routing (SDK-SOURCE-INGEST-R010, SDK-SOURCE-INGEST-R011).
+- [ ] **R005.1:** Implement and verify paper-source model acceptance (SDK-SOURCE-INGEST-R005.1).
+- [ ] **R005.2:** Implement and verify paper-source behavior acceptance (SDK-SOURCE-INGEST-R005.2).
+- [ ] **R005.3:** Implement and verify paper-source wiring acceptance (SDK-SOURCE-INGEST-R005.3).
+- [ ] **R005.4:** Implement and verify paper-source refusal acceptance (SDK-SOURCE-INGEST-R005.4).
+- [ ] **R005.5:** Implement and verify paper-source evidence acceptance (SDK-SOURCE-INGEST-R005.5).
+- [ ] **R005.6:** Implement and verify paper-source hot-path proof acceptance (SDK-SOURCE-INGEST-R005.6).

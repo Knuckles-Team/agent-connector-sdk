@@ -9,6 +9,12 @@
     "SDK-SOURCE-INGEST-R003",
     "SDK-SOURCE-INGEST-R004",
     "SDK-SOURCE-INGEST-R005",
+    "SDK-SOURCE-INGEST-R005.1",
+    "SDK-SOURCE-INGEST-R005.2",
+    "SDK-SOURCE-INGEST-R005.3",
+    "SDK-SOURCE-INGEST-R005.4",
+    "SDK-SOURCE-INGEST-R005.5",
+    "SDK-SOURCE-INGEST-R005.6",
     "SDK-SOURCE-INGEST-R006",
     "SDK-SOURCE-INGEST-R006.1",
     "SDK-SOURCE-INGEST-R006.2",
@@ -97,7 +103,7 @@
     {
       "id": "SDK-SOURCE-INGEST-R005",
       "title": "SDK adapters cover document, conversation, and feed sources",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "3735e4434463",
         "45c6c7c1fd37",
@@ -107,7 +113,57 @@
       "verified_by": [
         "tests/test_adapters_web_fetch_source_adapter.py:54",
         "tests/test_adapters_web_fetch_source_adapter.py:66"
+      ],
+      "rollup_of": [
+        "SDK-SOURCE-INGEST-R005.1",
+        "SDK-SOURCE-INGEST-R005.2",
+        "SDK-SOURCE-INGEST-R005.3",
+        "SDK-SOURCE-INGEST-R005.4",
+        "SDK-SOURCE-INGEST-R005.5",
+        "SDK-SOURCE-INGEST-R005.6"
       ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R006",
