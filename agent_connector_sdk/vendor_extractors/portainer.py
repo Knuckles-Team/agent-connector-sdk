@@ -106,11 +106,7 @@ def _endpoint_changes(
     return entities, relationships
 
 
-def extract(config: Any) -> ChangeSet:
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-
+def _changes(client: Any) -> tuple[list[Entity], list[Relationship]]:
     entities: list[Entity] = []
     relationships: list[Relationship] = []
     for endpoint in _rows(_safe_call(client, "get_endpoints")):
@@ -120,7 +116,14 @@ def extract(config: Any) -> ChangeSet:
         ents, rels = _endpoint_changes(client, endpoint_id, endpoint)
         entities.extend(ents)
         relationships.extend(rels)
+    return entities, relationships
 
+
+def extract(config: Any) -> ChangeSet:
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+    entities, relationships = _changes(client)
     for stack in _rows(_safe_call(client, "list_stacks")):
         stack_id = stack.get("Id") or stack.get("id")
         if stack_id is not None:
