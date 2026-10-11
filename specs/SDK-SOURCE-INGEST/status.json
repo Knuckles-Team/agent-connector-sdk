@@ -43,7 +43,9 @@
     "SDK-SOURCE-INGEST-R006.31",
     "SDK-SOURCE-INGEST-R007",
     "SDK-SOURCE-INGEST-R008",
-    "SDK-SOURCE-INGEST-R009"
+    "SDK-SOURCE-INGEST-R009",
+    "SDK-SOURCE-INGEST-R010",
+    "SDK-SOURCE-INGEST-R011"
   ],
   "requirements": [
     {
@@ -642,6 +644,20 @@
         "tests/test_taxonomy_records.py:40",
         "tests/test_taxonomy_records.py:50"
       ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R010",
+      "title": "SDK ships the ingest worker runner `run_ingest_worker` (unblocks `EG-INGEST-WORKER-R001.14`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R011",
+      "title": "SDK ships the `ingest-worker` command (unblocks `EG-INGEST-WORKER-R001.15`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
