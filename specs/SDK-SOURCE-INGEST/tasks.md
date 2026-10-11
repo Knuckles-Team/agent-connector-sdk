@@ -11,3 +11,4 @@
   - [x] Package-install ingestion and repository-related transport adapters (SDK-SOURCE-INGEST-R005).
 - [ ] Record exact merged commit, CI run, fixture results, and graph-backed restart receipt before acceptance.
 - [x] Add occurrence/weather adapters (GBIF, iNaturalist, NOAA GHCN/ISD, Open-Meteo, NOAA storm events) and the NCBI/GBIF taxonomy connector validated against `TaxonShape` (SDK-SOURCE-INGEST-R008, SDK-SOURCE-INGEST-R009).
+- [ ] Add the ingest worker runner and the `ingest-worker` command; the engine decides admission, lane floors and routing (SDK-SOURCE-INGEST-R010, SDK-SOURCE-INGEST-R011).

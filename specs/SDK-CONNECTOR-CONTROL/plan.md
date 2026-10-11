@@ -22,3 +22,7 @@ one required argument; it then builds the entry from a synthesized `GetPromptRes
 prompt's own argument names, never from server content. No change to `_capture_metadata`,
 `_validate_contract`, or `validate` is needed: `capture.kind` already depends only on whether an
 argument is required, not on how the result was obtained.
+
+## Cross-repo prerequisites (SDK-CONNECTOR-CONTROL-R037 to R044)
+
+Operation contracts for erpnext, uptime and container-manager are recorded as `access_contracts.ttl` plus a fixture so the engine's virtual mappings read equal rows. The five access kinds (MCP, A2A, REST, GraphQL, virtual-graph) are declared by `ACCESS_KINDS`; only `virtual_graph` is new. The engine reads sources at query time and never copies them.

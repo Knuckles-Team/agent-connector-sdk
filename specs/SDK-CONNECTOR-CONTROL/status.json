@@ -43,7 +43,15 @@
     "SDK-CONNECTOR-CONTROL-R033",
     "SDK-CONNECTOR-CONTROL-R034",
     "SDK-CONNECTOR-CONTROL-R035",
-    "SDK-CONNECTOR-CONTROL-R036"
+    "SDK-CONNECTOR-CONTROL-R036",
+    "SDK-CONNECTOR-CONTROL-R037",
+    "SDK-CONNECTOR-CONTROL-R038",
+    "SDK-CONNECTOR-CONTROL-R039",
+    "SDK-CONNECTOR-CONTROL-R040",
+    "SDK-CONNECTOR-CONTROL-R041",
+    "SDK-CONNECTOR-CONTROL-R042",
+    "SDK-CONNECTOR-CONTROL-R043",
+    "SDK-CONNECTOR-CONTROL-R044"
   ],
   "requirements": [
     {
@@ -489,6 +497,62 @@
         "629ef53c29f0",
         "bac65b612ced"
       ],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R037",
+      "title": "erpnext supplier and purchase-order operation contract is typed and recorded (unblocks `EG-CQ-XSRC-R002.7`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R038",
+      "title": "uptime service-health operation contract is declared (unblocks `EG-CQ-XSRC-R003.4`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R039",
+      "title": "container-manager deployed-workload operation contract is declared (unblocks `EG-CQ-XSRC-R003.5`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R040",
+      "title": "SDK declares an MCP source's access contract (unblocks `EG-CQ-CONN-R067.1`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R041",
+      "title": "SDK declares an A2A source's access contract (unblocks `EG-CQ-CONN-R067.2`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R042",
+      "title": "SDK declares an API (REST) source's access contract (unblocks `EG-CQ-CONN-R067.3`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R043",
+      "title": "SDK declares a GraphQL source's access contract (unblocks `EG-CQ-CONN-R067.4`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R044",
+      "title": "SDK declares a virtual-graph (relational or document) source's access contract (unblocks `EG-CQ-CONN-R067.5`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
       "verified_by": []
     }
   ]
