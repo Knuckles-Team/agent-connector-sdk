@@ -34,12 +34,10 @@ from collections.abc import Callable
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
-from agent_connector_sdk.vendor_extractors._records import _as_list
+from agent_connector_sdk.vendor_extractors._records import _as_list, _first, _get
 from agent_connector_sdk.vendor_extractors.ciso_assistant_helpers import (
     _base_props,
     _crosswalk,
-    _first,
-    _get,
     _id_of,
     _list,
 )
