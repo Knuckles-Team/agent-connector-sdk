@@ -45,3 +45,14 @@ Two source-adapter families extend this same contract. Adapters for GBIF and iNa
 **LANDED** requires an exact merged source commit. **ACCEPTED** requires all `test-spec.md` assertions, including a graph-backed receipt and restart proof, attached here. Existing runner, adapter, and sink modules are an implementation base, not acceptance evidence.
 
 Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.
+
+
+## Paper-provider source contract
+
+SDK-SOURCE-INGEST-R005.1 through R005.6 extend document and feed ingestion.
+One typed interface searches independent providers, merges exact identities and reports provider failures beside successful records.
+It downloads complete paper documents to authorized local storage under each provider's quota.
+Local content extraction fills missing metadata and records its evidence.
+Provider API implementations remain in connector packages. The SDK owns shared source mechanics and transport contracts.
+EG owns durable ingestion, checkpoints and semantic identity decisions. Exact result deduplication creates no semantic knowledge store.
+Acceptance requires SI-09 through SI-14, including served connector calls and durable graph read-back.
