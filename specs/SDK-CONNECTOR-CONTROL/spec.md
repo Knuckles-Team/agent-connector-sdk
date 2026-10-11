@@ -1,4 +1,4 @@
-# SDK connector control, certification, and pack publication
+# SDK-CONNECTOR-CONTROL — SDK connector control, certification, and pack publication
 
 **Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R024.
 **Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
