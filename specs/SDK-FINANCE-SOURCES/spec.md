@@ -1,4 +1,4 @@
-# Qualified finance source adapters
+# SDK-FINANCE-SOURCES — Qualified finance source adapters
 
 **Requirement IDs:** SDK-FINANCE-SOURCES-R001, SDK-FINANCE-SOURCES-R002, SDK-FINANCE-SOURCES-R003, SDK-FINANCE-SOURCES-R004, SDK-FINANCE-SOURCES-R005.
 **Owner:** agent-connector-sdk contract and source adapter APIs; each vendor connector owns its credentials and API implementation. **Delivery state:** SPECIFIED. **Acceptance state:** OPEN.

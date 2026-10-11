@@ -88,7 +88,7 @@ checkpoints, provenance, and receipts stay authoritative in epistemic-graph.
 ## Choose a path
 
 - **New connector:** follow [Build the operator's first connector](tutorial.md).
-- **Runtime owner:** read [Architecture](architecture.md) and
+- **Runtime owner:** read [Architecture](plan.md) and
   [Connector sync](connector-sync.md).
 - **Repository operator:** use [Repository ingestion](repository-ingestion.md)
   for immutable snapshot paging and durable indexing receipts.

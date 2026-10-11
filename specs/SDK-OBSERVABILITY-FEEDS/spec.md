@@ -1,4 +1,4 @@
-# Operational event feeds through the source adapter contract
+# SDK-OBSERVABILITY-FEEDS — Operational event feeds through the source adapter contract
 
 **Requirement ID:** SDK-OBSERVABILITY-FEEDS-R001. **Owner:** agent-connector-sdk contract; each event connector owns provider transport. **Delivery state:** SPECIFIED. **Acceptance state:** OPEN.
 

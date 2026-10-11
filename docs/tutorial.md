@@ -127,7 +127,7 @@ provenance, and durable receipts.
 
 Continue with:
 
-- [Architecture](architecture.md) for the complete SourceIngest, ConnectorPack,
+- [Architecture](plan.md) for the complete SourceIngest, ConnectorPack,
   and WriteBack lifecycles.
 - [Connector servers](connector-servers.md) for authentication and exposure.
 - [Content over MCP](content-over-mcp.md) for manifests and content identity.
