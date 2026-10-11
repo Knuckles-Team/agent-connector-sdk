@@ -63,3 +63,9 @@
   - [ ] **R049.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R049.4).
   - [ ] **R049.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R049.5).
   - [ ] **R049.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R049.6).
+- [ ] **R050.1:** Implement and verify model acceptance (SDK-CONNECTOR-CONTROL-R050.1).
+- [ ] **R050.2:** Implement and verify behavior acceptance (SDK-CONNECTOR-CONTROL-R050.2).
+- [ ] **R050.3:** Implement and verify wiring acceptance (SDK-CONNECTOR-CONTROL-R050.3).
+- [ ] **R050.4:** Implement and verify refusal acceptance (SDK-CONNECTOR-CONTROL-R050.4).
+- [ ] **R050.5:** Implement and verify evidence acceptance (SDK-CONNECTOR-CONTROL-R050.5).
+- [ ] **R050.6:** Implement and verify hot-path proof acceptance (SDK-CONNECTOR-CONTROL-R050.6).

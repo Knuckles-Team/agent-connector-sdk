@@ -25,7 +25,7 @@ argument is required. It does not depend on how the result was obtained.
 
 ## Cross-repo prerequisites (SDK-CONNECTOR-CONTROL-R037 to R044)
 
-Operation contracts for erpnext, uptime and container-manager are recorded as `access_contracts.ttl` plus a fixture so the engine's virtual mappings read equal rows. The five access kinds (MCP, A2A, REST, GraphQL, virtual-graph) are declared by `ACCESS_KINDS`; only `virtual_graph` is new. The engine reads sources at query time and never copies them.
+Operation contracts for erpnext, uptime and container-manager are recorded as `access_contracts.ttl` plus a fixture. The engine's virtual mappings read equal rows. The five access kinds (MCP, A2A, REST, GraphQL, virtual-graph) are declared by `ACCESS_KINDS`; only `virtual_graph` is new. The engine reads sources at query time and never copies them.
 
 ## Tool contract facts (SDK-CONNECTOR-CONTROL-R045)
 
@@ -116,3 +116,66 @@ Reused: the approval prompt in `ctx_confirm_destructive` and the egress policy i
 Decision. Zero budget by default and approval on every payment. The rejected alternative is a standing allowance, which lets a prompt-injected request spend without a person deciding.
 
 Cross-repository rows. The graph node type for a transaction belongs to the knowledge-graph owner (`EG-` prefix); the SDK emits the entity and the owner maps it.
+
+## Caller-scoped context and progress (SDK-CONNECTOR-CONTROL-R050)
+
+Data flow: served `tools/call` -> registered tool -> authenticated context binding ->
+`dispatch_async` -> connector method -> ordered notifications -> terminal result.
+
+Existing code: `create_mcp_server` in `agent_connector_sdk/mcp/server.py:88`
+builds the served MCP boundary. `_register_condensed` in
+`agent_connector_sdk/mcp/tool_surface.py:97` invokes connector registrars.
+`_build_tool` in `agent_connector_sdk/mcp/method_tools.py:133` receives a context
+and calls the client method. `dispatch_async` in
+`agent_connector_sdk/mcp/action_dispatch.py:194` guards destructive actions.
+`ctx_confirm_destructive` in `agent_connector_sdk/mcp/context.py:49` denies
+missing context; `ctx_log` at line 71 forwards client logs.
+
+Reachable today: no. Registration, dispatch, logging and elicitation are reachable.
+The shared typed context, ordered progress sender and terminal metadata are missing.
+The direct method wrapper does not forward context to its client method.
+Condensed registrars do not enforce context delivery to every handler.
+
+Reuse the existing registration and dispatch paths. Add request binding at server
+invocation and validate context support during registration. Registration must refuse
+a tool that cannot receive context. Keep transport context out of the public tool
+argument schema. Bind identity from authenticated server state, never tool arguments.
+The method wrapper must use the same context adapter as condensed handlers.
+The adapter passes context only through a declared typed parameter.
+
+`request_cache` keys include tenant, actor, connector, operation, normalized argument
+digest and authorization scope. The cache holds typed transient values only.
+Clear it on terminal completion, cancellation or deadline. Never cache approvals,
+credentials or effect results. Cross-request reuse requires the existing owning
+service; this context creates no knowledge store or workflow memory.
+
+`ordered_progress` assigns sequence numbers under one per-request asynchronous lock.
+Completion values must be finite and monotonic. A total, once set, cannot change.
+UTF-8 messages are capped at 4096 bytes and redacted before transport.
+`bounded_delivery` permits one outstanding send per request and a five-second send
+deadline, capped by the remaining request deadline. These named limits are configurable.
+Backpressure awaits the send; it creates no unbounded queue. No notification follows
+a terminal result. With no token, update the terminal summary without sending.
+Cancellation stops new work and records any already-started effect as uncertain.
+
+Approval is an authenticated host decision bound to tenant, actor, operation,
+argument digest and expiry. Interactive elicitation is an input to that decision;
+a truthy payload is not authorization. Reuse the governed write-back adapter for
+source mutations, reservation, deterministic idempotency and restart recovery.
+Transport retry never retries an effect blindly. A duplicate request with the same
+bound effect key resolves through its durable receipt. Changed arguments under that
+key refuse. Progress delivery is not a durable event log and is not replayed after reconnect.
+The client obtains the existing result through the host status contract.
+
+Decision: attach context to the existing served call and dispatch boundary.
+Rejected alternative: a separate progress service and effect retry queue, which
+creates another authority for call state and mutation outcomes.
+
+Cross-repository rows: `GRAPHOS-A2A-R005` owns host admission and approval;
+`GRAPHOS-A2A-R006` owns host run control. `EG-ORCH-VOCAB-R013` owns durable trace
+records. `SDK-GOVERNED-WRITEBACK-R004` owns approval-bound effect idempotency.
+Consumers: AU runs the received action; WebUI renders received progress.
+Neither consumer selects connector routes or creates approval decisions here.
+
+References: this contract derives from connector context and MCP progress needs.
+No research-paper claim or benchmark is needed for these two source candidates.
