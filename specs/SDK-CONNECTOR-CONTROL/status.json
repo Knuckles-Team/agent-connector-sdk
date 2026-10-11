@@ -51,7 +51,19 @@
     "SDK-CONNECTOR-CONTROL-R041",
     "SDK-CONNECTOR-CONTROL-R042",
     "SDK-CONNECTOR-CONTROL-R043",
-    "SDK-CONNECTOR-CONTROL-R044"
+    "SDK-CONNECTOR-CONTROL-R044",
+    "SDK-CONNECTOR-CONTROL-R045",
+    "SDK-CONNECTOR-CONTROL-R045.1",
+    "SDK-CONNECTOR-CONTROL-R045.2",
+    "SDK-CONNECTOR-CONTROL-R045.3",
+    "SDK-CONNECTOR-CONTROL-R045.4",
+    "SDK-CONNECTOR-CONTROL-R045.5",
+    "SDK-CONNECTOR-CONTROL-R045.6",
+    "SDK-CONNECTOR-CONTROL-R045.7",
+    "SDK-CONNECTOR-CONTROL-R045.8",
+    "SDK-CONNECTOR-CONTROL-R045.9",
+    "SDK-CONNECTOR-CONTROL-R045.10",
+    "SDK-CONNECTOR-CONTROL-R045.11"
   ],
   "requirements": [
     {
@@ -551,6 +563,103 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R044",
       "title": "SDK declares a virtual-graph (relational or document) source's access contract (unblocks `EG-CQ-CONN-R067.5`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R045",
+      "title": "Tool contract facts for the run loop and the tool-subset decision",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R045.1",
+        "SDK-CONNECTOR-CONTROL-R045.2",
+        "SDK-CONNECTOR-CONTROL-R045.3",
+        "SDK-CONNECTOR-CONTROL-R045.4",
+        "SDK-CONNECTOR-CONTROL-R045.5",
+        "SDK-CONNECTOR-CONTROL-R045.6",
+        "SDK-CONNECTOR-CONTROL-R045.7",
+        "SDK-CONNECTOR-CONTROL-R045.8",
+        "SDK-CONNECTOR-CONTROL-R045.9",
+        "SDK-CONNECTOR-CONTROL-R045.10",
+        "SDK-CONNECTOR-CONTROL-R045.11"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R045.1",
+      "title": "Type `ToolContractFacts`",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R045.2",
+      "title": "Close the `SideEffect` set",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R045.3",
+      "title": "Compute `schema_tokens` from the existing canonical tool body",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R045.4",
+      "title": "Default to the safe value when a connector declares nothing",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R045.5",
+      "title": "Map MCP annotations as self-declared hints",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R045.6",
+      "title": "Read `side_effects` from `eg.annotations`, and gate on the generated type",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R045.7",
+      "title": "Reuse the destructive classification",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R045.8",
+      "title": "Attach the facts to the captured tool entry",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R045.9",
+      "title": "Certify that a `read_only` tool wrote nothing in its recorded fixture",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R045.10",
+      "title": "Refuse an unproven self-declared `read_only`",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R045.11",
+      "title": "Generate the manifest facts and prove the path end to end",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []

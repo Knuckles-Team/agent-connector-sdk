@@ -24,3 +24,14 @@
 - [x] Bind required prompt arguments to `{{name}}` placeholders and capture a template instead of refusing (SDK-CONNECTOR-CONTROL-R023).
 - [x] Fall back to a synthesized template when the server rejects a bound placeholder for a typed required argument, without masking a genuine transport failure (SDK-CONNECTOR-CONTROL-R024).
 - [ ] Type the cross-source connector operation contracts and declare MCP, A2A, API, GraphQL and virtual-graph access kinds (SDK-CONNECTOR-CONTROL-R037 to SDK-CONNECTOR-CONTROL-R044).
+- [ ] **R045.1:** Add the frozen `ToolContractFacts` model with its five fields in `agent_connector_sdk/artifacts/tool_facts.py`. (SDK-CONNECTOR-CONTROL-R045.1).
+- [ ] **R045.2:** Add the closed `SideEffect` enum and the read-only consistency refusal. (SDK-CONNECTOR-CONTROL-R045.2).
+- [ ] **R045.3:** Add `schema_tokens` over the canonical body already built in `_tool_entry`. (SDK-CONNECTOR-CONTROL-R045.3).
+- [ ] **R045.4:** Add `facts_from_declaration` with the safe defaults and no name-based inference. (SDK-CONNECTOR-CONTROL-R045.4).
+- [ ] **R045.5:** Read `readOnlyHint` into the facts builder and record `declared_by = mcp_hint`. (SDK-CONNECTOR-CONTROL-R045.5).
+- [ ] **R045.6:** Bump the graph-client wheel lock after the `EG-TYPED-PACKS` annotation fields land; read `side_effects` from `eg.annotations`. (SDK-CONNECTOR-CONTROL-R045.6).
+- [ ] **R045.7:** Call `is_destructive_action` from the facts builder to force `read_only = false`. (SDK-CONNECTOR-CONTROL-R045.7).
+- [ ] **R045.8:** Build `ToolContractFacts` inside `_tool_entry` and pass them in the entry annotations. (SDK-CONNECTOR-CONTROL-R045.8).
+- [ ] **R045.9:** Add `ToolFixture` and `check_read_only`, then call it from `tool_verdicts` for each `read_only` tool. (SDK-CONNECTOR-CONTROL-R045.9).
+- [ ] **R045.10:** Return the `unproven` verdict and exclude the tool from `_certified`. (SDK-CONNECTOR-CONTROL-R045.10).
+- [ ] **R045.11:** Extend `write_certified_pins` to render the facts; add the certification-to-pack end-to-end test. (SDK-CONNECTOR-CONTROL-R045.11).
