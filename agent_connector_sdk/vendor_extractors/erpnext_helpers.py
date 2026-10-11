@@ -30,7 +30,7 @@ def props(**fields: Any) -> dict[str, Any]:
 
 
 def _link(
-    rels: list[Relationship], source: str, prefix: str, value: Any, kind: str
+    rels: list[Relationship], *, source: str, prefix: str, value: Any, kind: str
 ) -> None:
     if value is not None:
         rels.append(
@@ -42,6 +42,7 @@ def map_employees(
     rows: list[dict[str, Any]],
     entities: list[Entity],
     rels: list[Relationship],
+    *,
     org_units: dict[str, Entity],
 ) -> None:
     for row in rows:
@@ -103,10 +104,10 @@ def map_orders(
         )
         _link(
             rels,
-            node_id,
-            "customer",
-            first(row, "customer", "customer_name"),
-            "PLACED_BY",
+            source=node_id,
+            prefix="customer",
+            value=first(row, "customer", "customer_name"),
+            kind="PLACED_BY",
         )
 
 
@@ -151,27 +152,19 @@ def map_assets(
                 ),
             )
         )
-        _link(rels, node_id, "item", first(row, "item_code", "item"), "INSTANCE_OF")
         _link(
             rels,
-            node_id,
-            "warehouse",
-            first(row, "warehouse", "location"),
-            "LOCATED_IN",
+            source=node_id,
+            prefix="item",
+            value=first(row, "item_code", "item"),
+            kind="INSTANCE_OF",
         )
-
-
-def map_warehouses(rows: list[dict[str, Any]], entities: list[Entity]) -> None:
-    for row in rows:
-        name = first(row, "name", "warehouse_name")
-        if name is None:
-            continue
-        entities.append(
-            Entity(
-                id=f"warehouse:{name}",
-                node_type="Warehouse",
-                properties=props(name=first(row, "warehouse_name", "name")),
-            )
+        _link(
+            rels,
+            source=node_id,
+            prefix="warehouse",
+            value=first(row, "warehouse", "location"),
+            kind="LOCATED_IN",
         )
 
 
@@ -196,8 +189,8 @@ def map_issues(
         )
         _link(
             rels,
-            node_id,
-            "customer",
-            first(row, "customer", "customer_name"),
-            "RAISED_BY",
+            source=node_id,
+            prefix="customer",
+            value=first(row, "customer", "customer_name"),
+            kind="RAISED_BY",
         )

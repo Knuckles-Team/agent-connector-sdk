@@ -18,20 +18,35 @@ from typing import Any
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 from agent_connector_sdk.vendor_extractors.erpnext_helpers import (
-    get_list as _get_list,
-)
-from agent_connector_sdk.vendor_extractors.erpnext_helpers import (
+    first,
     map_assets,
     map_customers,
     map_employees,
     map_issues,
     map_items,
     map_orders,
-    map_warehouses,
+    props,
+)
+from agent_connector_sdk.vendor_extractors.erpnext_helpers import (
+    get_list as _get_list,
 )
 
 CATEGORY = "erpnext"
 _DOMAIN = "erpnext"
+
+
+def map_warehouses(rows: list[dict[str, Any]], entities: list[Entity]) -> None:
+    for row in rows:
+        name = first(row, "name", "warehouse_name")
+        if name is None:
+            continue
+        entities.append(
+            Entity(
+                id=f"warehouse:{name}",
+                node_type="Warehouse",
+                properties=props(name=first(row, "warehouse_name", "name")),
+            )
+        )
 
 
 def _get_client(config: Any) -> Any:
@@ -60,7 +75,9 @@ def _collect(client: Any) -> tuple[list[Entity], list[Relationship]]:
     entities: list[Entity] = []
     relationships: list[Relationship] = []
     org_units: dict[str, Entity] = {}
-    map_employees(_get_list(client, "Employee"), entities, relationships, org_units)
+    map_employees(
+        _get_list(client, "Employee"), entities, relationships, org_units=org_units
+    )
     map_customers(_get_list(client, "Customer"), entities)
     map_orders(_get_list(client, "Sales Order"), entities, relationships)
     map_items(_get_list(client, "Item"), entities)

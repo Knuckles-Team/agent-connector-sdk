@@ -109,7 +109,3 @@ def _risk_entities(
     )
     rel = Relationship(source=owner_id, target=risk_id, relationship="HAS_RISK")
     return [entity], [rel]
-
-
-def _rel(source: str, target: str, relationship: str) -> Relationship:
-    return Relationship(source=source, target=target, relationship=relationship)

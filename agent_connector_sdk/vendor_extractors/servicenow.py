@@ -32,13 +32,16 @@ from agent_connector_sdk.vendor_extractors.servicenow_helpers import (
     _key,
     _model_properties,
     _ref,
-    _rel,
     _risk_entities,
     _risk_props,
 )
 
 CATEGORY = "servicenow"
 _DOMAIN = "servicenow"
+
+
+def _rel(source: str, target: str, relationship: str) -> Relationship:
+    return Relationship(source=source, target=target, relationship=relationship)
 
 
 def _call(client: Any, name: str) -> list[Any]:
