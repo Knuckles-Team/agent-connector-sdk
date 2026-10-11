@@ -14,10 +14,7 @@ from __future__ import annotations
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
-from agent_connector_sdk.vendor_extractors._records import (
-    _get,
-    _safe_call,
-)
+from agent_connector_sdk.vendor_extractors import _records as rec
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "technitium_dns"
@@ -76,7 +73,9 @@ def _record_entity(zone: str, record: dict[str, Any]) -> Entity:
 def _zone_records(
     client: Any, zone: str, zone_id: str
 ) -> tuple[list[Entity], list[Relationship]]:
-    rows = _rows(_safe_call(client, "get_records", zone), "records", "value", "data")
+    rows = _rows(
+        rec._safe_call(client, "get_records", zone), "records", "value", "data"
+    )
     entities = [_record_entity(zone, record) for record in rows]
     relationships = [
         Relationship(source=zone_id, target=entity.id, relationship="CONTAINS")
@@ -86,13 +85,15 @@ def _zone_records(
 
 
 def extract(config: Any) -> ChangeSet:
-    client = _get(config, "client")
+    client = rec._get(config, "client")
     if client is None:
         return ChangeSet()
 
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-    for zone_row in _rows(_safe_call(client, "list_zones"), "zones", "value", "data"):
+    for zone_row in _rows(
+        rec._safe_call(client, "list_zones"), "zones", "value", "data"
+    ):
         zone = zone_row.get("name") or zone_row.get("zone")
         if not zone:
             continue

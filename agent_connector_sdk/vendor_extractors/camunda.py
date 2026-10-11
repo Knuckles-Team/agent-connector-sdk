@@ -31,11 +31,7 @@ from __future__ import annotations
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
-from agent_connector_sdk.vendor_extractors._records import (
-    _call_list,
-    _first,
-    _get,
-)
+from agent_connector_sdk.vendor_extractors import _records as rec
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "camunda"
@@ -43,7 +39,7 @@ CATEGORY = "camunda"
 
 def _call(client: Any, name: str) -> list[Any]:
     """Call a client list-method if present, returning a list (tolerant)."""
-    return _call_list(client, name, ("items", "results"))
+    return rec._call_list(client, name, ("items", "results"))
 
 
 def _extract_processes(
@@ -51,16 +47,16 @@ def _extract_processes(
 ) -> None:
     """Append process-definition entities (and Egeria alignment links)."""
     for record in _call(client, "list_process_definitions"):
-        proc_id = _first(record, "id", "key", "bpmnProcessId")
+        proc_id = rec._first(record, "id", "key", "bpmnProcessId")
         if not proc_id:
             continue
         proc_node_id = f"bpmn_process:{proc_id}"
         properties: dict[str, Any] = {
-            "name": _first(record, "name", "key", "bpmnProcessId"),
-            "key": _first(record, "key", "bpmnProcessId"),
-            "version": _get(record, "version"),
+            "name": rec._first(record, "name", "key", "bpmnProcessId"),
+            "key": rec._first(record, "key", "bpmnProcessId"),
+            "version": rec._get(record, "version"),
         }
-        egeria_guid = _first(record, "egeriaGuid", "egeria_guid", "externalToolId")
+        egeria_guid = rec._first(record, "egeriaGuid", "egeria_guid", "externalToolId")
         if egeria_guid:
             properties["externalToolId"] = egeria_guid
             relationships.append(
@@ -85,14 +81,14 @@ def _extract_tasks(
 ) -> None:
     """Append task entities linked ``PART_OF`` their process."""
     for record in _call(client, "list_tasks"):
-        task_id = _first(record, "id", "key")
+        task_id = rec._first(record, "id", "key")
         if not task_id:
             continue
         node_id = f"bpmn_task:{task_id}"
         properties = _present(
             (
-                ("name", _first(record, "name", "taskDefinitionKey")),
-                ("assignee", _get(record, "assignee")),
+                ("name", rec._first(record, "name", "taskDefinitionKey")),
+                ("assignee", rec._get(record, "assignee")),
             )
         )
         entities.append(
@@ -111,7 +107,7 @@ def _link_process(
     relationships: list[Relationship],
 ) -> None:
     """Append a link from ``node_id`` to the record's process, if any."""
-    proc_ref = _first(record, "processDefinitionId", "processDefinitionKey")
+    proc_ref = rec._first(record, "processDefinitionId", "processDefinitionKey")
     if proc_ref:
         relationships.append(
             Relationship(
@@ -127,7 +123,7 @@ def _extract_incidents(
 ) -> None:
     """Append incident entities linked ``AFFECTS`` their process."""
     for record in _call(client, "list_incidents"):
-        incident_id = _first(record, "id", "key")
+        incident_id = rec._first(record, "id", "key")
         if not incident_id:
             continue
         node_id = f"incident:{incident_id}"
@@ -135,9 +131,9 @@ def _extract_incidents(
             (
                 (
                     "short_description",
-                    _first(record, "incidentMessage", "errorMessage"),
+                    rec._first(record, "incidentMessage", "errorMessage"),
                 ),
-                ("incident_type", _get(record, "incidentType")),
+                ("incident_type", rec._get(record, "incidentType")),
             )
         )
         entities.append(Entity(id=node_id, node_type="Incident", properties=properties))
@@ -153,7 +149,7 @@ def extract(config: Any) -> ChangeSet:
     ``BusinessTask`` entities linked ``PART_OF`` their process; incidents
     become ``Incident`` entities linked ``AFFECTS`` their process.
     """
-    client = _get(config, "client")
+    client = rec._get(config, "client")
     if client is None:
         return ChangeSet()
 
