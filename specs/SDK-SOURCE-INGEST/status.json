@@ -153,7 +153,7 @@
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.1",
-      "title": "SDK ports the Uptime Kuma monitor extractor; defines the typed vendor-extractor contract",
+      "title": "SDK ports the Uptime Kuma monitor extractor. Defines the typed vendor-extractor contract",
       "delivery_state": "VERIFIED",
       "landed_in": [
         "10376b1e9728",
