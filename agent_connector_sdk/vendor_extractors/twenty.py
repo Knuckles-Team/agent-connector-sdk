@@ -16,6 +16,14 @@ from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
+from agent_connector_sdk.vendor_extractors.twenty_helpers import (
+    _company_ref,
+    _name,
+    _opportunity_entity,
+    _person_entity,
+    _props,
+    _records,
+)
 
 CATEGORY = "twenty"
 _DOMAIN = "twenty"
@@ -23,30 +31,6 @@ _DOMAIN = "twenty"
 
 def _get(config: Any, key: str) -> Any:
     return config.get(key) if isinstance(config, dict) else getattr(config, key, None)
-
-
-def _records(res: Any, plural: str) -> list[dict[str, Any]]:
-    """Pull records from REST ``{data:[...]}`` or GraphQL connection shapes."""
-    if not isinstance(res, dict):
-        return (
-            [row for row in res if isinstance(row, dict)]
-            if isinstance(res, list)
-            else []
-        )
-    data = res.get("data", res)
-    if isinstance(data, dict) and plural in data:
-        conn = data[plural]
-        if isinstance(conn, dict) and isinstance(conn.get("edges"), list):
-            return [
-                edge["node"]
-                for edge in conn["edges"]
-                if isinstance(edge, dict) and edge.get("node")
-            ]
-        if isinstance(conn, list):
-            return [row for row in conn if isinstance(row, dict)]
-    if isinstance(data, list):
-        return [row for row in data if isinstance(row, dict)]
-    return []
 
 
 def _call(client: Any, name: str) -> Any:
@@ -57,30 +41,8 @@ def _call(client: Any, name: str) -> Any:
         return None
 
 
-def _name(record: dict[str, Any], *keys: str) -> str | None:
-    for key in keys:
-        value = record.get(key)
-        if isinstance(value, dict):  # Twenty FullName {firstName,lastName}
-            joined = " ".join(str(part) for part in value.values() if part)
-            if joined.strip():
-                return joined.strip()
-        elif value:
-            return str(value)
-    return None
-
-
-def _props(**fields: Any) -> dict[str, Any]:
-    return {key: value for key, value in fields.items() if value is not None}
-
-
-def extract(config: Any) -> ChangeSet:
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-
+def _company_entities(client: Any) -> list[Entity]:
     entities: list[Entity] = []
-    relationships: list[Relationship] = []
-
     for company in _records(_call(client, "get_companies"), "companies"):
         company_id = company.get("id")
         if company_id:
@@ -95,68 +57,64 @@ def extract(config: Any) -> ChangeSet:
                     ),
                 )
             )
+    return entities
 
-    for person in _records(_call(client, "get_people"), "people"):
-        person_id = person.get("id")
-        if not person_id:
+
+def _linked(
+    client: Any,
+    *,
+    method: str,
+    plural: str,
+    prefix: str,
+    build: Any,
+    relationship: str,
+) -> tuple[list[Entity], list[Relationship]]:
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+    for record in _records(_call(client, method), plural):
+        record_id = record.get("id")
+        if not record_id:
             continue
-        node_id = f"twperson:{person_id}"
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="Person",
-                properties=_props(
-                    name=_name(person, "name", "displayName"),
-                    email=_name(person, "email"),
-                    externalToolId=str(person_id),
-                    domain=_DOMAIN,
-                ),
-            )
-        )
-        company_ref = person.get("companyId") or (person.get("company") or {}).get("id")
+        node_id = f"{prefix}:{record_id}"
+        entities.append(build(record, node_id, record_id))
+        company_ref = _company_ref(record)
         if company_ref:
             relationships.append(
                 Relationship(
                     source=node_id,
                     target=f"twcompany:{company_ref}",
-                    relationship="BELONGS_TO",
+                    relationship=relationship,
                 )
             )
+    return entities, relationships
 
-    for opportunity in _records(_call(client, "get_opportunities"), "opportunities"):
-        opp_id = opportunity.get("id")
-        if not opp_id:
-            continue
-        node_id = f"twopp:{opp_id}"
-        amount = opportunity.get("amount")
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="SalesOrder",
-                properties=_props(
-                    name=_name(opportunity, "name"),
-                    stage=opportunity.get("stage"),
-                    amount=amount.get("amountMicros")
-                    if isinstance(amount, dict)
-                    else amount,
-                    externalToolId=str(opp_id),
-                    domain=_DOMAIN,
-                ),
-            )
-        )
-        company_ref = opportunity.get("companyId") or (
-            opportunity.get("company") or {}
-        ).get("id")
-        if company_ref:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"twcompany:{company_ref}",
-                    relationship="PLACED_BY",
-                )
-            )
 
-    return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
+def extract(config: Any) -> ChangeSet:
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+
+    entities = _company_entities(client)
+    people, person_rels = _linked(
+        client,
+        method="get_people",
+        plural="people",
+        prefix="twperson",
+        build=_person_entity,
+        relationship="BELONGS_TO",
+    )
+    opps, opp_rels = _linked(
+        client,
+        method="get_opportunities",
+        plural="opportunities",
+        prefix="twopp",
+        build=_opportunity_entity,
+        relationship="PLACED_BY",
+    )
+    return ChangeSet(
+        entities=tuple(entities + people + opps),
+        relationships=tuple(person_rels + opp_rels),
+    )
 
 
 register_vendor_extractor(
