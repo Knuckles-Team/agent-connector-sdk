@@ -36,23 +36,64 @@ def _first(record: Any, *keys: str) -> Any:
     return None
 
 
+def _invoke(method: Any) -> Any:
+    """Call ``method()``; on ``TypeError`` retry with an empty params dict."""
+    try:
+        return method()
+    except TypeError:
+        return method({})
+
+
 def _call(client: Any, name: str) -> list[Any]:
     """Call a client method if present, returning a list (tolerant)."""
     method = getattr(client, name, None)
     if not callable(method):
         return []
     try:
-        result = method()
-    except TypeError:
-        try:
-            result = method({})
-        except Exception:
-            return []
+        result = _invoke(method)
     except Exception:
         return []
     if isinstance(result, dict):
         result = result.get("value") or result.get("items") or result.get("data") or []
     return list(result) if result else []
+
+
+def _extract_kind(
+    client: Any,
+    method: str,
+    *,
+    prefix: str,
+    node_type: str,
+    entities: list[Entity],
+    relationships: list[Relationship] | None = None,
+    ref_keys: tuple[str, ...] = (),
+    link: tuple[str, str] = ("", ""),
+) -> None:
+    """Append one GRC record kind, optionally linking it to a parent kind."""
+    for record in _call(client, method):
+        record_id = _first(record, "id", "Id", "name", "Name")
+        if not record_id:
+            continue
+        node_id = f"{prefix}:{record_id}"
+        entities.append(
+            Entity(
+                id=node_id,
+                node_type=node_type,
+                properties={
+                    "name": _first(record, "name", "Name", "Title"),
+                    "capability": "grc",
+                },
+            )
+        )
+        ref = _first(record, *ref_keys) if ref_keys else None
+        if ref and relationships is not None:
+            relationships.append(
+                Relationship(
+                    source=node_id,
+                    target=f"{link[0]}:{ref}",
+                    relationship=link[1],
+                )
+            )
 
 
 def extract(config: Any) -> ChangeSet:
@@ -67,71 +108,33 @@ def extract(config: Any) -> ChangeSet:
 
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-
-    for record in _call(client, "list_risks"):
-        risk_id = _first(record, "id", "Id", "name", "Name")
-        if not risk_id:
-            continue
-        entities.append(
-            Entity(
-                id=f"archer_risk:{risk_id}",
-                node_type="Risk",
-                properties={
-                    "name": _first(record, "name", "Name", "Title"),
-                    "capability": "grc",
-                },
-            )
-        )
-
-    for record in _call(client, "list_controls"):
-        control_id = _first(record, "id", "Id", "name", "Name")
-        if not control_id:
-            continue
-        node_id = f"archer_control:{control_id}"
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="ComplianceControl",
-                properties={
-                    "name": _first(record, "name", "Name", "Title"),
-                    "capability": "grc",
-                },
-            )
-        )
-        risk_ref = _first(record, "riskId", "RiskId", "risk_id")
-        if risk_ref:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"archer_risk:{risk_ref}",
-                    relationship="MITIGATES",
-                )
-            )
-
-    for record in _call(client, "list_findings"):
-        finding_id = _first(record, "id", "Id", "name", "Name")
-        if not finding_id:
-            continue
-        node_id = f"archer_finding:{finding_id}"
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="Finding",
-                properties={
-                    "name": _first(record, "name", "Name", "Title"),
-                    "capability": "grc",
-                },
-            )
-        )
-        control_ref = _first(record, "controlId", "ControlId", "control_id")
-        if control_ref:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"archer_control:{control_ref}",
-                    relationship="AFFECTS",
-                )
-            )
+    _extract_kind(
+        client,
+        "list_risks",
+        prefix="archer_risk",
+        node_type="Risk",
+        entities=entities,
+    )
+    _extract_kind(
+        client,
+        "list_controls",
+        prefix="archer_control",
+        node_type="ComplianceControl",
+        entities=entities,
+        relationships=relationships,
+        ref_keys=("riskId", "RiskId", "risk_id"),
+        link=("archer_risk", "MITIGATES"),
+    )
+    _extract_kind(
+        client,
+        "list_findings",
+        prefix="archer_finding",
+        node_type="Finding",
+        entities=entities,
+        relationships=relationships,
+        ref_keys=("controlId", "ControlId", "control_id"),
+        link=("archer_control", "AFFECTS"),
+    )
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 
