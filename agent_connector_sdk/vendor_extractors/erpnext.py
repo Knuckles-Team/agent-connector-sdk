@@ -18,13 +18,13 @@ from typing import Any
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 from agent_connector_sdk.vendor_extractors.erpnext_helpers import (
+    _map_assets,
+    _map_customers,
+    _map_employees,
+    _map_issues,
+    _map_items,
+    _map_orders,
     first,
-    map_assets,
-    map_customers,
-    map_employees,
-    map_issues,
-    map_items,
-    map_orders,
     props,
 )
 from agent_connector_sdk.vendor_extractors.erpnext_helpers import (
@@ -35,7 +35,7 @@ CATEGORY = "erpnext"
 _DOMAIN = "erpnext"
 
 
-def map_warehouses(rows: list[dict[str, Any]], entities: list[Entity]) -> None:
+def _map_warehouses(rows: list[dict[str, Any]], entities: list[Entity]) -> None:
     for row in rows:
         name = first(row, "name", "warehouse_name")
         if name is None:
@@ -75,15 +75,15 @@ def _collect(client: Any) -> tuple[list[Entity], list[Relationship]]:
     entities: list[Entity] = []
     relationships: list[Relationship] = []
     org_units: dict[str, Entity] = {}
-    map_employees(
+    _map_employees(
         _get_list(client, "Employee"), entities, relationships, org_units=org_units
     )
-    map_customers(_get_list(client, "Customer"), entities)
-    map_orders(_get_list(client, "Sales Order"), entities, relationships)
-    map_items(_get_list(client, "Item"), entities)
-    map_assets(_get_list(client, "Asset"), entities, relationships)
-    map_warehouses(_get_list(client, "Warehouse"), entities)
-    map_issues(_get_list(client, "Issue"), entities, relationships)
+    _map_customers(_get_list(client, "Customer"), entities)
+    _map_orders(_get_list(client, "Sales Order"), entities, relationships)
+    _map_items(_get_list(client, "Item"), entities)
+    _map_assets(_get_list(client, "Asset"), entities, relationships)
+    _map_warehouses(_get_list(client, "Warehouse"), entities)
+    _map_issues(_get_list(client, "Issue"), entities, relationships)
     entities.extend(org_units.values())
     return entities, relationships
 

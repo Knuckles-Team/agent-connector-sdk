@@ -38,7 +38,7 @@ def _link(
         )
 
 
-def map_employees(
+def _map_employees(
     rows: list[dict[str, Any]],
     entities: list[Entity],
     rels: list[Relationship],
@@ -73,7 +73,7 @@ def map_employees(
         )
 
 
-def map_customers(rows: list[dict[str, Any]], entities: list[Entity]) -> None:
+def _map_customers(rows: list[dict[str, Any]], entities: list[Entity]) -> None:
     for row in rows:
         name = first(row, "name", "customer", "customer_name")
         if name is None:
@@ -87,7 +87,7 @@ def map_customers(rows: list[dict[str, Any]], entities: list[Entity]) -> None:
         )
 
 
-def map_orders(
+def _map_orders(
     rows: list[dict[str, Any]], entities: list[Entity], rels: list[Relationship]
 ) -> None:
     for row in rows:
@@ -111,7 +111,7 @@ def map_orders(
         )
 
 
-def map_items(rows: list[dict[str, Any]], entities: list[Entity]) -> None:
+def _map_items(rows: list[dict[str, Any]], entities: list[Entity]) -> None:
     for row in rows:
         name = first(row, "name", "item_code", "item_name")
         if name is None:
@@ -130,7 +130,7 @@ def map_items(rows: list[dict[str, Any]], entities: list[Entity]) -> None:
         )
 
 
-def map_assets(
+def _map_assets(
     rows: list[dict[str, Any]], entities: list[Entity], rels: list[Relationship]
 ) -> None:
     for row in rows:
@@ -168,7 +168,7 @@ def map_assets(
         )
 
 
-def map_issues(
+def _map_issues(
     rows: list[dict[str, Any]], entities: list[Entity], rels: list[Relationship]
 ) -> None:
     for row in rows:

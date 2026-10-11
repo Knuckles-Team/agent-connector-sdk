@@ -16,19 +16,15 @@ from typing import Any
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 from agent_connector_sdk.vendor_extractors.grafana_helpers import (
+    _scalar,
+    _service_from_labels,
+    _service_from_title,
+)
+from agent_connector_sdk.vendor_extractors.grafana_helpers import (
     call as _call,
 )
 from agent_connector_sdk.vendor_extractors.grafana_helpers import (
     get as _get,
-)
-from agent_connector_sdk.vendor_extractors.grafana_helpers import (
-    scalar as _scalar,
-)
-from agent_connector_sdk.vendor_extractors.grafana_helpers import (
-    service_from_labels as _service_from_labels,
-)
-from agent_connector_sdk.vendor_extractors.grafana_helpers import (
-    service_from_title as _service_from_title,
 )
 
 CATEGORY = "grafana"

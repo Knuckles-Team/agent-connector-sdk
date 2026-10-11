@@ -42,7 +42,6 @@ from agent_connector_sdk.vendor_extractors.ciso_assistant_helpers import (
     _get,
     _id_of,
     _list,
-    _ref_id,
 )
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
@@ -50,12 +49,6 @@ CATEGORY = "ciso_assistant"
 
 __all__ = [
     "CATEGORY",
-    "_as_list",
-    "_first",
-    "_get",
-    "_id_of",
-    "_list",
-    "_ref_id",
     "extract",
 ]
 
@@ -116,7 +109,7 @@ def _compliance_links(record: Any, node_id: str) -> list[Relationship]:
 
 
 def _collect(
-    client: Any, spec: _Spec, *, seen: set[str], extra: _Extra | None
+    client: Any, spec: _Spec, *, seen: set[str], related: _Extra | None
 ) -> tuple[list[Entity], list[Relationship]]:
     """Entities + relationships for one record kind, deduplicated via ``seen``."""
     method, prefix, node_type = spec
@@ -134,8 +127,8 @@ def _collect(
             Entity(id=node_id, node_type=node_type, properties=_base_props(record))
         )
         rels.extend(_crosswalk(record, node_id))
-        if extra is not None:
-            rels.extend(extra(record, node_id))
+        if related is not None:
+            rels.extend(related(record, node_id))
     return entities, rels
 
 
@@ -162,8 +155,8 @@ def extract(config: Any) -> ChangeSet:
     entities: list[Entity] = []
     relationships: list[Relationship] = []
     seen: set[str] = set()
-    for spec, extra in plan:
-        ents, rels = _collect(client, spec, seen=seen, extra=extra)
+    for spec, related in plan:
+        ents, rels = _collect(client, spec, seen=seen, related=related)
         entities.extend(ents)
         relationships.extend(rels)
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
