@@ -23,3 +23,4 @@
 - [x] Rebuild and reattach fleet packs that import `http://knuckles.team/kg` (SDK-CONNECTOR-CONTROL-R022).
 - [x] Bind required prompt arguments to `{{name}}` placeholders and capture a template instead of refusing (SDK-CONNECTOR-CONTROL-R023).
 - [x] Fall back to a synthesized template when the server rejects a bound placeholder for a typed required argument, without masking a genuine transport failure (SDK-CONNECTOR-CONTROL-R024).
+- [ ] Type the cross-source connector operation contracts and declare MCP, A2A, API, GraphQL and virtual-graph access kinds (SDK-CONNECTOR-CONTROL-R037 to SDK-CONNECTOR-CONTROL-R044).

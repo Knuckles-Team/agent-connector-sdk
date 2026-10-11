@@ -7,3 +7,7 @@
 5. Add candidate-repair handoff as a proposal only. Activate only after graph-owned validation, shadow ingest, explicit approval, and restart proof.
 
 Each change carries focused unit/contract tests; a final opt-in integration job runs against a provisioned graph instance and reports exact receipts.
+
+## Ingest worker (SDK-SOURCE-INGEST-R010, R011)
+
+The worker is a thin loop: ask the engine for admission, lane floors and routing, claim, execute with the existing source-effect runners, ack, commit. It owns no scheduling policy, so a change of lane or priority is an engine change only. The command refuses to start when the engine lacks the task-queue methods.
