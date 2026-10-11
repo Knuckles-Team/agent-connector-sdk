@@ -4,7 +4,7 @@
 
 ## Outcome and model
 
-Real-user monitoring (RUM), security audit, and CI/CD events can enter the same durable source pipeline as other systems of record. The SDK provides authenticated transport, bounded paging/streaming, stable event identity, manifests, checkpointing, and schema drift quarantine. It does not interpret an event as a verified incident, vulnerability, release, or user outcome; graph-side policy and analysis own those conclusions.
+Real-user monitoring (RUM), security audit, and CI/CD events can enter the same durable source pipeline as other systems of record. The SDK provides authenticated transport, bounded paging/streaming, stable event identity, manifests, checkpointing, and schema drift quarantine. It does not interpret an event as a verified incident, vulnerability, release, or user outcome. Graph-side policy and analysis own those conclusions.
 
 An event envelope carries tenant/source/stream IDs; provider event ID or canonical source digest; event kind and schema version; event time, source-observed time and ingest time; actor and target references; trace/correlation ID if supplied; visibility/sensitivity label; license/retention metadata; payload digest; and source provenance. RUM captures page/action/error/session signals without raw credential or unapproved personal data. Security audit captures principal, action, target, outcome, and audit-chain reference. CI/CD captures repository revision, job/run/attempt identity, status transitions, artifact digest and deployment environment label. Missing required identity or impossible time order is refused, not patched with current time.
 
@@ -12,4 +12,4 @@ An event envelope carries tenant/source/stream IDs; provider event ID or canonic
 
 ## Portable contribution and completion
 
-Use synthetic RUM, audit and CI event fixtures with fake sessions and generated-client ports after `uv sync`; no production telemetry, private fleet, or hosted service is necessary for source tests. **LANDED** requires exact merged adapter contract and one provider implementation per feed kind. **ACCEPTED** requires the tests below, a graph-backed receipt and restart replay. No source implementation or live evidence is claimed by this spec.
+Use synthetic RUM, audit and CI event fixtures with fake sessions and generated-client ports after `uv sync`. No production telemetry, private fleet, or hosted service is necessary for source tests. **LANDED** requires exact merged adapter contract and one provider implementation per feed kind. **ACCEPTED** requires the tests below, a graph-backed receipt and restart replay. No source implementation or live evidence is claimed by this spec.
