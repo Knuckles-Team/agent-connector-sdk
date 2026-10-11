@@ -56,33 +56,38 @@ def _dashboards(client: Any) -> list[Entity]:
     return entities
 
 
+def _alert_id(alert: Any) -> Any:
+    return (
+        alert.get("fingerprint")
+        or alert.get("id")
+        or (alert.get("labels") or {}).get("alertname")
+    )
+
+
+def _alert_entity(alert: Any, alert_id: Any) -> Entity:
+    return Entity(
+        id=f"lgtm_alert:{alert_id}",
+        node_type="Alert",
+        properties={
+            key: value
+            for key, value in {
+                "name": (alert.get("labels") or {}).get("alertname") or str(alert_id),
+                "state": alert.get("status") or alert.get("state"),
+                "externalToolId": str(alert_id),
+                "domain": CATEGORY,
+            }.items()
+            if value is not None
+        },
+    )
+
+
 def _alerts(client: Any) -> list[Entity]:
     entities: list[Entity] = []
     for alert in _call(client, "get_alerts"):
-        alert_id = (
-            alert.get("fingerprint")
-            or alert.get("id")
-            or (alert.get("labels") or {}).get("alertname")
-        )
+        alert_id = _alert_id(alert)
         if not alert_id:
             continue
-        entities.append(
-            Entity(
-                id=f"lgtm_alert:{alert_id}",
-                node_type="Alert",
-                properties={
-                    key: value
-                    for key, value in {
-                        "name": (alert.get("labels") or {}).get("alertname")
-                        or str(alert_id),
-                        "state": alert.get("status") or alert.get("state"),
-                        "externalToolId": str(alert_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
-            )
-        )
+        entities.append(_alert_entity(alert, alert_id))
     return entities
 
 
