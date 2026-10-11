@@ -49,6 +49,49 @@ _RELATION_MAP: dict[str, tuple[str, str]] = {
 }
 
 
+def _walk_dict(item: dict[str, Any], out: list[tuple[str, str | None]]) -> None:
+    """Collect targets from one relation dict (edges/node/factSheet/target/id)."""
+    edges = item.get("edges")
+    if isinstance(edges, list):
+        for edge in edges:
+            _walk_target(edge, out)
+        return
+    if "node" in item:
+        _walk_target(item["node"], out)
+        return
+    fact_sheet = item.get("factSheet")
+    if isinstance(fact_sheet, dict):
+        fid = fact_sheet.get("id")
+        if fid:
+            out.append((str(fid), fact_sheet.get("type")))
+        return
+    target = item.get("target")
+    if isinstance(target, dict):
+        _walk_target(target, out)
+        return
+    for key in ("factSheetId", "id", "targetId"):
+        val = item.get(key)
+        if isinstance(val, str) and val:
+            out.append((val, item.get("type")))
+            return
+
+
+def _walk_target(item: Any, out: list[tuple[str, str | None]]) -> None:
+    """Dispatch one tolerant relation value onto ``out``."""
+    if item is None:
+        return
+    if isinstance(item, str):
+        if item:
+            out.append((item, None))
+        return
+    if isinstance(item, dict):
+        _walk_dict(item, out)
+        return
+    if isinstance(item, list | tuple):
+        for sub in item:
+            _walk_target(sub, out)
+
+
 def _iter_related_targets(value: Any) -> list[tuple[str, str | None]]:
     """Pull ``(target_id, target_type)`` pairs from a tolerant relation field.
 
@@ -57,44 +100,7 @@ def _iter_related_targets(value: Any) -> list[tuple[str, str | None]]:
     ``{"edges":[{"node":{"factSheet":{...}}}]}``.
     """
     out: list[tuple[str, str | None]] = []
-
-    def _one(item: Any) -> None:
-        if item is None:
-            return
-        if isinstance(item, str):
-            if item:
-                out.append((item, None))
-            return
-        if isinstance(item, dict):
-            edges = item.get("edges")
-            if isinstance(edges, list):
-                for edge in edges:
-                    _one(edge)
-                return
-            if "node" in item:
-                _one(item["node"])
-                return
-            fact_sheet = item.get("factSheet")
-            if isinstance(fact_sheet, dict):
-                fid = fact_sheet.get("id")
-                if fid:
-                    out.append((str(fid), fact_sheet.get("type")))
-                return
-            target = item.get("target")
-            if isinstance(target, dict):
-                _one(target)
-                return
-            for key in ("factSheetId", "id", "targetId"):
-                val = item.get(key)
-                if isinstance(val, str) and val:
-                    out.append((val, item.get("type")))
-                    return
-            return
-        if isinstance(item, list | tuple):
-            for sub in item:
-                _one(sub)
-
-    _one(value)
+    _walk_target(value, out)
     seen: set[str] = set()
     deduped: list[tuple[str, str | None]] = []
     for target_id, target_type in out:
@@ -104,25 +110,86 @@ def _iter_related_targets(value: Any) -> list[tuple[str, str | None]]:
     return deduped
 
 
+def _fetch_all(
+    factsheets: Any,
+    fs_types: list[str],
+    *,
+    since: str | None,
+    ids: list[str] | None,
+) -> list[dict[str, Any]]:
+    """Call ``factsheets`` once per type, tagging each dict with its type."""
+    sheets: list[dict[str, Any]] = []
+    for fs_type in fs_types:
+        result = factsheets(type=fs_type, since=since, ids=ids)
+        for item in result or []:
+            if isinstance(item, dict):
+                item.setdefault("type", fs_type)
+                sheets.append(item)
+    return sheets
+
+
 def _collect_factsheets(
-    client: Any, fs_types: list[str], since: str | None, ids: list[str] | None
+    client: Any,
+    fs_types: list[str],
+    *,
+    since: str | None,
+    ids: list[str] | None,
 ) -> list[dict[str, Any]]:
     """Fetch fact sheets per type from the injected client, tolerantly."""
-    sheets: list[dict[str, Any]] = []
     factsheets = getattr(client, "factsheets", None)
     if not callable(factsheets):
-        return sheets
+        return []
     try:
-        for fs_type in fs_types:
-            result = factsheets(type=fs_type, since=since, ids=ids)
-            for item in result or []:
-                if isinstance(item, dict):
-                    item.setdefault("type", fs_type)
-                    sheets.append(item)
-        return sheets
+        return _fetch_all(factsheets, fs_types, since=since, ids=ids)
     except TypeError:
         result = factsheets()
         return [item for item in (result or []) if isinstance(item, dict)]
+
+
+def _node_id(fs_type: str, raw_id: str) -> str:
+    prefix = _TYPE_MAP.get(fs_type, (fs_type, fs_type.lower()))[1]
+    return f"{prefix}:{raw_id}"
+
+
+def _cfg(config: Any, name: str) -> Any:
+    if isinstance(config, dict):
+        return config.get(name)
+    return getattr(config, name, None)
+
+
+def _entity_for(fact_sheet: dict[str, Any], node_id: str, label: str) -> Entity:
+    raw_id = fact_sheet.get("id")
+    properties: dict[str, Any] = {
+        "name": fact_sheet.get("name"),
+        "externalToolId": raw_id,
+        "domain": "leanix",
+    }
+    if fact_sheet.get("updatedAt"):
+        properties["updatedAt"] = fact_sheet["updatedAt"]
+    return Entity(id=node_id, node_type=label, properties=properties)
+
+
+def _relationships_for(fact_sheet: dict[str, Any], node_id: str) -> list[Relationship]:
+    """Derive relationships from every ``rel*`` field of a fact sheet."""
+    rels: list[Relationship] = []
+    for key, value in fact_sheet.items():
+        if not isinstance(key, str) or not key.startswith("rel"):
+            continue
+        mapped = _RELATION_MAP.get(key)
+        relationship_type = mapped[0] if mapped else key
+        default_target_type = mapped[1] if mapped else None
+        for target_id, target_type in _iter_related_targets(value):
+            resolved_type = target_type or default_target_type
+            if not resolved_type:
+                continue
+            rels.append(
+                Relationship(
+                    source=node_id,
+                    target=_node_id(resolved_type, target_id),
+                    relationship=relationship_type,
+                )
+            )
+    return rels
 
 
 def extract(config: Any) -> ChangeSet:
@@ -133,60 +200,25 @@ def extract(config: Any) -> ChangeSet:
     if client is None:
         return ChangeSet()
 
-    since = (
-        getattr(config, "since", None)
-        if not isinstance(config, dict)
-        else config.get("since")
-    )
-    ids = (
-        getattr(config, "ids", None)
-        if not isinstance(config, dict)
-        else config.get("ids")
-    )
-
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-
-    def _node_id(fs_type: str, raw_id: str) -> str:
-        prefix = _TYPE_MAP.get(fs_type, (fs_type, fs_type.lower()))[1]
-        return f"{prefix}:{raw_id}"
-
     seen_entities: set[str] = set()
-    for fact_sheet in _collect_factsheets(client, list(_TYPE_MAP), since, ids):
+    sheets = _collect_factsheets(
+        client,
+        list(_TYPE_MAP),
+        since=_cfg(config, "since"),
+        ids=_cfg(config, "ids"),
+    )
+    for fact_sheet in sheets:
         raw_id = fact_sheet.get("id")
         fs_type = fact_sheet.get("type")
         if not raw_id or fs_type not in _TYPE_MAP:
             continue
-        label = _TYPE_MAP[fs_type][0]
         node_id = _node_id(fs_type, raw_id)
         if node_id not in seen_entities:
             seen_entities.add(node_id)
-            properties: dict[str, Any] = {
-                "name": fact_sheet.get("name"),
-                "externalToolId": raw_id,
-                "domain": "leanix",
-            }
-            if fact_sheet.get("updatedAt"):
-                properties["updatedAt"] = fact_sheet["updatedAt"]
-            entities.append(Entity(id=node_id, node_type=label, properties=properties))
-
-        for key, value in fact_sheet.items():
-            if not isinstance(key, str) or not key.startswith("rel"):
-                continue
-            mapped = _RELATION_MAP.get(key)
-            relationship_type = mapped[0] if mapped else key
-            default_target_type = mapped[1] if mapped else None
-            for target_id, target_type in _iter_related_targets(value):
-                resolved_type = target_type or default_target_type
-                if not resolved_type:
-                    continue
-                relationships.append(
-                    Relationship(
-                        source=node_id,
-                        target=_node_id(resolved_type, target_id),
-                        relationship=relationship_type,
-                    )
-                )
+            entities.append(_entity_for(fact_sheet, node_id, _TYPE_MAP[fs_type][0]))
+        relationships.extend(_relationships_for(fact_sheet, node_id))
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 
