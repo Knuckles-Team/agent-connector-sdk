@@ -42,14 +42,12 @@ def _call(client: Any, name: str) -> Any:
         return None
 
 
-def extract(config: Any) -> ChangeSet:
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
+def _props(**fields: Any) -> dict[str, Any]:
+    return {key: value for key, value in fields.items() if value is not None}
 
+
+def _recipes(client: Any) -> list[Entity]:
     entities: list[Entity] = []
-    relationships: list[Relationship] = []
-
     for recipe in _rows(_call(client, "get_recipes")):
         recipe_id = recipe.get("id") or recipe.get("slug")
         if not recipe_id:
@@ -58,20 +56,21 @@ def extract(config: Any) -> ChangeSet:
             Entity(
                 id=f"mealie:recipe:{recipe_id}",
                 node_type="Recipe",
-                properties={
-                    key: value
-                    for key, value in {
-                        "name": recipe.get("name"),
-                        "slug": recipe.get("slug"),
-                        "description": recipe.get("description"),
-                        "externalToolId": str(recipe_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
+                properties=_props(
+                    name=recipe.get("name"),
+                    slug=recipe.get("slug"),
+                    description=recipe.get("description"),
+                    externalToolId=str(recipe_id),
+                    domain=CATEGORY,
+                ),
             )
         )
+    return entities
 
+
+def _meal_plans(client: Any) -> tuple[list[Entity], list[Relationship]]:
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
     for meal_plan in _rows(_call(client, "get_households_mealplans")):
         meal_plan_id = meal_plan.get("id")
         if meal_plan_id is None:
@@ -81,17 +80,13 @@ def extract(config: Any) -> ChangeSet:
             Entity(
                 id=node_id,
                 node_type="MealPlan",
-                properties={
-                    key: value
-                    for key, value in {
-                        "date": meal_plan.get("date"),
-                        "entry_type": meal_plan.get("entryType"),
-                        "title": meal_plan.get("title"),
-                        "externalToolId": str(meal_plan_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
+                properties=_props(
+                    date=meal_plan.get("date"),
+                    entry_type=meal_plan.get("entryType"),
+                    title=meal_plan.get("title"),
+                    externalToolId=str(meal_plan_id),
+                    domain=CATEGORY,
+                ),
             )
         )
         recipe_ref = meal_plan.get("recipeId") or (meal_plan.get("recipe") or {}).get(
@@ -105,7 +100,11 @@ def extract(config: Any) -> ChangeSet:
                     relationship="INCLUDES",
                 )
             )
+    return entities, relationships
 
+
+def _shopping_lists(client: Any) -> list[Entity]:
+    entities: list[Entity] = []
     for shopping_list in _rows(_call(client, "get_households_shopping_lists")):
         list_id = shopping_list.get("id")
         if list_id is None:
@@ -114,18 +113,22 @@ def extract(config: Any) -> ChangeSet:
             Entity(
                 id=f"mealie:shoplist:{list_id}",
                 node_type="ShoppingList",
-                properties={
-                    key: value
-                    for key, value in {
-                        "name": shopping_list.get("name"),
-                        "externalToolId": str(list_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
+                properties=_props(
+                    name=shopping_list.get("name"),
+                    externalToolId=str(list_id),
+                    domain=CATEGORY,
+                ),
             )
         )
+    return entities
 
+
+def extract(config: Any) -> ChangeSet:
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+    plan_entities, relationships = _meal_plans(client)
+    entities = [*_recipes(client), *plan_entities, *_shopping_lists(client)]
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 
 
