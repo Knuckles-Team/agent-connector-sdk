@@ -46,82 +46,71 @@ def _call(client: Any, name: str, *args: Any) -> list[Any]:
     return list(result) if isinstance(result, (list, tuple)) else []
 
 
+_Spec = tuple[str, str | None, tuple[str, ...], str, str, dict[str, tuple[str, ...]]]
+
+_KINDS: list[_Spec] = [
+    (
+        "list_users",
+        None,
+        ("id", "username"),
+        "kc_user",
+        "IdentityUser",
+        {
+            "name": ("username", "email"),
+            "email": ("email",),
+            "enabled": ("enabled",),
+        },
+    ),
+    (
+        "list_groups",
+        "get_groups",
+        ("id", "name"),
+        "kc_group",
+        "IdentityGroup",
+        {"name": ("name",)},
+    ),
+    (
+        "list_clients",
+        "get_clients",
+        ("id", "clientId"),
+        "kc_client",
+        "Application",
+        {"name": ("clientId", "name")},
+    ),
+]
+
+
+def _entities(client: Any, realm: Any, spec: _Spec) -> list[Entity]:
+    """Entities for one Keycloak record kind."""
+    method, fallback, id_keys, prefix, node_type, fields = spec
+    rows = _call(client, method, realm)
+    if not rows and fallback:
+        rows = _call(client, fallback, realm)
+    entities: list[Entity] = []
+    for row in rows:
+        row_id = _first(row, *id_keys)
+        if not row_id:
+            continue
+        candidates = {name: _first(row, *keys) for name, keys in fields.items()}
+        candidates.update(realm=realm, externalToolId=str(row_id), domain=CATEGORY)
+        entities.append(
+            Entity(
+                id=f"{prefix}:{row_id}",
+                node_type=node_type,
+                properties={k: v for k, v in candidates.items() if v is not None},
+            )
+        )
+    return entities
+
+
 def extract(config: Any) -> ChangeSet:
     client = _get(config, "client")
     if client is None:
         return ChangeSet()
     realm = _get(config, "realm", "master")
-
     entities: list[Entity] = []
-    for user in _call(client, "list_users", realm):
-        user_id = _first(user, "id", "username")
-        if not user_id:
-            continue
-        entities.append(
-            Entity(
-                id=f"kc_user:{user_id}",
-                node_type="IdentityUser",
-                properties={
-                    key: value
-                    for key, value in {
-                        "name": _first(user, "username", "email"),
-                        "email": _first(user, "email"),
-                        "enabled": _first(user, "enabled"),
-                        "realm": realm,
-                        "externalToolId": str(user_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
-            )
-        )
-
-    for group in _call(client, "list_groups", realm) or _call(
-        client, "get_groups", realm
-    ):
-        group_id = _first(group, "id", "name")
-        if not group_id:
-            continue
-        entities.append(
-            Entity(
-                id=f"kc_group:{group_id}",
-                node_type="IdentityGroup",
-                properties={
-                    key: value
-                    for key, value in {
-                        "name": _first(group, "name"),
-                        "realm": realm,
-                        "externalToolId": str(group_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
-            )
-        )
-
-    for client_row in _call(client, "list_clients", realm) or _call(
-        client, "get_clients", realm
-    ):
-        client_id = _first(client_row, "id", "clientId")
-        if not client_id:
-            continue
-        entities.append(
-            Entity(
-                id=f"kc_client:{client_id}",
-                node_type="Application",
-                properties={
-                    key: value
-                    for key, value in {
-                        "name": _first(client_row, "clientId", "name"),
-                        "realm": realm,
-                        "externalToolId": str(client_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
-            )
-        )
-
+    for spec in _KINDS:
+        entities.extend(_entities(client, realm, spec))
     return ChangeSet(entities=tuple(entities))
 
 
