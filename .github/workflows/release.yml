@@ -225,7 +225,17 @@ jobs:
       - name: Download the epistemic-graph engine wheel (engine-main release)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release download engine-main -R Knuckles-Team/epistemic-graph --pattern 'epistemic_graph-*manylinux*x86_64.whl' --dir dist-engine
+        # Plain curl against the releases API: the self-hosted runners have no gh CLI.
+        run: |
+          set -euo pipefail
+          mkdir -p dist-engine
+          api=https://api.github.com/repos/Knuckles-Team/epistemic-graph/releases/tags/engine-main
+          url=$(curl --fail --silent --show-error --location \
+            -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$api" \
+            | python3 -c "import json,sys,fnmatch; a=[x['browser_download_url'] for x in json.load(sys.stdin)['assets'] if fnmatch.fnmatch(x['name'],'epistemic_graph-*manylinux*x86_64.whl')]; print(a[0])")
+          curl --fail --silent --show-error --location --retry 3 -H "Authorization: Bearer $GH_TOKEN" \
+            --output "dist-engine/$(basename "$url")" "$url"
+          ls -l dist-engine
       - name: Verify the installed wheel against the published graph-client (SDK-QUALITY-RELEASE-R001)
         run: python3 scripts/check_wheel_consumer_compatibility.py --wheel dist/*.whl --engine-wheel dist-engine/epistemic_graph-*.whl
       - name: Upload the publish candidate
