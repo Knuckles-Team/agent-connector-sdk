@@ -150,7 +150,10 @@ credentials or effect results. Cross-request reuse requires the existing owning
 service; this context creates no knowledge store or workflow memory.
 
 `ordered_progress` assigns sequence numbers under one per-request asynchronous lock.
-Completion values must be finite and monotonic. A total, once set, cannot change.
+Emitted completion values must be finite and strictly increase, including when total is unknown.
+Under the same lock, suppress equal completion notifications and refuse decreases.
+Internal terminal summaries may update separately; never invent progress increments for message changes.
+A total, once set, cannot change.
 UTF-8 messages are capped at 4096 bytes and redacted before transport.
 `bounded_delivery` permits one outstanding send per request and a five-second send
 deadline, capped by the remaining request deadline. These named limits are configurable.
@@ -158,24 +161,41 @@ Backpressure awaits the send; it creates no unbounded queue. No notification fol
 a terminal result. With no token, update the terminal summary without sending.
 Cancellation stops new work and records any already-started effect as uncertain.
 
-Approval is an authenticated host decision bound to tenant, actor, operation,
-argument digest and expiry. Interactive elicitation is an input to that decision;
+EG owns the approval decision; GraphOS authenticates its exchange and returns the decision unchanged.
+The SDK checks its binding to tenant, actor, operation, argument digest and expiry.
+Interactive elicitation is an input to that decision;
 a truthy payload is not authorization. Reuse the governed write-back adapter for
 source mutations, reservation, deterministic idempotency and restart recovery.
 Transport retry never retries an effect blindly. A duplicate request with the same
 bound effect key resolves through its durable receipt. Changed arguments under that
 key refuse. Progress delivery is not a durable event log and is not replayed after reconnect.
-The client obtains the existing result through the host status contract.
+Reconnect result retrieval has an explicit producer requirement gap.
+EG must own a durable mapping from the stable request identity to the terminal result and effect receipts.
+GraphOS must serve an authenticated read of that mapping.
+The mapping must bind tenant, actor, connector, operation, argument digest, change-set ID and effect idempotency key.
+No established producer operation or SDK adapter for that mapping is identified here.
+`GRAPHOS-A2A-R006` defines invocation and confirmation, not result retrieval.
+Until those producer requirements and their SDK binding exist, reconnect recovery must return `recovery_unavailable`.
+It must not synthesize a result, reconstruct one from transient progress or repeat a source effect.
+
+Existing effect recovery is narrower: `EpistemicGraphWriteBackLedger.get` and `receipts`
+in `agent_connector_sdk/writeback/epistemic_graph.py:43` and line 73 read generated EG records.
+`DurableWritableConnector.apply` at `agent_connector_sdk/writeback/connector.py:75`
+uses those records to prevent repeated effects. Its `reconcile` method at line 96
+records a reconciliation observation. These methods do not map an MCP request to its terminal result.
+Keep governed effect recovery; do not present it as served reconnect result retrieval.
 
 Decision: attach context to the existing served call and dispatch boundary.
 Rejected alternative: a separate progress service and effect retry queue, which
 creates another authority for call state and mutation outcomes.
 
-Cross-repository rows: `GRAPHOS-A2A-R005` owns host admission and approval;
-`GRAPHOS-A2A-R006` owns host run control. `EG-ORCH-VOCAB-R013` owns durable trace
+Cross-repository rows: `GRAPHOS-A2A-R005.4` serves EG's admission verdict unchanged;
+`GRAPHOS-A2A-R006` owns invocation and confirmation. `EG-ORCH-VOCAB-R013` owns durable trace
 records. `SDK-GOVERNED-WRITEBACK-R004` owns approval-bound effect idempotency.
 Consumers: AU runs the received action; WebUI renders received progress.
 Neither consumer selects connector routes or creates approval decisions here.
 
 References: this contract derives from connector context and MCP progress needs.
 No research-paper claim or benchmark is needed for these two source candidates.
+The [MCP progress specification](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/progress)
+requires each notification's progress value to increase, even without a known total.
