@@ -14,6 +14,7 @@ import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from typing import IO
 
 from agent_connector_sdk.config import setting
 
@@ -40,6 +41,21 @@ def get_library_file_path(
     return Path(str(base)) / connector / filename
 
 
+def _try_lock(handle: IO[str]) -> bool:
+    try:
+        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        return False
+    return True
+
+
+def _acquire_lock(handle: IO[str], path: Path, deadline: float) -> None:
+    while not _try_lock(handle):
+        if time.monotonic() >= deadline:
+            raise TimeoutError(f"could not acquire lock for {path}")
+        time.sleep(0.02)
+
+
 @contextmanager
 def file_lock(path: Path, *, timeout: float = 10.0) -> Iterator[None]:
     """Serialize a read-modify-write of ``path`` across processes.
@@ -52,16 +68,8 @@ def file_lock(path: Path, *, timeout: float = 10.0) -> Iterator[None]:
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     lock_path = path.with_name(path.name + ".lock")
-    deadline = time.monotonic() + timeout
     with lock_path.open("w") as handle:
-        while True:
-            try:
-                fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                break
-            except BlockingIOError:
-                if time.monotonic() >= deadline:
-                    raise TimeoutError(f"could not acquire lock for {path}") from None
-                time.sleep(0.02)
+        _acquire_lock(handle, path, time.monotonic() + timeout)
         try:
             yield
         finally:

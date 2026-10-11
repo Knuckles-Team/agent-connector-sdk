@@ -23,38 +23,25 @@ from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
+from agent_connector_sdk.vendor_extractors.servicenow_helpers import (
+    _asset_properties,
+    _ci_properties,
+    _federation,
+    _first,
+    _get,
+    _key,
+    _model_properties,
+    _ref,
+    _risk_entities,
+    _risk_props,
+)
 
 CATEGORY = "servicenow"
 _DOMAIN = "servicenow"
 
 
-def _get(record: Any, key: str, default: Any = None) -> Any:
-    if isinstance(record, dict):
-        return record.get(key, default)
-    return getattr(record, key, default)
-
-
-def _ref(value: Any) -> str | None:
-    if value is None:
-        return None
-    if isinstance(value, dict):
-        value = value.get("value") or value.get("display_value")
-    if value is None:
-        return None
-    text = str(value).strip()
-    return text or None
-
-
-def _first(record: Any, *keys: str) -> str | None:
-    for key in keys:
-        value = _ref(_get(record, key))
-        if value:
-            return value
-    return None
-
-
-def _key(record: Any) -> str | None:
-    return _ref(_get(record, "sys_id")) or _ref(_get(record, "number"))
+def _rel(source: str, target: str, relationship: str) -> Relationship:
+    return Relationship(source=source, target=target, relationship=relationship)
 
 
 def _call(client: Any, name: str) -> list[Any]:
@@ -65,60 +52,9 @@ def _call(client: Any, name: str) -> list[Any]:
     return list(result) if result else []
 
 
-def _federation(raw_id: str, **extra: Any) -> dict[str, Any]:
-    properties: dict[str, Any] = {"externalToolId": raw_id, "domain": _DOMAIN}
-    properties.update({key: value for key, value in extra.items() if value is not None})
-    return properties
-
-
-def _risk_props(record: Any) -> dict[str, Any]:
-    """Lifecycle/risk attributes (vendor-neutral TRM props), field-tolerant."""
-    out: dict[str, Any] = {}
-    stage = _first(
-        record, "lifecycle_stage", "lifecycle", "install_status", "life_cycle_stage"
-    )
-    if stage:
-        out["lifecycleStage"] = stage
-    eol = _first(
-        record, "end_of_life", "eol_date", "end_of_support", "decommission_date"
-    )
-    if eol:
-        out["endOfLifeDate"] = eol
-    rating = _first(record, "risk_rating", "risk", "risk_score")
-    if rating:
-        out["riskRating"] = rating
-    return out
-
-
-def extract(config: Any) -> ChangeSet:
-    """Extract ServiceNow ITSM + CMDB + TRM into a uniform ``ChangeSet``."""
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-
+def _itsm(client: Any) -> tuple[list[Entity], list[Relationship]]:
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-
-    def _emit_risk_entity(owner_id: str, record: Any, risk: dict[str, Any]) -> None:
-        """A TechnologyRisk entity + HAS_RISK relationship on risk/EOL signal."""
-        if not (risk.get("riskRating") or risk.get("endOfLifeDate")):
-            return
-        risk_id = f"snrisk:{owner_id}"
-        entities.append(
-            Entity(
-                id=risk_id,
-                node_type="TechnologyRisk",
-                properties=_federation(
-                    owner_id,
-                    name=f"Risk: {_get(record, 'name') or owner_id}",
-                    **risk,
-                ),
-            )
-        )
-        relationships.append(
-            Relationship(source=owner_id, target=risk_id, relationship="HAS_RISK")
-        )
-
     for method, label, prefix in (
         ("incidents", "Incident", "incident"),
         ("changes", "Change", "change"),
@@ -143,100 +79,80 @@ def extract(config: Any) -> ChangeSet:
             )
             ci = _ref(_get(record, "cmdb_ci"))
             if ci:
-                relationships.append(
-                    Relationship(
-                        source=node_id, target=f"ci:{ci}", relationship="AFFECTS"
-                    )
-                )
+                relationships.append(_rel(node_id, f"ci:{ci}", "AFFECTS"))
             assignee = _ref(_get(record, "assigned_to"))
             if assignee:
-                relationships.append(
-                    Relationship(
-                        source=node_id,
-                        target=f"person:{assignee}",
-                        relationship="ASSIGNED_TO",
-                    )
-                )
+                relationships.append(_rel(node_id, f"person:{assignee}", "ASSIGNED_TO"))
+    return entities, relationships
 
-    for record in _call(client, "cmdb_cis"):
+
+def _inventory(
+    client: Any,
+    *,
+    method: str,
+    prefix: str,
+    node_type: str,
+    props: Any,
+    model_keys: tuple[str, ...],
+) -> tuple[list[Entity], list[Relationship]]:
+    """CI / model / asset records, each with risk entity and optional model link."""
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+    for record in _call(client, method):
         key = _key(record)
         if not key:
             continue
-        node_id = f"ci:{key}"
+        node_id = f"{prefix}:{key}"
         risk = _risk_props(record)
         entities.append(
-            Entity(
-                id=node_id,
-                node_type="ConfigurationItem",
-                properties=_federation(
-                    key,
-                    name=_get(record, "name"),
-                    short_description=_get(record, "short_description"),
-                    ci_class=_ref(_get(record, "ci_class")),
-                    state=_ref(_get(record, "state")),
-                    **risk,
-                ),
-            )
+            Entity(id=node_id, node_type=node_type, properties=props(key, record, risk))
         )
-        _emit_risk_entity(node_id, record, risk)
-        model = _first(record, "model_id", "model")
+        risk_entities, risk_rels = _risk_entities(node_id, record, risk)
+        entities.extend(risk_entities)
+        relationships.extend(risk_rels)
+        model = _first(record, *model_keys) if model_keys else None
         if model:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"snproduct:{model}",
-                    relationship="INSTANCE_OF",
-                )
-            )
+            relationships.append(_rel(node_id, f"snproduct:{model}", "INSTANCE_OF"))
+    return entities, relationships
 
-    for record in _call(client, "cmdb_models"):
-        key = _key(record)
-        if not key:
-            continue
-        node_id = f"snproduct:{key}"
-        risk = _risk_props(record)
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="TechnologyProduct",
-                properties=_federation(
-                    key,
-                    name=_first(record, "display_name", "name"),
-                    manufacturer=_first(record, "manufacturer", "vendor"),
-                    **risk,
-                ),
-            )
-        )
-        _emit_risk_entity(node_id, record, risk)
 
-    for record in _call(client, "assets"):
-        key = _key(record)
-        if not key:
-            continue
-        node_id = f"asset:{key}"
-        risk = _risk_props(record)
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="AssetInstance",
-                properties=_federation(
-                    key,
-                    name=_first(record, "display_name", "name", "asset_tag"),
-                    **risk,
-                ),
-            )
-        )
-        _emit_risk_entity(node_id, record, risk)
-        model = _first(record, "model", "model_id", "model_category")
-        if model:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"snproduct:{model}",
-                    relationship="INSTANCE_OF",
-                )
-            )
+def extract(config: Any) -> ChangeSet:
+    """Extract ServiceNow ITSM + CMDB + TRM into a uniform ``ChangeSet``."""
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
 
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+    for ents, rels in (
+        _itsm(client),
+        _inventory(
+            client,
+            method="cmdb_cis",
+            prefix="ci",
+            node_type="ConfigurationItem",
+            props=_ci_properties,
+            model_keys=("model_id", "model"),
+        ),
+        _inventory(
+            client,
+            method="cmdb_models",
+            prefix="snproduct",
+            node_type="TechnologyProduct",
+            props=_model_properties,
+            model_keys=(),
+        ),
+        _inventory(
+            client,
+            method="assets",
+            prefix="asset",
+            node_type="AssetInstance",
+            props=_asset_properties,
+            model_keys=("model", "model_id", "model_category"),
+        ),
+    ):
+        entities.extend(ents)
+        relationships.extend(rels)
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 
 

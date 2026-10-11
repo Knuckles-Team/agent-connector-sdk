@@ -36,18 +36,26 @@ def _first(record: Any, *keys: str) -> Any:
     return None
 
 
+def _invoke(method: Any) -> tuple[bool, Any]:
+    """Call ``method()``, retrying once with ``{}`` on TypeError."""
+    try:
+        return True, method()
+    except TypeError:
+        pass
+    except Exception:
+        return False, None
+    try:
+        return True, method({})
+    except Exception:
+        return False, None
+
+
 def _call(client: Any, name: str) -> list[Any]:
     method = getattr(client, name, None)
     if not callable(method):
         return []
-    try:
-        result = method()
-    except TypeError:
-        try:
-            result = method({})
-        except Exception:
-            return []
-    except Exception:
+    ok, result = _invoke(method)
+    if not ok:
         return []
     if isinstance(result, dict):
         result = (

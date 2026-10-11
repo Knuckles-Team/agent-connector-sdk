@@ -11,57 +11,116 @@ no network calls itself.
 
 from __future__ import annotations
 
-import re
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
+from agent_connector_sdk.vendor_extractors.grafana_helpers import (
+    _scalar,
+    _service_from_labels,
+    _service_from_title,
+)
+from agent_connector_sdk.vendor_extractors.grafana_helpers import (
+    call as _call,
+)
+from agent_connector_sdk.vendor_extractors.grafana_helpers import (
+    get as _get,
+)
 
 CATEGORY = "grafana"
 
 
-def _get(record: Any, key: str, default: Any = None) -> Any:
-    """Tolerant field access for dict records (or attr-style objects)."""
-    if isinstance(record, dict):
-        return record.get(key, default)
-    return getattr(record, key, default)
+def _props(*pairs: tuple[str, Any]) -> dict[str, Any]:
+    return {key: value for key, value in pairs if value is not None}
 
 
-def _call(client: Any, name: str) -> list[Any]:
-    """Call a client method if present, returning a list (tolerant)."""
-    method = getattr(client, name, None)
-    if not callable(method):
+def _monitors(source: str, record: Any) -> list[Relationship]:
+    service = _service_from_labels(_get(record, "labels")) or _service_from_title(
+        _get(record, "title")
+    )
+    if not service:
         return []
-    result = method()
-    return list(result) if result else []
+    return [
+        Relationship(
+            source=source, target=f"service:{service}", relationship="MONITORS"
+        )
+    ]
 
 
-def _scalar(value: Any) -> str | None:
-    """Normalise a value to a non-empty scalar string, else ``None``."""
-    if value is None:
+def _datasources(client: Any) -> list[Entity]:
+    out: list[Entity] = []
+    for datasource in _call(client, "datasources"):
+        uid = _scalar(_get(datasource, "uid")) or _scalar(_get(datasource, "name"))
+        if not uid:
+            continue
+        properties = _props(
+            ("name", _get(datasource, "name")),
+            ("ds_type", _scalar(_get(datasource, "type"))),
+        )
+        out.append(
+            Entity(
+                id=f"datasource:{uid}", node_type="DataSource", properties=properties
+            )
+        )
+    return out
+
+
+def _panel(
+    dash_uid: str, dash_id: str, panel: Any
+) -> tuple[Entity, list[Relationship]] | None:
+    panel_id = _scalar(_get(panel, "id")) or _scalar(_get(panel, "panel_id"))
+    if not panel_id:
         return None
-    text = str(value).strip()
-    return text or None
+    node_id = f"panel:{dash_uid}:{panel_id}"
+    targets = _get(panel, "targets", []) or []
+    entity = Entity(
+        id=node_id,
+        node_type="Panel",
+        properties={"title": _get(panel, "title"), "targets": list(targets)},
+    )
+    rels = [Relationship(source=node_id, target=dash_id, relationship="PART_OF")]
+    return entity, rels + _monitors(node_id, panel)
 
 
-def _service_from_labels(labels: Any) -> str | None:
-    """Pull a service name from a labels mapping (service/app/job keys)."""
-    if not isinstance(labels, dict):
-        return None
-    for key in ("service", "app", "job", "service_name"):
-        name = _scalar(labels.get(key))
-        if name:
-            return name
-    return None
+def _dashboards(client: Any) -> tuple[list[Entity], list[Relationship]]:
+    entities: list[Entity] = []
+    rels: list[Relationship] = []
+    for dashboard in _call(client, "dashboards"):
+        dash_uid = _scalar(_get(dashboard, "uid"))
+        if not dash_uid:
+            continue
+        dash_id = f"dashboard:{dash_uid}"
+        title = _get(dashboard, "title")
+        entities.append(
+            Entity(
+                id=dash_id,
+                node_type="Dashboard",
+                properties={"title": title} if title is not None else {},
+            )
+        )
+        for panel in _get(dashboard, "panels", []) or []:
+            built = _panel(dash_uid, dash_id, panel)
+            if built is not None:
+                entities.append(built[0])
+                rels.extend(built[1])
+    return entities, rels
 
 
-def _service_from_title(title: Any) -> str | None:
-    """Heuristically pull a service token from an explicit title marker."""
-    text = _scalar(title)
-    if not text:
-        return None
-    match = re.search(r"service\s*[:=]\s*([A-Za-z0-9._-]+)", text, re.IGNORECASE)
-    return match.group(1) if match else None
+def _alerts(client: Any) -> tuple[list[Entity], list[Relationship]]:
+    entities: list[Entity] = []
+    rels: list[Relationship] = []
+    for alert in _call(client, "alert_rules"):
+        uid = _scalar(_get(alert, "uid"))
+        if not uid:
+            continue
+        node_id = f"alert:{uid}"
+        properties = _props(
+            ("title", _get(alert, "title")),
+            ("condition", _scalar(_get(alert, "condition"))),
+        )
+        entities.append(Entity(id=node_id, node_type="Alert", properties=properties))
+        rels.extend(_monitors(node_id, alert))
+    return entities, rels
 
 
 def extract(config: Any) -> ChangeSet:
@@ -77,104 +136,12 @@ def extract(config: Any) -> ChangeSet:
     if client is None:
         return ChangeSet()
 
-    entities: list[Entity] = []
-    relationships: list[Relationship] = []
-
-    for datasource in _call(client, "datasources"):
-        uid = _scalar(_get(datasource, "uid")) or _scalar(_get(datasource, "name"))
-        if not uid:
-            continue
-        entities.append(
-            Entity(
-                id=f"datasource:{uid}",
-                node_type="DataSource",
-                properties={
-                    key: value
-                    for key, value in (
-                        ("name", _get(datasource, "name")),
-                        ("ds_type", _scalar(_get(datasource, "type"))),
-                    )
-                    if value is not None
-                },
-            )
-        )
-
-    for dashboard in _call(client, "dashboards"):
-        dash_uid = _scalar(_get(dashboard, "uid"))
-        if not dash_uid:
-            continue
-        dash_id = f"dashboard:{dash_uid}"
-        entities.append(
-            Entity(
-                id=dash_id,
-                node_type="Dashboard",
-                properties={"title": _get(dashboard, "title")}
-                if _get(dashboard, "title") is not None
-                else {},
-            )
-        )
-        for panel in _get(dashboard, "panels", []) or []:
-            panel_id = _scalar(_get(panel, "id")) or _scalar(_get(panel, "panel_id"))
-            if not panel_id:
-                continue
-            node_id = f"panel:{dash_uid}:{panel_id}"
-            targets = _get(panel, "targets", []) or []
-            entities.append(
-                Entity(
-                    id=node_id,
-                    node_type="Panel",
-                    properties={
-                        "title": _get(panel, "title"),
-                        "targets": list(targets),
-                    },
-                )
-            )
-            relationships.append(
-                Relationship(source=node_id, target=dash_id, relationship="PART_OF")
-            )
-            service = _service_from_labels(
-                _get(panel, "labels")
-            ) or _service_from_title(_get(panel, "title"))
-            if service:
-                relationships.append(
-                    Relationship(
-                        source=node_id,
-                        target=f"service:{service}",
-                        relationship="MONITORS",
-                    )
-                )
-
-    for alert in _call(client, "alert_rules"):
-        uid = _scalar(_get(alert, "uid"))
-        if not uid:
-            continue
-        node_id = f"alert:{uid}"
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="Alert",
-                properties={
-                    key: value
-                    for key, value in (
-                        ("title", _get(alert, "title")),
-                        ("condition", _scalar(_get(alert, "condition"))),
-                    )
-                    if value is not None
-                },
-            )
-        )
-        service = _service_from_labels(_get(alert, "labels")) or _service_from_title(
-            _get(alert, "title")
-        )
-        if service:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"service:{service}",
-                    relationship="MONITORS",
-                )
-            )
-
+    entities = _datasources(client)
+    dash_entities, relationships = _dashboards(client)
+    alert_entities, alert_rels = _alerts(client)
+    entities.extend(dash_entities)
+    entities.extend(alert_entities)
+    relationships.extend(alert_rels)
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 
 

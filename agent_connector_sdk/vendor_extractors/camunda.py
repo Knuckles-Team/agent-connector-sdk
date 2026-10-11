@@ -31,64 +31,25 @@ from __future__ import annotations
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
+from agent_connector_sdk.vendor_extractors._records import (
+    _call_list,
+    _first,
+    _get,
+)
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "camunda"
 
 
-def _get(record: Any, key: str, default: Any = None) -> Any:
-    """Tolerant field access for dict records (or attr-style objects)."""
-    if isinstance(record, dict):
-        return record.get(key, default)
-    return getattr(record, key, default)
-
-
-def _first(record: Any, *keys: str) -> Any:
-    """Return the first present, non-empty value among ``keys``."""
-    for key in keys:
-        value = _get(record, key)
-        if value is not None and value != "":
-            return value
-    return None
-
-
 def _call(client: Any, name: str) -> list[Any]:
-    """Call a client method if present, returning a list (tolerant).
-
-    camunda-mcp list methods accept an optional ``params`` dict; calling with
-    no arguments returns the unfiltered collection.
-    """
-    method = getattr(client, name, None)
-    if not callable(method):
-        return []
-    try:
-        result = method()
-    except TypeError:
-        try:
-            result = method({})
-        except Exception:
-            return []
-    except Exception:
-        return []
-    if isinstance(result, dict):
-        result = result.get("items") or result.get("results") or []
-    return list(result) if result else []
+    """Call a client list-method if present, returning a list (tolerant)."""
+    return _call_list(client, name, ("items", "results"))
 
 
-def extract(config: Any) -> ChangeSet:
-    """Extract Camunda BPMN artifacts into a uniform ``ChangeSet``.
-
-    Process definitions become ``BusinessProcess`` entities; tasks become
-    ``BusinessTask`` entities linked ``PART_OF`` their process; incidents
-    become ``Incident`` entities linked ``AFFECTS`` their process.
-    """
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-
-    entities: list[Entity] = []
-    relationships: list[Relationship] = []
-
+def _extract_processes(
+    client: Any, entities: list[Entity], relationships: list[Relationship]
+) -> None:
+    """Append process-definition entities (and Egeria alignment links)."""
     for record in _call(client, "list_process_definitions"):
         proc_id = _first(record, "id", "key", "bpmnProcessId")
         if not proc_id:
@@ -113,66 +74,94 @@ def extract(config: Any) -> ChangeSet:
             Entity(id=proc_node_id, node_type="BusinessProcess", properties=properties)
         )
 
+
+def _present(pairs: tuple[tuple[str, Any], ...]) -> dict[str, Any]:
+    """Return ``pairs`` as a dict, dropping ``None`` values."""
+    return {key: value for key, value in pairs if value is not None}
+
+
+def _extract_tasks(
+    client: Any, entities: list[Entity], relationships: list[Relationship]
+) -> None:
+    """Append task entities linked ``PART_OF`` their process."""
     for record in _call(client, "list_tasks"):
         task_id = _first(record, "id", "key")
         if not task_id:
             continue
         node_id = f"bpmn_task:{task_id}"
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="BusinessTask",
-                properties={
-                    key: value
-                    for key, value in (
-                        ("name", _first(record, "name", "taskDefinitionKey")),
-                        ("assignee", _get(record, "assignee")),
-                    )
-                    if value is not None
-                },
+        properties = _present(
+            (
+                ("name", _first(record, "name", "taskDefinitionKey")),
+                ("assignee", _get(record, "assignee")),
             )
         )
-        proc_ref = _first(record, "processDefinitionId", "processDefinitionKey")
-        if proc_ref:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"bpmn_process:{proc_ref}",
-                    relationship="PART_OF",
-                )
-            )
+        entities.append(
+            Entity(id=node_id, node_type="BusinessTask", properties=properties)
+        )
+        _link_process(
+            record, node_id, relationship="PART_OF", relationships=relationships
+        )
 
+
+def _link_process(
+    record: Any,
+    node_id: str,
+    *,
+    relationship: str,
+    relationships: list[Relationship],
+) -> None:
+    """Append a link from ``node_id`` to the record's process, if any."""
+    proc_ref = _first(record, "processDefinitionId", "processDefinitionKey")
+    if proc_ref:
+        relationships.append(
+            Relationship(
+                source=node_id,
+                target=f"bpmn_process:{proc_ref}",
+                relationship=relationship,
+            )
+        )
+
+
+def _extract_incidents(
+    client: Any, entities: list[Entity], relationships: list[Relationship]
+) -> None:
+    """Append incident entities linked ``AFFECTS`` their process."""
     for record in _call(client, "list_incidents"):
         incident_id = _first(record, "id", "key")
         if not incident_id:
             continue
         node_id = f"incident:{incident_id}"
-        entities.append(
-            Entity(
-                id=node_id,
-                node_type="Incident",
-                properties={
-                    key: value
-                    for key, value in (
-                        (
-                            "short_description",
-                            _first(record, "incidentMessage", "errorMessage"),
-                        ),
-                        ("incident_type", _get(record, "incidentType")),
-                    )
-                    if value is not None
-                },
+        properties = _present(
+            (
+                (
+                    "short_description",
+                    _first(record, "incidentMessage", "errorMessage"),
+                ),
+                ("incident_type", _get(record, "incidentType")),
             )
         )
-        proc_ref = _first(record, "processDefinitionId", "processDefinitionKey")
-        if proc_ref:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"bpmn_process:{proc_ref}",
-                    relationship="AFFECTS",
-                )
-            )
+        entities.append(Entity(id=node_id, node_type="Incident", properties=properties))
+        _link_process(
+            record, node_id, relationship="AFFECTS", relationships=relationships
+        )
+
+
+def extract(config: Any) -> ChangeSet:
+    """Extract Camunda BPMN artifacts into a uniform ``ChangeSet``.
+
+    Process definitions become ``BusinessProcess`` entities; tasks become
+    ``BusinessTask`` entities linked ``PART_OF`` their process; incidents
+    become ``Incident`` entities linked ``AFFECTS`` their process.
+    """
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+    _extract_processes(client, entities, relationships)
+    _extract_tasks(client, entities, relationships)
+    _extract_incidents(client, entities, relationships)
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 

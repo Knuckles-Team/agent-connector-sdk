@@ -15,13 +15,14 @@ from __future__ import annotations
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
+from agent_connector_sdk.vendor_extractors._records import (
+    _get,
+    _props,
+    _safe_call,
+)
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "mealie"
-
-
-def _get(config: Any, key: str) -> Any:
-    return config.get(key) if isinstance(config, dict) else getattr(config, key, None)
 
 
 def _rows(result: Any) -> list[dict[str, Any]]:
@@ -34,23 +35,9 @@ def _rows(result: Any) -> list[dict[str, Any]]:
     )
 
 
-def _call(client: Any, name: str) -> Any:
-    method = getattr(client, name, None)
-    try:
-        return method() if callable(method) else None
-    except Exception:
-        return None
-
-
-def extract(config: Any) -> ChangeSet:
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-
+def _recipes(client: Any) -> list[Entity]:
     entities: list[Entity] = []
-    relationships: list[Relationship] = []
-
-    for recipe in _rows(_call(client, "get_recipes")):
+    for recipe in _rows(_safe_call(client, "get_recipes")):
         recipe_id = recipe.get("id") or recipe.get("slug")
         if not recipe_id:
             continue
@@ -58,21 +45,22 @@ def extract(config: Any) -> ChangeSet:
             Entity(
                 id=f"mealie:recipe:{recipe_id}",
                 node_type="Recipe",
-                properties={
-                    key: value
-                    for key, value in {
-                        "name": recipe.get("name"),
-                        "slug": recipe.get("slug"),
-                        "description": recipe.get("description"),
-                        "externalToolId": str(recipe_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
+                properties=_props(
+                    name=recipe.get("name"),
+                    slug=recipe.get("slug"),
+                    description=recipe.get("description"),
+                    externalToolId=str(recipe_id),
+                    domain=CATEGORY,
+                ),
             )
         )
+    return entities
 
-    for meal_plan in _rows(_call(client, "get_households_mealplans")):
+
+def _meal_plans(client: Any) -> tuple[list[Entity], list[Relationship]]:
+    entities: list[Entity] = []
+    relationships: list[Relationship] = []
+    for meal_plan in _rows(_safe_call(client, "get_households_mealplans")):
         meal_plan_id = meal_plan.get("id")
         if meal_plan_id is None:
             continue
@@ -81,17 +69,13 @@ def extract(config: Any) -> ChangeSet:
             Entity(
                 id=node_id,
                 node_type="MealPlan",
-                properties={
-                    key: value
-                    for key, value in {
-                        "date": meal_plan.get("date"),
-                        "entry_type": meal_plan.get("entryType"),
-                        "title": meal_plan.get("title"),
-                        "externalToolId": str(meal_plan_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
+                properties=_props(
+                    date=meal_plan.get("date"),
+                    entry_type=meal_plan.get("entryType"),
+                    title=meal_plan.get("title"),
+                    externalToolId=str(meal_plan_id),
+                    domain=CATEGORY,
+                ),
             )
         )
         recipe_ref = meal_plan.get("recipeId") or (meal_plan.get("recipe") or {}).get(
@@ -105,8 +89,12 @@ def extract(config: Any) -> ChangeSet:
                     relationship="INCLUDES",
                 )
             )
+    return entities, relationships
 
-    for shopping_list in _rows(_call(client, "get_households_shopping_lists")):
+
+def _shopping_lists(client: Any) -> list[Entity]:
+    entities: list[Entity] = []
+    for shopping_list in _rows(_safe_call(client, "get_households_shopping_lists")):
         list_id = shopping_list.get("id")
         if list_id is None:
             continue
@@ -114,18 +102,22 @@ def extract(config: Any) -> ChangeSet:
             Entity(
                 id=f"mealie:shoplist:{list_id}",
                 node_type="ShoppingList",
-                properties={
-                    key: value
-                    for key, value in {
-                        "name": shopping_list.get("name"),
-                        "externalToolId": str(list_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
+                properties=_props(
+                    name=shopping_list.get("name"),
+                    externalToolId=str(list_id),
+                    domain=CATEGORY,
+                ),
             )
         )
+    return entities
 
+
+def extract(config: Any) -> ChangeSet:
+    client = _get(config, "client")
+    if client is None:
+        return ChangeSet()
+    plan_entities, relationships = _meal_plans(client)
+    entities = [*_recipes(client), *plan_entities, *_shopping_lists(client)]
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 
 

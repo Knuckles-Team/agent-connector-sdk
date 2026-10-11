@@ -45,6 +45,33 @@ def _records(client: Any, soql: str) -> list[dict[str, Any]]:
     return list(result) if isinstance(result, list) else []
 
 
+def _record_entity(label: str, prefix: str, record: dict[str, Any]) -> Entity:
+    record_id = record.get("Id")
+    props = {
+        "name": record.get("Name"),
+        "externalToolId": str(record_id),
+        "domain": CATEGORY,
+    }
+    return Entity(
+        id=f"{prefix}:{record_id}",
+        node_type=label,
+        properties={k: v for k, v in props.items() if v is not None},
+    )
+
+
+def _account_relationship(
+    sobject: str, node_id: str, record: dict[str, Any]
+) -> Relationship | None:
+    account_id = record.get("AccountId")
+    if not account_id or sobject not in ("Contact", "Opportunity"):
+        return None
+    return Relationship(
+        source=node_id,
+        target=f"sfaccount:{account_id}",
+        relationship="PLACED_BY" if sobject == "Opportunity" else "BELONGS_TO",
+    )
+
+
 def extract(config: Any) -> ChangeSet:
     client = _get(config, "client")
     if client is None:
@@ -57,36 +84,13 @@ def extract(config: Any) -> ChangeSet:
         # caller/request data, so there is no injectable input here.
         soql = f"SELECT Id, Name, AccountId FROM {sobject} LIMIT 2000"  # nosec B608
         for record in _records(client, soql):
-            record_id = record.get("Id")
-            if not record_id:
+            if not record.get("Id"):
                 continue
-            node_id = f"{prefix}:{record_id}"
-            entities.append(
-                Entity(
-                    id=node_id,
-                    node_type=label,
-                    properties={
-                        key: value
-                        for key, value in {
-                            "name": record.get("Name"),
-                            "externalToolId": str(record_id),
-                            "domain": CATEGORY,
-                        }.items()
-                        if value is not None
-                    },
-                )
-            )
-            account_id = record.get("AccountId")
-            if account_id and sobject in ("Contact", "Opportunity"):
-                relationships.append(
-                    Relationship(
-                        source=node_id,
-                        target=f"sfaccount:{account_id}",
-                        relationship="PLACED_BY"
-                        if sobject == "Opportunity"
-                        else "BELONGS_TO",
-                    )
-                )
+            entity = _record_entity(label, prefix, record)
+            entities.append(entity)
+            rel = _account_relationship(sobject, entity.id, record)
+            if rel is not None:
+                relationships.append(rel)
 
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from typing import Any
 
 from .model import ConnectorManifest
 
@@ -89,6 +90,31 @@ def _upper_snake(name: str) -> str:
     return s.upper()
 
 
+def _add_fields(spec: OntologySpec, mapping: Any, seen_dtp: set[str]) -> None:
+    for fname, xsd in mapping.fields.items():
+        if fname in seen_dtp:
+            continue
+        seen_dtp.add(fname)
+        spec.datatype_properties.append(
+            OntologyDatatypePropertySpec(local=fname, label=_humanize(fname), range=xsd)
+        )
+
+
+def _add_relations(spec: OntologySpec, resource: Any) -> None:
+    for rel in resource.relations:
+        lpg = rel.lpg_rel_type or _upper_snake(rel.name)
+        spec.object_properties.append(
+            OntologyObjectPropertySpec(
+                local=rel.name,
+                label=rel.label or _humanize(rel.name),
+                domain=resource.name,
+                range=rel.target,
+                lpg_rel_type=lpg,
+            )
+        )
+        spec.relation_map[rel.name] = (lpg, rel.target)
+
+
 def compile_manifest_ontology_spec(manifest: ConnectorManifest) -> OntologySpec:
     """Compile a :class:`ConnectorManifest` into a source-agnostic :class:`OntologySpec`."""
     spec = OntologySpec()
@@ -109,28 +135,8 @@ def compile_manifest_ontology_spec(manifest: ConnectorManifest) -> OntologySpec:
         spec.type_map[resource.name] = (resource.name, id_prefix)
 
         if mapping is not None:
-            for fname, xsd in mapping.fields.items():
-                if fname in seen_dtp:
-                    continue
-                seen_dtp.add(fname)
-                spec.datatype_properties.append(
-                    OntologyDatatypePropertySpec(
-                        local=fname, label=_humanize(fname), range=xsd
-                    )
-                )
-
-        for rel in resource.relations:
-            lpg = rel.lpg_rel_type or _upper_snake(rel.name)
-            spec.object_properties.append(
-                OntologyObjectPropertySpec(
-                    local=rel.name,
-                    label=rel.label or _humanize(rel.name),
-                    domain=resource.name,
-                    range=rel.target,
-                    lpg_rel_type=lpg,
-                )
-            )
-            spec.relation_map[rel.name] = (lpg, rel.target)
+            _add_fields(spec, mapping, seen_dtp)
+        _add_relations(spec, resource)
 
     return spec
 

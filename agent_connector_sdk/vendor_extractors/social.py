@@ -135,6 +135,11 @@ def _extract_mentions(record: dict[str, Any]) -> list[str]:
     )
 
 
+def _url_excluded(link: str, exclude_url_hosts: tuple[str, ...]) -> bool:
+    host = _domain(link) or ""
+    return any(host == ex or host.endswith(f".{ex}") for ex in exclude_url_hosts)
+
+
 def _extract_urls(
     record: dict[str, Any], exclude_url_hosts: tuple[str, ...]
 ) -> list[str]:
@@ -145,10 +150,7 @@ def _extract_urls(
         if not isinstance(item, dict):
             continue
         link = str(item.get("expanded_url") or item.get("url") or "").strip()
-        if not link or link in seen:
-            continue
-        host = _domain(link) or ""
-        if any(host == ex or host.endswith(f".{ex}") for ex in exclude_url_hosts):
+        if not link or link in seen or _url_excluded(link, exclude_url_hosts):
             continue
         seen.add(link)
         urls.append(link)
@@ -174,46 +176,22 @@ def extract(config: Any) -> ChangeSet:
     urls = _extract_urls(record, tuple(exclude_url_hosts))
     tools = _resolve_known_tools(urls)
 
-    entities: list[Entity] = []
-    relationships: list[Relationship] = []
-
-    def _stamped(**properties: Any) -> dict[str, Any]:
-        return {**properties, "extraction_stage": "deterministic", "confidence": 1.0}
-
-    for tag in hashtags:
-        node_id = f"hashtag:{tag}"
-        entities.append(
-            Entity(id=node_id, node_type="Hashtag", properties=_stamped(name=tag))
-        )
-        relationships.append(
-            Relationship(
-                source=document_id, target=node_id, relationship="taggedWithHashtag"
-            )
-        )
-
-    for handle in mentions:
-        node_id = f"mention:{handle}"
-        entities.append(
-            Entity(id=node_id, node_type="Mention", properties=_stamped(name=handle))
-        )
-        relationships.append(
-            Relationship(
-                source=document_id, target=node_id, relationship="mentionsHandle"
-            )
-        )
-
-    for tool in tools:
-        node_id = f"tool:{tool.lower().replace(' ', '-')}"
-        entities.append(
-            Entity(id=node_id, node_type="Tool", properties=_stamped(name=tool))
-        )
-        relationships.append(
-            Relationship(
-                source=document_id, target=node_id, relationship="referencesTool"
-            )
-        )
-
-    return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
+    specs = [("Hashtag", f"hashtag:{t}", t, "taggedWithHashtag") for t in hashtags]
+    specs += [("Mention", f"mention:{h}", h, "mentionsHandle") for h in mentions]
+    specs += [
+        ("Tool", f"tool:{t.lower().replace(' ', '-')}", t, "referencesTool")
+        for t in tools
+    ]
+    stamp = {"extraction_stage": "deterministic", "confidence": 1.0}
+    entities = tuple(
+        Entity(id=node_id, node_type=kind, properties={"name": name, **stamp})
+        for kind, node_id, name, _ in specs
+    )
+    relationships = tuple(
+        Relationship(source=document_id, target=node_id, relationship=rel)
+        for _, node_id, _, rel in specs
+    )
+    return ChangeSet(entities=entities, relationships=relationships)
 
 
 register_vendor_extractor(

@@ -26,122 +26,206 @@ Every entity carries ``externalToolId`` (the Egeria GUID) and
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
+from agent_connector_sdk.vendor_extractors._records import _as_list, _first, _get
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
+from agent_connector_sdk.vendor_extractors.egeria_helpers import (
+    _asset_type,
+    _call,
+    _classification_props,
+    _flow_rel,
+    _gov_type,
+    _kg_type,
+)
 
 CATEGORY = "egeria"
 
-_STORE_HINTS = ("datastore", "database", "filefolder", "filesystem", "datasource")
-_OBJECT_HINTS = ("dataset", "datafile", "table", "relationaltable", "datafield")
-
-_KG_TYPES = {
-    "SoftwareServer": "Server",
-    "DeployedSoftwareComponent": "Tool",
-    "RelationalDatabase": "DataObject",
-    "DeployedDatabaseSchema": "DataObject",
-    "Process": "ProcessModel",
-    "Collection": "Concept",
-}
-_STRUCTURAL = {
-    "hosts",
-    "realizes",
-    "secures",
-    "same-as",
-    "means",
-    "deploys",
-    "monitors",
-    "reads",
-    "groups",
-}
+_GUID_KEYS = ("guid", "GUID", "id")
 
 
-def _get(record: Any, key: str, default: Any = None) -> Any:
-    """Tolerant field access for dict records (or attr-style objects)."""
-    if isinstance(record, dict):
-        return record.get(key, default)
-    return getattr(record, key, default)
+@dataclass
+class _State:
+    entities: list[Entity] = field(default_factory=list)
+    relationships: list[Relationship] = field(default_factory=list)
+    seen: set[str] = field(default_factory=set)
 
 
-def _first(record: Any, *keys: str) -> Any:
-    """Return the first present, non-empty value among ``keys``."""
-    for key in keys:
-        value = _get(record, key)
-        if value is not None and value != "":
-            return value
-    return None
+def _base_props(record: Any) -> dict[str, Any]:
+    return {
+        "domain": "egeria",
+        "externalToolId": _first(record, *_GUID_KEYS),
+        "qualifiedName": _first(record, "qualifiedName", "qualified_name"),
+    }
 
 
-def _call(client: Any, name: str) -> list[Any]:
-    """Call a client list-method if present, returning a list (tolerant)."""
-    method = getattr(client, name, None)
-    if not callable(method):
-        return []
-    try:
-        result = method()
-    except TypeError:
-        try:
-            result = method({})
-        except Exception:
-            return []
-    except Exception:
-        return []
-    if isinstance(result, dict):
-        result = (
-            result.get("items") or result.get("results") or result.get("elements") or []
+def _add(
+    state: _State, node_id: str, node_type: str, *, properties: dict[str, Any]
+) -> None:
+    if node_id in state.seen:
+        return
+    state.seen.add(node_id)
+    state.entities.append(
+        Entity(id=node_id, node_type=node_type, properties=properties)
+    )
+
+
+def _rel(state: _State, source: str, target: str, *, relationship: str) -> None:
+    state.relationships.append(
+        Relationship(source=source, target=target, relationship=relationship)
+    )
+
+
+def _asset(state: _State, record: Any, guid: Any) -> None:
+    node_id = f"egeria_asset:{guid}"
+    node_type, role = _asset_type(record)
+    properties = {
+        **_base_props(record),
+        "name": _first(record, "displayName", "name", "qualifiedName"),
+        **_classification_props(record),
+    }
+    _add(state, node_id, node_type, properties=properties)
+    host = _first(record, "hostGuid", "serverGuid", "hostedOnGuid")
+    if role == "store" and host:
+        _rel(state, node_id, f"egeria_server:{host}", relationship="HOSTED_ON")
+    parent = _first(record, "storeGuid", "parentGuid", "assetGuid")
+    if role == "object" and parent:
+        _rel(state, node_id, f"egeria_asset:{parent}", relationship="PART_OF")
+    for policy in _as_list(_first(record, "governedByGuids", "policyGuids")):
+        _rel(state, node_id, f"egeria_policy:{policy}", relationship="governedBy")
+
+
+def _name(*keys: str) -> Any:
+    return lambda record: {"name": _first(record, *keys)}
+
+
+# (client method, id prefix, type resolver, extra props, link keys, link prefix, link rel)
+_SIMPLE: tuple[tuple[Any, ...], ...] = (
+    (
+        "list_glossary_categories",
+        "egeria_category",
+        lambda r: "GlossaryCategory",
+        _name("displayName", "name"),
+        ("parentCategoryGuid", "parentGuid"),
+        "egeria_category",
+        "PART_OF",
+    ),
+    (
+        "list_glossary_terms",
+        "egeria_term",
+        lambda r: "Concept",
+        lambda r: {
+            "name": _first(r, "displayName", "name"),
+            "summary": _first(r, "summary", "description"),
+        },
+        ("categoryGuid", "category"),
+        "egeria_category",
+        "IN_CATEGORY",
+    ),
+    (
+        "list_governance_definitions",
+        "egeria_policy",
+        _gov_type,
+        lambda r: {
+            "name": _first(r, "title", "displayName", "name"),
+            "governanceDomain": _first(r, "domain", "domainIdentifier"),
+        },
+        (),
+        "",
+        "",
+    ),
+    (
+        "list_software_servers",
+        "egeria_server",
+        lambda r: "Server",
+        _name("displayName", "name", "hostName"),
+        (),
+        "",
+        "",
+    ),
+    (
+        "list_connections",
+        "egeria_connection",
+        lambda r: "DataConnector",
+        _name("displayName", "name"),
+        ("assetGuid", "connectsToGuid"),
+        "egeria_asset",
+        "CONNECTS_TO",
+    ),
+)
+
+
+def _simple(state: _State, client: Any, spec: tuple[Any, ...]) -> None:
+    method, prefix, type_of, props_of, link_keys, link_prefix, link_rel = spec
+    for record in _call(client, method):
+        guid = _first(record, *_GUID_KEYS)
+        if not guid:
+            continue
+        node_id = f"{prefix}:{guid}"
+        _add(
+            state,
+            node_id,
+            type_of(record),
+            properties={**_base_props(record), **props_of(record)},
         )
-    return list(result) if result else []
+        target = _first(record, *link_keys) if link_keys else None
+        if target:
+            _rel(state, node_id, f"{link_prefix}:{target}", relationship=link_rel)
 
 
-def _classification_props(record: Any) -> dict[str, Any]:
-    """Lift Egeria classifications into flat entity properties."""
-    properties: dict[str, Any] = {}
-    confidentiality = _first(record, "confidentiality", "confidentialityLevel")
-    if confidentiality is not None:
-        properties["confidentialityLevel"] = confidentiality
-    retention = _first(record, "retention", "retentionPeriod")
-    if retention is not None:
-        properties["retentionPeriod"] = retention
-    return properties
+def _flow_process(state: _State, record: Any, ends: tuple[Any, Any, Any]) -> None:
+    process, source, target = ends
+    process_id = f"egeria_process:{process}"
+    _add(
+        state,
+        process_id,
+        "ProcessModel",
+        properties={
+            "domain": "egeria",
+            "externalToolId": process,
+            "name": _first(record, "processName", "name"),
+        },
+    )
+    if source:
+        _rel(state, f"egeria_asset:{source}", process_id, relationship="flowsTo")
+    if target:
+        _rel(state, process_id, f"egeria_asset:{target}", relationship="derivesFrom")
 
 
-def _asset_type(record: Any) -> tuple[str, str]:
-    """Resolve an Egeria asset record to (KG node type, role: store|object|other)."""
-    type_name = str(_first(record, "typeName", "type", "category") or "").lower()
-    if any(hint in type_name for hint in _OBJECT_HINTS):
-        return "DataObject", "object"
-    if any(hint in type_name for hint in _STORE_HINTS):
-        return "DataConnector", "store"
-    return "EAFactSheet", "other"
+def _flow_edge(state: _State, record: Any, ends: tuple[Any, Any]) -> None:
+    source, target = ends
+    for guid, name_key, type_key in (
+        (source, "sourceName", "sourceType"),
+        (target, "targetName", "targetType"),
+    ):
+        _add(
+            state,
+            f"egeria_asset:{guid}",
+            _kg_type(_first(record, type_key)),
+            properties={
+                "domain": "egeria",
+                "externalToolId": guid,
+                "name": _first(record, name_key) or guid,
+            },
+        )
+    _rel(
+        state,
+        f"egeria_asset:{source}",
+        f"egeria_asset:{target}",
+        relationship=_flow_rel(_first(record, "label")),
+    )
 
 
-def _gov_type(record: Any) -> str:
-    """Map an Egeria governance-definition typeName to a KG class."""
-    type_name = str(_first(record, "typeName", "type") or "").lower()
-    if "principle" in type_name:
-        return "Principle"
-    if "strategy" in type_name or "imperative" in type_name:
-        return "Goal"
-    return "Policy"
-
-
-def _kg_type(type_name: Any) -> str:
-    return _KG_TYPES.get(str(type_name or ""), "DataConnector")
-
-
-def _flow_rel(label: Any) -> str:
-    """Map a reconciliation/lineage edge label to a KG relationship type."""
-    return "dependsOn" if str(label or "").lower() in _STRUCTURAL else "flowsTo"
-
-
-def _as_list(value: Any) -> list[Any]:
-    """Coerce a scalar/None/list relation field into a clean list."""
-    if value is None or value == "":
-        return []
-    if isinstance(value, list | tuple | set):
-        return [item for item in value if item]
-    return [value]
+def _flow(state: _State, record: Any) -> None:
+    process = _first(record, "processGuid", "process", "transformationGuid")
+    source = _first(record, "sourceGuid", "source", "fromGuid")
+    target = _first(record, "targetGuid", "target", "toGuid")
+    if process:
+        _flow_process(state, record, (process, source, target))
+    elif source and target:
+        _flow_edge(state, record, (source, target))
 
 
 def extract(config: Any) -> ChangeSet:
@@ -149,209 +233,18 @@ def extract(config: Any) -> ChangeSet:
     client = _get(config, "client")
     if client is None:
         return ChangeSet()
-
-    entities: list[Entity] = []
-    relationships: list[Relationship] = []
-    seen: set[str] = set()
-
-    def _base_props(record: Any) -> dict[str, Any]:
-        return {
-            "domain": "egeria",
-            "externalToolId": _first(record, "guid", "GUID", "id"),
-            "qualifiedName": _first(record, "qualifiedName", "qualified_name"),
-        }
-
-    def _add(node_id: str, node_type: str, properties: dict[str, Any]) -> bool:
-        if node_id in seen:
-            return False
-        seen.add(node_id)
-        entities.append(Entity(id=node_id, node_type=node_type, properties=properties))
-        return True
-
+    state = _State()
     for record in _call(client, "list_assets"):
-        guid = _first(record, "guid", "GUID", "id")
-        if not guid:
-            continue
-        node_id = f"egeria_asset:{guid}"
-        node_type, role = _asset_type(record)
-        properties = {
-            **_base_props(record),
-            "name": _first(record, "displayName", "name", "qualifiedName"),
-            **_classification_props(record),
-        }
-        _add(node_id, node_type, properties)
-        host = _first(record, "hostGuid", "serverGuid", "hostedOnGuid")
-        if role == "store" and host:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"egeria_server:{host}",
-                    relationship="HOSTED_ON",
-                )
-            )
-        parent = _first(record, "storeGuid", "parentGuid", "assetGuid")
-        if role == "object" and parent:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"egeria_asset:{parent}",
-                    relationship="PART_OF",
-                )
-            )
-        for policy in _as_list(_first(record, "governedByGuids", "policyGuids")):
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"egeria_policy:{policy}",
-                    relationship="governedBy",
-                )
-            )
-
-    for record in _call(client, "list_glossary_categories"):
-        guid = _first(record, "guid", "GUID", "id")
-        if not guid:
-            continue
-        node_id = f"egeria_category:{guid}"
-        _add(
-            node_id,
-            "GlossaryCategory",
-            {**_base_props(record), "name": _first(record, "displayName", "name")},
-        )
-        parent = _first(record, "parentCategoryGuid", "parentGuid")
-        if parent:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"egeria_category:{parent}",
-                    relationship="PART_OF",
-                )
-            )
-
-    for record in _call(client, "list_glossary_terms"):
-        guid = _first(record, "guid", "GUID", "id")
-        if not guid:
-            continue
-        node_id = f"egeria_term:{guid}"
-        _add(
-            node_id,
-            "Concept",
-            {
-                **_base_props(record),
-                "name": _first(record, "displayName", "name"),
-                "summary": _first(record, "summary", "description"),
-            },
-        )
-        category = _first(record, "categoryGuid", "category")
-        if category:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"egeria_category:{category}",
-                    relationship="IN_CATEGORY",
-                )
-            )
-
-    for record in _call(client, "list_governance_definitions"):
-        guid = _first(record, "guid", "GUID", "id")
-        if not guid:
-            continue
-        _add(
-            f"egeria_policy:{guid}",
-            _gov_type(record),
-            {
-                **_base_props(record),
-                "name": _first(record, "title", "displayName", "name"),
-                "governanceDomain": _first(record, "domain", "domainIdentifier"),
-            },
-        )
-
-    for record in _call(client, "list_software_servers"):
-        guid = _first(record, "guid", "GUID", "id")
-        if not guid:
-            continue
-        _add(
-            f"egeria_server:{guid}",
-            "Server",
-            {
-                **_base_props(record),
-                "name": _first(record, "displayName", "name", "hostName"),
-            },
-        )
-
-    for record in _call(client, "list_connections"):
-        guid = _first(record, "guid", "GUID", "id")
-        if not guid:
-            continue
-        node_id = f"egeria_connection:{guid}"
-        _add(
-            node_id,
-            "DataConnector",
-            {**_base_props(record), "name": _first(record, "displayName", "name")},
-        )
-        asset = _first(record, "assetGuid", "connectsToGuid")
-        if asset:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"egeria_asset:{asset}",
-                    relationship="CONNECTS_TO",
-                )
-            )
-
+        guid = _first(record, *_GUID_KEYS)
+        if guid:
+            _asset(state, record, guid)
+    for spec in _SIMPLE:
+        _simple(state, client, spec)
     for record in _call(client, "list_data_flows"):
-        process = _first(record, "processGuid", "process", "transformationGuid")
-        source = _first(record, "sourceGuid", "source", "fromGuid")
-        target = _first(record, "targetGuid", "target", "toGuid")
-        if process:
-            process_id = f"egeria_process:{process}"
-            _add(
-                process_id,
-                "ProcessModel",
-                {
-                    "domain": "egeria",
-                    "externalToolId": process,
-                    "name": _first(record, "processName", "name"),
-                },
-            )
-            if source:
-                relationships.append(
-                    Relationship(
-                        source=f"egeria_asset:{source}",
-                        target=process_id,
-                        relationship="flowsTo",
-                    )
-                )
-            if target:
-                relationships.append(
-                    Relationship(
-                        source=process_id,
-                        target=f"egeria_asset:{target}",
-                        relationship="derivesFrom",
-                    )
-                )
-        elif source and target:
-            for guid, name_key, type_key in (
-                (source, "sourceName", "sourceType"),
-                (target, "targetName", "targetType"),
-            ):
-                _add(
-                    f"egeria_asset:{guid}",
-                    _kg_type(_first(record, type_key)),
-                    {
-                        "domain": "egeria",
-                        "externalToolId": guid,
-                        "name": _first(record, name_key) or guid,
-                    },
-                )
-            relationships.append(
-                Relationship(
-                    source=f"egeria_asset:{source}",
-                    target=f"egeria_asset:{target}",
-                    relationship=_flow_rel(_first(record, "label")),
-                )
-            )
-
-    return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
+        _flow(state, record)
+    return ChangeSet(
+        entities=tuple(state.entities), relationships=tuple(state.relationships)
+    )
 
 
 register_vendor_extractor(

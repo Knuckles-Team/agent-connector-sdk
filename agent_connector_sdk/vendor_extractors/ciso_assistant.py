@@ -30,66 +30,104 @@ module performs no network calls itself.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
+from agent_connector_sdk.vendor_extractors._records import _as_list, _first, _get
+from agent_connector_sdk.vendor_extractors.ciso_assistant_helpers import (
+    _base_props,
+    _crosswalk,
+    _id_of,
+    _list,
+)
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "ciso_assistant"
 
+__all__ = [
+    "CATEGORY",
+    "extract",
+]
 
-def _get(record: Any, key: str, default: Any = None) -> Any:
-    """Tolerant field access for dict records (or attr-style objects)."""
-    if isinstance(record, dict):
-        return record.get(key, default)
-    return getattr(record, key, default)
+_Spec = tuple[str, str, str]
+_Extra = Callable[[Any, str], list[Relationship]]
+
+_SIMPLE_KINDS: list[_Spec] = [
+    ("api_policies_list", "ciso_assistant_policy", "Policy"),
+    ("api_applied_controls_list", "ciso_assistant_control", "Control"),
+    ("api_reference_controls_list", "ciso_assistant_refcontrol", "Control"),
+    ("api_threats_list", "ciso_assistant_threat", "Threat"),
+    (
+        "api_risk_assessments_list",
+        "ciso_assistant_risk_assessment",
+        "RiskAssessment",
+    ),
+    ("api_frameworks_list", "ciso_assistant_framework", "Framework"),
+    ("api_assets_list", "ciso_assistant_asset", "Asset"),
+    ("api_incidents_list", "ciso_assistant_incident", "Incident"),
+    (
+        "api_security_exceptions_list",
+        "ciso_assistant_exception",
+        "SecurityException",
+    ),
+    ("api_findings_list", "ciso_assistant_finding", "Finding"),
+    ("api_entities_list", "ciso_assistant_entity", "Entity"),
+    ("api_perimeters_list", "ciso_assistant_perimeter", "Perimeter"),
+]
 
 
-def _first(record: Any, *keys: str) -> Any:
-    """Return the first present, non-empty value among ``keys``."""
-    for key in keys:
-        value = _get(record, key)
-        if value is not None and value != "":
-            return value
-    return None
+def _link(source: str, target: str, relationship: str) -> Relationship:
+    return Relationship(source=source, target=target, relationship=relationship)
 
 
-def _list(client: Any, name: str) -> list[Any]:
-    """Call a generated list-method if present, returning its ``.data`` list."""
-    method = getattr(client, name, None)
-    if not callable(method):
+def _risk_links(record: Any, node_id: str) -> list[Relationship]:
+    """MITIGATED_BY / PART_OF links for a risk scenario."""
+    rels: list[Relationship] = []
+    for control in _as_list(_first(record, "applied_controls", "controls")):
+        control_id = _id_of(control)
+        if control_id:
+            rels.append(
+                _link(node_id, f"ciso_assistant_control:{control_id}", "MITIGATED_BY")
+            )
+    assessment = _id_of(_first(record, "risk_assessment"))
+    if assessment:
+        rels.append(
+            _link(node_id, f"ciso_assistant_risk_assessment:{assessment}", "PART_OF")
+        )
+    return rels
+
+
+def _compliance_links(record: Any, node_id: str) -> list[Relationship]:
+    """CONFORMS_TO link for a compliance assessment."""
+    framework = _id_of(_first(record, "framework"))
+    if not framework:
         return []
-    try:
-        result = method()
-    except Exception:
-        return []
-    data = getattr(result, "data", result)
-    if isinstance(data, dict):
-        data = data.get("results") or data.get("items") or data.get("data") or []
-    return list(data) if isinstance(data, list) else []
+    return [_link(node_id, f"ciso_assistant_framework:{framework}", "CONFORMS_TO")]
 
 
-def _ref_id(record: Any) -> Any:
-    """A record's stable cross-system key: urn first, then ref_id, then name."""
-    return _first(record, "urn", "ref_id", "name")
-
-
-def _id_of(value: Any) -> Any:
-    """Resolve a related-object reference (uuid string, dict, or {'id': ...})."""
-    if value is None or value == "":
-        return None
-    if isinstance(value, dict):
-        return value.get("id") or value.get("uuid") or value.get("str")
-    return value
-
-
-def _as_list(value: Any) -> list[Any]:
-    """Coerce a scalar/None/list relation field into a clean list."""
-    if value is None or value == "":
-        return []
-    if isinstance(value, list | tuple | set):
-        return [item for item in value if item]
-    return [value]
+def _collect(
+    client: Any, spec: _Spec, *, seen: set[str], related: _Extra | None
+) -> tuple[list[Entity], list[Relationship]]:
+    """Entities + relationships for one record kind, deduplicated via ``seen``."""
+    method, prefix, node_type = spec
+    entities: list[Entity] = []
+    rels: list[Relationship] = []
+    for record in _list(client, method):
+        external_id = _first(record, "id", "uuid")
+        if not external_id:
+            continue
+        node_id = f"{prefix}:{external_id}"
+        if node_id in seen:
+            continue
+        seen.add(node_id)
+        entities.append(
+            Entity(id=node_id, node_type=node_type, properties=_base_props(record))
+        )
+        rels.extend(_crosswalk(record, node_id))
+        if related is not None:
+            rels.extend(related(record, node_id))
+    return entities, rels
 
 
 def extract(config: Any) -> ChangeSet:
@@ -98,125 +136,27 @@ def extract(config: Any) -> ChangeSet:
     if client is None:
         return ChangeSet()
 
+    plan: list[tuple[_Spec, _Extra | None]] = [(s, None) for s in _SIMPLE_KINDS]
+    plan.append(
+        (("api_risk_scenarios_list", "ciso_assistant_risk", "Risk"), _risk_links)
+    )
+    plan.append(
+        (
+            (
+                "api_compliance_assessments_list",
+                "ciso_assistant_compliance_assessment",
+                "ComplianceAssessment",
+            ),
+            _compliance_links,
+        )
+    )
     entities: list[Entity] = []
     relationships: list[Relationship] = []
     seen: set[str] = set()
-
-    def _base_props(record: Any) -> dict[str, Any]:
-        return {
-            "domain": "ciso_assistant",
-            "externalToolId": _first(record, "id", "uuid"),
-            "qualifiedName": _ref_id(record),
-            "name": _first(record, "name", "ref_id", "str") or _first(record, "urn"),
-            "ref_id": _get(record, "ref_id"),
-            "description": _get(record, "description"),
-        }
-
-    def _add(node_id: str, node_type: str, properties: dict[str, Any]) -> bool:
-        if node_id in seen:
-            return False
-        seen.add(node_id)
-        entities.append(Entity(id=node_id, node_type=node_type, properties=properties))
-        return True
-
-    def _crosswalk(record: Any, node_id: str) -> None:
-        """ALIGNED_WITH equivalence relationships to Egeria / Camunda twins."""
-        egeria_guid = _first(record, "egeria_guid", "egeria_id", "egeriaGuid")
-        if egeria_guid:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"egeria_policy:{egeria_guid}",
-                    relationship="ALIGNED_WITH",
-                )
-            )
-        bpmn_id = _first(record, "bpmn_process_id", "camunda_process_id", "process_id")
-        if bpmn_id:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"bpmn_process:{bpmn_id}",
-                    relationship="ALIGNED_WITH",
-                )
-            )
-
-    simple_kinds = [
-        ("api_policies_list", "ciso_assistant_policy", "Policy"),
-        ("api_applied_controls_list", "ciso_assistant_control", "Control"),
-        ("api_reference_controls_list", "ciso_assistant_refcontrol", "Control"),
-        ("api_threats_list", "ciso_assistant_threat", "Threat"),
-        (
-            "api_risk_assessments_list",
-            "ciso_assistant_risk_assessment",
-            "RiskAssessment",
-        ),
-        ("api_frameworks_list", "ciso_assistant_framework", "Framework"),
-        ("api_assets_list", "ciso_assistant_asset", "Asset"),
-        ("api_incidents_list", "ciso_assistant_incident", "Incident"),
-        (
-            "api_security_exceptions_list",
-            "ciso_assistant_exception",
-            "SecurityException",
-        ),
-        ("api_findings_list", "ciso_assistant_finding", "Finding"),
-        ("api_entities_list", "ciso_assistant_entity", "Entity"),
-        ("api_perimeters_list", "ciso_assistant_perimeter", "Perimeter"),
-    ]
-    for method, prefix, node_type in simple_kinds:
-        for record in _list(client, method):
-            external_id = _first(record, "id", "uuid")
-            if not external_id:
-                continue
-            node_id = f"{prefix}:{external_id}"
-            if _add(node_id, node_type, _base_props(record)):
-                _crosswalk(record, node_id)
-
-    for record in _list(client, "api_risk_scenarios_list"):
-        external_id = _first(record, "id", "uuid")
-        if not external_id:
-            continue
-        node_id = f"ciso_assistant_risk:{external_id}"
-        if not _add(node_id, "Risk", _base_props(record)):
-            continue
-        _crosswalk(record, node_id)
-        for control in _as_list(_first(record, "applied_controls", "controls")):
-            control_id = _id_of(control)
-            if control_id:
-                relationships.append(
-                    Relationship(
-                        source=node_id,
-                        target=f"ciso_assistant_control:{control_id}",
-                        relationship="MITIGATED_BY",
-                    )
-                )
-        assessment = _id_of(_first(record, "risk_assessment"))
-        if assessment:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"ciso_assistant_risk_assessment:{assessment}",
-                    relationship="PART_OF",
-                )
-            )
-
-    for record in _list(client, "api_compliance_assessments_list"):
-        external_id = _first(record, "id", "uuid")
-        if not external_id:
-            continue
-        node_id = f"ciso_assistant_compliance_assessment:{external_id}"
-        if not _add(node_id, "ComplianceAssessment", _base_props(record)):
-            continue
-        _crosswalk(record, node_id)
-        framework = _id_of(_first(record, "framework"))
-        if framework:
-            relationships.append(
-                Relationship(
-                    source=node_id,
-                    target=f"ciso_assistant_framework:{framework}",
-                    relationship="CONFORMS_TO",
-                )
-            )
-
+    for spec, related in plan:
+        ents, rels = _collect(client, spec, seen=seen, related=related)
+        entities.extend(ents)
+        relationships.extend(rels)
     return ChangeSet(entities=tuple(entities), relationships=tuple(relationships))
 
 

@@ -46,6 +46,33 @@ def _call(client: Any, name: str, *args: Any) -> list[Any]:
         return []
 
 
+def _props(**fields: Any) -> dict[str, Any]:
+    return {key: value for key, value in fields.items() if value is not None}
+
+
+def _event_entity(event: Any, calendar_url: Any, seen: set[str]) -> Entity | None:
+    uid = _first(event, "uid", "id", "href")
+    if not uid:
+        return None
+    node_id = f"event:{uid}"
+    if node_id in seen:
+        return None
+    seen.add(node_id)
+    return Entity(
+        id=node_id,
+        node_type="CalendarEvent",
+        properties=_props(
+            name=_first(event, "summary", "title", "name"),
+            scheduledStart=_first(event, "start", "dtstart", "DTSTART"),
+            scheduledEnd=_first(event, "end", "dtend", "DTEND"),
+            eventLocation=_first(event, "location", "LOCATION"),
+            calendar=calendar_url,
+            externalToolId=str(uid),
+            domain=CATEGORY,
+        ),
+    )
+
+
 def _events(client: Any, seen: set[str]) -> list[Entity]:
     entities: list[Entity] = []
     for calendar in _call(client, "list_calendars"):
@@ -53,34 +80,31 @@ def _events(client: Any, seen: set[str]) -> list[Entity]:
         if not calendar_url:
             continue
         for event in _call(client, "list_events", calendar_url):
-            uid = _first(event, "uid", "id", "href")
-            if not uid:
-                continue
-            node_id = f"event:{uid}"
-            if node_id in seen:
-                continue
-            seen.add(node_id)
-            properties = {
-                "name": _first(event, "summary", "title", "name"),
-                "scheduledStart": _first(event, "start", "dtstart", "DTSTART"),
-                "scheduledEnd": _first(event, "end", "dtend", "DTEND"),
-                "eventLocation": _first(event, "location", "LOCATION"),
-                "calendar": calendar_url,
-                "externalToolId": str(uid),
-                "domain": CATEGORY,
-            }
-            entities.append(
-                Entity(
-                    id=node_id,
-                    node_type="CalendarEvent",
-                    properties={
-                        key: value
-                        for key, value in properties.items()
-                        if value is not None
-                    },
-                )
-            )
+            entity = _event_entity(event, calendar_url, seen)
+            if entity is not None:
+                entities.append(entity)
     return entities
+
+
+def _contact_entity(contact: Any, seen: set[str]) -> Entity | None:
+    uid = _first(contact, "uid", "id", "href")
+    name = _first(contact, "fn", "full_name", "name")
+    if not (uid and name):
+        return None
+    node_id = f"contact:{uid}"
+    if node_id in seen:
+        return None
+    seen.add(node_id)
+    return Entity(
+        id=node_id,
+        node_type="Person",
+        properties=_props(
+            name=name,
+            email=_first(contact, "email", "EMAIL"),
+            externalToolId=str(uid),
+            domain=CATEGORY,
+        ),
+    )
 
 
 def _contacts(client: Any, seen: set[str]) -> list[Entity]:
@@ -90,30 +114,9 @@ def _contacts(client: Any, seen: set[str]) -> list[Entity]:
         if not book_url:
             continue
         for contact in _call(client, "list_contacts", book_url):
-            uid = _first(contact, "uid", "id", "href")
-            name = _first(contact, "fn", "full_name", "name")
-            if not (uid and name):
-                continue
-            node_id = f"contact:{uid}"
-            if node_id in seen:
-                continue
-            seen.add(node_id)
-            entities.append(
-                Entity(
-                    id=node_id,
-                    node_type="Person",
-                    properties={
-                        key: value
-                        for key, value in {
-                            "name": name,
-                            "email": _first(contact, "email", "EMAIL"),
-                            "externalToolId": str(uid),
-                            "domain": CATEGORY,
-                        }.items()
-                        if value is not None
-                    },
-                )
-            )
+            entity = _contact_entity(contact, seen)
+            if entity is not None:
+                entities.append(entity)
     return entities
 
 

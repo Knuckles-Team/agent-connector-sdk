@@ -90,14 +90,16 @@ class ClientCredentialsTokenProvider:
         """The last minted token's lifetime in seconds, ``None`` before the first mint."""
         return self._token.ttl_seconds if self._token else None
 
-    def _mint(self) -> AccessToken:
+    def _client_secret(self) -> str:
         if self._literal_secret is not None:
-            secret = self._literal_secret
-        else:
-            try:
-                secret = resolve_secret_reference(self._secret_ref, self._resolver)
-            except (SecretReferenceError, CredentialUnavailableError) as exc:
-                raise TokenRequestError("client secret is unavailable") from exc
+            return self._literal_secret
+        try:
+            return resolve_secret_reference(self._secret_ref, self._resolver)
+        except (SecretReferenceError, CredentialUnavailableError) as exc:
+            raise TokenRequestError("client secret is unavailable") from exc
+
+    def _mint(self) -> AccessToken:
+        secret = self._client_secret()
         return request_access_token(
             self._client,
             self._token_url,
