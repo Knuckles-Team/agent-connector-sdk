@@ -6,6 +6,7 @@ import httpx
 import pytest
 
 from agent_connector_sdk.http.egress import (
+    EgressOptions,
     EgressPolicyError,
     PinnedAddressTransport,
     check_egress_destination,
@@ -20,11 +21,13 @@ def test_private_and_loopback_destinations_rejected_by_default(host: str) -> Non
 
 
 def test_explicitly_allowed_private_host_passes() -> None:
-    check_egress_destination("10.0.0.5", allowed_private_hosts={"10.0.0.5"})
+    check_egress_destination(
+        "10.0.0.5", EgressOptions(allowed_private_hosts={"10.0.0.5"})
+    )
 
 
 def test_explicitly_allowed_loopback_passes() -> None:
-    check_egress_destination("127.0.0.1", allow_loopback=True)
+    check_egress_destination("127.0.0.1", EgressOptions(allow_loopback=True))
 
 
 def test_public_destination_always_passes() -> None:
@@ -32,7 +35,7 @@ def test_public_destination_always_passes() -> None:
 
 
 def test_pin_egress_false_disables_the_check_entirely() -> None:
-    check_egress_destination("127.0.0.1", pin_egress=False)
+    check_egress_destination("127.0.0.1", EgressOptions(pin_egress=False))
 
 
 def test_pinned_transport_reuses_the_resolved_address_not_dns() -> None:
