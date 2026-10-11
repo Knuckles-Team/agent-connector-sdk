@@ -30,11 +30,7 @@ from __future__ import annotations
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
-from agent_connector_sdk.vendor_extractors._records import (
-    _call_list,
-    _first,
-    _get,
-)
+from agent_connector_sdk.vendor_extractors._records import _call_list, _first, _get
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "aris"
