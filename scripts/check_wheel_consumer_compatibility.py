@@ -40,7 +40,7 @@ PYPROJECT = ROOT / "pyproject.toml"
 
 _IMPORT_SMOKE = (
     "import epistemic_graph.generated.source_ingestion as _c; "
-    "import epistemic_graph.native as _k; "
+    "import epistemic_graph.engine as _k; "
     "assert _c and _k"
 )
 
