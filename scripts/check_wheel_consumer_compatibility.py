@@ -102,7 +102,7 @@ def isolated_install_plan(
             str(wheel_path),
             engine,
         ],
-        ["uv", "run", "--python", str(venv_dir), "python3", "-c", _IMPORT_SMOKE],
+        ["uv", "run", "--no-project", "--python", str(venv_dir), "python3", "-c", _IMPORT_SMOKE],
     ]
 
 
