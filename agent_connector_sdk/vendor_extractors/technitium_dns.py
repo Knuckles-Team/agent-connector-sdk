@@ -14,23 +14,13 @@ from __future__ import annotations
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
+from agent_connector_sdk.vendor_extractors._records import (
+    _get,
+    _safe_call,
+)
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "technitium_dns"
-
-
-def _get(config: Any, key: str) -> Any:
-    return config.get(key) if isinstance(config, dict) else getattr(config, key, None)
-
-
-def _call(client: Any, name: str, *args: Any) -> Any:
-    method = getattr(client, name, None)
-    if not callable(method):
-        return None
-    try:
-        return method(*args)
-    except Exception:
-        return None
 
 
 def _dicts(values: list[Any]) -> list[dict[str, Any]]:
@@ -86,7 +76,7 @@ def _record_entity(zone: str, record: dict[str, Any]) -> Entity:
 def _zone_records(
     client: Any, zone: str, zone_id: str
 ) -> tuple[list[Entity], list[Relationship]]:
-    rows = _rows(_call(client, "get_records", zone), "records", "value", "data")
+    rows = _rows(_safe_call(client, "get_records", zone), "records", "value", "data")
     entities = [_record_entity(zone, record) for record in rows]
     relationships = [
         Relationship(source=zone_id, target=entity.id, relationship="CONTAINS")
@@ -102,7 +92,7 @@ def extract(config: Any) -> ChangeSet:
 
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-    for zone_row in _rows(_call(client, "list_zones"), "zones", "value", "data"):
+    for zone_row in _rows(_safe_call(client, "list_zones"), "zones", "value", "data"):
         zone = zone_row.get("name") or zone_row.get("zone")
         if not zone:
             continue

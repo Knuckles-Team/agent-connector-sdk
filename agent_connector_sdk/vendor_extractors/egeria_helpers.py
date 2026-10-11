@@ -4,6 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
+from agent_connector_sdk.vendor_extractors._records import (
+    _call_list,
+    _first,
+)
+
 _STORE_HINTS = ("datastore", "database", "filefolder", "filesystem", "datasource")
 _OBJECT_HINTS = ("dataset", "datafile", "table", "relationaltable", "datafield")
 
@@ -28,44 +33,9 @@ _STRUCTURAL = {
 }
 
 
-def _get(record: Any, key: str, default: Any = None) -> Any:
-    """Tolerant field access for dict records (or attr-style objects)."""
-    if isinstance(record, dict):
-        return record.get(key, default)
-    return getattr(record, key, default)
-
-
-def _first(record: Any, *keys: str) -> Any:
-    """Return the first present, non-empty value among ``keys``."""
-    for key in keys:
-        value = _get(record, key)
-        if value is not None and value != "":
-            return value
-    return None
-
-
-def _invoke(method: Any) -> Any:
-    """Invoke a list-method with no args, retrying with ``{}`` on TypeError."""
-    try:
-        return method()
-    except TypeError:
-        return method({})
-
-
 def _call(client: Any, name: str) -> list[Any]:
     """Call a client list-method if present, returning a list (tolerant)."""
-    method = getattr(client, name, None)
-    if not callable(method):
-        return []
-    try:
-        result = _invoke(method)
-    except Exception:
-        return []
-    if isinstance(result, dict):
-        result = (
-            result.get("items") or result.get("results") or result.get("elements") or []
-        )
-    return list(result) if result else []
+    return _call_list(client, name, ("items", "results", "elements"))
 
 
 def _classification_props(record: Any) -> dict[str, Any]:
@@ -107,12 +77,3 @@ def _kg_type(type_name: Any) -> str:
 def _flow_rel(label: Any) -> str:
     """Map a reconciliation/lineage edge label to a KG relationship type."""
     return "dependsOn" if str(label or "").lower() in _STRUCTURAL else "flowsTo"
-
-
-def _as_list(value: Any) -> list[Any]:
-    """Coerce a scalar/None/list relation field into a clean list."""
-    if value is None or value == "":
-        return []
-    if isinstance(value, list | tuple | set):
-        return [item for item in value if item]
-    return [value]

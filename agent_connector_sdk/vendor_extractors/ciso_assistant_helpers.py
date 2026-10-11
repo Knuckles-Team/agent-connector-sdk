@@ -5,22 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from agent_connector_sdk.ingest import Relationship
-
-
-def _get(record: Any, key: str, default: Any = None) -> Any:
-    """Tolerant field access for dict records (or attr-style objects)."""
-    if isinstance(record, dict):
-        return record.get(key, default)
-    return getattr(record, key, default)
-
-
-def _first(record: Any, *keys: str) -> Any:
-    """Return the first present, non-empty value among ``keys``."""
-    for key in keys:
-        value = _get(record, key)
-        if value is not None and value != "":
-            return value
-    return None
+from agent_connector_sdk.vendor_extractors._records import _first, _get
 
 
 def _list(client: Any, name: str) -> list[Any]:
@@ -50,15 +35,6 @@ def _id_of(value: Any) -> Any:
     if isinstance(value, dict):
         return value.get("id") or value.get("uuid") or value.get("str")
     return value
-
-
-def _as_list(value: Any) -> list[Any]:
-    """Coerce a scalar/None/list relation field into a clean list."""
-    if value is None or value == "":
-        return []
-    if isinstance(value, list | tuple | set):
-        return [item for item in value if item]
-    return [value]
 
 
 def _base_props(record: Any) -> dict[str, Any]:

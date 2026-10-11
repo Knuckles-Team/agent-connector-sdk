@@ -15,14 +15,15 @@ from __future__ import annotations
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
+from agent_connector_sdk.vendor_extractors._records import (
+    _get,
+    _props,
+    _safe_call,
+)
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "wger"
 _DOMAIN = "wger"
-
-
-def _get(config: Any, key: str) -> Any:
-    return config.get(key) if isinstance(config, dict) else getattr(config, key, None)
 
 
 def _rows(res: Any) -> list[dict[str, Any]]:
@@ -34,67 +35,46 @@ def _rows(res: Any) -> list[dict[str, Any]]:
     )
 
 
-def _call(client: Any, name: str) -> Any:
-    method = getattr(client, name, None)
-    try:
-        return method() if callable(method) else None
-    except Exception:
-        return None
-
-
-def _props(**fields: Any) -> dict[str, Any]:
-    return {key: value for key, value in fields.items() if value is not None}
+def _body_entities(
+    rows: list[dict[str, Any]], label: tuple[str, str], fields: dict[str, str]
+) -> list[Entity]:
+    """BodyMeasurement entities for ``rows``; ``label`` is (id infix, kind)."""
+    infix, kind = label
+    entities: list[Entity] = []
+    for row in rows:
+        row_id = row.get("id")
+        if row_id is None:
+            continue
+        props = {prop: row.get(key) for prop, key in fields.items()}
+        entities.append(
+            Entity(
+                id=f"wger:{infix}:{row_id}",
+                node_type="BodyMeasurement",
+                properties=_props(
+                    kind=kind, **props, externalToolId=str(row_id), domain=_DOMAIN
+                ),
+            )
+        )
+    return entities
 
 
 def _weights(client: Any) -> list[Entity]:
-    entities: list[Entity] = []
-    for weight in _rows(_call(client, "get_weight_entries")):
-        weight_id = weight.get("id")
-        if weight_id is None:
-            continue
-        entities.append(
-            Entity(
-                id=f"wger:weight:{weight_id}",
-                node_type="BodyMeasurement",
-                properties=_props(
-                    kind="weight",
-                    value=weight.get("weight"),
-                    date=weight.get("date"),
-                    externalToolId=str(weight_id),
-                    domain=_DOMAIN,
-                ),
-            )
-        )
-    return entities
+    rows = _rows(_safe_call(client, "get_weight_entries"))
+    return _body_entities(
+        rows, ("weight", "weight"), {"value": "weight", "date": "date"}
+    )
 
 
 def _measurements(client: Any) -> list[Entity]:
-    entities: list[Entity] = []
-    for measurement in _rows(_call(client, "get_measurements")):
-        measurement_id = measurement.get("id")
-        if measurement_id is None:
-            continue
-        entities.append(
-            Entity(
-                id=f"wger:meas:{measurement_id}",
-                node_type="BodyMeasurement",
-                properties=_props(
-                    kind="measurement",
-                    category=measurement.get("category"),
-                    value=measurement.get("value"),
-                    date=measurement.get("date"),
-                    externalToolId=str(measurement_id),
-                    domain=_DOMAIN,
-                ),
-            )
-        )
-    return entities
+    rows = _rows(_safe_call(client, "get_measurements"))
+    fields = {"category": "category", "value": "value", "date": "date"}
+    return _body_entities(rows, ("meas", "measurement"), fields)
 
 
 def _sessions(client: Any) -> tuple[list[Entity], list[Relationship]]:
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-    for session in _rows(_call(client, "get_workout_sessions")):
+    for session in _rows(_safe_call(client, "get_workout_sessions")):
         session_id = session.get("id")
         if session_id is None:
             continue
@@ -126,7 +106,7 @@ def _sessions(client: Any) -> tuple[list[Entity], list[Relationship]]:
 
 def _plans(client: Any) -> list[Entity]:
     entities: list[Entity] = []
-    for plan in _rows(_call(client, "get_nutrition_plans")):
+    for plan in _rows(_safe_call(client, "get_nutrition_plans")):
         plan_id = plan.get("id")
         if plan_id is None:
             continue

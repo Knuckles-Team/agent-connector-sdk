@@ -30,15 +30,13 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
+from agent_connector_sdk.vendor_extractors._records import _as_list, _first, _get
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 from agent_connector_sdk.vendor_extractors.egeria_helpers import (
-    _as_list,
     _asset_type,
     _call,
     _classification_props,
-    _first,
     _flow_rel,
-    _get,
     _gov_type,
     _kg_type,
 )

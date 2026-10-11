@@ -7,17 +7,14 @@ import os
 import re
 from typing import Any
 
+from agent_connector_sdk.vendor_extractors._records import (
+    _get,
+)
+
 
 def _slug(text: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", str(text).lower()).strip("-")
     return slug[:80] or "agent"
-
-
-def _get(record: Any, key: str, default: Any = None) -> Any:
-    """Tolerant field access for dict records (or attr-style objects)."""
-    if isinstance(record, dict):
-        return record.get(key, default)
-    return getattr(record, key, default)
 
 
 def _scalar(value: Any) -> str | None:

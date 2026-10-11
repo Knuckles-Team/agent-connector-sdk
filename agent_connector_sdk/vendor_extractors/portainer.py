@@ -14,21 +14,13 @@ from __future__ import annotations
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
+from agent_connector_sdk.vendor_extractors._records import (
+    _get,
+    _safe_call,
+)
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "portainer"
-
-
-def _get(config: Any, key: str) -> Any:
-    return config.get(key) if isinstance(config, dict) else getattr(config, key, None)
-
-
-def _call(client: Any, name: str, *args: Any) -> Any:
-    method = getattr(client, name, None)
-    try:
-        return method(*args) if callable(method) else None
-    except Exception:
-        return None
 
 
 def _rows(result: Any) -> list[dict[str, Any]]:
@@ -103,7 +95,7 @@ def _endpoint_changes(
     endpoint_entity = _endpoint_entity(endpoint_id, endpoint)
     entities = [endpoint_entity]
     relationships: list[Relationship] = []
-    for container in _rows(_call(client, "list_containers", endpoint_id)):
+    for container in _rows(_safe_call(client, "list_containers", endpoint_id)):
         entity, container_id = _container_entity(endpoint_id, container)
         entities.append(entity)
         relationships.append(
@@ -121,7 +113,7 @@ def extract(config: Any) -> ChangeSet:
 
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-    for endpoint in _rows(_call(client, "get_endpoints")):
+    for endpoint in _rows(_safe_call(client, "get_endpoints")):
         endpoint_id = endpoint.get("Id") or endpoint.get("id")
         if endpoint_id is None:
             continue
@@ -129,7 +121,7 @@ def extract(config: Any) -> ChangeSet:
         entities.extend(ents)
         relationships.extend(rels)
 
-    for stack in _rows(_call(client, "list_stacks")):
+    for stack in _rows(_safe_call(client, "list_stacks")):
         stack_id = stack.get("Id") or stack.get("id")
         if stack_id is not None:
             entities.append(_stack_entity(stack_id, stack))

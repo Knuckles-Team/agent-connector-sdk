@@ -15,13 +15,14 @@ from __future__ import annotations
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
+from agent_connector_sdk.vendor_extractors._records import (
+    _get,
+    _props,
+    _safe_call,
+)
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "mealie"
-
-
-def _get(config: Any, key: str) -> Any:
-    return config.get(key) if isinstance(config, dict) else getattr(config, key, None)
 
 
 def _rows(result: Any) -> list[dict[str, Any]]:
@@ -34,21 +35,9 @@ def _rows(result: Any) -> list[dict[str, Any]]:
     )
 
 
-def _call(client: Any, name: str) -> Any:
-    method = getattr(client, name, None)
-    try:
-        return method() if callable(method) else None
-    except Exception:
-        return None
-
-
-def _props(**fields: Any) -> dict[str, Any]:
-    return {key: value for key, value in fields.items() if value is not None}
-
-
 def _recipes(client: Any) -> list[Entity]:
     entities: list[Entity] = []
-    for recipe in _rows(_call(client, "get_recipes")):
+    for recipe in _rows(_safe_call(client, "get_recipes")):
         recipe_id = recipe.get("id") or recipe.get("slug")
         if not recipe_id:
             continue
@@ -71,7 +60,7 @@ def _recipes(client: Any) -> list[Entity]:
 def _meal_plans(client: Any) -> tuple[list[Entity], list[Relationship]]:
     entities: list[Entity] = []
     relationships: list[Relationship] = []
-    for meal_plan in _rows(_call(client, "get_households_mealplans")):
+    for meal_plan in _rows(_safe_call(client, "get_households_mealplans")):
         meal_plan_id = meal_plan.get("id")
         if meal_plan_id is None:
             continue
@@ -105,7 +94,7 @@ def _meal_plans(client: Any) -> tuple[list[Entity], list[Relationship]]:
 
 def _shopping_lists(client: Any) -> list[Entity]:
     entities: list[Entity] = []
-    for shopping_list in _rows(_call(client, "get_households_shopping_lists")):
+    for shopping_list in _rows(_safe_call(client, "get_households_shopping_lists")):
         list_id = shopping_list.get("id")
         if list_id is None:
             continue

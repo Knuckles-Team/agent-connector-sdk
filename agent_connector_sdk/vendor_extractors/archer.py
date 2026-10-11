@@ -15,47 +15,19 @@ from __future__ import annotations
 from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
+from agent_connector_sdk.vendor_extractors._records import (
+    _call_list,
+    _first,
+    _get,
+)
 from agent_connector_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "archer"
 
 
-def _get(record: Any, key: str, default: Any = None) -> Any:
-    """Tolerant field access for dict records (or attr-style objects)."""
-    if isinstance(record, dict):
-        return record.get(key, default)
-    return getattr(record, key, default)
-
-
-def _first(record: Any, *keys: str) -> Any:
-    """Return the first present, non-empty value among ``keys``."""
-    for key in keys:
-        value = _get(record, key)
-        if value is not None and value != "":
-            return value
-    return None
-
-
-def _invoke(method: Any) -> Any:
-    """Call ``method()``; on ``TypeError`` retry with an empty params dict."""
-    try:
-        return method()
-    except TypeError:
-        return method({})
-
-
 def _call(client: Any, name: str) -> list[Any]:
-    """Call a client method if present, returning a list (tolerant)."""
-    method = getattr(client, name, None)
-    if not callable(method):
-        return []
-    try:
-        result = _invoke(method)
-    except Exception:
-        return []
-    if isinstance(result, dict):
-        result = result.get("value") or result.get("items") or result.get("data") or []
-    return list(result) if result else []
+    """Call a client list-method if present, returning a list (tolerant)."""
+    return _call_list(client, name, ("value", "items", "data"))
 
 
 def _extract_kind(
