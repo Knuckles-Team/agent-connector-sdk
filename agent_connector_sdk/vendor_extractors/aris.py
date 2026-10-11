@@ -54,18 +54,21 @@ def _first(record: Any, *keys: str) -> Any:
     return None
 
 
+def _invoke(method: Any) -> Any:
+    """Call ``method()``; on ``TypeError`` retry with an empty params dict."""
+    try:
+        return method()
+    except TypeError:
+        return method({})
+
+
 def _call(client: Any, name: str) -> list[Any]:
     """Call a no-arg client method if present, returning a list (tolerant)."""
     method = getattr(client, name, None)
     if not callable(method):
         return []
     try:
-        result = method()
-    except TypeError:
-        try:
-            result = method({})
-        except Exception:
-            return []
+        result = _invoke(method)
     except Exception:
         return []
     if isinstance(result, dict):
