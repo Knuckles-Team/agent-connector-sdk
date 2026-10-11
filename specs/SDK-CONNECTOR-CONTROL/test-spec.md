@@ -3,7 +3,7 @@
 | ID | Fixture/action | Required assertion |
 |---|---|---|
 | CC-01 | Construct synthetic connector with valid manifest and registered entry point | Discovery selects exact group/name/distribution/version and server identity; direct and entry-point construction agree. |
-| CC-02 | Change input schema, output schema, entry-point version, or server identity one at a time | Certification refuses each mismatch before tool execution. |
+| CC-02 | Change input schema, output schema, entry-point version, or server identity one at a time. | Certification refuses each mismatch before tool execution. |
 | CC-03 | Publish same canonical pack twice through a fake generated client | Same idempotency key and result. Changed content yields new digest/key. |
 | CC-04 | Feed duplicate entries, bad URI scheme, undeclared kind, literal credential, or oversized body | Deterministic named refusal. No pack call and no secret in output. |
 | CC-05 | Request event/tool-choice proposal | Proposal can be logged and rejected; it cannot call write-back or grant an action. |
@@ -58,3 +58,29 @@ Pull requests run `uv sync`, focused `pytest`, Ruff, mypy, wiring checks, CCCC, 
 | CC-47 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R049.4. (`tests/test_http_payments.py::test_refusals_send_no_payment_header`) | The refusal row holds as stated. |
 | CC-48 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R049.5. (`tests/test_http_payments.py::test_every_attempt_emits_a_record`) | The evidence row holds as stated. |
 | CC-49 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R049.6. (`tests/test_http_payments_flow.py::test_served_operation_pays_within_budget_and_refuses_over`) | The hot-path proof row holds as stated. |
+
+
+## Served context acceptance
+
+All cases below bind to SDK-CONNECTOR-CONTROL-R050 and its six children.
+The planned test module is `tests/test_tool_context_served.py`.
+
+| ID | Fixture/action | Required assertion |
+|---|---|---|
+| CC-50 | Construct context and progress models with malformed fields. | Unknown state, missing identity, NaN, negative completion and excessive message length refuse. |
+| CC-51 | Two concurrent producers report completion `1`; after both finish, report `2`. Repeat with unknown total. Separately omit the token. | Emitted completion values are exactly `[1, 2]`; sequence strictly increases and completion never exceeds total. Equal-value updates may change the internal terminal summary. No token yields zero notifications and retains the terminal summary. |
+| CC-52 | Start the SDK server with condensed and method registrars; call both over MCP | Each handler receives the authenticated context. Its dispatch, logs, progress and result retain one request identity. |
+| CC-53 | Deny EG approval, expire deadline, cancel, and break progress delivery after a source effect. Reconnect after losing the terminal response. | Pre-effect refusal calls no backend. An uncertain result identifies the existing receipt. Governed reconciliation and retries produce at most one effect. Missing reconnect mapping returns `recovery_unavailable`, no reconstructed result and no second effect. |
+| CC-54 | Run concurrent calls for two tenants and inspect logs, caches and results | No state or token crosses requests. Each event carries provenance; secrets, raw arguments and cached values are absent. |
+| CC-55 | Run `test_served_context_progress_and_approval` against a running server and controlled backend | The client receives push notifications before terminal metadata. Backend counters prove allowed effects and zero denied effects. Direct helper invocation is insufficient. |
+
+The served test must include stale and wrong-operation approval, mismatched tenant,
+reused effect key with changed arguments, duplicate request, and notification loss.
+The served reconnect case must preserve the original request and effect identity across the disconnected sessions.
+Exercise it with no authenticated producer mapping and assert the typed refusal before any repeated backend call.
+Do not accept a helper-only refusal or an effect receipt as proof of terminal result retrieval.
+Approval tests assert GraphOS returns EG's decision unchanged and the SDK refuses a mismatched binding.
+Use bounded barriers to prove notification arrival before the backend completes.
+Assert no messages arrive after terminal completion and cache state is cleared.
+Record server revision, transport, exact command, result and redacted trace receipt.
+These are implementation acceptance requirements; specification checks do not run them.

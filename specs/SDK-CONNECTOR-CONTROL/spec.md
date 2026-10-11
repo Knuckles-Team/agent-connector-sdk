@@ -90,3 +90,14 @@ Every other failure, including a transport failure such as a timeout or dropped 
 On that catch it builds the captured `result` from the prompt's own listed name and arguments alone, with no server-rendered content, and keeps `capture.kind` as `template`.
 A prompt with no required argument never bound a placeholder, so the same error there is a genuine rejection and still raises.
 Any failure that is not `McpPromptRejectedError` always raises, so a server that is truly unreachable still fails the capture.
+
+## Caller-scoped context and progress
+
+SDK-CONNECTOR-CONTROL-R050 defines the shared context for every registered tool.
+Callers receive ordered progress without polling and a correlated terminal result.
+A call without a progress token emits no progress notification.
+Context state is a disposable request cache; durable knowledge remains owned by EG.
+EG owns approval decisions. GraphOS serves the authenticated approval exchange and returns EG's decision unchanged.
+The SDK checks the decision's binding before a source effect.
+Reconnect recovery refuses when its authenticated durable result producer is unavailable.
+Acceptance requires the served integration cases CC-50 through CC-55.
