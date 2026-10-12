@@ -26,3 +26,57 @@
 - [ ] **SDK-SOURCE-INGEST-R012.4:** Refusal.
 - [ ] **SDK-SOURCE-INGEST-R012.5:** Evidence.
 - [ ] **SDK-SOURCE-INGEST-R012.6:** Hot-path proof.
+
+## Concurrent stage resume
+
+- [ ] `SDK-SOURCE-INGEST-R001.1`: implement and prove model for concurrent stage resume.
+- [ ] `SDK-SOURCE-INGEST-R001.2`: implement and prove behavior for concurrent stage resume.
+- [ ] `SDK-SOURCE-INGEST-R001.3`: implement and prove wiring for concurrent stage resume.
+- [ ] `SDK-SOURCE-INGEST-R001.4`: implement and prove refusal for concurrent stage resume.
+- [ ] `SDK-SOURCE-INGEST-R001.5`: implement and prove evidence for concurrent stage resume.
+- [ ] `SDK-SOURCE-INGEST-R001.6`: implement and prove hot-path proof for concurrent stage resume.
+
+## Native SQL source execution
+
+- [ ] `SDK-SOURCE-INGEST-R004.1`: implement and prove model for native sql source execution.
+- [ ] `SDK-SOURCE-INGEST-R004.2`: implement and prove behavior for native sql source execution.
+- [ ] `SDK-SOURCE-INGEST-R004.3`: implement and prove wiring for native sql source execution.
+- [ ] `SDK-SOURCE-INGEST-R004.4`: implement and prove refusal for native sql source execution.
+- [ ] `SDK-SOURCE-INGEST-R004.5`: implement and prove evidence for native sql source execution.
+- [ ] `SDK-SOURCE-INGEST-R004.6`: implement and prove hot-path proof for native sql source execution.
+
+## Offline bookmark import
+
+- [ ] `SDK-SOURCE-INGEST-R005.7`: implement and prove model for offline bookmark import.
+- [ ] `SDK-SOURCE-INGEST-R005.8`: implement and prove behavior for offline bookmark import.
+- [ ] `SDK-SOURCE-INGEST-R005.9`: implement and prove wiring for offline bookmark import.
+- [ ] `SDK-SOURCE-INGEST-R005.10`: implement and prove refusal for offline bookmark import.
+- [ ] `SDK-SOURCE-INGEST-R005.11`: implement and prove evidence for offline bookmark import.
+- [ ] `SDK-SOURCE-INGEST-R005.12`: implement and prove hot-path proof for offline bookmark import.
+
+## Chain transaction-log decoding
+
+- [ ] `SDK-SOURCE-INGEST-R005.13`: implement and prove model for chain transaction-log decoding.
+- [ ] `SDK-SOURCE-INGEST-R005.14`: implement and prove behavior for chain transaction-log decoding.
+- [ ] `SDK-SOURCE-INGEST-R005.15`: implement and prove wiring for chain transaction-log decoding.
+- [ ] `SDK-SOURCE-INGEST-R005.16`: implement and prove refusal for chain transaction-log decoding.
+- [ ] `SDK-SOURCE-INGEST-R005.17`: implement and prove evidence for chain transaction-log decoding.
+- [ ] `SDK-SOURCE-INGEST-R005.18`: implement and prove hot-path proof for chain transaction-log decoding.
+
+## Parallel workspace document reads
+
+- [ ] `SDK-SOURCE-INGEST-R005.19`: implement and prove model for parallel workspace document reads.
+- [ ] `SDK-SOURCE-INGEST-R005.20`: implement and prove behavior for parallel workspace document reads.
+- [ ] `SDK-SOURCE-INGEST-R005.21`: implement and prove wiring for parallel workspace document reads.
+- [ ] `SDK-SOURCE-INGEST-R005.22`: implement and prove refusal for parallel workspace document reads.
+- [ ] `SDK-SOURCE-INGEST-R005.23`: implement and prove evidence for parallel workspace document reads.
+- [ ] `SDK-SOURCE-INGEST-R005.24`: implement and prove hot-path proof for parallel workspace document reads.
+
+## Interchangeable enterprise operations
+
+- [ ] `SDK-SOURCE-INGEST-R006.32`: implement and prove model for interchangeable enterprise operations.
+- [ ] `SDK-SOURCE-INGEST-R006.33`: implement and prove behavior for interchangeable enterprise operations.
+- [ ] `SDK-SOURCE-INGEST-R006.34`: implement and prove wiring for interchangeable enterprise operations.
+- [ ] `SDK-SOURCE-INGEST-R006.35`: implement and prove refusal for interchangeable enterprise operations.
+- [ ] `SDK-SOURCE-INGEST-R006.36`: implement and prove evidence for interchangeable enterprise operations.
+- [ ] `SDK-SOURCE-INGEST-R006.37`: implement and prove hot-path proof for interchangeable enterprise operations.
