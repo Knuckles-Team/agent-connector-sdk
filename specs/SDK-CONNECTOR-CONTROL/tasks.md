@@ -69,3 +69,10 @@
 - [ ] **R050.4:** Verify EG approval binding and unavailable reconnect producer refusal (SDK-CONNECTOR-CONTROL-R050.4).
 - [ ] **R050.5:** Implement and verify evidence acceptance (SDK-CONNECTOR-CONTROL-R050.5).
 - [ ] **R050.6:** Verify served progress, approval and reconnect refusal acceptance (SDK-CONNECTOR-CONTROL-R050.6).
+
+- [ ] **SDK-CONNECTOR-CONTROL-R035.1:** Model: host-bound credential use.
+- [ ] **SDK-CONNECTOR-CONTROL-R035.2:** Behavior: host-bound credential use.
+- [ ] **SDK-CONNECTOR-CONTROL-R035.3:** Wiring: host-bound credential use.
+- [ ] **SDK-CONNECTOR-CONTROL-R035.4:** Refusal: host-bound credential use.
+- [ ] **SDK-CONNECTOR-CONTROL-R035.5:** Evidence: host-bound credential use.
+- [ ] **SDK-CONNECTOR-CONTROL-R035.6:** Hot-path proof: host-bound credential use.

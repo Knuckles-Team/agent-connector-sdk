@@ -84,3 +84,19 @@ Use bounded barriers to prove notification arrival before the backend completes.
 Assert no messages arrive after terminal completion and cache state is cleared.
 Record server revision, transport, exact command, result and redacted trace receipt.
 These are implementation acceptance requirements; specification checks do not run them.
+
+
+## Scoped credential and inline authorization acceptance
+
+CC-56 through CC-61 bind SDK-CONNECTOR-CONTROL-R035.1 through R035.6 in tests/test_scoped_credential_transport.py.
+Use a real served SDK connector, controlled local OIDC/provider servers and the qualified host challenge/vault fixture.
+Enter tools/call with one granted client; assert exactly one credential resolution and authenticated provider request.
+Repeat with a co-located unrelated client, wrong tenant, expired grant and revoked authority; assert zero resolver/provider calls.
+Test environment and vault references equally; a failed vault grant cannot fall back to process-visible credentials.
+For R046, invoke the actual certify command and the served connector's credential-missing path, not only PkceAuthManager directly.
+Complete an S256 challenge through a real HTTP callback and read the host persistence receipt before observing the resumed request.
+Test browser opening failure, callback failure, absent input, input timeout, cancellation, replay and wrong-client redirect submission.
+Each case returns the named bounded outcome and creates no token exchange or resumed effect after invalidation.
+Fail vault persistence after exchange; readiness must remain false. Restart and retry through current host authority without duplicating the pending operation.
+Inspect transport and logs for codes, verifier, raw tokens, pasted responses and credential values. No public output may contain them.
+These integration cases remain NOT RUN; helper tests and spec checks do not establish runtime completion.

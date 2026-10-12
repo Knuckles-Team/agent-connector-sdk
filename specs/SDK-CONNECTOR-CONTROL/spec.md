@@ -101,3 +101,11 @@ EG owns approval decisions. GraphOS serves the authenticated approval exchange a
 The SDK checks the decision's binding before a source effect.
 Reconnect recovery refuses when its authenticated durable result producer is unavailable.
 Acceptance requires the served integration cases CC-50 through CC-55.
+
+
+## Hosted credential binding
+
+R035.1 through R035.6 require exact host-authorized tenant/client/resource bindings for every secret reference, including process-visible environment values.
+R046 uses the same host-owned challenge and vault authority for bounded inline PKCE, without blocking stdin or pasted-code files.
+GRAPHOS-IDENTITY-R023 defines the matching consumer; qualified grant, challenge and persistence ports remain missing integration.
+All added or refined work remains SPECIFIED until served integration acceptance exists.
