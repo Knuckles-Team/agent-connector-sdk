@@ -1,7 +1,7 @@
 # SDK-CONNECTOR-CONTROL — SDK connector control, certification, and pack publication
 
 **Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R024.
-**Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
+**Owner:** agent-connector-sdk.
 **Boundary:** This SDK owns source-side connector hosting, discovery, certification, pack construction, and submission. A graph service owns durable pack records and receipts; a control-plane service owns routing and activation policy. Vendor packages own their API calls.
 
 ## Outcome and scope
@@ -40,16 +40,16 @@ Clone this public repository, install `uv` and Python matching `pyproject.toml`,
 
 ## Completion rule
 
-Source is **LANDED** only after an exact merged commit contains the required implementation and checks. This spec is **ACCEPTED** only after the gates in `test-spec.md` pass against that commit and a published wheel plus a real connector pack receipt are linked in the evidence section below. Current implementation exists in `manifest/`, `certify/`, `mcp/`, `artifacts/`, and `runner/`, but fleet cutover and release acceptance are unverified here.
+Delivery evidence requires an exact merged commit that contains the required implementation and checks. Acceptance requires the gates in `test-spec.md` to pass against that commit. The evidence section below must link a published wheel and a real connector pack receipt. Current implementation exists in `manifest/`, `certify/`, `mcp/`, `artifacts/`, and `runner/`, but fleet cutover and release acceptance are unverified here.
 
 ### Evidence
 
-| Gate | Evidence | State |
-|---|---|---|
-| Exact merged SDK implementation | Pending exact commit | OPEN |
-| Five batch consumer conformance | Pending batch receipts | OPEN |
-| Published-wheel isolated consumer | Pending artifact digest and CI run | OPEN |
-| Live pack publication and idempotent retry | Pending redacted receipt | OPEN |
+| Gate | Evidence |
+| --- | --- |
+| Exact merged SDK implementation | Pending exact commit |
+| Five batch consumer conformance | Pending batch receipts |
+| Published-wheel isolated consumer | Pending artifact digest and CI run |
+| Live pack publication and idempotent retry | Pending redacted receipt |
 
 Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.
 
@@ -108,4 +108,4 @@ Acceptance requires the served integration cases CC-50 through CC-55.
 R035.1 through R035.6 require exact host-authorized tenant/client/resource bindings for every secret reference, including process-visible environment values.
 R046 uses the same host-owned challenge and vault authority for bounded inline PKCE, without blocking stdin or pasted-code files.
 GRAPHOS-IDENTITY-R023 defines the matching consumer; qualified grant, challenge and persistence ports remain missing integration.
-All added or refined work remains SPECIFIED until served integration acceptance exists.
+All added or refined work requires served integration acceptance.

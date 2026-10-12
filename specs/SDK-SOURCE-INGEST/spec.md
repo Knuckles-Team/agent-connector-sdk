@@ -1,7 +1,7 @@
 # SDK-SOURCE-INGEST — SDK source sync, drift quarantine, and adapter migration
 
 **Requirement IDs:** SDK-SOURCE-INGEST-R001, SDK-SOURCE-INGEST-R002, SDK-SOURCE-INGEST-R003, SDK-SOURCE-INGEST-R004, SDK-SOURCE-INGEST-R005, SDK-SOURCE-INGEST-R006, SDK-SOURCE-INGEST-R007, SDK-SOURCE-INGEST-R008, SDK-SOURCE-INGEST-R009.
-**Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
+**Owner:** agent-connector-sdk.
 
 ## Outcome and authority
 
@@ -36,13 +36,13 @@ Two source-adapter families extend this same contract. Adapters for GBIF and iNa
 
 ## Evidence and completion
 
-| Gate | State | Evidence |
-|---|---|---|
-| Exact merged source sync and drift implementation | OPEN | Pending commit and CI run |
-| Representative enterprise/document/feed adapter parity | OPEN | Pending source fixture receipts |
-| Durable graph checkpoint and quarantine probe | OPEN | Pending redacted runtime receipts |
+| Gate | Evidence |
+| --- | --- |
+| Exact merged source sync and drift implementation | Pending commit and CI run |
+| Representative enterprise/document/feed adapter parity | Pending source fixture receipts |
+| Durable graph checkpoint and quarantine probe | Pending redacted runtime receipts |
 
-**LANDED** requires an exact merged source commit. **ACCEPTED** requires all `test-spec.md` assertions, including a graph-backed receipt and restart proof, attached here. Existing runner, adapter, and sink modules are an implementation base, not acceptance evidence.
+Delivery evidence requires an exact merged source commit. Acceptance requires all `test-spec.md` assertions, including a graph-backed receipt and restart proof, attached here. Existing runner, adapter, and sink modules are an implementation base, not acceptance evidence.
 
 Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.
 
@@ -64,4 +64,4 @@ SDK-SOURCE-INGEST-R012 defines read/search capability inventories and ordered eq
 Every result identifies its selected backend, attempt history, typed failure and capability-specific observed health.
 Existing dispatch, HTTP and source ingestion provide the integration base. Shared fallback composition and serving registration remain unimplemented.
 The SDK does not take over semantic decisions, host authorization, visual feedback or native effects.
-Acceptance requires SI-15 through SI-20; all new requirements remain SPECIFIED.
+Acceptance requires SI-15 through SI-20.
