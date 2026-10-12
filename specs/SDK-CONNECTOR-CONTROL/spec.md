@@ -1,7 +1,7 @@
 # SDK-CONNECTOR-CONTROL — SDK connector control, certification, and pack publication
 
 **Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R024.
-**Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
+**Owner:** agent-connector-sdk.
 **Boundary:** This SDK owns source-side connector hosting, discovery, certification, pack construction, and submission. A graph service owns durable pack records and receipts; a control-plane service owns routing and activation policy. Vendor packages own their API calls.
 
 ## Outcome and scope
@@ -44,12 +44,12 @@ Delivery evidence requires an exact merged commit that contains the required imp
 
 ### Evidence
 
-| Gate | Evidence | State |
-|---|---|---|
-| Exact merged SDK implementation | Pending exact commit | OPEN |
-| Five batch consumer conformance | Pending batch receipts | OPEN |
-| Published-wheel isolated consumer | Pending artifact digest and CI run | OPEN |
-| Live pack publication and idempotent retry | Pending redacted receipt | OPEN |
+| Gate | Evidence |
+| --- | --- |
+| Exact merged SDK implementation | Pending exact commit |
+| Five batch consumer conformance | Pending batch receipts |
+| Published-wheel isolated consumer | Pending artifact digest and CI run |
+| Live pack publication and idempotent retry | Pending redacted receipt |
 
 Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.
 
