@@ -173,3 +173,9 @@ These are required future tests. None ran during definition authoring.
 
 <!-- # spec: SDK-CONNECTOR-CONTROL-R054; planned acceptance link only. -->
 <!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-consolidated-trailer-bindings-20261012 -->
+<!-- # spec: SDK-CONNECTOR-CONTROL-R051; planned acceptance link only; proposed CC-81 through CC-86. -->
+<!-- # spec: SDK-CONNECTOR-CONTROL-R052; planned acceptance link only; proposed CC-87 through CC-92. -->
+<!-- # spec: SDK-CONNECTOR-CONTROL-R053; planned acceptance link only; proposed CC-93 through CC-98. -->
+<!-- /spec-definition-patch -->

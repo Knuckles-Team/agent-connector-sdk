@@ -217,3 +217,7 @@ Current dictation routes are single-shot. These tests require a registered meeti
 | MT-14.5 | R014.5 | Persistence | corrected transcript/summary | final revision/provider provenance | `tests/test_meeting_transcript.py::test_receipt_binds_final_revision_and_provider` |
 | MT-14.6 | R014.6 | End-to-end | partial/correction/complete finalization/summary | The bound receipt precedes local/hosted summary dispatch. No summary call occurs early. | Proposed: `tests/test_meeting_transcript_served.py::test_partial_correction_complete_finalize_receipt_then_summary` |
 <!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-consolidated-r006-rollup-binding-20261012 -->
+<!-- # spec: SDK-SOURCE-INGEST-R006; rollup link to existing child test bindings R006.1 through R006.31; no new runtime evidence. -->
+<!-- /spec-definition-patch -->
