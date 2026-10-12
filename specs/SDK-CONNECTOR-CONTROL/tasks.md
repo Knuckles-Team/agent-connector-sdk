@@ -83,14 +83,18 @@
 - [ ] **SDK-CONNECTOR-CONTROL-R007.1:** Define transition, canonical inventory, receipt, and gate models bound to package and artifact identities.
 - [ ] **SDK-CONNECTOR-CONTROL-R007.2:** Evaluate every package against the target artifact in isolation; emit one complete receipt per package without changing tracked pins.
 - [ ] **SDK-CONNECTOR-CONTROL-R007.3:** Implement fleet authorization and a package-specific pre-write check; attach both to rollout and R009-R013 writers.
-- [ ] **SDK-CONNECTOR-CONTROL-R007.4:** Refuse invalid receipt sets before pin writes; preserve every pin after refusal.
+- [ ] **SDK-CONNECTOR-CONTROL-R007.4:** Preserve pins on preflight refusal. Report later package races as partial outcomes needing reconciliation.
 - [ ] **SDK-CONNECTOR-CONTROL-R007.5:** Persist reproducible, credential-free transition, inventory, receipt, suite, and authorization evidence.
-- [ ] **SDK-CONNECTOR-CONTROL-R007.6:** Prove passing and refusing flows through rollout, including missing and stale receipts and unchanged pins.
+- [ ] **SDK-CONNECTOR-CONTROL-R007.6:** Prove preflight safety; prove writer-race refusal and reconciliation.
 - [ ] Preserve existing R007 fingerprint and live-contract acceptance and R009-R013 migration acceptance; do not claim implementation evidence.
 <!-- /spec-definition-patch -->
 
 <!-- spec-definition-patch:sdk-consolidated-primary-20261012-tasks -->
 ## Consolidated SDK definitions
+- [ ] **SDK-CONNECTOR-CONTROL-R051:** Define and prove the sandbox allocation producer; runtime and served evidence remain absent.
+- [ ] **SDK-CONNECTOR-CONTROL-R052:** Define and prove visual observation transport; runtime and served evidence remain absent.
+- [ ] **SDK-CONNECTOR-CONTROL-R053:** Define and prove environment declaration export/startup binding; runtime and served evidence remain absent.
+- [ ] **SDK-CONNECTOR-CONTROL-R054:** Inventory and prove JSON tag-loader migration and parity after AU:89 owner clarification; runtime and served evidence remain absent.
 - [ ] **SDK-CONNECTOR-CONTROL-R051.1:** Model and acceptance remain unimplemented.
 - [ ] **SDK-CONNECTOR-CONTROL-R051.2:** Behavior and acceptance remain unimplemented.
 - [ ] **SDK-CONNECTOR-CONTROL-R051.3:** Wiring and acceptance remain unimplemented.

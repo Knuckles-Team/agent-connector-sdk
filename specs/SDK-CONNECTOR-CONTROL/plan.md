@@ -290,9 +290,9 @@ The existing generated archive builder remains the sole archive and hash impleme
 1. Resolve the complete package inventory and transition inputs. Bind each package to its repository, source commit, current pin, and dependency-file preimage. Bind the target major and immutable artifact digest. Canonicalize entries and hash the inventory. Stop if completeness is unknown.
 2. Define the transition, inventory, receipt, and gate models under R007.1. Evaluate every package against the target artifact in isolation under R007.2. Do not change tracked pin files. Record one complete receipt per package.
 3. Implement fleet authorization under R007.3. Check exact receipt membership and bound inputs. Refuse missing, duplicate, extra, failed, incomplete, cancelled, stale, or mismatched receipts.
-4. Attach the per-package check before the first pin write. Require the same gate in R009-R013. An incompatible package blocks the rollout and preserves every pin.
-5. Record credential-free transition, inventory, receipt, suite, and consumed authorization evidence under R007.5. Preserve existing fingerprint, live-contract, and package-migration acceptance.
-6. Prove passing and refusing flows through the real rollout entry point under R007.6. Keep the plan blocked until the producer and consumers are implemented and reachable.
+4. Attach fleet preflight before the first pin write. Recheck each package authorization and preimage before its writer's first write. Require both checks in R009-R013. Incompatible, missing, or stale preflight receipts block all writes and preserve all pins. A later package race refuses that package's write. Report applied/refused packages and reconciliation_required. Align with `PIPE-RELEASE-R001.8` through `PIPE-RELEASE-R001.12`. Do not imply rollback of earlier writes.
+5. Record credential-free transition, inventory, receipt, suite, and consumed authorization evidence under R007.5. Record each writer outcome and any partial/reconciliation state. Preserve fingerprint, live-contract, and migration acceptance.
+6. Prove passing and preflight-refusal flows through the real rollout entry point. Also test a writer-B preimage race after writer A commits. Assert B has no write and the result requires reconciliation. Do not assert rollback of A. Keep the plan blocked until producer and consumer attachments work.
 
 ### Acceptance dependencies
 
@@ -321,14 +321,14 @@ R007.1 precedes R007.2; R007.2 precedes R007.3. R007.3 and R007.4 precede R007.6
 ### SDK-CONNECTOR-CONTROL-R053
 1. SDK-CONNECTOR-CONTROL-R053.1: Define versioned EnvironmentDeclaration records. Include component/distribution, schema revision, input name, required state, type constraints, and direct/indirect read source. Store no values.
 2. SDK-CONNECTOR-CONTROL-R053.2: Plan SDK environment_manifest to list declarations for every enabled SDK component and transitive setting. This producer is absent from the public SDK surface.
-3. SDK-CONNECTOR-CONTROL-R053.3: Bind the SDK export to GraphOS HostEnvironmentManifest and its R010 startup consumer. Do not duplicate its schema or validator. AU declarations stay AU-owned.
+3. SDK-CONNECTOR-CONTROL-R053.3: Bind the SDK export to HostEnvironmentManifest. Use producer `GRAPHOS-HOST-R010.2` and consumer `GRAPHOS-HOST-R010.4`. The SDK path remains unassigned. Do not duplicate the schema or validator. AU declarations stay AU-owned.
 4. SDK-CONNECTOR-CONTROL-R053.4: Refuse startup before serving on missing, malformed, or undeclared inputs. Name the input where required. Never reveal its value.
 5. SDK-CONNECTOR-CONTROL-R053.5: Bind declaration digest, component versions, enabled set, schema revision, validation outcome, and host decision. Persist names and constraints, never values.
 6. SDK-CONNECTOR-CONTROL-R053.6: Future served tests cover enabled components and indirect reads. Test missing, malformed, and undeclared inputs. Confirm no route admission and redact secret values.
 
 ### SDK-CONNECTOR-CONTROL-R054
 1. SDK-CONNECTOR-CONTROL-R054.1: Bind each entry to package, repository, JSON digest, target, and operation IDs. Also record schemas, tags, mode, authorization reference, and refusal cases.
-2. SDK-CONNECTOR-CONTROL-R054.2: Migrate entries through register_tool_surface or register_method_tools. Keep condensed action routing as default. Preserve explicit R026/R032 opt-ins; clarify R020 wording.
+2. SDK-CONNECTOR-CONTROL-R054.2: Migrate entries through register_tool_surface or register_method_tools. Keep condensed action routing as default and preserve explicit R026/R032 opt-ins. The R020/R032 wording conflict remains unresolved for AU:89; obtain owner clarification before implementation or parity closure.
 3. SDK-CONNECTOR-CONTROL-R054.3: Bind inventory and parity checks to tools/list and tools/call through Python registration and action_dispatch. Current definitions lack a complete census and gate.
 4. SDK-CONNECTOR-CONTROL-R054.4: Preserve denied, malformed, unknown, unsupported, and schema-mismatch refusals. Any unclassified loader or unexplained difference blocks completion.
 5. SDK-CONNECTOR-CONTROL-R054.5: Record revisions, inventory digest, operation/schema/tag parity, mode, authorization/refusal comparison, and served receipt. Do not claim completion before readback.

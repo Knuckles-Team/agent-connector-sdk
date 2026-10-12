@@ -195,12 +195,12 @@ These tests are planned. They require the complete owner-approved manifest and p
 
 | Test ID | Requirement | Level | Setup and input | Expected observation | Evidence |
 |---|---|---|---|---|---|
-| HS-13.1 | R013.1 | Contract | malformed manifest | refuse before calls | version and refusal |
-| HS-13.2 | R013.2 | Integration | full sync and restart | coverage and idempotence | source outcomes |
-| HS-13.3 | R013.3 | Served | connector-sync --once | real SourceIngest calls | served receipt |
-| HS-13.4 | R013.4 | Negative | denied and cross-tenant source | typed refusal, zero calls | unchanged cursor |
-| HS-13.5 | R013.5 | Persistence | restart and independent readback | receipt fields agree | graph receipt |
-| HS-13.6 | R013.6 | End-to-end | all entries and WEBUI-APPS-R006.4 | full browse and coverage | SDK, EG, GraphOS, browser |
+| HS-13.1 | R013.1 | Contract | unbound entries | refusal before calls | `tests/test_supported_harness_session_sync.py::test_manifest_rejects_unbound_entries_before_source_calls` |
+| HS-13.2 | R013.2 | Integration | sync/restart | full coverage and idempotent resume | `tests/test_supported_harness_session_sync.py::test_first_run_coverage_retry_and_restart` |
+| HS-13.3 | R013.3 | Served | connector-sync --once | generated SourceIngest calls | `tests/test_supported_harness_session_sync_served.py::test_connector_sync_uses_generated_source_ingest` |
+| HS-13.4 | R013.4 | Negative | denied/cross-tenant source | typed refusal; zero calls; cursor unchanged | `tests/test_supported_harness_session_sync_served.py::test_denial_is_partial_without_cursor_advance` |
+| HS-13.5 | R013.5 | Persistence | restart/readback | bound receipts agree | `tests/test_supported_harness_session_sync.py::test_receipts_read_back_after_restart` |
+| HS-13.6 | R013.6 | End-to-end | every entry and WEBUI-APPS-R006.4 | full browse/coverage; EG and GraphOS IDs unassigned | `tests/test_supported_harness_session_sync_served.py::test_every_manifest_source_is_browsable` |
 
 ## Live meeting and summary providers (WEBUI:10)
 
@@ -210,10 +210,10 @@ Current dictation routes are single-shot. These tests require a registered meeti
 
 | Test ID | Requirement | Level | Setup and input | Expected observation | Evidence |
 |---|---|---|---|---|---|
-| MT-14.1 | R014.1 | Contract | malformed segment | typed refusal | schema result |
-| MT-14.2 | R014.2 | Integration | retry and correction | order; stale summary invalidated | event receipts |
-| MT-14.3 | R014.3 | Served | registered operation | real SDK and GraphOS calls | tool and route IDs |
-| MT-14.4 | R014.4 | Negative | denied capture/egress, gaps | refusal; zero provider calls | refusal receipt |
-| MT-14.5 | R014.5 | Persistence | corrected transcript and summary | provenance matches final revision | stored receipts |
-| MT-14.6 | R014.6 | End-to-end | local then hosted selection | no silent fallback | browser/provider evidence |
+| MT-14.1 | R014.1 | Contract | exact replay/conflicting duplicate | same receipt/no effect; conflict refuses | `tests/test_meeting_transcript_contract.py::test_exact_replay_and_conflicting_duplicate` |
+| MT-14.2 | R014.2 | Integration | partial/replay/correction/gap | one effect; complete before finalize | `tests/test_meeting_transcript.py::test_ordered_partial_replay_correction_and_gap_completion` |
+| MT-14.3 | R014.3 | Served | owner-registered meeting operation | real SDK/GraphOS calls; IDs unresolved | `tests/test_meeting_transcript_served.py::test_registered_operation_dispatch_and_readback` |
+| MT-14.4 | R014.4 | Negative | denied input; finalize with gap | typed refusal; zero provider calls | `tests/test_meeting_transcript_served.py::test_pending_gap_blocks_finalize_and_summary_only` |
+| MT-14.5 | R014.5 | Persistence | corrected transcript/summary | final revision/provider provenance | `tests/test_meeting_transcript.py::test_receipt_binds_final_revision_and_provider` |
+| MT-14.6 | R014.6 | End-to-end | partial/correction/complete finalization | zero premature summaries; selected local/hosted | `tests/test_meeting_transcript_served.py::test_partial_correction_finalization_defers_summary_until_complete` |
 <!-- /spec-definition-patch -->

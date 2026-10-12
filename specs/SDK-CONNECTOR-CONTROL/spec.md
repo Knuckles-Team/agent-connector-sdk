@@ -123,7 +123,7 @@ Use this producer-to-consumer order:
 2. `authorize_major_version_pin_changes(transition, inventory, receipts)` validates exact membership and freshness. It authorizes only a complete, passing set.
 3. Each package writer calls `require_package_pin_change(gate, package_id, pin_preimage)` before its first pin write. R009-R013 use this same gate.
 
-The gate checks the transition, artifact, inventory, package source, current pin, and preimage. It refuses missing, duplicate, extra, failed, incomplete, cancelled, stale, or mismatched receipts before any pin changes. Each refusal preserves every pin. One package's receipt cannot authorize another package.
+The gate checks transition, artifact, inventory, package source, current pin, and preimage. Fleet preflight refuses missing, duplicate, extra, failed, incomplete, cancelled, stale, or mismatched receipts before the first pin write. That refusal preserves every pin byte-for-byte. Each writer rechecks package authorization and preimage before its first write. A race may reject package B after package A commits. B's writer refuses its write and reports exact applied/refused package IDs. The partial outcome requires reconciliation. Align it with `PIPE-RELEASE-R001.8` through `PIPE-RELEASE-R001.12`. Do not claim the system restored A's previous pin. One package's receipt cannot authorize another package.
 
 **Implementation boundary:** `agent_connector_sdk.testing.fleet_migration.scan_many_packages` and `PackageScanResult` currently report import-scan findings only. They do not produce compatibility receipts, evaluate a target artifact, authorize rollout, or gate pin writes. The producer, gate, rollout command, and R009-R013 writer attachments remain unimplemented. R007.6 describes future proof; this definition claims no runtime behavior or test result. Existing R007 fingerprint and live-contract checks, plus R009-R013 migration obligations, remain in force.
 <!-- /spec-definition-patch -->
@@ -170,7 +170,7 @@ The SDK declares environment inputs used by enabled SDK components, including in
 
 **SDK-CONNECTOR-CONTROL-R053.2 — Behavior.** Plan SDK environment_manifest to list declarations for every enabled SDK component and transitive setting. This producer is absent from the public SDK surface.
 
-**SDK-CONNECTOR-CONTROL-R053.3 — Wiring.** Bind the SDK export to GraphOS HostEnvironmentManifest and its R010 startup consumer. Do not duplicate its schema or validator. AU declarations stay AU-owned.
+**SDK-CONNECTOR-CONTROL-R053.3 — Wiring.** Bind the SDK declaration export to GraphOS HostEnvironmentManifest. Use producer `GRAPHOS-HOST-R010.2` and startup consumer `GRAPHOS-HOST-R010.4`. Keep the SDK export path unassigned until its owner names it. Do not duplicate the schema or validator. AU declarations stay AU-owned.
 
 **SDK-CONNECTOR-CONTROL-R053.4 — Refusal.** Refuse startup before serving on missing, malformed, or undeclared inputs. Name the input where required. Never reveal its value.
 
@@ -184,7 +184,7 @@ Inventory each JSON tag loader and migrate it to Python registration with served
 
 **SDK-CONNECTOR-CONTROL-R054.1 — Model.** Bind each entry to package, repository, JSON digest, target, and operation IDs. Also record schemas, tags, mode, authorization reference, and refusal cases.
 
-**SDK-CONNECTOR-CONTROL-R054.2 — Behavior.** Migrate entries through register_tool_surface or register_method_tools. Keep condensed action routing as default. Preserve explicit R026/R032 opt-ins; clarify R020 wording.
+**SDK-CONNECTOR-CONTROL-R054.2 — Behavior.** Migrate entries through register_tool_surface or register_method_tools. Keep condensed action routing as the default. Preserve R026 and R032 opt-ins. R020 retires verbose mode, while R032 permits explicit verbose opt-in. This conflict remains unresolved in AU:89. Obtain the owner's decision before implementation or parity closure.
 
 **SDK-CONNECTOR-CONTROL-R054.3 — Wiring.** Bind inventory and parity checks to tools/list and tools/call through Python registration and action_dispatch. Current definitions lack a complete census and gate.
 

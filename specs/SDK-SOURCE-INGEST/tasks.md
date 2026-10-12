@@ -93,19 +93,21 @@
 <!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
 ## Supported-harness session sync (R013; WEBUI:3)
 
-- [ ] Obtain the approved full manifest, real source operations, and EG/GraphOS requirement IDs.
-- [ ] Reuse connector-sync --once and map identity, cursor, coverage, and outcome to SourceIngest.
-- [ ] Test retry, restart, partial denial, and cross-tenant refusal against served sources.
-- [ ] Read EG receipts and test WEBUI-APPS-R006.4 across every manifest entry.
-- [ ] Capture revision-bound evidence after independent readback.
+- [ ] **SDK-SOURCE-INGEST-R013:** Obtain the owner-approved complete harness/source manifest and exact EG/GraphOS IDs. Keep work blocked until owners register every source operation.
+- [ ] **SDK-SOURCE-INGEST-R013.1:** Define the versioned manifest and refuse unbound operations before source calls.
+- [ ] **SDK-SOURCE-INGEST-R013.2:** Prove complete first-run coverage, retry deduplication, restart resume, and visible per-source partial denial.
+- [ ] **SDK-SOURCE-INGEST-R013.3:** Wire connector-sync --once/McpToolSourceAdapter to generated SourceIngest and the approved GraphOS consumer.
+- [ ] **SDK-SOURCE-INGEST-R013.4:** Prove typed denial, zero unauthorized calls, no tenant leakage, and no denied-source cursor advance.
+- [ ] **SDK-SOURCE-INGEST-R013.5:** Persist and independently read back manifest-, identity-, revision-, cursor-, outcome-, and graph-receipt-bound evidence.
+- [ ] **SDK-SOURCE-INGEST-R013.6:** Exercise every approved entry through served discovery, EG readback, and WEBUI-APPS-R006.4; record full coverage.
 
 ## Live meeting and summary transport (R014; WEBUI:10)
 
-- [ ] Ask audio-transcriber whether transcribe_audio can serve meeting segments.
-- [ ] Otherwise identify the actual meeting operation and repository before registration.
-- [ ] Obtain EG and GraphOS IDs and admitted local/hosted provider operations.
-- [ ] Preserve dictation while adding verified segment and summary transport.
-- [ ] Test selection, refusal, zero denied effects, and no provider-class fallback.
-- [ ] Bind summary evidence to finalized transcript and provider revisions.
-- [ ] Reconcile owner IDs after review; do not claim runtime completion.
+- [ ] **SDK-SOURCE-INGEST-R014:** Obtain the real meeting operation/repository and exact EG/GraphOS/provider IDs; preserve single-shot dictation and leave unbound operations unresolved.
+- [ ] **SDK-SOURCE-INGEST-R014.1:** Define closed event/provider fields and distinguish exact receipt-bound replay from conflicting duplicate payload/revision.
+- [ ] **SDK-SOURCE-INGEST-R014.2:** Specify bounded ordered partial ingestion, idempotent replay, newer-revision corrections, and complete-sequence finalization.
+- [ ] **SDK-SOURCE-INGEST-R014.3:** Bind the owner-registered meeting operation through real SDK dispatch, EG transcript authority, and GraphOS selection.
+- [ ] **SDK-SOURCE-INGEST-R014.4:** Prove denied/stale/conflicting input and incomplete finalization/summary refusals with zero prohibited effects.
+- [ ] **SDK-SOURCE-INGEST-R014.5:** Persist redacted provenance bound to final transcript, provider revisions, authorization, and invocation receipt.
+- [ ] **SDK-SOURCE-INGEST-R014.6:** Test partial -> correction -> complete finalization with zero premature summary calls, plus independent local/hosted selection and refusals.
 <!-- /spec-definition-patch -->

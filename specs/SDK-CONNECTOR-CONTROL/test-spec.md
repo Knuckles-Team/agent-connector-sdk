@@ -128,36 +128,38 @@ These future tests have not run. The producer, gate, and writer attachments are 
 - **Positive hot path:** Enter the production rollout command and exercise real pin writers. Assert the all-pass set authorizes only bound packages across R009-R013.
 - **Incompatible hot path:** Fail one package check through the same entry point. Assert refusal before the first pin write and unchanged manifests and lockfiles.
 - **Missing and stale evidence:** Remove a receipt or change the source, pin preimage, inventory, or artifact. Assert typed refusal and no pin changes.
-- **Invalid receipt sets:** Test failed, incomplete, cancelled, duplicate, extra, and cross-package receipts. Assert refusal and no pin changes.
+- **Invalid receipt sets:** Test failed, incomplete, cancelled, duplicate, extra, and cross-package receipts. Assert preflight refusal before any write and byte-identical pins.
+- **CC-105 / R007.4:** `tests/test_major_version_compatibility_served.py::test_fleet_preflight_refusal_preserves_all_pins` proves preflight refusal preserves every pin byte-for-byte.
+- **CC-106 / R007.6:** `tests/test_major_version_compatibility_served.py::test_writer_b_preimage_race_reports_partial_rollout` races B after A writes. It proves B does not write and requires reconciliation. It identifies A as applied and B as refused.
 - **Existing acceptance:** Retain R007 fingerprint and live-contract comparison and R009-R013 package migration and import-scan tests.
 <!-- /spec-definition-patch -->
 
 <!-- spec-definition-patch:sdk-consolidated-primary-20261012-tests -->
 ## Consolidated SDK future acceptance
-- **CC-56 / SDK-CONNECTOR-CONTROL-R051.1:** Validate all identity fields and actual instance IDs.
-- **CC-57 / SDK-CONNECTOR-CONTROL-R051.2:** A replay returns the reconciled allocation without duplication.
-- **CC-58 / SDK-CONNECTOR-CONTROL-R051.3:** Exercise the served route, adapter, and result consumer.
-- **CC-59 / SDK-CONNECTOR-CONTROL-R051.4:** Negative cases observe zero unsupported or unauthorized allocations.
-- **CC-60 / SDK-CONNECTOR-CONTROL-R051.5:** Independent readback matches the bound allocation receipt.
-- **CC-61 / SDK-CONNECTOR-CONTROL-R051.6:** The served acceptance proves actual allocation and zero duplicate effects.
-- **CC-62 / SDK-CONNECTOR-CONTROL-R052.1:** Reject absent or malformed provenance and unbounded payloads.
-- **CC-63 / SDK-CONNECTOR-CONTROL-R052.2:** The next step reads the committed same-run observation only.
-- **CC-64 / SDK-CONNECTOR-CONTROL-R052.3:** A served two-step test observes matching IDs at result, state, and consumer.
-- **CC-65 / SDK-CONNECTOR-CONTROL-R052.4:** Each refusal produces zero provider effects.
-- **CC-66 / SDK-CONNECTOR-CONTROL-R052.5:** EG readback confirms provenance without returning raw content.
-- **CC-67 / SDK-CONNECTOR-CONTROL-R052.6:** The observed path proves reuse and zero effects on refusal.
-- **CC-68 / SDK-CONNECTOR-CONTROL-R053.1:** Reject duplicate declarations, literals, and unknown components.
-- **CC-69 / SDK-CONNECTOR-CONTROL-R053.2:** Undeclared reads and missing required declarations block startup.
-- **CC-70 / SDK-CONNECTOR-CONTROL-R053.3:** The served launcher consumes the SDK declaration set.
-- **CC-71 / SDK-CONNECTOR-CONTROL-R053.4:** A secret canary is absent from every refusal diagnostic.
-- **CC-72 / SDK-CONNECTOR-CONTROL-R053.5:** Independent readback reproduces the declaration set and decision.
-- **CC-73 / SDK-CONNECTOR-CONTROL-R053.6:** The healthy case serves; each negative case refuses before admission.
-- **CC-74 / SDK-CONNECTOR-CONTROL-R054.1:** The inventory covers every loader before migration.
-- **CC-75 / SDK-CONNECTOR-CONTROL-R054.2:** Served operations and schemas remain equivalent.
-- **CC-76 / SDK-CONNECTOR-CONTROL-R054.3:** Tests reach real registration, dispatch, and backend.
-- **CC-77 / SDK-CONNECTOR-CONTROL-R054.4:** Negative calls retain typed refusal and zero backend effects.
-- **CC-78 / SDK-CONNECTOR-CONTROL-R054.5:** Reconstruct the parity decision from recorded digests and results.
-- **CC-79 / SDK-CONNECTOR-CONTROL-R054.6:** The acceptance proves dispatch parity and no opt-in regression.
+- **CC-81 / SDK-CONNECTOR-CONTROL-R051.1:** Validate all identity fields and actual instance IDs.
+- **CC-82 / SDK-CONNECTOR-CONTROL-R051.2:** A replay returns the reconciled allocation without duplication.
+- **CC-83 / SDK-CONNECTOR-CONTROL-R051.3:** Exercise the served route, adapter, and result consumer.
+- **CC-84 / SDK-CONNECTOR-CONTROL-R051.4:** Negative cases observe zero unsupported or unauthorized allocations.
+- **CC-85 / SDK-CONNECTOR-CONTROL-R051.5:** Independent readback matches the bound allocation receipt.
+- **CC-86 / SDK-CONNECTOR-CONTROL-R051.6:** The served acceptance proves actual allocation and zero duplicate effects.
+- **CC-87 / SDK-CONNECTOR-CONTROL-R052.1:** Reject absent or malformed provenance and unbounded payloads.
+- **CC-88 / SDK-CONNECTOR-CONTROL-R052.2:** The next step reads the committed same-run observation only.
+- **CC-89 / SDK-CONNECTOR-CONTROL-R052.3:** A served two-step test observes matching IDs at result, state, and consumer.
+- **CC-90 / SDK-CONNECTOR-CONTROL-R052.4:** Each refusal produces zero provider effects.
+- **CC-91 / SDK-CONNECTOR-CONTROL-R052.5:** EG readback confirms provenance without returning raw content.
+- **CC-92 / SDK-CONNECTOR-CONTROL-R052.6:** The observed path proves reuse and zero effects on refusal.
+- **CC-93 / SDK-CONNECTOR-CONTROL-R053.1:** Reject duplicate declarations, literals, and unknown components.
+- **CC-94 / SDK-CONNECTOR-CONTROL-R053.2:** Undeclared reads and missing required declarations block startup.
+- **CC-95 / SDK-CONNECTOR-CONTROL-R053.3:** The served launcher consumes the SDK declaration set.
+- **CC-96 / SDK-CONNECTOR-CONTROL-R053.4:** A secret canary is absent from every refusal diagnostic.
+- **CC-97 / SDK-CONNECTOR-CONTROL-R053.5:** Independent readback reproduces the declaration set and decision.
+- **CC-98 / SDK-CONNECTOR-CONTROL-R053.6:** The healthy case serves; each negative case refuses before admission.
+- **CC-99 / SDK-CONNECTOR-CONTROL-R054.1:** The inventory covers every loader before migration.
+- **CC-100 / SDK-CONNECTOR-CONTROL-R054.2:** Served operations and schemas remain equivalent.
+- **CC-101 / SDK-CONNECTOR-CONTROL-R054.3:** Tests reach real registration, dispatch, and backend.
+- **CC-102 / SDK-CONNECTOR-CONTROL-R054.4:** Negative calls retain typed refusal and zero backend effects.
+- **CC-103 / SDK-CONNECTOR-CONTROL-R054.5:** Reconstruct the parity decision from recorded digests and results.
+- **CC-104 / SDK-CONNECTOR-CONTROL-R054.6:** The acceptance proves dispatch parity and no opt-in regression.
 
 These are required future tests. None ran during definition authoring.
 <!-- /spec-definition-patch -->

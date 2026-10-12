@@ -513,11 +513,11 @@ The current WebUI route posts to /api/enhanced/voice/transcribe after MediaRecor
 
 Keep existing dictation. Owners must identify a real meeting operation and local/hosted summary operations before implementation. Do not invent registrations.
 
-Carry meeting and tenant identity, segment and sequence, correction revision, source time, lifecycle, and provenance. Refuse gaps, stale updates, and unfinalized summaries. Corrections invalidate old summaries.
+Carry meeting and tenant identity, segment and sequence, correction revision, source time, lifecycle, and provenance. Accept bounded ordered partial ingestion. Exact bound replays return the existing receipt without a second effect. Refuse conflicting duplicates and stale updates. Corrections advance one segment revision and invalidate older summaries. Gaps may remain pending while partial. Finalization and summary dispatch refuse until the sequence is complete.
 
 Honor the user's admitted provider choice. Refuse denied capture, denied egress, and unavailable providers before effects. Never switch from local to hosted silently.
 
-Acceptance enters real SDK dispatch. It observes ordered segments and corrections. It exercises local and hosted providers separately. It reads durable provenance. It confirms denied requests produce no provider call.
+Acceptance enters real SDK dispatch. It observes ordered partials, exact replay, conflicting-duplicate refusal, and correction. It proves zero summary calls before complete-sequence finalization. It then exercises local and hosted providers separately. It reads durable provenance and confirms denied requests cause no provider call.
 
 EG and GraphOS owners supply their operation IDs. No runtime work is authorized in this definition slice.
 <!-- /spec-definition-patch -->
