@@ -65,3 +65,19 @@ Every result identifies its selected backend, attempt history, typed failure and
 Existing dispatch, HTTP and source ingestion provide the integration base. Shared fallback composition and serving registration remain unimplemented.
 The SDK does not take over semantic decisions, host authorization, visual feedback or native effects.
 Acceptance requires SI-15 through SI-20.
+
+## Typed sources and independent stage progress
+
+R001.1 through R001.6 define concurrent stages with independent generated checkpoints and restart evidence.
+R004.1 through R004.6 define native SQL rendering, execution, bounded streaming and visible terminal failure.
+R005.7 through R005.12 define offline bookmark import and deterministic local metadata extraction.
+R005.13 through R005.18 define JSON-RPC transaction-log decoding into typed trades.
+R005.19 through R005.24 define bounded parallel workspace reads of documents, spreadsheets, text and transcripts.
+R006.32 through R006.37 define interchangeable enterprise operations across separate backend connectors.
+
+These children extend the original parent requirements and acceptance without replacing them.
+Original extraction, migration, generated contract, full/delta/reconcile and governed write-back obligations remain required.
+Existing modules offer integration points; these six complete contracts and their served acceptance remain unimplemented.
+EG owns durable state, ontology, admission and query semantics. SDK runs approved source operations and preserves authoritative receipts.
+GraphOS owns hosting. AU runs received harness work without owning source progress tokens.
+Definition checks do not establish runtime acceptance.

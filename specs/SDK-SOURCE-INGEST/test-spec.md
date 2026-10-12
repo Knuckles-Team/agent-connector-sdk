@@ -62,3 +62,113 @@ Test a valid empty search, malformed successful HTTP body, forbidden redirect, s
 For the source path, pass a typed refusal through McpToolSourceAdapter.extract and assert no accepted RecordPage or checkpoint advance.
 Record served requests, actual backend traces, schema/policy revisions and redacted client responses for each operation independently.
 No live platform account is required. These integration tests have not run. They require implementation and served integration acceptance.
+
+## Concurrent stage resume
+
+The planned module is `tests/test_source_stages_served.py`. Runtime acceptance remains unexecuted.
+
+| Requirement | Case | Required assertion |
+|---|---|---|
+| `SDK-SOURCE-INGEST-R001.1` | Model | Reject duplicate streams, cycles, missing authority and unbounded concurrency before extraction. |
+| `SDK-SOURCE-INGEST-R001.2` | Behavior | Overlap two independent stages; preserve dependency order when one stage fails. |
+| `SDK-SOURCE-INGEST-R001.3` | Wiring | Enter connector-sync --once; observe worker execution, generated status reads and accepted commits. |
+| `SDK-SOURCE-INGEST-R001.4` | Refusal | Inject scope mismatch, timeout after commit, cancellation and failed dependencies; require no skipped or duplicate accepted records. |
+| `SDK-SOURCE-INGEST-R001.5` | Evidence | Compare reports with durable status after restart and check redaction. |
+| `SDK-SOURCE-INGEST-R001.6` | Hot-path proof | Prove overlapping requests, exact resume boundaries, no refetch of accepted events and no duplicate durable effects. |
+
+## Native SQL source execution
+
+The planned module is `tests/test_sql_source_served.py`. Runtime acceptance remains unexecuted.
+
+| Requirement | Case | Required assertion |
+|---|---|---|
+| `SDK-SOURCE-INGEST-R004.1` | Model | Validate parameter types, dialect, limits, snapshot and authority before database calls. |
+| `SDK-SOURCE-INGEST-R004.2` | Behavior | Run parameterized native SQL; measure memory across increasing row counts under unchanged limits. |
+| `SDK-SOURCE-INGEST-R004.3` | Wiring | Trace tools/call to the real driver and connector-sync to generated receipts without mocking dispatch. |
+| `SDK-SOURCE-INGEST-R004.4` | Refusal | Inject failure after three chunks; require visible failure, closed database handle and no silent partial success. |
+| `SDK-SOURCE-INGEST-R004.5` | Evidence | Match chunk bounds and receipts to the query; check redaction on success and failure. |
+| `SDK-SOURCE-INGEST-R004.6` | Hot-path proof | Require correct rows, native parameter binding, bounded memory, terminal failure and durable checkpoint agreement. |
+
+## Offline bookmark import
+
+The planned module is `tests/test_bookmark_source_served.py`. Runtime acceptance remains unexecuted.
+
+| Requirement | Case | Required assertion |
+|---|---|---|
+| `SDK-SOURCE-INGEST-R005.7` | Model | Validate identities, supported export shapes and local vocabulary revision. |
+| `SDK-SOURCE-INGEST-R005.8` | Behavior | Import duplicate and unknown-domain fixtures; require stable IDs, deterministic metadata and zero network or model requests. |
+| `SDK-SOURCE-INGEST-R005.9` | Wiring | Enter connector-sync --once with on-disk JSON; observe discovery, extraction and generated ingestion. |
+| `SDK-SOURCE-INGEST-R005.10` | Refusal | Prove visible failures, zero outbound calls and unchanged checkpoints for malformed input and path escapes. |
+| `SDK-SOURCE-INGEST-R005.11` | Evidence | Read accepted provenance from the graph and reproduce metadata from identical bytes. |
+| `SDK-SOURCE-INGEST-R005.12` | Hot-path proof | Assert exact metadata, zero external-service attempts, stable reimport and no advancement for rejected pages. |
+
+## Chain transaction-log decoding
+
+The planned module is `tests/test_chain_source_served.py`. Runtime acceptance remains unexecuted.
+
+| Requirement | Case | Required assertion |
+|---|---|---|
+| `SDK-SOURCE-INGEST-R005.13` | Model | Validate chain, contract, signature, decoder revision and exact numeric representation without float rounding. |
+| `SDK-SOURCE-INGEST-R005.14` | Behavior | Decode known logs into exact typed trades; preserve identity across duplicate delivery. |
+| `SDK-SOURCE-INGEST-R005.15` | Wiring | Trace registered tools/call through governed HTTP to a controlled JSON-RPC endpoint and generated ingestion. |
+| `SDK-SOURCE-INGEST-R005.16` | Refusal | Inject malformed logs, RPC errors, wrong identity and changed block hashes; require visible rejection and zero invalid durable trades. |
+| `SDK-SOURCE-INGEST-R005.17` | Evidence | Compare graph readback with RPC requests and decoder input digests; check redaction. |
+| `SDK-SOURCE-INGEST-R005.18` | Hot-path proof | Observe bounded ranges, exact trades, rejection reports and durable checkpoint refusal. |
+
+## Parallel workspace document reads
+
+The planned module is `tests/test_workspace_read_served.py`. Runtime acceptance remains unexecuted.
+
+| Requirement | Case | Required assertion |
+|---|---|---|
+| `SDK-SOURCE-INGEST-R005.19` | Model | Validate formats and bounds; visibly refuse unsupported legacy or undeclared formats. |
+| `SDK-SOURCE-INGEST-R005.20` | Behavior | Read all five format families from one folder; measure overlap and bounds while preserving bytes and locations. |
+| `SDK-SOURCE-INGEST-R005.21` | Wiring | Trace real tools/call into on-disk parsers and certified sync into generated ingestion. |
+| `SDK-SOURCE-INGEST-R005.22` | Refusal | Test unsupported suffix, mismatched magic, broken documents, parser absence, escape and cancellation beside successful files. |
+| `SDK-SOURCE-INGEST-R005.23` | Evidence | Compare before/after hashes; match graph provenance to successful files. |
+| `SDK-SOURCE-INGEST-R005.24` | Hot-path proof | Require exact locations, bounded peak tasks, immutable inputs and independent checkpoint behavior for failed files. |
+
+## Interchangeable enterprise operations
+
+The planned module is `tests/test_enterprise_adapters_served.py`. Runtime acceptance remains unexecuted.
+
+| Requirement | Case | Required assertion |
+|---|---|---|
+| `SDK-SOURCE-INGEST-R006.32` | Model | Validate common schemas and distinguish unsupported operations from empty successful reads. |
+| `SDK-SOURCE-INGEST-R006.33` | Behavior | Swap two separately registered connectors without changing workflow requests or result handling; compare normalized outcomes. |
+| `SDK-SOURCE-INGEST-R006.34` | Wiring | Enter both connectors through tools/call; trace backend requests and governed effects. |
+| `SDK-SOURCE-INGEST-R006.35` | Refusal | Request unsupported operations and denied writes; assert typed reasons and zero effects. |
+| `SDK-SOURCE-INGEST-R006.36` | Evidence | Compare connector receipts against identical workflow contracts; check redacted failure evidence. |
+| `SDK-SOURCE-INGEST-R006.37` | Hot-path proof | Require wire calls, stable schema, backend identity evidence and zero refused-operation requests. |
+
+## Resource and restart measurements
+
+The SQL acceptance fixture runs 10,000 and 1,000,000 rows with identical column widths and chunk limits.
+Run each size in three separate warmed processes and record baseline RSS, peak RSS and queue high-water marks.
+Each run must remain within a declared 32-MiB incremental memory budget after warmup.
+The median peak for the larger result must not exceed the smaller result's median by more than eight MiB.
+Record platform, driver and fixture versions. A threshold failure remains a failure; no post-hoc bound change establishes flat memory.
+Inject a native driver error after the third emitted chunk and inspect the actual receiving client's terminal result.
+Require query_failed, incomplete query identity, closed database handle and no fourth chunk or successful completion.
+Distinguish previously accepted page receipts from the failed page and read checkpoint state from the graph.
+
+The stage restart test uses two source stages and one receipt-dependent stage.
+Pause one source after extraction while another commits, then stop the worker process.
+Restart the actual CLI, collect source request boundaries and compare them with generated durable status.
+No accepted event may be fetched again; ambiguous unacknowledged pages may replay only with unchanged idempotency identities.
+The graph must contain each accepted source identity exactly once. Blocked dependent stages must emit no source requests.
+
+The bookmark test records attempted external source access, not only successful connections.
+Permit only the isolated graph transport; reject every external HTTP, DNS and model request.
+Check local extraction still returns all declared metadata and records unknown domains explicitly.
+
+Workspace fixtures contain real PDF, DOCX, XLSX, TXT, VTT and SRT bytes, plus unsupported and corrupt files.
+Capture start/end timestamps to prove at least two reads overlap while peak active readers never exceeds two.
+Hash every input before and after execution. Check sheet/cell, page/paragraph, line and cue locations.
+Test compressed expansion limits, symlink escape and changed-file digests through the same served entry point.
+An unsupported file remains visible beside successful files and receives no accepted progress token.
+
+Enterprise acceptance registers two separately packaged connectors against distinct local backend services.
+Send identical list_accounts and read_invoice contracts before and after changing only the approved connector selection.
+Inspect normalized records and backend request logs. Exercise create_invoice through governed approval and idempotency.
+Repeat an effect with the same identity and assert one effect; denied and unsupported effects produce zero backend requests.

@@ -154,3 +154,213 @@ Decision: reuse the SDK dispatcher, governed HTTP, certification and SourceAdapt
 Rejected alternative: a separate routing service that selects semantic actions or introduces another health authority and ingestion store.
 Operational status is bounded observation; it is neither EG knowledge nor an authorization decision.
 References: the source motivates ordered per-channel backends and observed status; no arXiv derivation is claimed.
+
+## Source contract extension design
+
+The six contracts extend R001, R004, R005 and R006 without replacing any original acceptance.
+Each six-child sequence orders Model, Behavior, Wiring, Refusal, Evidence and Hot-path proof.
+Implementations and served acceptance for these extensions are absent. Existing receipts establish only their original scopes.
+No new durable store, semantic planner, authorization service or scheduler is introduced.
+
+### Shared production attachments and authority
+
+Component: Source ingestion
+Depends-on: SDK-GOVERNED-WRITEBACK-R001, SDK-CONNECTOR-CONTROL-R021
+Depends-on: [Source ingestion authority](https://github.com/Knuckles-Team/epistemic-graph/blob/fe6982b29d0b60ad2a10092c959c238eeb74e919/specs/repository-index-and-ingestion/requirements.md)
+Depends-on: [Approved query execution](https://github.com/Knuckles-Team/epistemic-graph/blob/fe6982b29d0b60ad2a10092c959c238eeb74e919/specs/federated-query-and-reasoning/requirements.md)
+Code: `../../agent_connector_sdk/runner/worker.py:150` `../../agent_connector_sdk/runner/syncing.py:200`
+Code: `../../agent_connector_sdk/mcp/action_dispatch.py:194` `../../agent_connector_sdk/ports/source_adapter.py:21`
+
+```mermaid
+flowchart LR
+    Caller[Authenticated caller] --> Registry[Connector tool registration]
+    Registry --> Dispatch[SDK dispatch_async]
+    Dispatch --> Source[Connector source method]
+    Source --> Backend[Database / node / local file / enterprise API]
+    Runner[connector-sync worker] --> Adapter[Certified SourceAdapter]
+    Adapter --> Source
+    Adapter --> Sync[sync_stream receipt validation]
+    Sync --> EG[Generated SourceIngest]
+    EG --> Progress[Durable checkpoint]
+    Progress --> Runner
+```
+
+Data flow: connector tools/call -> register_tool_surface -> dispatch_async -> connector-owned source method -> typed adapter -> generated ingestion.
+The ingestion entry is connector-sync --once at `agent_connector_sdk/runner/cli.py:153`.
+ConnectorWorker._sync at `agent_connector_sdk/runner/worker.py:180` calls sync_stream at `agent_connector_sdk/runner/syncing.py:200`.
+sync_stream reads source_status before extraction and submits each page through commit_page at line 106.
+EpistemicGraphSink at `agent_connector_sdk/sinks/epistemic_graph.py:91` bridges the generated source contract.
+SourceAdapter at `agent_connector_sdk/ports/source_adapter.py:21` remains the common discovery, extraction and reconciliation interface.
+Connector registrars attach tools through `agent_connector_sdk/mcp/tool_surface.py:121`.
+Their handlers use dispatch_async at `agent_connector_sdk/mcp/action_dispatch.py:194`.
+McpToolSourceAdapter.extract at `agent_connector_sdk/adapters/mcp_tool.py:118` calls the source tool before mapping records.
+The implementations must preserve typed refusals across that boundary instead of mapping them into empty successful pages.
+GraphOS offers authenticated hosting and admission. AU consumes typed results and runs received harness calls.
+EG alone owns durable checkpoints, graph interpretation, ontology and semantic query decisions.
+
+Dependencies:
+- R001.3 depends on R001.1 and R001.2; R001.6 requires R001.3 through R001.5.
+- R004.3 depends on R004.1 and R004.2; R004.6 requires R004.3 through R004.5.
+- R005.9 depends on R005.7 and R005.8; R005.12 requires R005.9 through R005.11.
+- R005.15 depends on R005.13 and R005.14; R005.18 requires R005.15 through R005.17.
+- R005.21 depends on R005.19 and R005.20; R005.24 requires R005.21 through R005.23.
+- R006.34 depends on R006.32 and R006.33; R006.37 requires R006.34 through R006.36.
+
+Cross-repository rows:
+- [EG-REPO-INGEST-R002](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/repository-index-and-ingestion/requirements.md) owns generated SourceIngest authority.
+- [EG-FEDERATED-QUERY-R015](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/requirements.md) owns read-only SQL enforcement.
+- [EG-FEDERATED-QUERY-R043](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/requirements.md) owns outbound SQL connection admission.
+- [EG-FEDERATED-QUERY-R069](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/requirements.md) owns semantic SQL pushdown and shared rendering.
+- [SDK-GOVERNED-WRITEBACK-R001](../SDK-GOVERNED-WRITEBACK/requirements.md) owns the governed write-back transport prerequisite for enterprise effects.
+- [SDK-CONNECTOR-CONTROL-R021](../SDK-CONNECTOR-CONTROL/requirements.md) owns declared source access contracts.
+
+These are prerequisites, not proof that the consuming source methods are implemented.
+The SQL connector consumes an approved query operation; an absent generated producer binding must remain an explicit implementation blocker.
+Related references: R012 covers alternative read backends, not common enterprise operations.
+R005.1 through R005.6 cover independent paper providers, not these local-file formats or transaction logs.
+R006.1 through R006.31 retain vendor extraction acceptance; normalized read extraction alone cannot satisfy enterprise effects.
+Concurrency values come from admitted configuration. SDK enforces them without choosing scheduling policy.
+
+### Concurrent stage resume: R001.1 through R001.6
+
+Existing code: ConnectorSyncRunner.run_once at `agent_connector_sdk/runner/supervisor.py:62` already runs separate connectors concurrently.
+ConnectorWorker._cycle at `agent_connector_sdk/runner/worker.py:150` still runs one connector's presets sequentially.
+sync_stream at `agent_connector_sdk/runner/syncing.py:200` already reads the accepted durable checkpoint for each stream.
+Reachable today: no. Concurrent connector cycles exist; independently resumable concurrent stages within a source remain missing.
+
+StageDescriptor fields are stage_id, tenant, connector, source, stream, manifest_digest, dependencies and admitted_limits.
+Dependencies name stage identities and required receipt identities; a validated acyclic graph fixes their order.
+Limits contain positive maximum active stages, page rows, page bytes, queued pages and a deadline.
+Missing limits refuse before scheduling. Tests use two active stages and a single queued page per stream.
+StageResult contains stage_id, outcome, previous_checkpoint, offered_checkpoint, accepted_receipt, dependency_receipts and reason.
+Outcomes are complete, failed, blocked or cancelled; failed and blocked stages never acquire another stage's success receipt.
+Different stages use distinct generated stream identities. They cannot share a mutable progress token or local checkpoint file.
+The runner obtains a fresh source_status for each stage at process start and after ambiguous commit responses.
+Extraction requests events strictly newer than the accepted progress token; equal-boundary events are never new events.
+Retries may redeliver an unacknowledged page with the same idempotency key; durable acceptance must remain exactly once.
+A cancelled stage closes its source session after observing any in-flight commit outcome through durable readback.
+Successful independent stages retain their receipts when a sibling fails. Dependent stages remain blocked until prerequisites commit.
+The aggregate run remains incomplete while any required stage fails, blocks or cancels.
+Decision: extend the worker preset loop and retain sync_stream's receipt validation.
+Rejected alternative: a second pipeline engine with local stage progress tokens or new scheduling policy.
+
+### Native SQL transport: R004.1 through R004.6
+
+Existing code: SourceAdapter, McpToolSourceAdapter and sync_stream implement paging and durable acceptance.
+Searches for SQL, fetchmany and database execution found no native SQL driver path in the SDK adapter package.
+Reachable today: no. Generated source submission does not generate or execute database queries.
+
+DatabaseRequest fields are request_id, tenant, principal, source, operation_digest, dialect, parameters, snapshot_id and limits.
+Input is an engine-approved relational operation or an approved parameterized statement, never an unconstrained natural-language instruction.
+The connector renders only admitted operation structure into its declared database dialect and binds parameters through the driver.
+Identifiers require the approved schema mapping; parameter binding cannot substitute for identifier validation.
+The connector does not change semantic predicates, authorization scope, selected source or query planning.
+An unsupported operation or dialect refuses; SDK must not replace the missing engine producer with local inference.
+Chunk fields are query_id, snapshot_id, sequence, typed_columns, rows, row_count, byte_count and continuation.
+TerminalResult fields are query_id, outcome, total_rows, total_bytes, last_sequence and reason.
+Only complete completes successfully. A disconnected stream without TerminalResult remains incomplete.
+Every continuation binds authority, schema, query digest and snapshot. Snapshot changes require a typed refusal.
+The approved read-only driver session enforces no DDL, DML or multiple-statement escape.
+Driver progress tokens use bounded fetches, bounded queues and downstream backpressure; no fetch-all or hidden result accumulation.
+Test limits are 256 rows, one MiB per chunk and two queued chunks; production uses validated admitted bounds.
+Cancellation and any driver failure close the database handle, stop fetching and produce a visible typed terminal failure.
+Already accepted pages remain visible receipts; failure never retroactively labels the overall query complete.
+A failed page advances no checkpoint, and an ambiguous accepted page requires durable readback before retry.
+Decision: reuse the source adapter and generated ingestion path with native driver streaming.
+Rejected alternative: treating graph submission as SQL execution or returning a successful list after truncating an errored stream.
+
+### Offline bookmark JSON: R005.7 through R005.12
+
+Existing code: `agent_connector_sdk/vendor_extractors/social.py:160` extracts hashtags, mentions and known tools from structured records.
+Its URL helper at line 143 reads embedded URL fields; its domain helper at line 82 performs local hostname parsing.
+The extractor returns an empty ChangeSet for missing record identity; the new adapter must visibly refuse that malformed input.
+Reachable today: no. Local helpers exist; bookmark-file discovery, pagination and domain-category output remain absent.
+
+BookmarkRequest binds root authority, relative_path, file_digest, export_revision, mapping_revision and limits.
+BookmarkRecord fields include bookmark_id, source_text, hashtags, urls, tool_mentions, domain_category and provenance.
+The supported export profile declares JSON array or bounded item-stream structure and required identity/text/entity fields.
+Unsupported export versions refuse. A changed file digest invalidates a continuation rather than merging different snapshots.
+A versioned local vocabulary maps exact tool names and hostnames; domain categories describe that mapping, not inferred graph knowledge.
+Unknown mappings emit null category and preserve the hostname. No semantic classification or model call fills missing values.
+URL normalization preserves original bytes and source locations; normalization never triggers DNS, HTTP, previews or link expansion.
+Stable record keys bind source export identity and bookmark ID; identical content reimport creates no duplicate accepted record.
+Limits bound file bytes, per-record bytes and records per page. Fixtures use two records per page and a one-MiB file cap.
+Malformed records report record location and typed reason; the page remains unaccepted until corrected.
+Decision: wrap the existing deterministic extractor and add missing file/schema/category handling.
+Rejected alternative: a network enrichment service or duplicate metadata extractor.
+
+### JSON-RPC chain logs: R005.13 through R005.18
+
+Existing code: EventFeedSourceAdapter.extract at `agent_connector_sdk/adapters/event_feed.py:133` reads tool pages and validates event envelopes.
+Reachable today: no. Envelope validation does not decode node transaction logs or establish a registered JSON-RPC node method.
+Reuse create_async_http_client at `agent_connector_sdk/http/client.py:97` for governed transport.
+Connector packages own chain-specific event schemas and node calls; the SDK owns the typed extraction and refusal contract.
+
+ChainLogRequest binds chain_id, contract_id, event_signature, decoder_revision, from_block, to_block, authority and limits.
+TradeRecord binds block_number, block_hash, transaction_hash, log_index, asset_ids, integer_amounts, scales, side and timestamp.
+The declared decoder fixes amount units and side mapping. Unknown layouts, signatures or scales refuse before typed records exist.
+Cursor order is block number, transaction position and log index, pinned to chain and decoder revision.
+The source marks the queried range complete only after every returned log validates and the page receives durable acceptance.
+Duplicate transport delivery uses stable event IDs; neither response arrival order nor float conversion changes identity or values.
+Tests cap JSON-RPC requests at ten blocks and 100 events; admitted production limits may differ.
+RPC errors, malformed bodies and undecodable logs return typed source failures rather than empty successful pages.
+Inconsistent block hashes refuse and preserve the accepted progress token for engine-owned reconciliation.
+No trade from a rejected page enters durable storage; rejected-event reports retain identity, digest and reason.
+Decision: attach a node decoder to the existing certified event-feed path.
+Rejected alternative: treating generic event envelopes or finance reads as proof of chain decoding.
+
+### Workspace format reads: R005.19 through R005.24
+
+Existing code: McpToolSourceAdapter.extract and the worker offer tool calls and typed source-page acceptance.
+WebFetchSourceAdapter at `agent_connector_sdk/adapters/web_fetch.py:182` handles URL pages, not these local binary formats.
+Searches for document, transcript and PDF found no bounded parallel workspace reader in the adapter package.
+Reachable today: no. The declared format reader and concrete connector registration are missing.
+
+WorkspaceReadRequest binds tenant, root authority, relative_paths, format_profile, parser_versions and limits.
+FileOutcome binds path identity, digest, format, parser revision, locations, content, outcome and reason.
+The profile supports PDF, DOCX, XLSX, UTF-8 plain text and UTF-8 transcript profiles including VTT and SRT.
+Legacy binary office formats require separate declared support; absence returns unsupported_type rather than guessed text.
+Document locations use page and paragraph; spreadsheets use sheet and cell coordinates; transcripts retain cue timestamps.
+Plain text retains line offsets. A file without requested content reports absence without inventing text.
+The request captures an immutable manifest of path, size and digest; changed files refuse rather than mixing snapshots.
+Enforce the resolved authorized root at open time. Symlink escapes and parent traversal refuse without reading outside it.
+Parsers process local bytes only and cannot execute macros or follow external relationships.
+Compressed office formats require a decompressed-byte bound; compressed size alone cannot prevent memory exhaustion.
+Tests use two concurrent files, ten-MiB per file, 100 pages and a 30-second deadline.
+A file failure yields an explicit per-file outcome; mixed results remain partial, with no fabricated successful content.
+Each file uses its own generated source stream for ingestion so one failure cannot advance another file's progress token.
+The result order follows the request's normalized path list while runtime traces prove actual overlapping reads.
+Decision: reuse dispatch and source ingestion with bounded local parsers.
+Rejected alternative: AU-owned source schemas, a duplicate progress token store or sequential execution labelled as parallel.
+
+### Enterprise operation interchange: R006.32 through R006.37
+
+Existing code: `agent_connector_sdk/vendor_extractors/odoo.py:74` and `agent_connector_sdk/vendor_extractors/erpnext.py:91` normalize read extraction.
+Reachable today: no. These readers do not expose one interchangeable enterprise operation port or its served methods.
+Reuse vendor extraction types, certified registration and the governed write-back port; keep backend APIs in separate connectors.
+
+EnterpriseOperation binds request_id, tenant, company_id, contract_revision, operation, typed_parameters and authority.
+EnterpriseCapability binds connector identity/version, company scope, supported operations and input/output schema digests.
+EnterpriseResult binds request_id, connector identity, operation, contract_revision, outcome, records, effect_receipt and typed reason.
+Read-only calls return typed records; effecting calls require the existing generated approved change-set and governed effect receipt.
+No local approval token or replacement write-back DTO is introduced.
+The initial conformance operations are list_accounts, read_invoice and create_invoice; supported subsets are declared per connector.
+Normalized account fields are source_id, account_code, label, account_kind and currency.
+Invoice fields are source_id, company_id, counterparty_id, currency, amount_minor, scale, status and issued_at.
+Adapters preserve exact amounts and timezone-bearing timestamps; incompatible field semantics return schema_mismatch.
+Unsupported operations return unsupported_operation before driver or HTTP calls. They never trigger fallback to another connector.
+Backend choice comes from the caller's approved configuration. The workflow uses the same contract before and after that choice changes.
+A create_invoice request enters governed write-back with approval, optimistic precondition and idempotency evidence.
+A read method cannot execute effects or synthesize an effect receipt from accepted graph ingestion.
+Decision: add a common operation boundary and adapt existing backend readers.
+Rejected alternative: claiming interchangeability from matching extractor output or provider-profile selection alone.
+
+### Acceptance evidence
+
+Each Hot-path proof row names its planned integration test. Those tests and runtime receipts do not exist for these complete contracts.
+Use actual connector registration and wire dispatch, real local SQL/HTTP services, on-disk format fixtures and a running graph.
+The graph service may be test-provisioned; mocks of ingestion or dispatcher calls cannot prove durable acceptance.
+Record exact source revision, commands, registration, request traces, resource measurements and redacted generated receipts.
+Keep unsupported operations, malformed records, interrupted streams and failed stages visible through the same receiving client.
+Definition gates and existing helper tests do not close these acceptance rows.
+References: no research-paper derivation is claimed for these six contracts.

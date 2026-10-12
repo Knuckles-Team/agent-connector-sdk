@@ -58,7 +58,43 @@
     "SDK-SOURCE-INGEST-R012.3",
     "SDK-SOURCE-INGEST-R012.4",
     "SDK-SOURCE-INGEST-R012.5",
-    "SDK-SOURCE-INGEST-R012.6"
+    "SDK-SOURCE-INGEST-R012.6",
+    "SDK-SOURCE-INGEST-R001.1",
+    "SDK-SOURCE-INGEST-R001.2",
+    "SDK-SOURCE-INGEST-R001.3",
+    "SDK-SOURCE-INGEST-R001.4",
+    "SDK-SOURCE-INGEST-R001.5",
+    "SDK-SOURCE-INGEST-R001.6",
+    "SDK-SOURCE-INGEST-R004.1",
+    "SDK-SOURCE-INGEST-R004.2",
+    "SDK-SOURCE-INGEST-R004.3",
+    "SDK-SOURCE-INGEST-R004.4",
+    "SDK-SOURCE-INGEST-R004.5",
+    "SDK-SOURCE-INGEST-R004.6",
+    "SDK-SOURCE-INGEST-R005.7",
+    "SDK-SOURCE-INGEST-R005.8",
+    "SDK-SOURCE-INGEST-R005.9",
+    "SDK-SOURCE-INGEST-R005.10",
+    "SDK-SOURCE-INGEST-R005.11",
+    "SDK-SOURCE-INGEST-R005.12",
+    "SDK-SOURCE-INGEST-R005.13",
+    "SDK-SOURCE-INGEST-R005.14",
+    "SDK-SOURCE-INGEST-R005.15",
+    "SDK-SOURCE-INGEST-R005.16",
+    "SDK-SOURCE-INGEST-R005.17",
+    "SDK-SOURCE-INGEST-R005.18",
+    "SDK-SOURCE-INGEST-R005.19",
+    "SDK-SOURCE-INGEST-R005.20",
+    "SDK-SOURCE-INGEST-R005.21",
+    "SDK-SOURCE-INGEST-R005.22",
+    "SDK-SOURCE-INGEST-R005.23",
+    "SDK-SOURCE-INGEST-R005.24",
+    "SDK-SOURCE-INGEST-R006.32",
+    "SDK-SOURCE-INGEST-R006.33",
+    "SDK-SOURCE-INGEST-R006.34",
+    "SDK-SOURCE-INGEST-R006.35",
+    "SDK-SOURCE-INGEST-R006.36",
+    "SDK-SOURCE-INGEST-R006.37"
   ],
   "requirements": [
     {
@@ -66,7 +102,15 @@
       "title": "SDK runner completes on generated ConnectorPack and SourceIngest contracts",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-SOURCE-INGEST-R001.1",
+        "SDK-SOURCE-INGEST-R001.2",
+        "SDK-SOURCE-INGEST-R001.3",
+        "SDK-SOURCE-INGEST-R001.4",
+        "SDK-SOURCE-INGEST-R001.5",
+        "SDK-SOURCE-INGEST-R001.6"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R002",
@@ -94,7 +138,7 @@
     {
       "id": "SDK-SOURCE-INGEST-R004",
       "title": "SDK runner performs enterprise source synchronization",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "23f241b07560",
         "3735e4434463",
@@ -105,6 +149,14 @@
         "tests/test_ingest.py:177",
         "tests/test_ingest.py:194",
         "tests/test_ingest.py:222"
+      ],
+      "rollup_of": [
+        "SDK-SOURCE-INGEST-R004.1",
+        "SDK-SOURCE-INGEST-R004.2",
+        "SDK-SOURCE-INGEST-R004.3",
+        "SDK-SOURCE-INGEST-R004.4",
+        "SDK-SOURCE-INGEST-R004.5",
+        "SDK-SOURCE-INGEST-R004.6"
       ]
     },
     {
@@ -127,7 +179,25 @@
         "SDK-SOURCE-INGEST-R005.3",
         "SDK-SOURCE-INGEST-R005.4",
         "SDK-SOURCE-INGEST-R005.5",
-        "SDK-SOURCE-INGEST-R005.6"
+        "SDK-SOURCE-INGEST-R005.6",
+        "SDK-SOURCE-INGEST-R005.7",
+        "SDK-SOURCE-INGEST-R005.8",
+        "SDK-SOURCE-INGEST-R005.9",
+        "SDK-SOURCE-INGEST-R005.10",
+        "SDK-SOURCE-INGEST-R005.11",
+        "SDK-SOURCE-INGEST-R005.12",
+        "SDK-SOURCE-INGEST-R005.13",
+        "SDK-SOURCE-INGEST-R005.14",
+        "SDK-SOURCE-INGEST-R005.15",
+        "SDK-SOURCE-INGEST-R005.16",
+        "SDK-SOURCE-INGEST-R005.17",
+        "SDK-SOURCE-INGEST-R005.18",
+        "SDK-SOURCE-INGEST-R005.19",
+        "SDK-SOURCE-INGEST-R005.20",
+        "SDK-SOURCE-INGEST-R005.21",
+        "SDK-SOURCE-INGEST-R005.22",
+        "SDK-SOURCE-INGEST-R005.23",
+        "SDK-SOURCE-INGEST-R005.24"
       ]
     },
     {
@@ -175,7 +245,7 @@
     {
       "id": "SDK-SOURCE-INGEST-R006",
       "title": "SDK packs own vendor enrichment extraction and write-back",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "b55555566da2"
       ],
@@ -211,7 +281,13 @@
         "SDK-SOURCE-INGEST-R006.28",
         "SDK-SOURCE-INGEST-R006.29",
         "SDK-SOURCE-INGEST-R006.30",
-        "SDK-SOURCE-INGEST-R006.31"
+        "SDK-SOURCE-INGEST-R006.31",
+        "SDK-SOURCE-INGEST-R006.32",
+        "SDK-SOURCE-INGEST-R006.33",
+        "SDK-SOURCE-INGEST-R006.34",
+        "SDK-SOURCE-INGEST-R006.35",
+        "SDK-SOURCE-INGEST-R006.36",
+        "SDK-SOURCE-INGEST-R006.37"
       ]
     },
     {
@@ -774,6 +850,258 @@
     },
     {
       "id": "SDK-SOURCE-INGEST-R012.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R001.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R001.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R001.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R001.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R001.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R001.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.7",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.8",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.9",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.10",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.11",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.12",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.13",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.14",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.15",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.16",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.17",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.18",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.19",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.20",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.21",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.22",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.23",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.24",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.32",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.33",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.34",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.35",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.36",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R006.37",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
