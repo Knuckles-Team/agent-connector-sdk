@@ -75,7 +75,7 @@ The planned test module is `tests/test_tool_context_served.py`.
 | CC-55 | Run `test_served_context_progress_and_approval` against a running server and controlled backend | The client receives push notifications before terminal metadata. Backend counters prove allowed effects and zero denied effects. Direct helper invocation is insufficient. |
 
 The served test must include stale and wrong-operation approval, mismatched tenant,
-reused effect key with changed arguments, duplicate request, and notification loss.
+reused effect key with changed arguments. Also exercise duplicate requests and notification loss.
 The served reconnect case must preserve the original request and effect identity across the disconnected sessions.
 Exercise it with no authenticated producer mapping and assert the typed refusal before any repeated backend call.
 Do not accept a helper-only refusal or an effect receipt as proof of terminal result retrieval.
@@ -84,3 +84,36 @@ Use bounded barriers to prove notification arrival before the backend completes.
 Assert no messages arrive after terminal completion and cache state is cleared.
 Record server revision, transport, exact command, result and redacted trace receipt.
 These are implementation acceptance requirements; specification checks do not run them.
+
+
+## Scoped credential and inline authorization acceptance
+
+CC-56 through CC-61 bind SDK-CONNECTOR-CONTROL-R035.1 through R035.6 in tests/test_scoped_credential_transport.py.
+Use a real served SDK connector, controlled local OIDC/provider servers and the qualified host challenge/vault fixture.
+Enter tools/call with one granted client; assert exactly one credential resolution and authenticated provider request.
+Repeat with a co-located unrelated client, wrong tenant, expired grant and revoked authority; assert zero resolver/provider calls.
+Test environment and vault references equally; a failed vault grant cannot fall back to process-visible credentials.
+For R046, invoke the actual certify command and the served connector's credential-missing path, not only PkceAuthManager directly.
+Complete an S256 challenge through a real HTTP callback and read the host persistence receipt before observing the resumed request.
+Test browser opening failure, callback failure, absent input, input timeout, cancellation, replay and wrong-client redirect submission.
+Each case returns the named bounded outcome and creates no token exchange or resumed effect after invalidation.
+Fail vault persistence after exchange; readiness must remain false. Restart and retry through current host authority without duplicating the pending operation.
+Inspect transport and logs for codes, verifier, raw tokens, pasted responses and credential values. No public output may contain them.
+These integration cases remain NOT RUN; helper tests and spec checks do not establish runtime completion.
+
+
+### Served connector and token-profile acceptance
+
+Extend the existing named served credential/PKCE tests through actual REST/MCP ingress, connector dispatch and controlled provider exchanges.
+Grant connector A and prove its authorized call succeeds. Keep tenant, principal/client, provider, audience and scopes unchanged, then target connector B.
+Caller-forged connector A metadata on B and a genuine B identity with only A's grant both refuse before secret resolution or exchange.
+An explicit B grant permits B without changing A's authority. Assert challenge, vault receipt and transport evidence contain the admitted connector.
+Use an OIDC provider returning a signed ID token plus opaque access and refresh tokens; the declared mixed profile must succeed.
+Separately prove the JWT access-token profile succeeds with valid signatures, audiences, expiry and resource bindings.
+Bad JWT signature, nonce, audience, issuer or expiry refuses; a JWT failure must never retry under an opaque profile.
+For exchange-bound opaque tokens, validate authenticated provider/client/PKCE and required resource/account/consent evidence without manufacturing JWT claims.
+For introspection-required opaque tokens, active and correctly bound evidence succeeds; inactive, unavailable or missing required fields refuses.
+An opaque token without provider expiry may use only the explicit bounded host lease. Assert evidence distinguishes the two validity sources.
+Forged profile selection, wrong connector, cross-tenant binding, excess scopes and unapproved resource audience all refuse with zero resumed effects.
+The outbound opaque profile must not admit an unsigned GraphOS API bearer or remove its required tenant claim.
+Inspect responses and logs for token/code leakage. These acceptance cases remain NOT RUN until the required runtime wiring exists.

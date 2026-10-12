@@ -50,21 +50,47 @@ Decisions.
 
 Cross-repository rows. Depends on the `EG-TYPED-PACKS` row that adds `side_effects` and `schema_tokens` to the generated `PackAnnotations`. Unblocks the `EG-DECISION-ENGINE` tool-subset rows that read `read_only` and `schema_tokens` for the `HarnessConfig` allowed tool subset. Unblocks the `AU-HARNESS` run-guard row that runs read-only tools in parallel and reads the same envelope subset.
 
-## Browser authorization with PKCE (SDK-CONNECTOR-CONTROL-R046)
+## Scoped credentials and bounded PKCE (SDK-CONNECTOR-CONTROL-R035, R046)
 
-Data flow: certify command run loop -> `build_outbound_auth` (`agent_connector_sdk/certify/options.py:46`) -> `PkceAuthManager.authorize` (new, `agent_connector_sdk/auth/pkce.py`) -> token exchange -> `httpx.Auth` -> authenticated request.
+Data flow: authenticated connector request -> qualified host grant -> SDK credential/PKCE transport -> approved vault receipt -> authorized provider call.
+GRAPHOS-IDENTITY-R023.1 through R023.6 owns scoped broker reuse, challenge lifecycle and persistence.
+EG remains the decision and durable grant authority. The SDK validates injected binding facts; it creates no local approval or token database.
+The exact binding includes tenant, owner principal, requesting principal/client, connector, provider, audience, scope set, resource and operation.
+Compare each field against qualified request authority and the current grant before resolving either environment or vault references.
+The authority port is injected by trusted host composition, not supplied as request JSON or inferred from host/process identity.
+`CredentialProvider.get_secret` at `agent_connector_sdk/credentials/provider.py:33` currently scopes vault paths by connector and treats environment references as process-wide.
+It lacks tenant/client reuse grants. Extend that boundary; retain the existing credential resolver.
+The existing `resolve_secret_reference` at `agent_connector_sdk/credentials/resolution.py:43` remains the underlying resolution path.
+Missing qualified authority yields `authority_unavailable`; missing usable credentials yields `credential_unavailable`.
+Map `scope_denied` and `binding_mismatch` to host `reuse_denied`. Map `grant_expired` to expired; preserve revoked and unavailable dependency distinctions.
+Never return resolved values to an agent transcript or public tool result. Inject them only into the approved transport's transient memory.
 
-Types. `PkceAuthConfig` and `PkceAuthRefusedError` are new. The manager returns the same `httpx.Auth` shape that `client_credentials_auth` (`agent_connector_sdk/auth/oidc.py:118`) returns, so callers are unchanged.
+Missing credentials may invoke the one reusable PkceAuthManager only through an admitted host interaction policy.
+The host owns pending operation identity, scoped single-flight, one-use state and vault persistence; SDK handles PKCE and bounded transport mechanics.
+Consume the same broker challenge reference throughout browser opening, callback, exchange, persistence and continuation.
+Do not create a second challenge authority or duplicate broker store. The host adapter is an explicit missing integration dependency.
+Use the declared 64-character random verifier, S256 challenge and 120-second total deadline; a host may shorten the deadline.
+Every awaited phase receives the remaining time. Browser opening failure returns `browser_launch_failed`; listener failure returns `callback_unavailable`.
+No input channel returns `interaction_required` immediately; an available channel that times out returns `input_timeout`.
+Headless input is an authenticated response containing the complete redirect result and state. Bind it to the original caller/client and challenge.
+Never accept an unbound pasted code, a process-global code file or indefinite stdin polling.
+Cancellation, expiry and replay invalidate state and stop listeners; cross-client input cannot resume another request.
+Before exchange, validate state, client binding, redirect and the approved issuer/token endpoint configuration.
+After exchange, apply the declared provider token profile below before persistence.
+JWT/OIDC verification and opaque-token binding use distinct validation methods; neither may fall back to the other.
+PKCE proves possession during exchange; it does not grant resource or credential reuse authority.
+Readiness requires a confirmed host vault persistence receipt and fresh grant. Failed or ambiguous persistence never resumes the operation.
+Refresh and restart use host-owned vault versioning and current grants; the SDK has no independent token cache authority.
+Static-token connectors retain their mode but still require the scoped credential boundary when hosted for multiple callers.
 
-Attach point and caller. `build_outbound_auth` is called by the certify command. Connectors reach it through the shared options, so one manager serves all of them.
-
-Failure behavior. A missing credential, a state mismatch or a non-HTTPS non-loopback redirect refuses before the token request. A headless host falls back to a pasted code.
-
-Reused: `_endpoint_problem` (`agent_connector_sdk/auth/oidc.py:48`) validates endpoints; `resolved_credential` (`agent_connector_sdk/auth/values.py:23`) resolves references. New: the verifier, challenge, loopback receiver and exchange.
-
-Decision. One shared manager. The rejected alternative is a per-connector copy of the flow, which drifts and repeats security checks. Static-token connectors do not adopt the manager.
-
-Cross-repository rows. The social-post search operation that resolves a post link is owned by the connector package that serves it. It consumes this manager by contract name `PkceAuthManager`.
+The actual certify call site is `agent_connector_sdk/certify/cli.py:124` invoking _oidc_auth at `agent_connector_sdk/certify/options.py:26`.
+_run_certification at cli.py:169 drives the existing command. _oidc_auth currently returns client-credentials authentication only.
+The previous `build_outbound_auth` reference names no production function. Add the PKCE selection to the real options composition.
+Register connector credential-missing handling through `register_tool_surface` at `agent_connector_sdk/mcp/tool_surface.py:121` and existing `dispatch_async`.
+Reuse governed HTTP, endpoint validation and credential references. PkceAuthManager and its host ports remain unimplemented.
+For `no_credential`, the host projects `credential_missing`; preserve the shared challenge error names unchanged.
+All new R035 children and the refined R046 children remain SPECIFIED. Real local issuer/callback and served connector evidence are required.
+No arXiv derivation is claimed for this protocol contract.
 
 ## Agent-card discovery (SDK-CONNECTOR-CONTROL-R047)
 
@@ -115,7 +141,7 @@ Reused: the approval prompt in `ctx_confirm_destructive` and the egress policy i
 
 Decision. Zero budget by default and approval on every payment. The rejected alternative is a standing allowance, which lets a prompt-injected request spend without a person deciding.
 
-Cross-repository rows. The graph node type for a transaction belongs to the knowledge-graph owner (`EG-` prefix); the SDK emits the entity and the owner maps it.
+Cross-repository rows. The graph node type for a transaction belongs to the knowledge-graph owner (`EG-` prefix). The SDK emits the entity; its owner maps it.
 
 ## Caller-scoped context and progress (SDK-CONNECTOR-CONTROL-R050)
 
@@ -199,3 +225,44 @@ References: this contract derives from connector context and MCP progress needs.
 No research-paper claim or benchmark is needed for these two source candidates.
 The [MCP progress specification](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/progress)
 requires each notification's progress value to increase, even without a known total.
+
+
+## Connector-bound grants and provider token profiles
+
+This shared contract refines GRAPHOS-IDENTITY-R023 and SDK-CONNECTOR-CONTROL-R035/R046; its implementation remains SPECIFIED.
+The exact credential-use tuple includes tenant, owner principal, requesting principal/client, connector, provider, audience, scopes, resource and operation.
+The host derives connector from authenticated admission and the certified target connector registration, with its immutable registry revision.
+A caller's connector ID is only a requested target; it cannot populate the trusted binding or current grant.
+Compare the admitted connector with the grant, challenge, vault ownership tuple and SDK transport before any secret resolution or exchange.
+Missing, forged or mismatched connector identity yields SDK `binding_mismatch` and host `reuse_denied`, with no credential or provider activity.
+Changing connector requires a matching new grant, even when principal, client, tenant, provider and scopes remain identical.
+
+ProviderTokenProfile is trusted configuration pinned by profile ID and revision in the grant and ceremony.
+It declares issuer/provider authority, client, permitted resource audiences, consent scope ceiling and separate ID/access/refresh token representations.
+Representations are jwt or opaque. OIDC ID tokens require jwt; access and refresh tokens may use either declared representation.
+The profile also declares required validation fields, opaque binding mode, trusted introspection endpoint and validity/reuse bounds.
+Never infer representation from token punctuation, client input or an unsuccessful signature verification. An unknown profile refuses without fallback.
+
+For JWT tokens, validate the allowed algorithm, trusted signature key, issuer and token-role-specific audience and validity claims.
+An OIDC ID token binds the client audience and ceremony nonce; access-token audiences bind approved resources.
+Require the profile's claims, including expiry for JWT/OIDC; reject missing claims, wrong issuer/audience, bad signature, expiry or nonce mismatch.
+Validate any provider tenant/account/consent claims against the established binding when the profile requires or returns them.
+An ID token proves identity; it is not an access token and cannot be injected into a provider API request.
+
+For opaque tokens, trust only an authenticated exchange with the configured provider endpoint under the bound client and PKCE ceremony.
+Record the provider response's authenticated account, granted scope and validity metadata. Never decode opaque bytes or invent issuer/signature/expiry claims.
+The profile selects `exchange_bound` or `introspection_required`. Its binding policy must establish the required account, audience/resource and consent evidence.
+Exchange-bound evidence comes from the admitted authorization request and authenticated provider response under the declared provider contract.
+If that contract cannot establish a required binding, refuse; successful transport alone is insufficient.
+Required introspection uses the configured trusted endpoint and authenticated client, requires active=true and validates all declared binding fields.
+Inactive, contradictory or missing required introspection evidence refuses. Unavailable required introspection never falls back to exchange-only acceptance.
+Use provider expiry metadata when available. Otherwise apply a bounded host use lease; never describe that lease as provider token expiry.
+No reuse outlives the current grant or profile validity policy. Refresh tokens go only to the bound provider token endpoint.
+Refresh preserves connector, issuer/provider, client, tenant, account, audience and consent ceilings; any required missing evidence refuses.
+
+Host tenant and requesting identity always come from authenticated admission and EG authority, including for opaque provider tokens.
+This profile applies to outbound provider credentials only. GRAPHOS-IDENTITY-R017 API bearer admission still requires its signed tenant claim.
+The broker stores profile revision, validation method, binding digest and provenance for validity metadata alongside the vault receipt.
+Opaque exchange metadata and host lease bounds remain distinct from signed JWT claims in evidence and logs.
+Map profile errors to `invalid_token_profile` or `token_validation_failed`; required introspection failures use `introspection_unavailable` or `token_inactive`.
+These shared typed refusals stop persistence readiness and operation continuation; no token, code or raw introspection body enters public output.
