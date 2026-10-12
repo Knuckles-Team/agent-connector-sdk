@@ -185,3 +185,39 @@ All tests in this section are planned and unexecuted.
 | `SDK-SOURCE-INGEST-R004.10` | Refusal | `tests/test_approved_sql_source_served.py::test_revocation_and_failure_after_chunks` proves explicit terminal failure after three chunks and zero unauthorized effects. |
 | `SDK-SOURCE-INGEST-R004.11` | Evidence | `tests/test_approved_sql_source.py::test_page_provenance_and_redaction` compares immutable bindings, verification receipts, terminal totals and redacted failures. |
 | `SDK-SOURCE-INGEST-R004.12` | Hot-path proof | Use real authenticated dispatch on both sides. Mocks of approval, driver, dispatcher or durable ingestion cannot close acceptance. |
+
+<!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
+## Supported-harness session synchronization (WEBUI:3)
+
+<!-- # spec: SDK-SOURCE-INGEST-R013; future acceptance links only; no evidence recorded. -->
+
+These tests are planned. They require the complete owner-approved manifest and published EG/GraphOS contracts.
+
+| Test ID | Requirement | Level | Setup and input | Expected observation | Evidence |
+|---|---|---|---|---|---|
+| HS-13.1 | R013.1 | Contract | unbound entries | refusal before calls | `tests/test_supported_harness_session_sync.py::test_manifest_rejects_unbound_entries_before_source_calls` |
+| HS-13.2 | R013.2 | Integration | sync/restart | full coverage and idempotent resume | `tests/test_supported_harness_session_sync.py::test_first_run_coverage_retry_and_restart` |
+| HS-13.3 | R013.3 | Served | connector-sync --once | generated SourceIngest calls | `tests/test_supported_harness_session_sync_served.py::test_connector_sync_uses_generated_source_ingest` |
+| HS-13.4 | R013.4 | Negative | denied/cross-tenant source | typed refusal; zero calls; cursor unchanged | `tests/test_supported_harness_session_sync_served.py::test_denial_is_partial_without_cursor_advance` |
+| HS-13.5 | R013.5 | Persistence | restart/readback | bound receipts agree | `tests/test_supported_harness_session_sync.py::test_receipts_read_back_after_restart` |
+| HS-13.6 | R013.6 | End-to-end | every entry and WEBUI-APPS-R006.4 | full browse/coverage; EG and GraphOS IDs unassigned | `tests/test_supported_harness_session_sync_served.py::test_every_manifest_source_is_browsable` |
+
+## Live meeting and summary providers (WEBUI:10)
+
+<!-- # spec: SDK-SOURCE-INGEST-R014; future acceptance links only; no evidence recorded. -->
+
+Current dictation routes are single-shot. These tests require a registered meeting operation and EG/GraphOS provider bindings.
+
+| Test ID | Requirement | Level | Setup and input | Expected observation | Evidence |
+|---|---|---|---|---|---|
+| MT-14.1 | R014.1 | Contract | exact replay/conflicting duplicate | same receipt/no effect; conflict refuses | `tests/test_meeting_transcript_contract.py::test_exact_replay_and_conflicting_duplicate` |
+| MT-14.2 | R014.2 | Integration | partial/replay/correction/gap/completion | exact replay has one effect; complete sequence finalizes with bound receipt | Proposed: `tests/test_meeting_transcript.py::test_ordered_partial_replay_correction_and_finalization_receipt` |
+| MT-14.3 | R014.3 | Served | owner-registered meeting operation | real SDK/GraphOS calls; IDs unresolved | `tests/test_meeting_transcript_served.py::test_registered_operation_dispatch_and_readback` |
+| MT-14.4 | R014.4 | Negative | denied capture; complete finalize; gap; summary pre-receipt | Complete finalization succeeds. Denial, gaps, and missing receipt refuse before provider effects. | Proposed: `tests/test_meeting_transcript_served.py::test_gap_blocks_finalize_and_missing_receipt_blocks_summary` |
+| MT-14.5 | R014.5 | Persistence | corrected transcript/summary | final revision/provider provenance | `tests/test_meeting_transcript.py::test_receipt_binds_final_revision_and_provider` |
+| MT-14.6 | R014.6 | End-to-end | partial/correction/complete finalization/summary | The bound receipt precedes local/hosted summary dispatch. No summary call occurs early. | Proposed: `tests/test_meeting_transcript_served.py::test_partial_correction_complete_finalize_receipt_then_summary` |
+<!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-consolidated-r006-rollup-binding-20261012 -->
+<!-- # spec: SDK-SOURCE-INGEST-R006; rollup link to existing child test bindings R006.1 through R006.31; no new runtime evidence. -->
+<!-- /spec-definition-patch -->

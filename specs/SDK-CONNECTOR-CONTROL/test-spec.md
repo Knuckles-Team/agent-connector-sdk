@@ -2,7 +2,7 @@
 
 | ID | Fixture/action | Required assertion |
 |---|---|---|
-| CC-01 | Construct synthetic connector with valid manifest and registered entry point | Discovery selects exact group/name/distribution/version and server identity; direct and entry-point construction agree. |
+| CC-01 | Register a manifest-backed connector entry point | Check group, name, distribution, and version independently. Direct construction matches served server identity. |
 | CC-02 | Change input schema, output schema, entry-point version, or server identity one at a time. | Certification refuses each mismatch before tool execution. |
 | CC-03 | Publish same canonical pack twice through a fake generated client | Same idempotency key and result. Changed content yields new digest/key. |
 | CC-04 | Feed duplicate entries, bad URI scheme, undeclared kind, literal credential, or oversized body | Deterministic named refusal. No pack call and no secret in output. |
@@ -117,3 +117,65 @@ An opaque token without provider expiry may use only the explicit bounded host l
 Forged profile selection, wrong connector, cross-tenant binding, excess scopes and unapproved resource audience all refuse with zero resumed effects.
 The outbound opaque profile must not admit an unsigned GraphOS API bearer or remove its required tenant claim.
 Inspect responses and logs for token/code leakage. These acceptance cases have not run. They require the runtime wiring.
+
+<!-- spec-definition-patch:sdk5-r007-major-version-tests -->
+## Major-version compatibility and pre-pin rollout acceptance (R007.1-R007.6)
+
+These future tests have not run. The producer, gate, and writer attachments are not implemented; no VERIFIED evidence exists.
+
+- **Model and inventory:** Assert stable canonical sorting and digest. Refuse duplicate, unidentifiable, or incomplete package inventories.
+- **Receipt production:** Test every inventoried package against the exact artifact in isolation. Assert one complete bound receipt per package and unchanged dependency-file bytes.
+- **Positive hot path:** Enter the production rollout command and exercise real pin writers. Assert the all-pass set authorizes only bound packages across R009-R013.
+- **Incompatible hot path:** Fail one package check through the same entry point. Assert refusal before the first pin write and unchanged manifests and lockfiles.
+- **Missing and stale evidence:** Remove a receipt or change the source, pin preimage, inventory, or artifact. Assert typed refusal and no pin changes.
+- **Invalid receipt sets:** Test failed, incomplete, cancelled, duplicate, extra, and cross-package receipts. Assert preflight refusal before any write and byte-identical pins.
+- **CC-105 / R007.4:** `tests/test_major_version_compatibility_served.py::test_fleet_preflight_refusal_preserves_all_pins` proves preflight refusal preserves every pin byte-for-byte.
+- **CC-106 / R007.6:** `tests/test_major_version_compatibility_served.py::test_writer_b_preimage_race_reports_partial_rollout` races B after A writes. It proves B does not write and requires reconciliation. It identifies A as applied and B as refused.
+- **Existing acceptance:** Retain R007 fingerprint and live-contract comparison and R009-R013 package migration and import-scan tests.
+<!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-consolidated-primary-20261012-tests -->
+## Consolidated SDK future acceptance
+- **CC-81 / SDK-CONNECTOR-CONTROL-R051.1:** Validate all identity fields and actual instance IDs. Proposed: `tests/test_sandbox_provisioned_served.py::test_request_result_identity_round_trip`.
+- **CC-82 / SDK-CONNECTOR-CONTROL-R051.2:** A replay returns the reconciled allocation without duplication. Proposed: `tests/test_sandbox_provisioned_served.py::test_uncertain_allocation_reconciles_before_retry`.
+- **CC-83 / SDK-CONNECTOR-CONTROL-R051.3:** Exercise the served route, adapter, and result consumer. Proposed: `tests/test_sandbox_provisioned_served.py::test_agents_run_reaches_sdk_provisioner`.
+- **CC-84 / SDK-CONNECTOR-CONTROL-R051.4:** Negative cases observe zero unsupported or unauthorized allocations. Proposed: `tests/test_sandbox_provisioned_served.py::test_denied_profiles_have_zero_provider_calls`.
+- **CC-85 / SDK-CONNECTOR-CONTROL-R051.5:** Independent readback matches the bound allocation receipt. Proposed: `tests/test_sandbox_provisioned_served.py::test_receipt_matches_independent_readback`.
+- **CC-86 / SDK-CONNECTOR-CONTROL-R051.6:** The served acceptance proves actual allocation and zero duplicate effects. Proposed: `tests/test_sandbox_provisioned_served.py::test_served_replay_has_no_duplicate_effect`.
+- **CC-87 / SDK-CONNECTOR-CONTROL-R052.1:** Reject absent or malformed provenance and unbounded payloads. Proposed: `tests/test_visual_observation_served.py::test_rejects_unbound_or_unbounded_envelopes`.
+- **CC-88 / SDK-CONNECTOR-CONTROL-R052.2:** The next step reads the committed same-run observation only. Proposed: `tests/test_visual_observation_served.py::test_next_step_reads_committed_same_run_reference`.
+- **CC-89 / SDK-CONNECTOR-CONTROL-R052.3:** A served two-step test observes matching IDs at result, state, and consumer. Proposed: `tests/test_visual_observation_served.py::test_tools_call_forwards_observation_to_eg_and_au`.
+- **CC-90 / SDK-CONNECTOR-CONTROL-R052.4:** Each refusal produces zero provider effects. Proposed: `tests/test_visual_observation_served.py::test_invalid_scope_refuses_before_provider_effect`.
+- **CC-91 / SDK-CONNECTOR-CONTROL-R052.5:** EG readback confirms provenance without returning raw content. Proposed: `tests/test_visual_observation_served.py::test_readback_excludes_visual_payload`.
+- **CC-92 / SDK-CONNECTOR-CONTROL-R052.6:** The observed path proves reuse and zero effects on refusal. Proposed: `tests/test_visual_observation_served.py::test_two_step_reuse_isolation_and_stale_refusal`.
+- **CC-93 / SDK-CONNECTOR-CONTROL-R053.1:** Reject duplicate declarations, literals, and unknown components. Proposed: `tests/test_environment_manifest_served.py::test_manifest_rejects_duplicate_literal_and_unknown_entries`.
+- **CC-94 / SDK-CONNECTOR-CONTROL-R053.2:** Undeclared reads and missing required declarations block startup. Proposed: `tests/test_environment_manifest_served.py::test_missing_and_undeclared_inputs_block_startup`.
+- **CC-95 / SDK-CONNECTOR-CONTROL-R053.3:** The served launcher consumes the SDK declaration set. Proposed: `tests/test_environment_manifest_served.py::test_host_startup_consumes_sdk_declaration_set`.
+- **CC-96 / SDK-CONNECTOR-CONTROL-R053.4:** A secret canary is absent from every refusal diagnostic. Proposed: `tests/test_environment_manifest_served.py::test_refusal_diagnostics_redact_secret_values`.
+- **CC-97 / SDK-CONNECTOR-CONTROL-R053.5:** Independent readback reproduces the declaration set and decision. Proposed: `tests/test_environment_manifest_served.py::test_readback_matches_manifest_and_decision`.
+- **CC-98 / SDK-CONNECTOR-CONTROL-R053.6:** The healthy case serves; each negative case refuses before admission. Proposed: `tests/test_environment_manifest_served.py::test_served_startup_accepts_declared_and_refuses_invalid`.
+- **CC-99 / SDK-CONNECTOR-CONTROL-R054.1:** The inventory covers every loader before migration. Proposed: `tests/test_json_tag_loader_migration_served.py::test_inventory_finds_every_source_loader`.
+- **CC-100 / SDK-CONNECTOR-CONTROL-R054.2:** Served operations and schemas remain equivalent. Proposed: `tests/test_json_tag_loader_migration_served.py::test_registered_operations_match_source_schemas`.
+- **CC-101 / SDK-CONNECTOR-CONTROL-R054.3:** Tests reach real registration, dispatch, and backend. Proposed: `tests/test_json_tag_loader_migration_served.py::test_tools_list_and_call_reach_backend`.
+- **CC-102 / SDK-CONNECTOR-CONTROL-R054.4:** Negative calls retain typed refusal and zero backend effects. Proposed: `tests/test_json_tag_loader_migration_served.py::test_denied_malformed_and_unknown_calls_have_zero_effects`.
+- **CC-103 / SDK-CONNECTOR-CONTROL-R054.5:** Reconstruct the parity decision from recorded digests and results. Proposed: `tests/test_json_tag_loader_migration_served.py::test_parity_receipt_reconstructs_from_digests`.
+- **CC-104 / SDK-CONNECTOR-CONTROL-R054.6:** The acceptance proves dispatch parity and no opt-in regression. Proposed: `tests/test_json_tag_loader_migration_served.py::test_default_and_opt_ins_preserve_dispatch_parity`.
+
+These are required future tests. None ran during definition authoring.
+<!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-consolidated-r054-root-test-20261012 -->
+
+- **CC-80 / SDK-CONNECTOR-CONTROL-R054:** Compare every inventory entry with its served Python surface. Cover each parity and refusal child. Require independent readback before completion.
+<!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-consolidated-r054-binding-marker-20261012 -->
+
+<!-- # spec: SDK-CONNECTOR-CONTROL-R054; planned acceptance link only. -->
+<!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-consolidated-trailer-bindings-20261012 -->
+<!-- # spec: SDK-CONNECTOR-CONTROL-R051; planned acceptance link only; proposed CC-81 through CC-86. -->
+<!-- # spec: SDK-CONNECTOR-CONTROL-R052; planned acceptance link only; proposed CC-87 through CC-92. -->
+<!-- # spec: SDK-CONNECTOR-CONTROL-R053; planned acceptance link only; proposed CC-93 through CC-98. -->
+<!-- /spec-definition-patch -->

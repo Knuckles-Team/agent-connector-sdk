@@ -88,3 +88,35 @@ R004.7 through R004.12 bind the SQL source contract to EG-FEDERATED-QUERY-R085.
 The SDK receives generated approvals and checks authority before driver execution, chunk publication and completion.
 The receiving methods return bounded pages and explicit terminal outcomes through the existing connector dispatcher.
 These definitions preserve all original R004 obligations; producer and receiver implementation remain required.
+
+<!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
+## Supported-harness session sync (SDK-SOURCE-INGEST-R013; WEBUI:3)
+
+Source: open-source-libraries/agentsview/README.md. Original record SHA-256: 38936b5f2136263c40c29fe639c984243fed8be6dbb9a6d836f40d7b7672116e. The original acceptance stays unchanged in its source record.
+
+The producer reuses connector-sync --once, agent_connector_sdk/runner/worker.py, McpToolSourceAdapter.extract, and generated SourceIngest. Owners must approve a versioned manifest. It must cover every supported harness. Each entry must name its actual repository, registered operation, revision, and authority.
+
+The SDK emits session identity, tenant, source revision, cursor, coverage, and per-source outcome. Retries preserve receipt identity. Restart resumes accepted cursors. A denial remains visible as partial coverage.
+
+Flow: approved manifest -> SDK sync -> generated SourceIngest -> EG index and readback -> GraphOS browse/search -> WEBUI-APPS-R006.4. EG and GraphOS owners allocate their exact requirement IDs. No ID is inferred here. Two sample harnesses cannot prove full coverage.
+
+## Live meeting transcript and summary transport (SDK-SOURCE-INGEST-R014; WEBUI:10)
+
+Source: open-source-libraries/meetily/README.md. Original record SHA-256: c82a815c87428a5baf4379ef7790bafb24a5d3367d16ebd85a6c39ff9b52521d. WebUI consumer: WEBUI-APPS-R001.5. The source acceptance and record remain unchanged.
+
+The current WebUI records with MediaRecorder. It stops and posts to /api/enhanced/voice/transcribe. This is single-shot dictation. Preserve that behavior.
+
+The registered audio producer is the audio-transcriber repository tool transcribe_audio. The MCP server registers it for one file or microphone capture. It has no meeting-segment or summary-provider contract. The SDK must not claim that it provides live transcripts. Owners must identify any meeting-specific operation before implementation.
+
+Each transcript binds meeting, tenant, segment, sequence, correction revision, source time, lifecycle, and source/model provenance. Accept bounded ordered segments while partial. An exact replay with the same meeting, sequence, revision, and payload digest returns its existing receipt without another effect. A different payload at that binding refuses. A correction advances one segment to a newer revision. It invalidates summaries for older transcript revisions. Gaps may remain pending during partial ingestion and block the transition to finalized until filled. Once the current sequence is complete and contiguous, permit finalization and issue its bound receipt. Summary dispatch requires that exact finalized receipt. Stale updates refuse.
+
+Summaries bind to the finalized transcript receipt and selected provider/model revisions. Capture and egress admission precede effects. No summary call occurs before a complete sequence has transitioned to finalized and yielded that receipt. An unavailable local provider cannot fall back to hosted.
+
+Flow: WebUI capture -> registered audio operation -> SDK tools/call -> EG transcript/context authority -> GraphOS live updates and selected summaries -> WEBUI-APPS-R001.5. EG and GraphOS owners allocate counterpart IDs. No new meeting operation or provider binding is asserted.
+
+## Open owner identities
+
+Owners must publish every supported-harness entry and its registered source operation. The audio owner must confirm whether transcribe_audio can serve a segment path. If not, owners must identify the real meeting operation and its repository.
+
+EG and GraphOS must publish their exact counterpart IDs and summary-provider bindings. Until then, both candidate inputs remain pending. This definition records no runtime delivery or closure.
+<!-- /spec-definition-patch -->

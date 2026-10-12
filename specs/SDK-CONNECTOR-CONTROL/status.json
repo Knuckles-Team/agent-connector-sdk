@@ -104,12 +104,46 @@
     "SDK-CONNECTOR-CONTROL-R050.3",
     "SDK-CONNECTOR-CONTROL-R050.4",
     "SDK-CONNECTOR-CONTROL-R050.5",
-    "SDK-CONNECTOR-CONTROL-R050.6"
+    "SDK-CONNECTOR-CONTROL-R050.6",
+    "SDK-CONNECTOR-CONTROL-R007.1",
+    "SDK-CONNECTOR-CONTROL-R007.2",
+    "SDK-CONNECTOR-CONTROL-R007.3",
+    "SDK-CONNECTOR-CONTROL-R007.4",
+    "SDK-CONNECTOR-CONTROL-R007.5",
+    "SDK-CONNECTOR-CONTROL-R007.6",
+    "SDK-CONNECTOR-CONTROL-R051",
+    "SDK-CONNECTOR-CONTROL-R051.1",
+    "SDK-CONNECTOR-CONTROL-R051.2",
+    "SDK-CONNECTOR-CONTROL-R051.3",
+    "SDK-CONNECTOR-CONTROL-R051.4",
+    "SDK-CONNECTOR-CONTROL-R051.5",
+    "SDK-CONNECTOR-CONTROL-R051.6",
+    "SDK-CONNECTOR-CONTROL-R052",
+    "SDK-CONNECTOR-CONTROL-R052.1",
+    "SDK-CONNECTOR-CONTROL-R052.2",
+    "SDK-CONNECTOR-CONTROL-R052.3",
+    "SDK-CONNECTOR-CONTROL-R052.4",
+    "SDK-CONNECTOR-CONTROL-R052.5",
+    "SDK-CONNECTOR-CONTROL-R052.6",
+    "SDK-CONNECTOR-CONTROL-R053",
+    "SDK-CONNECTOR-CONTROL-R053.1",
+    "SDK-CONNECTOR-CONTROL-R053.2",
+    "SDK-CONNECTOR-CONTROL-R053.3",
+    "SDK-CONNECTOR-CONTROL-R053.4",
+    "SDK-CONNECTOR-CONTROL-R053.5",
+    "SDK-CONNECTOR-CONTROL-R053.6",
+    "SDK-CONNECTOR-CONTROL-R054",
+    "SDK-CONNECTOR-CONTROL-R054.1",
+    "SDK-CONNECTOR-CONTROL-R054.2",
+    "SDK-CONNECTOR-CONTROL-R054.3",
+    "SDK-CONNECTOR-CONTROL-R054.4",
+    "SDK-CONNECTOR-CONTROL-R054.5",
+    "SDK-CONNECTOR-CONTROL-R054.6"
   ],
   "requirements": [
     {
       "id": "SDK-CONNECTOR-CONTROL-R001",
-      "title": "ConnectorPackClient uses a deterministic idempotency key",
+      "title": "Pack retries reuse one key",
       "delivery_state": "VERIFIED",
       "landed_in": [
         "dcc7d285ccc9"
@@ -184,13 +218,21 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R007",
       "title": "Fleet-wide re-certification yields nonempty schema fingerprints",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "0f826d4ca6db",
         "93afc6b075df"
       ],
       "verified_by": [
         "tests/test_fleet_recertification.py:54"
+      ],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R007.1",
+        "SDK-CONNECTOR-CONTROL-R007.2",
+        "SDK-CONNECTOR-CONTROL-R007.3",
+        "SDK-CONNECTOR-CONTROL-R007.4",
+        "SDK-CONNECTOR-CONTROL-R007.5",
+        "SDK-CONNECTOR-CONTROL-R007.6"
       ]
     },
     {
@@ -1037,6 +1079,276 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R050.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R051",
+      "title": "Sandbox allocation producer for AU:29",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R051.1",
+        "SDK-CONNECTOR-CONTROL-R051.2",
+        "SDK-CONNECTOR-CONTROL-R051.3",
+        "SDK-CONNECTOR-CONTROL-R051.4",
+        "SDK-CONNECTOR-CONTROL-R051.5",
+        "SDK-CONNECTOR-CONTROL-R051.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R051.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R051.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R051.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R051.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R051.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R051.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R052",
+      "title": "Visual observation transport for AU:35",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R052.1",
+        "SDK-CONNECTOR-CONTROL-R052.2",
+        "SDK-CONNECTOR-CONTROL-R052.3",
+        "SDK-CONNECTOR-CONTROL-R052.4",
+        "SDK-CONNECTOR-CONTROL-R052.5",
+        "SDK-CONNECTOR-CONTROL-R052.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R052.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R052.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R052.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R052.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R052.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R052.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R053",
+      "title": "SDK environment declarations for GRAPHOS:9",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R053.1",
+        "SDK-CONNECTOR-CONTROL-R053.2",
+        "SDK-CONNECTOR-CONTROL-R053.3",
+        "SDK-CONNECTOR-CONTROL-R053.4",
+        "SDK-CONNECTOR-CONTROL-R053.5",
+        "SDK-CONNECTOR-CONTROL-R053.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R053.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R053.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R053.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R053.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R053.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R053.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R054",
+      "title": "JSON tag-loader migration for AU:89",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R054.1",
+        "SDK-CONNECTOR-CONTROL-R054.2",
+        "SDK-CONNECTOR-CONTROL-R054.3",
+        "SDK-CONNECTOR-CONTROL-R054.4",
+        "SDK-CONNECTOR-CONTROL-R054.5",
+        "SDK-CONNECTOR-CONTROL-R054.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R054.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R054.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R054.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R054.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R054.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R054.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
