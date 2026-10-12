@@ -76,8 +76,8 @@ Headless input is an authenticated response containing the complete redirect res
 Never accept an unbound pasted code, a process-global code file or indefinite stdin polling.
 Cancellation, expiry and replay invalidate state and stop listeners; cross-client input cannot resume another request.
 Before exchange, validate state, client binding, redirect and the approved issuer/token endpoint configuration.
-After exchange, validate the expected token type, issuer, signature, expiry and profile-specific audience before persistence.
-OIDC ID tokens also require the bound nonce; an expected but absent ID token refuses.
+After exchange, apply the declared provider token profile below before persistence.
+JWT/OIDC verification and opaque-token binding use distinct validation methods; neither may fall back to the other.
 PKCE proves possession during exchange; it does not grant resource or credential reuse authority.
 Readiness requires a confirmed host vault persistence receipt and fresh grant. Failed or ambiguous persistence never resumes the operation.
 Refresh and restart use host-owned vault versioning and current grants; the SDK has no independent token cache authority.
@@ -141,7 +141,7 @@ Reused: the approval prompt in `ctx_confirm_destructive` and the egress policy i
 
 Decision. Zero budget by default and approval on every payment. The rejected alternative is a standing allowance, which lets a prompt-injected request spend without a person deciding.
 
-Cross-repository rows. The graph node type for a transaction belongs to the knowledge-graph owner (`EG-` prefix); the SDK emits the entity and the owner maps it.
+Cross-repository rows. The graph node type for a transaction belongs to the knowledge-graph owner (`EG-` prefix). The SDK emits the entity; its owner maps it.
 
 ## Caller-scoped context and progress (SDK-CONNECTOR-CONTROL-R050)
 
@@ -225,3 +225,44 @@ References: this contract derives from connector context and MCP progress needs.
 No research-paper claim or benchmark is needed for these two source candidates.
 The [MCP progress specification](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/progress)
 requires each notification's progress value to increase, even without a known total.
+
+
+## Connector-bound grants and provider token profiles
+
+This shared contract refines GRAPHOS-IDENTITY-R023 and SDK-CONNECTOR-CONTROL-R035/R046; its implementation remains SPECIFIED.
+The exact credential-use tuple includes tenant, owner principal, requesting principal/client, connector, provider, audience, scopes, resource and operation.
+The host derives connector from authenticated admission and the certified target connector registration, with its immutable registry revision.
+A caller's connector ID is only a requested target; it cannot populate the trusted binding or current grant.
+Compare the admitted connector with the grant, challenge, vault ownership tuple and SDK transport before any secret resolution or exchange.
+Missing, forged or mismatched connector identity yields SDK `binding_mismatch` and host `reuse_denied`, with no credential or provider activity.
+Changing connector requires a matching new grant, even when principal, client, tenant, provider and scopes remain identical.
+
+ProviderTokenProfile is trusted configuration pinned by profile ID and revision in the grant and ceremony.
+It declares issuer/provider authority, client, permitted resource audiences, consent scope ceiling and separate ID/access/refresh token representations.
+Representations are jwt or opaque. OIDC ID tokens require jwt; access and refresh tokens may use either declared representation.
+The profile also declares required validation fields, opaque binding mode, trusted introspection endpoint and validity/reuse bounds.
+Never infer representation from token punctuation, client input or an unsuccessful signature verification. An unknown profile refuses without fallback.
+
+For JWT tokens, validate the allowed algorithm, trusted signature key, issuer and token-role-specific audience and validity claims.
+An OIDC ID token binds the client audience and ceremony nonce; access-token audiences bind approved resources.
+Require the profile's claims, including expiry for JWT/OIDC; reject missing claims, wrong issuer/audience, bad signature, expiry or nonce mismatch.
+Validate any provider tenant/account/consent claims against the established binding when the profile requires or returns them.
+An ID token proves identity; it is not an access token and cannot be injected into a provider API request.
+
+For opaque tokens, trust only an authenticated exchange with the configured provider endpoint under the bound client and PKCE ceremony.
+Record the provider response's authenticated account, granted scope and validity metadata. Never decode opaque bytes or invent issuer/signature/expiry claims.
+The profile selects `exchange_bound` or `introspection_required`. Its binding policy must establish the required account, audience/resource and consent evidence.
+Exchange-bound evidence comes from the admitted authorization request and authenticated provider response under the declared provider contract.
+If that contract cannot establish a required binding, refuse; successful transport alone is insufficient.
+Required introspection uses the configured trusted endpoint and authenticated client, requires active=true and validates all declared binding fields.
+Inactive, contradictory or missing required introspection evidence refuses. Unavailable required introspection never falls back to exchange-only acceptance.
+Use provider expiry metadata when available. Otherwise apply a bounded host use lease; never describe that lease as provider token expiry.
+No reuse outlives the current grant or profile validity policy. Refresh tokens go only to the bound provider token endpoint.
+Refresh preserves connector, issuer/provider, client, tenant, account, audience and consent ceilings; any required missing evidence refuses.
+
+Host tenant and requesting identity always come from authenticated admission and EG authority, including for opaque provider tokens.
+This profile applies to outbound provider credentials only. GRAPHOS-IDENTITY-R017 API bearer admission still requires its signed tenant claim.
+The broker stores profile revision, validation method, binding digest and provenance for validity metadata alongside the vault receipt.
+Opaque exchange metadata and host lease bounds remain distinct from signed JWT claims in evidence and logs.
+Map profile errors to `invalid_token_profile` or `token_validation_failed`; required introspection failures use `introspection_unavailable` or `token_inactive`.
+These shared typed refusals stop persistence readiness and operation continuation; no token, code or raw introspection body enters public output.
