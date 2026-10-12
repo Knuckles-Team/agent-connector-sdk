@@ -11,3 +11,18 @@
 - [ ] Implement wallet proof refusal and its acceptance (SDK-GOVERNED-WRITEBACK-R001.4).
 - [ ] Implement wallet proof evidence and its acceptance (SDK-GOVERNED-WRITEBACK-R001.5).
 - [ ] Implement wallet proof hot-path proof and its acceptance (SDK-GOVERNED-WRITEBACK-R001.6).
+
+## Repository source-effect definition units
+
+- [ ] Implement and prove generic approval residual (SDK-GOVERNED-WRITEBACK-R004.1); preserve the original parent acceptance.
+- [ ] Implement and prove generic deterministic replay residual (SDK-GOVERNED-WRITEBACK-R004.2); preserve the original parent acceptance.
+- [ ] Implement and prove generic audit reservation residual (SDK-GOVERNED-WRITEBACK-R004.3); preserve the original parent acceptance.
+- [ ] Implement and prove business-rule api residual (SDK-GOVERNED-WRITEBACK-R004.4); preserve the original parent acceptance.
+- [ ] Implement and prove typed repository effect request (SDK-GOVERNED-WRITEBACK-R004.5); preserve the original parent acceptance.
+- [ ] Implement and prove repository path and scope resolution (SDK-GOVERNED-WRITEBACK-R004.6); preserve the original parent acceptance.
+- [ ] Implement and prove approval binds the complete source effect (SDK-GOVERNED-WRITEBACK-R004.7); preserve the original parent acceptance.
+- [ ] Implement and prove conditional provider mutation (SDK-GOVERNED-WRITEBACK-R004.8); preserve the original parent acceptance.
+- [ ] Implement and prove actual immutable effect receipt (SDK-GOVERNED-WRITEBACK-R004.9); preserve the original parent acceptance.
+- [ ] Implement and prove independent revision readback (SDK-GOVERNED-WRITEBACK-R004.10); preserve the original parent acceptance.
+- [ ] Implement and prove repository restart reconciliation (SDK-GOVERNED-WRITEBACK-R004.11); preserve the original parent acceptance.
+- [ ] Implement and prove served repository producer composition (SDK-GOVERNED-WRITEBACK-R004.12); preserve the original parent acceptance.

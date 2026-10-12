@@ -14,6 +14,18 @@
     "SDK-GOVERNED-WRITEBACK-R002",
     "SDK-GOVERNED-WRITEBACK-R003",
     "SDK-GOVERNED-WRITEBACK-R004",
+    "SDK-GOVERNED-WRITEBACK-R004.1",
+    "SDK-GOVERNED-WRITEBACK-R004.2",
+    "SDK-GOVERNED-WRITEBACK-R004.3",
+    "SDK-GOVERNED-WRITEBACK-R004.4",
+    "SDK-GOVERNED-WRITEBACK-R004.5",
+    "SDK-GOVERNED-WRITEBACK-R004.6",
+    "SDK-GOVERNED-WRITEBACK-R004.7",
+    "SDK-GOVERNED-WRITEBACK-R004.8",
+    "SDK-GOVERNED-WRITEBACK-R004.9",
+    "SDK-GOVERNED-WRITEBACK-R004.10",
+    "SDK-GOVERNED-WRITEBACK-R004.11",
+    "SDK-GOVERNED-WRITEBACK-R004.12",
     "SDK-GOVERNED-WRITEBACK-R005"
   ],
   "requirements": [
@@ -106,7 +118,7 @@
     {
       "id": "SDK-GOVERNED-WRITEBACK-R004",
       "title": "Governed write-back: approval, idempotency, and an audit reservation",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "6ef04661acc2",
         "fad5328aee62"
@@ -114,7 +126,105 @@
       "verified_by": [
         "tests/test_writeback_audit_reservation.py:13",
         "tests/test_writeback_audit_reservation.py:27"
+      ],
+      "rollup_of": [
+        "SDK-GOVERNED-WRITEBACK-R004.1",
+        "SDK-GOVERNED-WRITEBACK-R004.2",
+        "SDK-GOVERNED-WRITEBACK-R004.3",
+        "SDK-GOVERNED-WRITEBACK-R004.4",
+        "SDK-GOVERNED-WRITEBACK-R004.5",
+        "SDK-GOVERNED-WRITEBACK-R004.6",
+        "SDK-GOVERNED-WRITEBACK-R004.7",
+        "SDK-GOVERNED-WRITEBACK-R004.8",
+        "SDK-GOVERNED-WRITEBACK-R004.9",
+        "SDK-GOVERNED-WRITEBACK-R004.10",
+        "SDK-GOVERNED-WRITEBACK-R004.11",
+        "SDK-GOVERNED-WRITEBACK-R004.12"
       ]
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.1",
+      "title": "Generic approval residual",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.2",
+      "title": "Generic deterministic replay residual",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.3",
+      "title": "Generic audit reservation residual",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.4",
+      "title": "Business-rule API residual",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.5",
+      "title": "Typed repository effect request",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.6",
+      "title": "Repository path and scope resolution",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.7",
+      "title": "Approval binds the complete source effect",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.8",
+      "title": "Conditional provider mutation",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.9",
+      "title": "Actual immutable effect receipt",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.10",
+      "title": "Independent revision readback",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.11",
+      "title": "Repository restart reconciliation",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.12",
+      "title": "Served repository producer composition",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-GOVERNED-WRITEBACK-R005",
