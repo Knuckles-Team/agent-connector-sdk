@@ -161,3 +161,8 @@ These future tests have not run. The producer, gate, and writer attachments are 
 
 These are required future tests. None ran during definition authoring.
 <!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-consolidated-r054-root-test-20261012 -->
+
+- **CC-80 / SDK-CONNECTOR-CONTROL-R054:** Compare every inventory entry with its served Python surface. Cover each parity and refusal child. Require independent readback before completion.
+<!-- /spec-definition-patch -->
