@@ -161,7 +161,9 @@
         "602215e2ddd8"
       ],
       "verified_by": [
-        "tests/test_contracts_and_sink.py:54"
+        "tests/test_contracts_and_sink.py:54",
+        "tests/test_mcp_native_primitives.py:47",
+        "tests/test_mcp_native_primitives.py:79"
       ]
     },
     {

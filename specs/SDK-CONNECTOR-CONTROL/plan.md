@@ -266,3 +266,14 @@ The broker stores profile revision, validation method, binding digest and proven
 Opaque exchange metadata and host lease bounds remain distinct from signed JWT claims in evidence and logs.
 Map profile errors to `invalid_token_profile` or `token_validation_failed`; required introspection failures use `introspection_unavailable` or `token_inactive`.
 These shared typed refusals stop persistence readiness and operation continuation; no token, code or raw introspection body enters public output.
+
+## Amendments
+
+### 2026-10-12: native status and packaged resources (SDK-CONNECTOR-CONTROL-R005)
+
+The server factory registers the exact operational resource `connector://status`.
+`ResourceArtifactKind.list_entries` excludes that endpoint before reading packaged content.
+The capability resource remains a template, outside `resources/list`; capture does not list template instances.
+No other `connector://` resource is exempt. Unknown schemes and malformed packaged bodies still fail validation.
+The existing generated archive builder remains the sole archive and hash implementation.
+`tests/test_mcp_native_primitives.py` exercises actual factory registration, transport, packaged content capture and unknown-resource refusal.

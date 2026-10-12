@@ -48,11 +48,11 @@ class ResourceArtifactKind:
     async def list_entries(
         self, session: McpSession, server: ServerIdentity
     ) -> tuple[CapturedArtifact, ...]:
-        """One entry per non-skill resource; bodies are read in the same session."""
+        """Read packaged resources, excluding skills and native server status."""
         entries: list[CapturedArtifact] = []
         for resource in await session.list_resources():
             uri = str(getattr(resource, "uri", ""))
-            if _scheme(uri) == "skill":
+            if _scheme(uri) == "skill" or uri == "connector://status":
                 continue
             entries.append(
                 CapturedArtifact(
