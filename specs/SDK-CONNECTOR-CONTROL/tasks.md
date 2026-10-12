@@ -88,3 +88,33 @@
 - [ ] **SDK-CONNECTOR-CONTROL-R007.6:** Prove passing and refusing flows through rollout, including missing and stale receipts and unchanged pins.
 - [ ] Preserve existing R007 fingerprint and live-contract acceptance and R009-R013 migration acceptance; do not claim implementation evidence.
 <!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-consolidated-primary-20261012-tasks -->
+## Consolidated SDK definitions
+- [ ] **SDK-CONNECTOR-CONTROL-R051.1:** Model and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R051.2:** Behavior and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R051.3:** Wiring and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R051.4:** Refusal and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R051.5:** Evidence and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R051.6:** Hot-path proof and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R052.1:** Model and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R052.2:** Behavior and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R052.3:** Wiring and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R052.4:** Refusal and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R052.5:** Evidence and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R052.6:** Hot-path proof and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R053.1:** Model and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R053.2:** Behavior and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R053.3:** Wiring and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R053.4:** Refusal and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R053.5:** Evidence and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R053.6:** Hot-path proof and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R054.1:** Model and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R054.2:** Behavior and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R054.3:** Wiring and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R054.4:** Refusal and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R054.5:** Evidence and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R054.6:** Hot-path proof and acceptance remain unimplemented.
+
+Runtime work and test execution remain outstanding.
+<!-- /spec-definition-patch -->

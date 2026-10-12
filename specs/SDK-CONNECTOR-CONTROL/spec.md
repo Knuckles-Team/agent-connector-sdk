@@ -127,3 +127,76 @@ The gate checks the transition, artifact, inventory, package source, current pin
 
 **Implementation boundary:** `agent_connector_sdk.testing.fleet_migration.scan_many_packages` and `PackageScanResult` currently report import-scan findings only. They do not produce compatibility receipts, evaluate a target artifact, authorize rollout, or gate pin writes. The producer, gate, rollout command, and R009-R013 writer attachments remain unimplemented. R007.6 describes future proof; this definition claims no runtime behavior or test result. Existing R007 fingerprint and live-contract checks, plus R009-R013 migration obligations, remain in force.
 <!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-consolidated-primary-20261012-spec -->
+
+## Sandbox allocation producer for AU:29 (R051.1-R051.6)
+
+The SDK provisions and reconciles admitted sandbox requests through one typed port. GraphOS owns host admission and the certified support matrix. Source trace: `AU:29 49df21c60c947240d4f02b1424b1de29183f10a69c76bd885f19d13e7237061c`.
+
+**SDK-CONNECTOR-CONTROL-R051.1 — Model.** Define SandboxProvisioner. It consumes GraphOS ProvisionRequest. It returns ProvisionResult with allocation ID, actual instances, observed image/platform, state, timestamps, and provider receipt.
+
+**SDK-CONNECTOR-CONTROL-R051.2 — Behavior.** Allocate once per stable operation ID. Reconcile uncertain results before retry. Transport loss never proves no allocation.
+
+**SDK-CONNECTOR-CONTROL-R051.3 — Wiring.** Plan agent_connector_sdk.ports.sandbox.SandboxProvisioner. Route AU sandbox access through GraphOS agents.run and NativeWorkItemAdmissionProtocol/CapacityLedger. Call the SDK adapter, then return its receipt to GraphOS. This producer and binding are absent.
+
+**SDK-CONNECTOR-CONTROL-R051.4 — Refusal.** Refuse unsupported profiles, missing grants, expired requests, and conflicting replay IDs before provider calls. Reconcile unresolved outcomes before retry. Unsupported combinations allocate nothing.
+
+**SDK-CONNECTOR-CONTROL-R051.5 — Evidence.** Bind request/result digests, adapter version, matrix revision, operation/allocation IDs, instances, state, timestamps, and reconciliation. Exclude credentials and secret values.
+
+**SDK-CONNECTOR-CONTROL-R051.6 — Hot-path proof.** Future served tests enter GraphOS agents.run. Use a disposable certified adapter. Observe instances and independent readback. Test unsupported profiles and response loss without duplicates.
+
+## Visual observation transport for AU:35 (R052.1-R052.6)
+
+The SDK transports visual observations and provenance between steps. EG owns durable perception state; AU owns next-step conditioning. SDK request_cache remains request-scoped. Source trace: `AU:35 9da1fe3853d82945989df4194b626b793a37937ff892b483c1583a8d1aae644e`.
+
+**SDK-CONNECTOR-CONTROL-R052.1 — Model.** Define VisualObservationEnvelope. Include observation ID, modality, source operation, and frame or sequence. Bind capture time, content digest/reference, tenant/run/request scope, and schema revision. Keep payload behind governed references.
+
+**SDK-CONNECTOR-CONTROL-R052.2 — Behavior.** Pass ordered observation references to the next authorized step in the same run. EG owns durable storage and retention. SDK request_cache is not cross-request memory.
+
+**SDK-CONNECTOR-CONTROL-R052.3 — Wiring.** Bind create_mcp_server tools/call through tool_surface or method_tools and dispatch_async. Forward the observation to EG state, then AU. The current SDK path lacks this producer and binding.
+
+**SDK-CONNECTOR-CONTROL-R052.4 — Refusal.** Refuse expired, invalidated, uncommitted, unauthorized, cross-tenant/run, and wrong-schema references before provider calls. Never substitute another request's cache.
+
+**SDK-CONNECTOR-CONTROL-R052.5 — Evidence.** Bind the digest, source/frame, producer operation, tenant/run, schema revision, retention decision, and consumer step. Exclude raw visual content and secrets.
+
+**SDK-CONNECTOR-CONTROL-R052.6 — Hot-path proof.** Future served tests cross MCP tools/call, EG state write/readback, and AU next-step use. Prove same-run reuse, cross-run isolation, and stale-reference refusal.
+
+## SDK environment declarations for GRAPHOS:9 (R053.1-R053.6)
+
+The SDK declares environment inputs used by enabled SDK components, including indirect reads. GraphOS owns startup validation; AU owns AU declarations. Source trace: `GRAPHOS:9 cfd8f1270b5ec1f19d8c78f50e5a833695573763a691584e8c74d8fa5f1cb225`.
+
+**SDK-CONNECTOR-CONTROL-R053.1 — Model.** Define versioned EnvironmentDeclaration records. Include component/distribution, schema revision, input name, required state, type constraints, and direct/indirect read source. Store no values.
+
+**SDK-CONNECTOR-CONTROL-R053.2 — Behavior.** Plan SDK environment_manifest to list declarations for every enabled SDK component and transitive setting. This producer is absent from the public SDK surface.
+
+**SDK-CONNECTOR-CONTROL-R053.3 — Wiring.** Bind the SDK export to GraphOS HostEnvironmentManifest and its R010 startup consumer. Do not duplicate its schema or validator. AU declarations stay AU-owned.
+
+**SDK-CONNECTOR-CONTROL-R053.4 — Refusal.** Refuse startup before serving on missing, malformed, or undeclared inputs. Name the input where required. Never reveal its value.
+
+**SDK-CONNECTOR-CONTROL-R053.5 — Evidence.** Bind declaration digest, component versions, enabled set, schema revision, validation outcome, and host decision. Persist names and constraints, never values.
+
+**SDK-CONNECTOR-CONTROL-R053.6 — Hot-path proof.** Future served tests cover enabled components and indirect reads. Test missing, malformed, and undeclared inputs. Confirm no route admission and redact secret values.
+
+## JSON tag-loader migration for AU:89 (R054.1-R054.6)
+
+Inventory each JSON tag loader and migrate it to Python registration with served parity. Preserve the condensed default and R026/R032 opt-ins. Source trace: `AU:89 3916d50003442e91ad490706e9c9cd0d77211af4998baa3ad98220457e4c7d1a`.
+
+**SDK-CONNECTOR-CONTROL-R054.1 — Model.** Bind each entry to package, repository, JSON digest, target, and operation IDs. Also record schemas, tags, mode, authorization reference, and refusal cases.
+
+**SDK-CONNECTOR-CONTROL-R054.2 — Behavior.** Migrate entries through register_tool_surface or register_method_tools. Keep condensed action routing as default. Preserve explicit R026/R032 opt-ins; clarify R020 wording.
+
+**SDK-CONNECTOR-CONTROL-R054.3 — Wiring.** Bind inventory and parity checks to tools/list and tools/call through Python registration and action_dispatch. Current definitions lack a complete census and gate.
+
+**SDK-CONNECTOR-CONTROL-R054.4 — Refusal.** Preserve denied, malformed, unknown, unsupported, and schema-mismatch refusals. Any unclassified loader or unexplained difference blocks completion.
+
+**SDK-CONNECTOR-CONTROL-R054.5 — Evidence.** Record revisions, inventory digest, operation/schema/tag parity, mode, authorization/refusal comparison, and served receipt. Do not claim completion before readback.
+
+**SDK-CONNECTOR-CONTROL-R054.6 — Hot-path proof.** Future served tests list every package with tools/list. Then call each operation. Include denied and malformed calls. Test condensed default and supported opt-ins.
+
+## Consolidated packet trace
+
+SDK:5 remains defined by R007.1-R007.6. No duplicate SDK:5 rows were added. `AU:29 49df21c60c947240d4f02b1424b1de29183f10a69c76bd885f19d13e7237061c`; `AU:35 9da1fe3853d82945989df4194b626b793a37937ff892b483c1583a8d1aae644e`; `GRAPHOS:9 cfd8f1270b5ec1f19d8c78f50e5a833695573763a691584e8c74d8fa5f1cb225`; `AU:89 3916d50003442e91ad490706e9c9cd0d77211af4998baa3ad98220457e4c7d1a`.
+
+The current SDK tree lacks these four producers and bindings. This packet adds definitions only. It adds no runtime implementation or acceptance receipt.
+<!-- /spec-definition-patch -->

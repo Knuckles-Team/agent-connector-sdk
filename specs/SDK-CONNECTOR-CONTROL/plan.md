@@ -298,3 +298,42 @@ The existing generated archive builder remains the sole archive and hash impleme
 
 R007.1 precedes R007.2; R007.2 precedes R007.3. R007.3 and R007.4 precede R007.6. R007.5 records their bound inputs and decisions. R007.3 precedes each R009-R013 package-pin migration. Preserve their existing migration and import-scan requirements. This plan claims no completed migration or runtime evidence.
 <!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-consolidated-primary-20261012-plan -->
+## Consolidated SDK owner definitions
+
+### SDK-CONNECTOR-CONTROL-R051
+1. SDK-CONNECTOR-CONTROL-R051.1: Define SandboxProvisioner. It consumes GraphOS ProvisionRequest. It returns ProvisionResult with allocation ID, actual instances, observed image/platform, state, timestamps, and provider receipt.
+2. SDK-CONNECTOR-CONTROL-R051.2: Allocate once per stable operation ID. Reconcile uncertain results before retry. Transport loss never proves no allocation.
+3. SDK-CONNECTOR-CONTROL-R051.3: Plan agent_connector_sdk.ports.sandbox.SandboxProvisioner. Route AU sandbox access through GraphOS agents.run and NativeWorkItemAdmissionProtocol/CapacityLedger. Call the SDK adapter, then return its receipt to GraphOS. This producer and binding are absent.
+4. SDK-CONNECTOR-CONTROL-R051.4: Refuse unsupported profiles, missing grants, expired requests, and conflicting replay IDs before provider calls. Reconcile unresolved outcomes before retry. Unsupported combinations allocate nothing.
+5. SDK-CONNECTOR-CONTROL-R051.5: Bind request/result digests, adapter version, matrix revision, operation/allocation IDs, instances, state, timestamps, and reconciliation. Exclude credentials and secret values.
+6. SDK-CONNECTOR-CONTROL-R051.6: Future served tests enter GraphOS agents.run. Use a disposable certified adapter. Observe instances and independent readback. Test unsupported profiles and response loss without duplicates.
+
+### SDK-CONNECTOR-CONTROL-R052
+1. SDK-CONNECTOR-CONTROL-R052.1: Define VisualObservationEnvelope. Include observation ID, modality, source operation, and frame or sequence. Bind capture time, content digest/reference, tenant/run/request scope, and schema revision. Keep payload behind governed references.
+2. SDK-CONNECTOR-CONTROL-R052.2: Pass ordered observation references to the next authorized step in the same run. EG owns durable storage and retention. SDK request_cache is not cross-request memory.
+3. SDK-CONNECTOR-CONTROL-R052.3: Bind create_mcp_server tools/call through tool_surface or method_tools and dispatch_async. Forward the observation to EG state, then AU. The current SDK path lacks this producer and binding.
+4. SDK-CONNECTOR-CONTROL-R052.4: Refuse expired, invalidated, uncommitted, unauthorized, cross-tenant/run, and wrong-schema references before provider calls. Never substitute another request's cache.
+5. SDK-CONNECTOR-CONTROL-R052.5: Bind the digest, source/frame, producer operation, tenant/run, schema revision, retention decision, and consumer step. Exclude raw visual content and secrets.
+6. SDK-CONNECTOR-CONTROL-R052.6: Future served tests cross MCP tools/call, EG state write/readback, and AU next-step use. Prove same-run reuse, cross-run isolation, and stale-reference refusal.
+
+### SDK-CONNECTOR-CONTROL-R053
+1. SDK-CONNECTOR-CONTROL-R053.1: Define versioned EnvironmentDeclaration records. Include component/distribution, schema revision, input name, required state, type constraints, and direct/indirect read source. Store no values.
+2. SDK-CONNECTOR-CONTROL-R053.2: Plan SDK environment_manifest to list declarations for every enabled SDK component and transitive setting. This producer is absent from the public SDK surface.
+3. SDK-CONNECTOR-CONTROL-R053.3: Bind the SDK export to GraphOS HostEnvironmentManifest and its R010 startup consumer. Do not duplicate its schema or validator. AU declarations stay AU-owned.
+4. SDK-CONNECTOR-CONTROL-R053.4: Refuse startup before serving on missing, malformed, or undeclared inputs. Name the input where required. Never reveal its value.
+5. SDK-CONNECTOR-CONTROL-R053.5: Bind declaration digest, component versions, enabled set, schema revision, validation outcome, and host decision. Persist names and constraints, never values.
+6. SDK-CONNECTOR-CONTROL-R053.6: Future served tests cover enabled components and indirect reads. Test missing, malformed, and undeclared inputs. Confirm no route admission and redact secret values.
+
+### SDK-CONNECTOR-CONTROL-R054
+1. SDK-CONNECTOR-CONTROL-R054.1: Bind each entry to package, repository, JSON digest, target, and operation IDs. Also record schemas, tags, mode, authorization reference, and refusal cases.
+2. SDK-CONNECTOR-CONTROL-R054.2: Migrate entries through register_tool_surface or register_method_tools. Keep condensed action routing as default. Preserve explicit R026/R032 opt-ins; clarify R020 wording.
+3. SDK-CONNECTOR-CONTROL-R054.3: Bind inventory and parity checks to tools/list and tools/call through Python registration and action_dispatch. Current definitions lack a complete census and gate.
+4. SDK-CONNECTOR-CONTROL-R054.4: Preserve denied, malformed, unknown, unsupported, and schema-mismatch refusals. Any unclassified loader or unexplained difference blocks completion.
+5. SDK-CONNECTOR-CONTROL-R054.5: Record revisions, inventory digest, operation/schema/tag parity, mode, authorization/refusal comparison, and served receipt. Do not claim completion before readback.
+6. SDK-CONNECTOR-CONTROL-R054.6: Future served tests list every package with tools/list. Then call each operation. Include denied and malformed calls. Test condensed default and supported opt-ins.
+
+
+Within each family, Model precedes Behavior and Wiring. Refusal and Evidence bind the same operation. Hot-path proof depends on all prior children.
+<!-- /spec-definition-patch -->
