@@ -4,7 +4,7 @@ The Agent Connector SDK is the connector transport and lifecycle layer between
 MCP clients, vendor systems, GraphOS, and epistemic-graph. It keeps vendor `I/O`
 replaceable while one generated graph contract owns durable identity and state.
 
-![Agent ecosystem runtime architecture](assets/runtime-architecture.svg)
+![Agent ecosystem runtime architecture](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)
 
 ## Responsibility boundary
 

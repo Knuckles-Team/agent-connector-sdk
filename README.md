@@ -106,7 +106,7 @@ owns authenticated runtime composition.
 
 ## Architecture
 
-![Runtime architecture: people and clients enter through Graph OS. Source systems flow through Agent Connector SDK into Epistemic Graph.](docs/assets/runtime-architecture.svg)
+![Runtime architecture: people and clients enter through Graph OS. Source systems flow through Agent Connector SDK into Epistemic Graph.](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)
 
 | Boundary | Owned here | Owned elsewhere |
 |---|---|---|
