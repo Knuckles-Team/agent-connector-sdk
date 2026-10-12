@@ -172,3 +172,16 @@ Enterprise acceptance registers two separately packaged connectors against disti
 Send identical list_accounts and read_invoice contracts before and after changing only the approved connector selection.
 Inspect normalized records and backend request logs. Exercise create_invoice through governed approval and idempotency.
 Repeat an effect with the same identity and assert one effect; denied and unsupported effects produce zero backend requests.
+
+## Approved query receiving acceptance
+
+All tests in this section are planned and unexecuted.
+
+| Requirement | Case | Required assertion |
+|---|---|---|
+| `SDK-SOURCE-INGEST-R004.7` | Model | `tests/test_approved_sql_source.py::test_generated_descriptor_and_page_contract` checks exact producer fields, page invariants and continuation bindings. |
+| `SDK-SOURCE-INGEST-R004.8` | Behavior | `tests/test_approved_sql_source.py::test_verification_boundaries_and_bounds` checks start/chunk/complete order, immutable parameters, read-only execution and bounded buffers. |
+| `SDK-SOURCE-INGEST-R004.9` | Wiring | `tests/test_approved_sql_source_served.py::test_registered_approval_receiver` traces the tools/call wire method through actual registration, verification and driver access. |
+| `SDK-SOURCE-INGEST-R004.10` | Refusal | `tests/test_approved_sql_source_served.py::test_revocation_and_failure_after_chunks` proves explicit terminal failure after three chunks and zero unauthorized effects. |
+| `SDK-SOURCE-INGEST-R004.11` | Evidence | `tests/test_approved_sql_source.py::test_page_provenance_and_redaction` compares immutable bindings, verification receipts, terminal totals and redacted failures. |
+| `SDK-SOURCE-INGEST-R004.12` | Hot-path proof | Use real authenticated dispatch on both sides. Mocks of approval, driver, dispatcher or durable ingestion cannot close acceptance. |

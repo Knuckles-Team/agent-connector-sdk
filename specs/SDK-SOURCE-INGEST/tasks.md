@@ -80,3 +80,12 @@
 - [ ] `SDK-SOURCE-INGEST-R006.35`: implement and prove refusal for interchangeable enterprise operations.
 - [ ] `SDK-SOURCE-INGEST-R006.36`: implement and prove evidence for interchangeable enterprise operations.
 - [ ] `SDK-SOURCE-INGEST-R006.37`: implement and prove hot-path proof for interchangeable enterprise operations.
+
+## Approved query receiving contract
+
+- [ ] `SDK-SOURCE-INGEST-R004.7`: implement and prove model for the generated approval receiver.
+- [ ] `SDK-SOURCE-INGEST-R004.8`: implement and prove behavior for the generated approval receiver.
+- [ ] `SDK-SOURCE-INGEST-R004.9`: implement and prove wiring for the generated approval receiver.
+- [ ] `SDK-SOURCE-INGEST-R004.10`: implement and prove refusal for the generated approval receiver.
+- [ ] `SDK-SOURCE-INGEST-R004.11`: implement and prove evidence for the generated approval receiver.
+- [ ] `SDK-SOURCE-INGEST-R004.12`: implement and prove hot-path proof for the generated approval receiver.
