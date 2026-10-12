@@ -166,3 +166,8 @@ These are required future tests. None ran during definition authoring.
 
 - **CC-80 / SDK-CONNECTOR-CONTROL-R054:** Compare every inventory entry with its served Python surface. Cover each parity and refusal child. Require independent readback before completion.
 <!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-consolidated-r054-binding-marker-20261012 -->
+
+<!-- # spec: SDK-CONNECTOR-CONTROL-R054; planned acceptance link only. -->
+<!-- /spec-definition-patch -->
