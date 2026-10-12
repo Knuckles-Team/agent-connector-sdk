@@ -185,3 +185,35 @@ All tests in this section are planned and unexecuted.
 | `SDK-SOURCE-INGEST-R004.10` | Refusal | `tests/test_approved_sql_source_served.py::test_revocation_and_failure_after_chunks` proves explicit terminal failure after three chunks and zero unauthorized effects. |
 | `SDK-SOURCE-INGEST-R004.11` | Evidence | `tests/test_approved_sql_source.py::test_page_provenance_and_redaction` compares immutable bindings, verification receipts, terminal totals and redacted failures. |
 | `SDK-SOURCE-INGEST-R004.12` | Hot-path proof | Use real authenticated dispatch on both sides. Mocks of approval, driver, dispatcher or durable ingestion cannot close acceptance. |
+
+<!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
+## Supported-harness session synchronization (WEBUI:3)
+
+<!-- # spec: SDK-SOURCE-INGEST-R013; future acceptance links only; no evidence recorded. -->
+
+These tests are planned. They require the complete owner-approved manifest and published EG/GraphOS contracts.
+
+| Test ID | Requirement | Level | Setup and input | Expected observation | Evidence |
+|---|---|---|---|---|---|
+| HS-13.1 | R013.1 | Contract | malformed manifest | refuse before calls | version and refusal |
+| HS-13.2 | R013.2 | Integration | full sync and restart | coverage and idempotence | source outcomes |
+| HS-13.3 | R013.3 | Served | connector-sync --once | real SourceIngest calls | served receipt |
+| HS-13.4 | R013.4 | Negative | denied and cross-tenant source | typed refusal, zero calls | unchanged cursor |
+| HS-13.5 | R013.5 | Persistence | restart and independent readback | receipt fields agree | graph receipt |
+| HS-13.6 | R013.6 | End-to-end | all entries and WEBUI-APPS-R006.4 | full browse and coverage | SDK, EG, GraphOS, browser |
+
+## Live meeting and summary providers (WEBUI:10)
+
+<!-- # spec: SDK-SOURCE-INGEST-R014; future acceptance links only; no evidence recorded. -->
+
+Current dictation routes are single-shot. These tests require a registered meeting operation and EG/GraphOS provider bindings.
+
+| Test ID | Requirement | Level | Setup and input | Expected observation | Evidence |
+|---|---|---|---|---|---|
+| MT-14.1 | R014.1 | Contract | malformed segment | typed refusal | schema result |
+| MT-14.2 | R014.2 | Integration | retry and correction | order; stale summary invalidated | event receipts |
+| MT-14.3 | R014.3 | Served | registered operation | real SDK and GraphOS calls | tool and route IDs |
+| MT-14.4 | R014.4 | Negative | denied capture/egress, gaps | refusal; zero provider calls | refusal receipt |
+| MT-14.5 | R014.5 | Persistence | corrected transcript and summary | provenance matches final revision | stored receipts |
+| MT-14.6 | R014.6 | End-to-end | local then hosted selection | no silent fallback | browser/provider evidence |
+<!-- /spec-definition-patch -->

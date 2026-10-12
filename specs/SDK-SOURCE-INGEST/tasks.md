@@ -89,3 +89,23 @@
 - [ ] `SDK-SOURCE-INGEST-R004.10`: implement and prove refusal for the generated approval receiver.
 - [ ] `SDK-SOURCE-INGEST-R004.11`: implement and prove evidence for the generated approval receiver.
 - [ ] `SDK-SOURCE-INGEST-R004.12`: implement and prove hot-path proof for the generated approval receiver.
+
+<!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
+## Supported-harness session sync (R013; WEBUI:3)
+
+- [ ] Obtain the approved full manifest, real source operations, and EG/GraphOS requirement IDs.
+- [ ] Reuse connector-sync --once and map identity, cursor, coverage, and outcome to SourceIngest.
+- [ ] Test retry, restart, partial denial, and cross-tenant refusal against served sources.
+- [ ] Read EG receipts and test WEBUI-APPS-R006.4 across every manifest entry.
+- [ ] Capture revision-bound evidence after independent readback.
+
+## Live meeting and summary transport (R014; WEBUI:10)
+
+- [ ] Ask audio-transcriber whether transcribe_audio can serve meeting segments.
+- [ ] Otherwise identify the actual meeting operation and repository before registration.
+- [ ] Obtain EG and GraphOS IDs and admitted local/hosted provider operations.
+- [ ] Preserve dictation while adding verified segment and summary transport.
+- [ ] Test selection, refusal, zero denied effects, and no provider-class fallback.
+- [ ] Bind summary evidence to finalized transcript and provider revisions.
+- [ ] Reconcile owner IDs after review; do not claim runtime completion.
+<!-- /spec-definition-patch -->

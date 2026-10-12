@@ -489,3 +489,35 @@ Read accepted records and checkpoints through the generated graph client.
 Retain R004.6's fixed-limit memory experiment across a hundredfold increase in rows.
 Record exact EG/SDK revisions, generated schema revision, commands, driver requests, verification receipts and peak memory.
 No runtime execution evidence is established by this definition slice.
+
+<!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
+## Supported-harness session discovery (R013)
+
+**Ownership.** SDK owns discovery, synchronization, and SourceIngest receipts. EG owns indexing and queries. GraphOS owns served reads. WEBUI-APPS-R006.4 consumes the browser response.
+
+**Attachment.** Reuse connector-sync --once and its existing worker. Reuse McpToolSourceAdapter.extract and the generated SourceIngest client. Add no parallel runner or UI-local index.
+
+Owners must publish the complete supported-harness manifest. Each entry names a real repository, operation, revision, authority, identity schema, and cursor form. Do not infer entries from examples.
+
+Bind source identity to tenant, harness, and session. Bind replay to source revision and cursor. Advance only after an accepted receipt. Preserve denied, failed, and partial outcomes through restart.
+
+HS-13.6 exercises served discovery for every approved entry. It reads generated receipts and the durable EG index. It exercises WEBUI-APPS-R006.4. A denied source stays partial. Other sources continue. Cross-tenant reads refuse.
+
+EG and GraphOS owners must publish exact counterpart IDs before implementation. This SDK packet does not invent them.
+
+## Live meeting and summary transport (R014)
+
+**Ownership.** SDK owns transport and receipt linkage. Audio-transcriber owns transcribe_audio. EG owns transcript/context authority. GraphOS owns authorized operations. WebUI owns capture and display through WEBUI-APPS-R001.5.
+
+The current WebUI route posts to /api/enhanced/voice/transcribe after MediaRecorder stops. Audio-transcriber registers transcribe_audio for a file or microphone capture. Both are single-shot paths. Neither proves live segments or summaries.
+
+Keep existing dictation. Owners must identify a real meeting operation and local/hosted summary operations before implementation. Do not invent registrations.
+
+Carry meeting and tenant identity, segment and sequence, correction revision, source time, lifecycle, and provenance. Refuse gaps, stale updates, and unfinalized summaries. Corrections invalidate old summaries.
+
+Honor the user's admitted provider choice. Refuse denied capture, denied egress, and unavailable providers before effects. Never switch from local to hosted silently.
+
+Acceptance enters real SDK dispatch. It observes ordered segments and corrections. It exercises local and hosted providers separately. It reads durable provenance. It confirms denied requests produce no provider call.
+
+EG and GraphOS owners supply their operation IDs. No runtime work is authorized in this definition slice.
+<!-- /spec-definition-patch -->
