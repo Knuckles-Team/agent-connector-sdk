@@ -2,10 +2,20 @@
 
 from __future__ import annotations
 
+import re
+from pathlib import Path
+
 import pytest
 from fastmcp import Client
 
+from agent_connector_sdk.artifacts.pack import build_content_pack
+from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
+from agent_connector_sdk.artifacts.skills import SkillArtifactKind
+from agent_connector_sdk.mcp.content import ConnectorContent
 from agent_connector_sdk.mcp.server import create_mcp_server
+from agent_connector_sdk.ports.errors import MalformedArtifactError
+from agent_connector_sdk.ports.session import TransportEndpoint
+from agent_connector_sdk.transports.mcp import McpTransport
 
 
 # spec: GRAPHOS-FLEET-R007.1
@@ -32,3 +42,63 @@ async def test_create_mcp_server_serves_native_prompts_resources_and_templates()
 
         read_template = await client.read_resource("connector://capability/search")
         assert read_template[0].text and "search" in read_template[0].text
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R005")
+async def test_native_status_does_not_block_packaged_content_capture(
+    package_root: Path,
+) -> None:
+    _, mcp, _ = create_mcp_server(
+        "native-mcp",
+        version="1.0.0",
+        command_args=[],
+        content=ConnectorContent(
+            connector="demo-agent",
+            package_root=package_root,
+            package_version="1.0.0",
+            manifest_path=package_root / "connector_manifest.yml",
+        ),
+    )
+    async with McpTransport().session(TransportEndpoint(in_process=mcp)) as session:
+        pack = await build_content_pack(
+            session,
+            connector="demo-agent",
+            kinds=(SkillArtifactKind(), ResourceArtifactKind()),
+        )
+        assert "native-mcp" in await session.read_resource("connector://status")
+        assert "search" in await session.read_resource("connector://capability/search")
+    assert pack.resource_uris == {
+        "manifest://connector",
+        "ontology://demo-agent/demo.ttl",
+        "shapes://demo-agent/demo.shapes.ttl",
+        "skill://demo-reader/SKILL.md",
+    }
+    assert {entry.uri for entry in pack.archive.entries} == pack.resource_uris
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R005")
+@pytest.mark.parametrize(
+    "uri",
+    [
+        "mystery://content",
+        "connector://unexpected",
+        "connector://status/extra",
+        "connector://status?variant=1",
+    ],
+)
+async def test_native_status_exclusion_keeps_unknown_resources_rejected(
+    uri: str,
+) -> None:
+    _, mcp, _ = create_mcp_server("native-mcp", version="1.0.0", command_args=[])
+
+    @mcp.resource(uri)
+    def unknown_resource() -> str:
+        return "unrecognized content"
+
+    async with McpTransport().session(TransportEndpoint(in_process=mcp)) as session:
+        with pytest.raises(
+            MalformedArtifactError, match=re.escape(uri) + ".*unknown scheme"
+        ):
+            await build_content_pack(
+                session, connector="demo-agent", kinds=(ResourceArtifactKind(),)
+            )

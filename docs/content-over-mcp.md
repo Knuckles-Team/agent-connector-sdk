@@ -37,6 +37,12 @@ and the current catalog snapshot, so the SDK never carries a second digest
 implementation. Two entries with one URI, an unknown resource scheme, or a
 malformed body are rejected.
 
+The factory's exact `connector://status` endpoint exposes operational state.
+Resource capture excludes this endpoint from packaged content. The `connector://capability/{capability}`
+template remains available for direct reads; capture does not list template
+instances. Other unknown resources, including other `connector://` URIs, still fail
+validation.
+
 Ontology and shapes bodies enter the generated archive as the exact served
 UTF-8/LF bytes with `text/turtle`; connector packages must therefore publish
 canonical LF files. The SDK does not parse or reserialize identity-bearing
