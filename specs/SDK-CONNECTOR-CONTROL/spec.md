@@ -40,7 +40,7 @@ Clone this public repository, install `uv` and Python matching `pyproject.toml`,
 
 ## Completion rule
 
-Source is **LANDED** only after an exact merged commit contains the required implementation and checks. This spec is **ACCEPTED** only after the gates in `test-spec.md` pass against that commit and a published wheel plus a real connector pack receipt are linked in the evidence section below. Current implementation exists in `manifest/`, `certify/`, `mcp/`, `artifacts/`, and `runner/`, but fleet cutover and release acceptance are unverified here.
+Delivery evidence requires an exact merged commit that contains the required implementation and checks. Acceptance requires the gates in `test-spec.md` to pass against that commit. The evidence section below must link a published wheel and a real connector pack receipt. Current implementation exists in `manifest/`, `certify/`, `mcp/`, `artifacts/`, and `runner/`, but fleet cutover and release acceptance are unverified here.
 
 ### Evidence
 

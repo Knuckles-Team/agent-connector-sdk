@@ -42,7 +42,7 @@ Two source-adapter families extend this same contract. Adapters for GBIF and iNa
 | Representative enterprise/document/feed adapter parity | OPEN | Pending source fixture receipts |
 | Durable graph checkpoint and quarantine probe | OPEN | Pending redacted runtime receipts |
 
-**LANDED** requires an exact merged source commit. **ACCEPTED** requires all `test-spec.md` assertions, including a graph-backed receipt and restart proof, attached here. Existing runner, adapter, and sink modules are an implementation base, not acceptance evidence.
+Delivery evidence requires an exact merged source commit. Acceptance requires all `test-spec.md` assertions, including a graph-backed receipt and restart proof, attached here. Existing runner, adapter, and sink modules are an implementation base, not acceptance evidence.
 
 Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.
 
