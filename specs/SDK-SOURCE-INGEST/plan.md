@@ -513,7 +513,7 @@ The current WebUI route posts to /api/enhanced/voice/transcribe after MediaRecor
 
 Keep existing dictation. Owners must identify a real meeting operation and local/hosted summary operations before implementation. Do not invent registrations.
 
-Carry meeting and tenant identity, segment and sequence, correction revision, source time, lifecycle, and provenance. Accept bounded ordered partial ingestion. Exact bound replays return the existing receipt without a second effect. Refuse conflicting duplicates and stale updates. Corrections advance one segment revision and invalidate older summaries. Gaps may remain pending while partial. Finalization and summary dispatch refuse until the sequence is complete.
+Carry meeting and tenant identity, segment and sequence, correction revision, source time, lifecycle, and provenance. Accept bounded ordered partial ingestion. Exact bound replays return the existing receipt without a second effect. Refuse conflicting duplicates and stale updates. Corrections advance one segment revision and invalidate older summaries. Gaps may remain pending while partial and block finalization until filled. Permit finalization once the current sequence is complete and contiguous, and bind its receipt to that transcript revision. Summary dispatch requires that exact finalized receipt.
 
 Honor the user's admitted provider choice. Refuse denied capture, denied egress, and unavailable providers before effects. Never switch from local to hosted silently.
 

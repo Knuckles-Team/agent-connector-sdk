@@ -143,7 +143,7 @@
   "requirements": [
     {
       "id": "SDK-CONNECTOR-CONTROL-R001",
-      "title": "ConnectorPackClient uses a deterministic idempotency key",
+      "title": "Pack retries reuse one key",
       "delivery_state": "VERIFIED",
       "landed_in": [
         "dcc7d285ccc9"

@@ -107,7 +107,7 @@
 - [ ] **SDK-SOURCE-INGEST-R014.1:** Define closed event/provider fields and distinguish exact receipt-bound replay from conflicting duplicate payload/revision.
 - [ ] **SDK-SOURCE-INGEST-R014.2:** Specify bounded ordered partial ingestion, idempotent replay, newer-revision corrections, and complete-sequence finalization.
 - [ ] **SDK-SOURCE-INGEST-R014.3:** Bind the owner-registered meeting operation through real SDK dispatch, EG transcript authority, and GraphOS selection.
-- [ ] **SDK-SOURCE-INGEST-R014.4:** Prove denied/stale/conflicting input and incomplete finalization/summary refusals with zero prohibited effects.
+- [ ] **SDK-SOURCE-INGEST-R014.4:** Prove gaps block finalization. Prove complete sequences finalize and issue bound receipts. Prove summary dispatch without that receipt refuses with zero provider effects.
 - [ ] **SDK-SOURCE-INGEST-R014.5:** Persist redacted provenance bound to final transcript, provider revisions, authorization, and invocation receipt.
 - [ ] **SDK-SOURCE-INGEST-R014.6:** Test partial -> correction -> complete finalization with zero premature summary calls, plus independent local/hosted selection and refusals.
 <!-- /spec-definition-patch -->
