@@ -18,3 +18,11 @@
 - [ ] **R005.4:** Implement and verify paper-source refusal acceptance (SDK-SOURCE-INGEST-R005.4).
 - [ ] **R005.5:** Implement and verify paper-source evidence acceptance (SDK-SOURCE-INGEST-R005.5).
 - [ ] **R005.6:** Implement and verify paper-source hot-path proof acceptance (SDK-SOURCE-INGEST-R005.6).
+
+- [ ] **SDK-SOURCE-INGEST-R012:** Platform read/search fallback and observed backend status.
+- [ ] **SDK-SOURCE-INGEST-R012.1:** Model.
+- [ ] **SDK-SOURCE-INGEST-R012.2:** Behavior.
+- [ ] **SDK-SOURCE-INGEST-R012.3:** Wiring.
+- [ ] **SDK-SOURCE-INGEST-R012.4:** Refusal.
+- [ ] **SDK-SOURCE-INGEST-R012.5:** Evidence.
+- [ ] **SDK-SOURCE-INGEST-R012.6:** Hot-path proof.
