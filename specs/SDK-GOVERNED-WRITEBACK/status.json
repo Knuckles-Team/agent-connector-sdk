@@ -2,9 +2,15 @@
   "schema_version": 2,
   "spec_id": "SDK-GOVERNED-WRITEBACK",
   "owner_repo": "agent-connector-sdk",
-  "delivery_state": "VERIFIED",
+  "delivery_state": "SPECIFIED",
   "requirement_ids": [
     "SDK-GOVERNED-WRITEBACK-R001",
+    "SDK-GOVERNED-WRITEBACK-R001.1",
+    "SDK-GOVERNED-WRITEBACK-R001.2",
+    "SDK-GOVERNED-WRITEBACK-R001.3",
+    "SDK-GOVERNED-WRITEBACK-R001.4",
+    "SDK-GOVERNED-WRITEBACK-R001.5",
+    "SDK-GOVERNED-WRITEBACK-R001.6",
     "SDK-GOVERNED-WRITEBACK-R002",
     "SDK-GOVERNED-WRITEBACK-R003",
     "SDK-GOVERNED-WRITEBACK-R004",
@@ -14,7 +20,7 @@
     {
       "id": "SDK-GOVERNED-WRITEBACK-R001",
       "title": "Write-back proposals route through governed authorization, not direct action",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "daeb199f91c0",
         "fad5328aee62"
@@ -22,7 +28,57 @@
       "verified_by": [
         "tests/test_decide_consumers.py:169",
         "tests/test_decide_consumers.py:176"
+      ],
+      "rollup_of": [
+        "SDK-GOVERNED-WRITEBACK-R001.1",
+        "SDK-GOVERNED-WRITEBACK-R001.2",
+        "SDK-GOVERNED-WRITEBACK-R001.3",
+        "SDK-GOVERNED-WRITEBACK-R001.4",
+        "SDK-GOVERNED-WRITEBACK-R001.5",
+        "SDK-GOVERNED-WRITEBACK-R001.6"
       ]
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R001.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R001.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R001.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R001.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R001.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R001.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-GOVERNED-WRITEBACK-R002",

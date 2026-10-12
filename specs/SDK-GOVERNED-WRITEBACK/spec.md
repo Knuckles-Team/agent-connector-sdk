@@ -32,3 +32,15 @@ Run `uv sync` and focused `uv run --frozen python -m pytest -q tests/test_writeb
 **LANDED** requires exact merged source. **ACCEPTED** requires all tests below on that source, a contributor-owned writable adapter, and cross-process receipts. Current SDK write-back modules implement a source slice; they do not prove fleet or live acceptance.
 
 Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.
+
+
+## Wallet proof producer
+
+SDK-GOVERNED-WRITEBACK-R001.1 through R001.6 define the signature-verification producer consumed by GRAPHOS-DATA-MARKET-R007.
+The SDK produces source-side cryptographic verification facts; EG owns authorization decisions and durable replay/effect records.
+GraphOS authenticates the caller and serves explicit confirmation. A signature never replaces either approval or account entitlement.
+Unavailable verifier, key trust or durable binding keeps wallet operations unavailable.
+
+Confirmation binds the complete immutable `{"intent": WalletBusinessIntent}` projection defined in plan.md.
+Proof and confirmation metadata use the separate, currently missing WalletExecutionEnvelope transport extension.
+No proof or derived plan digest enters the confirmed business parameters. All new wiring remains SPECIFIED.
