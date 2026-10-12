@@ -277,3 +277,24 @@ The capability resource remains a template, outside `resources/list`; capture do
 No other `connector://` resource is exempt. Unknown schemes and malformed packaged bodies still fail validation.
 The existing generated archive builder remains the sole archive and hash implementation.
 `tests/test_mcp_native_primitives.py` exercises actual factory registration, transport, packaged content capture and unknown-resource refusal.
+
+<!-- spec-definition-patch:sdk5-r007-major-version-plan -->
+## SDK:5 - major-version compatibility gate (R007.1-R007.6)
+
+### Existing attachment and missing dependency
+
+`scan_many_packages` and `PackageScanResult` currently report Python import-scan findings. They do not test target-major compatibility, produce receipts, or gate pin writes. No fleet-upgrade command or dependency-pin gate exists. R009-R013 track five package batches. Their manifests and lockfiles lack one shared SDK gate. The producer, authorization, rollout entry point, and per-package pre-write attachments remain missing.
+
+### Required dependency order
+
+1. Resolve the complete package inventory and transition inputs. Bind each package to its repository, source commit, current pin, and dependency-file preimage. Bind the target major and immutable artifact digest. Canonicalize entries and hash the inventory. Stop if completeness is unknown.
+2. Define the transition, inventory, receipt, and gate models under R007.1. Evaluate every package against the target artifact in isolation under R007.2. Do not change tracked pin files. Record one complete receipt per package.
+3. Implement fleet authorization under R007.3. Check exact receipt membership and bound inputs. Refuse missing, duplicate, extra, failed, incomplete, cancelled, stale, or mismatched receipts.
+4. Attach the per-package check before the first pin write. Require the same gate in R009-R013. An incompatible package blocks the rollout and preserves every pin.
+5. Record credential-free transition, inventory, receipt, suite, and consumed authorization evidence under R007.5. Preserve existing fingerprint, live-contract, and package-migration acceptance.
+6. Prove passing and refusing flows through the real rollout entry point under R007.6. Keep the plan blocked until the producer and consumers are implemented and reachable.
+
+### Acceptance dependencies
+
+R007.1 precedes R007.2; R007.2 precedes R007.3. R007.3 and R007.4 precede R007.6. R007.5 records their bound inputs and decisions. R007.3 precedes each R009-R013 package-pin migration. Preserve their existing migration and import-scan requirements. This plan claims no completed migration or runtime evidence.
+<!-- /spec-definition-patch -->

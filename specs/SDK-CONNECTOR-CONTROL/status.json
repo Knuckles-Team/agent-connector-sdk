@@ -104,7 +104,13 @@
     "SDK-CONNECTOR-CONTROL-R050.3",
     "SDK-CONNECTOR-CONTROL-R050.4",
     "SDK-CONNECTOR-CONTROL-R050.5",
-    "SDK-CONNECTOR-CONTROL-R050.6"
+    "SDK-CONNECTOR-CONTROL-R050.6",
+    "SDK-CONNECTOR-CONTROL-R007.1",
+    "SDK-CONNECTOR-CONTROL-R007.2",
+    "SDK-CONNECTOR-CONTROL-R007.3",
+    "SDK-CONNECTOR-CONTROL-R007.4",
+    "SDK-CONNECTOR-CONTROL-R007.5",
+    "SDK-CONNECTOR-CONTROL-R007.6"
   ],
   "requirements": [
     {
@@ -184,13 +190,21 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R007",
       "title": "Fleet-wide re-certification yields nonempty schema fingerprints",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "0f826d4ca6db",
         "93afc6b075df"
       ],
       "verified_by": [
         "tests/test_fleet_recertification.py:54"
+      ],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R007.1",
+        "SDK-CONNECTOR-CONTROL-R007.2",
+        "SDK-CONNECTOR-CONTROL-R007.3",
+        "SDK-CONNECTOR-CONTROL-R007.4",
+        "SDK-CONNECTOR-CONTROL-R007.5",
+        "SDK-CONNECTOR-CONTROL-R007.6"
       ]
     },
     {
@@ -1037,6 +1051,48 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R050.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R007.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],

@@ -117,3 +117,17 @@ An opaque token without provider expiry may use only the explicit bounded host l
 Forged profile selection, wrong connector, cross-tenant binding, excess scopes and unapproved resource audience all refuse with zero resumed effects.
 The outbound opaque profile must not admit an unsigned GraphOS API bearer or remove its required tenant claim.
 Inspect responses and logs for token/code leakage. These acceptance cases have not run. They require the runtime wiring.
+
+<!-- spec-definition-patch:sdk5-r007-major-version-tests -->
+## Major-version compatibility and pre-pin rollout acceptance (R007.1-R007.6)
+
+These future tests have not run. The producer, gate, and writer attachments are not implemented; no VERIFIED evidence exists.
+
+- **Model and inventory:** Assert stable canonical sorting and digest. Refuse duplicate, unidentifiable, or incomplete package inventories.
+- **Receipt production:** Test every inventoried package against the exact artifact in isolation. Assert one complete bound receipt per package and unchanged dependency-file bytes.
+- **Positive hot path:** Enter the production rollout command and exercise real pin writers. Assert the all-pass set authorizes only bound packages across R009-R013.
+- **Incompatible hot path:** Fail one package check through the same entry point. Assert refusal before the first pin write and unchanged manifests and lockfiles.
+- **Missing and stale evidence:** Remove a receipt or change the source, pin preimage, inventory, or artifact. Assert typed refusal and no pin changes.
+- **Invalid receipt sets:** Test failed, incomplete, cancelled, duplicate, extra, and cross-package receipts. Assert refusal and no pin changes.
+- **Existing acceptance:** Retain R007 fingerprint and live-contract comparison and R009-R013 package migration and import-scan tests.
+<!-- /spec-definition-patch -->

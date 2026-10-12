@@ -76,3 +76,15 @@
 - [ ] **SDK-CONNECTOR-CONTROL-R035.4:** Refusal: host-bound credential use.
 - [ ] **SDK-CONNECTOR-CONTROL-R035.5:** Evidence: host-bound credential use.
 - [ ] **SDK-CONNECTOR-CONTROL-R035.6:** Hot-path proof: host-bound credential use.
+
+<!-- spec-definition-patch:sdk5-r007-major-version-tasks -->
+## SDK:5 - major-version compatibility gate
+
+- [ ] **SDK-CONNECTOR-CONTROL-R007.1:** Define transition, canonical inventory, receipt, and gate models bound to package and artifact identities.
+- [ ] **SDK-CONNECTOR-CONTROL-R007.2:** Evaluate every package against the target artifact in isolation; emit one complete receipt per package without changing tracked pins.
+- [ ] **SDK-CONNECTOR-CONTROL-R007.3:** Implement fleet authorization and a package-specific pre-write check; attach both to rollout and R009-R013 writers.
+- [ ] **SDK-CONNECTOR-CONTROL-R007.4:** Refuse invalid receipt sets before pin writes; preserve every pin after refusal.
+- [ ] **SDK-CONNECTOR-CONTROL-R007.5:** Persist reproducible, credential-free transition, inventory, receipt, suite, and authorization evidence.
+- [ ] **SDK-CONNECTOR-CONTROL-R007.6:** Prove passing and refusing flows through rollout, including missing and stale receipts and unchanged pins.
+- [ ] Preserve existing R007 fingerprint and live-contract acceptance and R009-R013 migration acceptance; do not claim implementation evidence.
+<!-- /spec-definition-patch -->

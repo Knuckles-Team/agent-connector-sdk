@@ -109,3 +109,21 @@ R035.1 through R035.6 require exact host-authorized tenant/client/resource bindi
 R046 uses the same host-owned challenge and vault authority for bounded inline PKCE, without blocking stdin or pasted-code files.
 GRAPHOS-IDENTITY-R023 defines the matching consumer; qualified grant, challenge and persistence ports remain missing integration.
 All added or refined work requires served integration acceptance.
+
+<!-- spec-definition-patch:sdk5-r007-major-version-gate -->
+## Major-version compatibility receipt and pre-pin gate (R007.1-R007.6)
+
+A major-version rollout is one transition over the complete authoritative connector-package inventory. Bind the transition to the distribution, old and target major pins, immutable target artifact digest, and canonical inventory snapshot. Bind each sorted package entry to its repository, source commit, current pin, and dependency-file preimage digest. Hash canonical entries with SHA-256. The producer stops if it cannot list every package.
+
+Evaluate the target artifact in an isolated candidate environment for every package. Do not change tracked manifests or lockfiles. Emit one completed `PackageCompatibilityReceipt` per package. Bind each receipt to the transition, inventory, package, source commit, and old and target pins. Also bind its preimage, artifact, complete check suite, run, and outcome. Import scans alone do not prove compatibility.
+
+Use this producer-to-consumer order:
+
+1. `agent_connector_sdk.testing.fleet_migration.evaluate_major_version_compatibility(inventory, transition)` produces receipts for the complete inventory.
+2. `authorize_major_version_pin_changes(transition, inventory, receipts)` validates exact membership and freshness. It authorizes only a complete, passing set.
+3. Each package writer calls `require_package_pin_change(gate, package_id, pin_preimage)` before its first pin write. R009-R013 use this same gate.
+
+The gate checks the transition, artifact, inventory, package source, current pin, and preimage. It refuses missing, duplicate, extra, failed, incomplete, cancelled, stale, or mismatched receipts before any pin changes. Each refusal preserves every pin. One package's receipt cannot authorize another package.
+
+**Implementation boundary:** `agent_connector_sdk.testing.fleet_migration.scan_many_packages` and `PackageScanResult` currently report import-scan findings only. They do not produce compatibility receipts, evaluate a target artifact, authorize rollout, or gate pin writes. The producer, gate, rollout command, and R009-R013 writer attachments remain unimplemented. R007.6 describes future proof; this definition claims no runtime behavior or test result. Existing R007 fingerprint and live-contract checks, plus R009-R013 migration obligations, remain in force.
+<!-- /spec-definition-patch -->
