@@ -64,4 +64,4 @@ SDK-SOURCE-INGEST-R012 defines read/search capability inventories and ordered eq
 Every result identifies its selected backend, attempt history, typed failure and capability-specific observed health.
 Existing dispatch, HTTP and source ingestion provide the integration base. Shared fallback composition and serving registration remain unimplemented.
 The SDK does not take over semantic decisions, host authorization, visual feedback or native effects.
-Acceptance requires SI-15 through SI-20; all new requirements remain SPECIFIED.
+Acceptance requires SI-15 through SI-20.

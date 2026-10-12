@@ -13,7 +13,7 @@
 | CC-09 | Submit SQL change page with generated SourceIngest client | Typed receipt binds table/key/schema/checkpoint and advances only on accepted result; mismatched tenant or schema refuses. |
 | CC-10 | Certify an annotated multi-modal pack | Capability, schema digests, modality, cost/latency units and provenance round-trip. Missing estimate is unknown. Malformed annotation refuses. |
 
-Pull requests run `uv sync`, focused `pytest`, Ruff, mypy, wiring checks, CCCC, jscpd, Dupehound, and KISS through the repository's reproducible hooks. CC-08 is an acceptance probe, not a cloud-PR prerequisite. A missing optional live environment records **NOT RUN** rather than silently passing or failing the source gate.
+Pull requests run `uv sync`, focused `pytest`, Ruff, mypy, wiring checks, CCCC, jscpd, Dupehound, and KISS through the repository's reproducible hooks. CC-08 is an acceptance probe, not a cloud-PR prerequisite. When the optional live environment is absent, record that the probe did not run. Do not infer a source-gate result.
 
 | ID | Fixture/action | Required assertion |
 |---|---|---|
@@ -99,7 +99,7 @@ Test browser opening failure, callback failure, absent input, input timeout, can
 Each case returns the named bounded outcome and creates no token exchange or resumed effect after invalidation.
 Fail vault persistence after exchange; readiness must remain false. Restart and retry through current host authority without duplicating the pending operation.
 Inspect transport and logs for codes, verifier, raw tokens, pasted responses and credential values. No public output may contain them.
-These integration cases remain NOT RUN; helper tests and spec checks do not establish runtime completion.
+These integration tests have not run. Helper tests and spec checks do not establish runtime completion.
 
 
 ### Served connector and token-profile acceptance
@@ -116,4 +116,4 @@ For introspection-required opaque tokens, active and correctly bound evidence su
 An opaque token without provider expiry may use only the explicit bounded host lease. Assert evidence distinguishes the two validity sources.
 Forged profile selection, wrong connector, cross-tenant binding, excess scopes and unapproved resource audience all refuse with zero resumed effects.
 The outbound opaque profile must not admit an unsigned GraphOS API bearer or remove its required tenant claim.
-Inspect responses and logs for token/code leakage. These acceptance cases remain NOT RUN until the required runtime wiring exists.
+Inspect responses and logs for token/code leakage. These acceptance cases have not run. They require the runtime wiring.

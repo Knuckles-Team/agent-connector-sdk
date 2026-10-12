@@ -148,7 +148,7 @@ Reuse `create_async_http_client` at `agent_connector_sdk/http/client.py:97` for 
 Add shared platform models and fallback composition under `agent_connector_sdk/adapters`. Register connector-owned read/search/status methods through existing registrars.
 The authenticated MCP client receives PlatformResult; the source adapter consumes it only after success and schema validation.
 Reachable today: generic dispatch and one web reader exist. Platform inventory, equivalent-backend fallback, status composition and refusal mapping are missing.
-All R012 rows remain SPECIFIED until the actual connector registration and served acceptance exist.
+All R012 rows require actual connector registration and served acceptance.
 
 Decision: reuse the SDK dispatcher, governed HTTP, certification and SourceAdapter boundary.
 Rejected alternative: a separate routing service that selects semantic actions or introduces another health authority and ingestion store.

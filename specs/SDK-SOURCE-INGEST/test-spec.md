@@ -11,7 +11,7 @@
 | SI-07 | Representative enterprise, document/feed and enrichment fixtures | Each adapter passes discovery, pagination, duplicate delivery, deletions, rate-limit and secret-redaction cases. |
 | SI-08 | Restart after one accepted and one quarantined page against a contributor-owned graph | Accepted cursor resumes exactly once. Quarantined page remains replayable. Redacted receipts bind identities. |
 
-Run offline focused pytest, Ruff, mypy, CCCC, Dupehound, KISS, and wiring checks on every source PR. SI-08 is an opt-in acceptance probe and may remain **NOT RUN** on cloud PRs without a graph endpoint. The source gate reports that state honestly.
+Run offline focused pytest, Ruff, mypy, CCCC, Dupehound, KISS, and wiring checks on every source PR. SI-08 is an opt-in acceptance probe. Without a graph endpoint, cloud PRs must report that the probe did not run.
 
 
 ## Paper-provider acceptance
@@ -61,4 +61,4 @@ Exercise HTTP 429, Retry-After, request deadline, cancellation and transport ret
 Test a valid empty search, malformed successful HTTP body, forbidden redirect, stale status and backend-specific continuation.
 For the source path, pass a typed refusal through McpToolSourceAdapter.extract and assert no accepted RecordPage or checkpoint advance.
 Record served requests, actual backend traces, schema/policy revisions and redacted client responses for each operation independently.
-No live platform account is required. These cases remain NOT RUN until implementation and served integration acceptance exist.
+No live platform account is required. These integration tests have not run. They require implementation and served integration acceptance.

@@ -89,7 +89,7 @@ The previous `build_outbound_auth` reference names no production function. Add t
 Register connector credential-missing handling through `register_tool_surface` at `agent_connector_sdk/mcp/tool_surface.py:121` and existing `dispatch_async`.
 Reuse governed HTTP, endpoint validation and credential references. PkceAuthManager and its host ports remain unimplemented.
 For `no_credential`, the host projects `credential_missing`; preserve the shared challenge error names unchanged.
-All new R035 children and the refined R046 children remain SPECIFIED. Real local issuer/callback and served connector evidence are required.
+All new R035 children and the refined R046 children require real local issuer/callback and served connector evidence.
 No arXiv derivation is claimed for this protocol contract.
 
 ## Agent-card discovery (SDK-CONNECTOR-CONTROL-R047)
@@ -229,7 +229,7 @@ requires each notification's progress value to increase, even without a known to
 
 ## Connector-bound grants and provider token profiles
 
-This shared contract refines GRAPHOS-IDENTITY-R023 and SDK-CONNECTOR-CONTROL-R035/R046; its implementation remains SPECIFIED.
+This shared contract refines GRAPHOS-IDENTITY-R023 and SDK-CONNECTOR-CONTROL-R035/R046. Implementation still needs the required runtime wiring.
 The exact credential-use tuple includes tenant, owner principal, requesting principal/client, connector, provider, audience, scopes, resource and operation.
 The host derives connector from authenticated admission and the certified target connector registration, with its immutable registry revision.
 A caller's connector ID is only a requested target; it cannot populate the trusted binding or current grant.
