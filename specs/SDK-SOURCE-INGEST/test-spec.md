@@ -34,3 +34,31 @@ Test truncated content, misleading HTML login responses, unsupported media, cros
 Assert temporary files are removed and published documents match the recorded digest byte for byte.
 Record exact revision, connector registration, commands, provider requests and redacted graph receipts for the served acceptance run.
 Specification checks alone do not satisfy these runtime acceptance requirements.
+
+
+## Platform fallback acceptance
+
+The planned module is `tests/test_platform_fallback_served.py`; cases bind SDK-SOURCE-INGEST-R012.1 through R012.6.
+
+| ID | Input | Required assertion |
+|---|---|---|
+| SI-15 | Separate read/search inventories; malformed request or policy. | Reject unknown fields, duplicate backends, incompatible authority, unbounded policy and wrong continuation binding. |
+| SI-16 | First backend returns 503, next returns valid records; repeat with empty valid search. | Ordered bounded attempts select the second backend. Empty success stops the chain. Status distinguishes degraded and healthy results. |
+| SI-17 | A real registered connector serves read/search/status through SDK tools/call. | The production dispatch_async calls the shared composition, governed HTTP and receiving MCP client. Trace their request identities. |
+| SI-18 | All backends fail, none configured, unsupported operation, denied scope, 429, TLS failure or cancellation. | Return the exact typed terminal reason. Unsupported and unauthorized requests generate zero backend calls. No failed page advances a checkpoint. |
+| SI-19 | Concurrent tenants, expired observations, signed URLs and secret-bearing upstream failures. | Status remains scoped and expires to unknown. Client results and logs retain safe provenance without credentials, raw queries or private URLs. |
+| SI-20 | test_served_dispatch_fallback_and_status uses a real SDK server and two controlled local HTTP servers. | First fails and second succeeds; client sees ordered attempts, winning backend and subsequent status. All-failed and denied calls prove refusal through the same dispatcher. |
+
+Start the SDK server with synthetic authenticated scopes, a certified connector registrar and fixed backend order.
+Call its read/search tool over the MCP tools/call wire method. Helper calls or mocked dispatch_async cannot prove acceptance.
+Local HTTP servers record request counts and monotonic timestamps. Inject two first-backend failures before the second returns valid data.
+Assert the client receives two failed attempts followed by one success, the second backend ID and degraded channel status.
+Call the registered status action and compare its backend, policy revision, observation time and tenant to the result.
+Then make both backends fail. Assert chain_exhausted, null selected backend and no records; refuse an empty successful list.
+Test no_backend separately from unsupported_capability, with no HTTP requests in either case.
+Remove caller scope and assert unauthorized before dispatch; repeat with another tenant and assert no status or credential leakage.
+Exercise HTTP 429, Retry-After, request deadline, cancellation and transport retries together; total observed calls never exceed the configured budget.
+Test a valid empty search, malformed successful HTTP body, forbidden redirect, stale status and backend-specific continuation.
+For the source path, pass a typed refusal through McpToolSourceAdapter.extract and assert no accepted RecordPage or checkpoint advance.
+Record served requests, actual backend traces, schema/policy revisions and redacted client responses for each operation independently.
+No live platform account is required. These cases remain NOT RUN until implementation and served integration acceptance exist.

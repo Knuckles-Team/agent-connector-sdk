@@ -56,3 +56,12 @@ Local content extraction fills missing metadata and records its evidence.
 Provider API implementations remain in connector packages. The SDK owns shared source mechanics and transport contracts.
 EG owns durable ingestion, checkpoints and semantic identity decisions. Exact result deduplication creates no semantic knowledge store.
 Acceptance requires SI-09 through SI-14, including served connector calls and durable graph read-back.
+
+
+## Platform reads and backend status
+
+SDK-SOURCE-INGEST-R012 defines read/search capability inventories and ordered equivalent-backend fallback under declared connector policy.
+Every result identifies its selected backend, attempt history, typed failure and capability-specific observed health.
+Existing dispatch, HTTP and source ingestion provide the integration base. Shared fallback composition and serving registration remain unimplemented.
+The SDK does not take over semantic decisions, host authorization, visual feedback or native effects.
+Acceptance requires SI-15 through SI-20; all new requirements remain SPECIFIED.

@@ -51,7 +51,14 @@
     "SDK-SOURCE-INGEST-R008",
     "SDK-SOURCE-INGEST-R009",
     "SDK-SOURCE-INGEST-R010",
-    "SDK-SOURCE-INGEST-R011"
+    "SDK-SOURCE-INGEST-R011",
+    "SDK-SOURCE-INGEST-R012",
+    "SDK-SOURCE-INGEST-R012.1",
+    "SDK-SOURCE-INGEST-R012.2",
+    "SDK-SOURCE-INGEST-R012.3",
+    "SDK-SOURCE-INGEST-R012.4",
+    "SDK-SOURCE-INGEST-R012.5",
+    "SDK-SOURCE-INGEST-R012.6"
   ],
   "requirements": [
     {
@@ -711,6 +718,63 @@
     {
       "id": "SDK-SOURCE-INGEST-R011",
       "title": "SDK ships the `ingest-worker` command (unblocks `EG-INGEST-WORKER-R001.15`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R012",
+      "title": "Platform reads and searches use declared backend fallback chains",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-SOURCE-INGEST-R012.1",
+        "SDK-SOURCE-INGEST-R012.2",
+        "SDK-SOURCE-INGEST-R012.3",
+        "SDK-SOURCE-INGEST-R012.4",
+        "SDK-SOURCE-INGEST-R012.5",
+        "SDK-SOURCE-INGEST-R012.6"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R012.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R012.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R012.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R012.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R012.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R012.6",
+      "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
