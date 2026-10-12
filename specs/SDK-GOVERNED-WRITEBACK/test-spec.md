@@ -11,7 +11,7 @@
 | WB-07 | Simulate crash at each boundary | No duplicate effect, orphan approval, or false success; receipt stream is replayable. |
 | WB-08 | Contributor-owned test app and graph service | Approval, apply, restart and reconciliation bind same tenant/connector/version and produce redacted durable receipts. |
 
-Offline source PR gate includes focused pytest, Ruff, mypy, CCCC, Dupehound, KISS and wiring. WB-08 is acceptance-only until its optional environment exists; record **NOT RUN** explicitly on cloud PRs.
+Offline source PR gate includes focused pytest, Ruff, mypy, CCCC, Dupehound, KISS and wiring. WB-08 requires its contributor-owned environment; no execution evidence for that scenario is supplied by this definition change.
 
 
 ## Wallet proof acceptance
@@ -51,4 +51,35 @@ Start from an immutable durable change set produced by `GovernedWriteBack.dry_ru
 7. Race two identical envelopes, restart and replay; read the same durable receipt without another effect.
    Missing envelope wiring, unavailable authority and uncertain completion refuse or reconcile without another submission.
 
-These are required future served tests using the existing named acceptance cases; runtime acceptance remains NOT RUN.
+These future served tests use the existing named acceptance cases. This definition change has not run these runtime scenarios.
+
+
+## Repository source-effect acceptance
+
+All tests below are proposed in `tests/test_repository_source_effect_served.py`; no runtime test or provider execution is added by this definition change. R004 retains its original generic acceptance in addition to every child case. Each case must exercise both the positive and negative assertions stated in requirements.md.
+
+| Case | Requirement | Proposed test function | Required observation |
+|---|---|---|---|
+| WB-15 | SDK-GOVERNED-WRITEBACK-R004.1 | `test_generic_approval` | WB-15 permits one approved generic effect and refuses each invalid approval before transport apply. |
+| WB-16 | SDK-GOVERNED-WRITEBACK-R004.2 | `test_generic_replay` | WB-16 observes one source effect for concurrent identical requests and restart replay. A conflicting replay causes zero additional effects. |
+| WB-17 | SDK-GOVERNED-WRITEBACK-R004.3 | `test_audit_before_effect` | WB-17 records reservation-before-effect ordering and injects each reservation failure with zero provider mutations. |
+| WB-18 | SDK-GOVERNED-WRITEBACK-R004.4 | `test_business_api` | WB-18 exercises an accepted API mutation and an API business-rule rejection, proving the rejected request never reaches a storage bypass. |
+| WB-19 | SDK-GOVERNED-WRITEBACK-R004.5 | `test_request_binding` | WB-19 round-trips the complete request and seeded exact-byte vectors; changing each binding fails validation. |
+| WB-20 | SDK-GOVERNED-WRITEBACK-R004.6 | `test_path_scope` | WB-20 serves an allowed nested path and every escape/scope variant, observing only the allowed path change. |
+| WB-21 | SDK-GOVERNED-WRITEBACK-R004.7 | `test_approved_effect` | WB-21 approves one preview then changes each field independently; only the unchanged approved effect reaches the provider. |
+| WB-22 | SDK-GOVERNED-WRITEBACK-R004.8 | `test_conditional_effect` | WB-22 races a competing commit after preflight. The approved write refuses without overwriting it. An unchanged base produces one revision. |
+| WB-23 | SDK-GOVERNED-WRITEBACK-R004.9 | `test_effect_receipt` | WB-23 reads the durable attempt through a fresh ledger client. It matches the actual provider revision and complete receipt projection. |
+| WB-24 | SDK-GOVERNED-WRITEBACK-R004.10 | `test_independent_readback` | WB-24 observes a separate provider read and matching bytes; corrupt, missing and unavailable reads never yield a successful receipt. |
+| WB-25 | SDK-GOVERNED-WRITEBACK-R004.11 | `test_restart_reconcile` | WB-25 crashes before effect, after provider commit, after readback and after durable receipt. Restart resolves or remains uncertain without duplication. |
+| WB-26 | SDK-GOVERNED-WRITEBACK-R004.12 | `test_served_journey` | WB-26 traces one real served effect and zero-effect negatives at the provider boundary. After restart it reads the identical durable result. |
+
+
+Use a contributor-owned disposable provider repository and an admitted production connector. Call its existing authenticated governed entrypoint with a real durable graph ledger. Record exact SDK, adapter and graph revisions, provider API/profile, registered operation ID and served route. Include canonical change-set and receipt digests plus redacted audit/attempt references. No production credentials or raw payload logs belong in evidence. A local fake and a helper call are useful unit fixtures but cannot satisfy WB-22 through WB-26 alone.
+
+Use deterministic vectors: empty bytes, non-ASCII UTF-8, distinct CRLF/LF payloads and embedded zero bytes. Generate seeded bytes with `payload[index] = (73*index + 19) mod 256` for index=0..4095. Repeat the same immutable inputs across processes; assert identical canonical request/patch/receipt digests. The seeded case has exactly 4096 bytes. Different provider effect revisions legitimately produce different receipts; same-request durable replay must not. SHA-256 of empty bytes must equal `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`. Preserve all bytes and executable mode in independent revision readback.
+
+The served journey previews without mutation, records approval of that exact digest and applies once. Independently read the actual returned revision and fetch the graph attempt using a separate client. Reconstruct the identical receipt after connector restart. Count actual provider mutation calls and durable effects. Submit concurrent identical requests and require one effect; inject a competing target update after preflight to require conditional refusal. Exercise missing/mismatched audit or approval and proposal-only authorization. Test wrong actor/tenant/connector/repository/target/path/base/payload/mode, unknown fields, changed contract pin and expired set. Include traversal/link/alias paths, provider business-rule denial and unsupported conditional mutation. Each refusal before mutation produces zero mutation calls. A readback failure after a possible mutation produces no false success or additional mutation; retain uncertainty until authoritative reconciliation.
+
+Crash before provider mutation and after mutation before response. Also crash after independent readback before durable append, and after append before client response. Restart in a new process against the same ledger and provider. If no durable receipt exists, force provider causal lookup before any apply retry. Prove the original revision and receipt, or authoritative no-effect followed by at most one conditional effect. Otherwise require a typed unresolved result with zero reapply. Test an unrelated actor writing identical bytes, a moved target, unavailable provider history and a lost audit binding. None proves this request caused an effect.
+
+Read-only ingestion and hydration must still work without any write capability. Attempting to use their output as approval refuses. Missing real transport composition or consumer wiring is evidence of an unexercised scenario, never an applied-success result. All new acceptance remains future implementation work until actual served evidence exists.

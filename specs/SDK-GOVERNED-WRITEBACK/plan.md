@@ -56,7 +56,7 @@ References: [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) defines canonical
 
 ## Immutable intent and separate execution proof
 
-This contract is shared by SDK-GOVERNED-WRITEBACK-R001 and GRAPHOS-DATA-MARKET-R007. All new wiring remains SPECIFIED.
+This contract is shared by SDK-GOVERNED-WRITEBACK-R001 and GRAPHOS-DATA-MARKET-R007. The proof transport wiring has not been implemented.
 `WalletBusinessIntent` is a closed JSON object with these exact required keys:
 `schema_version`, `operation_id`, `connector_id`, `account_id`, `wallet_id`, `network_id`, `mode`, `action`,
 `destination`, `asset_id`, `amount`, `business_terms`, `change_set_id`, `idempotency_key`.
@@ -111,3 +111,70 @@ Execution validates proof and confirmation before consuming that lease through t
 Failure, races and restart must retain existing durable fencing and reconciliation guarantees. Do not add another approval or nonce store.
 Until envelope parsing, durable association and lifecycle wiring exist for both transports, refuse with UNAVAILABLE and no effect.
 SDK maps unavailable binding to `verification_unavailable`; mismatched intent or proof bindings cannot become verification success.
+
+
+## Repository source effects (SDK-GOVERNED-WRITEBACK-R004)
+
+### Existing seams and missing production path
+
+`agent_connector_sdk/ports/writeback.py` already defines current_version, dry_run, apply and reconcile. `GovernedWriteBack.apply` in `agent_connector_sdk/writeback/service.py` validates the canonical set and reads prior effects and current version. It verifies authorization, reserves audit, then invokes `WriteBackTransport.apply(change_set, expected_version)`. `DurableWritableConnector.apply` in `agent_connector_sdk/writeback/connector.py` reads graph receipts and records attempts. These are integration seams, not proof of a production repository writer. A preflight version verification alone cannot prevent a later conflicting write. The current service discards the reservation ID returned by reserve.
+
+Add the proposed SDK-only contracts in `agent_connector_sdk/writeback/repository_effect.py` and export them through the existing SDK contract surface. An admitted provider transport must implement the existing `agent_connector_sdk/ports/writeback_transport.py`. Before activation, evidence must name its production module and registered operation ID. Do not invent a current Git adapter or operation. Reuse the existing operation phases `WriteBackPort.dry_run`, `apply` and `reconcile`; no new approval authority or ingestion write route is permitted.
+
+### Closed request and generated change-set projection
+
+`RepositorySourceEffectIntent` version 1 has exactly these required fields:
+
+| Field | Required meaning |
+|---|---|
+| schema_version | Integer 1. |
+| repository_id | Stable provider repository identity resolved within trusted connector configuration. No client-selected endpoint or credential. |
+| target_ref | Exact permitted update target within that repository; a mutable target name never substitutes for the immutable base. |
+| relative_path | Exact UTF-8 repository-relative regular-file path with nonempty slash-separated segments. |
+| base_revision | Complete immutable provider revision against which the target is conditionally updated. Reject abbreviated or mutable aliases as the base. |
+| expected_file_digest | Lowercase SHA-256 of existing exact file bytes, or null for an approved creation only. |
+| expected_executable | Boolean for an existing regular file, or null for creation. |
+| action | `create` or `update`; deletion, rename, link and directory operations are outside this profile and refuse. |
+| payload_base64 | Canonical padded base64 of all desired bytes, including final newline and encoding bytes. No implicit encoding conversion. |
+| payload_sha256 | Lowercase 64-character SHA-256 of the decoded payload. |
+| payload_size | Nonnegative integer equal to decoded byte count, within the trusted adapter profile limit. |
+| executable | Boolean desired executable mode; no other object mode is admitted. |
+| adapter_contract_digest | Pinned admitted adapter schema/capability digest, including size and path rules. |
+
+`RepositorySourceEffectRequest` is a closed SDK object with exactly three members. They are `schema_version` (1), `change_set` (generated SourceChangeSet) and `intent` (the object above). It adds no caller-asserted approval or actor outside the generated change set. Resolve actual caller identity and connector binding from the existing authenticated operation context. Compare them with the durable set; refuse substitution.
+
+Use `desired_patch = {"repository_effect": intent}` and `field_scope = ["repository_effect"]` with the matching field_provenance entry in the generated change set. The registered adapter must explicitly admit this field; generic arbitrary fields are not repository permission. Require `request.intent == durable.desired_patch["repository_effect"]` exactly. Set source_instance_id to the trusted provider installation and entity_id to the stable repository identity. Set base_source_version to intent.base_revision and connector_id to the admitted connector. Retain existing verification for tenant_id, actor, purpose, capability, policy digest and expiry. Preserve authorization contract digests, authorization reference and idempotency key. Approval binds the resulting complete change_set_digest. Use the generated canonical_digest and patch_digest functions unchanged, not a parallel hash formula. The pinned generated contract supports a JSON desired_patch; SDK must not fork its schema.
+
+No provider-effective argument may come from an unbound executor default. Any required provider option must be fixed by the admitted contract or included in the approved intent before activation. Extra fields, duplicate JSON keys, invalid Unicode, inconsistent null states, unsupported versions and noncanonical base64 refuse. Preview must disclose exact target, path, base, old/new byte digests and sizes, mode and all provider-effective options. It performs no mutation. Full bytes remain in the authorized change set and preview access boundary, not public logs.
+
+### Scope, approval and effect boundary
+
+Resolve repository identity and allowed targets/paths from existing trusted connector configuration and authenticated scope. A request cannot select a provider URL, credential, local checkout root or broader scope. Reject absolute paths, empty/dot/parent segments, backslashes, NUL, drive/URI prefixes and encoded separator/traversal aliases that a provider may reinterpret. Do not silently normalize a different path into the approved path. Resolve the immutable tree and reject symlink traversal, alias collisions and non-regular targets; confirm the provider addresses that same path. Recheck the binding immediately before a new effect.
+
+The existing authorization resolver must yield an approval bound to this exact durable change-set digest. Verify caller/tenant, contract pin, expiry, target/path scope, immutable base, exact bytes and file mode before mutation. Retain the actual AuditReservationPort reservation ID. Bind it to the same change set and effect key; verify success before invoking the provider. A preview, proposal, ingestion cache, prompt export, or asserted `applied=true` cannot authorize an effect.
+
+Use the provider's business-rule API with atomic expected-base and file-state conditions. An API may return a new immutable object followed by a conditional target update. It must preserve approved intent and prevent unapproved target changes. If the provider cannot guarantee equivalent conditional semantics, refuse as unsupported before mutation. A base change between read_current and apply must be rejected at the provider, not overwritten. No force push, unconditional retry, database write or local filesystem fallback is permitted. Provider branch protections and other business rules remain in force.
+
+### Receipt and durable reconstruction
+
+`RepositorySourceEffectReceipt` is a closed version-1 object. Its exact members are:
+
+- schema_version, tenant_id, actor, connector_id, source_instance_id;
+- repository_id, target_ref, relative_path, base_revision;
+- change_set_id, change_set_digest, idempotency_key;
+- approval_ref, approval_decision_digest, audit_reservation_id, adapter_contract_digest;
+- effect_revision, readback_sha256, readback_size, executable.
+
+ Every identity comes from the durable approved set or trusted producer evidence. `effect_revision` is the actual complete immutable provider revision; never the requested key, base, target name or a fabricated identifier. `readback_sha256` and readback_size come from a separate provider read at effect_revision, not an echoed mutation body. Require readback bytes and mode to equal the approved payload exactly.
+
+Define receipt_digest as lowercase SHA-256 of the UTF-8 JSON serialization. Use sorted keys, compact separators, ensure_ascii=False and allow_nan=False. The receipt contains only strings, booleans and bounded exact integers; no timestamps or transient fields change it during replay. Store receipt_digest in the existing WriteBackAttempt.connector_observation_digest. Store the actual effect revision in post_source_version and the approved immutable base in pre_source_version. Store generated patch_digest in applied_field_digest. Preserve existing authorization input/output and provenance digests. Only record an applied successful attempt after independent readback matches; append it through WriteBackLedger before reporting success.
+
+Reconstruct the identical receipt from the durable canonical change set and original applied attempt. Recover the stable audit reservation for its key and original readback values committed by connector_observation_digest. Approved payload digest/size/mode are those original readback values only after that successful attempt exists. Recompute receipt_digest and require equality with the durable observation digest; never infer an applied attempt from expected payload values. Provider revision readback can independently confirm that persisted claim. Recovery of the stable audit reservation and every bound value is an implementation prerequisite. Missing values cannot produce a receipt. The existing service must retain that reservation binding and preserve it across receipt reconstruction. No SDK-local approval or receipt database replaces the graph ledger.
+
+After a possible mutation, readback failure, lost response or failed ledger append means uncertainty. This also applies without a graph attempt receipt. Recovery must interrogate the provider using a durable request/effect identity and immutable history. Fence concurrent attempts through the existing governed authority before retry. Matching bytes at the current target alone cannot distinguish this request from another writer. If the adapter cannot prove causality and conditional no-effect, keep the outcome unresolved. A proven effect recovers its original revision and readback before recording the existing reconciliation result. Authoritative no-effect permits only another conditional attempt against the still-approved base. New base or payload requires new preview and approval.
+
+### Delivery order and consumer handoff
+
+Keep R004.1–R004.4 as independent generic residual units. Then implement request validation (R004.5), path resolution (R004.6), approved composition (R004.7), provider compare-and-apply (R004.8), receipt binding (R004.9), readback (R004.10), reconciliation (R004.11), and served composition (R004.12). Each unit has one proposed acceptance function in test-spec.md. No generic helper test alone proves a production provider effect.
+
+GraphOS consumes these exact request/receipt contracts under GRAPHOS-FLEET-R003, using GRAPHOS-OPS-R009's existing invoke authority. Its producer-composition definition must wait for the SDK definition to merge. EG-TYPED-PACKS-R094.7 can name both after their definitions merge. EG-TYPED-PACKS-R002.10 still requires a separately coordinated AU model-dispatch consumer; source write-back does not meet that requirement. No candidate accounting change or runtime completion follows from these definitions.

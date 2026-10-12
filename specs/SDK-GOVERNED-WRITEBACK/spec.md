@@ -1,7 +1,7 @@
 # SDK-GOVERNED-WRITEBACK — Governed write-back to attached sources
 
 **Requirement IDs:** SDK-GOVERNED-WRITEBACK-R001, SDK-GOVERNED-WRITEBACK-R002, SDK-GOVERNED-WRITEBACK-R003, SDK-GOVERNED-WRITEBACK-R004, SDK-GOVERNED-WRITEBACK-R005.
-**Owner:** agent-connector-sdk source-side protocol. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
+**Owner:** agent-connector-sdk source-side protocol.
 
 ## Outcome and boundary
 
@@ -23,13 +23,7 @@ Run `uv sync` and focused `uv run --frozen python -m pytest -q tests/test_writeb
 
 ## Evidence and completion
 
-| Gate | State | Evidence |
-|---|---|---|
-| Exact merged generated-type source implementation | OPEN | Pending commit |
-| Durable restart and adversarial tests | OPEN | Pending CI run |
-| Live approval/apply/reconcile receipt | OPEN | Pending redacted receipts |
-
-**LANDED** requires exact merged source. **ACCEPTED** requires all tests below on that source, a contributor-owned writable adapter, and cross-process receipts. Current SDK write-back modules implement a source slice; they do not prove fleet or live acceptance.
+The current SDK modules implement generic source-side checks and durable receipt handling. They do not establish a production repository adapter, real provider conditional mutation, independent revision readback or fleet acceptance. Required evidence includes exact merged revisions, restart results and adversarial test results. A contributor-owned writable adapter journey must produce redacted cross-process receipts. This definition change has not run these repository scenarios.
 
 Requirement IDs are defined in [requirements.md](requirements.md); delivery state per ID is in `status.json`.
 
@@ -43,4 +37,13 @@ Unavailable verifier, key trust or durable binding keeps wallet operations unava
 
 Confirmation binds the complete immutable `{"intent": WalletBusinessIntent}` projection defined in plan.md.
 Proof and confirmation metadata use the separate, currently missing WalletExecutionEnvelope transport extension.
-No proof or derived plan digest enters the confirmed business parameters. All new wiring remains SPECIFIED.
+No proof or derived plan digest enters the confirmed business parameters. The proof transport wiring has not been implemented.
+
+
+## Repository source-effect producer
+
+SDK-GOVERNED-WRITEBACK-R004.1 through R004.4 retain the full generic parent obligations for all attached sources. R004.5 through R004.12 define a regular-file create/update profile without narrowing those obligations. All children and the original parent acceptance are required for the rollup.
+
+The SDK validates the exact approved repository effect and delegates conditional mutation and independent readback to an admitted provider adapter. It reuses the existing graph-owned change-set, authorization, audit and durable attempt authorities. Read-only source ingestion, hydrated files and graph prompt exports are inputs, never write permission. GraphOS composes the consumer under GRAPHOS-FLEET-R003 and existing GRAPHOS-OPS-R009; EG-TYPED-PACKS-R094.7 consumes the resulting evidence without becoming a filesystem writer. Those cross-repository consumer definitions and implementations are separate prerequisites, not supplied by the ordinary SDK apply seam.
+
+The proposed request, intent and receipt names in plan.md are contracts to implement, not existing exported classes. This definition adds no connector, credentials, permissions or runtime code. No research derivation is claimed.
