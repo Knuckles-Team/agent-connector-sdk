@@ -81,3 +81,10 @@ Existing modules offer integration points; these six complete contracts and thei
 EG owns durable state, ontology, admission and query semantics. SDK runs approved source operations and preserves authoritative receipts.
 GraphOS owns hosting. AU runs received harness work without owning source progress tokens.
 Definition checks do not establish runtime acceptance.
+
+## Generated approval receiver
+
+R004.7 through R004.12 bind the SQL source contract to EG-FEDERATED-QUERY-R085.
+The SDK receives generated approvals and checks authority before driver execution, chunk publication and completion.
+The receiving methods return bounded pages and explicit terminal outcomes through the existing connector dispatcher.
+These definitions preserve all original R004 obligations; producer and receiver implementation remain required.

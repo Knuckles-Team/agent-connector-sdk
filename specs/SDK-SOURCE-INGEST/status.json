@@ -94,7 +94,13 @@
     "SDK-SOURCE-INGEST-R006.34",
     "SDK-SOURCE-INGEST-R006.35",
     "SDK-SOURCE-INGEST-R006.36",
-    "SDK-SOURCE-INGEST-R006.37"
+    "SDK-SOURCE-INGEST-R006.37",
+    "SDK-SOURCE-INGEST-R004.7",
+    "SDK-SOURCE-INGEST-R004.8",
+    "SDK-SOURCE-INGEST-R004.9",
+    "SDK-SOURCE-INGEST-R004.10",
+    "SDK-SOURCE-INGEST-R004.11",
+    "SDK-SOURCE-INGEST-R004.12"
   ],
   "requirements": [
     {
@@ -156,7 +162,13 @@
         "SDK-SOURCE-INGEST-R004.3",
         "SDK-SOURCE-INGEST-R004.4",
         "SDK-SOURCE-INGEST-R004.5",
-        "SDK-SOURCE-INGEST-R004.6"
+        "SDK-SOURCE-INGEST-R004.6",
+        "SDK-SOURCE-INGEST-R004.7",
+        "SDK-SOURCE-INGEST-R004.8",
+        "SDK-SOURCE-INGEST-R004.9",
+        "SDK-SOURCE-INGEST-R004.10",
+        "SDK-SOURCE-INGEST-R004.11",
+        "SDK-SOURCE-INGEST-R004.12"
       ]
     },
     {
@@ -1102,6 +1114,48 @@
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.37",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.7",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.8",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.9",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.10",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.11",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.12",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],

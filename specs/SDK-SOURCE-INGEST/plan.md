@@ -364,3 +364,128 @@ Record exact source revision, commands, registration, request traces, resource m
 Keep unsupported operations, malformed records, interrupted streams and failed stages visible through the same receiving client.
 Definition gates and existing helper tests do not close these acceptance rows.
 References: no research-paper derivation is claimed for these six contracts.
+
+## Approved query receiving contract: R004.7 through R004.12
+
+These children refine R004.1 through R004.6 without replacing their acceptance or prior receipts.
+EG-FEDERATED-QUERY-R085.1 through R085.8 owns the producer records, authorization, digest rules and immutable approval lifecycle.
+The SDK imports those generated records rather than declaring parallel wire models.
+The producer and receiver implementations remain absent; definition agreement does not establish runtime delivery.
+
+### Exact receiving methods
+
+The planned class is `SqlQuerySourceClient` in `agent_connector_sdk/adapters/sql_source.py`.
+Its asynchronous execute_approved_query(approved_query: `ApprovedSourceQuery`, continuation: `SqlQueryContinuation` | None = None) returns `SqlQueryPage`.
+Its asynchronous cancel_approved_query(approved_query: `ApprovedSourceQuery`, continuation: `SqlQueryContinuation`) returns a terminal `SqlQueryPage`.
+An active execution returns failed with reason cancelled; a finished execution returns its recorded terminal outcome.
+Authenticated context, generated EG client and certified source driver enter through server composition, never caller-entered identity fields.
+Each call returns one bounded page. Neither the dispatcher nor receiving client collects the complete result.
+Continuation is absent only for a new execution; a present continuation resumes that execution or returns an explicit failure.
+The methods retain exact approved SQL bytes and parameter types, positions and values.
+For this generated variant, EG has already rendered SQL; SDK rendering means native parameter binding only.
+
+Producer operations:
+- `ApproveSourceQuery` { request: SourceQueryRequest } -> `ApprovedSourceQuery`.
+- `VerifySourceQueryApproval` { request: `SourceQueryApprovalCheck` } -> `SourceQueryApprovalValidity`.
+
+### Imported producer fields
+
+- `SourceQueryRequest { schema_version, source_ref, source_revision, schema_digest, snapshot_ref, dialect, sql, parameters, limits, requested_expires_at_ms, idempotency_key }` requests one read-only SQL operation.
+- `SourceQueryLimits { max_rows, max_bytes, chunk_rows, chunk_bytes, queue_depth, queue_bytes, deadline_ms, max_resident_bytes }` has finite positive integer fields. Row/byte fields count decoded data and encoded payload within their respective declared budgets. Deadline time uses the server's authoritative milliseconds.
+- `SourceQueryParameter { position, kind, value }` uses closed kinds `null`, `bool`, `int64`, `float64`, `text`, `bytes`. Positions and placeholder counts must match. Values must fit the declared type and dialect; nonfinite floats refuse. No string interpolation substitutes for native parameter binding.
+- `ApprovedSourceQuery { schema_version, approval_id, query_id, request, tenant_ref, owner_ref, actor_ref, authority_digest, policy_digest, identity_digest, allowed_operations, issued_at_ms, expires_at_ms, hard_expires_at_ms, operation_digest, parameter_digest, query_digest }` is immutable. `allowed_operations` is exactly `[read_sql]` for this version.
+- `SourceQueryApprovalCheck { approved_query, observed_source_revision, observed_schema_digest, observed_snapshot_ref, phase }` uses phases `start`, `chunk`, `complete`.
+- `SourceQueryApprovalValidity { approval_id, query_id, query_digest, lease_revision, checked_at_ms, valid_until_ms }` is a bounded validation result. It does not replace the next required validation or authorize another descriptor.
+
+The imported SourceQueryLimits fields remain finite positive integers. SDK must not increase any bound.
+The SDK must not compute a replacement approval digest or interpret a copied control-lease view as authorization.
+EG owns Digest256::framed under eg/source-query-approval/v1 and reserved lease kind source.query.approval.
+The SDK never invokes generic `IssueControlLease` to mint or renew this approval.
+A descriptor, handle, local cache or prior successful validation cannot replace a fresh authoritative validation.
+
+### Local delivery envelope
+
+`SqlQueryContinuation` binds execution_id, query_id, approval_id, query_digest, next_sequence and source/schema/snapshot identities.
+The connector stores only bounded ephemeral driver execution state under the authenticated tenant, owner and actor or verified delegation.
+Continuation contains an opaque handle, not credentials or an approval grant. A handle cannot transfer execution to another authority.
+Lost or unknown handles return query_failed with an incomplete execution identity; they never silently restart the database query.
+
+`SqlQueryPage` contains outcome, query_id, approval_id, query_digest, execution_id, sequence, source_ref, source_revision and schema_digest.
+It also contains snapshot_ref, typed_columns, rows, page_rows, page_bytes, total_rows, total_bytes, continuation, verification and error.
+Outcome is chunk, complete or failed. All fields use the approved schema version and immutable source bindings.
+A chunk has bounded rows and continuation, no error, and the fresh phase-chunk verification receipt.
+A complete page has no rows or continuation and includes the fresh phase-complete receipt and final totals.
+A failed page has no rows or continuation. Its error includes the generated reason, stage and last completed chunk.
+The failed envelope includes no successful verification when the current validation failed.
+Sequence increases once per published chunk. Total rows and bytes count all published decoded content and encoded payload budgets.
+Exactly one complete or failed terminal page ends execution. Missing terminal output never means successful completion.
+
+### Verification, bounded execution and effects
+
+Before driver creation, observe source registration, revision, schema digest and real snapshot identity through the certified connector.
+Send the full approved descriptor and those observed facts in `SourceQueryApprovalCheck` with phase start.
+Use the existing authenticated EG client; caller-entered tenant, actor or lease fields cannot mint authority.
+Match returned approval_id, query_id and query_digest to the request. Retain lease_revision and server timestamps as evidence.
+Only an active approved read_sql descriptor permits a database-enforced read-only transaction.
+Unsupported dialects, unknown SQL effects, wrong snapshot or unavailable read-only driver enforcement refuse before execution.
+SDK does not alter semantic predicates, add a LIMIT, interpolate parameters or choose another source.
+Pass native typed parameters to the driver exactly; reject unrepresentable values without lossy coercion.
+
+Use bounded native fetches and queues with row, byte, queue-depth, queue-byte, deadline and resident-memory limits.
+An oversized single row fails; it cannot be truncated or exempted from the budget.
+Backpressure stops fetching while a prior page awaits the consumer.
+Reobserve source/schema/snapshot bindings and call phase chunk before publishing each chunk.
+If validity expires while waiting to publish, repeat the validation or refuse. Stale validation cannot authorize delayed output.
+Call phase complete before publishing successful terminal completion.
+Any failed revalidation stops fetching, discards unpublished rows and closes the database handle.
+SDK enforces deadline_ms through a monotonic elapsed budget derived from authoritative verification timestamps.
+Each verification RPC must finish within that remaining deadline. Record its latency and the total verification call count.
+An execution watchdog closes abandoned handles at the admitted deadline, even when the client requests no further page.
+The local wall clock cannot extend expires_at_ms, hard_expires_at_ms, valid_until_ms or the approved deadline.
+
+Closed error reasons are unsupported_dialect, invalid_query, unauthorized, approval_expired, approval_revoked and stale_source.
+They also include query_failed, limit_exceeded, cancelled and verification_unavailable.
+Preserve the producer reason when verification fails. Transport loss produces verification_unavailable rather than inferred authority.
+Cancellation closes the bound local handle without needing new read authority; it never cancels another caller's execution.
+The connector retains bounded terminal metadata until the execution deadline.
+Repeated cancellation returns that outcome without another database effect or terminal event.
+Cancellation cannot replace an existing successful completion with failure.
+Failure after three published chunks remains failure with an incomplete identity and no successful terminal event.
+
+### Production attachment and checkpoint consumption
+
+Existing code: register_tool_surface at `agent_connector_sdk/mcp/tool_surface.py:121` installs connector registrars.
+dispatch_async at `agent_connector_sdk/mcp/action_dispatch.py:194` invokes their asynchronous client methods.
+McpToolSourceAdapter.extract at `agent_connector_sdk/adapters/mcp_tool.py:118` calls the registered tool and maps its result.
+ConnectorWorker._sync at `agent_connector_sdk/runner/worker.py:180` calls sync_stream at `agent_connector_sdk/runner/syncing.py:200`.
+commit_page at `agent_connector_sdk/runner/syncing.py:106` remains the generated SourceIngest commit path.
+Reachable today: no. Approval-aware SQL methods, the page bridge and the generated EG approval operations are not implemented.
+
+The adapter bridge must distinguish chunk, complete and failed pages before constructing any RecordPage.
+Only a valid chunk may enter generated ingestion. Completion conveys exhaustion without pretending an empty failure was accepted.
+A failed envelope never becomes an empty authoritative snapshot or a deletion instruction.
+If completion verification fails after accepted chunks, retain their actual receipts and report the query as incomplete.
+No failed or unpublished chunk advances the durable SourceCheckpoint.
+After restart, read durable accepted state before replay. Never use a stale local continuation as checkpoint authority.
+A lost execution requires explicit new execution against the same verified snapshot and stable record identities.
+Retain accepted-page receipts and duplicate protection; do not claim resumable driver state survives process loss.
+
+Depends-on: SDK-CONNECTOR-CONTROL-R021
+Depends-on: [EG-FEDERATED-QUERY-R085](https://github.com/Knuckles-Team/epistemic-graph/blob/c67bad3d6326da3b7c161c21fbd6cf78fec4cc6d/specs/federated-query-and-reasoning/requirements.md)
+Producer prerequisite: EG-FEDERATED-QUERY-R085.1 through R085.8.
+Within R004, .8 depends on .7; .9 binds both into production; .12 requires .7 through .11.
+Decision: reuse authenticated dispatch, generated verification, native parameter binding and the existing ingestion bridge.
+Rejected alternative: a local approval cache, copied lease authority, semantic SQL renderer or materialized whole-result response.
+
+### Required integration evidence
+
+The served journey must invoke actual `ApproveSourceQuery` and `VerifySourceQueryApproval` methods through authenticated EG dispatch.
+Send the resulting generated descriptor through the registered SDK tools/call receiver to a real local database.
+Use the same descriptor for subsequent pages; observe phase start, each phase chunk and phase complete.
+Change each binding individually and prove refusal. Revoke between chunks and require driver closure before the next publication.
+Inject failure after three chunks, cancel with queued rows, lose verification transport and expire authority during backpressure.
+Observe zero unauthorized database starts, no unapproved chunks and no successful terminal event on failure.
+Read accepted records and checkpoints through the generated graph client.
+Retain R004.6's fixed-limit memory experiment across a hundredfold increase in rows.
+Record exact EG/SDK revisions, generated schema revision, commands, driver requests, verification receipts and peak memory.
+No runtime execution evidence is established by this definition slice.
