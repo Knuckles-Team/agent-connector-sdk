@@ -52,3 +52,62 @@ Rejected alternative: a GraphOS verifier or wallet-specific approval store, whic
 Cross-repository consumer: GRAPHOS-DATA-MARKET-R007. Existing SDK-GOVERNED-WRITEBACK-R004 owns effect approval and idempotency.
 References: [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) defines canonical JSON;
 [RFC 8032](https://www.rfc-editor.org/rfc/rfc8032) defines Ed25519. No research-paper derivation is claimed.
+
+
+## Immutable intent and separate execution proof
+
+This contract is shared by SDK-GOVERNED-WRITEBACK-R001 and GRAPHOS-DATA-MARKET-R007. All new wiring remains SPECIFIED.
+`WalletBusinessIntent` is a closed JSON object with these exact required keys:
+`schema_version`, `operation_id`, `connector_id`, `account_id`, `wallet_id`, `network_id`, `mode`, `action`,
+`destination`, `asset_id`, `amount`, `business_terms`, `change_set_id`, `idempotency_key`.
+`schema_version` is the string `1`; `mode` is `paper` or `live`.
+All other fields are nonempty strings except `business_terms`, which is a closed object under the registered operation schema.
+Amounts and all quantities, prices, fees and limits use exact decimal strings; no floating-point values are permitted.
+An operation without a destination, asset or amount uses explicit null only where its registered schema permits no such effect.
+`business_terms` includes every remaining effective argument, including position/order identity, side, order type, deadlines and fee limits when applicable.
+The registered schema must account for every provider argument and every authority-related field. Executor defaults cannot add unconfirmed business intent.
+Unknown fields, duplicate keys, invalid Unicode, unbounded values and schema mismatches refuse before preparation.
+Nested JSON allows strings, booleans, null, arrays, objects and exactly representable integers; object keys are schema-defined ASCII.
+No normalization or mutation occurs after preparation. A changed default or schema requires a new plan and confirmation.
+
+The complete immutable binding projection is exactly `P = {"intent": WalletBusinessIntent}`.
+`plan_digest` is the lowercase hexadecimal SHA-256 of UTF-8 serialization of P.
+Serialization is exactly `json.dumps(P, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)`.
+P contains plain JSON values, so GraphOS `claim_values(P)` preserves them.
+This equals existing `graph_os/api/invoke/plan.py:24` `params_digest(P)`; it is not the signature payload digest.
+Both owners use this exact definition and shared cross-language vectors, including non-ASCII values, nested terms and decimal strings.
+`bind_plan` also binds authenticated principal, tenant, policy revision, registry digest, operation, effect and confirmation mode.
+These authority bindings remain mandatory. Intent account, destination, amount, network and mode always participate in the digest.
+SDK reconstructs P from the immutable durable change set and matches the authenticated confirmed-plan binding before verification.
+The durable change-set digest covers business intent and source versions, excluding proof, confirmation metadata and the derived plan digest.
+Their durable association is separate metadata; the change set must never contain a digest of its own proof.
+
+`WalletExecutionEnvelope` has exactly `phase`, `params`, `plan_ref`, `confirmation_ref`, `wallet_proof` and `idempotency_key`.
+`params` equals P. The other members are execution metadata, never business parameters.
+`phase` is `prepare`, `confirm` or `execute`; nullable references and proof are absent only when their phase permits.
+HTTP uses this exact body. MCP adds these explicit properties beside `op`; its existing `execute` flag must agree with phase.
+Confirm requires an explicit authenticated human action recorded by the existing durable authority; a client reference cannot assert confirmation.
+`wallet_proof` is the SDK WalletProofRequest; its plan digest equals the definition above.
+Proof tenant/actor must match authenticated authority; connector, operation, account, wallet and network must equal intent.
+Proof nonce equals `change_set_id`; envelope, intent and proof idempotency keys must agree.
+All proof metadata is verified, including signature, current trusted key, validity, change-set digest and confirmation association.
+Separating proof from P permits later signing; it does not permit unsigned business fields or client-selected projection rules.
+The canonical signed payload remains the existing domain-separated RFC 8785 profile, with `plan_digest` as a value.
+No plan digest, confirmation reference or proof occurs inside P. Signature insertion therefore introduces no digest cycle.
+
+The shared `WalletExecutionEnvelope` extension is missing and blocks activation of these operations.
+HTTP `graph_os/api/http/routes.py:72` currently merges the entire JSON body into params before invocation at line 127.
+For these registered operations, its new closed envelope parser must pass only envelope.params as operation parameters.
+MCP `graph_os/api/mcp/verbs.py:26` PARAMETERS and `_invoke_and_render` at line 258 need explicit wallet proof and confirmation metadata.
+The MCP `params` property must carry the same P as HTTP; duplicate or conflicting metadata refuses.
+The shared Invoke contract must carry typed envelope metadata separately through confirmation and connector dispatch.
+This is an explicit shared transport dependency, not an existing side channel or handler-level field removal.
+`pipeline._effect` at line 218, `bind_plan` at line 230 and `EgPlanStore.validate` at plan.py:160 must use P unchanged.
+`audit_event` at audit.py:28 and `_journal_binding` must use that same business projection and preserve all existing authority bindings.
+Proof evidence joins by digest/reference separately; raw signatures must not enter logs or create a different business-effect identity.
+Shared envelope validation must precede plan consumption; current `_effect` consumes a matching lease and lacks this proof-aware lifecycle.
+Preparation and explicit confirmation must persist a binding without dispatching or consuming the execution lease.
+Execution validates proof and confirmation before consuming that lease through the existing governed reservation path.
+Failure, races and restart must retain existing durable fencing and reconciliation guarantees. Do not add another approval or nonce store.
+Until envelope parsing, durable association and lifecycle wiring exist for both transports, refuse with UNAVAILABLE and no effect.
+SDK maps unavailable binding to `verification_unavailable`; mismatched intent or proof bindings cannot become verification success.

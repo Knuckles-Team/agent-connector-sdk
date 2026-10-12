@@ -28,3 +28,27 @@ Test each altered binding field, unknown scheme, duplicate JSON field, expired p
 Exercise two concurrent submissions and a process restart against the same durable effect key; read back the original receipt.
 A proof-only request must never mutate the provider. Record exact revisions, served requests and redacted durable receipts.
 These acceptance cases are planned; specification checks do not establish runtime delivery.
+
+
+### Served immutable-intent acceptance
+
+Start from an immutable durable change set produced by `GovernedWriteBack.dry_run`; its business fields and effect key define P.
+
+1. POST /api/v1/ops/{op_id} with phase=prepare, params=P and null plan_ref, confirmation_ref and wallet_proof.
+   Return frozen P, plan_ref, plan_digest, change-set ID/digest and effect key; assert zero provider effects.
+2. POST the same operation with phase=confirm, unchanged P, returned plan_ref and the explicit authenticated human confirmation action.
+   Persist the confirmation reference and unchanged P; assert zero effects and an unconsumed execution lease.
+3. Sign the returned canonical SDK payload with a synthetic trusted key, after confirmation.
+   Insert WalletProofRequest and confirmation metadata into the envelope without changing P.
+4. POST the same operation with phase=`execute` and the completed envelope; require independent EG authorization and SDK verification.
+   Assert the prepare, confirmation, SDK, plan validation, audit and reservation records contain the same plan_digest.
+   Assert exactly one provider mutation and its durable receipt. Repeat the entire flow through MCP tools/call.
+5. Change account, destination, amount, network, mode, operation or any nested business term after confirmation.
+   Each change must yield PLAN_MISMATCH before dispatch, even if the attacker signs the changed intent with a trusted key.
+   At the connector boundary, a binding mismatch yields scope_mismatch and zero effects.
+6. Insert a valid proof into an unchanged confirmed P; assert neither recursive hashing nor PLAN_MISMATCH occurs.
+   A changed signature, proof digest or confirmation association fails its separate validation without changing the computed intent digest.
+7. Race two identical envelopes, restart and replay; read the same durable receipt without another effect.
+   Missing envelope wiring, unavailable authority and uncertain completion refuse or reconcile without another submission.
+
+These are required future served tests using the existing named acceptance cases; runtime acceptance remains NOT RUN.

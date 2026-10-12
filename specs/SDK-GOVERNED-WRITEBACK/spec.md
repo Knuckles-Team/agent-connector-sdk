@@ -40,3 +40,7 @@ SDK-GOVERNED-WRITEBACK-R001.1 through R001.6 define the signature-verification p
 The SDK produces source-side cryptographic verification facts; EG owns authorization decisions and durable replay/effect records.
 GraphOS authenticates the caller and serves explicit confirmation. A signature never replaces either approval or account entitlement.
 Unavailable verifier, key trust or durable binding keeps wallet operations unavailable.
+
+Confirmation binds the complete immutable `{"intent": WalletBusinessIntent}` projection defined in plan.md.
+Proof and confirmation metadata use the separate, currently missing WalletExecutionEnvelope transport extension.
+No proof or derived plan digest enters the confirmed business parameters. All new wiring remains SPECIFIED.
