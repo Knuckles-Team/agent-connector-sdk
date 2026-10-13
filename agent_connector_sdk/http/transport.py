@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import time
 from collections.abc import Awaitable, Callable
+from typing import cast
 
 import anyio
 import httpx
@@ -33,13 +34,13 @@ class _GovernedTransportConfig[InnerT, SleepT]:
         *,
         policy: RetryPolicy,
         logger: logging.Logger,
-        sleep: SleepT,
-        isolate_cookies: bool,
+        sleep: SleepT | Callable[[float], None] = time.sleep,
+        isolate_cookies: bool = False,
     ) -> None:
         self._inner = inner
         self._policy = policy
         self._logger = logger
-        self._sleep = sleep
+        self._sleep = cast(SleepT, sleep)
         self._isolate_cookies = isolate_cookies
 
 
@@ -48,23 +49,6 @@ class GovernedTransport(
     httpx.BaseTransport,
 ):
     """Wraps sync requests with retries, logging and optional cookie isolation."""
-
-    def __init__(
-        self,
-        inner: httpx.BaseTransport,
-        *,
-        policy: RetryPolicy,
-        logger: logging.Logger,
-        sleep: Callable[[float], None] = time.sleep,
-        isolate_cookies: bool = False,
-    ) -> None:
-        super().__init__(
-            inner,
-            policy=policy,
-            logger=logger,
-            sleep=sleep,
-            isolate_cookies=isolate_cookies,
-        )
 
     def _send(self, request: httpx.Request) -> Outcome:
         if self._isolate_cookies:
