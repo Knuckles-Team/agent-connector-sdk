@@ -35,18 +35,34 @@ SDK does not copy graph request DTOs, receipt types, or digest algorithms.
 
 ## Shared runtime
 
+Super Intelligence (SI) is the Graph OS project term for model-backed agents.
+
 <ol class="site-flow">
   <li class="site-flow__step">
     <div class="site-flow__title">Serve</div>
-    <div class="site-flow__body">An AI or MCP client talks MCP to the connector server, which talks governed HTTP to the vendor API.</div>
+
+    <div class="site-flow__body">
+      An SI agent or MCP client talks MCP to the connector server.
+      The connector server sends governed HTTP requests to the vendor API.
+    </div>
   </li>
+
   <li class="site-flow__step">
     <div class="site-flow__title">Authorize</div>
-    <div class="site-flow__body">Graph OS hands the SDK runtime a verified identity and authority. The runtime discovers and extracts through the connector server.</div>
+
+    <div class="site-flow__body">
+      Graph OS hands the SDK runtime a verified identity and authority.
+      The runtime discovers and extracts through the connector server.
+    </div>
   </li>
+
   <li class="site-flow__step">
     <div class="site-flow__title">Write back</div>
-    <div class="site-flow__body">The runtime's generated EG client receives an authorized change set from epistemic-graph, then previews, applies, and reconciles against the vendor API.</div>
+
+    <div class="site-flow__body">
+      The runtime's generated EG client receives an authorized change set from epistemic-graph.
+      It then previews, applies, and reconciles against the vendor API.
+    </div>
   </li>
 </ol>
 
