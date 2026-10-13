@@ -531,9 +531,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R028.3",
       "title": "API-key identity remains header-based and stateless",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "c991698b90bf"
+      ],
+      "verified_by": [
+        "tests/test_http_client.py:297",
+        "tests/test_http_client.py:340",
+        "tests/test_http_client.py:383",
+        "tests/test_http_client.py:421"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R029",

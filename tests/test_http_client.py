@@ -294,6 +294,7 @@ async def test_async_bounded_iteration() -> None:
     assert [chunk async for chunk in aiter_bounded(response, 4)] == [b"ab", b"cd"]
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.3")
 def test_api_key_client_isolates_cookies_across_response_statuses() -> None:
     seen: list[httpx.Request] = []
     replies = iter(_COOKIE_EXCHANGES)
@@ -336,6 +337,7 @@ def test_api_key_client_isolates_cookies_across_response_statuses() -> None:
     assert all(request.headers["x-api-key"] == "fixture-key" for request in seen)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.3")
 async def test_async_api_key_client_isolates_cookies_across_response_statuses() -> None:
     seen: list[httpx.Request] = []
     replies = iter(_COOKIE_EXCHANGES)
@@ -378,6 +380,7 @@ async def test_async_api_key_client_isolates_cookies_across_response_statuses() 
     assert all(request.headers["x-api-key"] == "fixture-key" for request in seen)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.3")
 async def test_async_api_key_client_isolates_concurrent_callers() -> None:
     seen: list[httpx.Request] = []
     both_dispatched = asyncio.Event()
@@ -415,6 +418,7 @@ async def test_async_api_key_client_isolates_concurrent_callers() -> None:
     assert all(request.headers["x-api-key"] == "fixture-key" for request in seen)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.3")
 def test_non_api_key_client_preserves_existing_cookie_behavior() -> None:
     seen: list[httpx.Request] = []
 
