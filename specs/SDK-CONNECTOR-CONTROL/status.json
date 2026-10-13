@@ -396,6 +396,7 @@
       "landed_in": [
         "045ba48df230",
         "077a14c9f3d3",
+        "3ddd773fb6dc",
         "d9c0db1b19cf",
         "fad5328aee62"
       ],
@@ -713,6 +714,7 @@
       "title": "Tool contract facts for the run loop and the tool-subset decision",
       "delivery_state": "SPECIFIED",
       "landed_in": [
+        "3ddd773fb6dc",
         "910c1a8859ca",
         "f06d1600bb90"
       ],
