@@ -1,0 +1,31 @@
+{
+  "$ref": "schema-manifest.schema.json#/$defs/SchemaIdentity",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One ordered UTF-8 fragment; never a replacement JSON Schema.",
+  "properties": {
+    "fragment_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Fragment Sha256",
+      "type": "string"
+    },
+    "index": {
+      "exclusiveMaximum": 4100,
+      "minimum": 0,
+      "title": "Index",
+      "type": "integer"
+    },
+    "text": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    }
+  },
+  "required": [
+    "index",
+    "fragment_sha256",
+    "text"
+  ],
+  "title": "SchemaFragment",
+  "unevaluatedProperties": false
+}
