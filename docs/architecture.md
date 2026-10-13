@@ -38,7 +38,8 @@ SDK does not copy graph request DTOs, receipt types, or digest algorithms.
 <ol class="site-flow">
   <li class="site-flow__step">
     <div class="site-flow__title">Serve</div>
-    <div class="site-flow__body">An AI or MCP client talks MCP to the connector server, which talks governed HTTP to the vendor API.</div>
+    <div class="site-flow__body">An SI agent or MCP client talks MCP to the connector server, which talks governed HTTP to the vendor API.</div>
+    <p>Super Intelligence (SI) is the Graph OS project term for model-backed agents.</p>
   </li>
   <li class="site-flow__step">
     <div class="site-flow__title">Authorize</div>
