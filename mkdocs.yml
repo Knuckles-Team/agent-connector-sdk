@@ -29,6 +29,7 @@ nav:
   - Components:
       - Connector servers: connector-servers.md
       - Content over MCP: content-over-mcp.md
+      - Schema disclosure: schema-disclosure.md
       - Source synchronization: connector-sync.md
       - Repository ingestion: repository-ingestion.md
       - Extension ports: extension-ports.md

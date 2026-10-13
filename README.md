@@ -95,6 +95,7 @@ then choose the reference that matches the work:
 - [Capabilities](https://knuckles-team.github.io/agent-connector-sdk/capabilities/)
 - [Architecture](https://knuckles-team.github.io/agent-connector-sdk/architecture/)
 - [Connector servers](https://knuckles-team.github.io/agent-connector-sdk/connector-servers/)
+- [Schema disclosure](https://knuckles-team.github.io/agent-connector-sdk/schema-disclosure/)
 - [Source synchronization](https://knuckles-team.github.io/agent-connector-sdk/connector-sync/)
 - [Repository ingestion](https://knuckles-team.github.io/agent-connector-sdk/repository-ingestion/)
 - [Extension interfaces](https://knuckles-team.github.io/agent-connector-sdk/extension-ports/)
