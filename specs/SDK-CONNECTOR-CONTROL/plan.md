@@ -326,13 +326,62 @@ R007.1 precedes R007.2; R007.2 precedes R007.3. R007.3 and R007.4 precede R007.6
 5. SDK-CONNECTOR-CONTROL-R053.5: Bind declaration digest, component versions, enabled set, schema revision, validation outcome, and host decision. Persist names and constraints, never values.
 6. SDK-CONNECTOR-CONTROL-R053.6: Future served tests cover enabled components and indirect reads. Test missing, malformed, and undeclared inputs. Confirm no route admission and redact secret values.
 
-### SDK-CONNECTOR-CONTROL-R054
-1. SDK-CONNECTOR-CONTROL-R054.1: Bind each entry to package, repository, JSON digest, target, and operation IDs. Also record schemas, tags, mode, authorization reference, and refusal cases.
-2. SDK-CONNECTOR-CONTROL-R054.2: Migrate entries through register_tool_surface or register_method_tools. Keep condensed action routing as default and preserve explicit R026/R032 opt-ins. The R020/R032 wording conflict remains unresolved for AU:89; obtain owner clarification before implementation or parity closure.
-3. SDK-CONNECTOR-CONTROL-R054.3: Bind inventory and parity checks to tools/list and tools/call through Python registration and action_dispatch. Current definitions lack a complete census and gate.
-4. SDK-CONNECTOR-CONTROL-R054.4: Preserve denied, malformed, unknown, unsupported, and schema-mismatch refusals. Any unclassified loader or unexplained difference blocks completion.
-5. SDK-CONNECTOR-CONTROL-R054.5: Record revisions, inventory digest, operation/schema/tag parity, mode, authorization/refusal comparison, and served receipt. Do not claim completion before readback.
-6. SDK-CONNECTOR-CONTROL-R054.6: Future served tests list every package with tools/list. Then call each operation. Include denied and malformed calls. Test condensed default and supported opt-ins.
+### JSON tag-loader migration
+
+Component: Connector registration
+Depends-on: SDK-CONNECTOR-CONTROL-R020, SDK-CONNECTOR-CONTROL-R026, SDK-CONNECTOR-CONTROL-R026.1, SDK-CONNECTOR-CONTROL-R032
+
+Code: ../../agent_connector_sdk/testing/fleet_migration.py:90
+
+Code: ../../agent_connector_sdk/mcp/server.py:88
+
+Code: ../../agent_connector_sdk/mcp/tool_surface.py:121
+
+Code: ../../agent_connector_sdk/mcp/method_tools.py:157
+
+Code: ../../agent_connector_sdk/mcp/action_dispatch.py:196
+
+Existing code: `scan_many_packages` supplies the import scan. It does not list JSON registration loaders.
+Existing registration and dispatch functions own both supported surfaces.
+Reachable today: no complete loader inventory or served comparison gate exists.
+
+The SDK must extend fleet_migration with JsonTagLoaderEntry and the deterministic census described by R054.1 and R054.2.
+The caller must supply an explicit package set with immutable revisions and declared startup entrypoints.
+Scan all tracked Python and JSON package assets, without excluding unreadable or dynamically resolved registration paths as clean.
+An unresolved path blocks the gate until its explicit loader binding joins the inventory.
+Inventory completion means every discovered loader and source operation has exactly one recorded disposition and target.
+Each operation_mappings entry pairs source_operation_id with target_operation_id and target_registration.
+Bind the paired schemas, tags, authorization references and refusals to that entry and include it in the inventory digest.
+Use the existing schema normalization contract under R002 and R003 for comparisons.
+Preserve array order where schemas define ordered tuples; do not erase meaningful schema differences.
+
+The gate starts source and replacement servers in separate controlled fixtures through create_mcp_server.
+Each fixture must use the same admitted principal, synthetic backend state, protocol and operation inputs.
+An MCP client lists the served catalogs and calls every mapped operation through registration, authorization and dispatch.
+Independent backend observations prove call counts and results.
+Each connector owns its fixture and migration commit; the SDK owns the reusable gate and receipt format.
+Missing fixtures or unavailable legacy transport block completion instead of producing passing empty comparisons.
+
+Decision: R020 removes implicit mode selection, while R026 and R032 retain explicit registration opt-ins.
+The existing verbose_register callback follows condensed registration; register_method_tools remains the per-method primitive.
+Reject a blanket ban on explicit callbacks because it contradicts R026/R032 and removes supported connector behavior.
+Do not change R026.1 confirmation or its producer dependencies.
+
+```mermaid
+flowchart LR
+  S["Pinned connector sources"] --> I["SDK loader census"]
+  I --> G["SDK served parity gate"]
+  G --> O["Source server fixture"]
+  G --> P["Declared Python registration"]
+  P --> D["Existing authorization and dispatch"]
+  D --> B["Controlled connector backend"]
+  O --> E["Independent parity receipt"]
+  B --> E
+```
+
+R054.1 defines the model. R054.2 classifies the complete inventory before R054.3 wires the served gate.
+R054.4 supplies refusal cases; R054.5 binds reconstructable evidence; R054.6 proves the complete served matrix.
+The acceptance test names in test-spec.md are planned paths, not existing runtime receipts.
 
 
 Within each family, Model precedes Behavior and Wiring. Refusal and Evidence bind the same operation. Hot-path proof depends on all prior children.

@@ -32,7 +32,7 @@ vendor connector package ──manifest and entry point──▶ SDK discovery/c
 7. Connector-internal tool choice or inbound event triage may request a proposal from a decision service. This proposal is observational only. It never directly authorizes a side effect or bypasses deterministic write-back rules.
 8. The release contract locks a published compatible graph-client wheel. An isolated installed consumer verifies its generated types, native kernels, and error catalog. A source overlay, unpinned wheel, or stale lock cannot replace the release dependency.
 9. Every connector package performs HTTPS calls through the SDK's shared TLS profile in `tls/`; no connector may disable certificate verification with a bare boolean flag or silence the underlying TLS warning library (SDK-CONNECTOR-CONTROL-R017). The SDK's full test suite, strict type checking, and documentation build must pass cleanly against the connector control implementation from a fresh checkout, with no partial or broken module left in the merged source tree (SDK-CONNECTOR-CONTROL-R018).
-10. `register_tool_surface` registers one condensed, intent-gated tool per registrar. It reads no `MCP_TOOL_MODE` setting and builds no separate verbose 1:1 tool surface, matching the ecosystem's single condensed intent contract (SDK-CONNECTOR-CONTROL-R020).
+10. `register_tool_surface` must register condensed tools by default without implicit mode selection. R026 and R032 preserve explicit additional registration.
 
 ## Portable development and contribution
 
@@ -178,25 +178,22 @@ The SDK declares environment inputs used by enabled SDK components, including in
 
 **SDK-CONNECTOR-CONTROL-R053.6 — Hot-path proof.** Future served tests cover enabled components and indirect reads. Test missing, malformed, and undeclared inputs. Confirm no route admission and redact secret values.
 
-## JSON tag-loader migration for AU:89 (R054.1-R054.6)
+## JSON tag-loader migration
 
-Inventory each JSON tag loader and migrate it to Python registration with served parity. Preserve the condensed default and R026/R032 opt-ins. Source trace: `AU:89 3916d50003442e91ad490706e9c9cd0d77211af4998baa3ad98220457e4c7d1a`.
+The SDK owns the migration contract in SDK-CONNECTOR-CONTROL-R054.1 through SDK-CONNECTOR-CONTROL-R054.6.
+A contributor must inventory pinned source loaders before replacing their registrations.
+The served source and replacement surfaces must preserve operation, schema, tag, authorization and refusal behavior.
+The SDK must preserve the explicit R026 and R032 registration opt-ins.
+Unknown loaders or unavailable source evidence must block replacement.
+The SDK owns the reusable gate; each connector owns its startup binding and backend fixture.
+EG policy and GraphOS admission remain outside this migration contract.
 
-**SDK-CONNECTOR-CONTROL-R054.1 — Model.** Bind each entry to package, repository, JSON digest, target, and operation IDs. Also record schemas, tags, mode, authorization reference, and refusal cases.
-
-**SDK-CONNECTOR-CONTROL-R054.2 — Behavior.** Migrate entries through register_tool_surface or register_method_tools. Keep condensed action routing as the default. Preserve R026 and R032 opt-ins. R020 retires verbose mode, while R032 permits explicit verbose opt-in. This conflict remains unresolved in AU:89. Obtain the owner's decision before implementation or parity closure.
-
-**SDK-CONNECTOR-CONTROL-R054.3 — Wiring.** Bind inventory and parity checks to tools/list and tools/call through Python registration and action_dispatch. Current definitions lack a complete census and gate.
-
-**SDK-CONNECTOR-CONTROL-R054.4 — Refusal.** Preserve denied, malformed, unknown, unsupported, and schema-mismatch refusals. Any unclassified loader or unexplained difference blocks completion.
-
-**SDK-CONNECTOR-CONTROL-R054.5 — Evidence.** Record revisions, inventory digest, operation/schema/tag parity, mode, authorization/refusal comparison, and served receipt. Do not claim completion before readback.
-
-**SDK-CONNECTOR-CONTROL-R054.6 — Hot-path proof.** Future served tests list every package with tools/list. Then call each operation. Include denied and malformed calls. Test condensed default and supported opt-ins.
+Success requires the complete served matrix in test-spec.md and independent receipt reconstruction.
+A spec definition, import scan or isolated helper test supplies no runtime acceptance.
 
 ## Consolidated packet trace
 
-SDK:5 remains defined by R007.1-R007.6. No duplicate SDK:5 rows were added. `AU:29 49df21c60c947240d4f02b1424b1de29183f10a69c76bd885f19d13e7237061c`; `AU:35 9da1fe3853d82945989df4194b626b793a37937ff892b483c1583a8d1aae644e`; `GRAPHOS:9 cfd8f1270b5ec1f19d8c78f50e5a833695573763a691584e8c74d8fa5f1cb225`; `AU:89 3916d50003442e91ad490706e9c9cd0d77211af4998baa3ad98220457e4c7d1a`.
+SDK:5 remains defined by R007.1-R007.6. No duplicate SDK:5 rows were added. `AU:29 49df21c60c947240d4f02b1424b1de29183f10a69c76bd885f19d13e7237061c`; `AU:35 9da1fe3853d82945989df4194b626b793a37937ff892b483c1583a8d1aae644e`; `GRAPHOS:9 cfd8f1270b5ec1f19d8c78f50e5a833695573763a691584e8c74d8fa5f1cb225`.
 
 The current SDK tree lacks these four producers and bindings. This packet adds definitions only. It adds no runtime implementation or acceptance receipt.
 <!-- /spec-definition-patch -->
