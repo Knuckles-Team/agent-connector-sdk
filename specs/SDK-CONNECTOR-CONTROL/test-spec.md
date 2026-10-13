@@ -154,12 +154,12 @@ These future tests have not run. The producer, gate, and writer attachments are 
 - **CC-96 / SDK-CONNECTOR-CONTROL-R053.4:** A secret canary is absent from every refusal diagnostic. Proposed: `tests/test_environment_manifest_served.py::test_refusal_diagnostics_redact_secret_values`.
 - **CC-97 / SDK-CONNECTOR-CONTROL-R053.5:** Independent readback reproduces the declaration set and decision. Proposed: `tests/test_environment_manifest_served.py::test_readback_matches_manifest_and_decision`.
 - **CC-98 / SDK-CONNECTOR-CONTROL-R053.6:** The healthy case serves; each negative case refuses before admission. Proposed: `tests/test_environment_manifest_served.py::test_served_startup_accepts_declared_and_refuses_invalid`.
-- **CC-99 / SDK-CONNECTOR-CONTROL-R054.1:** The inventory covers every loader before migration. Proposed: `tests/test_json_tag_loader_migration_served.py::test_inventory_finds_every_source_loader`.
-- **CC-100 / SDK-CONNECTOR-CONTROL-R054.2:** Served operations and schemas remain equivalent. Proposed: `tests/test_json_tag_loader_migration_served.py::test_registered_operations_match_source_schemas`.
-- **CC-101 / SDK-CONNECTOR-CONTROL-R054.3:** Tests reach real registration, dispatch, and backend. Proposed: `tests/test_json_tag_loader_migration_served.py::test_tools_list_and_call_reach_backend`.
-- **CC-102 / SDK-CONNECTOR-CONTROL-R054.4:** Negative calls retain typed refusal and zero backend effects. Proposed: `tests/test_json_tag_loader_migration_served.py::test_denied_malformed_and_unknown_calls_have_zero_effects`.
-- **CC-103 / SDK-CONNECTOR-CONTROL-R054.5:** Reconstruct the parity decision from recorded digests and results. Proposed: `tests/test_json_tag_loader_migration_served.py::test_parity_receipt_reconstructs_from_digests`.
-- **CC-104 / SDK-CONNECTOR-CONTROL-R054.6:** The acceptance proves dispatch parity and no opt-in regression. Proposed: `tests/test_json_tag_loader_migration_served.py::test_default_and_opt_ins_preserve_dispatch_parity`.
+- **CC-99 / SDK-CONNECTOR-CONTROL-R054.1:** Planned `tests/test_json_tag_loader_migration_served.py::test_inventory_finds_every_source_loader` validates complete entries, ordering, duplicate rejection and changed source digests.
+- **CC-100 / SDK-CONNECTOR-CONTROL-R054.2:** Planned `tests/test_json_tag_loader_migration_served.py::test_registered_operations_match_source_schemas` detects missing loaders, hidden dynamic paths, unmapped operations and every schema/tag difference.
+- **CC-101 / SDK-CONNECTOR-CONTROL-R054.3:** Planned `tests/test_json_tag_loader_migration_served.py::test_tools_list_and_call_reach_backend` enters the served wire methods and observes the controlled backend.
+- **CC-102 / SDK-CONNECTOR-CONTROL-R054.4:** Planned `tests/test_json_tag_loader_migration_served.py::test_denied_malformed_and_unknown_calls_have_zero_effects` covers each refusal on both source and replacement servers.
+- **CC-103 / SDK-CONNECTOR-CONTROL-R054.5:** Planned `tests/test_json_tag_loader_migration_served.py::test_parity_receipt_reconstructs_from_digests` repeats the fixture and compares canonical receipts after excluding declared observation timestamps.
+- **CC-104 / SDK-CONNECTOR-CONTROL-R054.6:** The served transport, registration, authorization, dispatch and controlled backend must all participate. Helper-only or import-scan-only checks cannot satisfy this row.
 
 These are required future tests. None ran during definition authoring.
 <!-- /spec-definition-patch -->
@@ -196,3 +196,21 @@ These are required future tests. None ran during definition authoring.
 - **CC-112 / R028.3:** Run tests/test_http_client.py::test_async_api_key_client_isolates_concurrent_callers. Block the responder until both callers send requests through one shared API-key client. Assert explicit and jar-seeded cookies reach neither request. Confirm responses cannot seed the shared cookie jar.
 - **CC-113 / R028.3:** Run tests/test_http_client.py::test_non_api_key_client_preserves_existing_cookie_behavior. Confirm the Bearer client retains its existing HTTPX cookie-jar behavior. Keep the existing TLS, origin, redirect, and retry tests.
 - **CC-114 / R028.3:** Run downstream acceptance through real modern MCP tools/call. Pin the immutable SDK commit and use a controlled provider transport. Exercise login and finishOAuth before protected calls. Repeat through two distinct MCP clients that share one API-key HTTP client. Assert every provider call carries no Cookie and uses the configured API key. Make no live provider or credential calls.
+
+## JSON loader served acceptance matrix
+
+Seed 5489 must create two isolated servers and controlled backends for each inventory entry.
+The fixture must preserve the pinned source JSON, declared Python target and identical operation inputs.
+Compare tools/list names, normalized schemas and tags before tools/call.
+Run every mapped operation, including each default and explicitly enabled registration kind.
+Record results and backend counts independently of the client response.
+A permitted call must reach its backend once; each refused call must reach it zero times.
+Negative cases include unknown operation, malformed input, denied caller, unsupported mode, name collision and schema mismatch.
+Run destructive acceptance and decline on both action and per-method dispatch paths under R026.1.
+A dynamically resolved or unreadable loader must remain unresolved and block the gate.
+Removing a source operation or changing a schema, tag or refusal must fail the parity comparison.
+Repeat the seed and compare canonical receipts after excluding only declared observation timestamps.
+Missing source fixtures must fail; import scans and mocked dispatch alone cannot prove served acceptance.
+
+Every comparison must name the exact source_operation_id, target_operation_id and target_registration from the inventory.
+Duplicate source or target mappings and unpaired schema/refusal evidence must fail reconstruction.

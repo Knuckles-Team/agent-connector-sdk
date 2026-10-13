@@ -94,7 +94,7 @@
 - [ ] **SDK-CONNECTOR-CONTROL-R051:** Define and prove the sandbox allocation producer; runtime and served evidence remain absent.
 - [ ] **SDK-CONNECTOR-CONTROL-R052:** Define and prove visual observation transport; runtime and served evidence remain absent.
 - [ ] **SDK-CONNECTOR-CONTROL-R053:** Define and prove environment declaration export/startup binding; runtime and served evidence remain absent.
-- [ ] **SDK-CONNECTOR-CONTROL-R054:** Inventory and prove JSON tag-loader migration and parity after AU:89 owner clarification; runtime and served evidence remain absent.
+- [ ] **SDK-CONNECTOR-CONTROL-R054:** Inventory pinned JSON tag loaders and prove served registration parity with explicit opt-ins preserved.
 - [ ] **SDK-CONNECTOR-CONTROL-R051.1:** Model and acceptance remain unimplemented.
 - [ ] **SDK-CONNECTOR-CONTROL-R051.2:** Behavior and acceptance remain unimplemented.
 - [ ] **SDK-CONNECTOR-CONTROL-R051.3:** Wiring and acceptance remain unimplemented.
@@ -113,12 +113,12 @@
 - [ ] **SDK-CONNECTOR-CONTROL-R053.4:** Refusal and acceptance remain unimplemented.
 - [ ] **SDK-CONNECTOR-CONTROL-R053.5:** Evidence and acceptance remain unimplemented.
 - [ ] **SDK-CONNECTOR-CONTROL-R053.6:** Hot-path proof and acceptance remain unimplemented.
-- [ ] **SDK-CONNECTOR-CONTROL-R054.1:** Model and acceptance remain unimplemented.
-- [ ] **SDK-CONNECTOR-CONTROL-R054.2:** Behavior and acceptance remain unimplemented.
-- [ ] **SDK-CONNECTOR-CONTROL-R054.3:** Wiring and acceptance remain unimplemented.
-- [ ] **SDK-CONNECTOR-CONTROL-R054.4:** Refusal and acceptance remain unimplemented.
-- [ ] **SDK-CONNECTOR-CONTROL-R054.5:** Evidence and acceptance remain unimplemented.
-- [ ] **SDK-CONNECTOR-CONTROL-R054.6:** Hot-path proof and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R054.1:** Define and validate JsonTagLoaderEntry and deterministic inventory ordering.
+- [ ] **SDK-CONNECTOR-CONTROL-R054.2:** Scan pinned package inputs and block every unresolved loader or unmapped operation.
+- [ ] **SDK-CONNECTOR-CONTROL-R054.3:** Connect the inventory gate to both served server fixtures and existing dispatch paths.
+- [ ] **SDK-CONNECTOR-CONTROL-R054.4:** Preserve typed refusals and zero backend calls, including destructive confirmation refusal.
+- [ ] **SDK-CONNECTOR-CONTROL-R054.5:** Emit canonical receipts and independently reconstruct their parity decisions.
+- [ ] **SDK-CONNECTOR-CONTROL-R054.6:** Run the complete served default and explicit-opt-in matrix for every inventory operation.
 
 Runtime work and test execution remain outstanding.
 <!-- /spec-definition-patch -->
