@@ -20,6 +20,8 @@ import json
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
+from mcp.types import InputRequiredResult
+
 from agent_connector_sdk.mcp.concurrency import (
     fold_body_arguments,
     invoke_client_method,
@@ -204,8 +206,9 @@ async def dispatch_async(
 ) -> Any:
     """Resolve and execute ``action`` without blocking the MCP event loop.
 
-    A destructive action requires an affirmative live-context elicitation; a
-    missing context or failed elicitation returns a cancellation payload.
+    A destructive action requires an affirmative live-context confirmation.
+    Modern connections may return an InputRequiredResult for the client round
+    trip; a missing or negative response returns a cancellation payload.
     """
     canonical = resolve_action(
         action,
@@ -215,10 +218,14 @@ async def dispatch_async(
     )
     if isinstance(canonical, dict):
         return canonical
-    if is_destructive_action(
-        canonical, operation
-    ) and not await ctx_confirm_destructive(ctx, canonical):
-        return {"cancelled": True, "operation": canonical}
+    if is_destructive_action(canonical, operation):
+        confirmation = await ctx_confirm_destructive(
+            ctx, canonical, confirmation_arguments=kwargs
+        )
+        if isinstance(confirmation, InputRequiredResult):
+            return confirmation
+        if confirmation is not True:
+            return {"cancelled": True, "operation": canonical}
     result = await invoke_client_method(
         getattr(client, canonical), **dict(kwargs or {})
     )

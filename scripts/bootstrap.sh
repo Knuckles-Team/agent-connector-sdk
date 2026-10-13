@@ -50,14 +50,21 @@ if ! uv_is_current; then
 fi
 uv_is_current || { echo "bootstrap.sh: uv >= $uv_minimum is required" >&2; exit 2; }
 
-# The pinned interpreter is the lower bound of requires-python.
-python_version=$(sed -n 's/^requires-python = ">=\([0-9.]*\).*/\1/p' pyproject.toml)
+# Read only the SDK project's Python floor; uv.lock also records dependency metadata.
+python_version=$(python3 scripts/project_python_floor.py pyproject.toml)
 uv python install "$python_version"
 
 # The SDK consumes epistemic-graph's generated contract from a pinned source
 # checkout (.ci/epistemic-graph), exactly as hosted CI does.
 bash scripts/bootstrap_epistemic_graph_contract.sh
-uv sync --frozen --group test --python "$python_version" --no-install-package epistemic-graph
+# Hook commands use --no-sync, so prepare all hook groups and tools here while
+# keeping the unpublished EG contract out of the project's installed packages.
+uv sync --frozen \
+  --group test \
+  --group docs \
+  --group typecheck \
+  --python "$python_version" \
+  --no-install-package epistemic-graph
 
 # Put the pinned contract first on sys.path in the project environment (ahead of
 # any published epistemic-graph wheel `uv run` may install), so plain

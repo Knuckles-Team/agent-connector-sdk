@@ -200,3 +200,19 @@ SDK:5 remains defined by R007.1-R007.6. No duplicate SDK:5 rows were added. `AU:
 
 The current SDK tree lacks these four producers and bindings. This packet adds definitions only. It adds no runtime implementation or acceptance receipt.
 <!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-confirmation-r026-1 -->
+## SDK-CONNECTOR-CONTROL-R026.1 — Destructive confirmation across supported MCP eras
+
+**Model.** Bind each confirmation to its canonical operation and JSON arguments. Modern requests use one named elicitation form. Require a boolean `confirmed` field and a SHA-256 request-state binding. Legacy elicitation uses the same field with strict boolean validation.
+
+**Behavior.** Select the path from the live negotiated protocol. For 2026-07-28 and later, return an input-required result. Continue only when a matching retry accepts the form and supplies `confirmed is True`. For supported handshake-era versions, call `Context.elicit` with a `StrictBool` response model. Accept only when `confirmed is True`. The pending modern result converts to false in boolean contexts. This keeps legacy `if not await` guards fail-closed. SDK dispatchers propagate the pending result and proceed only on exact `True`. Never retry through another protocol after refusal or failure.
+
+**Wiring.** The shared gate is `agent_connector_sdk/mcp/context.py::ctx_confirm_destructive`. `action_dispatch.dispatch_async` and generated method dispatch pass operation arguments to that gate. Both dispatchers propagate pending results. They call `invoke_client_method` only after explicit acceptance.
+
+**Refusal.** Refuse before the connector effect when context or protocol identity is missing or capability is unsupported. Refuse false, nonboolean, and missing fields. Refuse decline, cancellation, binding mismatch, transport error, or malformed response. Nondestructive operations never ask for confirmation.
+
+**Evidence.** Record the negotiated protocol and exact FastMCP and MCP versions with served `tools/call` results. Test `tests/test_mcp_confirmation_roundtrip.py` through `HTTPX MockTransport`. Do not call a live provider. Preserve the R026 landing receipt. R026.1 starts with no landed or verified receipts.
+
+**Hot-path proof.** Exercise generated per-method registration and `action_dispatch` separately in both protocol eras. Explicit acceptance yields exactly one controlled backend request. False, truthy false, nonboolean, decline, cancellation, missing content, or elicitation failure yields zero requests. Test missing or unversioned context, the legacy boolean-guard regression, and nondestructive calls without elicitation. Helper-only tests do not replace served calls.
+<!-- /spec-definition-patch -->

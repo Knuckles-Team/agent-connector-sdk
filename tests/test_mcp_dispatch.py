@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from mcp.types import ElicitResult, InputRequiredResult
 
 from agent_connector_sdk.mcp.action_dispatch import (
     DISCOVERY_ACTIONS,
@@ -42,6 +43,7 @@ class Client:
 class Elicitation:
     def __init__(self, outcome: object) -> None:
         self.outcome = outcome
+        self.request_context = SimpleNamespace(protocol_version="2025-11-25")
 
     async def elicit(self, message: str, response_type: type) -> object:
         if isinstance(self.outcome, Exception):
@@ -111,7 +113,9 @@ async def test_dispatch_shapes() -> None:
         dispatch(client, "nothing")
     cancelled = await dispatch_async(client, "delete_item", {"item_id": "x"})
     assert cancelled == {"cancelled": True, "operation": "delete_item"}
-    accepted = Elicitation(SimpleNamespace(action="accept", data=True))
+    accepted = Elicitation(
+        SimpleNamespace(action="accept", data=SimpleNamespace(confirmed=True))
+    )
     assert (
         await dispatch_async(client, "delete_item", {"item_id": "x"}, ctx=accepted)
         == "x"
@@ -140,7 +144,66 @@ async def test_ctx_confirm_destructive_fails_closed() -> None:
         Elicitation(SimpleNamespace(action="decline", data=True)), "drop"
     )
     assert await ctx_confirm_destructive(
-        Elicitation(SimpleNamespace(action="accept", data=True)), "drop"
+        Elicitation(
+            SimpleNamespace(action="accept", data=SimpleNamespace(confirmed=True))
+        ),
+        "drop",
+    )
+
+
+async def test_ctx_confirm_destructive_modern_round_trip_is_bound_and_strict() -> None:
+    action = "delete_item"
+    arguments = {"item_id": "item-17"}
+    initial = SimpleNamespace(
+        request_context=SimpleNamespace(protocol_version="2026-07-28"),
+        input_responses=None,
+        request_state=None,
+    )
+    request = await ctx_confirm_destructive(
+        initial, action, confirmation_arguments=arguments
+    )
+    assert isinstance(request, InputRequiredResult)
+    assert bool(request) is False
+    assert request.input_requests[
+        "destructive_action_confirmation"
+    ].params.requested_schema["required"] == ["confirmed"]
+
+    def resumed(
+        response: object, *, state: str | None = request.request_state
+    ) -> SimpleNamespace:
+        return SimpleNamespace(
+            request_context=SimpleNamespace(protocol_version="2026-07-28"),
+            input_responses={"destructive_action_confirmation": response},
+            request_state=state,
+        )
+
+    assert await ctx_confirm_destructive(
+        resumed(ElicitResult(action="accept", content={"confirmed": True})),
+        action,
+        confirmation_arguments=arguments,
+    )
+    for response in (
+        ElicitResult(action="accept", content={"confirmed": False}),
+        ElicitResult(action="accept", content={"confirmed": "true"}),
+        ElicitResult(action="accept", content={"confirmed": 1}),
+        ElicitResult(action="decline"),
+        ElicitResult(action="cancel"),
+        SimpleNamespace(action="accept", content=None),
+    ):
+        assert not await ctx_confirm_destructive(
+            resumed(response), action, confirmation_arguments=arguments
+        )
+    assert not await ctx_confirm_destructive(
+        resumed(
+            ElicitResult(action="accept", content={"confirmed": True}), state="wrong"
+        ),
+        action,
+        confirmation_arguments=arguments,
+    )
+    assert not await ctx_confirm_destructive(
+        resumed(ElicitResult(action="accept", content={"confirmed": True})),
+        action,
+        confirmation_arguments={"item_id": "different-item"},
     )
 
 

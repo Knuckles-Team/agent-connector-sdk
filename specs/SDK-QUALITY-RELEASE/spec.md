@@ -21,6 +21,8 @@ Install Python and `uv` as pinned in `pyproject.toml`; run `uv sync`, `uv run --
 
 The public README follows a fixed section order leading with a one-file connector quick start, and the published documentation site presents a task-first tutorial and architecture guide rather than an API-reference-first structure (SDK-QUALITY-RELEASE-R004).
 
+For R005, keep the source-only EG contract separate from environment distributions. Prove the source commit, Cargo version, consumed-module origins, declared dependencies, and lock-resolved dependencies. Include EG and every active transitive dependency in the graph. Do not infer native engine wheel installation from this graph. Traverse explicitly requested extras. Fail closed when a runtime package is missing or unverified.
+
 ## Evidence and completion
 
 | Gate | State | Evidence |

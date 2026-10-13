@@ -12,6 +12,8 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+from .confirmation import ctx_confirm_destructive
+
 __all__ = [
     "GraphQLField",
     "GraphQLFieldArgument",
@@ -26,7 +28,6 @@ __all__ = [
 _logger = logging.getLogger(__name__)
 
 _LOG_LEVELS = frozenset({"debug", "info", "warning", "error"})
-
 _LIST_TYPES_QUERY = "query { __schema { types { name } } }"
 _TYPE_DETAILS_QUERY = """
 query($name: String!) {
@@ -44,27 +45,6 @@ query($name: String!) {
   }
 }
 """.strip()
-
-
-async def ctx_confirm_destructive(ctx: Any, action_description: str) -> bool:
-    """Ask the connected user to confirm a destructive operation.
-
-    Returns:
-        ``True`` only when a live context exists and the user accepted.
-    """
-    if not ctx:
-        return False
-    try:
-        result = await ctx.elicit(
-            f"Are you sure you want to {action_description}?", response_type=bool
-        )
-    except Exception as exc:  # a failed elicitation denies the operation
-        _logger.warning(
-            "Elicitation failed; destructive operation denied: %s",
-            exc,
-        )
-        return False
-    return bool(result.action == "accept" and bool(result.data))
 
 
 async def ctx_log(

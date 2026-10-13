@@ -4,3 +4,9 @@
 2. Remove stale copied-doc synchronization from PR critical path; consolidate maintained public guide source into the Pages build. Validate links and privacy on that source.
 3. Provision scanner/tool versions and synthetic fixtures inside CI so cloud PRs reproduce the local source gate.
 4. Build the SDK wheel and test an isolated installed consumer against the locked published graph wheel. Release and Pages jobs independently record artifact and URL evidence.
+
+## R005 source-only reproduction command
+
+Keep the import-graph diagnostic aligned with the prepared source-only environment.
+Use the pinned EG source path and `uv run --frozen --no-sync` when recording evidence.
+The isolated installed-wheel acceptance remains a separate check.

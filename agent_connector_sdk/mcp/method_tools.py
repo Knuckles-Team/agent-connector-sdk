@@ -33,6 +33,7 @@ import re
 from typing import Any
 
 from fastmcp import Context
+from mcp.types import InputRequiredResult
 from pydantic import Field
 
 from agent_connector_sdk.mcp.action_dispatch import (
@@ -139,8 +140,14 @@ def _build_tool(method_name: str, get_client: Any, *, destructive: bool) -> Any:
     ) -> Any:
         kwargs = parse_json_object(params_json)
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
-        if destructive and not await ctx_confirm_destructive(ctx, method_name):
-            return {"cancelled": True, "operation": method_name}
+        if destructive:
+            confirmation = await ctx_confirm_destructive(
+                ctx, method_name, confirmation_arguments=kwargs
+            )
+            if isinstance(confirmation, InputRequiredResult):
+                return confirmation
+            if confirmation is not True:
+                return {"cancelled": True, "operation": method_name}
         client = await _resolve_client(get_client)
         return await invoke_client_method(getattr(client, method_name), **kwargs)
 

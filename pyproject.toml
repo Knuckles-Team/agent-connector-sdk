@@ -21,8 +21,9 @@ classifiers = [
 # The SDK depends on the MCP server/client stack and the epistemic-graph client.
 # It must never depend on the agent control plane.
 dependencies = [
-    "fastmcp>=4.0.3,<5",
+    "fastmcp>=4.0.11,<5",
     "epistemic-graph>=2.27.0,<3",
+    "mcp>=2.3.0,<3",
     "pydantic>=2.13.4,<3",
     "PyYAML>=6.0.3",
     "httpx>=0.28.1",
@@ -85,9 +86,28 @@ test = [
 docs = [
     "mkdocs-material==9.7.7",
 ]
+typecheck = [
+    "mypy==1.20.2",
+    "types-PyYAML==6.0.12.20260518",
+]
 
 [tool.uv]
 default-groups = ["test"]
+
+# Development lock source is the exact EG commit fetched by
+# scripts/bootstrap_epistemic_graph_contract.sh. This source pin supplies the
+# unpublished >=2.27.0 resolver metadata; it is not a released-wheel claim.
+[tool.uv.sources]
+epistemic-graph = { git = "https://github.com/Knuckles-Team/epistemic-graph.git", rev = "f17f47ab300f7f1ddd972d4e0214283a28547e36" }
+
+# Static metadata copied from that commit's pyproject.toml (SHA-256
+# c3fd5fc4d7fbeed1bebd3512ec598418a4b96376d0706293d1cd6e8ed0e4e13b) and
+# Cargo.toml (SHA-256 27ef24fcd9762af680ab1181959319118e139056e4a33f8c1ab2dcac23b7ce4d).
+[[tool.uv.dependency-metadata]]
+name = "epistemic-graph"
+version = "2.27.0"
+requires-python = ">=3.10"
+requires-dist = ["msgpack>=1.2.1", "pydantic>=2,<3", "pyoxigraph>=0.3.22", "httpx>=0.24.0"]
 
 [tool.ruff]
 line-length = 88
