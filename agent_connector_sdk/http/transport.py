@@ -24,7 +24,29 @@ def _isolate_cookies(
         response.headers.pop("set-cookie", None)
 
 
-class GovernedTransport(httpx.BaseTransport):
+class _GovernedTransportConfig[InnerT, SleepT]:
+    """Store settings shared by synchronous and asynchronous transports."""
+
+    def __init__(
+        self,
+        inner: InnerT,
+        *,
+        policy: RetryPolicy,
+        logger: logging.Logger,
+        sleep: SleepT,
+        isolate_cookies: bool,
+    ) -> None:
+        self._inner = inner
+        self._policy = policy
+        self._logger = logger
+        self._sleep = sleep
+        self._isolate_cookies = isolate_cookies
+
+
+class GovernedTransport(
+    _GovernedTransportConfig[httpx.BaseTransport, Callable[[float], None]],
+    httpx.BaseTransport,
+):
     """Wraps sync requests with retries, logging and optional cookie isolation."""
 
     def __init__(
@@ -36,11 +58,13 @@ class GovernedTransport(httpx.BaseTransport):
         sleep: Callable[[float], None] = time.sleep,
         isolate_cookies: bool = False,
     ) -> None:
-        self._inner = inner
-        self._policy = policy
-        self._logger = logger
-        self._sleep = sleep
-        self._isolate_cookies = isolate_cookies
+        super().__init__(
+            inner,
+            policy=policy,
+            logger=logger,
+            sleep=sleep,
+            isolate_cookies=isolate_cookies,
+        )
 
     def _send(self, request: httpx.Request) -> Outcome:
         if self._isolate_cookies:
@@ -73,7 +97,12 @@ class GovernedTransport(httpx.BaseTransport):
         self._inner.close()
 
 
-class AsyncGovernedTransport(httpx.AsyncBaseTransport):
+class AsyncGovernedTransport(
+    _GovernedTransportConfig[
+        httpx.AsyncBaseTransport, Callable[[float], Awaitable[None]]
+    ],
+    httpx.AsyncBaseTransport,
+):
     """Wraps async requests with retries, logging and optional cookie isolation."""
 
     def __init__(
@@ -85,11 +114,13 @@ class AsyncGovernedTransport(httpx.AsyncBaseTransport):
         sleep: Callable[[float], Awaitable[None]] = anyio.sleep,
         isolate_cookies: bool = False,
     ) -> None:
-        self._inner = inner
-        self._policy = policy
-        self._logger = logger
-        self._sleep = sleep
-        self._isolate_cookies = isolate_cookies
+        super().__init__(
+            inner,
+            policy=policy,
+            logger=logger,
+            sleep=sleep,
+            isolate_cookies=isolate_cookies,
+        )
 
     async def _outcome(
         self, request: httpx.Request, pause: Pause | None

@@ -537,10 +537,10 @@
         "c991698b90bf"
       ],
       "verified_by": [
-        "tests/test_http_client.py:297",
-        "tests/test_http_client.py:340",
-        "tests/test_http_client.py:383",
-        "tests/test_http_client.py:421"
+        "tests/test_http_client.py:351",
+        "tests/test_http_client.py:373",
+        "tests/test_http_client.py:395",
+        "tests/test_http_client.py:426"
       ]
     },
     {

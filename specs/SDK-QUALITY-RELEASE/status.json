@@ -22,10 +22,10 @@
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:158",
-        "tests/test_release_quality_r001_r005.py:45",
-        "tests/test_release_quality_r001_r005.py:52",
-        "tests/test_release_quality_r001_r005.py:58",
-        "tests/test_release_quality_r001_r005.py:76"
+        "tests/test_release_quality_r001_r005.py:48",
+        "tests/test_release_quality_r001_r005.py:55",
+        "tests/test_release_quality_r001_r005.py:61",
+        "tests/test_release_quality_r001_r005.py:79"
       ]
     },
     {
@@ -69,15 +69,16 @@
       "landed_in": [
         "0c1f49ced769",
         "42b930057c3e",
+        "6856dbff0136",
         "851969957034",
         "bdd3916109d0"
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:86",
-        "tests/test_release_quality_r001_r005.py:101",
-        "tests/test_release_quality_r001_r005.py:120",
-        "tests/test_release_quality_r001_r005.py:127",
-        "tests/test_release_quality_r001_r005.py:139"
+        "tests/test_release_quality_r001_r005.py:104",
+        "tests/test_release_quality_r001_r005.py:123",
+        "tests/test_release_quality_r001_r005.py:130",
+        "tests/test_release_quality_r001_r005.py:142"
       ]
     }
   ]

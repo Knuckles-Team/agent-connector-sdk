@@ -67,7 +67,11 @@ def _download(destination: Path, url: str, manifest: dict[str, str]) -> None:
     ) as temp:
         wheel = Path(temp) / manifest["wheel_filename"]
         request = urllib.request.Request(
-            url, headers={"User-Agent": "agent-connector-sdk-bootstrap"}
+            url,
+            headers={
+                "Accept": "application/octet-stream",
+                "User-Agent": "agent-connector-sdk-bootstrap",
+            },
         )
         with (
             urllib.request.urlopen(request, timeout=60) as response,

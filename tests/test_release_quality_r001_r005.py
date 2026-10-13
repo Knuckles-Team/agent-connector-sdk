@@ -7,8 +7,10 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import io
 import json
 import sys
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -32,6 +34,7 @@ def _load(module_name: str):
 
 _graph = _load("check_import_graph_reproducibility")
 _wheel = sys.modules["epistemic_graph_wheel_provenance"]
+_installer = _load("install_epistemic_graph_release_wheel")
 _compat = _load("check_wheel_consumer_compatibility")
 
 FIXTURE = _graph.FIXTURE
@@ -472,7 +475,7 @@ def test_consumed_contract_module_from_wheel_overlay_is_rejected(
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_installed_metadata_with_pinned_source_path_and_verified_release_wheel(
+def test_import_origins_allow_only_source_and_installed_package_paths(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -509,6 +512,7 @@ def test_installed_metadata_with_pinned_source_path_and_verified_release_wheel(
         _graph, "_find_sdk_imports", lambda: ["epistemic_graph.generated.query"]
     )
     monkeypatch.setattr(_graph.importlib.util, "find_spec", lambda _: spec)
+    monkeypatch.setattr(_wheel, "verify_installed_distribution", lambda *_: manifest)
 
     package_file, consumed = _graph._verify_import_origins(source_root, installed)
     assert package_file == (source_package / "__init__.py").resolve()
@@ -542,6 +546,83 @@ def test_installed_eg_overlay_without_release_wheel_receipt_is_rejected(
 
     with pytest.raises(_wheel.ProvenanceError, match="no valid PEP 610 wheel receipt"):
         _graph._verify_import_origins(source_root, installed)
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+def test_release_asset_fetch_uses_asset_id_and_binary_accept_header(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manifest = _wheel.EXPECTED
+    destination = tmp_path / manifest["wheel_filename"]
+    requests = []
+
+    def open_url(request: object, *, timeout: int) -> io.BytesIO:
+        assert timeout == 60
+        requests.append(request)
+        return io.BytesIO(b"fixture wheel bytes")
+
+    monkeypatch.setattr(_installer.urllib.request, "urlopen", open_url)
+    monkeypatch.setattr(_installer, "verify_wheel_archive", lambda *_: None)
+    _installer._download(destination, manifest["wheel_url"], manifest)
+
+    request = requests[0]
+    assert request.full_url == manifest["wheel_url"]
+    assert request.get_header("Accept") == "application/octet-stream"
+    assert manifest["wheel_asset_id"] == "623772261"
+    assert destination.read_bytes() == b"fixture wheel bytes"
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+def test_tampered_installed_native_file_fails_with_matching_pep610_hash(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manifest = dict(_wheel.EXPECTED)
+    wheel = tmp_path / manifest["wheel_filename"]
+    native = manifest["native_member"]
+    members = {
+        "epistemic_graph/__init__.py": b"__version__ = '2.27.0'\n",
+        native: b"trusted native engine",
+        "epistemic_graph-2.27.0.dist-info/METADATA": (
+            b"Metadata-Version: 2.3\nName: epistemic-graph\nVersion: 2.27.0\n"
+        ),
+        "epistemic_graph-2.27.0.dist-info/WHEEL": (
+            b"Wheel-Version: 1.0\nRoot-Is-Purelib: false\n"
+            b"Tag: py3-none-manylinux_2_28_x86_64\n"
+        ),
+    }
+    with zipfile.ZipFile(wheel, "w", zipfile.ZIP_DEFLATED) as archive:
+        for name, data in members.items():
+            archive.writestr(name, data)
+    manifest["wheel_sha256"] = hashlib.sha256(wheel.read_bytes()).hexdigest()
+    manifest_path = tmp_path / "release.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    monkeypatch.setattr(_wheel, "EXPECTED", manifest)
+
+    site_packages = tmp_path / "site-packages"
+    with zipfile.ZipFile(wheel) as archive:
+        archive.extractall(site_packages)
+    installed_native = site_packages / native
+    installed_native.write_bytes(b"tampered native engine")
+    receipt_text = json.dumps(
+        {
+            "url": wheel.as_uri(),
+            "archive_info": {"hashes": {"sha256": manifest["wheel_sha256"]}},
+        }
+    )
+
+    class Distribution:
+        version = manifest["version"]
+
+        def read_text(self, name: str) -> str | None:
+            assert name == "direct_url.json"
+            return receipt_text
+
+        def locate_file(self, name: str) -> Path:
+            return site_packages / name
+
+    with pytest.raises(_wheel.ProvenanceError, match="installed EG file differs"):
+        _wheel.verify_installed_distribution(Distribution(), manifest_path)
+    assert Distribution().read_text("direct_url.json") == receipt_text
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")

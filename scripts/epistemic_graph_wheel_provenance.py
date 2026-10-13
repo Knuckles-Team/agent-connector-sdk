@@ -16,7 +16,8 @@ EXPECTED = {
     "source_revision": "a5b4a1f1f638baed374897578cc061f473e9687b",
     "release_tag": "engine-main",
     "wheel_filename": "epistemic_graph-2.27.0-py3-none-manylinux_2_28_x86_64.whl",
-    "wheel_url": "https://github.com/Knuckles-Team/epistemic-graph/releases/download/engine-main/epistemic_graph-2.27.0-py3-none-manylinux_2_28_x86_64.whl",
+    "wheel_asset_id": "623772261",
+    "wheel_url": "https://api.github.com/repos/Knuckles-Team/epistemic-graph/releases/assets/623772261",
     "wheel_sha256": "1290a576b8483685e45584ca527cae79a7714810fefbbb337689863eb19f5a51",
     "native_member": "epistemic_graph/numeric.abi3.so",
 }
@@ -124,15 +125,14 @@ def verify_installed_distribution(
     receipt_hash = hashes.get("sha256")
     if receipt_hash and receipt_hash != manifest["wheel_sha256"]:
         raise ProvenanceError("installed EG wheel receipt has a mismatched SHA-256")
-    if not receipt_hash:
-        parsed_url = urlsplit(url)
-        if parsed_url.scheme != "file":
-            raise ProvenanceError(
-                "installed EG wheel has no verifiable local artifact receipt"
-            )
-        wheel = Path(unquote(parsed_url.path))
-        verify_wheel_archive(wheel, manifest_path)
-        _verify_installed_wheel_files(distribution, wheel, manifest)
+    parsed_url = urlsplit(url)
+    if parsed_url.scheme != "file":
+        raise ProvenanceError(
+            "installed EG wheel has no verifiable local artifact receipt"
+        )
+    wheel = Path(unquote(parsed_url.path))
+    verify_wheel_archive(wheel, manifest_path)
+    _verify_installed_wheel_files(distribution, wheel, manifest)
     native = Path(str(distribution.locate_file(manifest["native_member"])))
     if not native.is_file():
         raise ProvenanceError(
