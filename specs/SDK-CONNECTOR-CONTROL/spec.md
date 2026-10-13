@@ -1,12 +1,12 @@
 # SDK-CONNECTOR-CONTROL — SDK connector control, certification, and pack publication
 
-**Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R024.
+**Requirement IDs:** SDK-CONNECTOR-CONTROL-R001 through SDK-CONNECTOR-CONTROL-R054.
 **Owner:** agent-connector-sdk.
 **Boundary:** This SDK owns source-side connector hosting, discovery, certification, pack construction, and submission. A graph service owns durable pack records and receipts; a control-plane service owns routing and activation policy. Vendor packages own their API calls.
 
 ## Outcome and scope
 
-A fresh connector package can use one SDK server factory, one manifest, one credential-reference and HTTP/TLS stack, one certification command, and one generated graph client. Its published pack and tool pins are reproducible from the connector artifact, and the runner refuses uncertified or mismatched packages. Every migrated connector builds without importing `agent_utilities`. This is an SDK contract, not a requirement to copy any private fleet inventory.
+A connector package can use one SDK server factory, manifest, credential reference, HTTP/TLS stack, certification command, and generated graph client. Its published pack and tool pins are reproducible from the connector artifact. The runner refuses uncertified or mismatched packages. Every migrated connector builds without importing `agent_utilities`. This is an SDK contract, not a requirement to copy any private fleet inventory.
 
 The migration is five independently reviewable alphabetical batches: A–E (SDK-CONNECTOR-CONTROL-R009), F–J (SDK-CONNECTOR-CONTROL-R010), K–O (SDK-CONNECTOR-CONTROL-R011), P–S (SDK-CONNECTOR-CONTROL-R012), and T–Z (SDK-CONNECTOR-CONTROL-R013). Packages in a batch are selected from public connector repositories at implementation time, not from a hard-coded count. Those packages own their migration commits. SDK-CONNECTOR-CONTROL-R014 removes an old duplicate toolkit in the control-plane repository after consumers have migrated. SDK-CONNECTOR-CONTROL-R015 establishes the SDK as source lifecycle and certification owner while retiring the duplicate there. Connector base settings move into `agent_connector_sdk/config.py`. Deployment settings and agent/model settings stay with their owners (SDK-CONNECTOR-CONTROL-R016).
 
@@ -30,7 +30,7 @@ vendor connector package ──manifest and entry point──▶ SDK discovery/c
 5. Pack annotations are a closed, canonical map per entry: capability names, input and output schema digests, modality, bounded cost and latency estimates with units, and provenance. Missing estimates mean `unknown`, never zero. The SDK validates types and units, excludes presentation-only fields from contract fingerprints, and includes semantic annotation changes in the pack digest. Re-certifying the fleet means each package produces current nonempty fingerprints for every declared pin and passes a current live-contract comparison; a package count alone is insufficient.
 6. `mcp/server.py`, `mcp/action_dispatch.py`, `auth/`, `http/`, `tls/`, `credentials/`, and `ports/` remain the sole shared connector toolkit. `env://` and `openbao://` references may appear in manifests; resolved values may appear only in request memory, never logs, exceptions, packs, or reports. Unknown auth, public network exposure, or uncertified package tuple fails closed.
 7. Connector-internal tool choice or inbound event triage may request a proposal from a decision service. This proposal is observational only. It never directly authorizes a side effect or bypasses deterministic write-back rules.
-8. The release contract locks a published compatible graph-client wheel and verifies its generated types, native kernels, and error catalog in an isolated installed consumer. A source overlay, unpinned wheel, or stale lock cannot stand in for the release dependency.
+8. The release contract locks a published compatible graph-client wheel. An isolated installed consumer verifies its generated types, native kernels, and error catalog. A source overlay, unpinned wheel, or stale lock cannot replace the release dependency.
 9. Every connector package performs HTTPS calls through the SDK's shared TLS profile in `tls/`; no connector may disable certificate verification with a bare boolean flag or silence the underlying TLS warning library (SDK-CONNECTOR-CONTROL-R017). The SDK's full test suite, strict type checking, and documentation build must pass cleanly against the connector control implementation from a fresh checkout, with no partial or broken module left in the merged source tree (SDK-CONNECTOR-CONTROL-R018).
 10. `register_tool_surface` registers one condensed, intent-gated tool per registrar. It reads no `MCP_TOOL_MODE` setting and builds no separate verbose 1:1 tool surface, matching the ecosystem's single condensed intent contract (SDK-CONNECTOR-CONTROL-R020).
 
@@ -216,3 +216,12 @@ The current SDK tree lacks these four producers and bindings. This packet adds d
 
 **Hot-path proof.** Exercise generated per-method registration and `action_dispatch` separately in both protocol eras. Explicit acceptance yields exactly one controlled backend request. False, truthy false, nonboolean, decline, cancellation, missing content, or elicitation failure yields zero requests. Test missing or unversioned context, the legacy boolean-guard regression, and nondestructive calls without elicitation. Helper-only tests do not replace served calls.
 <!-- /spec-definition-patch -->
+
+
+## API-key cookie isolation (SDK-CONNECTOR-CONTROL-R028.3)
+
+The public SDK authentication strategies include header-based API keys, bearer tokens, client credentials, and delegated tokens; they document no provider cookie-session authentication. Public mentions of cookies or sessions refer to MCP/source sessions, not provider identity. Isolation therefore applies only to ApiKeyAuth and preserves existing behavior for other auth strategies.
+
+The data path stays in the existing client factory and governed transport. HTTPX may add explicit or jar-seeded cookies while building a request. The sync or async governed transport strips Cookie before sending each request to the inner transport. It strips response Set-Cookie before returning the response to HTTPX. That prevents providers from seeding the shared API-key client's jar in any response status.
+
+The configured API-key header remains the sole request identity. The policy does not follow redirects, change the destination, relax TLS, alter retries, retain provider session credentials, or create a second client or session wrapper. A connector that requires cookie-session authentication needs a separate explicit SDK auth contract.

@@ -350,3 +350,8 @@ Use an input-required form and request-state digest on the modern path. Use `Str
 Extend SDK-CONNECTOR-CONTROL-R019 and SDK-CONNECTOR-CONTROL-R045 with schema manifests and bounded UTF-8 fragments. Providers and consumers import one public SDK contract. Each resource read checks the current authorized tool catalog. Manifests bind the operation, alias, source and exact schema bytes. Reconstruction refuses stale, corrupt, incomplete or mixed fragments.
 
 These transport hashes do not replace certification pins or R002/R003 normalization in manifest/tool_schema.py. Keep native validation and confirmation in place. Tests cover native search, resource reads, authorization refusal, model schemas and fragment corruption. GraphOS consumption and generation-bound invocation need separate evidence. Resource registration alone does not establish that evidence. This amendment is independent of modern confirmation. The R045 binding covers exact argument-schema transport only. It does not establish tool effects, token estimates, pack facts or certification.
+
+
+## Amendment: 2026-10-13 API-key cookie isolation (R028.3)
+
+Scope the policy to ApiKeyAuth because the SDK documents no provider cookie-session auth. Strip outbound Cookie and inbound Set-Cookie at the sync/async governed transport boundary. Preserve authentication, origin, TLS, redirect, and retry controls. Test sequential exchanges across status codes and concurrent use of one shared client with synthetic transports. Require downstream native MCP login and cross-caller acceptance against the immutable SDK revision.

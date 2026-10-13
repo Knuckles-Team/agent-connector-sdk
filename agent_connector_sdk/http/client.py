@@ -10,6 +10,7 @@ Every client built here:
   set, and logs a warning when it is;
 * never reads proxies from the ambient environment (the TLS profile decides);
 * does not follow redirects;
+* isolates cookies for API-key authenticated clients;
 * retries under its :class:`~agent_connector_sdk.http.retry.RetryPolicy` and logs
   each attempt to the ``agent_connector_sdk.http`` logger with secrets redacted;
 * rejects credential-bearing default headers: credentials go through ``auth``.
@@ -27,6 +28,7 @@ from urllib.parse import urlsplit
 import httpx
 
 from agent_connector_sdk._version import __version__
+from agent_connector_sdk.auth.static import ApiKeyAuth
 from agent_connector_sdk.http.options import HttpClientOptions
 from agent_connector_sdk.http.redaction import redact_url
 from agent_connector_sdk.http.transport import AsyncGovernedTransport, GovernedTransport
@@ -90,7 +92,12 @@ def create_http_client(
     by the retrying, logging transport, and the TLS profile does not apply to it.
     """
     inner = transport or httpx.HTTPTransport(**_transport_kwargs(options))
-    governed = GovernedTransport(inner, policy=options.retry, logger=_logger)
+    governed = GovernedTransport(
+        inner,
+        policy=options.retry,
+        logger=_logger,
+        isolate_cookies=isinstance(options.auth, ApiKeyAuth),
+    )
     return httpx.Client(transport=governed, **_client_kwargs(options))
 
 
@@ -99,5 +106,10 @@ def create_async_http_client(
 ) -> httpx.AsyncClient:
     """An asynchronous governed client; see :func:`create_http_client`."""
     inner = transport or httpx.AsyncHTTPTransport(**_transport_kwargs(options))
-    governed = AsyncGovernedTransport(inner, policy=options.retry, logger=_logger)
+    governed = AsyncGovernedTransport(
+        inner,
+        policy=options.retry,
+        logger=_logger,
+        isolate_cookies=isinstance(options.auth, ApiKeyAuth),
+    )
     return httpx.AsyncClient(transport=governed, **_client_kwargs(options))

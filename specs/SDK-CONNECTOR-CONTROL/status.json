@@ -36,6 +36,7 @@
     "SDK-CONNECTOR-CONTROL-R028",
     "SDK-CONNECTOR-CONTROL-R028.1",
     "SDK-CONNECTOR-CONTROL-R028.2",
+    "SDK-CONNECTOR-CONTROL-R028.3",
     "SDK-CONNECTOR-CONTROL-R029",
     "SDK-CONNECTOR-CONTROL-R030",
     "SDK-CONNECTOR-CONTROL-R031",
@@ -507,7 +508,8 @@
       "verified_by": [],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R028.1",
-        "SDK-CONNECTOR-CONTROL-R028.2"
+        "SDK-CONNECTOR-CONTROL-R028.2",
+        "SDK-CONNECTOR-CONTROL-R028.3"
       ]
     },
     {
@@ -522,6 +524,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R028.2",
       "title": "`create_http_client` wires the SSRF egress policy into construction",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R028.3",
+      "title": "API-key identity remains header-based and stateless",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []

@@ -126,3 +126,10 @@ Runtime work and test execution remain outstanding.
 <!-- spec-definition-patch:sdk-confirmation-r026-1 -->
 - [ ] SDK-CONNECTOR-CONTROL-R026.1: Implement protocol-selected confirmation in `ctx_confirm_destructive`. Propagate pending results through generated-method and action dispatch. Keep legacy boolean consumers fail-closed. Run the served acceptance matrix under both protocol eras with a controlled transport. Record exact source, package, and protocol versions. Keep receipts empty until independent review of merged-main evidence.
 <!-- /spec-definition-patch -->
+
+
+## API-key cookie isolation
+
+- [ ] SDK-CONNECTOR-CONTROL-R028.3: Keep API-key identity header-based; do not add cookie-session auth or storage.
+- [ ] SDK-CONNECTOR-CONTROL-R028.3: Strip request and response cookies for every API-key status in sync and async clients.
+- [ ] SDK-CONNECTOR-CONTROL-R028.3: Prove other auth strategies, transport controls, and downstream cross-caller behavior remain correct.
