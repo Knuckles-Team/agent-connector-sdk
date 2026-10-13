@@ -95,6 +95,25 @@ def test_local_pinned_install_reproduces_hosted_import_graph() -> None:
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+def test_source_git_probe_ignores_sdk_hook_repository_context(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    sdk_git_dir = _graph._git(_graph.ROOT, "rev-parse", "--absolute-git-dir")
+    monkeypatch.setenv("GIT_DIR", sdk_git_dir)
+    monkeypatch.setenv("GIT_WORK_TREE", str(_graph.ROOT))
+
+    assert _graph._git(_graph.SOURCE_ROOT, "rev-parse", "HEAD") == (
+        "f17f47ab300f7f1ddd972d4e0214283a28547e36"
+    )
+    assert (
+        _graph._normalize_remote(
+            _graph._git(_graph.SOURCE_ROOT, "remote", "get-url", "origin")
+        )
+        == _graph.SOURCE_REMOTE
+    )
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
 def test_recorded_import_graph_is_sorted_and_deduplicated() -> None:
     recorded = read_recorded_graph()
     assert recorded == sorted(set(recorded))

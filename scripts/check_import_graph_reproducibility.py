@@ -16,6 +16,7 @@ import hashlib
 import importlib
 import importlib.util
 import json
+import os
 import re
 import subprocess
 import sys
@@ -121,12 +122,30 @@ def _read_toml(path: Path) -> dict[str, object]:
 
 
 def _git(source_root: Path, *args: str) -> str:
+    # Git's pre-push environment exports the parent repository's worktree
+    # context. Remove those selectors so -C uses this source checkout's own
+    # .git directory, not the SDK checkout that launched the hook.
+    environment = os.environ.copy()
+    for name in (
+        "GIT_DIR",
+        "GIT_WORK_TREE",
+        "GIT_COMMON_DIR",
+        "GIT_INDEX_FILE",
+        "GIT_OBJECT_DIRECTORY",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+        "GIT_PREFIX",
+        "GIT_SUPER_PREFIX",
+        "GIT_NAMESPACE",
+        "GIT_QUARANTINE_PATH",
+    ):
+        environment.pop(name, None)
     try:
         result = subprocess.run(
             ["git", "-C", str(source_root), *args],
             check=True,
             capture_output=True,
             text=True,
+            env=environment,
         )
     except (OSError, subprocess.CalledProcessError) as exc:
         _raise(f"cannot verify pinned EG source checkout with git {args!r}: {exc}")

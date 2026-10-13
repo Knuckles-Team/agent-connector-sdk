@@ -67,14 +67,15 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "0c1f49ced769",
-        "42b930057c3e"
+        "42b930057c3e",
+        "851969957034"
       ],
       "verified_by": [
-        "tests/test_release_quality_r001_r005.py:104",
         "tests/test_release_quality_r001_r005.py:116",
+        "tests/test_release_quality_r001_r005.py:123",
         "tests/test_release_quality_r001_r005.py:135",
-        "tests/test_release_quality_r001_r005.py:145",
-        "tests/test_release_quality_r001_r005.py:160"
+        "tests/test_release_quality_r001_r005.py:154",
+        "tests/test_release_quality_r001_r005.py:164"
       ]
     }
   ]

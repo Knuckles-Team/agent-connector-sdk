@@ -476,7 +476,7 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R026",
       "title": "SDK provides opt-in per-client-method MCP tool derivation",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "d3617301012c"
       ],
@@ -1361,9 +1361,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R026.1",
       "title": "Require explicit destructive confirmation across both supported MCP eras",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "851969957034"
+      ],
+      "verified_by": [
+        "tests/test_mcp_confirmation_roundtrip.py:138",
+        "tests/test_mcp_confirmation_roundtrip.py:182",
+        "tests/test_mcp_confirmation_roundtrip.py:202",
+        "tests/test_mcp_confirmation_roundtrip.py:36"
+      ]
     }
   ]
 }

@@ -33,6 +33,7 @@ class _Api:
         return response.status_code
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R026.1")
 @pytest.mark.parametrize("path", ["generated_method", "action_dispatch"])
 @pytest.mark.parametrize(
     ("mode", "protocol"),
@@ -134,6 +135,7 @@ async def test_served_destructive_confirmation_never_bypasses_gate(
         assert observed_effects == ["/items/x"]
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R026.1")
 @pytest.mark.parametrize("path", ["generated_method", "action_dispatch"])
 @pytest.mark.parametrize("mode", ["auto", "legacy"])
 async def test_nondestructive_served_call_does_not_request_confirmation(
@@ -177,6 +179,7 @@ async def test_nondestructive_served_call_does_not_request_confirmation(
     assert requests == []
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R026.1")
 @pytest.mark.parametrize("missing_context", [True, False])
 async def test_missing_or_unversioned_context_denies_before_provider_effect(
     missing_context: bool,
@@ -196,6 +199,7 @@ async def test_missing_or_unversioned_context_denies_before_provider_effect(
     assert observed == []
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R026.1")
 async def test_legacy_boolean_guard_fails_closed_on_pending_modern_confirmation() -> (
     None
 ):
