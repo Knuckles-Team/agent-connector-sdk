@@ -5,7 +5,7 @@
 
 ## Outcome
 
-An external contributor can validate code and public documentation from a fresh checkout without access to a running platform. The release pipeline then builds an installed SDK wheel against a published compatible graph-client wheel and publishes public guides through GitHub Pages. No stale checked-in `/docs` deployment copy is a quality prerequisite. Source docs needed to build Pages may remain in the repository until replaced by a single maintained Pages source; the source of truth must be explicit and generated outputs must not block unrelated code pull requests.
+An external contributor can validate code and public documentation from a fresh checkout without access to a running platform. The release pipeline builds an installed SDK wheel against a published compatible graph-client wheel. It publishes public guides through GitHub Pages. No stale checked-in `/docs` deployment copy is a quality prerequisite. Source docs needed to build Pages may remain in the repository until replaced by a single maintained Pages source; the source of truth must be explicit and generated outputs must not block unrelated code pull requests.
 
 ## Gate architecture
 
@@ -21,7 +21,7 @@ Install Python and `uv` as pinned in `pyproject.toml`; run `uv sync`, `uv run --
 
 The public README follows a fixed section order leading with a one-file connector quick start, and the published documentation site presents a task-first tutorial and architecture guide rather than an API-reference-first structure (SDK-QUALITY-RELEASE-R004).
 
-For R005, keep the source-only EG contract separate from environment distributions. Prove the source commit, Cargo version, consumed-module origins, declared dependencies, and lock-resolved dependencies. Include EG and every active transitive dependency in the graph. Do not infer native engine wheel installation from this graph. Traverse explicitly requested extras. Fail closed when a runtime package is missing or unverified.
+For R005, keep the EG source contract separate from installed-wheel evidence. The lock and bootstrap pin the immutable commit that produced the official wheel in `scripts/epistemic_graph_release.json`. Bootstrap installs the wheel only when its asset digest matches the release record. It performs no source build or dependency resolution. Graph inspection compares installed metadata, PEP 610 asset origin, wheel package files, and native engine with that archive. Every SDK-consumed Python contract module must resolve from the exact source checkout. Include EG and each active transitive dependency in the graph. Traverse requested extras and fail closed on source, wheel, origin, metadata, dependency, or graph mismatch.
 
 ## Evidence and completion
 

@@ -22,10 +22,10 @@
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:158",
-        "tests/test_release_quality_r001_r005.py:42",
-        "tests/test_release_quality_r001_r005.py:49",
-        "tests/test_release_quality_r001_r005.py:55",
-        "tests/test_release_quality_r001_r005.py:73"
+        "tests/test_release_quality_r001_r005.py:45",
+        "tests/test_release_quality_r001_r005.py:52",
+        "tests/test_release_quality_r001_r005.py:58",
+        "tests/test_release_quality_r001_r005.py:76"
       ]
     },
     {
@@ -64,7 +64,7 @@
     },
     {
       "id": "SDK-QUALITY-RELEASE-R005",
-      "title": "Hosted CI reproduces the pinned dependency graph with source and environment evidence",
+      "title": "Hosted CI reproduces the pinned dependency graph with source and wheel evidence",
       "delivery_state": "VERIFIED",
       "landed_in": [
         "0c1f49ced769",
@@ -74,10 +74,10 @@
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:86",
-        "tests/test_release_quality_r001_r005.py:117",
-        "tests/test_release_quality_r001_r005.py:124",
-        "tests/test_release_quality_r001_r005.py:136",
-        "tests/test_release_quality_r001_r005.py:155"
+        "tests/test_release_quality_r001_r005.py:101",
+        "tests/test_release_quality_r001_r005.py:120",
+        "tests/test_release_quality_r001_r005.py:127",
+        "tests/test_release_quality_r001_r005.py:139"
       ]
     }
   ]
