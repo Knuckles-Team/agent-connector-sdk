@@ -406,18 +406,27 @@ def _walk_extras_graph(
     )
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_unknown_source_package_path_overlay_is_rejected(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def _fake_source_package(
+    tmp_path: Path, *additional_paths: Path
+) -> tuple[Path, object]:
     package_root = tmp_path / "checkout" / "epistemic_graph"
     package_root.mkdir(parents=True)
     package = type("Package", (), {})()
     package.__file__ = str(package_root / "__init__.py")
     package.__path__ = [
         str(package_root),
-        str(tmp_path / "unexpected-overlay" / "epistemic_graph"),
+        *(str(path) for path in additional_paths),
     ]
+    return package_root, package
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+def test_unknown_source_package_path_overlay_is_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    package_root, package = _fake_source_package(
+        tmp_path, tmp_path / "unexpected-overlay" / "epistemic_graph"
+    )
     monkeypatch.setattr(_graph.importlib, "import_module", lambda _: package)
     monkeypatch.setattr(_graph, "_find_sdk_imports", lambda: [])
     with pytest.raises(_graph.ImportGraphError, match="unverified package overlay"):
@@ -436,11 +445,7 @@ def test_unknown_source_package_path_overlay_is_rejected(
 def test_consumed_contract_module_from_wheel_overlay_is_rejected(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, module_name: str
 ) -> None:
-    package_root = tmp_path / "checkout" / "epistemic_graph"
-    package_root.mkdir(parents=True)
-    package = type("Package", (), {})()
-    package.__file__ = str(package_root / "__init__.py")
-    package.__path__ = [str(package_root)]
+    package_root, package = _fake_source_package(tmp_path)
     spec = type("ModuleSpec", (), {})()
     spec.origin = str(
         tmp_path

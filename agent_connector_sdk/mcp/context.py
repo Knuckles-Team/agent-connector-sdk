@@ -110,6 +110,48 @@ def _input_required_result(
     )
 
 
+def _accepted_modern_response(response: Any) -> bool:
+    content = getattr(response, "content", None)
+    return bool(
+        getattr(response, "action", None) == "accept"
+        and isinstance(content, Mapping)
+        and content.get("confirmed") is True
+    )
+
+
+def _confirm_modern_destructive(
+    ctx: Any,
+    action_description: str,
+    arguments: Mapping[str, Any] | None,
+) -> bool | InputRequiredResult:
+    binding = _confirmation_binding(action_description, arguments)
+    if binding is None:
+        _logger.warning("Could not bind destructive confirmation; operation denied")
+        return False
+
+    responses = getattr(ctx, "input_responses", None)
+    request_state = getattr(ctx, "request_state", None)
+    if responses is None and request_state is None:
+        return _input_required_result(action_description, binding)
+    if request_state != binding or not isinstance(responses, Mapping):
+        return False
+    return _accepted_modern_response(responses.get(_CONFIRMATION_INPUT_KEY))
+
+
+async def _confirm_legacy_destructive(ctx: Any, action_description: str) -> bool:
+    try:
+        result = await ctx.elicit(
+            f"Are you sure you want to {action_description}?",
+            response_type=_DestructiveActionConfirmation,
+        )
+    except Exception:
+        _logger.warning("Elicitation failed; destructive operation denied")
+        return False
+    return bool(
+        result.action == "accept" and getattr(result.data, "confirmed", None) is True
+    )
+
+
 async def ctx_confirm_destructive(
     ctx: Any,
     action_description: str,
@@ -125,46 +167,15 @@ async def ctx_confirm_destructive(
     """
     if not ctx:
         return False
-
     request_context = getattr(ctx, "request_context", None)
     protocol_version = getattr(request_context, "protocol_version", None)
     if not isinstance(protocol_version, str):
         return False
-
     if protocol_version >= _MODERN_MCP_PROTOCOL:
-        binding = _confirmation_binding(action_description, confirmation_arguments)
-        if binding is None:
-            _logger.warning("Could not bind destructive confirmation; operation denied")
-            return False
-
-        responses = getattr(ctx, "input_responses", None)
-        request_state = getattr(ctx, "request_state", None)
-        if responses is None:
-            if request_state is not None:
-                return False
-            return _input_required_result(action_description, binding)
-        if request_state != binding or not isinstance(responses, Mapping):
-            return False
-
-        response = responses.get(_CONFIRMATION_INPUT_KEY)
-        content = getattr(response, "content", None)
-        return bool(
-            getattr(response, "action", None) == "accept"
-            and isinstance(content, Mapping)
-            and content.get("confirmed") is True
+        return _confirm_modern_destructive(
+            ctx, action_description, confirmation_arguments
         )
-
-    try:
-        result = await ctx.elicit(
-            f"Are you sure you want to {action_description}?",
-            response_type=_DestructiveActionConfirmation,
-        )
-    except Exception:
-        _logger.warning("Elicitation failed; destructive operation denied")
-        return False
-    return bool(
-        result.action == "accept" and getattr(result.data, "confirmed", None) is True
-    )
+    return await _confirm_legacy_destructive(ctx, action_description)
 
 
 async def ctx_log(

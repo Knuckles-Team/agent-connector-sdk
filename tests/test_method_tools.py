@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -13,28 +14,14 @@ from agent_connector_sdk.mcp.tool_surface import GRANULAR_TAG, registered_tools
 from tests.demo_api_fixture import DemoApiUsers, get_client, get_client_async
 
 
-class _AcceptingContext:
-    def __init__(self) -> None:
-        from types import SimpleNamespace
-
+class _ElicitationContext:
+    def __init__(self, action: str) -> None:
+        data = SimpleNamespace(confirmed=True) if action == "accept" else None
         self.request_context = SimpleNamespace(protocol_version="2025-11-25")
+        self._result = SimpleNamespace(action=action, data=data)
 
     async def elicit(self, _message: str, response_type: Any) -> Any:
-        from types import SimpleNamespace
-
-        return SimpleNamespace(action="accept", data=SimpleNamespace(confirmed=True))
-
-
-class _DecliningContext:
-    def __init__(self) -> None:
-        from types import SimpleNamespace
-
-        self.request_context = SimpleNamespace(protocol_version="2025-11-25")
-
-    async def elicit(self, _message: str, response_type: Any) -> Any:
-        from types import SimpleNamespace
-
-        return SimpleNamespace(action="decline", data=None)
+        return self._result
 
 
 def test_registers_one_tool_per_public_method_with_domain_tags() -> None:
@@ -80,11 +67,11 @@ async def test_destructive_tool_requires_confirmation() -> None:
     register_method_tools(mcp, DemoApiUsers, get_client, prefix="demo")
     tool = registered_tools(mcp)["demo_delete_item"]
     accepted = await tool.fn(
-        params_json=json.dumps({"item_id": "x"}), ctx=_AcceptingContext()
+        params_json=json.dumps({"item_id": "x"}), ctx=_ElicitationContext("accept")
     )
     assert accepted == "x"
     declined = await tool.fn(
-        params_json=json.dumps({"item_id": "x"}), ctx=_DecliningContext()
+        params_json=json.dumps({"item_id": "x"}), ctx=_ElicitationContext("decline")
     )
     assert declined == {"cancelled": True, "operation": "delete_item"}
     unattended = await tool.fn(params_json=json.dumps({"item_id": "x"}), ctx=None)

@@ -11,6 +11,8 @@ checked against `main` instead of a commit digest.
 """
 
 import re
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -79,6 +81,46 @@ def test_gates_job_runs_whole_hook_stages_not_hand_listed_hooks() -> None:
     assert "scripts/bootstrap.sh" in runs
     assert {"pre-commit", "pre-push"} <= stages
     assert not any("for hook in" in command for command in runs)
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+def test_bootstrap_and_release_ci_preserve_source_only_eg_contract() -> None:
+    bootstrap = BOOTSTRAP.read_text(encoding="utf-8")
+    assert "bash scripts/bootstrap_epistemic_graph_contract.sh" in bootstrap
+    assert "--no-install-package epistemic-graph" in bootstrap
+    assert "_epistemic_graph_contract.pth" in bootstrap
+
+    commands = _runs(_yaml(RELEASE)["jobs"]["gates"])
+    assert sum(run.count("uv run --frozen --no-sync") for run in commands) == 3
+    assert all("uv run --frozen python" not in run for run in commands)
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
+def test_bootstrap_python_floor_uses_root_project_metadata(tmp_path: Path) -> None:
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text(
+        "[project]\n"
+        'name = "test-sdk"\n'
+        'requires-python = ">=3.12,<3.15"\n'
+        "[tool.uv.dependency-metadata.epistemic-graph]\n"
+        'requires-python = ">=3.10"\n',
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "project_python_floor.py"),
+            str(pyproject),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert result.stdout == "3.12\n"
+    assert (
+        "python_version=$(python3 scripts/project_python_floor.py pyproject.toml)"
+        in BOOTSTRAP.read_text(encoding="utf-8")
+    )
 
 
 def test_every_pre_commit_invocation_uses_the_relocated_config() -> None:

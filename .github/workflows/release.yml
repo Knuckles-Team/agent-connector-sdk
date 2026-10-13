@@ -64,7 +64,7 @@ jobs:
         run: scripts/bootstrap.sh
       - name: Verify the finalized generated contract source
         run: |
-          uv run --frozen python -c "from pathlib import Path; import epistemic_graph.generated.source_ingestion as source; assert '.ci/epistemic-graph' in str(Path(source.__file__).resolve())"
+          uv run --frozen --no-sync python -c "from pathlib import Path; import epistemic_graph.generated.source_ingestion as source; assert '.ci/epistemic-graph' in str(Path(source.__file__).resolve())"
       - name: Pre-commit stage (lint, format, types, wiring, shared gates)
         run: uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage pre-commit --show-diff-on-failure
       - name: Pre-push stage (wheel build, secret history, patch safety)
@@ -104,13 +104,13 @@ jobs:
           elif [ "$SCOPE" = "FULL" ]; then
             echo "pr-test-scope: unmapped source change (or an unreadable diff); running the full suite"
             bash scripts/bootstrap_epistemic_graph_contract.sh
-            uv run --frozen python -m pytest -q
+            uv run --frozen --no-sync python -m pytest -q
           else
             echo "pr-test-scope: running only the tests this diff affects:"
             echo "$SCOPE"
             mapfile -t affected_tests <<< "$SCOPE"
             bash scripts/bootstrap_epistemic_graph_contract.sh
-            uv run --frozen python -m pytest -q "${affected_tests[@]}"
+            uv run --frozen --no-sync python -m pytest -q "${affected_tests[@]}"
           fi
       # The prohibited-identity catalog is operator-owned and never committed; it
       # arrives through a repository variable. A missing catalog fails closed
