@@ -1363,7 +1363,8 @@
       "title": "Require explicit destructive confirmation across both supported MCP eras",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "851969957034"
+        "851969957034",
+        "d76f26e0e5fa"
       ],
       "verified_by": [
         "tests/test_mcp_confirmation_roundtrip.py:138",
