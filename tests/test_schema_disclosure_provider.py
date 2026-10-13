@@ -59,6 +59,8 @@ def provider(*, allowed=True):
     return server, disclosure
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019")
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045")
 def test_native_search_manifest_fragments_and_json_schemas():
     server, disclosure = provider()
 
