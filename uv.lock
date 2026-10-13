@@ -45,7 +45,7 @@ typecheck = [
 requires-dist = [
     { name = "anyio", specifier = ">=4.13.0" },
     { name = "cryptography", specifier = ">=50.0.1" },
-    { name = "epistemic-graph", git = "https://github.com/Knuckles-Team/epistemic-graph.git?rev=f17f47ab300f7f1ddd972d4e0214283a28547e36" },
+    { name = "epistemic-graph", git = "https://github.com/Knuckles-Team/epistemic-graph.git?rev=a5b4a1f1f638baed374897578cc061f473e9687b" },
     { name = "fastmcp", specifier = ">=4.0.11,<5" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "httpx2", specifier = ">=2.12.0" },
@@ -478,7 +478,7 @@ wheels = [
 [[package]]
 name = "epistemic-graph"
 version = "2.27.0"
-source = { git = "https://github.com/Knuckles-Team/epistemic-graph.git?rev=f17f47ab300f7f1ddd972d4e0214283a28547e36#f17f47ab300f7f1ddd972d4e0214283a28547e36" }
+source = { git = "https://github.com/Knuckles-Team/epistemic-graph.git?rev=a5b4a1f1f638baed374897578cc061f473e9687b#a5b4a1f1f638baed374897578cc061f473e9687b" }
 dependencies = [
     { name = "httpx" },
     { name = "msgpack" },

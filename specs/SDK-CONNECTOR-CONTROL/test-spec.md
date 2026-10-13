@@ -188,3 +188,11 @@ These are required future tests. None ran during definition authoring.
 - CC-109 / SDK-CONNECTOR-CONTROL-R026.1: `tests/test_mcp_confirmation_roundtrip.py::test_nondestructive_served_call_does_not_request_confirmation` runs a nondestructive `tools/call` in both client modes and dispatch paths. Confirm it reaches the controlled backend without elicitation.
 - CC-110 / SDK-CONNECTOR-CONTROL-R026.1: `tests/test_mcp_confirmation_roundtrip.py::test_missing_or_unversioned_context_denies_before_provider_effect` proves those contexts cancel before the controlled backend. Record package versions from live request context. Helper-only tests cannot satisfy CC-107.
 <!-- /spec-definition-patch -->
+
+
+## API-key cookie isolation acceptance
+
+- **CC-111 / R028.3:** Run the sync case at tests/test_http_client.py::test_api_key_client_isolates_cookies_across_response_statuses. Run the async case at tests/test_http_client.py::test_async_api_key_client_isolates_cookies_across_response_statuses. Seed the HTTPX jar and add explicit Cookie headers. Return Set-Cookie with 302 login, 307 redirect, 500 error, and 200 success responses. Assert requests omit Cookie and responses omit Set-Cookie. Confirm the jar stays empty and the configured x-api-key remains. Confirm status and Location stay unchanged. Confirm the client never follows the redirect.
+- **CC-112 / R028.3:** Run tests/test_http_client.py::test_async_api_key_client_isolates_concurrent_callers. Block the responder until both callers send requests through one shared API-key client. Assert explicit and jar-seeded cookies reach neither request. Confirm responses cannot seed the shared cookie jar.
+- **CC-113 / R028.3:** Run tests/test_http_client.py::test_non_api_key_client_preserves_existing_cookie_behavior. Confirm the Bearer client retains its existing HTTPX cookie-jar behavior. Keep the existing TLS, origin, redirect, and retry tests.
+- **CC-114 / R028.3:** Run downstream acceptance through real modern MCP tools/call. Pin the immutable SDK commit and use a controlled provider transport. Exercise login and finishOAuth before protected calls. Repeat through two distinct MCP clients that share one API-key HTTP client. Assert every provider call carries no Cookie and uses the configured API key. Make no live provider or credential calls.

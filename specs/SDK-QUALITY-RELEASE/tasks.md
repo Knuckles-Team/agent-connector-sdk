@@ -5,4 +5,4 @@
 - [x] Qualify cloud PR source gate from a fresh clone with no live environment, built under the pinned managed Python toolchain declared in `pyproject.toml` (SDK-QUALITY-RELEASE-R003).
 - [x] Bind published graph wheel, SDK wheel, Pages site and exact commit (SDK-QUALITY-RELEASE-R001).
 - [x] Confirm the locally pinned install command reproduces hosted CI's exact dependency import graph (SDK-QUALITY-RELEASE-R005).
-- [ ] Prove the source-only EG contract and activated-extra closure with distinct source/install provenance under R005; update the graph only after positive and negative probes pass.
+- [x] Bind the EG release source, wheel, import origins, and requested extras under R005. Record the graph only after positive and negative probes pass.

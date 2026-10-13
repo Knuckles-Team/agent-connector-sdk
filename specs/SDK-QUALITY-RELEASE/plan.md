@@ -5,8 +5,13 @@
 3. Provision scanner/tool versions and synthetic fixtures inside CI so cloud PRs reproduce the local source gate.
 4. Build the SDK wheel and test an isolated installed consumer against the locked published graph wheel. Release and Pages jobs independently record artifact and URL evidence.
 
-## R005 source-only reproduction command
+## R005 pinned source and release-wheel provenance
 
-Keep the import-graph diagnostic aligned with the prepared source-only environment.
-Use the pinned EG source path and `uv run --frozen --no-sync` when recording evidence.
-The isolated installed-wheel acceptance remains a separate check.
+Bootstrap pins the EG contract checkout to the commit named in
+`scripts/epistemic_graph_release.json`. Lock resolution preserves the declared
+dependency versions. Install the wheel only when its SHA-256 matches that
+release record. Use `--no-deps` so wheel installation cannot alter the lock.
+Graph inspection requires SDK-consumed Python modules from that exact checkout.
+Distribution metadata and package files must match the same wheel. Record graph
+and provenance fixtures only from this prepared source-plus-wheel environment.
+Never synthesize installation evidence.

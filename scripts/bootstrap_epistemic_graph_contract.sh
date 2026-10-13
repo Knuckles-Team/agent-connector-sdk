@@ -8,7 +8,7 @@ unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR GIT_PREFIX
 # This source revision carries the generated contracts consumed by the SDK.
 # scripts/bootstrap.sh fetches it for contributors and hosted CI alike, and the
 # mypy and pytest hooks re-verify it, so both use the same contract source.
-revision=f17f47ab300f7f1ddd972d4e0214283a28547e36
+revision=a5b4a1f1f638baed374897578cc061f473e9687b
 target=.ci/epistemic-graph
 
 if [ -d "$target/.git" ] &&

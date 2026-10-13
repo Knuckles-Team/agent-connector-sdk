@@ -28,6 +28,7 @@ from importlib import metadata
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
+import epistemic_graph_wheel_provenance as eg_wheel
 from packaging.markers import Marker, default_environment
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
@@ -37,6 +38,7 @@ from packaging.version import Version
 ROOT = Path(__file__).resolve().parent.parent
 FIXTURE = ROOT / "tests" / "fixtures" / "pinned_import_graph.txt"
 PROVENANCE_FIXTURE = ROOT / "tests" / "fixtures" / "pinned_import_graph.provenance.json"
+RELEASE_MANIFEST = ROOT / "scripts" / "epistemic_graph_release.json"
 LOCK_FILE = ROOT / "uv.lock"
 ROOT_PYPROJECT = ROOT / "pyproject.toml"
 SOURCE_ROOT = ROOT / ".ci" / "epistemic-graph"
@@ -81,6 +83,9 @@ class SourceDeclaration:
     declared_dependencies: tuple[str, ...]
     locked_dependencies: tuple[str, ...]
     consumed_modules: Mapping[str, str]
+    release_commit: str = ""
+    release_wheel_filename: str = ""
+    release_wheel_sha256: str = ""
 
     def to_json(self) -> dict[str, object]:
         return {
@@ -94,7 +99,10 @@ class SourceDeclaration:
             "declared_dependencies": list(self.declared_dependencies),
             "locked_dependencies": list(self.locked_dependencies),
             "consumed_modules": dict(sorted(self.consumed_modules.items())),
-            "evidence_kind": "pinned-source-project-metadata",
+            "release_commit": self.release_commit,
+            "release_wheel_filename": self.release_wheel_filename,
+            "release_wheel_sha256": self.release_wheel_sha256,
+            "evidence_kind": "pinned-source-and-official-release-wheel",
         }
 
 
@@ -373,14 +381,13 @@ def _verify_import_origins(
     }
     allowed_paths = {source_package}
     if installed is not None:
+        eg_wheel.verify_installed_distribution(installed, RELEASE_MANIFEST)
         installed_package = Path(
             str(installed.locate_file("epistemic_graph"))
         ).resolve()
-        if installed_package != source_package:
-            _raise(
-                "installed EG package overlay has no build receipt binding its code "
-                "to the pinned source revision"
-            )
+        if installed_package == source_package:
+            _raise("installed EG wheel package path is missing")
+        allowed_paths.add(installed_package)
     if package_paths != allowed_paths:
         _raise(
             "epistemic_graph exposes an unverified package overlay: "
@@ -426,6 +433,7 @@ def _prove_source_declaration(
     if _canonical(name) != SOURCE_DISTRIBUTION:
         _raise(f"pinned source project has unexpected name {name!r}")
     revision = _source_revision_from_lock(lock_package)
+    eg_wheel.require_source_revision(revision, RELEASE_MANIFEST)
     if git_revision != revision:
         _raise(f"EG checkout is {git_revision}, but uv.lock pins {revision}")
     if configured_revision != revision or bootstrap_revision != revision:
@@ -511,6 +519,9 @@ def _source_declaration(
     git_revision = _git(source_root, "rev-parse", "HEAD")
     if git_revision != revision:
         _raise(f"EG checkout is {git_revision}, but uv.lock pins {revision}")
+    eg_wheel.require_source_revision(revision, RELEASE_MANIFEST)
+    if installed is None:
+        _raise("the pinned EG release wheel has no installed distribution metadata")
     if _git(source_root, "status", "--porcelain", "--untracked-files=normal"):
         _raise("pinned EG source checkout has local modifications")
     git_remote = _git(source_root, "remote", "get-url", "origin")
@@ -618,6 +629,11 @@ def _source_declaration(
         declared_dependencies=tuple(sorted(requires)),
         locked_dependencies=locked_dependencies,
         consumed_modules=consumed_modules,
+        release_commit=eg_wheel.read_manifest(RELEASE_MANIFEST)["source_revision"],
+        release_wheel_filename=eg_wheel.read_manifest(RELEASE_MANIFEST)[
+            "wheel_filename"
+        ],
+        release_wheel_sha256=eg_wheel.read_manifest(RELEASE_MANIFEST)["wheel_sha256"],
     )
 
 

@@ -94,15 +94,14 @@ typecheck = [
 [tool.uv]
 default-groups = ["test"]
 
-# Development lock source is the exact EG commit fetched by
-# scripts/bootstrap_epistemic_graph_contract.sh. This source pin supplies the
-# unpublished >=2.27.0 resolver metadata; it is not a released-wheel claim.
+# The lock and contract source are pinned to the commit that produced the
+# verified official EG 2.27.0 release wheel in scripts/epistemic_graph_release.json.
 [tool.uv.sources]
-epistemic-graph = { git = "https://github.com/Knuckles-Team/epistemic-graph.git", rev = "f17f47ab300f7f1ddd972d4e0214283a28547e36" }
+epistemic-graph = { git = "https://github.com/Knuckles-Team/epistemic-graph.git", rev = "a5b4a1f1f638baed374897578cc061f473e9687b" }
 
 # Static metadata copied from that commit's pyproject.toml (SHA-256
-# c3fd5fc4d7fbeed1bebd3512ec598418a4b96376d0706293d1cd6e8ed0e4e13b) and
-# Cargo.toml (SHA-256 27ef24fcd9762af680ab1181959319118e139056e4a33f8c1ab2dcac23b7ce4d).
+# 5df1c8a101195b0c419ac7abb013e3b59e261d0603c5e7bd212abab9bbe41dbc) and
+# Cargo.toml (SHA-256 6c9b64539a444088d5bd42dd34d4d8a4d7341d2945577e81d838bae9b218dfdc).
 [[tool.uv.dependency-metadata]]
 name = "epistemic-graph"
 version = "2.27.0"

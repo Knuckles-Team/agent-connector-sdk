@@ -36,6 +36,7 @@
     "SDK-CONNECTOR-CONTROL-R028",
     "SDK-CONNECTOR-CONTROL-R028.1",
     "SDK-CONNECTOR-CONTROL-R028.2",
+    "SDK-CONNECTOR-CONTROL-R028.3",
     "SDK-CONNECTOR-CONTROL-R029",
     "SDK-CONNECTOR-CONTROL-R030",
     "SDK-CONNECTOR-CONTROL-R031",
@@ -507,7 +508,8 @@
       "verified_by": [],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R028.1",
-        "SDK-CONNECTOR-CONTROL-R028.2"
+        "SDK-CONNECTOR-CONTROL-R028.2",
+        "SDK-CONNECTOR-CONTROL-R028.3"
       ]
     },
     {
@@ -525,6 +527,23 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R028.3",
+      "title": "API-key identity remains header-based and stateless",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "64bcd00be5ef",
+        "c991698b90bf",
+        "d791b8cb5ca5",
+        "e40ff88a9bbc"
+      ],
+      "verified_by": [
+        "tests/test_http_client.py:351",
+        "tests/test_http_client.py:373",
+        "tests/test_http_client.py:395",
+        "tests/test_http_client.py:426"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R029",

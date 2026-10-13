@@ -72,6 +72,10 @@ uv sync --frozen \
 site_packages=$(uv run --frozen --no-sync python -c 'import sysconfig; print(sysconfig.get_path("purelib"))')
 printf 'import sys; sys.path.insert(0, %s)\n' "'$PWD/.ci/epistemic-graph'" > "$site_packages/_epistemic_graph_contract.pth"
 
+# Install the exact wheel tied to the pinned source commit. The installer verifies
+# its official asset digest and uses --no-deps, so no source/native build occurs.
+uv run --frozen --no-sync python scripts/install_epistemic_graph_release_wheel.py
+
 # Git hooks are a contributor convenience; hosted CI runs the stages directly.
 if [ -z "${CI:-}" ]; then
   uvx --from pre-commit==4.6.0 pre-commit install --config .config/pre-commit.yaml \

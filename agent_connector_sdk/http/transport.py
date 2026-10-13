@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import time
 from collections.abc import Awaitable, Callable
+from typing import cast
 
 import anyio
 import httpx
@@ -15,27 +16,50 @@ from agent_connector_sdk.http.retry import RetryPolicy
 __all__ = ["AsyncGovernedTransport", "GovernedTransport"]
 
 
-class GovernedTransport(httpx.BaseTransport):
-    """Wraps a synchronous transport with retries and request logging."""
+def _isolate_cookies(
+    request: httpx.Request, response: httpx.Response | None = None
+) -> None:
+    """Strip cookie state at the governed transport boundary."""
+    request.headers.pop("cookie", None)
+    if response is not None:
+        response.headers.pop("set-cookie", None)
+
+
+class _GovernedTransportConfig[InnerT, SleepT]:
+    """Store settings shared by synchronous and asynchronous transports."""
 
     def __init__(
         self,
-        inner: httpx.BaseTransport,
+        inner: InnerT,
         *,
         policy: RetryPolicy,
         logger: logging.Logger,
-        sleep: Callable[[float], None] = time.sleep,
+        sleep: SleepT | Callable[[float], None] = time.sleep,
+        isolate_cookies: bool = False,
     ) -> None:
         self._inner = inner
         self._policy = policy
         self._logger = logger
-        self._sleep = sleep
+        self._sleep = cast(SleepT, sleep)
+        self._isolate_cookies = isolate_cookies
+
+
+class GovernedTransport(
+    _GovernedTransportConfig[httpx.BaseTransport, Callable[[float], None]],
+    httpx.BaseTransport,
+):
+    """Wraps sync requests with retries, logging and optional cookie isolation."""
 
     def _send(self, request: httpx.Request) -> Outcome:
+        if self._isolate_cookies:
+            _isolate_cookies(request)
         try:
-            return self._inner.handle_request(request)
+            response = self._inner.handle_request(request)
         except httpx.TransportError as error:
             return error
+        if self._isolate_cookies:
+            _isolate_cookies(request, response)
+        return response
 
     def _pause(self, pause: Pause) -> None:
         if pause.discard is not None:
@@ -57,8 +81,13 @@ class GovernedTransport(httpx.BaseTransport):
         self._inner.close()
 
 
-class AsyncGovernedTransport(httpx.AsyncBaseTransport):
-    """Wraps an asynchronous transport with retries and request logging."""
+class AsyncGovernedTransport(
+    _GovernedTransportConfig[
+        httpx.AsyncBaseTransport, Callable[[float], Awaitable[None]]
+    ],
+    httpx.AsyncBaseTransport,
+):
+    """Wraps async requests with retries, logging and optional cookie isolation."""
 
     def __init__(
         self,
@@ -67,20 +96,29 @@ class AsyncGovernedTransport(httpx.AsyncBaseTransport):
         policy: RetryPolicy,
         logger: logging.Logger,
         sleep: Callable[[float], Awaitable[None]] = anyio.sleep,
+        isolate_cookies: bool = False,
     ) -> None:
-        self._inner = inner
-        self._policy = policy
-        self._logger = logger
-        self._sleep = sleep
+        super().__init__(
+            inner,
+            policy=policy,
+            logger=logger,
+            sleep=sleep,
+            isolate_cookies=isolate_cookies,
+        )
 
     async def _outcome(
         self, request: httpx.Request, pause: Pause | None
     ) -> Outcome | None:
         if pause is None:
+            if self._isolate_cookies:
+                _isolate_cookies(request)
             try:
-                return await self._inner.handle_async_request(request)
+                response = await self._inner.handle_async_request(request)
             except httpx.TransportError as error:
                 return error
+            if self._isolate_cookies:
+                _isolate_cookies(request, response)
+            return response
         if pause.discard is not None:
             await pause.discard.aclose()
         await self._sleep(pause.seconds)

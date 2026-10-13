@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import ssl
 from collections.abc import AsyncIterator, Iterator
@@ -11,7 +12,7 @@ import httpx
 import pytest
 
 from agent_connector_sdk.adapters.mcp_tool_paging import next_position
-from agent_connector_sdk.auth.static import BearerAuth
+from agent_connector_sdk.auth.static import ApiKeyAuth, BearerAuth
 from agent_connector_sdk.http.bodies import (
     DEFAULT_MAX_RESPONSE_BYTES,
     aiter_bounded,
@@ -66,8 +67,75 @@ from agent_connector_sdk.tls.resolve import resolve_tls_profile
 
 _FAST = RetryPolicy(backoff_base=0.01, max_backoff=0.02)
 _JSON = {"Content-Type": "application/json"}
+_COOKIE_EXCHANGES = (
+    (302, {"Location": "/oauth/finish", "Set-Cookie": "session=login; Path=/"}),
+    (
+        307,
+        {
+            "Location": "https://outside.example.invalid/callback",
+            "Set-Cookie": "session=redirect; Path=/",
+        },
+    ),
+    (500, {"Set-Cookie": "session=error; Path=/"}),
+    (200, {"Set-Cookie": "session=success; Path=/"}),
+)
+_COOKIE_PATHS = ("/login", "/oauth/redirect", "/failure", "/protected")
 #: Synthetic user information for URLs that must be rejected or redacted.
 _USERINFO = ":".join(("user", "pw"))
+
+
+def _api_key_options() -> HttpClientOptions:
+    return HttpClientOptions(
+        base_url="https://api.example.invalid",
+        auth=ApiKeyAuth("fixture-key", header="x-api-key"),
+        retry=RetryPolicy(max_attempts=1),
+    )
+
+
+def _cookie_response(
+    request: httpx.Request,
+    seen: list[httpx.Request],
+    replies: Iterator[tuple[int, dict[str, str]]],
+) -> httpx.Response:
+    seen.append(request)
+    status, headers = next(replies)
+    return httpx.Response(status, headers=headers, request=request)
+
+
+def _assert_no_cookie_state(
+    client: httpx.Client | httpx.AsyncClient,
+    responses: list[httpx.Response],
+) -> None:
+    assert all("set-cookie" not in response.headers for response in responses)
+    assert {cookie.name for cookie in client.cookies.jar} == {"seeded"}
+
+
+def _assert_api_key_requests(
+    client: httpx.Client | httpx.AsyncClient,
+    seen: list[httpx.Request],
+    paths: tuple[str, ...],
+    *,
+    ordered: bool,
+) -> None:
+    request_paths = [request.url.path for request in seen]
+    assert request_paths == list(paths) if ordered else set(request_paths) == set(paths)
+    assert all("cookie" not in request.headers for request in seen)
+    assert all(request.headers["x-api-key"] == "fixture-key" for request in seen)
+    assert {cookie.name for cookie in client.cookies.jar} == {"seeded"}
+
+
+def _assert_cookie_exchanges(
+    client: httpx.Client | httpx.AsyncClient,
+    responses: list[httpx.Response],
+) -> None:
+    assert [response.status_code for response in responses] == [302, 307, 500, 200]
+    assert [response.headers.get("location") for response in responses] == [
+        "/oauth/finish",
+        "https://outside.example.invalid/callback",
+        None,
+        None,
+    ]
+    _assert_no_cookie_state(client, responses)
 
 
 def _client(
@@ -278,6 +346,105 @@ async def test_async_bounded_iteration() -> None:
     request = httpx.Request("GET", "https://api.example.invalid/blob")
     response = httpx.Response(200, content=chunks(), request=request)
     assert [chunk async for chunk in aiter_bounded(response, 4)] == [b"ab", b"cd"]
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.3")
+def test_api_key_client_isolates_cookies_across_response_statuses() -> None:
+    seen: list[httpx.Request] = []
+    replies = iter(_COOKIE_EXCHANGES)
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        return _cookie_response(request, seen, replies)
+
+    options = _api_key_options()
+    with create_http_client(options, transport=httpx.MockTransport(handle)) as client:
+        client.cookies.set("seeded", "caller-value")
+        responses = [
+            client.get(path, headers={"Cookie": "explicit=caller-value"})
+            if index == 0
+            else client.get(path)
+            for index, path in enumerate(_COOKIE_PATHS)
+        ]
+        _assert_cookie_exchanges(client, responses)
+
+    _assert_api_key_requests(client, seen, _COOKIE_PATHS, ordered=True)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.3")
+async def test_async_api_key_client_isolates_cookies_across_response_statuses() -> None:
+    seen: list[httpx.Request] = []
+    replies = iter(_COOKIE_EXCHANGES)
+
+    async def handle(request: httpx.Request) -> httpx.Response:
+        return _cookie_response(request, seen, replies)
+
+    options = _api_key_options()
+    async with create_async_http_client(
+        options, transport=httpx.MockTransport(handle)
+    ) as client:
+        client.cookies.set("seeded", "caller-value")
+        responses = []
+        for index, path in enumerate(_COOKIE_PATHS):
+            headers = {"Cookie": "explicit=caller-value"} if index == 0 else None
+            responses.append(await client.get(path, headers=headers))
+        _assert_cookie_exchanges(client, responses)
+
+    _assert_api_key_requests(client, seen, _COOKIE_PATHS, ordered=True)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.3")
+async def test_async_api_key_client_isolates_concurrent_callers() -> None:
+    seen: list[httpx.Request] = []
+    both_dispatched = asyncio.Event()
+
+    async def handle(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        if len(seen) == 2:
+            both_dispatched.set()
+        await both_dispatched.wait()
+        return httpx.Response(
+            200,
+            headers={"Set-Cookie": f"session={request.url.path}; Path=/"},
+            request=request,
+        )
+
+    options = _api_key_options()
+    async with create_async_http_client(
+        options, transport=httpx.MockTransport(handle)
+    ) as client:
+        client.cookies.set("seeded", "caller-value")
+        responses = await asyncio.gather(
+            client.get("/caller-a", headers={"Cookie": "explicit=a"}),
+            client.get("/caller-b", headers={"Cookie": "explicit=b"}),
+        )
+        assert [response.status_code for response in responses] == [200, 200]
+        _assert_no_cookie_state(client, responses)
+
+    _assert_api_key_requests(client, seen, ("/caller-a", "/caller-b"), ordered=False)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.3")
+def test_non_api_key_client_preserves_existing_cookie_behavior() -> None:
+    seen: list[httpx.Request] = []
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        headers = {"Set-Cookie": "session=existing; Path=/"} if len(seen) == 1 else {}
+        return httpx.Response(200, headers=headers, request=request)
+
+    options = HttpClientOptions(
+        base_url="https://api.example.invalid",
+        auth=BearerAuth("fixture-token"),
+        retry=RetryPolicy(max_attempts=1),
+    )
+    with create_http_client(options, transport=httpx.MockTransport(handle)) as client:
+        client.get("/login")
+        client.get("/protected")
+
+    assert len(seen) == 2
+    assert "cookie" not in seen[0].headers
+    assert seen[1].headers["cookie"] == "session=existing"
+    assert seen[1].headers["authorization"] == "Bearer fixture-token"
 
 
 def test_sync_transport_honours_retry_after_and_closes_discarded() -> None:
