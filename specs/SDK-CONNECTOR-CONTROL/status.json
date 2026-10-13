@@ -402,7 +402,8 @@
       "verified_by": [
         "tests/test_registry_visibility_content.py:276",
         "tests/test_registry_visibility_content.py:293",
-        "tests/test_schema_disclosure_provider.py:62"
+        "tests/test_schema_disclosure_provider.py:142",
+        "tests/test_schema_disclosure_provider.py:63"
       ]
     },
     {
@@ -712,10 +713,12 @@
       "title": "Tool contract facts for the run loop and the tool-subset decision",
       "delivery_state": "SPECIFIED",
       "landed_in": [
+        "910c1a8859ca",
         "f06d1600bb90"
       ],
       "verified_by": [
-        "tests/test_schema_disclosure_provider.py:63"
+        "tests/test_schema_disclosure_artifacts.py:22",
+        "tests/test_schema_disclosure_provider.py:64"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R045.1",

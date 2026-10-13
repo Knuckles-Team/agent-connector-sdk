@@ -3,32 +3,42 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 from fastmcp import FastMCP
 from fastmcp.server.context import Context
 from fastmcp.server.transforms.catalog import CatalogTransform
 from fastmcp.server.transforms.search.base import serialize_tools_for_output_markdown
+from fastmcp.tools import Tool
 
 from .concurrency import run_blocking
-from .schema_disclosure import SchemaDisclosure, read_schema_fragment
+from .schema_disclosure import (
+    SchemaDisclosure,
+    SchemaManifest,
+    _verify_document,
+    read_schema_fragment,
+)
 from .schema_disclosure_models import FRAGMENT_URI_TEMPLATE, MANIFEST_URI_TEMPLATE
 
 __all__ = ["describe_schema_tools", "register_schema_resources"]
 
 
-def describe_schema_tools(tools: Any) -> list[dict[str, Any]]:
-    """Bounded navigation for the existing authorized FastMCP search transform."""
-    from .schema_disclosure import SchemaManifest
+def _current_manifest(tool: Tool) -> SchemaManifest:
+    manifest = SchemaManifest.model_validate((tool.meta or {}).get("openapi_schema"))
+    if manifest.alias != tool.name:
+        raise ValueError("Navigation alias differs from schema identity")
+    _verify_document(
+        {"inputSchema": tool.parameters, "outputSchema": tool.output_schema}, manifest
+    )
+    return manifest
 
+
+def describe_schema_tools(tools: Sequence[Tool]) -> list[dict[str, Any]]:
+    """Bounded navigation for the existing authorized FastMCP search transform."""
     result = []
     for tool in tools:
-        manifest = SchemaManifest.model_validate(
-            (tool.meta or {}).get("openapi_schema")
-        )
-        if manifest.alias != tool.name:
-            raise ValueError("Navigation alias differs from schema identity")
+        manifest = _current_manifest(tool)
         result.append(
             {
                 "kind": "schema-navigation",
@@ -58,7 +68,7 @@ async def _selected(
     manifest = selected.manifest.model_dump()
     if (
         selected.manifest.schema_sha256 != schema_sha256
-        or (tool.meta or {}).get("openapi_schema") != manifest
+        or _current_manifest(tool).model_dump() != manifest
     ):
         raise ValueError("Stale schema identity in authorized catalog")
     return selected

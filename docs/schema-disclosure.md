@@ -9,7 +9,8 @@ The `agent_connector_sdk.mcp.schema_disclosure_provider` module exports
 `register_schema_resources(server, catalog, disclosures)` and `describe_schema_tools`.
 Use `describe_schema_tools` as the serializer for FastMCP's existing `RegexSearchTransform`.
 Attach that transform to the server. Pass the same instance to the resource registrar.
-Each read checks the catalog through its middleware. The visible alias must match the manifest exactly.
+Each read verifies the catalog through its middleware. The visible alias must match the manifest exactly.
+Navigation and reads hash the current tool's input and output schemas. Copied metadata cannot authorize stale schemas.
 Disabled or unauthorized aliases refuse access, including through guessed URIs.
 Requests use the caller's existing MCP session. This API creates no credentials, HTTP clients or separate sessions.
 
@@ -33,6 +34,8 @@ The index uses decimal digits from zero through `fragment_count - 1`, without si
 Call `SchemaManifest.model_json_schema()` or `SchemaFragment.model_json_schema()` to read each model's JSON Schema.
 The published artifacts are the [manifest schema](reference/schema-manifest.schema.json)
 and [fragment schema](reference/schema-fragment.schema.json).
+Run `python -m scripts.generate_schema_disclosure --check` to verify the artifacts.
+The fragment schema references the manifest's shared identity definition. Load both documents in a JSON Schema registry.
 Models reject unknown fields and coercion. A manifest contains these fields:
 
 | Field | Meaning |

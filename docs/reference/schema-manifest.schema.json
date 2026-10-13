@@ -1,79 +1,85 @@
 {
-  "additionalProperties": false,
-  "description": "Exact operation, source and canonical schema identity selected by search.",
-  "properties": {
-    "alias": {
-      "maxLength": 128,
-      "pattern": "^[A-Za-z][A-Za-z0-9_-]*$",
-      "title": "Alias",
-      "type": "string"
-    },
-    "fragment_count": {
-      "maximum": 4100,
-      "minimum": 1,
-      "title": "Fragment Count",
-      "type": "integer"
-    },
-    "fragment_uri_template": {
-      "title": "Fragment Uri Template",
-      "type": "string"
-    },
-    "input_schema_sha256": {
-      "pattern": "^[0-9a-f]{64}$",
-      "title": "Input Schema Sha256",
-      "type": "string"
-    },
-    "manifest_uri": {
-      "title": "Manifest Uri",
-      "type": "string"
-    },
-    "operation": {
-      "maxLength": 512,
-      "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-      "title": "Operation",
-      "type": "string"
-    },
-    "output_schema_sha256": {
-      "pattern": "^[0-9a-f]{64}$",
-      "title": "Output Schema Sha256",
-      "type": "string"
-    },
-    "schema_bytes": {
-      "maximum": 16777216,
-      "minimum": 1,
-      "title": "Schema Bytes",
-      "type": "integer"
-    },
-    "schema_sha256": {
-      "pattern": "^[0-9a-f]{64}$",
-      "title": "Schema Sha256",
-      "type": "string"
-    },
-    "source_sha256": {
-      "pattern": "^[0-9a-f]{64}$",
-      "title": "Source Sha256",
-      "type": "string"
-    },
-    "version": {
-      "maximum": 1,
-      "minimum": 1,
-      "title": "Version",
-      "type": "integer"
+  "$defs": {
+    "SchemaIdentity": {
+      "properties": {
+        "alias": {
+          "maxLength": 128,
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]*$",
+          "title": "Alias",
+          "type": "string"
+        },
+        "fragment_count": {
+          "maximum": 4100,
+          "minimum": 1,
+          "title": "Fragment Count",
+          "type": "integer"
+        },
+        "fragment_uri_template": {
+          "title": "Fragment Uri Template",
+          "type": "string"
+        },
+        "input_schema_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Input Schema Sha256",
+          "type": "string"
+        },
+        "manifest_uri": {
+          "title": "Manifest Uri",
+          "type": "string"
+        },
+        "operation": {
+          "maxLength": 512,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "title": "Operation",
+          "type": "string"
+        },
+        "output_schema_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Output Schema Sha256",
+          "type": "string"
+        },
+        "schema_bytes": {
+          "maximum": 16777216,
+          "minimum": 1,
+          "title": "Schema Bytes",
+          "type": "integer"
+        },
+        "schema_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Schema Sha256",
+          "type": "string"
+        },
+        "source_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Sha256",
+          "type": "string"
+        },
+        "version": {
+          "maximum": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "version",
+        "operation",
+        "alias",
+        "source_sha256",
+        "schema_sha256",
+        "input_schema_sha256",
+        "output_schema_sha256",
+        "schema_bytes",
+        "fragment_count",
+        "manifest_uri",
+        "fragment_uri_template"
+      ],
+      "type": "object"
     }
   },
-  "required": [
-    "version",
-    "operation",
-    "alias",
-    "source_sha256",
-    "schema_sha256",
-    "input_schema_sha256",
-    "output_schema_sha256",
-    "schema_bytes",
-    "fragment_count",
-    "manifest_uri",
-    "fragment_uri_template"
-  ],
+  "$ref": "#/$defs/SchemaIdentity",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Exact operation, source and canonical schema identity selected by search.",
   "title": "SchemaManifest",
-  "type": "object"
+  "unevaluatedProperties": false
 }

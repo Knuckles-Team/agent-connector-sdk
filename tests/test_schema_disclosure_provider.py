@@ -5,6 +5,7 @@ import json
 
 import pytest
 from fastmcp import Client, FastMCP
+from fastmcp.exceptions import ToolError
 from fastmcp.server.transforms.search import RegexSearchTransform
 from fastmcp.tools import Tool
 from jsonschema import Draft202012Validator
@@ -134,5 +135,29 @@ def test_stale_schema_uri_refuses():
             )
             with pytest.raises(MCPError):
                 await client.read_resource(uri)
+
+    asyncio.run(run())
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019")
+@pytest.mark.parametrize("field", ["parameters", "output_schema"])
+def test_same_alias_schema_replacement_refuses_stale_metadata(field):
+    server, disclosure = provider()
+
+    async def run():
+        async with Client(server) as client:
+            original = await server.get_tool(disclosure.manifest.alias)
+            changed = original.model_copy(update={field: {"type": "null"}})
+            server.add_tool(changed)
+            with pytest.raises(ToolError, match="schema identity differs"):
+                await client.call_tool(
+                    "search_tools", {"pattern": "^operation_readEntry"}
+                )
+            for uri in (
+                disclosure.manifest.manifest_uri,
+                disclosure.manifest.fragment_uri_template.format(index=0),
+            ):
+                with pytest.raises(MCPError):
+                    await client.read_resource(uri)
 
     asyncio.run(run())
