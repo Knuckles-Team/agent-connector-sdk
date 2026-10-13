@@ -57,7 +57,14 @@ uv python install "$python_version"
 # The SDK consumes epistemic-graph's generated contract from a pinned source
 # checkout (.ci/epistemic-graph), exactly as hosted CI does.
 bash scripts/bootstrap_epistemic_graph_contract.sh
-uv sync --frozen --group test --python "$python_version" --no-install-package epistemic-graph
+# Hook commands use --no-sync, so prepare all hook groups and tools here while
+# keeping the unpublished EG contract out of the project's installed packages.
+uv sync --frozen \
+  --group test \
+  --group docs \
+  --group typecheck \
+  --python "$python_version" \
+  --no-install-package epistemic-graph
 
 # Put the pinned contract first on sys.path in the project environment (ahead of
 # any published epistemic-graph wheel `uv run` may install), so plain

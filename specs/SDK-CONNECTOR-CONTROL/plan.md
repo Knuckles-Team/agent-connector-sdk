@@ -337,3 +337,11 @@ R007.1 precedes R007.2; R007.2 precedes R007.3. R007.3 and R007.4 precede R007.6
 
 Within each family, Model precedes Behavior and Wiring. Refusal and Evidence bind the same operation. Hot-path proof depends on all prior children.
 <!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-confirmation-r026-1 -->
+### SDK-CONNECTOR-CONTROL-R026.1 — negotiated destructive confirmation
+
+Bind confirmation to the live MCP request protocol, canonical operation, and JSON-compatible arguments. Tested profile: FastMCP 4.0.11 with MCP 2.3.0; supported protocol cases are 2026-07-28 auto negotiation and the 2025-11-25 handshake-era client. Declare FastMCP >=4.0.11,<5 and MCP >=2.3.0,<3 for the new API surface.
+
+Use an input-required form and request-state digest on the modern path. Use `StrictBool` with `Context.elicit` on the handshake-era path. Return a false pending result for legacy `if not await` guards. Both dispatchers propagate pending results and proceed only on exact `True`. Reject missing or unsupported context, incomplete or nonboolean response, stale binding, decline, cancellation, and errors. Exercise registered `tools/call` paths with `HTTPX MockTransport`. Send no provider traffic.
+<!-- /spec-definition-patch -->

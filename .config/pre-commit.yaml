@@ -142,15 +142,17 @@ repos:
 - repo: local
   hooks:
   # ── Types, tests, build, docs (CI parity) ────────────────────────────────
+  # scripts/bootstrap.sh prepares these dependencies and the source-only EG
+  # contract; --no-sync prevents a hook from resolving/installing EG from Git.
   - id: mypy
     name: mypy (strict, project environment)
-    entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && PYTHONPATH=.ci/epistemic-graph uv run --frozen --with mypy==1.20.2 --with types-PyYAML==6.0.12.20260518 python -m mypy agent_connector_sdk'
+    entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && PYTHONPATH=.ci/epistemic-graph uv run --frozen --no-sync python -m mypy agent_connector_sdk'
     language: system
     pass_filenames: false
     files: ^(agent_connector_sdk/.*\.py|pyproject\.toml|uv\.lock)$
   - id: pytest
     name: pytest (full suite)
-    entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && PYTHONPATH=.ci/epistemic-graph uv run --frozen python -m pytest -q'
+    entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && PYTHONPATH=.ci/epistemic-graph uv run --frozen --no-sync python -m pytest -q'
     language: system
     pass_filenames: false
     always_run: true
@@ -164,7 +166,7 @@ repos:
     stages: [manual, pre-push]
   - id: mkdocs-build
     name: documentation build (strict)
-    entry: bash -c 'bash scripts/bootstrap_pipeline_theme.sh && uv run --frozen --group docs mkdocs build --strict -d "$(mktemp -d)"'
+    entry: bash -c 'bash scripts/bootstrap_pipeline_theme.sh && uv run --frozen --no-sync --group docs mkdocs build --strict -d "$(mktemp -d)"'
     language: system
     pass_filenames: false
     always_run: true
@@ -186,13 +188,13 @@ repos:
   - id: check-orphan-modules
     name: Wiring — no orphan package modules
     # The project interpreter: the package uses Python 3.12 syntax.
-    entry: uv run --frozen python scripts/check_wiring.py orphans
+    entry: uv run --frozen --no-sync python scripts/check_wiring.py orphans
     language: system
     pass_filenames: false
     always_run: true
   - id: check-public-api-tested
     name: Wiring — every public name is used by a test
-    entry: uv run --frozen python scripts/check_wiring.py public-api
+    entry: uv run --frozen --no-sync python scripts/check_wiring.py public-api
     language: system
     pass_filenames: false
     always_run: true

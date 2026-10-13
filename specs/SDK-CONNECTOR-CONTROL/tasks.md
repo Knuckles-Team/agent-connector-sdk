@@ -122,3 +122,7 @@
 
 Runtime work and test execution remain outstanding.
 <!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-confirmation-r026-1 -->
+- [ ] SDK-CONNECTOR-CONTROL-R026.1: Implement protocol-selected confirmation in `ctx_confirm_destructive`. Propagate pending results through generated-method and action dispatch. Keep legacy boolean consumers fail-closed. Run the served acceptance matrix under both protocol eras with a controlled transport. Record exact source, package, and protocol versions. Keep receipts empty until independent review of merged-main evidence.
+<!-- /spec-definition-patch -->

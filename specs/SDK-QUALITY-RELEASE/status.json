@@ -22,10 +22,10 @@
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:116",
-        "tests/test_release_quality_r001_r005.py:40",
-        "tests/test_release_quality_r001_r005.py:47",
-        "tests/test_release_quality_r001_r005.py:53",
-        "tests/test_release_quality_r001_r005.py:71"
+        "tests/test_release_quality_r001_r005.py:42",
+        "tests/test_release_quality_r001_r005.py:49",
+        "tests/test_release_quality_r001_r005.py:55",
+        "tests/test_release_quality_r001_r005.py:73"
       ]
     },
     {
@@ -63,15 +63,18 @@
     },
     {
       "id": "SDK-QUALITY-RELEASE-R005",
-      "title": "Hosted CI reproduces the exact pinned dependency import locally",
+      "title": "Hosted CI reproduces the pinned dependency graph with source and environment evidence",
       "delivery_state": "VERIFIED",
       "landed_in": [
         "0c1f49ced769",
         "42b930057c3e"
       ],
       "verified_by": [
-        "tests/test_release_quality_r001_r005.py:79",
-        "tests/test_release_quality_r001_r005.py:94"
+        "tests/test_release_quality_r001_r005.py:104",
+        "tests/test_release_quality_r001_r005.py:116",
+        "tests/test_release_quality_r001_r005.py:135",
+        "tests/test_release_quality_r001_r005.py:145",
+        "tests/test_release_quality_r001_r005.py:160"
       ]
     }
   ]

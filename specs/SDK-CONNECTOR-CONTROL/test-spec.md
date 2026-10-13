@@ -179,3 +179,12 @@ These are required future tests. None ran during definition authoring.
 <!-- # spec: SDK-CONNECTOR-CONTROL-R052; planned acceptance link only; proposed CC-87 through CC-92. -->
 <!-- # spec: SDK-CONNECTOR-CONTROL-R053; planned acceptance link only; proposed CC-93 through CC-98. -->
 <!-- /spec-definition-patch -->
+
+<!-- spec-definition-patch:sdk-confirmation-r026-1 -->
+## Destructive MCP confirmation compatibility (SDK-CONNECTOR-CONTROL-R026.1)
+
+- CC-107 / SDK-CONNECTOR-CONTROL-R026.1: `tests/test_mcp_confirmation_roundtrip.py::test_served_destructive_confirmation_never_bypasses_gate` calls both dispatch paths through served `tools/call`. Run auto 2026-07-28 and legacy 2025-11-25 sessions. Record FastMCP 4.0.11 and MCP 2.3.0. Explicit acceptance yields one HTTPX MockTransport effect. False, truthy-false, nonboolean, decline, cancel, missing content, or elicitation failure yields zero effects.
+- CC-108 / SDK-CONNECTOR-CONTROL-R026.1: `tests/test_mcp_confirmation_roundtrip.py::test_legacy_boolean_guard_fails_closed_on_pending_modern_confirmation` runs as a served modern tool. Use the old `if not await` guard. Confirm pending confirmation raises before elicitation or backend effect.
+- CC-109 / SDK-CONNECTOR-CONTROL-R026.1: `tests/test_mcp_confirmation_roundtrip.py::test_nondestructive_served_call_does_not_request_confirmation` runs a nondestructive `tools/call` in both client modes and dispatch paths. Confirm it reaches the controlled backend without elicitation.
+- CC-110 / SDK-CONNECTOR-CONTROL-R026.1: `tests/test_mcp_confirmation_roundtrip.py::test_missing_or_unversioned_context_denies_before_provider_effect` proves those contexts cancel before the controlled backend. Record package versions from live request context. Helper-only tests cannot satisfy CC-107.
+<!-- /spec-definition-patch -->

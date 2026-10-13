@@ -138,7 +138,8 @@
     "SDK-CONNECTOR-CONTROL-R054.3",
     "SDK-CONNECTOR-CONTROL-R054.4",
     "SDK-CONNECTOR-CONTROL-R054.5",
-    "SDK-CONNECTOR-CONTROL-R054.6"
+    "SDK-CONNECTOR-CONTROL-R054.6",
+    "SDK-CONNECTOR-CONTROL-R026.1"
   ],
   "requirements": [
     {
@@ -446,7 +447,7 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R023",
-      "title": "A prompt with a required argument is captured as a template, never refused",
+      "title": "A prompt with a required argument becomes a template",
       "delivery_state": "LANDED",
       "landed_in": [
         "713782e7901c",
@@ -475,11 +476,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R026",
       "title": "SDK provides opt-in per-client-method MCP tool derivation",
-      "delivery_state": "LANDED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "d3617301012c"
       ],
-      "verified_by": []
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R026.1"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R027",
@@ -697,7 +701,7 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R044",
-      "title": "SDK declares a virtual-graph (relational or document) source's access contract (unblocks `EG-CQ-CONN-R067.5`)",
+      "title": "SDK declares a virtual-graph access contract",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
@@ -1350,6 +1354,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R054.6",
       "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R026.1",
+      "title": "Require explicit destructive confirmation across both supported MCP eras",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []

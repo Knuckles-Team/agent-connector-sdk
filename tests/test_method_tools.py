@@ -14,17 +14,27 @@ from tests.demo_api_fixture import DemoApiUsers, get_client, get_client_async
 
 
 class _AcceptingContext:
+    def __init__(self) -> None:
+        from types import SimpleNamespace
+
+        self.request_context = SimpleNamespace(protocol_version="2025-11-25")
+
     async def elicit(self, _message: str, response_type: Any) -> Any:
         from types import SimpleNamespace
 
-        return SimpleNamespace(action="accept", data=True)
+        return SimpleNamespace(action="accept", data=SimpleNamespace(confirmed=True))
 
 
 class _DecliningContext:
+    def __init__(self) -> None:
+        from types import SimpleNamespace
+
+        self.request_context = SimpleNamespace(protocol_version="2025-11-25")
+
     async def elicit(self, _message: str, response_type: Any) -> Any:
         from types import SimpleNamespace
 
-        return SimpleNamespace(action="decline", data=False)
+        return SimpleNamespace(action="decline", data=None)
 
 
 def test_registers_one_tool_per_public_method_with_domain_tags() -> None:

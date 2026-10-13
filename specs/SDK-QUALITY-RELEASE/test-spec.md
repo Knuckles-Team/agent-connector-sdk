@@ -8,5 +8,7 @@
 | QR-04 | Build wheel then install in isolated environment | SDK imports and generated graph DTO contract work without repository source overlay. |
 | QR-05 | Run release with absent online service or entitlement | Source gate remains truthful; acceptance reports `NOT RUN` and release remains unpublished. |
 | QR-06 | Publish Pages and wheel from exact approved commit | Page URL, wheel digest, tag and CI run all bind same commit. |
+| QR-07 | Pinned EG source contract | Bind checkout f17, its remote, Cargo version, declared requirements, lock edges, and consumed module origins. Reject a wrong revision, origin, version, metadata snapshot, unbound overlay, or missing dependency. Keep source declarations separate from distribution metadata. |
+| QR-08 | Runtime extras | Traverse requested client/server and email extras with transitive dependencies. Read requirements from distribution metadata. Match active dependencies to `uv.lock`. Fail if metadata for an active locked dependency is missing. Exclude unrequested extras. |
 
 Source PR checks include pytest, Ruff, mypy, CCCC, KISS, Dupehound, jscpd, wiring, privacy and package build. QR-06 belongs to release acceptance and must not be a prerequisite for a cloud pull request.
