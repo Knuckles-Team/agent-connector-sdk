@@ -74,10 +74,10 @@
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:86",
-        "tests/test_release_quality_r001_r005.py:116",
-        "tests/test_release_quality_r001_r005.py:123",
-        "tests/test_release_quality_r001_r005.py:135",
-        "tests/test_release_quality_r001_r005.py:154"
+        "tests/test_release_quality_r001_r005.py:117",
+        "tests/test_release_quality_r001_r005.py:124",
+        "tests/test_release_quality_r001_r005.py:136",
+        "tests/test_release_quality_r001_r005.py:155"
       ]
     }
   ]

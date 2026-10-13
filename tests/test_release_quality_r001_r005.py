@@ -82,7 +82,7 @@ def test_isolated_install_plan_rejects_a_non_wheel_path() -> None:
 def test_local_pinned_install_reproduces_hosted_import_graph() -> None:
     """The exact import graph computed under this pinned environment must
     equal the recorded graph committed from an equivalently pinned
-    (`uv sync --frozen`) resolve, proving local verification never drifts
+    source-only resolve, proving local verification never drifts
     from the hosted release check without a visible, reviewable diff."""
     assert FIXTURE.exists(), "tests/fixtures/pinned_import_graph.txt must be committed"
     recorded = read_recorded_graph()
@@ -90,7 +90,8 @@ def test_local_pinned_install_reproduces_hosted_import_graph() -> None:
     live = list(evidence.graph)
     assert live == recorded, (
         "local import graph drifted from the recorded hosted result; "
-        "re-run scripts/check_import_graph_reproducibility.py --record under uv run --frozen"
+        "re-run PYTHONPATH=.ci/epistemic-graph uv run --frozen --no-sync "
+        "python scripts/check_import_graph_reproducibility.py --record"
     )
 
 
