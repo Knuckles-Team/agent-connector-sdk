@@ -93,7 +93,7 @@
 ## Consolidated SDK definitions
 - [ ] **SDK-CONNECTOR-CONTROL-R051:** Define and prove the sandbox allocation producer; runtime and served evidence remain absent.
 - [ ] **SDK-CONNECTOR-CONTROL-R052:** Define and prove visual observation transport; runtime and served evidence remain absent.
-- [ ] **SDK-CONNECTOR-CONTROL-R053:** Define and prove environment declaration export/startup binding; runtime and served evidence remain absent.
+- [ ] **SDK-CONNECTOR-CONTROL-R053:** Implement the public environment declaration export and prove its host startup binding; served acceptance remains pending.
 - [ ] **SDK-CONNECTOR-CONTROL-R054:** Inventory pinned JSON tag loaders and prove served registration parity with explicit opt-ins preserved.
 - [ ] **SDK-CONNECTOR-CONTROL-R051.1:** Model and acceptance remain unimplemented.
 - [ ] **SDK-CONNECTOR-CONTROL-R051.2:** Behavior and acceptance remain unimplemented.
@@ -107,12 +107,12 @@
 - [ ] **SDK-CONNECTOR-CONTROL-R052.4:** Refusal and acceptance remain unimplemented.
 - [ ] **SDK-CONNECTOR-CONTROL-R052.5:** Evidence and acceptance remain unimplemented.
 - [ ] **SDK-CONNECTOR-CONTROL-R052.6:** Hot-path proof and acceptance remain unimplemented.
-- [ ] **SDK-CONNECTOR-CONTROL-R053.1:** Model and acceptance remain unimplemented.
-- [ ] **SDK-CONNECTOR-CONTROL-R053.2:** Behavior and acceptance remain unimplemented.
-- [ ] **SDK-CONNECTOR-CONTROL-R053.3:** Wiring and acceptance remain unimplemented.
-- [ ] **SDK-CONNECTOR-CONTROL-R053.4:** Refusal and acceptance remain unimplemented.
-- [ ] **SDK-CONNECTOR-CONTROL-R053.5:** Evidence and acceptance remain unimplemented.
-- [ ] **SDK-CONNECTOR-CONTROL-R053.6:** Hot-path proof and acceptance remain unimplemented.
+- [ ] **SDK-CONNECTOR-CONTROL-R053.1:** Model; implement the planned test_manifest_rejects_duplicate_literal_and_unknown_entries acceptance.
+- [ ] **SDK-CONNECTOR-CONTROL-R053.2:** Behavior; implement the planned test_missing_and_undeclared_inputs_block_startup acceptance.
+- [ ] **SDK-CONNECTOR-CONTROL-R053.3:** Wiring; implement the planned test_host_startup_consumes_sdk_declaration_set acceptance.
+- [ ] **SDK-CONNECTOR-CONTROL-R053.4:** Refusal; implement the planned test_refusal_diagnostics_redact_secret_values acceptance.
+- [ ] **SDK-CONNECTOR-CONTROL-R053.5:** Evidence; implement the planned test_readback_matches_manifest_and_decision acceptance.
+- [ ] **SDK-CONNECTOR-CONTROL-R053.6:** Hot-path proof; implement the planned test_served_startup_accepts_declared_and_refuses_invalid acceptance.
 - [ ] **SDK-CONNECTOR-CONTROL-R054.1:** Define and validate JsonTagLoaderEntry and deterministic inventory ordering.
 - [ ] **SDK-CONNECTOR-CONTROL-R054.2:** Scan pinned package inputs and block every unresolved loader or unmapped operation.
 - [ ] **SDK-CONNECTOR-CONTROL-R054.3:** Connect the inventory gate to both served server fixtures and existing dispatch paths.
