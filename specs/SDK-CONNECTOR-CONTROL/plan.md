@@ -319,12 +319,71 @@ R007.1 precedes R007.2; R007.2 precedes R007.3. R007.3 and R007.4 precede R007.6
 6. SDK-CONNECTOR-CONTROL-R052.6: Future served tests cross MCP tools/call, EG state write/readback, and AU next-step use. Prove same-run reuse, cross-run isolation, and stale-reference refusal.
 
 ### SDK-CONNECTOR-CONTROL-R053
-1. SDK-CONNECTOR-CONTROL-R053.1: Define versioned EnvironmentDeclaration records. Include component/distribution, schema revision, input name, required state, type constraints, and direct/indirect read source. Store no values.
-2. SDK-CONNECTOR-CONTROL-R053.2: Plan SDK environment_manifest to list declarations for every enabled SDK component and transitive setting. This producer is absent from the public SDK surface.
-3. SDK-CONNECTOR-CONTROL-R053.3: Bind the SDK export to HostEnvironmentManifest. Use producer `GRAPHOS-HOST-R010.2` and consumer `GRAPHOS-HOST-R010.4`. The SDK path remains unassigned. Do not duplicate the schema or validator. AU declarations stay AU-owned.
-4. SDK-CONNECTOR-CONTROL-R053.4: Refuse startup before serving on missing, malformed, or undeclared inputs. Name the input where required. Never reveal its value.
-5. SDK-CONNECTOR-CONTROL-R053.5: Bind declaration digest, component versions, enabled set, schema revision, validation outcome, and host decision. Persist names and constraints, never values.
-6. SDK-CONNECTOR-CONTROL-R053.6: Future served tests cover enabled components and indirect reads. Test missing, malformed, and undeclared inputs. Confirm no route admission and redact secret values.
+
+Component: SDK environment declaration producer
+
+Depends-on: SDK-CONNECTOR-CONTROL-R016, SDK-CONNECTOR-CONTROL-R029, [GraphOS host contract](https://github.com/Knuckles-Team/graph-os/blob/7af96428d92ffbdd963515f7b129d1ad4132e462/specs/host-composition-boundary/spec.md)
+
+Code: ../../agent_connector_sdk/config.py:35
+
+Code: ../../agent_connector_sdk/config.py:75
+
+Code: ../../agent_connector_sdk/credentials/resolver.py:36
+
+Code: ../../agent_connector_sdk/mcp/tool_surface.py:102
+
+Code: ../../agent_connector_sdk/config_git.py:8
+
+Implement environment_declarations(*, source_revision, dynamic_bindings=()) in the existing public config module.
+Return EnvironmentDeclarationExport with the immutable declarations tuple and EnvironmentDeclarationReceipt.
+An available export requires receipt outcome available and an empty unresolved_call_sites list.
+On refusal, raise EnvironmentDeclarationError carrying a refused receipt and no declaration fragment.
+Use null for unavailable revisions or digests; never substitute empty-set digests.
+This result is a public SDK transport container, not a replacement host manifest.
+GraphOS must wrap those exact row fields under its schema_version and declarations keys.
+Its R010.2 composer must call this export before R010.3 startup validation and R010.4 conditional resolution.
+The planned host implementation must import the public config module, never SDK private configuration internals.
+The export and host composer are absent today; implementation acceptance remains pending.
+
+EnvironmentReadBinding must identify a source call site, owning distribution and exact input name.
+It must reference the owner's declared condition, type, default and sensitivity constraints.
+Resolve conditions using the host contract's typed condition representation; never evaluate expression strings or environment values in the export.
+If that representation cannot express an owner condition, return an unsupported-condition refusal and retain the producer dependency.
+Do not infer requiredness or secret status from the current process environment.
+Validate the supplied immutable source revision against the pinned package artifact used by the fixture or composition root.
+
+Build the census from all tracked SDK Python files and declared dependency read paths.
+Record path, line, source digest, accessor form and resolved literal or explicit dynamic binding.
+Classify the implementation of setting as an accessor whose callers must all be bound.
+Do not count its generic key argument as an independent declaration or ignore unbound callers.
+The config and visibility readers are only part of this census.
+Include runner, server, parser, registry, auth, credential, ingest, TLS and privacy readers.
+Dynamic families include library_state's base_setting, tool_surface's derived tag name, network_inputs' setting_name and credential env-reference targets.
+TLS prefix/suffix combinations also require explicit owner bindings.
+config_git forwards an inherited environment after filtering Git selectors.
+That forwarding is not a declaration producer; bind its downstream consumers or keep the forwarding edge unresolved.
+An unreadable file, unresolved alias, indirect read or unclassified call site must block a complete export.
+
+Deduplicate names only when types, defaults, sensitivity and required conditions agree.
+Combine sorted call_sites for compatible declarations; a conflict must return a typed refusal.
+Safe static defaults belong in declarations because the host schema requires them.
+Live values, sensitive defaults and resolved credential references never belong in the export or its receipt.
+Preserve existing setting coercion and precedence while the host performs stricter startup validation.
+
+```mermaid
+flowchart LR
+  S[SDK source census and owner bindings] --> E[Public environment_declarations]
+  E --> D[SDK declaration rows and receipt]
+  D --> H[Planned GraphOS manifest composer]
+  A[Separate AU declaration producer] --> H
+  H --> V[Host condition resolution and validation]
+  V --> L[Launcher before listeners or children]
+```
+
+Implement the six R053 children in order: model, census behavior, public export wiring, refusal, evidence and served proof.
+Use seed 53 for deterministic valid, missing, malformed, dynamic and disabled-component fixtures.
+The real host fixture must import the SDK operation and observe actual listener and child-process counts.
+SDK-only census checks cannot substitute for host launcher acceptance or claim AU producer completeness.
 
 ### JSON tag-loader migration
 

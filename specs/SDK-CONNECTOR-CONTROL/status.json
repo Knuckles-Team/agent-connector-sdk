@@ -1275,7 +1275,7 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R053",
-      "title": "SDK environment declarations for GRAPHOS:9",
+      "title": "SDK environment declaration export",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": [],

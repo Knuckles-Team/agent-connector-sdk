@@ -214,3 +214,27 @@ Missing source fixtures must fail; import scans and mocked dispatch alone cannot
 
 Every comparison must name the exact source_operation_id, target_operation_id and target_registration from the inventory.
 Duplicate source or target mappings and unpaired schema/refusal evidence must fail reconstruction.
+
+## SDK environment declaration acceptance
+
+Seed 53 must pin SDK and GraphOS package revisions and all source census inputs.
+Import environment_declarations through the installed public config module.
+List every SDK literal reader and each explicit dynamic binding independently of the exporter.
+Test unknown files, aliases, missing bindings, duplicate names, conflicting defaults and unsupported conditions.
+Test inherited-environment forwarding with a complete downstream binding and with an unresolved edge.
+A missing export must refuse; it must never produce an empty successful manifest fragment.
+Assert that EnvironmentDeclarationError carries a refused receipt and no declarations.
+Every available export must have outcome available and no unresolved call sites.
+Shuffle file and binding order and compare canonical rows, declaration digests and census digests.
+Inject distinct secret canaries through process configuration and credential references.
+Assert none appears in exported rows, receipts, errors, logs or diagnostic output.
+Safe static defaults and null must retain the host schema's exact meaning.
+
+The served fixture must run the real GraphOS launcher with the installed SDK export and controlled remaining owner manifests.
+Valid enabled components must start and serve a probe.
+Missing required settings, malformed values and unresolved declarations must open zero listeners and start zero children.
+Enable and disable the same conditional component; only the enabled case must require its credential.
+Denied startup must retain component, input name and typed reason without the value.
+Record host and SDK revisions, fixture seed, manifest and census digests, process exit and independently observed effect counts.
+The host records its own decision; the SDK export receipt supplies no startup authority.
+Missing host or AU producer implementation keeps the corresponding served acceptance pending.

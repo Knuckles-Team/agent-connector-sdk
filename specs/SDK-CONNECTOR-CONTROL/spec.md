@@ -162,21 +162,15 @@ The SDK transports visual observations and provenance between steps. EG owns dur
 
 **SDK-CONNECTOR-CONTROL-R052.6 — Hot-path proof.** Future served tests cross MCP tools/call, EG state write/readback, and AU next-step use. Prove same-run reuse, cross-run isolation, and stale-reference refusal.
 
-## SDK environment declarations for GRAPHOS:9 (R053.1-R053.6)
+## SDK environment declaration export
 
-The SDK declares environment inputs used by enabled SDK components, including indirect reads. GraphOS owns startup validation; AU owns AU declarations. Source trace: `GRAPHOS:9 cfd8f1270b5ec1f19d8c78f50e5a833695573763a691584e8c74d8fa5f1cb225`.
-
-**SDK-CONNECTOR-CONTROL-R053.1 — Model.** Define versioned EnvironmentDeclaration records. Include component/distribution, schema revision, input name, required state, type constraints, and direct/indirect read source. Store no values.
-
-**SDK-CONNECTOR-CONTROL-R053.2 — Behavior.** Plan SDK environment_manifest to list declarations for every enabled SDK component and transitive setting. This producer is absent from the public SDK surface.
-
-**SDK-CONNECTOR-CONTROL-R053.3 — Wiring.** Bind the SDK declaration export to GraphOS HostEnvironmentManifest. Use producer `GRAPHOS-HOST-R010.2` and startup consumer `GRAPHOS-HOST-R010.4`. Keep the SDK export path unassigned until its owner names it. Do not duplicate the schema or validator. AU declarations stay AU-owned.
-
-**SDK-CONNECTOR-CONTROL-R053.4 — Refusal.** Refuse startup before serving on missing, malformed, or undeclared inputs. Name the input where required. Never reveal its value.
-
-**SDK-CONNECTOR-CONTROL-R053.5 — Evidence.** Bind declaration digest, component versions, enabled set, schema revision, validation outcome, and host decision. Persist names and constraints, never values.
-
-**SDK-CONNECTOR-CONTROL-R053.6 — Hot-path proof.** Future served tests cover enabled components and indirect reads. Test missing, malformed, and undeclared inputs. Confirm no route admission and redact secret values.
+R053 defines the planned public environment_declarations operation in agent_connector_sdk.config.
+It exports only SDK-owned declarations and deterministic census evidence.
+GraphOS composes the host manifest and owns all startup validation and admission decisions.
+The SDK must preserve configuration precedence, typed coercion and value-free diagnostics.
+The host composer and AU producer remain separate prerequisites.
+R053's six children define model, behavior, wiring, refusal, evidence and served acceptance.
+No current export or successful served startup is claimed.
 
 ## JSON tag-loader migration
 
