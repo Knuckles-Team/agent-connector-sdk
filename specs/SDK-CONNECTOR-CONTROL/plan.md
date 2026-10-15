@@ -524,3 +524,11 @@ Component health endpoint states explicitly separate unconfigured components fro
 ### R060.1-R060.6: EG scaling proposal → GraphOS capacity application → applied-state receipt
 
 EG supplies scaled-hosting proposals based on load and headroom premises. GraphOS applies the proposal and confirms accepted scaling in hosted application state. Scaling actuation loop closes when applied state is recorded and acknowledged by EG.
+
+## SDK-CONNECTOR-CONTROL-R067
+
+R067.1-R067.6: EG viewport query -> SDK export operation -> artifact bytes -> caller. The engine supplies chart data, the SDK renders it, and graph-os serves the operation.
+
+```text
+EG viewport query -> SDK export operation -> artifact bytes -> caller
+```
