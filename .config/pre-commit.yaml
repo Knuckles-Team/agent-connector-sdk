@@ -17,27 +17,38 @@ repos:
   rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
   hooks:
   - id: check-added-large-files
+    stages: [pre-commit]
     args: ["--maxkb=2000"]
     exclude: ^uv\.lock$
-  - id: check-ast
   - id: check-yaml
+    stages: [pre-commit]
   - id: check-toml
+    stages: [pre-commit]
   - id: check-json
+    stages: [pre-commit]
   - id: fix-byte-order-marker
+    stages: [pre-commit]
   - id: check-merge-conflict
+    stages: [pre-commit]
   - id: detect-private-key
+    stages: [pre-commit]
   - id: trailing-whitespace
+    stages: [pre-commit]
   - id: end-of-file-fixer
+    stages: [pre-commit]
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: cb8c523fd4835aba42af70f4cad5568db4df0b6c # v0.16.0
   hooks:
   - id: ruff-check
+    stages: [pre-commit]
     args: ["--fix"]
   - id: ruff-format
+    stages: [pre-commit]
 - repo: https://github.com/jendrikseipp/vulture
   rev: b0f67ba0044693aa9ec0d38fe460590facc98004 # v2.16
   hooks:
   - id: vulture
+    stages: [pre-push]
     pass_filenames: false
     args: ["agent_connector_sdk", "--min-confidence", "95"]
     require_serial: true
@@ -45,6 +56,7 @@ repos:
   rev: 2ccb47ff45ad361a21071a7eedda4c37e6ae8c5a # v2.4.2
   hooks:
   - id: codespell
+    stages: [pre-push]
     # "opps" is the CRM-domain abbreviation for "opportunities" (Salesforce,
     # Twenty vendor extractors), not a misspelling of "oops".
     args: ["-L", "opps"]
@@ -52,15 +64,16 @@ repos:
   rev: 92ae8b82fb422a639f0ed8d99e96cea769594e08 # 1.9.4
   hooks:
   - id: bandit
+    stages: [pre-push]
     exclude: ^(tests/|scripts/)
 - repo: https://github.com/astral-sh/uv-pre-commit
   rev: 6a280ba12b7901e47757c868c8c13c6a624c9ecb # 0.11.7
   hooks:
   - id: uv-lock
+    stages: [manual]
     args: ["--locked"]
     # The SDK consumes a generated EG contract before its matching wheel is
     # published. Resolve against the public index only at release time.
-    stages: [manual]
 # ── Shared gates (Knuckles-Team/pipelines, pinned) ─────────────────────────────
 - repo: https://github.com/Knuckles-Team/pipelines
   rev: main # sanctioned exception to immutable pins; shared gate repository tracked at head
@@ -87,56 +100,56 @@ repos:
   # spec-status lifecycle: schema_version 2 status.json, decomposition size
   # caps, and (pre-push) the delivering-commit `Spec: <ID>` trailer.
   - id: spec-status
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   - id: spec-decomposition
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   - id: spec-standard
     stages: [pre-commit, manual]
   - id: spec-trailers
     stages: [pre-push, manual]
   # code shape
   - id: no-stub
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   - id: stubs
+    stages: [pre-push, manual]
     exclude: ^tests/
-    stages: [pre-commit, manual]
   - id: env-sprawl
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   - id: stdout-writes
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   # public documentation
   - id: public-surface
     stages: [pre-commit, manual]
   - id: ste-staged
     stages: [pre-commit, manual]
   - id: ste-staleness-staged
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   - id: swallowed-errors
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   - id: event-loop-blocking
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   - id: import-cycles
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   # supply chain, secrets, privacy, hygiene. No gate calls an external
   # service: the OSV dependency-audit hook is deliberately not enabled.
   - id: supply-chain
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   - id: secret-history
     stages: [pre-push, manual]
   - id: security-sanitizer
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   # Needs the operator-owned identity catalog, which is never committed; CI
   # runs it when the PROHIBITED_IDENTITY_CATALOG repository variable is set.
   - id: tracked-privacy
     stages: [manual]
   - id: root-hygiene
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   - id: gitignore-convergence
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   - id: sprawl
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   - id: mermaid
-    stages: [pre-commit, manual]
+    stages: [pre-push, manual]
   - id: pre-commit-patch-safety
     stages: [pre-push, manual]
 - repo: local
@@ -145,6 +158,7 @@ repos:
   # scripts/bootstrap.sh prepares these dependencies and the source-only EG
   # contract; --no-sync prevents a hook from resolving/installing EG from Git.
   - id: mypy
+    stages: [pre-push]
     name: mypy (strict, project environment)
     entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && PYTHONPATH=.ci/epistemic-graph uv run --frozen --no-sync python -m mypy agent_connector_sdk'
     language: system
