@@ -478,7 +478,7 @@ Scope the policy to ApiKeyAuth because the SDK documents no provider cookie-sess
 
 ## GraphOS producer-consumer handoff for AU disclosure-set gate (SDK-CONNECTOR-CONTROL-R055)
 
-Real served producer/consumer handoff for disclosed and undisclosed tools. GraphOS authorized find (registry/discovery; intent find) returns tool facts. EG Decide ToolRelevance consumes them. AU execute_agent routes through factory DisclosureSet gate. The current AU plan names the ownership. Exact served cross-owner positive/negative acceptance proves the handoff.
+Real served producer/consumer handoff for disclosed and undisclosed tools. GraphOS authorized find (registry/discovery; intent find) returns tool facts. EG Decide ToolRelevance consumes them. AU `execute_agent` routes through factory DisclosureSet gate. The current AU plan names the ownership. Exact served cross-owner positive/negative acceptance proves the handoff.
 
 ## EG and SDK tool producer compatibility decisions (SDK-CONNECTOR-CONTROL-R056)
 
