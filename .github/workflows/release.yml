@@ -255,7 +255,6 @@ jobs:
     environment: pypi
     permissions:
       contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
@@ -270,4 +269,6 @@ jobs:
       - name: Require a published dependency resolution before release
         run: uv lock --check
       - name: Publish the validated wheel
-        run: uv publish --trusted-publishing always dist/*.whl
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: uv publish dist/*.whl
