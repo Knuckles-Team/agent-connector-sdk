@@ -505,6 +505,46 @@ HS-13.6 exercises served discovery for every approved entry. It reads generated 
 
 EG and GraphOS owners must publish exact counterpart IDs before implementation. This SDK packet does not invent them.
 
+## Scheduled paper sourcing (SDK-SOURCE-INGEST-R005.25 through R005.30)
+
+Scheduled job cycles at six-hour boundaries with owned paper proposals. Each cycle retrieves relevance scores from EG producer against platform and graph goals. Selection applies per-goal admission thresholds. Accepted papers link their ingestion receipts to the job run before committing. Durable job clock and run identity enable deduplication and restart.
+
+The scheduled job is distinct from R005.1-R005.6 paper provider search; this contract covers job-owned cycling and admission gates.
+
+EG owns relevance producer and admission decision. SDK claims jobs, applies selection and produces durable receipts.
+
+## Citation-edge paper extraction (SDK-SOURCE-INGEST-R005.31 through R005.36)
+
+Paper records carry source-attributed metadata and native citation-edge declarations. Extraction edges enter EG assertion directly. Per-paper metadata-extraction refusal preserves healthy papers. Unidentified-paper identity allows missing metadata when documents are unavailable.
+
+Distinct from R005.1-R005.6 basic provider contract; this segment covers citation graph construction and per-paper failure handling.
+
+SDK transports facts; EG asserts edges and resolves semantics.
+
+## Incremental repository indexing (SDK-SOURCE-INGEST-R004.13 through R004.18)
+
+Delta indexing computes indexes only for changed files within declarative memory and completion bounds. Semantic type resolution binds language matrix and optional analysis mode. Peak memory prevents unbounded growth; resource release completes all in-memory structures after indexing.
+
+This extends R004.1-R004.6 SQL execution with incremental content indexing and type semantics.
+
+SDK enforces bounds; EG owns type authority and semantic interpretation.
+
+## Paper throughput and purge policy (SDK-SOURCE-INGEST-R015)
+
+EG measures observed paper ingestion throughput (papers per window) and decides maintenance when below target. Purge authorization binds goal identity, safe-purge policy and candidate set. SDK applies authorization and durable deletion before checkpoint advance. Below-threshold status is visible with distinct reason.
+
+New rollup distinct from R005 source contracts.
+
+EG owns decision; SDK enforces observation and authorized maintenance.
+
+## Media vision enrichment (SDK-SOURCE-INGEST-R016)
+
+Designated vision producer infers object and context tags from bounded image/thumbnail input. Tags attach to media records with model and source provenance. Unauthorized or fabricated tags refuse before ingestion. Identical media with the same producer returns stable tag set.
+
+New rollup for media modality enrichment.
+
+Producer owns inference; SDK transports and attaches results through EG authorization.
+
 ## Live meeting and summary transport (R014)
 
 **Ownership.** SDK owns transport and receipt linkage. Audio-transcriber owns transcribe_audio. EG owns transcript/context authority. GraphOS owns authorized operations. WebUI owns capture and display through WEBUI-APPS-R001.5.
