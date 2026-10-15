@@ -1,0 +1,70 @@
+name: Build
+
+# Reproducible wheel build and installed-wheel compatibility check. Reusable:
+# gates.yml calls it on a push to main (no upload beyond the 7-day candidate
+# artifact); release.yml calls it for a v* tag or dispatch, then publishes.
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Git ref to build; empty builds the triggering ref.
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "homelab"]') || 'ubuntu-latest' }}
+    timeout-minutes: 60
+    env:
+      SOURCE_DATE_EPOCH: "0"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.11.7'
+          # SDK-QUALITY-RELEASE-R003: pin the managed interpreter here too --
+          # this job builds the released wheel, so it must never fall back to
+          # the hosting runner's system Python the way the gates job's own
+          # explicit pin already prevents.
+          python-version: '3.12'
+      - name: Build the wheel twice
+        run: |
+          uv build --wheel --out-dir dist-primary
+          uv build --wheel --out-dir dist-reproduction
+      - name: Require byte-identical wheels
+        run: |
+          python3 -c "from hashlib import sha256; from pathlib import Path; a=sorted(Path('dist-primary').glob('*.whl')); b=sorted(Path('dist-reproduction').glob('*.whl')); assert len(a)==len(b)==1 and a[0].name==b[0].name; assert sha256(a[0].read_bytes()).digest()==sha256(b[0].read_bytes()).digest(), 'wheel is not reproducible'; print('reproducible', a[0].name)"
+          mkdir dist
+          cp dist-primary/*.whl dist/
+      - name: Download the epistemic-graph engine wheel (engine-main release)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Plain curl against the releases API: the self-hosted runners have no gh CLI.
+        run: |
+          set -euo pipefail
+          mkdir -p dist-engine
+          api=https://api.github.com/repos/Knuckles-Team/epistemic-graph/releases/tags/engine-main
+          url=$(curl --fail --silent --show-error --location \
+            -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$api" \
+            | python3 -c "import json,sys,fnmatch; a=[x['browser_download_url'] for x in json.load(sys.stdin)['assets'] if fnmatch.fnmatch(x['name'],'epistemic_graph-*manylinux*x86_64.whl')]; print(a[0])")
+          curl --fail --silent --show-error --location --retry 3 -H "Authorization: Bearer $GH_TOKEN" \
+            --output "dist-engine/$(basename "$url")" "$url"
+          ls -l dist-engine
+      - name: Verify the installed wheel against the published graph-client (SDK-QUALITY-RELEASE-R001)
+        run: python3 scripts/check_wheel_consumer_compatibility.py --wheel dist/*.whl --engine-wheel dist-engine/epistemic_graph-*.whl
+      - name: Upload the publish candidate
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: agent-connector-sdk-wheel
+          path: dist/*.whl
+          if-no-files-found: error
+          retention-days: 7

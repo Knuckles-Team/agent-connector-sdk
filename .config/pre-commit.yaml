@@ -107,6 +107,9 @@ repos:
     stages: [pre-commit, manual]
   - id: spec-trailers
     stages: [pre-push, manual]
+  # affected tests only, 120 s cap; CI runs the same subset in the shared gates step
+  - id: fast-tests
+    stages: [pre-push]
   # code shape
   - id: no-stub
     stages: [pre-push, manual]
@@ -170,21 +173,21 @@ repos:
     language: system
     pass_filenames: false
     always_run: true
-    stages: [manual, pre-push]
+    stages: [manual]
   - id: wheel-build
     name: package build
     entry: bash -c 'uv build --out-dir "$(mktemp -d)/dist"'
     language: system
     pass_filenames: false
     always_run: true
-    stages: [manual, pre-push]
+    stages: [manual]
   - id: mkdocs-build
     name: documentation build (strict)
     entry: bash -c 'bash scripts/bootstrap_pipeline_theme.sh && uv run --frozen --no-sync --group docs mkdocs build --strict -d "$(mktemp -d)"'
     language: system
     pass_filenames: false
     always_run: true
-    stages: [manual, pre-push]
+    stages: [manual]
   # ── Docs contract ──────────────────────────────────────────────────────────
   - id: check-external-graph-contract
     name: External-graph docs — required markers + no environment literals
