@@ -486,7 +486,7 @@ SDK tool schema authority and EG prompt authority must jointly decide nested inc
 
 ## Replaceable search-grounding provider (SDK-CONNECTOR-CONTROL-R057)
 
-Search grounding provider is independently selected from reasoning model and bound to a committed route. Unavailable committed provider refuses. EG produces binding; SDK/GraphOS consumer executes the exact committed provider with no alternates.
+Search grounding provider is independently selected from reasoning model and bound to a committed route. Unavailable committed provider refuses. EG produces binding; SDK/GraphOS consumer runs the exact committed provider with no alternates.
 
 ## Request durability boundary (SDK-CONNECTOR-CONTROL-R058)
 
