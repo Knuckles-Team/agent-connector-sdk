@@ -507,7 +507,7 @@ EG and GraphOS owners must publish exact counterpart IDs before implementation. 
 
 ## Scheduled paper sourcing (SDK-SOURCE-INGEST-R005.25 through R005.30)
 
-Scheduled job cycles at six-hour boundaries with owned paper proposals. Each cycle retrieves relevance scores from EG producer against platform and graph goals. Selection applies per-goal admission thresholds. Accepted papers link their ingestion receipts to the job run before committing. Durable job clock and run identity enable deduplication and restart.
+Scheduled job cycles at six-hour boundaries with owned paper proposals. Each cycle fetches relevance scores from EG producer against platform and graph goals. Selection applies per-goal admission thresholds. Accepted papers link their ingestion receipts to the job run before committing. Durable job clock and run identity support deduplication and restart.
 
 The scheduled job is distinct from R005.1-R005.6 paper provider search; this contract covers job-owned cycling and admission gates.
 
