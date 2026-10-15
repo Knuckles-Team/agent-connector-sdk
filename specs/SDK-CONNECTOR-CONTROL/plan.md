@@ -464,7 +464,7 @@ These transport hashes do not replace certification pins or R002/R003 normalizat
 
 Scope the policy to ApiKeyAuth because the SDK documents no provider cookie-session auth. Strip outbound Cookie and inbound Set-Cookie at the sync/async governed transport boundary. Preserve authentication, origin, TLS, redirect, and retry controls. Test sequential exchanges across status codes and concurrent use of one shared client with synthetic transports. Require downstream native MCP login and cross-caller acceptance against the immutable SDK revision.
 
-## Host provider interface and cross-spec producer bindings (SDK-CONNECTOR-CONTROL-R055 to R060)
+## Host provider interface and cross-spec producer bindings (SDK-CONNECTOR-CONTROL-R061 to R060)
 
 ### R055.1-R055.6: GraphOS host-management consumer → SDK provider interface → OS service/log adapters
 
