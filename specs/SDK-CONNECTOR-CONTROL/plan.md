@@ -478,9 +478,9 @@ EG produces final attestation decisions tied to decision request digests. AU con
 
 SDK and AU each export immutable environment-declaration sets listing settings, secrets and indirect reads their components require. GraphOS launcher composes and validates the merged declarations during startup. No live environment read occurs during export. Dynamic reads require explicit binding entries.
 
-### R058.1-R058.6: GraphOS deployment → default vault endpoint and root-bundle → all components verified
+### R058.1-R058.6: GraphOS deployment → default vault endpoint and root-bundle → all components checked
 
-GraphOS guided deployment selects default vault storage and enterprise root certificate bundle. The bundle propagates and verifies at every touched component during startup. Certificate verification is mandatory, never bypassed. Guided setup documents the complete propagation matrix.
+GraphOS guided deployment selects default vault storage and enterprise root certificate bundle. The bundle propagates and gets checked at every touched component during startup. Certificate checking is mandatory, never bypassed. Guided setup documents the complete propagation matrix.
 
 ### R059.1-R059.6: GraphOS component configuration → health state → alert evaluation
 
