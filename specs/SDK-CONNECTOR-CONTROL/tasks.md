@@ -133,3 +133,42 @@ Runtime work and test execution remain outstanding.
 - [ ] SDK-CONNECTOR-CONTROL-R028.3: Keep API-key identity header-based; do not add cookie-session auth or storage.
 - [ ] SDK-CONNECTOR-CONTROL-R028.3: Strip request and response cookies for every API-key status in sync and async clients.
 - [ ] SDK-CONNECTOR-CONTROL-R028.3: Prove other auth strategies, transport controls, and downstream cross-caller behavior remain correct.
+
+## Host provider interface and cross-spec producer bindings
+
+- [ ] **SDK-CONNECTOR-CONTROL-R055.1:** Define ProviderPlatformInterface model with service operations and supported platforms.
+- [ ] **SDK-CONNECTOR-CONTROL-R055.2:** Provide read-only registry keyed by service, operation and platform.
+- [ ] **SDK-CONNECTOR-CONTROL-R055.3:** Wire platform interface into existing host service lifecycle calls.
+- [ ] **SDK-CONNECTOR-CONTROL-R055.4:** Refuse unsupported platform, unknown operation and undeclared refusal types.
+- [ ] **SDK-CONNECTOR-CONTROL-R055.5:** Record queried service, operation, platform and matched interface digest.
+- [ ] **SDK-CONNECTOR-CONTROL-R055.6:** Verify host-management consumer queries platform-native commands correctly for each OS.
+- [ ] **SDK-CONNECTOR-CONTROL-R056.1:** Define CertificationAttestation model with decision and AU consumer binding.
+- [ ] **SDK-CONNECTOR-CONTROL-R056.2:** EG produces attestation; AU consumes and acts on accepted decisions.
+- [ ] **SDK-CONNECTOR-CONTROL-R056.3:** Wire EG producer and AU consumer through existing identity bindings.
+- [ ] **SDK-CONNECTOR-CONTROL-R056.4:** Refuse unknown outcome values and missing identity bindings.
+- [ ] **SDK-CONNECTOR-CONTROL-R056.5:** Record decision digest, attestation outcome and AU actor/tenant binding.
+- [ ] **SDK-CONNECTOR-CONTROL-R056.6:** Verify AU accepts/rejects attestations and seals EG decision trace.
+- [ ] **SDK-CONNECTOR-CONTROL-R057.1:** Define EnvironmentDeclaration model with all required field categories.
+- [ ] **SDK-CONNECTOR-CONTROL-R057.2:** SDK and AU export immutable declaration sets from component usage census.
+- [ ] **SDK-CONNECTOR-CONTROL-R057.3:** Wire public environment_declarations operation into GraphOS launcher.
+- [ ] **SDK-CONNECTOR-CONTROL-R057.4:** Refuse missing revision, conflicting declarations and unresolved dynamic reads.
+- [ ] **SDK-CONNECTOR-CONTROL-R057.5:** Emit EnvironmentDeclarationExport with reproducible declaration digest.
+- [ ] **SDK-CONNECTOR-CONTROL-R057.6:** Verify GraphOS launcher accepts SDK and AU declaration exports and validates startup.
+- [ ] **SDK-CONNECTOR-CONTROL-R058.1:** Define VaultStorageConfig and RootBundleManifest models with propagation matrix.
+- [ ] **SDK-CONNECTOR-CONTROL-R058.2:** Guided deployment offers default vault and bundle; components verify every upstream peer.
+- [ ] **SDK-CONNECTOR-CONTROL-R058.3:** Wire bundle loading into HTTP client and launcher startup initialization.
+- [ ] **SDK-CONNECTOR-CONTROL-R058.4:** Refuse missing vault endpoint, root bundle or failed certificate chain verification.
+- [ ] **SDK-CONNECTOR-CONTROL-R058.5:** Record vault endpoint, bundle digest and propagation matrix revision.
+- [ ] **SDK-CONNECTOR-CONTROL-R058.6:** Verify guided deployment propagates bundle and startup fails on unverified certificate.
+- [ ] **SDK-CONNECTOR-CONTROL-R059.1:** Define ComponentHealthState distinguishing not-configured from configured-but-unavailable.
+- [ ] **SDK-CONNECTOR-CONTROL-R059.2:** Unconfigured and disabled components suppress alerts automatically.
+- [ ] **SDK-CONNECTOR-CONTROL-R059.3:** Wire health state classification into GraphOS /health endpoint and alert evaluation.
+- [ ] **SDK-CONNECTOR-CONTROL-R059.4:** Refuse unknown state values and contradictory configuration pairs.
+- [ ] **SDK-CONNECTOR-CONTROL-R059.5:** Record component state, configuration status and alert suppression reason.
+- [ ] **SDK-CONNECTOR-CONTROL-R059.6:** Verify /health endpoint reports all states and alerts suppress for non-enabled components.
+- [ ] **SDK-CONNECTOR-CONTROL-R060.1:** Define ScalingProposal and AppliedScalingState models with strategy choices.
+- [ ] **SDK-CONNECTOR-CONTROL-R060.2:** EG generates proposal; GraphOS accepts/rejects and records applied state.
+- [ ] **SDK-CONNECTOR-CONTROL-R060.3:** Wire EG proposal producer and GraphOS capacity consumer with applied-state receipt.
+- [ ] **SDK-CONNECTOR-CONTROL-R060.4:** Refuse invalid premises and incompatible strategies without partial application.
+- [ ] **SDK-CONNECTOR-CONTROL-R060.5:** Record proposal load/headroom premises, applied instance count and loop closure.
+- [ ] **SDK-CONNECTOR-CONTROL-R060.6:** Verify EG generates proposal, GraphOS applies it and loop closes on receipt.
