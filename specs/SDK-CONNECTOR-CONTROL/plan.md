@@ -269,7 +269,7 @@ These shared typed refusals stop persistence readiness and operation continuatio
 
 ## Condensed registration and JSON loader migration (SDK-CONNECTOR-CONTROL-R020.1)
 
-JSON tag-loader migration inventory binds each loader to its source and target operation. The SDK provides the reusable census and served parity gate. Preserve condensed default (R020) and explicit opt-ins (R026, R032) across both source and replacement registrations. Migration must prove that all operations, schemas, tags, authorization and refusals survive the move. The gate compares source and target servers end-to-end before replacement.
+JSON tag-loader migration inventory binds each loader to its source and target operation. The SDK supplies the reusable census and the served parity gate. Preserve condensed default (R020) and explicit opt-ins (R026, R032) across both source and replacement registrations. Migration must prove that all operations, schemas, tags, authorization and refusals survive the move. The gate compares source and target servers end-to-end before replacement.
 
 Data flow: inventory → parity gate → operation comparison → schema/tag/auth/refusal check → served tools/list and tools/call → backend assertions.
 
@@ -494,7 +494,7 @@ Identify exact deployment/profile default and explicit ephemeral versus durable 
 
 ## EG capability-to-existing-method bindings (SDK-CONNECTOR-CONTROL-R059)
 
-Five existing EG public capabilities map to existing EG methods without new engine code: analogy search, blast radius, memory recall, ontology validation and design. AU legacy action mappings identify the bindings. Preserve R023 transport and refusal obligations.
+Five existing EG public capabilities map to existing EG methods without new engine code. They are analogy search, blast radius, memory recall, ontology validation and design. AU legacy action mappings identify the bindings. Preserve R023 transport and refusal obligations.
 
 ## Native desktop operation port (SDK-CONNECTOR-CONTROL-R060)
 
