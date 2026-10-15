@@ -468,7 +468,7 @@ Scope the policy to ApiKeyAuth because the SDK documents no provider cookie-sess
 
 ### R055.1-R055.6: GraphOS host-management consumer → SDK provider interface → OS service/log adapters
 
-The SDK defines shared typed service and log interfaces mapping operations to native tooling on Linux, Windows and macOS. GraphOS host-management consumer queries the interface registry and executes platform-native commands. Service start, stop, restart and log-read operations are enumerated with unified parameters and return schemas across platforms.
+The SDK defines shared typed service and log interfaces mapping operations to native tooling on Linux, Windows and macOS. GraphOS host-management consumer queries the interface registry and runs platform-native commands. Service start, stop, restart and log-read operations are enumerated with unified parameters and return schemas across platforms.
 
 ### R056.1-R056.6: EG attestation → AU orchestration consumer → GraphOS invoke validation
 
@@ -478,7 +478,7 @@ EG produces final attestation decisions tied to decision request digests. AU con
 
 SDK and AU each export immutable environment-declaration sets listing settings, secrets and indirect reads their components require. GraphOS launcher composes and validates the merged declarations during startup. No live environment read occurs during export. Dynamic reads require explicit binding entries.
 
-### R058.1-R058.6: GraphOS deployment → default vault endpoint and root-bundle → all components verified
+### R058.1-R058.6: GraphOS deployment → default vault endpoint and root-bundle → all components checked
 
 GraphOS guided deployment selects default vault storage and enterprise root certificate bundle. The bundle propagates and verifies at every touched component during startup. Certificate verification is mandatory, never bypassed. Guided setup documents the complete propagation matrix.
 
@@ -488,4 +488,4 @@ Component health endpoint states explicitly separate unconfigured components fro
 
 ### R060.1-R060.6: EG scaling proposal → GraphOS capacity application → applied-state receipt
 
-EG provides scaled-hosting proposals based on load and headroom premises. GraphOS applies the proposal and confirms accepted scaling in hosted application state. Scaling actuation loop closes when applied state is recorded and acknowledged by EG.
+EG supplies scaled-hosting proposals based on load and headroom premises. GraphOS applies the proposal and confirms accepted scaling in hosted application state. Scaling actuation loop closes when applied state is recorded and acknowledged by EG.
