@@ -10,6 +10,8 @@
 - [ ] **R014.1:** Add `scan_many_packages` to `agent_connector_sdk.testing.fleet_migration` — one call site that scans several package roots and keys each `PackageScanResult` by name, reused by R014's fleet census and every R009-R013 batch scan.
 - [ ] **R015.1:** Add `scan_for_duplicate_manifest_or_certify_definitions` to `agent_connector_sdk.testing.duplicate_symbol_scan` — flags a connector package that locally defines `ConnectorManifest`/`CertificationReport`/`certify_connector` instead of importing them from the SDK.
   - [x] Port `agent_utilities.security.entitlements.identity_scoped_resources` to `agent_connector_sdk.entitlements`, over the SDK's own `identity.ActorContext` (SDK-CONNECTOR-CONTROL-R025). A fleet consumer (`vector-mcp`, `documentdb-mcp`, `sql-mcp`, `dockerhub-api`, `keycloak-agent`, `openbao-mcp`, `portainer-agent`, `tunnel-manager`, `systems-manager`, `container-manager-mcp` and others) can now swap its import with no call-site change.
+- [ ] **R020.1:** Extend `scan_many_packages` to inventory JSON tag loaders and prove parity across source and replacement registration.
+- [ ] **R050.7:** Add visual observation transport between ordered steps within a run, with frame provenance and ordered reference passing.
   - [x] Add `agent_connector_sdk.mcp.method_tools.register_method_tools`, an explicit opt-in primitive deriving one tool per public client-class method (SDK-CONNECTOR-CONTROL-R026). `data-science-mcp`'s `mcp_server.py` stays on `agent_utilities.mcp.verbose_tools.register_tool_surface` for exactly this (its own code comment names the gap as SDK-CONNECTOR-CONTROL-R009). It can now migrate without losing its per-`MLEngine`-method tool surface.
 - [ ] Attach exact merged commit, artifact digest, CI result, typed SQL receipt and live redacted pack receipt. Mark accepted only when CC-01–CC-10 pass.
 - [x] Verify every connector uses the shared TLS profile with no bare verify-bypass, and that the full test suite, strict type check and docs build pass cleanly from a fresh checkout (SDK-CONNECTOR-CONTROL-R017, SDK-CONNECTOR-CONTROL-R018).
@@ -48,6 +50,12 @@
   - [ ] **R047.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R047.3).
   - [ ] **R047.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R047.4).
   - [ ] **R047.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R047.5).
+- [ ] **R055:** GraphOS producer-consumer handoff for AU disclosure-set gate. Bind GraphOS find, EG ToolRelevance, and AU DisclosureSet gate.
+- [ ] **R056:** EG and SDK tool producer compatibility decisions and receipts. Bind at schema-fingerprint/FleetOnboarding.onboard.
+- [ ] **R057:** Replaceable search-grounding provider independent of reasoning model. Test provider/model independence.
+- [ ] **R058:** Request durability boundary correction. Separate transport selection from durability class.
+- [ ] **R059:** EG capability-to-existing-method bindings. Map five capabilities to existing EG methods.
+- [ ] **R060:** Native desktop operation port and no-cursor/no-focus invariant. Served tests with grant-bound refusal.
   - [ ] **R047.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R047.6).
 - [ ] **R048:** Agent-readable text form in tool contracts. (SDK-CONNECTOR-CONTROL-R048).
   - [ ] **R048.1:** Model row. (SDK-CONNECTOR-CONTROL-R048.1).

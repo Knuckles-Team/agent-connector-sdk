@@ -31,6 +31,7 @@
     "SDK-CONNECTOR-CONTROL-R023",
     "SDK-CONNECTOR-CONTROL-R024",
     "SDK-CONNECTOR-CONTROL-R025",
+    "SDK-CONNECTOR-CONTROL-R020.1",
     "SDK-CONNECTOR-CONTROL-R026",
     "SDK-CONNECTOR-CONTROL-R027",
     "SDK-CONNECTOR-CONTROL-R028",
@@ -106,12 +107,19 @@
     "SDK-CONNECTOR-CONTROL-R050.4",
     "SDK-CONNECTOR-CONTROL-R050.5",
     "SDK-CONNECTOR-CONTROL-R050.6",
+    "SDK-CONNECTOR-CONTROL-R050.7",
     "SDK-CONNECTOR-CONTROL-R007.1",
     "SDK-CONNECTOR-CONTROL-R007.2",
     "SDK-CONNECTOR-CONTROL-R007.3",
     "SDK-CONNECTOR-CONTROL-R007.4",
     "SDK-CONNECTOR-CONTROL-R007.5",
     "SDK-CONNECTOR-CONTROL-R007.6",
+    "SDK-CONNECTOR-CONTROL-R055",
+    "SDK-CONNECTOR-CONTROL-R056",
+    "SDK-CONNECTOR-CONTROL-R057",
+    "SDK-CONNECTOR-CONTROL-R058",
+    "SDK-CONNECTOR-CONTROL-R059",
+    "SDK-CONNECTOR-CONTROL-R060",
     "SDK-CONNECTOR-CONTROL-R051",
     "SDK-CONNECTOR-CONTROL-R051.1",
     "SDK-CONNECTOR-CONTROL-R051.2",
@@ -453,13 +461,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R020",
       "title": "Condensed registration is the default",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "d3617301012c",
         "ffb9260d7602"
       ],
       "verified_by": [
         "tests/test_tool_surface.py:167"
+      ],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R020.1"
       ]
     },
     {
@@ -517,6 +528,13 @@
       "landed_in": [
         "5a476653a386"
       ],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R020.1",
+      "title": "JSON tag-loader migration inventory and parity gate",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
       "verified_by": []
     },
     {
@@ -1114,7 +1132,8 @@
         "SDK-CONNECTOR-CONTROL-R050.3",
         "SDK-CONNECTOR-CONTROL-R050.4",
         "SDK-CONNECTOR-CONTROL-R050.5",
-        "SDK-CONNECTOR-CONTROL-R050.6"
+        "SDK-CONNECTOR-CONTROL-R050.6",
+        "SDK-CONNECTOR-CONTROL-R050.7"
       ]
     },
     {
@@ -1160,6 +1179,13 @@
       "verified_by": []
     },
     {
+      "id": "SDK-CONNECTOR-CONTROL-R050.7",
+      "title": "Visual observation transport integration",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
       "id": "SDK-CONNECTOR-CONTROL-R007.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
@@ -1197,6 +1223,48 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R007.6",
       "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R055",
+      "title": "GraphOS producer-consumer handoff for AU disclosure-set gate",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R056",
+      "title": "EG prompt and SDK tool producer-specific compatibility decisions and receipts",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R057",
+      "title": "Replaceable search-grounding provider independent of reasoning model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R058",
+      "title": "Request durability boundary correction for durable versus ephemeral storage",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R059",
+      "title": "EG capability-to-existing-method operation bindings for analogy search, blast radius, memory recall, ontology validation and design",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R060",
+      "title": "Native desktop operation port and no-cursor/no-focus invariant",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []

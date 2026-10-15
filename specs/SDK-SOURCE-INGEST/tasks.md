@@ -72,6 +72,33 @@
 - [ ] `SDK-SOURCE-INGEST-R005.23`: implement and prove evidence for parallel workspace document reads.
 - [ ] `SDK-SOURCE-INGEST-R005.24`: implement and prove hot-path proof for parallel workspace document reads.
 
+## Incremental repository indexing
+
+- [ ] `SDK-SOURCE-INGEST-R004.13`: implement and prove model for incremental repository indexing.
+- [ ] `SDK-SOURCE-INGEST-R004.14`: implement and prove behavior for incremental repository indexing.
+- [ ] `SDK-SOURCE-INGEST-R004.15`: implement and prove wiring for incremental repository indexing.
+- [ ] `SDK-SOURCE-INGEST-R004.16`: implement and prove refusal for incremental repository indexing.
+- [ ] `SDK-SOURCE-INGEST-R004.17`: implement and prove evidence for incremental repository indexing.
+- [ ] `SDK-SOURCE-INGEST-R004.18`: implement and prove hot-path proof for incremental repository indexing.
+
+## Scheduled paper sourcing (R005.25-R005.30)
+
+- [ ] `SDK-SOURCE-INGEST-R005.25`: implement and prove model for scheduled paper sourcing.
+- [ ] `SDK-SOURCE-INGEST-R005.26`: implement and prove behavior for scheduled paper sourcing.
+- [ ] `SDK-SOURCE-INGEST-R005.27`: implement and prove wiring for scheduled paper sourcing.
+- [ ] `SDK-SOURCE-INGEST-R005.28`: implement and prove refusal for scheduled paper sourcing.
+- [ ] `SDK-SOURCE-INGEST-R005.29`: implement and prove evidence for scheduled paper sourcing.
+- [ ] `SDK-SOURCE-INGEST-R005.30`: implement and prove hot-path proof for scheduled paper sourcing.
+
+## Citation-edge paper extraction (R005.31-R005.36)
+
+- [ ] `SDK-SOURCE-INGEST-R005.31`: implement and prove model for citation-edge paper extraction.
+- [ ] `SDK-SOURCE-INGEST-R005.32`: implement and prove behavior for citation-edge paper extraction.
+- [ ] `SDK-SOURCE-INGEST-R005.33`: implement and prove wiring for citation-edge paper extraction.
+- [ ] `SDK-SOURCE-INGEST-R005.34`: implement and prove refusal for citation-edge paper extraction.
+- [ ] `SDK-SOURCE-INGEST-R005.35`: implement and prove evidence for citation-edge paper extraction.
+- [ ] `SDK-SOURCE-INGEST-R005.36`: implement and prove hot-path proof for citation-edge paper extraction.
+
 ## Interchangeable enterprise operations
 
 - [ ] `SDK-SOURCE-INGEST-R006.32`: implement and prove model for interchangeable enterprise operations.
@@ -80,6 +107,26 @@
 - [ ] `SDK-SOURCE-INGEST-R006.35`: implement and prove refusal for interchangeable enterprise operations.
 - [ ] `SDK-SOURCE-INGEST-R006.36`: implement and prove evidence for interchangeable enterprise operations.
 - [ ] `SDK-SOURCE-INGEST-R006.37`: implement and prove hot-path proof for interchangeable enterprise operations.
+
+## Paper throughput and purge policy (R015)
+
+- [ ] `SDK-SOURCE-INGEST-R015`: obtain EG decision authority and purge policy definitions.
+- [ ] `SDK-SOURCE-INGEST-R015.1`: implement and prove model for paper throughput decision and durable purge obligation.
+- [ ] `SDK-SOURCE-INGEST-R015.2`: implement and prove behavior for paper throughput decision and durable purge obligation.
+- [ ] `SDK-SOURCE-INGEST-R015.3`: implement and prove wiring for paper throughput decision and durable purge obligation.
+- [ ] `SDK-SOURCE-INGEST-R015.4`: implement and prove refusal for paper throughput decision and durable purge obligation.
+- [ ] `SDK-SOURCE-INGEST-R015.5`: implement and prove evidence for paper throughput decision and durable purge obligation.
+- [ ] `SDK-SOURCE-INGEST-R015.6`: implement and prove hot-path proof for paper throughput decision and durable purge obligation.
+
+## Media vision enrichment (R016)
+
+- [ ] `SDK-SOURCE-INGEST-R016`: identify the vision producer and define the media enrichment contract.
+- [ ] `SDK-SOURCE-INGEST-R016.1`: implement and prove model for media vision enrichment.
+- [ ] `SDK-SOURCE-INGEST-R016.2`: implement and prove behavior for media vision enrichment.
+- [ ] `SDK-SOURCE-INGEST-R016.3`: implement and prove wiring for media vision enrichment.
+- [ ] `SDK-SOURCE-INGEST-R016.4`: implement and prove refusal for media vision enrichment.
+- [ ] `SDK-SOURCE-INGEST-R016.5`: implement and prove evidence for media vision enrichment.
+- [ ] `SDK-SOURCE-INGEST-R016.6`: implement and prove hot-path proof for media vision enrichment.
 
 ## Approved query receiving contract
 
