@@ -267,6 +267,18 @@ Opaque exchange metadata and host lease bounds remain distinct from signed JWT c
 Map profile errors to `invalid_token_profile` or `token_validation_failed`; required introspection failures use `introspection_unavailable` or `token_inactive`.
 These shared typed refusals stop persistence readiness and operation continuation; no token, code or raw introspection body enters public output.
 
+## Condensed registration and JSON loader migration (SDK-CONNECTOR-CONTROL-R020.1)
+
+JSON tag-loader migration inventory binds each loader to its source and target operation. The SDK provides the reusable census and served parity gate. Preserve condensed default (R020) and explicit opt-ins (R026, R032) across both source and replacement registrations. Migration must prove that all operations, schemas, tags, authorization and refusals survive the move. The gate compares source and target servers end-to-end before replacement.
+
+Data flow: inventory → parity gate → operation comparison → schema/tag/auth/refusal check → served tools/list and tools/call → backend assertions.
+
+## Visual observation transport within a run (SDK-CONNECTOR-CONTROL-R050.7)
+
+Visual observations and provenance are transported between ordered steps within the same run. Each observation carries source operation ID, frame provenance, capture time, schema revision and content reference. The next authorized step reads the same-run committed reference only. EG owns durable state storage and retention. AU owns next-step conditioning. SDK request_cache remains request-scoped only and is not cross-request memory.
+
+Data flow: source tool operation → observation envelope → EG state write → AU next-step consumer → cross-step reference read.
+
 ## Amendments
 
 ### 2026-10-12: native status and packaged resources (SDK-CONNECTOR-CONTROL-R005)
@@ -463,3 +475,27 @@ These transport hashes do not replace certification pins or R002/R003 normalizat
 ## Amendment: 2026-10-13 API-key cookie isolation (R028.3)
 
 Scope the policy to ApiKeyAuth because the SDK documents no provider cookie-session auth. Strip outbound Cookie and inbound Set-Cookie at the sync/async governed transport boundary. Preserve authentication, origin, TLS, redirect, and retry controls. Test sequential exchanges across status codes and concurrent use of one shared client with synthetic transports. Require downstream native MCP login and cross-caller acceptance against the immutable SDK revision.
+
+## GraphOS producer-consumer handoff for AU disclosure-set gate (SDK-CONNECTOR-CONTROL-R055)
+
+Real served producer/consumer handoff for disclosed and undisclosed tools. GraphOS authorized find (registry/discovery; intent find) returns tool facts. EG Decide ToolRelevance consumes them. AU execute_agent dispatches through factory DisclosureSet gate. The current AU plan names the ownership. Exact served cross-owner positive/negative acceptance proves the handoff.
+
+## EG and SDK tool producer compatibility decisions (SDK-CONNECTOR-CONTROL-R056)
+
+SDK tool schema authority and EG prompt authority must jointly decide nested incremental producer compatibility. Declared contract-version pin equality and source-ingest drift classification do not define that contract alone. Both producers emit compatibility decision receipts bound to host admission. Bind decision at schema-fingerprint/FleetOnboarding.onboard.
+
+## Replaceable search-grounding provider (SDK-CONNECTOR-CONTROL-R057)
+
+Search grounding provider is independently selected from reasoning model and bound to a committed route. Unavailable committed provider refuses. EG produces binding; SDK/GraphOS consumer executes the exact committed provider with no alternates.
+
+## Request durability boundary (SDK-CONNECTOR-CONTROL-R058)
+
+Identify exact deployment/profile default and explicit ephemeral versus durable behavior. Embedded transport/no external service and configurable served mode are distinct requirements. Preserve sync/redb authority. Separate transport selection from durability class.
+
+## EG capability-to-existing-method bindings (SDK-CONNECTOR-CONTROL-R059)
+
+Five existing EG public capabilities map to existing EG methods without new engine code: analogy search, blast radius, memory recall, ontology validation and design. AU legacy action mappings identify the bindings. Preserve R023 transport and refusal obligations.
+
+## Native desktop operation port (SDK-CONNECTOR-CONTROL-R060)
+
+GraphOS grants host execution. SDK native desktop adapter handles background click/type/verification without cursor or focus capture, bound to grant scope. Operation port defines the boundary. Grant-bound refusal enforced.
