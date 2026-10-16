@@ -239,7 +239,7 @@ Record host and SDK revisions, fixture seed, manifest and census digests, proces
 The host records its own decision; the SDK export receipt supplies no startup authority.
 Missing host or AU producer implementation keeps the corresponding served acceptance pending.
 
-## Connector runtime utilities moved from agent-utilities (R014.2-R014.9)
+## Connector runtime utilities moved from agent-utilities (R014.2-R014.14)
 
 - `SDK-CONNECTOR-CONTROL-R014.2`: `tests/test_connector_runtime_from_au.py::test_r014_2_file_lock_exclusive_and_nonblocking` holds a lock, proves a second descriptor is refused, then acquires it after release.
 - `SDK-CONNECTOR-CONTROL-R014.3`: `test_r014_3_tool_version_stamps_async_tool`.
@@ -249,3 +249,8 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R014.7`: `test_r014_7_paths_honour_overrides`.
 - `SDK-CONNECTOR-CONTROL-R014.8`: `test_r014_8_delegation_helpers`.
 - `SDK-CONNECTOR-CONTROL-R014.9`: `test_r014_9_no_credential`.
+- `SDK-CONNECTOR-CONTROL-R014.10`: `tests/test_connector_runtime_adds.py::test_r014_10_token_auth_envelope_and_error_mapping` and `test_r014_10_auth_strategies_and_retries` cover the header token, envelope, error mapping, redaction, destructive gate, 429 backoff, 401 refresh and TLS-override refusal.
+- `SDK-CONNECTOR-CONTROL-R014.11`: `tests/test_connector_runtime_adds.py::test_r014_11_browser_auth_pkce_store_and_refresh` covers the S256 challenge, the 0600 store, the proactive refresh and the API-key override.
+- `SDK-CONNECTOR-CONTROL-R014.12`: `tests/test_connector_runtime_adds.py::test_r014_12_graphql_helpers_sync_async_and_failure`.
+- `SDK-CONNECTOR-CONTROL-R014.13`: `tests/test_connector_runtime_adds.py::test_r014_13_external_access_descriptor`.
+- `SDK-CONNECTOR-CONTROL-R014.14`: `tests/test_connector_runtime_adds.py::test_r014_14_env_drift_against_declarations` builds a connector with each read and declaration kind and checks the exact findings and the `--check` exit.
