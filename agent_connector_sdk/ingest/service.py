@@ -87,6 +87,26 @@ class KnowledgeIngest:
         future = asyncio.run_coroutine_threadsafe(call, loop)
         return await asyncio.wrap_future(future)
 
+    async def accepted_cursor(self, binding: IngestBinding) -> str | None:
+        """The provider cursor stored in the stream's durable accepted checkpoint.
+
+        ``None`` before the first accepted submission, or when the accepted
+        checkpoint carries no cursor.
+        """
+        call = self._guard(
+            self._transport.source_status(binding.connector, binding.stream)
+        )
+        loop = self._loop
+        if loop is None or loop is _running_loop():
+            status = await call
+        else:
+            future = asyncio.run_coroutine_threadsafe(call, loop)
+            status = await asyncio.wrap_future(future)
+        checkpoint = status.accepted_checkpoint
+        position = checkpoint.position if checkpoint is not None else None
+        cursor = position.get("cursor") if isinstance(position, dict) else None
+        return cursor if isinstance(cursor, str) else None
+
     def submit_blocking(
         self, binding: IngestBinding, changes: ChangeSet
     ) -> SourceIngestionReceipt:

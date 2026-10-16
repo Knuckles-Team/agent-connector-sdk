@@ -141,6 +141,7 @@ def _checkpoint(
     binding: IngestBinding,
     previous: SourceCheckpoint | None,
     content: Iterable[Any],
+    cursor: str | None = None,
 ) -> SourceCheckpoint:
     position = previous.position if previous is not None else None
     sequence = position.get("sequence") if isinstance(position, dict) else None
@@ -149,13 +150,13 @@ def _checkpoint(
         sort_keys=True,
         separators=(",", ":"),
     )
-    return SourceCheckpoint(
-        stream=binding.stream,
-        position={
-            "sequence": (sequence if isinstance(sequence, int) else 0) + 1,
-            "batch": hashlib.sha256(encoded.encode("utf-8")).hexdigest(),
-        },
-    )
+    advanced: dict[str, JsonValue] = {
+        "sequence": (sequence if isinstance(sequence, int) else 0) + 1,
+        "batch": hashlib.sha256(encoded.encode("utf-8")).hexdigest(),
+    }
+    if cursor is not None:
+        advanced["cursor"] = cursor
+    return SourceCheckpoint(stream=binding.stream, position=advanced)
 
 
 def _live_ids(
@@ -205,7 +206,7 @@ def build_request(
             records=records,
             relationships=relationships,
             provider_checkpoint=_checkpoint(
-                binding, previous, (*records, *relationships)
+                binding, previous, (*records, *relationships), changes.cursor
             ),
             expected_previous_checkpoint=previous,
             authoritative_live_ids=_live_ids(binding, changes),

@@ -99,6 +99,12 @@
 - [ ] `SDK-SOURCE-INGEST-R005.35`: implement and prove evidence for citation-edge paper extraction.
 - [ ] `SDK-SOURCE-INGEST-R005.36`: implement and prove hot-path proof for citation-edge paper extraction.
 
+## Document sources moved from agent-utilities (R005.37-R005.39)
+
+- [x] `SDK-SOURCE-INGEST-R005.37`: git-markdown domain packs with lineage and diff-based re-ingest.
+- [x] `SDK-SOURCE-INGEST-R005.38`: filesystem document source with a live ingestion path.
+- [x] `SDK-SOURCE-INGEST-R005.39`: governed document ingest applies the permission envelope before embedding.
+
 ## Interchangeable enterprise operations
 
 - [ ] `SDK-SOURCE-INGEST-R006.32`: implement and prove model for interchangeable enterprise operations.
