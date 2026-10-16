@@ -198,7 +198,12 @@
     "SDK-CONNECTOR-CONTROL-R014.6",
     "SDK-CONNECTOR-CONTROL-R014.7",
     "SDK-CONNECTOR-CONTROL-R014.8",
-    "SDK-CONNECTOR-CONTROL-R014.9"
+    "SDK-CONNECTOR-CONTROL-R014.9",
+    "SDK-CONNECTOR-CONTROL-R014.10",
+    "SDK-CONNECTOR-CONTROL-R014.11",
+    "SDK-CONNECTOR-CONTROL-R014.12",
+    "SDK-CONNECTOR-CONTROL-R014.13",
+    "SDK-CONNECTOR-CONTROL-R014.14"
   ],
   "requirements": [
     {
@@ -378,7 +383,12 @@
         "SDK-CONNECTOR-CONTROL-R014.6",
         "SDK-CONNECTOR-CONTROL-R014.7",
         "SDK-CONNECTOR-CONTROL-R014.8",
-        "SDK-CONNECTOR-CONTROL-R014.9"
+        "SDK-CONNECTOR-CONTROL-R014.9",
+        "SDK-CONNECTOR-CONTROL-R014.10",
+        "SDK-CONNECTOR-CONTROL-R014.11",
+        "SDK-CONNECTOR-CONTROL-R014.12",
+        "SDK-CONNECTOR-CONTROL-R014.13",
+        "SDK-CONNECTOR-CONTROL-R014.14"
       ]
     },
     {
@@ -1942,6 +1952,62 @@
         "b1a75903b188"
       ],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.10",
+      "title": "Class-based API client base and auth strategies",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "afc686a65836"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:49",
+        "tests/test_connector_runtime_adds.py:78"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.11",
+      "title": "Browser OAuth (PKCE) login",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "afc686a65836"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:128"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.12",
+      "title": "GraphQL schema discovery over a connector executor",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "afc686a65836"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:178"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.13",
+      "title": "Per-record external access descriptor",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "afc686a65836"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:204"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.14",
+      "title": "Connector env-var drift check",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "afc686a65836"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:221"
+      ]
     }
   ]
 }
