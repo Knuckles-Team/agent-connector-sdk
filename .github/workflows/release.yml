@@ -60,3 +60,39 @@ jobs:
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         run: uv publish dist/*.whl
+
+  # The GitHub release for the tag, created only after the wheel is on PyPI, so
+  # the release always links to a package that exists.
+  github-release:
+    name: github-release
+    needs: [publish-pypi]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Create or update the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          notes="$RUNNER_TEMP/notes.md"
+          {
+            echo "PyPI: [\`agent-connector-sdk\` $version](https://pypi.org/project/agent-connector-sdk/$version/)"
+            echo
+            echo '```bash'
+            echo "pip install \"agent-connector-sdk==$version\""
+            echo '```'
+            echo
+            echo "Commit: $SHA"
+          } > "$notes"
+          if gh release view "$TAG" -R "$REPO" >/dev/null 2>&1; then
+            gh release edit "$TAG" -R "$REPO" --title "Release $TAG" --notes-file "$notes" --latest
+          else
+            gh release create "$TAG" -R "$REPO" --verify-tag --title "Release $TAG" --notes-file "$notes" --latest
+          fi
