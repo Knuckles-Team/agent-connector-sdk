@@ -14,10 +14,10 @@ EXPECTED = {
     "version": "2.27.1",
     "source_remote": "https://github.com/Knuckles-Team/epistemic-graph.git",
     "source_revision": "168df952ed0f7aceaaba68245a7c1667aea61f01",
-    "release_tag": "engine-main",
+    "release_tag": "v2.27.1",
     "wheel_filename": "epistemic_graph-2.27.1-cp39-abi3-manylinux_2_28_x86_64.whl",
-    "wheel_asset_id": "646890382",
-    "wheel_url": "https://api.github.com/repos/Knuckles-Team/epistemic-graph/releases/assets/646890382",
+    "wheel_asset_id": "pypi:epistemic-graph==2.27.1",
+    "wheel_url": "https://files.pythonhosted.org/packages/c0/32/a85902e5d893a1a8c401c7676d116c653e432dcb51928571a89b9501c81b/epistemic_graph-2.27.1-cp39-abi3-manylinux_2_28_x86_64.whl",
     "wheel_sha256": "df997e55cb2c0ee73da3ac33fb96a723ce79529aac58bc41d05cb950bf15ba60",
     "native_member": "epistemic_graph/numeric.abi3.so",
 }

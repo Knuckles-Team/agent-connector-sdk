@@ -568,7 +568,7 @@ def test_release_asset_fetch_uses_asset_id_and_binary_accept_header(
     request = requests[0]
     assert request.full_url == manifest["wheel_url"]
     assert request.get_header("Accept") == "application/octet-stream"
-    assert manifest["wheel_asset_id"] == "646890382"
+    assert manifest["wheel_asset_id"] == "pypi:epistemic-graph==2.27.1"
     assert destination.read_bytes() == b"fixture wheel bytes"
 
 
