@@ -11,14 +11,14 @@ from urllib.parse import unquote, urlsplit
 
 EXPECTED = {
     "distribution": "epistemic-graph",
-    "version": "2.27.0",
+    "version": "2.27.1",
     "source_remote": "https://github.com/Knuckles-Team/epistemic-graph.git",
-    "source_revision": "a5b4a1f1f638baed374897578cc061f473e9687b",
+    "source_revision": "168df952ed0f7aceaaba68245a7c1667aea61f01",
     "release_tag": "engine-main",
-    "wheel_filename": "epistemic_graph-2.27.0-py3-none-manylinux_2_28_x86_64.whl",
-    "wheel_asset_id": "623772261",
-    "wheel_url": "https://api.github.com/repos/Knuckles-Team/epistemic-graph/releases/assets/623772261",
-    "wheel_sha256": "1290a576b8483685e45584ca527cae79a7714810fefbbb337689863eb19f5a51",
+    "wheel_filename": "epistemic_graph-2.27.1-cp39-abi3-manylinux_2_28_x86_64.whl",
+    "wheel_asset_id": "646890382",
+    "wheel_url": "https://api.github.com/repos/Knuckles-Team/epistemic-graph/releases/assets/646890382",
+    "wheel_sha256": "df997e55cb2c0ee73da3ac33fb96a723ce79529aac58bc41d05cb950bf15ba60",
     "native_member": "epistemic_graph/numeric.abi3.so",
 }
 
@@ -92,7 +92,7 @@ def verify_wheel_archive(wheel: Path, manifest_path: Path) -> dict[str, str]:
         raise ProvenanceError(
             "EG wheel metadata version differs from the source release"
         )
-    if wheel_tags != ["py3-none-manylinux_2_28_x86_64"]:
+    if wheel_tags != ["cp39-abi3-manylinux_2_28_x86_64"]:
         raise ProvenanceError("EG wheel tag differs from the pinned release asset")
     if manifest["native_member"] not in names:
         raise ProvenanceError("EG wheel is missing its bundled native engine")
@@ -151,7 +151,7 @@ def _verify_installed_wheel_files(
                 for name in archive.namelist()
                 if name.startswith("epistemic_graph/")
                 or (
-                    name.startswith("epistemic_graph-2.27.0.dist-info/")
+                    name.startswith("epistemic_graph-2.27.1.dist-info/")
                     and not name.endswith("/RECORD")
                 )
             ]

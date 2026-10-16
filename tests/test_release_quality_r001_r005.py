@@ -110,7 +110,7 @@ def test_source_git_probe_ignores_sdk_hook_repository_context(
     monkeypatch.setenv("GIT_WORK_TREE", str(_graph.ROOT))
 
     assert _graph._git(_graph.SOURCE_ROOT, "rev-parse", "HEAD") == (
-        "a5b4a1f1f638baed374897578cc061f473e9687b"
+        "168df952ed0f7aceaaba68245a7c1667aea61f01"
     )
     assert (
         _graph._normalize_remote(
@@ -219,8 +219,8 @@ def test_recorded_graph_provenance_separates_source_and_installed_evidence() -> 
     )
     source = evidence.source_declarations[0]
     assert source.name == "epistemic-graph"
-    assert source.version == "2.27.0"
-    assert source.revision == "a5b4a1f1f638baed374897578cc061f473e9687b"
+    assert source.version == "2.27.1"
+    assert source.revision == "168df952ed0f7aceaaba68245a7c1667aea61f01"
     assert any(item.startswith("pyoxigraph==") for item in source.locked_dependencies)
     assert {
         "epistemic_graph.generated.query",
@@ -281,7 +281,7 @@ def test_recorded_provenance_rejects_tampered_installed_evidence(
 
 
 def _source_declaration_case() -> dict[str, object]:
-    revision = "a5b4a1f1f638baed374897578cc061f473e9687b"
+    revision = "168df952ed0f7aceaaba68245a7c1667aea61f01"
     requirements = (
         "httpx>=0.24.0",
         "msgpack>=1.2.1",
@@ -293,14 +293,14 @@ def _source_declaration_case() -> dict[str, object]:
         {"name": name} for name in ("httpx", "msgpack", "pydantic", "pyoxigraph")
     )
     lock_package = _graph.LockedPackage(
-        "2.27.0",
+        "2.27.1",
         {"git": source},
         dependencies,
     )
     packages = [
         {
             "name": "epistemic-graph",
-            "version": "2.27.0",
+            "version": "2.27.1",
             "source": {"git": source},
             "dependencies": list(dependencies),
         },
@@ -311,13 +311,13 @@ def _source_declaration_case() -> dict[str, object]:
     ]
     lock_metadata = {
         "name": "epistemic-graph",
-        "version": "2.27.0",
+        "version": "2.27.1",
         "requires-python": ">=3.10",
         "requires-dist": list(requirements),
     }
     return {
         "name": "epistemic-graph",
-        "source_version": "2.27.0",
+        "source_version": "2.27.1",
         "source_requires_python": ">=3.10",
         "source_requires": requirements,
         "lock_package": lock_package,
@@ -409,7 +409,7 @@ def _walk_extras_graph(
         get_installed=lambda name: (
             (installed[name], object()) if name in installed else None
         ),
-        source_fallback=_graph.PackageMetadata("2.27.0", ()),
+        source_fallback=_graph.PackageMetadata("2.27.1", ()),
     )
 
 
@@ -536,7 +536,7 @@ def test_installed_eg_overlay_without_release_wheel_receipt_is_rejected(
         "Distribution",
         (),
         {
-            "version": "2.27.0",
+            "version": "2.27.1",
             "read_text": lambda self, _: None,
             "locate_file": lambda self, _: overlay_package,
         },
@@ -568,7 +568,7 @@ def test_release_asset_fetch_uses_asset_id_and_binary_accept_header(
     request = requests[0]
     assert request.full_url == manifest["wheel_url"]
     assert request.get_header("Accept") == "application/octet-stream"
-    assert manifest["wheel_asset_id"] == "623772261"
+    assert manifest["wheel_asset_id"] == "646890382"
     assert destination.read_bytes() == b"fixture wheel bytes"
 
 
@@ -580,14 +580,14 @@ def test_tampered_installed_native_file_fails_with_matching_pep610_hash(
     wheel = tmp_path / manifest["wheel_filename"]
     native = manifest["native_member"]
     members = {
-        "epistemic_graph/__init__.py": b"__version__ = '2.27.0'\n",
+        "epistemic_graph/__init__.py": b"__version__ = '2.27.1'\n",
         native: b"trusted native engine",
-        "epistemic_graph-2.27.0.dist-info/METADATA": (
-            b"Metadata-Version: 2.3\nName: epistemic-graph\nVersion: 2.27.0\n"
+        "epistemic_graph-2.27.1.dist-info/METADATA": (
+            b"Metadata-Version: 2.3\nName: epistemic-graph\nVersion: 2.27.1\n"
         ),
-        "epistemic_graph-2.27.0.dist-info/WHEEL": (
+        "epistemic_graph-2.27.1.dist-info/WHEEL": (
             b"Wheel-Version: 1.0\nRoot-Is-Purelib: false\n"
-            b"Tag: py3-none-manylinux_2_28_x86_64\n"
+            b"Tag: cp39-abi3-manylinux_2_28_x86_64\n"
         ),
     }
     with zipfile.ZipFile(wheel, "w", zipfile.ZIP_DEFLATED) as archive:
@@ -658,8 +658,8 @@ def test_release_wheel_receipt_rejects_a_different_artifact_hash() -> None:
 def test_installed_eg_metadata_is_checked_against_source_declarations() -> None:
     source = _graph.SourceDeclaration(
         name="epistemic-graph",
-        version="2.27.0",
-        revision="a5b4a1f1f638baed374897578cc061f473e9687b",
+        version="2.27.1",
+        revision="168df952ed0f7aceaaba68245a7c1667aea61f01",
         remote=_graph.SOURCE_REMOTE,
         import_origin=".ci/epistemic-graph/epistemic_graph/__init__.py",
         metadata_sha256={},
@@ -674,7 +674,7 @@ def test_installed_eg_metadata_is_checked_against_source_declarations() -> None:
     )
     environment = _graph.default_environment()
     _graph._validate_installed_source_metadata(
-        _graph.PackageMetadata("2.27.0", source.declared_dependencies),
+        _graph.PackageMetadata("2.27.1", source.declared_dependencies),
         source,
         environment,
     )
@@ -686,7 +686,7 @@ def test_installed_eg_metadata_is_checked_against_source_declarations() -> None:
         )
     with pytest.raises(_graph.ImportGraphError, match="dependency metadata"):
         _graph._validate_installed_source_metadata(
-            _graph.PackageMetadata("2.27.0", ("httpx>=0.24.0",)),
+            _graph.PackageMetadata("2.27.1", ("httpx>=0.24.0",)),
             source,
             environment,
         )

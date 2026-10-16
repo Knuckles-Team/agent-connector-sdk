@@ -34,7 +34,7 @@ dependencies = [
 
 [[project.authors]]
 name = "Repository Maintainers"
-email = "maintainers@example.invalid"
+email = "maintainers@knuckles.team"
 
 [project.urls]
 Homepage = "https://github.com/Knuckles-Team/agent-connector-sdk"
@@ -95,16 +95,16 @@ typecheck = [
 default-groups = ["test"]
 
 # The lock and contract source are pinned to the commit that produced the
-# verified official EG 2.27.0 release wheel in scripts/epistemic_graph_release.json.
+# verified official EG 2.27.1 release wheel in scripts/epistemic_graph_release.json.
 [tool.uv.sources]
-epistemic-graph = { git = "https://github.com/Knuckles-Team/epistemic-graph.git", rev = "a5b4a1f1f638baed374897578cc061f473e9687b" }
+epistemic-graph = { git = "https://github.com/Knuckles-Team/epistemic-graph.git", rev = "168df952ed0f7aceaaba68245a7c1667aea61f01" }
 
 # Static metadata copied from that commit's pyproject.toml (SHA-256
-# 5df1c8a101195b0c419ac7abb013e3b59e261d0603c5e7bd212abab9bbe41dbc) and
-# Cargo.toml (SHA-256 6c9b64539a444088d5bd42dd34d4d8a4d7341d2945577e81d838bae9b218dfdc).
+# d50d01796f5b717a4f1621476b857ed88283607286af492a6236972d45d5b24f) and
+# Cargo.toml (SHA-256 216a541f712722d495ec65f07013877908a93056fd413ec57e6e9340bff1717e).
 [[tool.uv.dependency-metadata]]
 name = "epistemic-graph"
-version = "2.27.0"
+version = "2.27.1"
 requires-python = ">=3.10"
 requires-dist = ["msgpack>=1.2.1", "pydantic>=2,<3", "pyoxigraph>=0.3.22", "httpx>=0.24.0"]
 
@@ -124,6 +124,9 @@ warn_unreachable = true
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+# Tests import shared fixtures as `tests.<module>`; keep the repository root importable
+# however pytest is launched (the shared gates job runs it without `python -m`).
+pythonpath = ["."]
 timeout = 120
 addopts = "-p no:cacheprovider"
 markers = [
