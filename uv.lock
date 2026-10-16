@@ -6,9 +6,11 @@ resolution-markers = [
     "python_full_version < '3.14'",
 ]
 
+[manifest]
+
 [[manifest.dependency-metadata]]
 name = "epistemic-graph"
-version = "2.27.0"
+version = "2.27.1"
 requires-dist = ["msgpack>=1.2.1", "pydantic>=2,<3", "pyoxigraph>=0.3.22", "httpx>=0.24.0"]
 requires-python = ">=3.10"
 
@@ -45,7 +47,7 @@ typecheck = [
 requires-dist = [
     { name = "anyio", specifier = ">=4.13.0" },
     { name = "cryptography", specifier = ">=50.0.1" },
-    { name = "epistemic-graph", git = "https://github.com/Knuckles-Team/epistemic-graph.git?rev=a5b4a1f1f638baed374897578cc061f473e9687b" },
+    { name = "epistemic-graph", git = "https://github.com/Knuckles-Team/epistemic-graph.git?rev=168df952ed0f7aceaaba68245a7c1667aea61f01" },
     { name = "fastmcp", specifier = ">=4.0.11,<5" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "httpx2", specifier = ">=2.12.0" },
@@ -477,8 +479,8 @@ wheels = [
 
 [[package]]
 name = "epistemic-graph"
-version = "2.27.0"
-source = { git = "https://github.com/Knuckles-Team/epistemic-graph.git?rev=a5b4a1f1f638baed374897578cc061f473e9687b#a5b4a1f1f638baed374897578cc061f473e9687b" }
+version = "2.27.1"
+source = { git = "https://github.com/Knuckles-Team/epistemic-graph.git?rev=168df952ed0f7aceaaba68245a7c1667aea61f01#168df952ed0f7aceaaba68245a7c1667aea61f01" }
 dependencies = [
     { name = "httpx" },
     { name = "msgpack" },
