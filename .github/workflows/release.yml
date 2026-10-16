@@ -1,18 +1,24 @@
 name: Release
 
-# Release-critical jobs only: gates (the whole .config/pre-commit.yaml suite --
-# lint, format, types, wiring, the shared code-shape, security and hygiene hooks
-# -- then its pre-push stage: tests, wheel build, secret history), the advisory
-# scanner-quality job (pinned cccc/KISS/dupehound/jscpd), and a reproducible
-# wheel build. publish-pypi runs only for a vX.Y.Z tag. CI runs the same
-# pre-commit configuration a contributor runs after scripts/bootstrap.sh, so
-# local and hosted results agree.
+# Publish only: a v* tag or a manual dispatch. An ordinary push to main never
+# reaches this workflow (CI-STANDARD). Gates and the
+# main-push build live in gates.yml; the same reproducible build runs here
+# before upload.
 
 on:
   push:
-    branches: [main]
     tags: ['v*']
-  pull_request:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref (tag) to build and publish.
+        required: true
+        type: string
+      dry_run:
+        description: Build and verify without publishing.
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -22,242 +28,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  gates:
-    name: gates
-    # Homelab self-hosted runner for same-repo push/PR traffic; a fork PR's
-    # head repo never matches `github.repository`, so it always lands on the
-    # GitHub-hosted runner -- self-hosted capacity is never offered to an
-    # untrusted fork without the separate first-run approval gate.
-    runs-on: ${{ (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "homelab"]') || 'ubuntu-latest' }}
-    timeout-minutes: ${{ github.event_name == 'pull_request' && 10 || 60 }}
-    env:
-      PYTHONPATH: .ci/epistemic-graph
-    steps:
-      - &checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - &python
-        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
-        with:
-          python-version: '3.12'
-      - &uv
-        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
-        with:
-          version: '0.11.7'
-          enable-cache: true
-          cache-dependency-glob: uv.lock
-      # The base the differential hooks compare against: the pull request base or
-      # the previous push, else the root commit (a first push scans all of it).
-      - &base
-        name: Resolve the published base
-        run: |
-          set -euo pipefail
-          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
-          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE" 2>/dev/null; then
-            BASE="$(git rev-list --max-parents=0 HEAD)"
-          fi
-          echo "PRE_COMMIT_FROM_REF=$BASE" >> "$GITHUB_ENV"
-          echo "CX_DUP_BASE_REF=$BASE" >> "$GITHUB_ENV"
-      - name: Bootstrap (pinned Python, EG contract, locked environment)
-        run: scripts/bootstrap.sh
-      - name: Verify the finalized generated contract source
-        run: |
-          uv run --frozen --no-sync python -c "from pathlib import Path; import epistemic_graph.generated.source_ingestion as source; assert '.ci/epistemic-graph' in str(Path(source.__file__).resolve())"
-      - name: Pre-commit stage (lint, format, types, wiring, shared gates)
-        run: uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage pre-commit --show-diff-on-failure
-      - name: Pre-push stage (wheel build, secret history, patch safety)
-        env:
-          SKIP: pytest
-        run: uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml --all-files --hook-stage pre-push
-      # Operator decision (2026-10-09): PR gates run a fast subset so a PR
-      # turns around in minutes -- lint/format/types/wiring already ran full
-      # above (the pre-commit stage), and only the test matrix narrows here.
-      # push to main and a release tag are never `pull_request` and keep
-      # running the full suite unchanged.
-      - name: Resolve pull-request test scope
-        if: github.event_name == 'pull_request'
-        id: pr-test-scope
-        run: |
-          set -euo pipefail
-          uvx --from 'git+https://github.com/Knuckles-Team/pipelines@main' \
-            pipelines-hook pr-test-scope --base-ref "$PRE_COMMIT_FROM_REF" \
-            --lang python --src-root agent_connector_sdk --tests-root tests > "$RUNNER_TEMP/pr-test-scope.txt"
-          cat "$RUNNER_TEMP/pr-test-scope.txt"
-          {
-            echo "scope<<PR_TEST_SCOPE_EOF"
-            cat "$RUNNER_TEMP/pr-test-scope.txt"
-            echo "PR_TEST_SCOPE_EOF"
-          } >> "$GITHUB_OUTPUT"
-      - name: Full test suite (push to main / release tag; manual-stage hook)
-        if: github.event_name != 'pull_request'
-        run: uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml pytest --hook-stage pre-push --all-files
-      - name: Test suite -- pull request fast subset
-        if: github.event_name == 'pull_request'
-        env:
-          SCOPE: ${{ steps.pr-test-scope.outputs.scope }}
-        run: |
-          set -euo pipefail
-          if [ "$SCOPE" = "NONE" ]; then
-            echo "pr-test-scope: no agent_connector_sdk/tests change in this diff; skipping pytest"
-          elif [ "$SCOPE" = "FULL" ]; then
-            echo "pr-test-scope: unmapped source change (or an unreadable diff); running the full suite"
-            bash scripts/bootstrap_epistemic_graph_contract.sh
-            uv run --frozen --no-sync python -m pytest -q
-          else
-            echo "pr-test-scope: running only the tests this diff affects:"
-            echo "$SCOPE"
-            mapfile -t affected_tests <<< "$SCOPE"
-            bash scripts/bootstrap_epistemic_graph_contract.sh
-            uv run --frozen --no-sync python -m pytest -q "${affected_tests[@]}"
-          fi
-      # The prohibited-identity catalog is operator-owned and never committed; it
-      # arrives through a repository variable. A missing catalog fails closed
-      # (CANNOT RUN) except on a fork pull request, which cannot read it.
-      - name: Tracked-artifact privacy (identity catalog from the repository variable)
-        env:
-          PROHIBITED_IDENTITY_CATALOG: ${{ vars.PROHIBITED_IDENTITY_CATALOG }}
-          FORK_PULL_REQUEST: ${{ github.event.pull_request.head.repo.fork || false }}
-        run: |
-          set -euo pipefail
-          if [ -z "${PROHIBITED_IDENTITY_CATALOG:-}" ]; then
-            if [ "$FORK_PULL_REQUEST" = "true" ]; then
-              echo "::notice title=tracked-privacy skipped::fork pull requests cannot read the PROHIBITED_IDENTITY_CATALOG repository variable"
-              exit 0
-            fi
-            echo "tracked-privacy: CANNOT RUN: the PROHIBITED_IDENTITY_CATALOG repository variable is not set" >&2
-            exit 2
-          fi
-          mkdir -p "$HOME/.config/agent-utilities/governance"
-          printf '%s' "$PROHIBITED_IDENTITY_CATALOG" > "$HOME/.config/agent-utilities/governance/prohibited-identities.json"
-          uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml tracked-privacy --hook-stage manual --all-files
-
-  # Spec-status lifecycle gates (SPEC-STATUS-LIFECYCLE.md): independent of the
-  # release pipeline above -- never a `needs:` of gates/build/publish-pypi,
-  # and not configured as a required check, so it can land ahead of branch
-  # protection catching up.
-  spec-gates:
-    name: spec-gates
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - *checkout
-      - *uv
-      - name: Spec status (schema v2 status.json matches requirements/history/tests)
-        run: uvx --from 'git+https://github.com/Knuckles-Team/pipelines@main' pipelines-hook spec-status
-      - name: Spec decomposition (requirements/tasks/test-spec/status.json IDs agree)
-        run: uvx --from 'git+https://github.com/Knuckles-Team/pipelines@main' pipelines-hook spec-decomposition
-      - name: "Spec trailers (delivering commits on this PR carry a verified Spec: trailer)"
-        if: github.event_name == 'pull_request'
-        run: |
-          uvx --from 'git+https://github.com/Knuckles-Team/pipelines@main' \
-            pipelines-hook spec-trailers --base-ref "origin/${{ github.base_ref }}"
-
-  scanner-quality:
-    name: scanner-quality
-    continue-on-error: true
-    runs-on: ubuntu-latest
-    timeout-minutes: ${{ github.event_name == 'pull_request' && 10 || 60 }}
-    steps:
-      - *checkout
-      - *python
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '20'
-      - uses: dtolnay/rust-toolchain@fa04a1451ff1842e2626ccb99004d0195b455a88 # master
-        with:
-          toolchain: stable
-      - *uv
-      # scripts/install_scanners.sh is the one place the scanner pins live, so
-      # its hash keys the cache: a pin change rebuilds, nothing else does.
-      - name: Cache the pinned scanner toolchain
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: ~/.local/share/pipelines-scanners
-          key: scanners-${{ runner.os }}-${{ hashFiles('scripts/install_scanners.sh') }}
-      - name: Provision pinned scanner toolchain
-        run: |
-          bash scripts/install_scanners.sh
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-      - *base
-      # Advisory: every hook runs and reports; the job result is informational.
-      - name: Shared scanner hooks (versions, staged, censuses, clone differentials)
-        run: |
-          set -uo pipefail
-          failed=()
-          for hook in scanner-versions complexity-staged kiss-staged dupehound-changed complexity-census kiss-census jscpd-differential jscpd-census; do
-            uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml "$hook" --hook-stage manual --all-files || failed+=("$hook")
-          done
-          if [ "${#failed[@]}" -gt 0 ]; then
-            echo "::warning title=scanner-quality::advisory scanner findings: ${failed[*]}"
-            exit 1
-          fi
-
   build:
-    name: build
-    needs: [gates]
-    runs-on: ${{ (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "homelab"]') || 'ubuntu-latest' }}
-    timeout-minutes: ${{ github.event_name == 'pull_request' && 10 || 60 }}
-    env:
-      SOURCE_DATE_EPOCH: "0"
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
-        with:
-          version: '0.11.7'
-          # SDK-QUALITY-RELEASE-R003: pin the managed interpreter here too --
-          # this job builds the released wheel, so it must never fall back to
-          # the hosting runner's system Python the way the gates job's own
-          # explicit pin already prevents.
-          python-version: '3.12'
-      - name: Build the wheel twice
-        run: |
-          uv build --wheel --out-dir dist-primary
-          uv build --wheel --out-dir dist-reproduction
-      - name: Require byte-identical wheels
-        run: |
-          python3 -c "from hashlib import sha256; from pathlib import Path; a=sorted(Path('dist-primary').glob('*.whl')); b=sorted(Path('dist-reproduction').glob('*.whl')); assert len(a)==len(b)==1 and a[0].name==b[0].name; assert sha256(a[0].read_bytes()).digest()==sha256(b[0].read_bytes()).digest(), 'wheel is not reproducible'; print('reproducible', a[0].name)"
-          mkdir dist
-          cp dist-primary/*.whl dist/
-      - name: Download the epistemic-graph engine wheel (engine-main release)
-        env:
-          GH_TOKEN: ${{ github.token }}
-        # Plain curl against the releases API: the self-hosted runners have no gh CLI.
-        run: |
-          set -euo pipefail
-          mkdir -p dist-engine
-          api=https://api.github.com/repos/Knuckles-Team/epistemic-graph/releases/tags/engine-main
-          url=$(curl --fail --silent --show-error --location \
-            -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$api" \
-            | python3 -c "import json,sys,fnmatch; a=[x['browser_download_url'] for x in json.load(sys.stdin)['assets'] if fnmatch.fnmatch(x['name'],'epistemic_graph-*manylinux*x86_64.whl')]; print(a[0])")
-          curl --fail --silent --show-error --location --retry 3 -H "Authorization: Bearer $GH_TOKEN" \
-            --output "dist-engine/$(basename "$url")" "$url"
-          ls -l dist-engine
-      - name: Verify the installed wheel against the published graph-client (SDK-QUALITY-RELEASE-R001)
-        run: python3 scripts/check_wheel_consumer_compatibility.py --wheel dist/*.whl --engine-wheel dist-engine/epistemic_graph-*.whl
-      - name: Upload the publish candidate
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: agent-connector-sdk-wheel
-          path: dist/*.whl
-          if-no-files-found: error
-          retention-days: 7
+    uses: ./.github/workflows/build.yml
+    with:
+      ref: ${{ inputs.ref || github.ref }}
 
   publish-pypi:
     name: publish-pypi
     needs: [build]
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ github.event_name == 'pull_request' && 10 || 60 }}
+    timeout-minutes: 60
     environment: pypi
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
+          ref: ${{ inputs.ref || github.ref }}
           persist-credentials: false
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:

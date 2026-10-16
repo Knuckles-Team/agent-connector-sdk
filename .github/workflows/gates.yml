@@ -1,0 +1,100 @@
+name: Gates
+
+# Pull request: the one diff-scoped `gates` job (shared pipelines workflow) --
+# the full pre-commit and pre-push stages over the changed files plus the
+# affected-test subset. Push to main: the same job over every file with the full
+# test suite, the advisory scanner-quality job, and the reproducible build. Never
+# publishes (release.yml, v* tag only). Docs and spec-only changes skip this
+# workflow; gates-skip.yml reports the required check for them.
+
+on:
+  pull_request:
+    paths-ignore: [specs/**, docs/**, '**/*.md', plans/**, LICENSE]
+  push:
+    branches: [main]
+    paths-ignore: [specs/**, docs/**, '**/*.md', plans/**, LICENSE]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}-{1}', github.workflow, github.event.pull_request.number) || format('main-{0}', github.workflow) }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    # Homelab runner for same-repo traffic; a fork PR lands on a hosted runner.
+    uses: Knuckles-Team/pipelines/.github/workflows/gates_pipeline.yml@main
+    with:
+      runner: ${{ (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && '["self-hosted", "homelab"]' || '"ubuntu-latest"' }}
+      all-files: ${{ github.event_name == 'push' }}
+      timeout-minutes: ${{ github.event_name == 'push' && 60 || 15 }}
+      test-scope: tests
+      src-root: agent_connector_sdk
+      setup-command: bash scripts/ci_setup.sh
+      # fast-tests duplicates the shared affected-test step; a fork cannot read the identity catalog.
+      skip-hooks: ${{ github.event.pull_request.head.repo.fork && 'fast-tests,tracked-privacy' || 'fast-tests' }}
+      extra-manual-hooks: ${{ github.event_name == 'push' && 'tracked-privacy wheel-build mkdocs-build' || 'tracked-privacy' }}
+
+  scanner-quality:
+    name: scanner-quality
+    if: github.event_name == 'push'
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '20'
+      - uses: dtolnay/rust-toolchain@fa04a1451ff1842e2626ccb99004d0195b455a88 # master
+        with:
+          toolchain: stable
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.11.7'
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      # scripts/install_scanners.sh is the one place the scanner pins live, so
+      # its hash keys the cache: a pin change rebuilds, nothing else does.
+      - name: Cache the pinned scanner toolchain
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.local/share/pipelines-scanners
+          key: scanners-${{ runner.os }}-${{ hashFiles('scripts/install_scanners.sh') }}
+      - name: Provision pinned scanner toolchain
+        run: |
+          bash scripts/install_scanners.sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Resolve the published base
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.before }}"
+          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE" 2>/dev/null; then
+            BASE="$(git rev-list --max-parents=0 HEAD)"
+          fi
+          echo "PRE_COMMIT_FROM_REF=$BASE" >> "$GITHUB_ENV"
+          echo "CX_DUP_BASE_REF=$BASE" >> "$GITHUB_ENV"
+      # Advisory: every hook runs and reports; the job result is informational.
+      - name: Shared scanner hooks (versions, staged, censuses, clone differentials)
+        run: |
+          set -uo pipefail
+          failed=()
+          for hook in scanner-versions complexity-staged kiss-staged dupehound-changed complexity-census kiss-census jscpd-differential jscpd-census; do
+            uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml "$hook" --hook-stage manual --all-files || failed+=("$hook")
+          done
+          if [ "${#failed[@]}" -gt 0 ]; then
+            echo "::warning title=scanner-quality::advisory scanner findings: ${failed[*]}"
+            exit 1
+          fi
+
+  build:
+    needs: [gates]
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/build.yml

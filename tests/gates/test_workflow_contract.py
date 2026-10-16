@@ -21,6 +21,10 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
+GATES = ROOT / ".github" / "workflows" / "gates.yml"
+GATES_SKIP = ROOT / ".github" / "workflows" / "gates-skip.yml"
+BUILD = ROOT / ".github" / "workflows" / "build.yml"
+CI_SETUP = ROOT / "scripts" / "ci_setup.sh"
 PAGES = ROOT / ".github" / "workflows" / "pages.yml"
 PRE_COMMIT = ROOT / ".config" / "pre-commit.yaml"
 BOOTSTRAP = ROOT / "scripts" / "bootstrap.sh"
@@ -68,19 +72,52 @@ def test_pages_uses_the_same_pipelines_revision_as_the_hooks() -> None:
     }
 
 
-def test_gates_job_runs_whole_hook_stages_not_hand_listed_hooks() -> None:
-    runs = _runs(_yaml(RELEASE)["jobs"]["gates"])
-    stages = {
-        match.group(1)
-        for command in runs
-        if "--all-files" in command
-        for match in [re.search(r"--hook-stage (\S+)", command)]
-        if match and "pre-commit run --config" in command
-    }
+def test_gates_job_is_the_shared_diff_scoped_workflow() -> None:
+    workflow = _yaml(GATES)
+    gates = workflow["jobs"]["gates"]
 
-    assert "scripts/bootstrap.sh" in runs
-    assert {"pre-commit", "pre-push"} <= stages
-    assert not any("for hook in" in command for command in runs)
+    assert (
+        gates["uses"]
+        == "Knuckles-Team/pipelines/.github/workflows/gates_pipeline.yml@main"
+    )
+    assert "steps" not in gates
+    assert gates["with"]["setup-command"] == "bash scripts/ci_setup.sh"
+    assert gates["with"]["all-files"] == "${{ github.event_name == 'push' }}"
+
+
+def test_gates_trigger_standard_and_cancel_superseded_runs() -> None:
+    workflow = _yaml(GATES)
+    triggers = workflow[True]
+    ignore = ["specs/**", "docs/**", "**/*.md", "plans/**", "LICENSE"]
+
+    assert triggers["pull_request"]["paths-ignore"] == ignore
+    assert triggers["push"]["paths-ignore"] == ignore
+    assert triggers["push"]["branches"] == ["main"]
+    assert workflow["concurrency"]["cancel-in-progress"] is True
+    skip = _yaml(GATES_SKIP)
+    assert skip[True]["pull_request"]["paths"] == ignore
+    assert skip["jobs"]["gates"]["name"] == "gates"
+
+
+def test_release_publishes_only_for_a_tag_or_dispatch() -> None:
+    workflow = _yaml(RELEASE)
+    triggers = workflow[True]
+
+    assert set(triggers) == {"push", "workflow_dispatch"}
+    assert triggers["push"] == {"tags": ["v*"]}
+    assert workflow["concurrency"]["cancel-in-progress"] is False
+    assert set(workflow["jobs"]) == {"build", "publish-pypi"}
+    assert workflow["jobs"]["build"]["uses"] == "./.github/workflows/build.yml"
+    assert "[skip ci]" not in RELEASE.read_text(encoding="utf-8")
+
+
+def test_ci_setup_bootstraps_the_contract_and_identity_catalog() -> None:
+    script = CI_SETUP.read_text(encoding="utf-8")
+
+    assert "scripts/bootstrap.sh" in script
+    assert "PYTHONPATH=.ci/epistemic-graph" in script
+    assert "epistemic_graph.generated.source_ingestion" in script
+    assert "PROHIBITED_IDENTITY_CATALOG" in script
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
@@ -90,9 +127,9 @@ def test_bootstrap_and_release_ci_preserve_source_only_eg_contract() -> None:
     assert "--no-install-package epistemic-graph" in bootstrap
     assert "_epistemic_graph_contract.pth" in bootstrap
 
-    commands = _runs(_yaml(RELEASE)["jobs"]["gates"])
-    assert sum(run.count("uv run --frozen --no-sync") for run in commands) == 3
-    assert all("uv run --frozen python" not in run for run in commands)
+    script = CI_SETUP.read_text(encoding="utf-8")
+    assert script.count("uv run --frozen --no-sync") == 1
+    assert "uv run --frozen python" not in script
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
@@ -124,7 +161,7 @@ def test_bootstrap_python_floor_uses_root_project_metadata(tmp_path: Path) -> No
 
 
 def test_every_pre_commit_invocation_uses_the_relocated_config() -> None:
-    for path in (RELEASE, BOOTSTRAP):
+    for path in (GATES, RELEASE, BOOTSTRAP):
         for line in path.read_text(encoding="utf-8").splitlines():
             if re.search(r"pre-commit (run|install)\b", line):
                 assert "--config .config/pre-commit.yaml" in line, (path, line)
@@ -135,13 +172,13 @@ def test_build_job_pins_the_managed_python_not_the_system_one() -> None:
     """The `build` job produces the released wheel, so -- like `gates` -- it
     must declare `python-version` on its setup-uv step rather than letting
     `uv build` fall back to whatever interpreter the hosting runner ships."""
-    workflow = _yaml(RELEASE)
+    workflow = _yaml(BUILD)
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     floor = re.search(r'requires-python\s*=\s*">=(\d+\.\d+)', pyproject)
     assert floor is not None
     pinned_version = floor.group(1)
 
-    for job_name in ("gates", "build"):
+    for job_name in ("build",):
         job = workflow["jobs"][job_name]
         uv_setup_steps = [
             step
@@ -160,7 +197,7 @@ def test_build_job_verifies_installed_wheel_against_graph_client() -> None:
     """The release job must check the built wheel in an isolated installed
     consumer against the published graph-client wheel, not rely on the
     source-overlay test suite's own import of the repository checkout."""
-    build = _yaml(RELEASE)["jobs"]["build"]
+    build = _yaml(BUILD)["jobs"]["build"]
     runs = _runs(build)
     assert any("check_wheel_consumer_compatibility.py" in command for command in runs)
     # The compatibility step must run after the wheel exists and before the
@@ -175,7 +212,11 @@ def test_build_job_verifies_installed_wheel_against_graph_client() -> None:
 
 
 def test_every_release_job_using_uvx_installs_uv_first() -> None:
-    for name, job in _yaml(RELEASE)["jobs"].items():
+    for name, job in {
+        **_yaml(RELEASE)["jobs"],
+        **_yaml(GATES)["jobs"],
+        **_yaml(BUILD)["jobs"],
+    }.items():
         steps = job.get("steps", [])
         uvx = [i for i, s in enumerate(steps) if "uvx " in str(s.get("run", ""))]
         if not uvx:
@@ -190,7 +231,7 @@ def test_every_release_job_using_uvx_installs_uv_first() -> None:
 
 
 def test_workflow_actions_are_pinned_to_immutable_commits() -> None:
-    for path in (RELEASE, PAGES):
+    for path in (RELEASE, GATES, GATES_SKIP, BUILD, PAGES):
         for line in path.read_text(encoding="utf-8").splitlines():
             match = re.search(r"uses:\s*([^\s#]+)", line)
             if match and not match.group(1).startswith("./"):
@@ -202,7 +243,7 @@ def test_workflow_actions_are_pinned_to_immutable_commits() -> None:
 
 
 def test_scanner_toolchain_comes_from_the_single_install_script() -> None:
-    scanner = _yaml(RELEASE)["jobs"]["scanner-quality"]
+    scanner = _yaml(GATES)["jobs"]["scanner-quality"]
     runs = "\n".join(_runs(scanner))
     caches = [
         step
@@ -225,19 +266,17 @@ def test_scanner_toolchain_comes_from_the_single_install_script() -> None:
 
 
 def test_generated_contract_source_is_fetched_at_an_immutable_commit() -> None:
-    gates = _yaml(RELEASE)["jobs"]["gates"]
     contract = CONTRACT.read_text(encoding="utf-8")
     bootstrap = BOOTSTRAP.read_text(encoding="utf-8")
     revision = re.search(r"^revision=(\S+)$", contract, re.MULTILINE)
 
-    assert gates["env"]["PYTHONPATH"] == ".ci/epistemic-graph"
     assert revision
     assert COMMIT.fullmatch(revision.group(1))
     assert 'git -C "$target" checkout --detach "$revision"' in contract
     assert "bash scripts/bootstrap_epistemic_graph_contract.sh" in bootstrap
     assert "uv sync --frozen" in bootstrap
     assert "--no-install-package epistemic-graph" in bootstrap
-    assert any("epistemic_graph.generated.source_ingestion" in r for r in _runs(gates))
+    assert "bash scripts/bootstrap.sh" in CI_SETUP.read_text(encoding="utf-8")
 
 
 def test_no_gate_depends_on_an_external_audit_service() -> None:
@@ -246,12 +285,10 @@ def test_no_gate_depends_on_an_external_audit_service() -> None:
     }
 
     assert "dependency-audit" not in hook_ids
-    assert "osv" not in RELEASE.read_text(encoding="utf-8").lower()
+    assert "osv" not in GATES.read_text(encoding="utf-8").lower()
 
 
 def test_publish_requires_the_dependency_floor_on_the_public_index() -> None:
     commands = _runs(_yaml(RELEASE)["jobs"]["publish-pypi"])
 
-    assert commands.index("uv lock --check") < commands.index(
-        "uv publish --trusted-publishing always dist/*.whl"
-    )
+    assert commands.index("uv lock --check") < commands.index("uv publish dist/*.whl")
