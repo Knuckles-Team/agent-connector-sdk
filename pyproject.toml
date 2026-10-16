@@ -34,7 +34,7 @@ dependencies = [
 
 [[project.authors]]
 name = "Repository Maintainers"
-email = "maintainers@example.invalid"
+email = "maintainers@knuckles.team"
 
 [project.urls]
 Homepage = "https://github.com/Knuckles-Team/agent-connector-sdk"
