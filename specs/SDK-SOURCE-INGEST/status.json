@@ -101,6 +101,9 @@
     "SDK-SOURCE-INGEST-R005.34",
     "SDK-SOURCE-INGEST-R005.35",
     "SDK-SOURCE-INGEST-R005.36",
+    "SDK-SOURCE-INGEST-R005.37",
+    "SDK-SOURCE-INGEST-R005.38",
+    "SDK-SOURCE-INGEST-R005.39",
     "SDK-SOURCE-INGEST-R006.32",
     "SDK-SOURCE-INGEST-R006.33",
     "SDK-SOURCE-INGEST-R006.34",
@@ -273,7 +276,10 @@
         "SDK-SOURCE-INGEST-R005.33",
         "SDK-SOURCE-INGEST-R005.34",
         "SDK-SOURCE-INGEST-R005.35",
-        "SDK-SOURCE-INGEST-R005.36"
+        "SDK-SOURCE-INGEST-R005.36",
+        "SDK-SOURCE-INGEST-R005.37",
+        "SDK-SOURCE-INGEST-R005.38",
+        "SDK-SOURCE-INGEST-R005.39"
       ]
     },
     {
@@ -1224,6 +1230,42 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.37",
+      "title": "Git-markdown domain packs with lineage and diff-based re-ingest",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ed3b2f7f83d5"
+      ],
+      "verified_by": [
+        "tests/test_document_sources.py:105",
+        "tests/test_document_sources.py:143"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.38",
+      "title": "Filesystem document source with a live ingestion path",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ed3b2f7f83d5"
+      ],
+      "verified_by": [
+        "tests/test_document_sources.py:179"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.39",
+      "title": "Governed document ingest applies the permission envelope before embedding",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ed3b2f7f83d5"
+      ],
+      "verified_by": [
+        "tests/test_document_sources.py:258",
+        "tests/test_document_sources.py:296",
+        "tests/test_document_sources.py:313"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.32",

@@ -203,7 +203,8 @@
     "SDK-CONNECTOR-CONTROL-R014.11",
     "SDK-CONNECTOR-CONTROL-R014.12",
     "SDK-CONNECTOR-CONTROL-R014.13",
-    "SDK-CONNECTOR-CONTROL-R014.14"
+    "SDK-CONNECTOR-CONTROL-R014.14",
+    "SDK-CONNECTOR-CONTROL-R014.15"
   ],
   "requirements": [
     {
@@ -388,7 +389,8 @@
         "SDK-CONNECTOR-CONTROL-R014.11",
         "SDK-CONNECTOR-CONTROL-R014.12",
         "SDK-CONNECTOR-CONTROL-R014.13",
-        "SDK-CONNECTOR-CONTROL-R014.14"
+        "SDK-CONNECTOR-CONTROL-R014.14",
+        "SDK-CONNECTOR-CONTROL-R014.15"
       ]
     },
     {
@@ -2007,6 +2009,17 @@
       ],
       "verified_by": [
         "tests/test_connector_runtime_adds.py:221"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.15",
+      "title": "External ACL sync into ingested documents",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ed3b2f7f83d5"
+      ],
+      "verified_by": [
+        "tests/test_document_sources.py:216"
       ]
     }
   ]
