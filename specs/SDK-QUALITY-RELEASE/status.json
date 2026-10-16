@@ -21,7 +21,7 @@
         "5b53e943e468"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:158",
+        "tests/gates/test_workflow_contract.py:195",
         "tests/test_release_quality_r001_r005.py:48",
         "tests/test_release_quality_r001_r005.py:55",
         "tests/test_release_quality_r001_r005.py:61",
@@ -48,8 +48,8 @@
         "42b930057c3e"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:133",
-        "tests/gates/test_workflow_contract.py:98"
+        "tests/gates/test_workflow_contract.py:135",
+        "tests/gates/test_workflow_contract.py:170"
       ]
     },
     {
@@ -74,7 +74,7 @@
         "bdd3916109d0"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:86",
+        "tests/gates/test_workflow_contract.py:123",
         "tests/test_release_quality_r001_r005.py:104",
         "tests/test_release_quality_r001_r005.py:123",
         "tests/test_release_quality_r001_r005.py:130",
