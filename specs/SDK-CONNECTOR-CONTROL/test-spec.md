@@ -238,3 +238,14 @@ Denied startup must retain component, input name and typed reason without the va
 Record host and SDK revisions, fixture seed, manifest and census digests, process exit and independently observed effect counts.
 The host records its own decision; the SDK export receipt supplies no startup authority.
 Missing host or AU producer implementation keeps the corresponding served acceptance pending.
+
+## Connector runtime utilities moved from agent-utilities (R014.2-R014.9)
+
+- `SDK-CONNECTOR-CONTROL-R014.2`: `tests/test_connector_runtime_from_au.py::test_r014_2_file_lock_exclusive_and_nonblocking` holds a lock, proves a second descriptor is refused, then acquires it after release.
+- `SDK-CONNECTOR-CONTROL-R014.3`: `test_r014_3_tool_version_stamps_async_tool`.
+- `SDK-CONNECTOR-CONTROL-R014.4`: `test_r014_4_runtime_secret_references` covers resolution, refusal, non-disclosure and the argparse action.
+- `SDK-CONNECTOR-CONTROL-R014.5`: `test_r014_5_validate_base_url` covers literal and resolved refusal and loopback control.
+- `SDK-CONNECTOR-CONTROL-R014.6`: `test_r014_6_pii_sanitizer_redacts`.
+- `SDK-CONNECTOR-CONTROL-R014.7`: `test_r014_7_paths_honour_overrides`.
+- `SDK-CONNECTOR-CONTROL-R014.8`: `test_r014_8_delegation_helpers`.
+- `SDK-CONNECTOR-CONTROL-R014.9`: `test_r014_9_no_credential`.
