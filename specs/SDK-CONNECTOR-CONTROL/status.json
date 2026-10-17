@@ -375,7 +375,7 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014",
       "title": "SDK fully supersedes the duplicated connector toolkit",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "5e1bd9257555"
       ],
@@ -1896,84 +1896,107 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.2",
       "title": "Cross-platform advisory file locks",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "03113365f375",
         "b1a75903b188"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:34"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.3",
       "title": "Tool version metadata",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "03113365f375",
         "b1a75903b188"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:53"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.4",
       "title": "Reference-only CLI secrets",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "03113365f375",
         "b1a75903b188"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:65"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.5",
       "title": "Operator base-URL egress guard",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "8b001fee8ebb",
+        "03113365f375",
+        "4f377bf3e39a",
         "b1a75903b188"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:46"
+        "tests/source_connectors/test_source_connectors.py:46",
+        "tests/test_connector_runtime_from_au.py:83"
       ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.6",
       "title": "PII sanitizer",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "03113365f375",
         "b1a75903b188"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:104"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.7",
       "title": "Connector state directories",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "03113365f375",
         "b1a75903b188"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:111"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.8",
       "title": "Delegated-token helpers",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "03113365f375",
         "b1a75903b188"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:122"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.9",
       "title": "Keyless credential sentinel",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "03113365f375",
         "b1a75903b188"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:131"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.10",
       "title": "Class-based API client base and auth strategies",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "8b001fee8ebb",
+        "4f377bf3e39a",
         "afc686a65836"
       ],
       "verified_by": [
@@ -2041,37 +2064,70 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.16",
       "title": "DNS-pinned egress on the governed client",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "03113365f375"
+      ],
+      "verified_by": [
+        "tests/test_http_dns_pinned_egress.py:103",
+        "tests/test_http_dns_pinned_egress.py:115",
+        "tests/test_http_dns_pinned_egress.py:122",
+        "tests/test_http_dns_pinned_egress.py:135",
+        "tests/test_http_dns_pinned_egress.py:143"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.17",
       "title": "MCP-free base install",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "03113365f375"
+      ],
+      "verified_by": [
+        "tests/test_base_install_mcp_free.py:35",
+        "tests/test_base_install_mcp_free.py:58",
+        "tests/test_base_install_mcp_free.py:75"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.18",
       "title": "Default fail-closed served security profile",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "03113365f375"
+      ],
+      "verified_by": [
+        "tests/test_served_security_and_provider_profile.py:116",
+        "tests/test_served_security_and_provider_profile.py:140",
+        "tests/test_served_security_and_provider_profile.py:150",
+        "tests/test_served_security_and_provider_profile.py:42",
+        "tests/test_served_security_and_provider_profile.py:50"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.19",
       "title": "Selected-provider credential profile",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "03113365f375"
+      ],
+      "verified_by": [
+        "tests/test_served_security_and_provider_profile.py:185",
+        "tests/test_served_security_and_provider_profile.py:211",
+        "tests/test_served_security_and_provider_profile.py:258",
+        "tests/test_served_security_and_provider_profile.py:264"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.20",
       "title": "Plugin entry-point groups use the SDK namespace",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "03113365f375"
+      ],
+      "verified_by": [
+        "tests/test_served_security_and_provider_profile.py:273"
+      ]
     }
   ]
 }
