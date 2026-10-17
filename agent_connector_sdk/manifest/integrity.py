@@ -16,12 +16,14 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
-import os
+import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 import yaml
+
+from agent_connector_sdk.config import setting
 
 __all__ = [
     "DEFAULT_SIGNER_ID",
@@ -89,7 +91,7 @@ def _b64url_decode(value: str, *, expected_bytes: int) -> bytes:
 def _runtime_release_private_key() -> str:
     """Resolve one release-signing key from the configured secret provider."""
     reference = str(
-        os.environ.get("ONTOLOGY_RELEASE_SIGNING_PRIVATE_KEY_REF", "") or ""
+        setting("ONTOLOGY_RELEASE_SIGNING_PRIVATE_KEY_REF", "") or ""
     ).strip()
     if not reference:
         raise ReleaseSigningError(
@@ -205,7 +207,7 @@ def _valid_digest(value: str) -> bool:
 
 
 def _rotation_record_path() -> Path:
-    configured = os.environ.get("CONNECTOR_RELEASE_ROTATION_RECORD", "").strip()
+    configured = str(setting("CONNECTOR_RELEASE_ROTATION_RECORD", "") or "").strip()
     return Path(configured) if configured else Path("signing-key-rotation.yml")
 
 
@@ -256,7 +258,7 @@ def release_trusted_public_keys() -> tuple[str, ...]:
     ledger currently designates. The ledger participates so a governed rotation is
     a reviewable repository change rather than an invisible environment edit.
     """
-    raw = str(os.environ.get("ONTOLOGY_RELEASE_TRUSTED_PUBLIC_KEYS", "") or "")
+    raw = str(setting("ONTOLOGY_RELEASE_TRUSTED_PUBLIC_KEYS", "") or "")
     keys: list[str] = []
     for candidate in raw.split(","):
         value = candidate.strip()
@@ -280,8 +282,6 @@ def lock_pinned_public_keys(path: str | Path) -> frozenset[str]:
 
     pinned: set[str] = set()
     for entry in load_lock(path).values():
-        if not isinstance(entry, dict):
-            continue
         for field_name in ("signing_public_key", "certification_signing_public_key"):
             value = entry.get(field_name)
             if isinstance(value, str) and value:
@@ -338,12 +338,15 @@ def repository_commit_sha(root: str | Path | None = None) -> str | None:
     is unavailable: recording a commit hash is descriptive provenance, not a
     security gate, so it must fail soft.
     """
-    import subprocess
+    import subprocess  # nosec B404 - fixed git argv, no shell
 
     root = Path(root) if root is not None else Path.cwd()
+    git = shutil.which("git")
+    if git is None:
+        return None
     try:
-        result = subprocess.run(
-            ["git", "-C", str(root), "rev-parse", "HEAD"],
+        result = subprocess.run(  # nosec B603 - fixed git argv, absolute executable
+            [git, "-C", str(root), "rev-parse", "HEAD"],
             capture_output=True,
             text=True,
             check=False,
@@ -376,7 +379,7 @@ def release_signer_for_publication(
       when the only remedy left is a fleet-wide rotation.
     """
     reference = str(
-        os.environ.get("ONTOLOGY_RELEASE_SIGNING_PRIVATE_KEY_REF", "") or ""
+        setting("ONTOLOGY_RELEASE_SIGNING_PRIVATE_KEY_REF", "") or ""
     ).strip()
     if not reference.startswith(DURABLE_SECRET_SCHEMES):
         raise ReleaseSigningError(
