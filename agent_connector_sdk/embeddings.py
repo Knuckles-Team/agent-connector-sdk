@@ -82,7 +82,7 @@ def _ollama_embed(
     embeddings = response.json().get("embeddings")
     if embeddings is None:
         raise ValueError("Ollama embeddings response is missing 'embeddings'")
-    return embeddings
+    return [[float(value) for value in vector] for vector in embeddings]
 
 
 _EMBED_FNS: dict[str, EmbedFn] = {"openai": _openai_embed, "ollama": _ollama_embed}

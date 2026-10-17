@@ -75,7 +75,12 @@ class A2AClient:
             return None
 
     async def _rpc(
-        self, client: httpx.AsyncClient, url: str, method: str, params: dict, rid: int
+        self,
+        client: httpx.AsyncClient,
+        url: str,
+        method: str,
+        params: dict[str, Any],
+        rid: int,
     ) -> dict[str, Any]:
         payload = {"jsonrpc": "2.0", "method": method, "params": params, "id": rid}
         data = self._json(await client.post(url, json=payload))
