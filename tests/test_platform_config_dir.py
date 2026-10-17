@@ -102,12 +102,10 @@ def test_preferred_and_legacy_directories_follow_their_settings(
 
 
 def test_graph_os_dir_is_read_before_agent_utilities(tmp_path, caplog):
-    old = tmp_path / "xdg" / "graph-os"
-    old.mkdir(parents=True)
-    (old / "config.json").write_text("{}")
-    legacy = tmp_path / "xdg" / "agent-utilities"
-    legacy.mkdir(parents=True)
-    (legacy / "config.json").write_text("{}")
+    old, legacy = (tmp_path / "xdg" / name for name in ("graph-os", "agent-utilities"))
+    for directory in (old, legacy):
+        directory.mkdir(parents=True)
+        (directory / "config.json").write_text("{}")
     with caplog.at_level(logging.WARNING):
         assert paths.platform_config_dir() == old
         assert paths.platform_config_file("config.json") == old / "config.json"
