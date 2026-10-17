@@ -260,3 +260,6 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R014.18`: `tests/test_served_security_and_provider_profile.py::test_r014_18_*` cover refusal without auth or audience, the middleware's identity/tenant/ACL/session cases, default application by `create_mcp_server`, the logged override and the static tenant claim.
 - `SDK-CONNECTOR-CONTROL-R014.19`: `tests/test_served_security_and_provider_profile.py::test_r014_19_*` cover resolution, close, every failure code and every invalid document.
 - `SDK-CONNECTOR-CONTROL-R014.20`: `tests/test_served_security_and_provider_profile.py::test_r014_20_entry_point_groups_use_the_sdk_namespace`.
+- `SDK-CONNECTOR-CONTROL-R780.1` to `SDK-CONNECTOR-CONTROL-R780.5`: `tests/test_au_helper_parity.py` (5 tests).
+- `SDK-CONNECTOR-CONTROL-R781`: `tests/test_trajectory_recorder.py`.
+- `SDK-CONNECTOR-CONTROL-R782`: `tests/test_stream_adapter.py`.

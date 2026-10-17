@@ -199,3 +199,12 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.4:** Refuse invalid premises and incompatible strategies without partial application.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.5:** Record proposal load/headroom premises, applied instance count and loop closure.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.6:** Verify EG generates proposal, GraphOS applies it and loop closes on receipt.
+- [x] **SDK-CONNECTOR-CONTROL-R780.1:** Actor type, bound to `tests/test_au_helper_parity.py`.
+- [x] **SDK-CONNECTOR-CONTROL-R780.2:** Exceptions, bound to `tests/test_au_helper_parity.py`.
+- [x] **SDK-CONNECTOR-CONTROL-R780.3:** Governed HTTP client and retry, bound.
+- [x] **SDK-CONNECTOR-CONTROL-R780.4:** TLS profile resolution, bound.
+- [x] **SDK-CONNECTOR-CONTROL-R780.5:** Value helpers and configuration projection, bound.
+- [ ] **SDK-CONNECTOR-CONTROL-R780.6:** Add the remainder helpers.
+- [ ] **SDK-CONNECTOR-CONTROL-R780:** Rollup of the helper replacements.
+- [ ] **SDK-CONNECTOR-CONTROL-R781:** Training-trajectory recorder helper.
+- [ ] **SDK-CONNECTOR-CONTROL-R782:** Message-stream adapters normalize into change envelopes.

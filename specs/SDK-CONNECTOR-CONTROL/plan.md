@@ -524,3 +524,7 @@ Component health endpoint states explicitly separate unconfigured components fro
 ### R060.1-R060.6: EG scaling proposal → GraphOS capacity application → applied-state receipt
 
 EG supplies scaled-hosting proposals based on load and headroom premises. GraphOS applies the proposal and confirms accepted scaling in hosted application state. Scaling actuation loop closes when applied state is recorded and acknowledged by EG.
+
+## Parity rows R780 to R782
+
+R780 maps each retired agent-utilities harness module to its SDK module: identity, exceptions, `http.client` with `http.retry`, `tls.resolve`, `utilities` with `config`. R780.6 lists what has no SDK equivalent. R781 and R782 compose existing engine methods into SDK helpers and add no engine method.
