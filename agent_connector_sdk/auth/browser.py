@@ -20,6 +20,7 @@ import logging
 import os
 import re
 import secrets
+import sys
 import threading
 import time
 import webbrowser
@@ -158,7 +159,7 @@ class BaseLoopbackCallbackHandler(BaseHTTPRequestHandler):
         try:
             safe_path = urlparse(self.path).path
         except ValueError:
-            safe_path = "<unparseable>"
+            safe_path = "<unparsable>"
         logger.debug(
             "Loopback OAuth callback request (method=%s path=%s)",
             self.command,
@@ -417,11 +418,14 @@ class BaseBrowserAuthManager:
     @staticmethod
     def _announce_authorization(auth_url: str) -> None:
         """Show the authorization URL and attempt to open it in a browser."""
-        print("\n" + "=" * 80)
-        print("Interactive OAuth Authentication Setup")
-        print("=" * 80)
-        print(f"Please navigate to the following link to authenticate:\n\n{auth_url}\n")
-        print("=" * 80 + "\n")
+        print("\n" + "=" * 80, file=sys.stderr)
+        print("Interactive OAuth Authentication Setup", file=sys.stderr)
+        print("=" * 80, file=sys.stderr)
+        print(
+            f"Please navigate to the following link to authenticate:\n\n{auth_url}\n",
+            file=sys.stderr,
+        )
+        print("=" * 80 + "\n", file=sys.stderr)
 
         with contextlib.suppress(Exception):
             webbrowser.open(auth_url)
@@ -433,7 +437,7 @@ class BaseBrowserAuthManager:
         """Wait briefly for the browser callback to populate the server."""
         wait_limit = 60.0
         start_time = time.time()
-        print("Waiting for browser callback authorization...")
+        print("Waiting for browser callback authorization...", file=sys.stderr)
         while time.time() - start_time < wait_limit:
             if server.auth_code:
                 return server.auth_code
@@ -447,9 +451,10 @@ class BaseBrowserAuthManager:
 
         auth_file_path = str(config_dir() / "browser_auth_code.txt")
         print(
-            f"Non-TTY environment detected. Please write the authorization code to {auth_file_path}"
+            f"Non-TTY environment detected. Please write the authorization code to {auth_file_path}",
+            file=sys.stderr,
         )
-        print(f"Example: echo 'your_code_here' > {auth_file_path}")
+        print(f"Example: echo 'your_code_here' > {auth_file_path}", file=sys.stderr)
 
         wait_limit = 300.0
         start_time = time.time()
@@ -470,7 +475,10 @@ class BaseBrowserAuthManager:
     @staticmethod
     def _prompt_for_manual_code() -> str | None:
         """Prompt for a redirected URL or raw authorization code on a TTY."""
-        print("Please open the URL above in your local browser, authorize, and then:")
+        print(
+            "Please open the URL above in your local browser, authorize, and then:",
+            file=sys.stderr,
+        )
         paste_val = input(
             "Paste the redirected URL (containing '?code=...') or the raw code: "
         ).strip()
@@ -490,9 +498,7 @@ class BaseBrowserAuthManager:
         if auth_code:
             return auth_code
 
-        import sys
-
-        print("Loopback server timed out or is unavailable.")
+        print("Loopback server timed out or is unavailable.", file=sys.stderr)
         if not sys.stdin.isatty():
             return self._read_manual_code_file()
         return self._prompt_for_manual_code()
@@ -560,5 +566,5 @@ class BaseBrowserAuthManager:
             token_endpoint, auth_code, verifier, challenge
         )
         self.save_tokens(tokens)
-        print("Successfully authenticated and stored credentials!\n")
+        print("Successfully authenticated and stored credentials!\n", file=sys.stderr)
         return tokens

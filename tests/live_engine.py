@@ -26,10 +26,10 @@ TENANT = "tenant:sdk-test"
 POLICY = "policy:current"
 PRINCIPAL = "service:connector"
 GRAPH = "sdk-live"
-_SECRET = "sdk-live-engine-" + "test-secret-0123456789abcdef"  # nosec B105
+_SECRET = "sdk-live-engine-" + "test-secret-0123456789abcdef"  # nosec B105  # sanitizer:ignore - synthetic engine test fixture
 _SIGNER_KEY = "sdk-live-engine-" + "signer-key-0123456789abcdef"  # nosec B105
 _DATA_KEY = "sdk-live-engine-" + "encryption-key-0123456789abcdef"  # nosec B105
-_SECRET_ENV = "SDK_LIVE_ENGINE_SECRET"
+_SECRET_ENV = "SDK_LIVE_ENGINE_SECRET"  # sanitizer:ignore - environment variable name, not a secret value
 
 
 def _context(roles: list[str], scopes: list[str]) -> dict[str, object]:

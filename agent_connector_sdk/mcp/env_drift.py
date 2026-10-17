@@ -36,7 +36,7 @@ import re
 import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
 
 import yaml
 
@@ -568,14 +568,19 @@ def format_report(report: dict[str, Any]) -> str:
 _format = format_report
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: list[str] | None = None, out: TextIO | None = None) -> int:
+    """Run the drift check; the report goes to ``out`` (stdout by default), notices to stderr."""
+    stream = out if out is not None else sys.stdout
     parser = argparse.ArgumentParser(description="Detect connector env-var drift.")
     parser.add_argument("root", nargs="?", default=".", help="Connector root")
     parser.add_argument("--check", action="store_true", help="Exit 1 on any drift")
     parser.add_argument("--json", action="store_true", help="Emit JSON findings")
     args = parser.parse_args(argv)
     report = analyze(Path(args.root))
-    print(json.dumps(report, indent=2) if args.json else format_report(report))
+    print(
+        json.dumps(report, indent=2) if args.json else format_report(report),
+        file=stream,
+    )
     if args.check and report["drift"]:
         print(
             "\nenv-var drift detected (the code is the source of truth).",

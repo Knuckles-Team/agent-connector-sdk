@@ -38,6 +38,13 @@ mcp = [
     "mcp>=2.3.0,<3",
 ]
 
+feeds = [
+    "feedparser>=6.0.12",
+]
+dataprep = [
+    "pyarrow>=24.0.0",
+]
+
 [[project.authors]]
 name = "Repository Maintainers"
 email = "maintainers@knuckles.team"
@@ -85,7 +92,7 @@ agent_connector_sdk = ["py.typed", "skills/**/*", "ontology/*.ttl"]
 
 [dependency-groups]
 test = [
-    "agent-connector-sdk[mcp]",
+    "agent-connector-sdk[mcp,feeds,dataprep]",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "pytest-timeout>=2.4.0",
@@ -94,7 +101,7 @@ docs = [
     "mkdocs-material==9.7.7",
 ]
 typecheck = [
-    "agent-connector-sdk[mcp]",
+    "agent-connector-sdk[mcp,feeds,dataprep]",
     "mypy==2.4.0",
     "types-PyYAML==6.0.12.20260906",
 ]
@@ -128,6 +135,13 @@ ignore = ["E501"]
 python_version = "3.12"
 strict = true
 warn_unreachable = true
+
+# Optional-dependency modules the typecheck group does not install: pyarrow,
+# feedparser and the certification/markdown backends load only when a caller
+# opts in, and none ships inline types.
+[[tool.mypy.overrides]]
+module = ["pyarrow", "pyarrow.*", "feedparser", "great_expectations", "pandera", "markitdown"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -313,6 +327,49 @@ public_modules = [
     "agent_connector_sdk.writeback.models",
     "agent_connector_sdk.writeback.service",
     "agent_connector_sdk.writeback.validation",
+    # Connector library modules moved from agent-utilities: consumed by connector
+    # packages, so each is part of the documented public surface.
+    "agent_connector_sdk.auth.browser",
+    "agent_connector_sdk.credentials.provider_profile",
+    "agent_connector_sdk.credentials.runtime_references",
+    "agent_connector_sdk.data_prep",
+    "agent_connector_sdk.data_prep._base",
+    "agent_connector_sdk.data_prep._classification",
+    "agent_connector_sdk.data_prep.certification",
+    "agent_connector_sdk.data_prep.certification.adapters",
+    "agent_connector_sdk.data_prep.certification.job",
+    "agent_connector_sdk.data_prep.certification.models",
+    "agent_connector_sdk.data_prep.kernel",
+    "agent_connector_sdk.data_prep.models",
+    "agent_connector_sdk.data_prep.profiling",
+    "agent_connector_sdk.file_lock",
+    "agent_connector_sdk.http.support",
+    "agent_connector_sdk.httpsupport",
+    "agent_connector_sdk.httpsupport.auth",
+    "agent_connector_sdk.httpsupport.client_protocol",
+    "agent_connector_sdk.httpsupport.pagination",
+    "agent_connector_sdk.httpsupport.rate_limit",
+    "agent_connector_sdk.httpsupport.redaction",
+    "agent_connector_sdk.mcp.env_drift",
+    "agent_connector_sdk.mcp.graphql",
+    "agent_connector_sdk.mcp.versioning",
+    "agent_connector_sdk.paths",
+    "agent_connector_sdk.privacy_pii",
+    "agent_connector_sdk.source_connectors",
+    "agent_connector_sdk.source_connectors.base",
+    "agent_connector_sdk.source_connectors.checkpoint",
+    "agent_connector_sdk.source_connectors.connectors",
+    "agent_connector_sdk.source_connectors.connectors.arxiv",
+    "agent_connector_sdk.source_connectors.connectors.package_manifest",
+    "agent_connector_sdk.source_connectors.connectors.rest",
+    "agent_connector_sdk.source_connectors.connectors.rss",
+    "agent_connector_sdk.source_connectors.connectors.web",
+    "agent_connector_sdk.source_connectors.http_safety",
+    "agent_connector_sdk.source_connectors.registry",
+    "agent_connector_sdk.voice_supply_chain",
+    "agent_connector_sdk.voice_supply_chain.license_registry",
+    "agent_connector_sdk.voice_supply_chain.manifest",
+    "agent_connector_sdk.voice_supply_chain.store",
 ]
 
 # Inputs of the shared hooks (Knuckles-Team/pipelines .pre-commit-hooks.yaml).
