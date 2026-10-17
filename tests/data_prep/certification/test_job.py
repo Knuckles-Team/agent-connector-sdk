@@ -179,3 +179,70 @@ def test_optional_provider_wrappers_are_lazy_and_do_not_run_without_provider() -
     # is deliberately never reached in this fixture.
     adapter = GreatExpectationsAdapter(lambda _table, _authorization: {})
     assert adapter.backend == "great_expectations"
+
+
+# --- typed result surface: states, signer seam and the Pandera wrapper ---
+
+from typing import get_args  # noqa: E402
+
+from pydantic import TypeAdapter  # noqa: E402
+
+from agent_connector_sdk.data_prep.certification import (  # noqa: E402
+    CertificationAdapter,
+    CertificationBackend,
+    CertificationResult,
+    CertificationSigner,
+    CertificationState,
+    FailureCode,
+    PanderaAdapter,
+    SignedResultSummary,
+    mark_not_requested,
+)
+from agent_connector_sdk.data_prep.certification.models import (  # noqa: E402
+    OpaqueRef,
+    Signature,
+)
+
+
+def test_not_requested_is_an_honest_state_without_artifacts() -> None:
+    result = mark_not_requested(_job())
+    assert isinstance(result, CertificationResult)
+    assert result.state == "not_requested"
+    assert result.state in get_args(CertificationState.__value__)
+    assert (result.report, result.signed_summary) == (None, None)
+
+
+def test_signed_summary_binds_signer_and_backend() -> None:
+    signer: CertificationSigner = _Signer()
+    adapter: CertificationAdapter = _PassingAdapter(None)
+    result = run_certification_job(
+        pa.table({"id": [1]}), _job(), adapter=adapter, signer=signer, now_ms=1_000
+    )
+    summary = result.signed_summary
+    assert isinstance(summary, SignedResultSummary)
+    assert (summary.signer_ref, summary.signature) == (
+        "fixture-signer",
+        "fixture-signature",
+    )
+    assert summary.backend in get_args(CertificationBackend.__value__)
+    assert set(summary.failure_codes) <= set(get_args(FailureCode.__value__))
+
+    class _WrongAlgorithm(_Signer):
+        algorithm = "rsa"
+
+    denied = run_certification_job(
+        pa.table({"id": [1]}),
+        _job(),
+        adapter=adapter,
+        signer=_WrongAlgorithm(),
+        now_ms=1_000,
+    )
+    assert (denied.state, denied.failure_code) == ("failed", "signer_invalid")
+
+
+def test_reference_aliases_reject_unsafe_values_and_pandera_is_lazy() -> None:
+    with pytest.raises(ValidationError):
+        TypeAdapter(OpaqueRef).validate_python("https://x.example/?token=secret")
+    with pytest.raises(ValidationError):
+        TypeAdapter(Signature).validate_python("")
+    assert PanderaAdapter(lambda _table, _authorization: {}).backend == "pandera"
