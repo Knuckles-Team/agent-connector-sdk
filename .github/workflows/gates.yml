@@ -4,12 +4,13 @@ name: Gates
 # the full pre-commit and pre-push stages over the changed files plus the
 # affected-test subset. Push to main: the same job over every file with the full
 # test suite, the advisory scanner-quality job, and the reproducible build. Never
-# publishes (release.yml, v* tag only). Docs and spec-only changes skip this
-# workflow; gates-skip.yml reports the required check for them.
+# publishes (release.yml, v* tag only). Every pull request runs this workflow:
+# the job itself detects a docs/spec-only diff (`docs-only-paths`) and passes in
+# seconds, so a pull request has exactly one `gates / gates` check and no skip
+# companion can mask a failing real run. A docs-only push to main skips it.
 
 on:
   pull_request:
-    paths-ignore: [specs/**, docs/**, '**/*.md', plans/**, LICENSE]
   push:
     branches: [main]
     paths-ignore: [specs/**, docs/**, '**/*.md', plans/**, LICENSE]
@@ -35,6 +36,8 @@ jobs:
       # fast-tests duplicates the shared affected-test step; a fork cannot read the identity catalog.
       skip-hooks: ${{ github.event.pull_request.head.repo.fork && 'fast-tests,tracked-privacy' || 'fast-tests' }}
       extra-manual-hooks: ${{ github.event_name == 'push' && 'tracked-privacy wheel-build mkdocs-build' || 'tracked-privacy' }}
+      # Bash patterns (`*` crosses `/`); the same set as the push paths-ignore.
+      docs-only-paths: 'specs/* docs/* *.md plans/* LICENSE'
 
   scanner-quality:
     name: scanner-quality

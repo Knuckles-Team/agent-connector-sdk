@@ -23,7 +23,6 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 GATES = ROOT / ".github" / "workflows" / "gates.yml"
-GATES_SKIP = ROOT / ".github" / "workflows" / "gates-skip.yml"
 BUILD = ROOT / ".github" / "workflows" / "build.yml"
 CI_SETUP = ROOT / "scripts" / "ci_setup.sh"
 PAGES = ROOT / ".github" / "workflows" / "pages.yml"
@@ -91,13 +90,15 @@ def test_gates_trigger_standard_and_cancel_superseded_runs() -> None:
     triggers = workflow[True]
     ignore = ["specs/**", "docs/**", "**/*.md", "plans/**", "LICENSE"]
 
-    assert triggers["pull_request"]["paths-ignore"] == ignore
+    # Pull requests always run the one `gates / gates` check; the job detects a
+    # docs-only diff itself, so no same-named skip companion exists.
+    assert triggers["pull_request"] is None
+    assert not (GATES.parent / "gates-skip.yml").exists()
+    patterns = workflow["jobs"]["gates"]["with"]["docs-only-paths"].split()
+    assert patterns == ["specs/*", "docs/*", "*.md", "plans/*", "LICENSE"]
     assert triggers["push"]["paths-ignore"] == ignore
     assert triggers["push"]["branches"] == ["main"]
     assert workflow["concurrency"]["cancel-in-progress"] is True
-    skip = _yaml(GATES_SKIP)
-    assert skip[True]["pull_request"]["paths"] == ignore
-    assert skip["jobs"]["gates"]["name"] == "gates / gates"
 
 
 def test_release_publishes_only_for_a_tag_or_dispatch() -> None:
@@ -250,7 +251,7 @@ def test_every_release_job_using_uvx_installs_uv_first() -> None:
 
 
 def test_workflow_actions_are_pinned_to_immutable_commits() -> None:
-    for path in (RELEASE, GATES, GATES_SKIP, BUILD, PAGES):
+    for path in (RELEASE, GATES, BUILD, PAGES):
         for line in path.read_text(encoding="utf-8").splitlines():
             match = re.search(r"uses:\s*([^\s#]+)", line)
             if match and not match.group(1).startswith("./"):
