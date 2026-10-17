@@ -209,3 +209,85 @@ def test_log_redactor_provider_failure_never_breaks_logging():
     log, records = _logger("sdk.test.redactor2", LogRedactor(secrets_provider=broken))
     log.info("still logs")
     assert records[0].getMessage() == "still logs"
+
+
+# --- neutral client protocol: response snapshot and the error taxonomy ---
+
+from agent_connector_sdk.httpsupport.client_protocol import (  # noqa: E402
+    AsyncHttpClient,
+    HttpClient,
+    HttpConnectError,
+    HttpProtocolError,
+    HttpResponse,
+    HttpTimeoutError,
+    HttpTooManyRedirectsError,
+    HttpTransportError,
+    map_transport_error,
+    normalize_response,
+)
+from agent_connector_sdk.httpsupport.rate_limit import (  # noqa: E402
+    DEFAULT_RETRY_AFTER_CAP_S,
+)
+from agent_connector_sdk.httpsupport.redaction import contains_secret  # noqa: E402
+
+
+def test_normalize_response_copies_fields_and_defers_json():
+    import httpx
+
+    calls = []
+    raw = httpx.Response(201, json={"ok": 1}, headers={"X-Id": "7"})
+    original_json = raw.json
+
+    def counting_json():
+        calls.append(1)
+        return original_json()
+
+    raw.json = counting_json  # type: ignore[method-assign]
+    snapshot = normalize_response(raw)
+    assert isinstance(snapshot, HttpResponse)
+    assert (snapshot.status_code, snapshot.headers["x-id"]) == (201, "7")
+    assert snapshot.content == b'{"ok":1}' and calls == []
+    assert snapshot.json() == {"ok": 1} and calls == [1]
+
+
+@pytest.mark.parametrize(
+    ("name", "category"),
+    [
+        ("ReadTimeout", HttpTimeoutError),
+        ("ConnectError", HttpConnectError),
+        ("TooManyRedirects", HttpTooManyRedirectsError),
+        ("RemoteProtocolError", HttpProtocolError),
+        ("SomethingElse", HttpTransportError),
+    ],
+)
+def test_transport_errors_map_by_class_name(name, category):
+    mapped = map_transport_error(type(name, (Exception,), {})("boom"))
+    assert type(mapped) is category
+    assert isinstance(mapped, HttpTransportError)
+    assert str(mapped) == f"{name}: boom"
+
+
+def test_client_protocols_are_structural():
+    class Sync:
+        def request(self, method, url, **kwargs):
+            raise NotImplementedError
+
+        def close(self):
+            return None
+
+    class Async:
+        async def request(self, method, url, **kwargs):
+            raise NotImplementedError
+
+        async def aclose(self):
+            return None
+
+    assert isinstance(Sync(), HttpClient) and not isinstance(Sync(), AsyncHttpClient)
+    assert isinstance(Async(), AsyncHttpClient)
+
+
+def test_default_cap_bounds_backoff_and_secret_detection_is_membership_only():
+    assert backoff_seconds({"Retry-After": "99999"}) == DEFAULT_RETRY_AFTER_CAP_S
+    assert contains_secret("Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.p.s")
+    assert not contains_secret("GET /api/stacks returned 200")
+    assert not contains_secret("")

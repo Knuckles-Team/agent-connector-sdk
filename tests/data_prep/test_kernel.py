@@ -468,3 +468,152 @@ def test_small_secret_has_no_unkeyed_content_or_field_name_fingerprint() -> None
         assert "input_digest" not in dumped
         assert "output_digest" not in dumped
         assert "name_digest" not in dumped
+
+
+# --- typed plan surface: every step model, the result and its evidence ---
+
+from typing import get_args  # noqa: E402
+
+from pydantic import TypeAdapter  # noqa: E402
+
+from agent_connector_sdk.data_prep import (  # noqa: E402
+    STEP_VERBS,
+    ArrowAdapter,
+    ArrowTypeName,
+    CanonicalNames,
+    CleanStep,
+    ColumnName,
+    DataPrepDependencyError,
+    DataPrepError,
+    Dedupe,
+    Digest,
+    FillNulls,
+    InvalidRowDisposition,
+    LocalProfile,
+    NullPolicy,
+    OpaqueReference,
+    PrepResult,
+    QuarantineOutcome,
+    RegisteredRowModel,
+    RowOutcome,
+    SafeCast,
+    ScalarValue,
+    SchemaVersion,
+    StepEvidence,
+)
+from agent_connector_sdk.data_prep._base import ProtocolModel  # noqa: E402
+
+
+def test_step_union_dispatches_every_allowlisted_verb_to_its_model() -> None:
+    adapter = TypeAdapter(CleanStep)
+    payloads = {
+        "canonical_names": ({"verb": "canonical_names"}, CanonicalNames),
+        "null_policy": (
+            {"verb": "null_policy", "columns": ["a"], "action": "reject"},
+            NullPolicy,
+        ),
+        "safe_cast": (
+            {
+                "verb": "safe_cast",
+                "column": "a",
+                "source_type": "int8",
+                "target_type": "int64",
+            },
+            SafeCast,
+        ),
+        "dedupe": ({"verb": "dedupe", "keys": ["a"]}, Dedupe),
+        "fill_nulls": ({"verb": "fill_nulls", "fills": {"a": 0}}, FillNulls),
+    }
+    assert set(payloads) == set(STEP_VERBS)
+    for payload, model in payloads.values():
+        step = adapter.validate_python(payload)
+        assert type(step) is model
+        assert isinstance(step, ProtocolModel)
+    with pytest.raises(ValidationError):
+        adapter.validate_python({"verb": "execute_python"})
+
+
+def test_scalar_aliases_bound_what_a_plan_may_carry() -> None:
+    assert "int64" in get_args(ArrowTypeName.__value__)
+    assert get_args(SchemaVersion.__value__) == ("1",)
+    assert set(get_args(InvalidRowDisposition.__value__)) == {"fail", "quarantine"}
+    assert TypeAdapter(ScalarValue).validate_python(1.5) == 1.5
+    with pytest.raises(ValidationError):
+        TypeAdapter(ScalarValue).validate_python([1])
+    with pytest.raises(ValidationError):
+        TypeAdapter(ColumnName).validate_python("")
+    with pytest.raises(ValidationError):
+        TypeAdapter(OpaqueReference).validate_python("-starts-with-dash")
+    with pytest.raises(ValidationError):
+        TypeAdapter(Digest).validate_python("sha256:short")
+    with pytest.raises(ValidationError):
+        LocalProfile(max_rows=0, max_columns=1, max_steps=1)
+
+
+def test_typed_plan_runs_and_evidence_accounts_for_every_row() -> None:
+    plan = CleanPlan(
+        schema_version="1",
+        steps=[
+            CanonicalNames(verb="canonical_names"),
+            FillNulls(verb="fill_nulls", fills={"value": 0}),
+            Dedupe(verb="dedupe", keys=["key"]),
+            SafeCast(
+                verb="safe_cast",
+                column="value",
+                source_type="int8",
+                target_type="int64",
+            ),
+        ],
+        profile=LocalProfile(max_rows=10, max_columns=4, max_steps=8),
+        invalid_row_disposition="fail",
+        plan_ref="plan:typed",
+        policy_ref="policy:typed",
+        model_ref="model:test:v1",
+    )
+    table = ArrowAdapter.from_batches(
+        [
+            pa.record_batch(
+                {
+                    "Key": ["a", "a", "b"],
+                    "Value": pa.array([1, 1, None], type=pa.int8()),
+                }
+            )
+        ],
+        profile=plan.profile,
+    )
+    registry = _registry(_row_model("TypedRow", key=str, value=int))
+    entry = registry.resolve("model:test:v1")
+    assert isinstance(entry, RegisteredRowModel)
+    assert entry.digest == row_model_digest(entry.model)
+    result = CleanPipeline(plan, model_registry=registry).run(table)
+    assert isinstance(result, PrepResult)
+    assert result.table.column_names == ["key", "value"]
+    assert result.table.column("value").to_pylist() == [1, 0]
+    evidence = result.evidence
+    assert (evidence.rows_in, evidence.rows_out, evidence.dropped_rows) == (3, 2, 1)
+    assert all(isinstance(step, StepEvidence) for step in evidence.steps)
+    assert [step.verb for step in evidence.steps] == [
+        "canonical_names",
+        "fill_nulls",
+        "dedupe",
+        "safe_cast",
+    ]
+    assert [o.status for o in evidence.row_outcomes] == [
+        "accepted",
+        "dropped",
+        "accepted",
+    ]
+    assert evidence.quarantine == []
+    with pytest.raises(TypeError, match=r"pyarrow\.Table"):
+        ArrowAdapter.as_table([{"key": "a"}])
+
+
+def test_outcome_models_reject_inconsistent_reasons() -> None:
+    assert RowOutcome(row_index=0, status="dropped", reason_code="deduplicated")
+    with pytest.raises(ValidationError):
+        RowOutcome(row_index=0, status="accepted", reason_code="null_rejected")
+    assert QuarantineOutcome(reason_code="null_rejected", row_count=1).row_count == 1
+    with pytest.raises(ValidationError):
+        QuarantineOutcome(reason_code="null_rejected", row_count=0)
+    assert issubclass(DataPrepDependencyError, DataPrepError)
+    assert issubclass(PlanExecutionError, DataPrepError)

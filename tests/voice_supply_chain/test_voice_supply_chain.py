@@ -116,3 +116,48 @@ def test_mark_verified_persists_and_refuses_rejected():
     assert lr.mark_verified(quarantined).status == VoiceManifestStatus.VERIFIED
     with pytest.raises(ValueError, match="REJECTED"):
         lr.mark_verified(_manifest(status=VoiceManifestStatus.REJECTED))
+
+
+def test_license_decisions_round_trip_and_absence_is_none():
+    assert lr.get_license_decision(SHA) is None
+    decision = VoiceLicenseDecision(
+        asset_manifest_id=SHA, declared_license="MIT", counsel_decision="approved"
+    )
+    lr.record_license_decision(decision)
+    assert lr.get_license_decision(SHA) == decision
+
+
+def test_provider_is_piper_only_and_config_manifest_pins_its_digest():
+    from agent_connector_sdk.voice_supply_chain.manifest import (
+        HF_COMMIT_SHA_LEN,
+        VoiceConfigManifest,
+        VoiceModelProvider,
+    )
+
+    assert len(REV) == HF_COMMIT_SHA_LEN
+    assert _manifest().provider is VoiceModelProvider.PIPER
+    assert [p.value for p in VoiceModelProvider] == ["piper"]
+    config = VoiceConfigManifest(
+        manifest_id="c",
+        model_manifest_id=SHA,
+        sha256=SHA.upper(),
+        byte_length=2,
+        sample_rate=22_050,
+    )
+    assert config.sha256 == SHA
+    with pytest.raises(ValidationError, match="sha256"):
+        VoiceConfigManifest(
+            manifest_id="c",
+            model_manifest_id=SHA,
+            sha256="x",
+            byte_length=2,
+            sample_rate=22_050,
+        )
+    with pytest.raises(ValidationError):
+        VoiceConfigManifest(
+            manifest_id="c",
+            model_manifest_id=SHA,
+            sha256=SHA,
+            byte_length=2,
+            sample_rate=0,
+        )

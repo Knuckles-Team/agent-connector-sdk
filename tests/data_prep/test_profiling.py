@@ -193,3 +193,84 @@ def test_profile_evidence_requires_separate_native_authority() -> None:
 
     reference = build_profile_evidence_reference(profile, authority=Authority())
     assert reference.profile_digest == digest
+
+
+# --- profile result surface: typed columns, warnings and the engine seam ---
+
+from typing import get_args  # noqa: E402
+
+from pydantic import TypeAdapter, ValidationError  # noqa: E402
+
+from agent_connector_sdk.data_prep import (  # noqa: E402
+    ColumnProfile,
+    ProfileClient,
+    ProfileDeadlineError,
+    ProfileEvidenceAuthority,
+    ProfileProtocolError,
+    ProfileScalar,
+    ProfileTarget,
+    ProfileTargetKind,
+    ProfileWarningCode,
+    QuantilePoint,
+    TopKEntry,
+    validate_engine_profile,
+)
+
+
+def test_column_profiles_are_typed_and_disclosure_bounded() -> None:
+    table = pa.table({"value": [1, 1, 2, 3, 3, 3]})
+    result = profile_table(
+        table,
+        _plan().profile,
+        target_ref="local:typed",
+        limits=ProfileLimits(max_top_k=3, max_quantiles=3, disclosure_threshold=2),
+    )
+    assert isinstance(result.target, ProfileTarget)
+    assert result.target.target_kind in get_args(ProfileTargetKind.__value__)
+    (column,) = result.column_profiles
+    assert isinstance(column, ColumnProfile)
+    assert (column.min_value, column.max_value, column.null_count) == (1, 3, 0)
+    assert all(isinstance(q, QuantilePoint) for q in column.quantiles)
+    assert all(0.0 <= q.probability <= 1.0 for q in column.quantiles)
+    assert all(isinstance(entry, TopKEntry) for entry in column.top_k)
+    # 2 appears once: below the disclosure threshold it never reaches top-k.
+    assert {entry.value for entry in column.top_k} == {1, 3}
+    codes = set(get_args(ProfileWarningCode.__value__))
+    assert set(result.warnings) <= codes and set(column.warning_codes) <= codes
+    with pytest.raises(ValidationError):
+        TypeAdapter(ProfileScalar).validate_python(None)
+    with pytest.raises(ValidationError):
+        TopKEntry(value=1, count=0)
+
+
+def test_engine_profile_validation_rejects_the_wrong_authority_or_target() -> None:
+    local = profile_table(
+        pa.table({"value": [1, 2]}), _plan().profile, target_ref="e:t"
+    )
+    request = ProfileRequest(schema_version="data-prep-profile.v1", target=local.target)
+    with pytest.raises(ProfileProtocolError, match="wrong authority"):
+        validate_engine_profile(local, request)
+    engine = ProfileResult.model_validate(
+        {**local.model_dump(mode="json"), "algorithm": "epistemic-graph-profile"}
+    )
+    assert validate_engine_profile(engine, request) == engine
+    moved = ProfileRequest(
+        schema_version="data-prep-profile.v1",
+        target=local.target.model_copy(update={"target_ref": "e:other"}),
+    )
+    with pytest.raises(ProfileProtocolError, match="target"):
+        validate_engine_profile(engine, moved)
+
+    class Client:
+        def profile(self, received: ProfileRequest) -> ProfileResult:
+            return engine
+
+    class Authority:
+        def authorize_profile_evidence(self, *, profile_digest, target):
+            raise AssertionError("not called")
+
+    client: ProfileClient = Client()
+    authority: ProfileEvidenceAuthority = Authority()
+    assert profile_with_client(client, request) == engine
+    assert callable(authority.authorize_profile_evidence)
+    assert issubclass(ProfileDeadlineError, ProfileLimitError)
