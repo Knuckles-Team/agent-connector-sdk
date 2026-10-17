@@ -9,6 +9,8 @@ Connector configuration, manifests, content packs and records only carry secret
 * :mod:`~agent_connector_sdk.credentials.openbao`: the OpenBao KV v2 resolver.
 * :mod:`~agent_connector_sdk.credentials.resolution`: bounded resolution and
   the argparse action.
+* :mod:`~agent_connector_sdk.credentials.provider_profile`: the reference-only
+  provider profile a launcher selects with ``AGENT_PROVIDER_PROFILE``.
 
 Replaces the connector-facing half of ``agent_utilities.security.cli_secrets``
 and ``agent_utilities.security.secrets_client``.

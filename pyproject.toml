@@ -56,9 +56,9 @@ web_fetch = "agent_connector_sdk.adapters.web_fetch:WebFetchSourceAdapter"
 
 # Expose this SDK's development skill to the same provider federation
 # epistemic-graph and agent-webui use. This is metadata only: consumers
-# discover the entry point when agent-utilities is installed, without
+# discover the entry point when a skill-provider host is installed, without
 # imposing it as an agent-connector-sdk runtime dependency.
-[project.entry-points."agent_utilities.skill_providers"]
+[project.entry-points."agent_connector_sdk.skill_providers"]
 agent-connector-sdk = "agent_connector_sdk.skills"
 
 [project.entry-points."agent_connector_sdk.artifact_kinds"]

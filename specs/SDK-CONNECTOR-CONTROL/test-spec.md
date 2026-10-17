@@ -257,3 +257,6 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R014.15`: `tests/test_document_sources.py::test_connector_ingestion_syncs_external_acl` ingests a restricted file and a quarantined one and asserts the committed access properties and that no local path is persisted.
 - `SDK-CONNECTOR-CONTROL-R014.16`: `tests/test_http_dns_pinned_egress.py` covers pinned Host/SNI, private-resolution refusal, the private allow-list, loopback, plaintext, peer mismatch, URL limits and allow-list validation.
 - `SDK-CONNECTOR-CONTROL-R014.17`: `tests/test_base_install_mcp_free.py` imports the base modules with `fastmcp` and `mcp` blocked and checks the MCP surface names the extra.
+- `SDK-CONNECTOR-CONTROL-R014.18`: `tests/test_served_security_and_provider_profile.py::test_r014_18_*` cover refusal without auth or audience, the middleware's identity/tenant/ACL/session cases, default application by `create_mcp_server`, the logged override and the static tenant claim.
+- `SDK-CONNECTOR-CONTROL-R014.19`: `tests/test_served_security_and_provider_profile.py::test_r014_19_*` cover resolution, close, every failure code and every invalid document.
+- `SDK-CONNECTOR-CONTROL-R014.20`: `tests/test_served_security_and_provider_profile.py::test_r014_20_entry_point_groups_use_the_sdk_namespace`.

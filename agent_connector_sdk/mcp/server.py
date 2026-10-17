@@ -37,6 +37,11 @@ from agent_connector_sdk.mcp.registry import (
     lease_ttl_seconds,
     registration_lifespan,
 )
+from agent_connector_sdk.mcp.served_security import (
+    ServedSecurityError,
+    ServedSecurityOverride,
+    apply_served_security_profile,
+)
 from agent_connector_sdk.mcp.visibility import VisibilityTransform
 from agent_connector_sdk.mcp.visibility_policy import VisibilityPolicy
 
@@ -95,6 +100,7 @@ def create_mcp_server(
     content: ConnectorContent | None = None,
     server_registry: ServerRegistry | None = None,
     credential_resolver: CredentialResolver | None = None,
+    served_security_override: ServedSecurityOverride | None = None,
 ) -> tuple[argparse.Namespace, FastMCP[Any], list[Any]]:
     """Build a connector FastMCP server.
 
@@ -108,13 +114,16 @@ def create_mcp_server(
         server_registry: Registry to renew this server's lease in; the lease
             runs only when ``MCP_FLEET_REGISTRATION`` is true (the default).
         credential_resolver: Resolver for secret references in auth flags.
+        served_security_override: Explicit, logged opt-out of the served
+            security profile that every network transport otherwise gets.
 
     Returns:
         ``(args, mcp, middlewares)``; the caller adds the middlewares.
 
     Raises:
         SystemExit: on ``--help``, an invalid port, unsafe network exposure or
-            invalid authentication settings.
+            invalid authentication settings, or a network transport
+            without the served security profile.
     """
     logging.basicConfig(stream=sys.stderr, level=logging.WARNING, force=True)
     args = _parse_arguments(
@@ -127,6 +136,17 @@ def create_mcp_server(
         auth=_authentication(args, credential_resolver),
         lifespan=_lifespan(args, name=name, registry=server_registry),
     )
+    try:
+        apply_served_security_profile(
+            args.transport,
+            auth_provider=mcp.auth,
+            mcp=mcp,
+            audience=args.token_audience,
+            override=served_security_override,
+        )
+    except ServedSecurityError as exc:
+        _logger.error("Refusing to build MCP server: %s", exc)
+        raise SystemExit(1) from exc
     mcp.custom_route("/health", methods=["GET"])(_health)
     mcp.add_transform(
         VisibilityTransform(
