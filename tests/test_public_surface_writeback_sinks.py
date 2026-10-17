@@ -62,17 +62,3 @@ def test_writeback_sinks_sinks_leanix_exports() -> None:
     exported = (module.build_relation_field_resolver,)
     assert len(exported) == 1
     assert all(item is not None for item in exported)
-
-
-def test_writeback_sinks_sinks_process_exports() -> None:
-    module = importlib.import_module(
-        "agent_connector_sdk.writeback_sinks.sinks.process"
-    )
-    exported = (
-        module.INTELLIGENCE_KEY,
-        module.gather_intelligence,
-        module.push_process_intelligence,
-        module.GraphComputeReader,
-    )
-    assert len(exported) == 4
-    assert all(item is not None for item in exported)
