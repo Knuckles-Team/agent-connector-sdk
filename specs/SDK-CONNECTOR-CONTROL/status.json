@@ -1898,7 +1898,7 @@
       "title": "Cross-platform advisory file locks",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375",
+        "15b099abed9d",
         "b1a75903b188"
       ],
       "verified_by": [
@@ -1910,7 +1910,7 @@
       "title": "Tool version metadata",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375",
+        "15b099abed9d",
         "b1a75903b188"
       ],
       "verified_by": [
@@ -1922,7 +1922,7 @@
       "title": "Reference-only CLI secrets",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375",
+        "15b099abed9d",
         "b1a75903b188"
       ],
       "verified_by": [
@@ -1934,7 +1934,7 @@
       "title": "Operator base-URL egress guard",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375",
+        "15b099abed9d",
         "4f377bf3e39a",
         "b1a75903b188"
       ],
@@ -1948,7 +1948,7 @@
       "title": "PII sanitizer",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375",
+        "15b099abed9d",
         "b1a75903b188"
       ],
       "verified_by": [
@@ -1960,7 +1960,7 @@
       "title": "Connector state directories",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375",
+        "15b099abed9d",
         "b1a75903b188"
       ],
       "verified_by": [
@@ -1972,7 +1972,7 @@
       "title": "Delegated-token helpers",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375",
+        "15b099abed9d",
         "b1a75903b188"
       ],
       "verified_by": [
@@ -1984,7 +1984,7 @@
       "title": "Keyless credential sentinel",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375",
+        "15b099abed9d",
         "b1a75903b188"
       ],
       "verified_by": [
@@ -2066,7 +2066,7 @@
       "title": "DNS-pinned egress on the governed client",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375"
+        "15b099abed9d"
       ],
       "verified_by": [
         "tests/test_http_dns_pinned_egress.py:103",
@@ -2081,7 +2081,7 @@
       "title": "MCP-free base install",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375"
+        "15b099abed9d"
       ],
       "verified_by": [
         "tests/test_base_install_mcp_free.py:35",
@@ -2094,7 +2094,7 @@
       "title": "Default fail-closed served security profile",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375"
+        "15b099abed9d"
       ],
       "verified_by": [
         "tests/test_served_security_and_provider_profile.py:116",
@@ -2109,7 +2109,7 @@
       "title": "Selected-provider credential profile",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375"
+        "15b099abed9d"
       ],
       "verified_by": [
         "tests/test_served_security_and_provider_profile.py:185",
@@ -2123,7 +2123,7 @@
       "title": "Plugin entry-point groups use the SDK namespace",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "03113365f375"
+        "15b099abed9d"
       ],
       "verified_by": [
         "tests/test_served_security_and_provider_profile.py:273"
