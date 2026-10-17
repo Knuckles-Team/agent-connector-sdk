@@ -12,7 +12,16 @@ from pathlib import Path
 
 from agent_connector_sdk.config import setting
 
-__all__ = ["cache_dir", "config_dir", "data_dir", "log_dir", "research_dir"]
+__all__ = [
+    "cache_dir",
+    "config_dir",
+    "data_dir",
+    "get_mcp_config_path",
+    "log_dir",
+    "research_dir",
+]
+
+MCP_CONFIG_FILE = "mcp_config.json"
 
 APP_DIR = "agent-connectors"
 
@@ -54,3 +63,9 @@ def log_dir() -> Path:
 def research_dir() -> Path:
     """``CONNECTOR_RESEARCH_DIR`` or ``data_dir()/research``."""
     return _resolve("CONNECTOR_RESEARCH_DIR", data_dir() / "research")
+
+
+def get_mcp_config_path() -> str | None:
+    """The connector's ``mcp_config.json`` under :func:`config_dir`, if present."""
+    path = config_dir() / MCP_CONFIG_FILE
+    return str(path) if path.is_file() else None
