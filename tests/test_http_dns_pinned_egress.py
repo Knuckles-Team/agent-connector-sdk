@@ -50,6 +50,7 @@ def _client(seen, base_url="https://api.example.com", **kw):
     return create_http_client(options, transport=httpx.MockTransport(handler))
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_defaults_do_not_pin() -> None:
     options = HttpClientOptions(base_url="https://api.example.com")
     assert options.pin_egress is False
@@ -57,6 +58,7 @@ def test_defaults_do_not_pin() -> None:
     assert options.verify_pinned_peer is True
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_public_host_is_pinned_with_host_and_sni_preserved(monkeypatch, seen) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers("93.184.216.34"))
     assert _client(seen).get("/v1/x").status_code == 200
@@ -69,6 +71,7 @@ def test_public_host_is_pinned_with_host_and_sni_preserved(monkeypatch, seen) ->
 @pytest.mark.parametrize(
     "ip", ["10.0.0.5", "127.0.0.1", "169.254.169.254", "192.168.1.1"]
 )
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_public_host_resolving_private_is_refused(monkeypatch, seen, ip) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers(ip))
     with pytest.raises(PinnedEgressViolation):
@@ -76,12 +79,14 @@ def test_public_host_resolving_private_is_refused(monkeypatch, seen, ip) -> None
     assert seen == []
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_one_private_answer_among_public_refuses(monkeypatch, seen) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers("93.184.216.34", "10.0.0.5"))
     with pytest.raises(PinnedEgressViolation):
         _client(seen).get("/")
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_allowed_private_host_resolves_in_private_space(monkeypatch, seen) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers("10.1.2.3"))
     client = _client(
@@ -95,6 +100,7 @@ def test_allowed_private_host_resolves_in_private_space(monkeypatch, seen) -> No
     assert seen[0].headers["Host"] == "graph.example"
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_allowed_private_host_resolving_public_is_refused(monkeypatch, seen) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers("93.184.216.34"))
     client = _client(
@@ -106,12 +112,14 @@ def test_allowed_private_host_resolving_public_is_refused(monkeypatch, seen) -> 
         client.get("/")
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_cgnat_is_private_but_unlisted_host_is_not_allowed(monkeypatch, seen) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers("100.64.0.9"))
     with pytest.raises(PinnedEgressViolation):
         _client(seen, base_url="https://other.example").get("/")
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_loopback_needs_allow_loopback(seen) -> None:
     with pytest.raises(PinnedEgressViolation):
         _client(seen, base_url="http://127.0.0.1:8000", allow_plaintext=True).get("/")
@@ -124,6 +132,7 @@ def test_loopback_needs_allow_loopback(seen) -> None:
     assert ok.get("/").status_code == 200
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_plaintext_public_egress_refused(monkeypatch, seen) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers("93.184.216.34"))
     client = _client(seen, base_url="http://api.example.com", allow_plaintext=True)
@@ -131,6 +140,7 @@ def test_plaintext_public_egress_refused(monkeypatch, seen) -> None:
         client.get("/")
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_peer_mismatch_is_refused(monkeypatch) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers("93.184.216.34"))
 
@@ -147,6 +157,7 @@ def test_peer_mismatch_is_refused(monkeypatch) -> None:
         client.get("/")
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 async def test_async_client_pins(monkeypatch) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers("93.184.216.34"))
     seen: list[httpx.Request] = []
@@ -171,6 +182,7 @@ async def test_async_client_pins(monkeypatch) -> None:
 @pytest.mark.parametrize(
     "bad", ["*.internal", "a/b", "user@host", "[::1]", "-x.internal", "", "hé.internal"]
 )
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_allowlist_must_be_exact_hostnames(bad) -> None:
     with pytest.raises(ValueError):
         HttpClientOptions(
@@ -180,6 +192,7 @@ def test_allowlist_must_be_exact_hostnames(bad) -> None:
         )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_allowlist_normalizes_and_requires_pin_egress() -> None:
     assert normalize_private_hosts(["Graph.Example.", "10.0.0.1"]) == {
         "graph.example",
@@ -193,6 +206,7 @@ def test_allowlist_normalizes_and_requires_pin_egress() -> None:
         HttpClientOptions(base_url="https://a.example.com", allow_loopback=True)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_userinfo_and_oversize_urls_refused(monkeypatch, seen) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers("93.184.216.34"))
     client = _client(seen)
@@ -204,5 +218,6 @@ def test_userinfo_and_oversize_urls_refused(monkeypatch, seen) -> None:
         client.get("/" + "a" * 9000)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_module_exports() -> None:
     assert "DnsPinnedEgressTransport" in egress.__all__
