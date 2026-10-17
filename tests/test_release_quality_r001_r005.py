@@ -240,10 +240,9 @@ def test_recorded_graph_provenance_separates_source_and_installed_evidence() -> 
     assert {
         "epistemic-graph",
         "pyoxigraph",
-        "mcp",
-        "authlib",
-        "uvicorn",
-        "email-validator",
+        "mcp-types",
+        "httpx2",
+        "cryptography",
     } <= graph_names
     assert isinstance(provenance["installed_distributions"], list)
     assert provenance["installed_distributions"] == list(
