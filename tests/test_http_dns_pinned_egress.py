@@ -197,7 +197,9 @@ def test_userinfo_and_oversize_urls_refused(monkeypatch, seen) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers("93.184.216.34"))
     client = _client(seen)
     with pytest.raises(PinnedEgressViolation):
-        client.get("https://u:p@api.example.com/")
+        client.get(
+            "https://u:p@api.example.com/"  # sanitizer:ignore - synthetic fixture
+        )
     with pytest.raises(PinnedEgressViolation):
         client.get("/" + "a" * 9000)
 

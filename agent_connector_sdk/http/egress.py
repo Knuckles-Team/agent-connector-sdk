@@ -166,7 +166,7 @@ def egress_ip_is_blocked(ip: str, *, allow_loopback: bool) -> bool:
     try:
         addr = ipaddress.ip_address(ip)
     except ValueError:
-        return True  # unparseable → block
+        return True  # unparsable → block
     if addr.is_loopback:
         return not allow_loopback
     # Block private, link-local, reserved, multicast, unspecified, and the cloud metadata IP.
