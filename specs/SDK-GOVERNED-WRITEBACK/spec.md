@@ -32,7 +32,7 @@ Requirement IDs are defined in [requirements.md](requirements.md); delivery stat
 
 SDK-GOVERNED-WRITEBACK-R001.1 through R001.6 define the signature-verification producer consumed by GRAPHOS-DATA-MARKET-R007.
 The SDK produces source-side cryptographic verification facts; EG owns authorization decisions and durable replay/effect records.
-GraphOS authenticates the caller and serves explicit confirmation. A signature never replaces either approval or account entitlement.
+Arbora authenticates the caller and serves explicit confirmation. A signature never replaces either approval or account entitlement.
 Unavailable verifier, key trust or durable binding keeps wallet operations unavailable.
 
 Confirmation binds the complete immutable `{"intent": WalletBusinessIntent}` projection defined in plan.md.
@@ -44,6 +44,6 @@ No proof or derived plan digest enters the confirmed business parameters. The pr
 
 SDK-GOVERNED-WRITEBACK-R004.1 through R004.4 retain the full generic parent obligations for all attached sources. R004.5 through R004.12 define a regular-file create/update profile without narrowing those obligations. All children and the original parent acceptance are required for the rollup.
 
-The SDK validates the exact approved repository effect and delegates conditional mutation and independent readback to an admitted provider adapter. It reuses the existing graph-owned change-set, authorization, audit and durable attempt authorities. Read-only source ingestion, hydrated files and graph prompt exports are inputs, never write permission. GraphOS composes the consumer under GRAPHOS-FLEET-R003 and existing GRAPHOS-OPS-R009; EG-TYPED-PACKS-R094.7 consumes the resulting evidence without becoming a filesystem writer. Those cross-repository consumer definitions and implementations are separate prerequisites, not supplied by the ordinary SDK apply seam.
+The SDK validates the exact approved repository effect and delegates conditional mutation and independent readback to an admitted provider adapter. It reuses the existing graph-owned change-set, authorization, audit and durable attempt authorities. Read-only source ingestion, hydrated files and graph prompt exports are inputs, never write permission. Arbora composes the consumer under GRAPHOS-FLEET-R003 and existing GRAPHOS-OPS-R009; EG-TYPED-PACKS-R094.7 consumes the resulting evidence without becoming a filesystem writer. Those cross-repository consumer definitions and implementations are separate prerequisites, not supplied by the ordinary SDK apply seam.
 
 The proposed request, intent and receipt names in plan.md are contracts to implement, not existing exported classes. This definition adds no connector, credentials, permissions or runtime code. No research derivation is claimed.

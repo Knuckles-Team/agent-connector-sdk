@@ -1,5 +1,5 @@
 """Data-only subpackage that contributes the ``agent-connector-sdk-development``
-skill to the graph-os skill federation via the ``agent_connector_sdk.skill_providers``
+skill to the arbora skill federation via the ``agent_connector_sdk.skill_providers``
 entry-point, exactly like ``epistemic_graph.skills`` and ``agent_webui.skills``.
 Carries no runtime imports — the hub resolves this package's directory through
 ``importlib.resources`` and reads the ``SKILL.md`` file; it never executes SDK

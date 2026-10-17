@@ -14,7 +14,7 @@ __all__ = ["AuthorizationVerifier"]
 
 @runtime_checkable
 class AuthorizationVerifier(Protocol):
-    """Resolve a durable graph-os/EG authorization decision fail closed."""
+    """Resolve a durable arbora/EG authorization decision fail closed."""
 
     async def verify(
         self, change_set: SourceChangeSet

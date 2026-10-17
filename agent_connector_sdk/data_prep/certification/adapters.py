@@ -4,7 +4,7 @@ Provider APIs intentionally remain outside the core contract.  An operator
 supplies a trusted runner that knows how to construct a provider suite/schema
 and how to publish a bounded Data Docs artifact through the deployment's
 access-controlled artifact store.  The adapter imports its provider only when
-the operator job is actually executed, never when GraphOS or data preparation
+the operator job is actually executed, never when Arbora or data preparation
 is imported.
 """
 

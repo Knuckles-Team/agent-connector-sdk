@@ -61,7 +61,7 @@ class EgeriaSink(WritebackClientMixin):
             # is Egeria's free-form provenance channel — the KG-state instant this
             # asset was derived from rides along in the SAME live payload, not just
             # our own returned proposal/manifest.
-            additional_properties: dict[str, Any] = {"source": "graph-os"}
+            additional_properties: dict[str, Any] = {"source": "arbora"}
             if ctx.as_of:
                 additional_properties["as_of"] = ctx.as_of
             try:

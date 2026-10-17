@@ -187,7 +187,7 @@ Backpressure awaits the send; it creates no unbounded queue. No notification fol
 a terminal result. With no token, update the terminal summary without sending.
 Cancellation stops new work and records any already-started effect as uncertain.
 
-EG owns the approval decision; GraphOS authenticates its exchange and returns the decision unchanged.
+EG owns the approval decision; Arbora authenticates its exchange and returns the decision unchanged.
 The SDK checks its binding to tenant, actor, operation, argument digest and expiry.
 Interactive elicitation is an input to that decision;
 a truthy payload is not authorization. Reuse the governed write-back adapter for
@@ -197,7 +197,7 @@ bound effect key resolves through its durable receipt. Changed arguments under t
 key refuse. Progress delivery is not a durable event log and is not replayed after reconnect.
 Reconnect result retrieval has an explicit producer requirement gap.
 EG must own a durable mapping from the stable request identity to the terminal result and effect receipts.
-GraphOS must serve an authenticated read of that mapping.
+Arbora must serve an authenticated read of that mapping.
 The mapping must bind tenant, actor, connector, operation, argument digest, change-set ID and effect idempotency key.
 No established producer operation or SDK adapter for that mapping is identified here.
 `GRAPHOS-A2A-R006` defines invocation and confirmation, not result retrieval.
@@ -315,12 +315,12 @@ R007.1 precedes R007.2; R007.2 precedes R007.3. R007.3 and R007.4 precede R007.6
 ## Consolidated SDK owner definitions
 
 ### SDK-CONNECTOR-CONTROL-R051
-1. SDK-CONNECTOR-CONTROL-R051.1: Define SandboxProvisioner. It consumes GraphOS ProvisionRequest. It returns ProvisionResult with allocation ID, actual instances, observed image/platform, state, timestamps, and provider receipt.
+1. SDK-CONNECTOR-CONTROL-R051.1: Define SandboxProvisioner. It consumes Arbora ProvisionRequest. It returns ProvisionResult with allocation ID, actual instances, observed image/platform, state, timestamps, and provider receipt.
 2. SDK-CONNECTOR-CONTROL-R051.2: Allocate once per stable operation ID. Reconcile uncertain results before retry. Transport loss never proves no allocation.
-3. SDK-CONNECTOR-CONTROL-R051.3: Plan agent_connector_sdk.ports.sandbox.SandboxProvisioner. Route AU sandbox access through GraphOS agents.run and NativeWorkItemAdmissionProtocol/CapacityLedger. Call the SDK adapter, then return its receipt to GraphOS. This producer and binding are absent.
+3. SDK-CONNECTOR-CONTROL-R051.3: Plan agent_connector_sdk.ports.sandbox.SandboxProvisioner. Route AU sandbox access through Arbora agents.run and NativeWorkItemAdmissionProtocol/CapacityLedger. Call the SDK adapter, then return its receipt to Arbora. This producer and binding are absent.
 4. SDK-CONNECTOR-CONTROL-R051.4: Refuse unsupported profiles, missing grants, expired requests, and conflicting replay IDs before provider calls. Reconcile unresolved outcomes before retry. Unsupported combinations allocate nothing.
 5. SDK-CONNECTOR-CONTROL-R051.5: Bind request/result digests, adapter version, matrix revision, operation/allocation IDs, instances, state, timestamps, and reconciliation. Exclude credentials and secret values.
-6. SDK-CONNECTOR-CONTROL-R051.6: Future served tests enter GraphOS agents.run. Use a disposable certified adapter. Observe instances and independent readback. Test unsupported profiles and response loss without duplicates.
+6. SDK-CONNECTOR-CONTROL-R051.6: Future served tests enter Arbora agents.run. Use a disposable certified adapter. Observe instances and independent readback. Test unsupported profiles and response loss without duplicates.
 
 ### SDK-CONNECTOR-CONTROL-R052
 1. SDK-CONNECTOR-CONTROL-R052.1: Define VisualObservationEnvelope. Include observation ID, modality, source operation, and frame or sequence. Bind capture time, content digest/reference, tenant/run/request scope, and schema revision. Keep payload behind governed references.
@@ -334,7 +334,7 @@ R007.1 precedes R007.2; R007.2 precedes R007.3. R007.3 and R007.4 precede R007.6
 
 Component: SDK environment declaration producer
 
-Depends-on: SDK-CONNECTOR-CONTROL-R016, SDK-CONNECTOR-CONTROL-R029, [GraphOS host contract](https://github.com/Knuckles-Team/graph-os/blob/7af96428d92ffbdd963515f7b129d1ad4132e462/specs/host-composition-boundary/spec.md)
+Depends-on: SDK-CONNECTOR-CONTROL-R016, SDK-CONNECTOR-CONTROL-R029, [Arbora host contract](https://github.com/Knuckles-Team/arbora/blob/7af96428d92ffbdd963515f7b129d1ad4132e462/specs/host-composition-boundary/spec.md)
 
 Code: ../../agent_connector_sdk/config.py:35
 
@@ -352,7 +352,7 @@ An available export requires receipt outcome available and an empty unresolved_c
 On refusal, raise EnvironmentDeclarationError carrying a refused receipt and no declaration fragment.
 Use null for unavailable revisions or digests; never substitute empty-set digests.
 This result is a public SDK transport container, not a replacement host manifest.
-GraphOS must wrap those exact row fields under its schema_version and declarations keys.
+Arbora must wrap those exact row fields under its schema_version and declarations keys.
 Its R010.2 composer must call this export before R010.3 startup validation and R010.4 conditional resolution.
 The planned host implementation must import the public config module, never SDK private configuration internals.
 The export and host composer are absent today; implementation acceptance remains pending.
@@ -386,7 +386,7 @@ Preserve existing setting coercion and precedence while the host performs strict
 flowchart LR
   S[SDK source census and owner bindings] --> E[Public environment_declarations]
   E --> D[SDK declaration rows and receipt]
-  D --> H[Planned GraphOS manifest composer]
+  D --> H[Planned Arbora manifest composer]
   A[Separate AU declaration producer] --> H
   H --> V[Host condition resolution and validation]
   V --> L[Launcher before listeners or children]
@@ -469,16 +469,16 @@ Use an input-required form and request-state digest on the modern path. Use `Str
 
 Extend SDK-CONNECTOR-CONTROL-R019 and SDK-CONNECTOR-CONTROL-R045 with schema manifests and bounded UTF-8 fragments. Providers and consumers import one public SDK contract. Each resource read checks the current authorized tool catalog. Manifests bind the operation, alias, source and exact schema bytes. Reconstruction refuses stale, corrupt, incomplete or mixed fragments.
 
-These transport hashes do not replace certification pins or R002/R003 normalization in manifest/tool_schema.py. Keep native validation and confirmation in place. Tests cover native search, resource reads, authorization refusal, model schemas and fragment corruption. GraphOS consumption and generation-bound invocation need separate evidence. Resource registration alone does not establish that evidence. This amendment is independent of modern confirmation. The R045 binding covers exact argument-schema transport only. It does not establish tool effects, token estimates, pack facts or certification.
+These transport hashes do not replace certification pins or R002/R003 normalization in manifest/tool_schema.py. Keep native validation and confirmation in place. Tests cover native search, resource reads, authorization refusal, model schemas and fragment corruption. Arbora consumption and generation-bound invocation need separate evidence. Resource registration alone does not establish that evidence. This amendment is independent of modern confirmation. The R045 binding covers exact argument-schema transport only. It does not establish tool effects, token estimates, pack facts or certification.
 
 
 ## Amendment: 2026-10-13 API-key cookie isolation (R028.3)
 
 Scope the policy to ApiKeyAuth because the SDK documents no provider cookie-session auth. Strip outbound Cookie and inbound Set-Cookie at the sync/async governed transport boundary. Preserve authentication, origin, TLS, redirect, and retry controls. Test sequential exchanges across status codes and concurrent use of one shared client with synthetic transports. Require downstream native MCP login and cross-caller acceptance against the immutable SDK revision.
 
-## GraphOS producer-consumer handoff for AU disclosure-set gate (SDK-CONNECTOR-CONTROL-R055)
+## Arbora producer-consumer handoff for AU disclosure-set gate (SDK-CONNECTOR-CONTROL-R055)
 
-Real served producer/consumer handoff for disclosed and undisclosed tools. GraphOS authorized find (registry/discovery; intent find) returns tool facts. EG Decide ToolRelevance consumes them. AU `execute_agent` routes through factory DisclosureSet gate. The current AU plan names the ownership. Exact served cross-owner positive/negative acceptance proves the handoff.
+Real served producer/consumer handoff for disclosed and undisclosed tools. Arbora authorized find (registry/discovery; intent find) returns tool facts. EG Decide ToolRelevance consumes them. AU `execute_agent` routes through factory DisclosureSet gate. The current AU plan names the ownership. Exact served cross-owner positive/negative acceptance proves the handoff.
 
 ## EG and SDK tool producer compatibility decisions (SDK-CONNECTOR-CONTROL-R056)
 
@@ -486,7 +486,7 @@ SDK tool schema authority and EG prompt authority must jointly decide nested inc
 
 ## Replaceable search-grounding provider (SDK-CONNECTOR-CONTROL-R057)
 
-Search grounding provider is independently selected from reasoning model and bound to a committed route. Unavailable committed provider refuses. EG produces binding; SDK/GraphOS consumer runs the exact committed provider with no alternates.
+Search grounding provider is independently selected from reasoning model and bound to a committed route. Unavailable committed provider refuses. EG produces binding; SDK/Arbora consumer runs the exact committed provider with no alternates.
 
 ## Request durability boundary (SDK-CONNECTOR-CONTROL-R058)
 
@@ -498,32 +498,32 @@ Five existing EG public capabilities map to existing EG methods without new engi
 
 ## Native desktop operation port (SDK-CONNECTOR-CONTROL-R060)
 
-GraphOS grants host execution. SDK native desktop adapter handles background click/type/verification without cursor or focus capture, bound to grant scope. Operation port defines the boundary. Grant-bound refusal enforced.
+Arbora grants host execution. SDK native desktop adapter handles background click/type/verification without cursor or focus capture, bound to grant scope. Operation port defines the boundary. Grant-bound refusal enforced.
 ## Host provider interface and cross-spec producer bindings (SDK-CONNECTOR-CONTROL-R061 to R060)
 
-### R055.1-R055.6: GraphOS host-management consumer → SDK provider interface → OS service/log adapters
+### R055.1-R055.6: Arbora host-management consumer → SDK provider interface → OS service/log adapters
 
-The SDK defines shared typed service and log interfaces mapping operations to native tooling on Linux, Windows and macOS. GraphOS host-management consumer queries the interface registry and runs platform-native commands. Service start, stop, restart and log-read operations are enumerated with unified parameters and return schemas across platforms.
+The SDK defines shared typed service and log interfaces mapping operations to native tooling on Linux, Windows and macOS. Arbora host-management consumer queries the interface registry and runs platform-native commands. Service start, stop, restart and log-read operations are enumerated with unified parameters and return schemas across platforms.
 
-### R056.1-R056.6: EG attestation → AU orchestration consumer → GraphOS invoke validation
+### R056.1-R056.6: EG attestation → AU orchestration consumer → Arbora invoke validation
 
 EG produces final attestation decisions tied to decision request digests. AU consumes and acts only on accepted attestations. Existing GRAPHOS-FLEET-R034.7-.12 identity bindings carry tenant and actor facts. New rows link certification outputs to AU orchestration inputs with complete identity binding.
 
-### R057.1-R057.6: SDK/AU declaration producers → GraphOS host manifest composer → launcher validation
+### R057.1-R057.6: SDK/AU declaration producers → Arbora host manifest composer → launcher validation
 
-SDK and AU each export immutable environment-declaration sets listing settings, secrets and indirect reads their components require. GraphOS launcher composes and validates the merged declarations during startup. No live environment read occurs during export. Dynamic reads require explicit binding entries.
+SDK and AU each export immutable environment-declaration sets listing settings, secrets and indirect reads their components require. Arbora launcher composes and validates the merged declarations during startup. No live environment read occurs during export. Dynamic reads require explicit binding entries.
 
-### R058.1-R058.6: GraphOS deployment → default vault endpoint and root-bundle → all components checked
+### R058.1-R058.6: Arbora deployment → default vault endpoint and root-bundle → all components checked
 
-GraphOS guided deployment selects default vault storage and enterprise root certificate bundle. The bundle propagates and gets checked at every touched component during startup. Certificate checking is mandatory, never bypassed. Guided setup documents the complete propagation matrix.
+Arbora guided deployment selects default vault storage and enterprise root certificate bundle. The bundle propagates and gets checked at every touched component during startup. Certificate checking is mandatory, never bypassed. Guided setup documents the complete propagation matrix.
 
-### R059.1-R059.6: GraphOS component configuration → health state → alert evaluation
+### R059.1-R059.6: Arbora component configuration → health state → alert evaluation
 
 Component health endpoint states explicitly separate unconfigured components from degraded or failing enabled ones. Alert evaluation checks component enabled flag before issuing alert. Configuration state and alert gating are served in the host health response.
 
-### R060.1-R060.6: EG scaling proposal → GraphOS capacity application → applied-state receipt
+### R060.1-R060.6: EG scaling proposal → Arbora capacity application → applied-state receipt
 
-EG supplies scaled-hosting proposals based on load and headroom premises. GraphOS applies the proposal and confirms accepted scaling in hosted application state. Scaling actuation loop closes when applied state is recorded and acknowledged by EG.
+EG supplies scaled-hosting proposals based on load and headroom premises. Arbora applies the proposal and confirms accepted scaling in hosted application state. Scaling actuation loop closes when applied state is recorded and acknowledged by EG.
 
 ## Connector packs authored as Turtle (R067)
 
@@ -534,19 +534,19 @@ One typed `ConnectorPackDeclaration` per connector is the single source of truth
 Current state: the SDK compiles manifest YAML into ontology classes only (`agent_connector_sdk/manifest/ontology_pack.py:190`). Mappings, keys, cursors, access, privacy and provenance stay in YAML and JSON. The SDK keeps a separate `ac:` access vocabulary that R067.2 retires. The tool fingerprint domain at `agent_connector_sdk/manifest/tool_schema.py:31` names another package; R067.3 replaces it.
 ## SDK-CONNECTOR-CONTROL-R068 — connect-time contract resources
 
-References: [EG-TYPED-PACKS-R104](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/typed-packs-and-catalog/spec.md), [GRAPHOS-FLEET-R036](https://github.com/Knuckles-Team/graph-os/blob/main/specs/fleet-catalog-and-tools/spec.md), SDK-CONNECTOR-CONTROL-R019, SDK-CONNECTOR-CONTROL-R067
+References: [EG-TYPED-PACKS-R104](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/typed-packs-and-catalog/spec.md), [GRAPHOS-FLEET-R036](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SDK-CONNECTOR-CONTROL-R019, SDK-CONNECTOR-CONTROL-R067
 
-Call path: connector start -> `register_connector_content` (`content.py:163`) -> `manifest://connector`, `ontology://`, `shapes://` and `seed://` resources -> graph-os multiplexer reads them on first connect.
+Call path: connector start -> `register_connector_content` (`content.py:163`) -> `manifest://connector`, `ontology://`, `shapes://` and `seed://` resources -> arbora multiplexer reads them on first connect.
 
-The SDK serves the resources and notifies on change. The engine validates and stores them. graph-os forwards changed resources.
+The SDK serves the resources and notifies on change. The engine validates and stores them. arbora forwards changed resources.
 
 ## SDK-CONNECTOR-CONTROL-R069 — connection-protocol transports
 
-References: [EG-FEDERATED-QUERY-R073.2](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/spec.md), [GRAPHOS-FLEET-R038](https://github.com/Knuckles-Team/graph-os/blob/main/specs/fleet-catalog-and-tools/spec.md), SDK-CONNECTOR-CONTROL-R014.17, SDK-CONNECTOR-CONTROL-R040, SDK-CONNECTOR-CONTROL-R041, SDK-CONNECTOR-CONTROL-R042, SDK-CONNECTOR-CONTROL-R043, SDK-CONNECTOR-CONTROL-R044
+References: [EG-FEDERATED-QUERY-R073.2](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/spec.md), [GRAPHOS-FLEET-R038](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SDK-CONNECTOR-CONTROL-R014.17, SDK-CONNECTOR-CONTROL-R040, SDK-CONNECTOR-CONTROL-R041, SDK-CONNECTOR-CONTROL-R042, SDK-CONNECTOR-CONTROL-R043, SDK-CONNECTOR-CONTROL-R044
 
-One protocol stack has one implementation per role (`GRAPHOS-FLEET-R038`). The SDK owns connector client transports and connector server scaffolding. graph-os owns serving and the multiplexer client side.
+One protocol stack has one implementation per role (`GRAPHOS-FLEET-R038`). The SDK owns connector client transports and connector server scaffolding. arbora owns serving and the multiplexer client side.
 
-MCP and A2A have two roles each. MCP serving by a connector uses the SDK `[mcp]` extra (`SDK-CONNECTOR-CONTROL-R014.17`). MCP consuming by a connector wraps an external MCP server (`SDK-CONNECTOR-CONTROL-R040`). A2A consuming treats an external agent as a source (`SDK-CONNECTOR-CONTROL-R041`). A2A serving and MCP platform serving belong to graph-os.
+MCP and A2A have two roles each. MCP serving by a connector uses the SDK `[mcp]` extra (`SDK-CONNECTOR-CONTROL-R014.17`). MCP consuming by a connector wraps an external MCP server (`SDK-CONNECTOR-CONTROL-R040`). A2A consuming treats an external agent as a source (`SDK-CONNECTOR-CONTROL-R041`). A2A serving and MCP platform serving belong to arbora.
 
 | Protocol | Authentication | Paging or streaming | Pushdown | Contract term | SDK transport |
 |---|---|---|---|---|---|

@@ -41,7 +41,7 @@
 - [x] Delete `mcp/tool_mode.py` and the retired verbose 1:1 tool-surface modules; make `register_tool_surface` always register the condensed, gated tool surface with no `MCP_TOOL_MODE` branch (SDK-CONNECTOR-CONTROL-R020).
 - [x] Ship the access-contract vocabulary, `parse_access_contracts` and CC-11 tests (SDK-CONNECTOR-CONTROL-R021).
 - [x] Serve `access_contract.ttl` beside each connector ontology and add contracts to fleet connector ontologies (SDK-CONNECTOR-CONTROL-R021).
-- [x] graph-os onboarding imports each contract as an unapproved `VirtualMapping` and a `SourceConnection` (SDK-CONNECTOR-CONTROL-R021; consumer work in agent-utilities and graph-os).
+- [x] arbora onboarding imports each contract as an unapproved `VirtualMapping` and a `SourceConnection` (SDK-CONNECTOR-CONTROL-R021; consumer work in agent-utilities and arbora).
 - [x] Scope ontology `owl:imports` to the pack and record external IRIs (SDK-CONNECTOR-CONTROL-R022).
 - [x] Rebuild and reattach fleet packs that import `http://knuckles.team/kg` (SDK-CONNECTOR-CONTROL-R022).
 - [x] Bind required prompt arguments to `{{name}}` placeholders and capture a template instead of refusing (SDK-CONNECTOR-CONTROL-R023).
@@ -71,7 +71,7 @@
   - [ ] **R047.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R047.3).
   - [ ] **R047.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R047.4).
   - [ ] **R047.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R047.5).
-- [ ] **R055:** GraphOS producer-consumer handoff for AU disclosure-set gate. Bind GraphOS find, EG ToolRelevance, and AU DisclosureSet gate.
+- [ ] **R055:** Arbora producer-consumer handoff for AU disclosure-set gate. Bind Arbora find, EG ToolRelevance, and AU DisclosureSet gate.
 - [ ] **R056:** EG and SDK tool producer compatibility decisions and receipts. Bind at schema-fingerprint/FleetOnboarding.onboard.
 - [ ] **R057:** Replaceable search-grounding provider independent of reasoning model. Test provider/model independence.
 - [ ] **R058:** Request durability boundary correction. Separate transport selection from durability class.
@@ -179,10 +179,10 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R062.6:** Verify AU accepts/rejects attestations and seals EG decision trace.
 - [ ] **SDK-CONNECTOR-CONTROL-R063.1:** Define EnvironmentDeclaration model with all required field categories.
 - [ ] **SDK-CONNECTOR-CONTROL-R063.2:** SDK and AU export immutable declaration sets from component usage census.
-- [ ] **SDK-CONNECTOR-CONTROL-R063.3:** Wire public environment_declarations operation into GraphOS launcher.
+- [ ] **SDK-CONNECTOR-CONTROL-R063.3:** Wire public environment_declarations operation into Arbora launcher.
 - [ ] **SDK-CONNECTOR-CONTROL-R063.4:** Refuse missing revision, conflicting declarations and unresolved dynamic reads.
 - [ ] **SDK-CONNECTOR-CONTROL-R063.5:** Emit EnvironmentDeclarationExport with reproducible declaration digest.
-- [ ] **SDK-CONNECTOR-CONTROL-R063.6:** Verify GraphOS launcher accepts SDK and AU declaration exports and validates startup.
+- [ ] **SDK-CONNECTOR-CONTROL-R063.6:** Verify Arbora launcher accepts SDK and AU declaration exports and validates startup.
 - [ ] **SDK-CONNECTOR-CONTROL-R064.1:** Define VaultStorageConfig and RootBundleManifest models with propagation matrix.
 - [ ] **SDK-CONNECTOR-CONTROL-R064.2:** Guided deployment offers default vault and bundle; components verify every upstream peer.
 - [ ] **SDK-CONNECTOR-CONTROL-R064.3:** Wire bundle loading into HTTP client and launcher startup initialization.
@@ -191,16 +191,16 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R064.6:** Verify guided deployment propagates bundle and startup fails on unverified certificate.
 - [ ] **SDK-CONNECTOR-CONTROL-R065.1:** Define ComponentHealthState distinguishing not-configured from configured-but-unavailable.
 - [ ] **SDK-CONNECTOR-CONTROL-R065.2:** Unconfigured and disabled components suppress alerts automatically.
-- [ ] **SDK-CONNECTOR-CONTROL-R065.3:** Wire health state classification into GraphOS /health endpoint and alert evaluation.
+- [ ] **SDK-CONNECTOR-CONTROL-R065.3:** Wire health state classification into Arbora /health endpoint and alert evaluation.
 - [ ] **SDK-CONNECTOR-CONTROL-R065.4:** Refuse unknown state values and contradictory configuration pairs.
 - [ ] **SDK-CONNECTOR-CONTROL-R065.5:** Record component state, configuration status and alert suppression reason.
 - [ ] **SDK-CONNECTOR-CONTROL-R065.6:** Verify /health endpoint reports all states and alerts suppress for non-enabled components.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.1:** Define ScalingProposal and AppliedScalingState models with strategy choices.
-- [ ] **SDK-CONNECTOR-CONTROL-R066.2:** EG generates proposal; GraphOS accepts/rejects and records applied state.
-- [ ] **SDK-CONNECTOR-CONTROL-R066.3:** Wire EG proposal producer and GraphOS capacity consumer with applied-state receipt.
+- [ ] **SDK-CONNECTOR-CONTROL-R066.2:** EG generates proposal; Arbora accepts/rejects and records applied state.
+- [ ] **SDK-CONNECTOR-CONTROL-R066.3:** Wire EG proposal producer and Arbora capacity consumer with applied-state receipt.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.4:** Refuse invalid premises and incompatible strategies without partial application.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.5:** Record proposal load/headroom premises, applied instance count and loop closure.
-- [ ] **SDK-CONNECTOR-CONTROL-R066.6:** Verify EG generates proposal, GraphOS applies it and loop closes on receipt.
+- [ ] **SDK-CONNECTOR-CONTROL-R066.6:** Verify EG generates proposal, Arbora applies it and loop closes on receipt.
 
 ## Connector packs authored as Turtle (R067)
 

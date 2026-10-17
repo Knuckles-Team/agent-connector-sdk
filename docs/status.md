@@ -6,7 +6,7 @@ authoritative detail.
 
 | Area | Availability | Current contract |
 |---|:---:|---|
-| Python package | Available | Version 0.2.0; Python 3.12–3.14 |
+| Python package | Available | Version 0.2.1; Python 3.12–3.14 |
 | Connector MCP server | Available | `create_mcp_server` with the shared security, health, content, and tool-surface policies |
 | Connector certification | Available | `connector-certify` checks live MCP schemas and pinned fingerprints without invoking vendor actions |
 | Source synchronization | Available | `connector-sync` supervises certified adapters and advances only from matching Epistemic Graph receipts |
@@ -17,7 +17,7 @@ authoritative detail.
 
 ## Runtime authority
 
-Graph-bound operation is composed by Graph OS. It injects checked identity,
+Graph-bound operation is composed by Arbora. It injects checked identity,
 the generated Epistemic Graph client, and current catalog authority. The SDK
 fails closed when a required dependency, source receipt, authorization decision,
 or extension certification is absent or does not match.

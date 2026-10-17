@@ -74,7 +74,7 @@ Decision: extend R005 and reuse certified MCP source ingestion for provider stre
 Rejected alternative: a separate scholarly search runtime with its own graph store, checkpoint authority and ungoverned downloader.
 Cross-repository rows: SDK-SOURCE-INGEST-R001 owns receipt-bound checkpoints; SDK-CONNECTOR-CONTROL-R021 owns declared source access contracts.
 Connector packages own provider API bindings. EG's SourceIngest contract owns durable acceptance and graph interpretation.
-GraphOS supplies authenticated hosting and operator-approved limits. AU consumes results without selecting providers or creating approval policy.
+Arbora supplies authenticated hosting and operator-approved limits. AU consumes results without selecting providers or creating approval policy.
 References: no research-paper derivation is claimed for this contract.
 
 
@@ -82,7 +82,7 @@ References: no research-paper derivation is claimed for this contract.
 
 Data flow: authenticated connector tools/call -> registered handler -> dispatch_async -> shared fallback client -> governed backend HTTP -> typed result.
 SDK selects equivalent adapters mechanically under connector policy; it never chooses the user's goal, semantic query or admission policy.
-GraphOS authentication and authorization remain prerequisites. Connector packages own platform APIs and credential references; EG owns decisions and durable records.
+Arbora authentication and authorization remain prerequisites. Connector packages own platform APIs and credential references; EG owns decisions and durable records.
 R005.1 through R005.6 aggregate independent paper providers. R012 stops at one valid equivalent backend and does not aggregate their results.
 
 The new closed `PlatformCapability` fields are platform_id, channel_id, operation, schema_revision, policy_revision, required_scope and backends.
@@ -195,7 +195,7 @@ Connector registrars attach tools through `agent_connector_sdk/mcp/tool_surface.
 Their handlers use dispatch_async at `agent_connector_sdk/mcp/action_dispatch.py:194`.
 McpToolSourceAdapter.extract at `agent_connector_sdk/adapters/mcp_tool.py:118` calls the source tool before mapping records.
 The implementations must preserve typed refusals across that boundary instead of mapping them into empty successful pages.
-GraphOS offers authenticated hosting and admission. AU consumes typed results and runs received harness calls.
+Arbora offers authenticated hosting and admission. AU consumes typed results and runs received harness calls.
 EG alone owns durable checkpoints, graph interpretation, ontology and semantic query decisions.
 
 Dependencies:
@@ -493,7 +493,7 @@ No runtime execution evidence is established by this definition slice.
 <!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
 ## Supported-harness session discovery (R013)
 
-**Ownership.** SDK owns discovery, synchronization, and SourceIngest receipts. EG owns indexing and queries. GraphOS owns served reads. WEBUI-APPS-R006.4 consumes the browser response.
+**Ownership.** SDK owns discovery, synchronization, and SourceIngest receipts. EG owns indexing and queries. Arbora owns served reads. WEBUI-APPS-R006.4 consumes the browser response.
 
 **Attachment.** Reuse connector-sync --once and its existing worker. Reuse McpToolSourceAdapter.extract and the generated SourceIngest client. Add no parallel runner or UI-local index.
 
@@ -503,7 +503,7 @@ Bind source identity to tenant, harness, and session. Bind replay to source revi
 
 HS-13.6 exercises served discovery for every approved entry. It reads generated receipts and the durable EG index. It exercises WEBUI-APPS-R006.4. A denied source stays partial. Other sources continue. Cross-tenant reads refuse.
 
-EG and GraphOS owners must publish exact counterpart IDs before implementation. This SDK packet does not invent them.
+EG and Arbora owners must publish exact counterpart IDs before implementation. This SDK packet does not invent them.
 
 ## Scheduled paper sourcing (SDK-SOURCE-INGEST-R005.25 through R005.30)
 
@@ -547,7 +547,7 @@ Producer owns inference; SDK transports and attaches results through EG authoriz
 
 ## Live meeting and summary transport (R014)
 
-**Ownership.** SDK owns transport and receipt linkage. Audio-transcriber owns transcribe_audio. EG owns transcript/context authority. GraphOS owns authorized operations. WebUI owns capture and display through WEBUI-APPS-R001.5.
+**Ownership.** SDK owns transport and receipt linkage. Audio-transcriber owns transcribe_audio. EG owns transcript/context authority. Arbora owns authorized operations. WebUI owns capture and display through WEBUI-APPS-R001.5.
 
 The current WebUI route posts to /api/enhanced/voice/transcribe after MediaRecorder stops. Audio-transcriber registers transcribe_audio for a file or microphone capture. Both are single-shot paths. Neither proves live segments or summaries.
 
@@ -559,7 +559,7 @@ Honor the user's admitted provider choice. Refuse denied capture, denied egress,
 
 Acceptance enters real SDK dispatch. It observes ordered partials, exact replay, conflicting-duplicate refusal, and correction. It proves zero summary calls before complete-sequence finalization. It then exercises local and hosted providers separately. It reads durable provenance and confirms denied requests cause no provider call.
 
-EG and GraphOS owners supply their operation IDs. No runtime work is authorized in this definition slice.
+EG and Arbora owners supply their operation IDs. No runtime work is authorized in this definition slice.
 <!-- /spec-definition-patch -->
 
 ## Ingest under an accepted contract (R017)

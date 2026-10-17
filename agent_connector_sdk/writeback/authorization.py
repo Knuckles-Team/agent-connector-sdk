@@ -43,7 +43,7 @@ class DeterministicAuthorizationVerifier:
     """Fail closed unless an exact effect binding was granted in advance.
 
     This is a reference verifier for fixtures, not a production policy store.
-    Production implementations resolve graph-os/EG's durable decision using
+    Production implementations resolve arbora/EG's durable decision using
     the same complete digest/mode/reference/policy/schema binding.
     """
 

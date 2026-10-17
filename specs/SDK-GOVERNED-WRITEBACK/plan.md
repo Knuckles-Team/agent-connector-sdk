@@ -9,12 +9,12 @@
 
 ## Wallet signature verification (SDK-GOVERNED-WRITEBACK-R001)
 
-Data flow: GraphOS confirmed plan -> authenticated connector operation -> SDK verifier -> existing authorization/audit -> source effect -> durable receipt.
+Data flow: Arbora confirmed plan -> authenticated connector operation -> SDK verifier -> existing authorization/audit -> source effect -> durable receipt.
 Existing code: `GovernedWriteBack.apply` (`agent_connector_sdk/writeback/service.py:74`) resolves authorization and reserves audit before transport apply.
 `DurableWritableConnector.apply` (`agent_connector_sdk/writeback/connector.py:75`) reads durable prior effects; its reconciliation path handles uncertainty.
 Reachable today: no wallet verification path exists. The ordinary governed apply composition is reachable.
 Add one shared verifier and a typed proof input to that composition; do not duplicate authorization or replay storage.
-Expose the verifier through the admitted connector's authenticated operation so GraphOS imports one SDK contract, not cryptographic code.
+Expose the verifier through the admitted connector's authenticated operation so Arbora imports one SDK contract, not cryptographic code.
 Bind the returned fact to that caller and request; an untrusted JSON result cannot grant permission.
 
 The initial explicit profile is `ed25519_jcs`, for wallets with a trusted Ed25519 key binding.
@@ -47,8 +47,8 @@ Parallel submissions and restart must create at most one provider effect. Rechec
 If the existing durable producer cannot bind the proof to its authorization and reservation, report `verification_unavailable`.
 That proof-binding extension is an explicit dependency; never manufacture a receipt or weaken generated schemas.
 
-Decision: SDK owns cryptographic source verification, GraphOS consumes its fact, and EG remains the decision and durable record authority.
-Rejected alternative: a GraphOS verifier or wallet-specific approval store, which duplicates the producer and weakens replay fencing.
+Decision: SDK owns cryptographic source verification, Arbora consumes its fact, and EG remains the decision and durable record authority.
+Rejected alternative: an Arbora verifier or wallet-specific approval store, which duplicates the producer and weakens replay fencing.
 Cross-repository consumer: GRAPHOS-DATA-MARKET-R007. Existing SDK-GOVERNED-WRITEBACK-R004 owns effect approval and idempotency.
 References: [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) defines canonical JSON;
 [RFC 8032](https://www.rfc-editor.org/rfc/rfc8032) defines Ed25519. No research-paper derivation is claimed.
@@ -73,8 +73,8 @@ No normalization or mutation occurs after preparation. A changed default or sche
 The complete immutable binding projection is exactly `P = {"intent": WalletBusinessIntent}`.
 `plan_digest` is the lowercase hexadecimal SHA-256 of UTF-8 serialization of P.
 Serialization is exactly `json.dumps(P, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)`.
-P contains plain JSON values, so GraphOS `claim_values(P)` preserves them.
-This equals existing `graph_os/api/invoke/plan.py:24` `params_digest(P)`; it is not the signature payload digest.
+P contains plain JSON values, so Arbora `claim_values(P)` preserves them.
+This equals existing `arbora/api/invoke/plan.py:24` `params_digest(P)`; it is not the signature payload digest.
 Both owners use this exact definition and shared cross-language vectors, including non-ASCII values, nested terms and decimal strings.
 `bind_plan` also binds authenticated principal, tenant, policy revision, registry digest, operation, effect and confirmation mode.
 These authority bindings remain mandatory. Intent account, destination, amount, network and mode always participate in the digest.
@@ -96,9 +96,9 @@ The canonical signed payload remains the existing domain-separated RFC 8785 prof
 No plan digest, confirmation reference or proof occurs inside P. Signature insertion therefore introduces no digest cycle.
 
 The shared `WalletExecutionEnvelope` extension is missing and blocks activation of these operations.
-HTTP `graph_os/api/http/routes.py:72` currently merges the entire JSON body into params before invocation at line 127.
+HTTP `arbora/api/http/routes.py:72` currently merges the entire JSON body into params before invocation at line 127.
 For these registered operations, its new closed envelope parser must pass only envelope.params as operation parameters.
-MCP `graph_os/api/mcp/verbs.py:26` PARAMETERS and `_invoke_and_render` at line 258 need explicit wallet proof and confirmation metadata.
+MCP `arbora/api/mcp/verbs.py:26` PARAMETERS and `_invoke_and_render` at line 258 need explicit wallet proof and confirmation metadata.
 The MCP `params` property must carry the same P as HTTP; duplicate or conflicting metadata refuses.
 The shared Invoke contract must carry typed envelope metadata separately through confirmation and connector dispatch.
 This is an explicit shared transport dependency, not an existing side channel or handler-level field removal.
@@ -177,4 +177,4 @@ After a possible mutation, readback failure, lost response or failed ledger appe
 
 Keep R004.1–R004.4 as independent generic residual units. Then implement request validation (R004.5), path resolution (R004.6), approved composition (R004.7), provider compare-and-apply (R004.8), receipt binding (R004.9), readback (R004.10), reconciliation (R004.11), and served composition (R004.12). Each unit has one proposed acceptance function in test-spec.md. No generic helper test alone proves a production provider effect.
 
-GraphOS consumes these exact request/receipt contracts under GRAPHOS-FLEET-R003, using GRAPHOS-OPS-R009's existing invoke authority. Its producer-composition definition must wait for the SDK definition to merge. EG-TYPED-PACKS-R094.7 can name both after their definitions merge. EG-TYPED-PACKS-R002.10 still requires a separately coordinated AU model-dispatch consumer; source write-back does not meet that requirement. No candidate accounting change or runtime completion follows from these definitions.
+Arbora consumes these exact request/receipt contracts under GRAPHOS-FLEET-R003, using GRAPHOS-OPS-R009's existing invoke authority. Its producer-composition definition must wait for the SDK definition to merge. EG-TYPED-PACKS-R094.7 can name both after their definitions merge. EG-TYPED-PACKS-R002.10 still requires a separately coordinated AU model-dispatch consumer; source write-back does not meet that requirement. No candidate accounting change or runtime completion follows from these definitions.
