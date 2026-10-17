@@ -99,7 +99,7 @@ _legacy_warned = False
 
 
 def _config_home() -> Path:
-    return Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config")
+    return _xdg("XDG_CONFIG_HOME", ".config").parent
 
 
 def _env_dir(name: str) -> Path | None:
