@@ -2139,7 +2139,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "15b099abed9d",
-        "57e52447d270"
+        "81ea3e4bedac"
       ],
       "verified_by": [
         "tests/test_base_install_mcp_free.py:35",
@@ -2153,7 +2153,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "15b099abed9d",
-        "57e52447d270"
+        "81ea3e4bedac"
       ],
       "verified_by": [
         "tests/test_served_security_and_provider_profile.py:116",
@@ -2193,7 +2193,7 @@
       "title": "External embedding API client",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "6ed79cce99fd"
+        "da3aa0ab05a4"
       ],
       "verified_by": [
         "tests/test_embeddings.py:17"
@@ -2204,7 +2204,7 @@
       "title": "Typed epistemic-graph compute adapter",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "6ed79cce99fd"
+        "da3aa0ab05a4"
       ],
       "verified_by": [
         "tests/test_compute_adapter.py:19"
