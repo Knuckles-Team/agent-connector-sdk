@@ -2,13 +2,20 @@
   "schema_version": 2,
   "spec_id": "SDK-FINANCE-SOURCES",
   "owner_repo": "agent-connector-sdk",
-  "delivery_state": "LANDED",
+  "delivery_state": "SPECIFIED",
   "requirement_ids": [
     "SDK-FINANCE-SOURCES-R001",
     "SDK-FINANCE-SOURCES-R002",
     "SDK-FINANCE-SOURCES-R003",
     "SDK-FINANCE-SOURCES-R004",
-    "SDK-FINANCE-SOURCES-R005"
+    "SDK-FINANCE-SOURCES-R005",
+    "SDK-FINANCE-SOURCES-R900",
+    "SDK-FINANCE-SOURCES-R900.1",
+    "SDK-FINANCE-SOURCES-R900.2",
+    "SDK-FINANCE-SOURCES-R900.3",
+    "SDK-FINANCE-SOURCES-R900.4",
+    "SDK-FINANCE-SOURCES-R900.5",
+    "SDK-FINANCE-SOURCES-R900.6"
   ],
   "requirements": [
     {
@@ -78,6 +85,63 @@
         "tests/test_finance_etf_flows.py:66",
         "tests/test_finance_fred_series.py:40"
       ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900",
+      "title": "Venue and API connector helpers (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-FINANCE-SOURCES-R900.1",
+        "SDK-FINANCE-SOURCES-R900.2",
+        "SDK-FINANCE-SOURCES-R900.3",
+        "SDK-FINANCE-SOURCES-R900.4",
+        "SDK-FINANCE-SOURCES-R900.5",
+        "SDK-FINANCE-SOURCES-R900.6"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
