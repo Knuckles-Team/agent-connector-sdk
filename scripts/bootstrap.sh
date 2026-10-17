@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One-command contributor setup for agent-connector-sdk.
 #
-#   scripts/bootstrap.sh              pinned Python, locked env, EG contract, git hooks
+#   scripts/bootstrap.sh              pinned Python, locked env (EG from PyPI), git hooks
 #   scripts/bootstrap.sh --scanners   additionally the pinned native scanners
 #
 # Idempotent and non-interactive. Needs git, python3 and curl; installs uv >= 0.9.
@@ -54,27 +54,17 @@ uv_is_current || { echo "bootstrap.sh: uv >= $uv_minimum is required" >&2; exit 
 python_version=$(python3 scripts/project_python_floor.py pyproject.toml)
 uv python install "$python_version"
 
-# The SDK consumes epistemic-graph's generated contract from a pinned source
-# checkout (.ci/epistemic-graph), exactly as hosted CI does.
-bash scripts/bootstrap_epistemic_graph_contract.sh
-# Hook commands use --no-sync, so prepare all hook groups and tools here while
-# keeping the unpublished EG contract out of the project's installed packages.
+# epistemic-graph comes from PyPI only: uv.lock pins its registry wheels by
+# hash and [tool.uv] no-build-package forbids a source (Rust) build, so this
+# sync installs the published wheel or fails.
 uv sync --frozen \
   --group test \
   --group docs \
   --group typecheck \
-  --python "$python_version" \
-  --no-install-package epistemic-graph
+  --python "$python_version"
 
-# Put the pinned contract first on sys.path in the project environment (ahead of
-# any published epistemic-graph wheel `uv run` may install), so plain
-# `uv run pytest` behaves like CI's PYTHONPATH=.ci/epistemic-graph.
-site_packages=$(uv run --frozen --no-sync python -c 'import sysconfig; print(sysconfig.get_path("purelib"))')
-printf 'import sys; sys.path.insert(0, %s)\n' "'$PWD/.ci/epistemic-graph'" > "$site_packages/_epistemic_graph_contract.pth"
-
-# Install the exact wheel tied to the pinned source commit. The installer verifies
-# its official asset digest and uses --no-deps, so no source/native build occurs.
-uv run --frozen --no-sync python scripts/install_epistemic_graph_release_wheel.py
+# Prove the generated contracts import from that installed wheel.
+bash scripts/bootstrap_epistemic_graph_contract.sh
 
 # Git hooks are a contributor convenience; hosted CI runs the stages directly.
 if [ -z "${CI:-}" ]; then

@@ -95,7 +95,7 @@ def test_epistemic_graph_dependency_declares_first_compatible_floor() -> None:
     pyproject_path = Path(__file__).parents[1] / "pyproject.toml"
     project = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))["project"]
 
-    assert "epistemic-graph>=2.27.0,<3" in project["dependencies"]
+    assert "epistemic-graph>=2.27.1,<3.0.0" in project["dependencies"]
 
 
 def test_lease_settings(monkeypatch: pytest.MonkeyPatch) -> None:

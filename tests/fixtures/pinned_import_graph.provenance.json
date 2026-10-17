@@ -26,49 +26,57 @@
     "typing-inspection==0.4.4"
   ],
   "installed_evidence_kind": "importlib.metadata distribution metadata",
-  "schema_version": 1,
-  "source_declarations": [
+  "registry_declarations": [
     {
-      "checkout": ".ci/epistemic-graph",
       "consumed_modules": {
-        "epistemic_graph": ".ci/epistemic-graph/epistemic_graph/__init__.py",
-        "epistemic_graph.client": ".ci/epistemic-graph/epistemic_graph/client.py",
-        "epistemic_graph.connector_pack": ".ci/epistemic-graph/epistemic_graph/connector_pack.py",
-        "epistemic_graph.generated": ".ci/epistemic-graph/epistemic_graph/generated/__init__.py",
-        "epistemic_graph.generated.connector_pack": ".ci/epistemic-graph/epistemic_graph/generated/connector_pack.py",
-        "epistemic_graph.generated.coordination": ".ci/epistemic-graph/epistemic_graph/generated/coordination.py",
-        "epistemic_graph.generated.index_repository": ".ci/epistemic-graph/epistemic_graph/generated/index_repository.py",
-        "epistemic_graph.generated.ingestion": ".ci/epistemic-graph/epistemic_graph/generated/ingestion.py",
-        "epistemic_graph.generated.query": ".ci/epistemic-graph/epistemic_graph/generated/query.py",
-        "epistemic_graph.generated.source_ingestion": ".ci/epistemic-graph/epistemic_graph/generated/source_ingestion.py",
-        "epistemic_graph.generated.storage": ".ci/epistemic-graph/epistemic_graph/generated/storage.py",
-        "epistemic_graph.generated.write_back": ".ci/epistemic-graph/epistemic_graph/generated/write_back.py"
+        "epistemic_graph": "epistemic_graph/__init__.py",
+        "epistemic_graph.client": "epistemic_graph/client.py",
+        "epistemic_graph.connector_pack": "epistemic_graph/connector_pack.py",
+        "epistemic_graph.generated": "epistemic_graph/generated/__init__.py",
+        "epistemic_graph.generated.connector_pack": "epistemic_graph/generated/connector_pack.py",
+        "epistemic_graph.generated.coordination": "epistemic_graph/generated/coordination.py",
+        "epistemic_graph.generated.index_repository": "epistemic_graph/generated/index_repository.py",
+        "epistemic_graph.generated.ingestion": "epistemic_graph/generated/ingestion.py",
+        "epistemic_graph.generated.query": "epistemic_graph/generated/query.py",
+        "epistemic_graph.generated.source_ingestion": "epistemic_graph/generated/source_ingestion.py",
+        "epistemic_graph.generated.storage": "epistemic_graph/generated/storage.py",
+        "epistemic_graph.generated.write_back": "epistemic_graph/generated/write_back.py"
       },
       "declared_dependencies": [
+        "epistemic-graph-server==2.27.1 ; extra == 'server'",
         "httpx>=0.24.0",
+        "httpx>=0.24.0 ; extra == 'lmcache'",
+        "maturin>=1.0,<2.0 ; extra == 'test'",
         "msgpack>=1.2.1",
         "pydantic>=2,<3",
-        "pyoxigraph>=0.3.22"
+        "pyoxigraph>=0.3.22",
+        "pyoxigraph>=0.3.22 ; extra == 'owl'",
+        "pytest-asyncio>=0.23.0 ; extra == 'test'",
+        "pytest-cov>=4.0.0 ; extra == 'test'",
+        "pytest-timeout>=2.1.0 ; extra == 'test'",
+        "pytest-xdist>=3.0.0 ; extra == 'test'",
+        "pytest>=7.0.0 ; extra == 'test'",
+        "pyyaml>=6.0.3 ; extra == 'test'"
       ],
-      "evidence_kind": "pinned-source-and-official-release-wheel",
-      "git_remote": "https://github.com/Knuckles-Team/epistemic-graph.git",
-      "git_revision": "168df952ed0f7aceaaba68245a7c1667aea61f01",
-      "import_origin": ".ci/epistemic-graph/epistemic_graph/__init__.py",
+      "evidence_kind": "pypi-registry-wheel",
       "locked_dependencies": [
         "httpx==0.28.1",
         "msgpack==1.2.3",
         "pydantic==2.14.1",
         "pyoxigraph==0.5.11"
       ],
-      "metadata_sha256": {
-        "Cargo.toml": "216a541f712722d495ec65f07013877908a93056fd413ec57e6e9340bff1717e",
-        "pyproject.toml": "d50d01796f5b717a4f1621476b857ed88283607286af492a6236972d45d5b24f"
+      "locked_wheels": {
+        "epistemic_graph-2.27.1-cp39-abi3-macosx_11_0_arm64.whl": "501fa6457c16678365758f9fd75bc3dcb0a3b933008a140eec956ff7596bd33e",
+        "epistemic_graph-2.27.1-cp39-abi3-manylinux_2_28_aarch64.whl": "e21eb5ba8094c38c53bc3b5aaba006dbe64fef98d0df25e17c8e3bad9d1d604f",
+        "epistemic_graph-2.27.1-cp39-abi3-manylinux_2_28_x86_64.whl": "df997e55cb2c0ee73da3ac33fb96a723ce79529aac58bc41d05cb950bf15ba60",
+        "epistemic_graph-2.27.1-cp39-abi3-win_amd64.whl": "8e7e5751acd295cfea31654e07b2fb2180467475410e9c1505c4150a8fbbb358"
       },
       "name": "epistemic-graph",
-      "release_commit": "168df952ed0f7aceaaba68245a7c1667aea61f01",
+      "registry": "https://pypi.org/simple",
       "release_wheel_filename": "epistemic_graph-2.27.1-cp39-abi3-manylinux_2_28_x86_64.whl",
       "release_wheel_sha256": "df997e55cb2c0ee73da3ac33fb96a723ce79529aac58bc41d05cb950bf15ba60",
       "version": "2.27.1"
     }
-  ]
+  ],
+  "schema_version": 2
 }
