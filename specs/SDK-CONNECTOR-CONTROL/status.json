@@ -2136,7 +2136,7 @@
       "title": "Declared semantic coverage refusal",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "4f1348f6da30"
+        "fd2dbd615198"
       ],
       "verified_by": [
         "tests/test_certify_declared_coverage.py:15"
