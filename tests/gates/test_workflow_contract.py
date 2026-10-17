@@ -96,7 +96,7 @@ def test_gates_trigger_standard_and_cancel_superseded_runs() -> None:
     assert workflow["concurrency"]["cancel-in-progress"] is True
     skip = _yaml(GATES_SKIP)
     assert skip[True]["pull_request"]["paths"] == ignore
-    assert skip["jobs"]["gates"]["name"] == "gates"
+    assert skip["jobs"]["gates"]["name"] == "gates / gates"
 
 
 def test_release_publishes_only_for_a_tag_or_dispatch() -> None:
