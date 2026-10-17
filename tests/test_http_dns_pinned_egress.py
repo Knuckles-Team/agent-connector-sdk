@@ -86,21 +86,21 @@ def test_allowed_private_host_resolves_in_private_space(monkeypatch, seen) -> No
     monkeypatch.setattr(socket, "getaddrinfo", _answers("10.1.2.3"))
     client = _client(
         seen,
-        base_url="http://graph.internal",
-        allowed_private_hosts=("graph.internal",),
+        base_url="http://graph.example",
+        allowed_private_hosts=("graph.example",),
         allow_plaintext=True,
     )
     assert client.get("/").status_code == 200
     assert seen[0].url.host == "10.1.2.3"
-    assert seen[0].headers["Host"] == "graph.internal"
+    assert seen[0].headers["Host"] == "graph.example"
 
 
 def test_allowed_private_host_resolving_public_is_refused(monkeypatch, seen) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers("93.184.216.34"))
     client = _client(
         seen,
-        base_url="https://graph.internal",
-        allowed_private_hosts=("graph.internal",),
+        base_url="https://graph.example",
+        allowed_private_hosts=("graph.example",),
     )
     with pytest.raises(PinnedEgressViolation):
         client.get("/")
@@ -109,7 +109,7 @@ def test_allowed_private_host_resolving_public_is_refused(monkeypatch, seen) -> 
 def test_cgnat_is_private_but_unlisted_host_is_not_allowed(monkeypatch, seen) -> None:
     monkeypatch.setattr(socket, "getaddrinfo", _answers("100.64.0.9"))
     with pytest.raises(PinnedEgressViolation):
-        _client(seen, base_url="https://other.internal").get("/")
+        _client(seen, base_url="https://other.example").get("/")
 
 
 def test_loopback_needs_allow_loopback(seen) -> None:
@@ -181,8 +181,8 @@ def test_allowlist_must_be_exact_hostnames(bad) -> None:
 
 
 def test_allowlist_normalizes_and_requires_pin_egress() -> None:
-    assert normalize_private_hosts(["Graph.Internal.", "10.0.0.1"]) == {
-        "graph.internal",
+    assert normalize_private_hosts(["Graph.Example.", "10.0.0.1"]) == {
+        "graph.example",
         "10.0.0.1",
     }
     with pytest.raises(ValueError, match="require pin_egress"):

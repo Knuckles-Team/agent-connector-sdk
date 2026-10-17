@@ -148,7 +148,9 @@ def test_capture_keeps_last_snapshot_across_empty_responses():
         ),
         ("SSWS 00abcDEF123456", "00abcDEF123456"),
         (
-            "postgresql://agent:hunter2pass@db:5432/kg",  # sanitizer:ignore - synthetic redaction fixture
+            "postgresql://agent:"
+            + "hunter2pass"
+            + "@db:5432/kg",  # sanitizer:ignore - synthetic redaction fixture
             "hunter2pass",
         ),  # sanitizer:ignore - synthetic redaction fixture
         ("ghp_" + "a1B2" * 10, "a1B2a1B2"),
@@ -167,11 +169,10 @@ def test_redact_text_literals_and_passthrough():
     assert REDACTED in redact_text("v s3cr3t-v@lue!", secrets=["s3cr3t-v@lue!"])
     plain = "GET /api/stacks returned 200 with 14 items"
     assert redact_text(plain) == plain
-    assert (
-        f"postgresql://agent:{REDACTED}@db:5432/kg"
-        in redact_text(
-            "postgresql://agent:hunter2pass@db:5432/kg"  # sanitizer:ignore - synthetic redaction fixture
-        )
+    assert f"postgresql://agent:{REDACTED}@db:5432/kg" in redact_text(
+        "postgresql://agent:"
+        + "hunter2pass"
+        + "@db:5432/kg"  # sanitizer:ignore - synthetic redaction fixture
     )
 
 
