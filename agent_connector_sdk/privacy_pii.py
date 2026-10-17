@@ -51,7 +51,7 @@ class PiiSanitizer:
     def sanitize_dict(self, data: dict[str, Any]) -> dict[str, Any]:
         """Deep-sanitize dictionary values and keys."""
         if not isinstance(data, dict):
-            return data
+            return data  # type: ignore[unreachable]
 
         sanitized: dict[Any, Any] = {}
         for k, v in data.items():
