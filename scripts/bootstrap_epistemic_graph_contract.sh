@@ -1,32 +1,33 @@
 #!/usr/bin/env bash
+# Prove the SDK reads epistemic-graph's generated contracts from the PyPI wheel
+# that uv.lock pins. There is no source checkout and no PYTHONPATH overlay: the
+# installed distribution must be the locked registry version, and the contract
+# package must resolve only inside that distribution.
 set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-# Git exports these for hook processes; without clearing them, `git -C` still
-# operates on the SDK repository instead of the nested contract checkout.
-unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR GIT_PREFIX
+uv run --frozen --no-sync python - <<'PY'
+import tomllib
+from importlib import metadata
+from pathlib import Path
 
-# This source revision carries the generated contracts consumed by the SDK.
-# scripts/bootstrap.sh fetches it for contributors and hosted CI alike, and the
-# mypy and pytest hooks re-verify it, so both use the same contract source.
-revision=168df952ed0f7aceaaba68245a7c1667aea61f01
-target=.ci/epistemic-graph
+import epistemic_graph
+import epistemic_graph.generated.source_ingestion as source
 
-if [ -d "$target/.git" ] &&
-  [ "$(git -C "$target" rev-parse HEAD)" = "$revision" ] &&
-  [ -f "$target/epistemic_graph/generated/source_ingestion.py" ] &&
-  [ -z "$(git -C "$target" status --porcelain)" ]; then
-  exit 0
-fi
-
-if [ ! -d "$target/.git" ]; then
-  mkdir -p .ci
-  git clone --filter=blob:none --no-checkout \
-    https://github.com/Knuckles-Team/epistemic-graph.git "$target"
-fi
-if ! git -C "$target" cat-file -e "$revision^{commit}" 2>/dev/null; then
-  git -C "$target" fetch --filter=blob:none --depth=1 origin "$revision"
-fi
-git -C "$target" sparse-checkout set epistemic_graph
-git -C "$target" checkout --detach "$revision"
-test "$(git -C "$target" rev-parse HEAD)" = "$revision"
-test -z "$(git -C "$target" status --porcelain)"
+lock = tomllib.loads(Path("uv.lock").read_text(encoding="utf-8"))
+(locked,) = [p for p in lock["package"] if p["name"] == "epistemic-graph"]
+if not str(locked.get("source", {}).get("registry", "")).startswith("https://pypi.org/"):
+    raise SystemExit(f"uv.lock does not pin epistemic-graph to PyPI: {locked.get('source')}")
+if "sdist" in locked or not locked.get("wheels"):
+    raise SystemExit("uv.lock must pin epistemic-graph to published wheels only")
+dist = metadata.distribution("epistemic-graph")
+if dist.version != locked["version"]:
+    raise SystemExit(f"installed epistemic-graph {dist.version} != uv.lock {locked['version']}")
+package = Path(str(dist.locate_file("epistemic_graph"))).resolve()
+paths = {Path(p).resolve() for p in epistemic_graph.__path__}
+if paths != {package}:
+    raise SystemExit(f"epistemic_graph has a package overlay: {sorted(map(str, paths))}")
+if not Path(source.__file__).resolve().is_relative_to(package):
+    raise SystemExit(f"generated contract resolves outside the wheel: {source.__file__}")
+print(f"epistemic-graph {dist.version} contract: installed PyPI wheel at {package}")
+PY

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Reproduce CI's lock-resolved import graph with explicit source provenance.
+"""Reproduce CI's lock-resolved import graph with explicit registry provenance.
 
-The pinned EG source checkout supplies generated Python contracts, while this
-repository intentionally skips installing its Rust-backed wheel. The graph
-therefore records EG's version and direct requirements from that exact source
-checkout and uv.lock; every other node (and EG itself when installed) is
-verified from real distribution metadata. No synthetic dist-info is created.
+epistemic-graph installs from PyPI only: uv.lock pins it to registry wheels by
+hash (no sdist, and ``[tool.uv] no-build-package`` forbids a source build), and
+the SDK's generated-contract imports must resolve inside that installed wheel.
+Every node of the graph, EG included, is verified from real installed
+distribution metadata against uv.lock. No synthetic dist-info is created.
 """
 
 from __future__ import annotations
@@ -16,9 +16,7 @@ import hashlib
 import importlib
 import importlib.util
 import json
-import os
 import re
-import subprocess
 import sys
 import tomllib
 from collections import deque
@@ -26,7 +24,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from importlib import metadata
 from pathlib import Path
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import urlsplit
 
 import epistemic_graph_wheel_provenance as eg_wheel
 from packaging.markers import Marker, default_environment
@@ -41,10 +39,10 @@ PROVENANCE_FIXTURE = ROOT / "tests" / "fixtures" / "pinned_import_graph.provenan
 RELEASE_MANIFEST = ROOT / "scripts" / "epistemic_graph_release.json"
 LOCK_FILE = ROOT / "uv.lock"
 ROOT_PYPROJECT = ROOT / "pyproject.toml"
-SOURCE_ROOT = ROOT / ".ci" / "epistemic-graph"
 ROOT_DISTRIBUTION = "agent-connector-sdk"
 SOURCE_DISTRIBUTION = "epistemic-graph"
-SOURCE_REMOTE = "https://github.com/Knuckles-Team/epistemic-graph.git"
+REGISTRY = "https://pypi.org/simple"
+EVIDENCE_KIND = "pypi-registry-wheel"
 # These imports are deliberately dynamic in DecideTransport._generated.
 DYNAMIC_SDK_IMPORTS = (
     "epistemic_graph.generated.query",
@@ -73,36 +71,31 @@ class PackageMetadata:
 
 
 @dataclass(frozen=True)
-class SourceDeclaration:
+class RegistryDeclaration:
+    """EG as locked from PyPI and as installed from that wheel."""
+
     name: str
     version: str
-    revision: str
-    remote: str
-    import_origin: str
-    metadata_sha256: Mapping[str, str]
+    registry: str
+    locked_wheels: Mapping[str, str]
     declared_dependencies: tuple[str, ...]
     locked_dependencies: tuple[str, ...]
     consumed_modules: Mapping[str, str]
-    release_commit: str = ""
-    release_wheel_filename: str = ""
-    release_wheel_sha256: str = ""
+    release_wheel_filename: str
+    release_wheel_sha256: str
 
     def to_json(self) -> dict[str, object]:
         return {
             "name": self.name,
             "version": self.version,
-            "git_revision": self.revision,
-            "git_remote": self.remote,
-            "checkout": ".ci/epistemic-graph",
-            "import_origin": self.import_origin,
-            "metadata_sha256": dict(sorted(self.metadata_sha256.items())),
+            "registry": self.registry,
+            "locked_wheels": dict(sorted(self.locked_wheels.items())),
             "declared_dependencies": list(self.declared_dependencies),
             "locked_dependencies": list(self.locked_dependencies),
             "consumed_modules": dict(sorted(self.consumed_modules.items())),
-            "release_commit": self.release_commit,
             "release_wheel_filename": self.release_wheel_filename,
             "release_wheel_sha256": self.release_wheel_sha256,
-            "evidence_kind": "pinned-source-and-official-release-wheel",
+            "evidence_kind": EVIDENCE_KIND,
         }
 
 
@@ -110,7 +103,7 @@ class SourceDeclaration:
 class ImportGraphEvidence:
     graph: tuple[str, ...]
     installed_distributions: tuple[str, ...]
-    source_declarations: tuple[SourceDeclaration, ...]
+    registry_declarations: tuple[RegistryDeclaration, ...]
 
 
 def _canonical(name: str) -> str:
@@ -127,43 +120,6 @@ def _read_toml(path: Path) -> dict[str, object]:
     except (OSError, tomllib.TOMLDecodeError) as exc:
         _raise(f"cannot read TOML metadata at {path}: {exc}")
     return value
-
-
-def _git(source_root: Path, *args: str) -> str:
-    # Git's pre-push environment exports the parent repository's worktree
-    # context. Remove those selectors so -C uses this source checkout's own
-    # .git directory, not the SDK checkout that launched the hook.
-    environment = os.environ.copy()
-    for name in (
-        "GIT_DIR",
-        "GIT_WORK_TREE",
-        "GIT_COMMON_DIR",
-        "GIT_INDEX_FILE",
-        "GIT_OBJECT_DIRECTORY",
-        "GIT_ALTERNATE_OBJECT_DIRECTORIES",
-        "GIT_PREFIX",
-        "GIT_SUPER_PREFIX",
-        "GIT_NAMESPACE",
-        "GIT_QUARANTINE_PATH",
-    ):
-        environment.pop(name, None)
-    try:
-        result = subprocess.run(
-            ["git", "-C", str(source_root), *args],
-            check=True,
-            capture_output=True,
-            text=True,
-            env=environment,
-        )
-    except (OSError, subprocess.CalledProcessError) as exc:
-        _raise(f"cannot verify pinned EG source checkout with git {args!r}: {exc}")
-    return result.stdout.strip()
-
-
-def _normalize_remote(value: str) -> str:
-    if value == "git@github.com:Knuckles-Team/epistemic-graph.git":
-        return SOURCE_REMOTE
-    return value.rstrip("/")
 
 
 def _requirement_key(raw: str) -> tuple[str, tuple[str, ...], str, str, str | None]:
@@ -298,38 +254,6 @@ def _requirement_names(
     return result
 
 
-def _metadata_matches(
-    left: tuple[str, ...], right: tuple[str, ...], environment: Mapping[str, str]
-) -> bool:
-    left_keys = {
-        _requirement_key(raw)
-        for raw in left
-        if _active(Requirement(raw), environment, {""})
-    }
-    right_keys = {
-        _requirement_key(raw)
-        for raw in right
-        if _active(Requirement(raw), environment, {""})
-    }
-    return left_keys == right_keys
-
-
-def _source_revision_from_lock(package: LockedPackage) -> str:
-    git_url = package.source.get("git")
-    if not git_url:
-        _raise("uv.lock does not pin epistemic-graph to a Git source")
-    parsed = urlsplit(git_url.split("#", 1)[0])
-    remote = _normalize_remote(parsed._replace(query="", fragment="").geturl())
-    query = parse_qs(parsed.query)
-    revision = query.get("rev", [""])[0]
-    fragment = git_url.rsplit("#", 1)[-1] if "#" in git_url else ""
-    if remote != SOURCE_REMOTE or not re.fullmatch(r"[0-9a-f]{40}", revision):
-        _raise(f"uv.lock has an unsupported epistemic-graph source: {git_url}")
-    if fragment != revision:
-        _raise("uv.lock Git revision and resolved commit differ for epistemic-graph")
-    return revision
-
-
 def _find_sdk_imports() -> list[str]:
     modules: set[str] = set()
     package_root = ROOT / "agent_connector_sdk"
@@ -360,40 +284,22 @@ def _find_sdk_imports() -> list[str]:
     return sorted(modules)
 
 
-def _verify_import_origins(
-    source_root: Path,
-    installed: metadata.Distribution | None,
-) -> tuple[Path, Mapping[str, str]]:
-    source_package = (source_root / "epistemic_graph").resolve()
+def _verify_import_origins(installed: metadata.Distribution) -> Mapping[str, str]:
+    """Every SDK-consumed EG module resolves inside the installed wheel only."""
+    wheel_package = Path(str(installed.locate_file("epistemic_graph"))).resolve()
+    site_root = wheel_package.parent
     try:
         package = importlib.import_module("epistemic_graph")
     except Exception as exc:
-        _raise(f"cannot import the pinned epistemic_graph contract source: {exc}")
-    package_file = Path(str(getattr(package, "__file__", ""))).resolve()
-    if package_file != (source_package / "__init__.py").resolve():
-        _raise(
-            "epistemic_graph package origin is not the pinned source checkout: "
-            f"{package_file}"
-        )
-
+        _raise(f"cannot import the installed epistemic_graph wheel: {exc}")
     package_paths = {
         Path(str(path)).resolve() for path in getattr(package, "__path__", ())
     }
-    allowed_paths = {source_package}
-    if installed is not None:
-        eg_wheel.verify_installed_distribution(installed, RELEASE_MANIFEST)
-        installed_package = Path(
-            str(installed.locate_file("epistemic_graph"))
-        ).resolve()
-        if installed_package == source_package:
-            _raise("installed EG wheel package path is missing")
-        allowed_paths.add(installed_package)
-    if package_paths != allowed_paths:
+    if package_paths != {wheel_package}:
         _raise(
-            "epistemic_graph exposes an unverified package overlay: "
+            "epistemic_graph exposes a package overlay beyond the installed wheel: "
             f"{sorted(str(path) for path in package_paths)}"
         )
-
     origins: dict[str, str] = {}
     for module_name in _find_sdk_imports():
         try:
@@ -403,237 +309,94 @@ def _verify_import_origins(
         if spec is None or spec.origin is None:
             _raise(f"SDK-consumed module has no resolved file origin: {module_name}")
         origin = Path(spec.origin).resolve()
-        if not origin.is_relative_to(source_package):
+        if not origin.is_relative_to(wheel_package):
             _raise(
-                f"SDK-consumed module {module_name} resolves outside the pinned "
-                f"source checkout: {origin}"
+                f"SDK-consumed module {module_name} resolves outside the installed "
+                f"PyPI wheel: {origin}"
             )
-        origins[module_name] = origin.relative_to(ROOT).as_posix()
-    return package_file, origins
+        origins[module_name] = origin.relative_to(site_root).as_posix()
+    return origins
 
 
-def _prove_source_declaration(
-    *,
-    name: str,
-    source_version: str,
-    source_requires_python: str,
-    source_requires: tuple[str, ...],
-    lock_package: LockedPackage,
-    lock_metadata: Mapping[str, object],
-    lock_source_url: str,
-    configured_revision: str,
-    bootstrap_revision: str,
-    git_revision: str,
-    git_remote: str,
-    import_origin: Path,
-    expected_import_origin: Path,
-    environment: Mapping[str, str],
-    lock_packages: list[Mapping[str, object]],
-) -> tuple[str, ...]:
-    if _canonical(name) != SOURCE_DISTRIBUTION:
-        _raise(f"pinned source project has unexpected name {name!r}")
-    revision = _source_revision_from_lock(lock_package)
-    eg_wheel.require_source_revision(revision, RELEASE_MANIFEST)
-    if git_revision != revision:
-        _raise(f"EG checkout is {git_revision}, but uv.lock pins {revision}")
-    if configured_revision != revision or bootstrap_revision != revision:
-        _raise("EG source pin differs between uv.lock, pyproject.toml, and bootstrap")
-    if _normalize_remote(git_remote) != SOURCE_REMOTE:
-        _raise(f"EG checkout remote is not the canonical source: {git_remote}")
-    if (
-        source_version != lock_package.version
-        or str(lock_metadata.get("version")) != source_version
-    ):
-        _raise(
-            f"EG source version {source_version} does not match uv.lock metadata "
-            f"{lock_package.version}"
-        )
-    if _canonical(str(lock_metadata.get("name", ""))) != SOURCE_DISTRIBUTION:
-        _raise("uv.lock copied dependency metadata for the wrong source package")
-    if str(lock_metadata.get("requires-python", "")) != source_requires_python:
-        _raise("EG source Requires-Python differs from uv.lock dependency metadata")
-    lock_requires = lock_metadata.get("requires-dist", [])
-    if not isinstance(lock_requires, list) or not _metadata_matches(
-        source_requires, tuple(str(value) for value in lock_requires), environment
-    ):
-        _raise("EG source dependencies differ from uv.lock copied metadata")
-    configured_remote = _normalize_remote(lock_source_url)
-    lock_remote = _normalize_remote(
-        urlsplit(lock_package.source.get("git", "").split("#", 1)[0])
-        ._replace(query="", fragment="")
-        .geturl()
-    )
-    if configured_remote != SOURCE_REMOTE or lock_remote != SOURCE_REMOTE:
-        _raise("the project source pin differs from the resolved uv.lock source")
-    if import_origin.resolve() != expected_import_origin.resolve():
-        _raise(
-            "epistemic_graph import origin is not the pinned source package: "
-            f"{import_origin}"
-        )
-
-    source_requirements = [
-        Requirement(raw)
-        for raw in source_requires
-        if _active(Requirement(raw), environment, {""})
-    ]
-    source_names = {_canonical(requirement.name) for requirement in source_requirements}
-    lock_names = {
-        _canonical(str(edge.get("name", "")))
-        for edge in lock_package.dependencies
-        if _active_lock_edge(edge, environment, {""}) and not edge.get("extra")
-    }
-    if source_names != lock_names:
-        _raise(
-            "EG source runtime dependencies differ from its uv.lock package edges: "
-            f"source={sorted(source_names)}, lock={sorted(lock_names)}"
-        )
-
-    locked_dependencies: list[str] = []
-    for requirement in source_requirements:
-        dependency = _lock_entry(requirement.name, lock_packages, environment)
-        if requirement.specifier and not SpecifierSet(
-            str(requirement.specifier)
-        ).contains(Version(dependency.version), prereleases=True):
-            _raise(
-                f"locked {requirement.name}=={dependency.version} does not satisfy "
-                f"EG source requirement {requirement}"
-            )
-        locked_dependencies.append(
-            f"{_canonical(requirement.name)}=={dependency.version}"
-        )
-    return tuple(sorted(locked_dependencies))
+def _locked_wheels(package: Mapping[str, object]) -> dict[str, str]:
+    """The locked registry wheels of EG, by filename; a source build is refused."""
+    source = package.get("source", {})
+    registry = source.get("registry") if isinstance(source, dict) else None
+    if registry != REGISTRY:
+        _raise(f"uv.lock must pin epistemic-graph to {REGISTRY}, not {source}")
+    if "sdist" in package:
+        _raise("uv.lock must not carry an epistemic-graph sdist (no source build)")
+    wheels = package.get("wheels", [])
+    found: dict[str, str] = {}
+    for wheel in wheels if isinstance(wheels, list) else []:
+        url = str(wheel.get("url", "")) if isinstance(wheel, dict) else ""
+        digest = str(wheel.get("hash", "")) if isinstance(wheel, dict) else ""
+        filename = Path(urlsplit(url).path).name
+        if not filename.endswith(".whl") or not re.fullmatch(
+            r"sha256:[0-9a-f]{64}", digest
+        ):
+            _raise(f"uv.lock has an unverifiable epistemic-graph wheel: {wheel}")
+        found[filename] = digest.removeprefix("sha256:")
+    if not found:
+        _raise("uv.lock pins no epistemic-graph wheel")
+    return found
 
 
-def _source_declaration(
+def _no_build_configured(pyproject: Mapping[str, object]) -> None:
+    uv = pyproject.get("tool", {}).get("uv", {})  # type: ignore[union-attr]
+    if SOURCE_DISTRIBUTION not in uv.get("no-build-package", []):  # type: ignore[union-attr]
+        _raise("pyproject.toml must list epistemic-graph in [tool.uv] no-build-package")
+    if SOURCE_DISTRIBUTION in uv.get("sources", {}):  # type: ignore[union-attr]
+        _raise("pyproject.toml must not override the epistemic-graph source")
+
+
+def _registry_declaration(
     lock_data: Mapping[str, object],
     environment: Mapping[str, str],
     installed: metadata.Distribution | None,
-) -> SourceDeclaration:
-    packages = _lock_packages(lock_data)
-    lock_package = _lock_entry(SOURCE_DISTRIBUTION, packages, environment)
-    revision = _source_revision_from_lock(lock_package)
-    source_root = SOURCE_ROOT.resolve()
-    if not source_root.is_dir():
-        _raise(f"pinned EG source checkout is missing: {source_root}")
-
-    git_revision = _git(source_root, "rev-parse", "HEAD")
-    if git_revision != revision:
-        _raise(f"EG checkout is {git_revision}, but uv.lock pins {revision}")
-    eg_wheel.require_source_revision(revision, RELEASE_MANIFEST)
+) -> RegistryDeclaration:
     if installed is None:
-        _raise("the pinned EG release wheel has no installed distribution metadata")
-    if _git(source_root, "status", "--porcelain", "--untracked-files=normal"):
-        _raise("pinned EG source checkout has local modifications")
-    git_remote = _git(source_root, "remote", "get-url", "origin")
-
-    root_project = _read_toml(ROOT_PYPROJECT)
-    uv = root_project.get("tool", {}).get("uv", {})  # type: ignore[union-attr]
-    sources = uv.get("sources", {})  # type: ignore[union-attr]
-    configured_source = sources.get(SOURCE_DISTRIBUTION, {})  # type: ignore[union-attr]
-    configured_revision = str(configured_source.get("rev", ""))  # type: ignore[union-attr]
-    lock_source_url = str(configured_source.get("git", ""))  # type: ignore[union-attr]
-
-    bootstrap = ROOT / "scripts" / "bootstrap_epistemic_graph_contract.sh"
-    bootstrap_text = bootstrap.read_text(encoding="utf-8")
-    match = re.search(r"^revision=([0-9a-f]{40})$", bootstrap_text, re.MULTILINE)
-    if match is None:
-        _raise("EG bootstrap does not declare one immutable revision")
-    bootstrap_revision = match.group(1)
-
-    project = _read_toml(source_root / "pyproject.toml").get("project", {})
-    cargo = _read_toml(source_root / "Cargo.toml").get("package", {})
-    if not isinstance(project, dict) or not isinstance(cargo, dict):
-        _raise("EG source project metadata is malformed")
-    name = str(project.get("name", ""))
-    version = str(cargo.get("version", ""))
-    requires_python = str(project.get("requires-python", ""))
-    raw_requires = project.get("dependencies", [])
-    if not version or not isinstance(raw_requires, list):
-        _raise("EG source does not declare a static Cargo version and dependency list")
-    requires = tuple(str(value) for value in raw_requires)
-
-    manifest = lock_data.get("manifest", {})
-    manifest_metadata = (
-        manifest.get("dependency-metadata", []) if isinstance(manifest, dict) else []
-    )
-    matches = [
+        _raise("epistemic-graph is not installed; run scripts/bootstrap.sh")
+    _no_build_configured(_read_toml(ROOT_PYPROJECT))
+    packages = _lock_packages(lock_data)
+    (package,) = [
         item
-        for item in manifest_metadata
-        if isinstance(item, dict)
-        and _canonical(str(item.get("name", ""))) == SOURCE_DISTRIBUTION
-    ]
-    if len(matches) != 1:
-        _raise("uv.lock must carry one copied EG source dependency-metadata record")
-
-    tool_metadata = uv.get("dependency-metadata", [])  # type: ignore[union-attr]
-    tool_matches = [
-        item
-        for item in tool_metadata
-        if isinstance(item, dict)
-        and _canonical(str(item.get("name", ""))) == SOURCE_DISTRIBUTION
-    ]
-    if len(tool_matches) != 1:
+        for item in packages
+        if _canonical(str(item.get("name", ""))) == SOURCE_DISTRIBUTION
+    ] or [{}]
+    wheels = _locked_wheels(package)
+    lock_package = _lock_entry(SOURCE_DISTRIBUTION, packages, environment)
+    if installed.version != lock_package.version:
         _raise(
-            "pyproject.toml must carry one copied EG source dependency-metadata record"
+            f"installed epistemic-graph {installed.version} differs from uv.lock "
+            f"{lock_package.version}"
         )
-    lock_metadata = matches[0]
-    if (
-        str(lock_metadata.get("version", "")) != str(tool_matches[0].get("version", ""))
-        or str(lock_metadata.get("requires-python", ""))
-        != str(tool_matches[0].get("requires-python", ""))
-        or not _metadata_matches(
-            requires,
-            tuple(str(value) for value in lock_metadata.get("requires-dist", [])),
-            environment,
-        )
-        or not _metadata_matches(
-            requires,
-            tuple(str(value) for value in tool_matches[0].get("requires-dist", [])),
-            environment,
-        )
+    manifest = eg_wheel.read_manifest(RELEASE_MANIFEST)
+    if manifest["version"] != lock_package.version or (
+        wheels.get(manifest["wheel_filename"]) != manifest["wheel_sha256"]
     ):
-        _raise("copied EG metadata in pyproject.toml and uv.lock differs from source")
-
-    package_file, consumed_modules = _verify_import_origins(source_root, installed)
-    locked_dependencies = _prove_source_declaration(
-        name=name,
-        source_version=version,
-        source_requires_python=requires_python,
-        source_requires=requires,
-        lock_package=lock_package,
-        lock_metadata=lock_metadata,
-        lock_source_url=lock_source_url,
-        configured_revision=configured_revision,
-        bootstrap_revision=bootstrap_revision,
-        git_revision=git_revision,
-        git_remote=git_remote,
-        import_origin=package_file,
-        expected_import_origin=source_root / "epistemic_graph" / "__init__.py",
-        environment=environment,
-        lock_packages=packages,
+        _raise(
+            "scripts/epistemic_graph_release.json does not name a wheel uv.lock pins"
+        )
+    declared = tuple(sorted(installed.requires or ()))
+    locked = tuple(
+        sorted(
+            f"{_canonical(r.name)}=="
+            + _locked_dependency(r, lock_package, packages, environment, set()).version
+            for r in (Requirement(raw) for raw in declared)
+            if _active(r, environment, {""})
+        )
     )
-    return SourceDeclaration(
+    return RegistryDeclaration(
         name=SOURCE_DISTRIBUTION,
-        version=version,
-        revision=revision,
-        remote=SOURCE_REMOTE,
-        import_origin=package_file.relative_to(ROOT).as_posix(),
-        metadata_sha256={
-            "Cargo.toml": hashlib.sha256(
-                (source_root / "Cargo.toml").read_bytes()
-            ).hexdigest(),
-            "pyproject.toml": hashlib.sha256(
-                (source_root / "pyproject.toml").read_bytes()
-            ).hexdigest(),
-        },
-        declared_dependencies=tuple(sorted(requires)),
-        locked_dependencies=locked_dependencies,
-        consumed_modules=consumed_modules,
-        release_commit=eg_wheel.read_manifest(RELEASE_MANIFEST)["source_revision"],
-        release_wheel_filename=eg_wheel.read_manifest(RELEASE_MANIFEST)[
-            "wheel_filename"
-        ],
-        release_wheel_sha256=eg_wheel.read_manifest(RELEASE_MANIFEST)["wheel_sha256"],
+        version=lock_package.version,
+        registry=REGISTRY,
+        locked_wheels=wheels,
+        declared_dependencies=declared,
+        locked_dependencies=locked,
+        consumed_modules=_verify_import_origins(installed),
+        release_wheel_filename=manifest["wheel_filename"],
+        release_wheel_sha256=manifest["wheel_sha256"],
     )
 
 
@@ -705,7 +468,6 @@ def _walk_graph(
     packages: list[Mapping[str, object]],
     environment: Mapping[str, str],
     get_installed: Callable[[str], tuple[PackageMetadata, object] | None],
-    source_fallback: PackageMetadata,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
     pending: deque[tuple[str, frozenset[str]]] = deque([(root, frozenset())])
     requested_extras: dict[str, set[str]] = {}
@@ -727,39 +489,27 @@ def _walk_graph(
         if first_visit:
             result = get_installed(key)
             if result is None:
-                if key != SOURCE_DISTRIBUTION:
-                    _raise(
-                        f"required locked runtime dependency {key} has no installed "
-                        "distribution metadata"
-                    )
-                package_metadata = source_fallback
-                dist = None
-            else:
-                package_metadata, dist = result
+                _raise(
+                    f"required locked runtime dependency {key} has no installed "
+                    "distribution metadata"
+                )
+            package_metadata, dist = result
             lock_package = _lock_entry(key, packages, environment)
             if (
                 lock_package.version
                 and package_metadata.version != lock_package.version
             ):
                 _raise(
-                    f"installed/source {key}=={package_metadata.version} differs "
+                    f"installed {key}=={package_metadata.version} differs "
                     f"from uv.lock {lock_package.version}"
                 )
             if not lock_package.version and dist is None:
                 _raise(
                     "the editable SDK root must have installed distribution metadata"
                 )
-            if (
-                key == SOURCE_DISTRIBUTION
-                and package_metadata.version != source_fallback.version
-            ):
-                _raise(
-                    "installed EG version differs from the pinned source declaration"
-                )
             cached[key] = (package_metadata, dist)
             graph[key] = f"{key}=={package_metadata.version}"
-            if dist is not None:
-                installed.add(graph[key])
+            installed.add(graph[key])
 
         package_metadata, _ = cached[key]
         contexts = ({""} if first_visit else set()) | new_extras
@@ -791,49 +541,27 @@ def _walk_graph(
     return tuple(sorted(graph.values())), tuple(sorted(installed))
 
 
-def _validate_installed_source_metadata(
-    installed: PackageMetadata,
-    source: SourceDeclaration,
-    environment: Mapping[str, str],
-) -> None:
-    if installed.version != source.version:
-        _raise("installed EG version differs from the exact pinned source version")
-    if not _metadata_matches(
-        installed.requires, source.declared_dependencies, environment
-    ):
-        _raise("installed EG dependency metadata differs from the pinned source")
-
-
 def compute_import_graph_evidence(
     root: str = ROOT_DISTRIBUTION,
 ) -> ImportGraphEvidence:
-    """Return the lock-verified graph and explicit source/install evidence."""
+    """Return the lock-verified graph and explicit registry/install evidence."""
     lock_data = _read_toml(LOCK_FILE)
     environment = default_environment()
     packages = _lock_packages(lock_data)
-
     installed_eg = _installed_package(SOURCE_DISTRIBUTION)
-    source = _source_declaration(
+    declaration = _registry_declaration(
         lock_data, environment, installed_eg[1] if installed_eg else None
     )
-    source_package = PackageMetadata(
-        version=source.version,
-        requires=source.declared_dependencies,
-    )
-    if installed_eg is not None:
-        _validate_installed_source_metadata(installed_eg[0], source, environment)
-
     graph, installed = _walk_graph(
         root,
         packages=packages,
         environment=environment,
         get_installed=_installed_package,
-        source_fallback=source_package,
     )
     return ImportGraphEvidence(
         graph=graph,
         installed_distributions=installed,
-        source_declarations=(source,),
+        registry_declarations=(declaration,),
     )
 
 
@@ -855,10 +583,10 @@ def _write_recording(evidence: ImportGraphEvidence) -> None:
     FIXTURE.parent.mkdir(parents=True, exist_ok=True)
     FIXTURE.write_bytes(graph_bytes)
     provenance = {
-        "schema_version": 1,
+        "schema_version": 2,
         "graph_sha256": hashlib.sha256(graph_bytes).hexdigest(),
-        "source_declarations": [
-            source.to_json() for source in evidence.source_declarations
+        "registry_declarations": [
+            declaration.to_json() for declaration in evidence.registry_declarations
         ],
         "installed_distributions": list(evidence.installed_distributions),
         "installed_evidence_kind": "importlib.metadata distribution metadata",
@@ -875,20 +603,22 @@ def _validate_recorded_provenance(
     if not PROVENANCE_FIXTURE.exists():
         _raise(
             f"missing provenance record at {PROVENANCE_FIXTURE}; run --record "
-            "after the source proof passes"
+            "after the registry proof passes"
         )
     try:
         provenance = json.loads(PROVENANCE_FIXTURE.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         _raise(f"cannot read import-graph provenance: {exc}")
-    if not isinstance(provenance, dict) or provenance.get("schema_version") != 1:
+    if not isinstance(provenance, dict) or provenance.get("schema_version") != 2:
         _raise("import-graph provenance has an unsupported schema")
     if provenance.get("graph_sha256") != hashlib.sha256(graph_bytes).hexdigest():
         _raise("import-graph provenance digest does not bind the committed graph")
-    recorded_sources = provenance.get("source_declarations")
-    expected_sources = [source.to_json() for source in evidence.source_declarations]
-    if recorded_sources != expected_sources:
-        _raise("recorded source-declaration evidence differs from the pinned checkout")
+    recorded = provenance.get("registry_declarations")
+    expected = [item.to_json() for item in evidence.registry_declarations]
+    if recorded != expected:
+        _raise(
+            "recorded registry-declaration evidence differs from the installed wheel"
+        )
     installed = provenance.get("installed_distributions")
     if (
         not isinstance(installed, list)
@@ -925,7 +655,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "check_import_graph_reproducibility: recorded "
             f"{len(evidence.graph)} packages; "
-            f"{len(evidence.source_declarations)} source declaration(s), "
+            f"{len(evidence.registry_declarations)} registry declaration(s), "
             f"{len(evidence.installed_distributions)} installed distribution(s)"
         )
         return 0
@@ -959,7 +689,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(
         f"check_import_graph_reproducibility: {len(live)} packages match; "
-        f"{len(evidence.source_declarations)} source declaration(s), "
+        f"{len(evidence.registry_declarations)} registry declaration(s), "
         f"{len(evidence.installed_distributions)} installed distribution(s) verified"
     )
     return 0

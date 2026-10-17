@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-# Hosted/CI setup for the shared gates workflow: pinned Python, locked
-# environment, the pinned epistemic-graph contract, PYTHONPATH, and the
-# operator-owned identity catalog for tracked-privacy.
+# Hosted/CI setup for the shared gates workflow: pinned Python, the locked
+# environment (epistemic-graph from its PyPI wheel), and the operator-owned
+# identity catalog for tracked-privacy.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 CI=true bash scripts/bootstrap.sh
-echo "PYTHONPATH=.ci/epistemic-graph" >> "${GITHUB_ENV:-/dev/null}"
-PYTHONPATH=.ci/epistemic-graph uv run --frozen --no-sync python -c "from pathlib import Path; import epistemic_graph.generated.source_ingestion as source; assert '.ci/epistemic-graph' in str(Path(source.__file__).resolve())"
 
 # The prohibited-identity catalog arrives through a repository variable. A
 # missing catalog fails closed except on a fork pull request, which cannot read it.

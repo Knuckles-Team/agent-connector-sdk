@@ -13,6 +13,7 @@ checked against `main` instead of a commit digest.
 import re
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 from typing import Any
 
@@ -122,20 +123,31 @@ def test_ci_setup_bootstraps_the_contract_and_identity_catalog() -> None:
     script = CI_SETUP.read_text(encoding="utf-8")
 
     assert "scripts/bootstrap.sh" in script
-    assert "PYTHONPATH=.ci/epistemic-graph" in script
-    assert "epistemic_graph.generated.source_ingestion" in script
+    assert "PYTHONPATH" not in script
+    assert ".ci/epistemic-graph" not in script
     assert "PROHIBITED_IDENTITY_CATALOG" in script
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_bootstrap_and_release_ci_preserve_source_only_eg_contract() -> None:
+def test_bootstrap_installs_eg_from_its_pypi_wheel_only() -> None:
     bootstrap = BOOTSTRAP.read_text(encoding="utf-8")
+    contract = CONTRACT.read_text(encoding="utf-8")
+    assert "uv sync --frozen" in bootstrap
     assert "bash scripts/bootstrap_epistemic_graph_contract.sh" in bootstrap
-    assert "--no-install-package epistemic-graph" in bootstrap
-    assert "_epistemic_graph_contract.pth" in bootstrap
+    for text in (bootstrap, contract, PRE_COMMIT.read_text(encoding="utf-8")):
+        assert "--no-install-package epistemic-graph" not in text
+        assert ".ci/epistemic-graph" not in text
+        assert "PYTHONPATH=" not in text
+    assert "epistemic_graph.generated.source_ingestion" in contract
+    assert "https://pypi.org/" in contract
+
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    uv = pyproject["tool"]["uv"]
+    assert "epistemic-graph" in uv["no-build-package"]
+    assert "epistemic-graph" not in uv.get("sources", {})
+    assert "dependency-metadata" not in uv
 
     script = CI_SETUP.read_text(encoding="utf-8")
-    assert script.count("uv run --frozen --no-sync") == 1
     assert "uv run --frozen python" not in script
 
 
@@ -146,8 +158,8 @@ def test_bootstrap_python_floor_uses_root_project_metadata(tmp_path: Path) -> No
         "[project]\n"
         'name = "test-sdk"\n'
         'requires-python = ">=3.12,<3.15"\n'
-        "[tool.uv.dependency-metadata.epistemic-graph]\n"
-        'requires-python = ">=3.10"\n',
+        "[tool.uv]\n"
+        'no-build-package = ["epistemic-graph"]\n',
         encoding="utf-8",
     )
     result = subprocess.run(
@@ -270,20 +282,6 @@ def test_scanner_toolchain_comes_from_the_single_install_script() -> None:
     assert cccc_rev
     assert COMMIT.fullmatch(cccc_rev.group(1))
     assert '--git "$CCCC_GIT" --rev "$CCCC_REV"' in script
-
-
-def test_generated_contract_source_is_fetched_at_an_immutable_commit() -> None:
-    contract = CONTRACT.read_text(encoding="utf-8")
-    bootstrap = BOOTSTRAP.read_text(encoding="utf-8")
-    revision = re.search(r"^revision=(\S+)$", contract, re.MULTILINE)
-
-    assert revision
-    assert COMMIT.fullmatch(revision.group(1))
-    assert 'git -C "$target" checkout --detach "$revision"' in contract
-    assert "bash scripts/bootstrap_epistemic_graph_contract.sh" in bootstrap
-    assert "uv sync --frozen" in bootstrap
-    assert "--no-install-package epistemic-graph" in bootstrap
-    assert "bash scripts/bootstrap.sh" in CI_SETUP.read_text(encoding="utf-8")
 
 
 def test_no_gate_depends_on_an_external_audit_service() -> None:
