@@ -195,3 +195,15 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.4:** Refuse invalid premises and incompatible strategies without partial application.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.5:** Record proposal load/headroom premises, applied instance count and loop closure.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.6:** Verify EG generates proposal, GraphOS applies it and loop closes on receipt.
+
+## Connector packs authored as Turtle (R067)
+
+- [ ] **SDK-CONNECTOR-CONTROL-R067:** The SDK authors each connector pack as Turtle from typed declarations. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.1:** Model. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.2:** Behavior. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.3:** Behavior. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.4:** Behavior. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.5:** Wiring. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.6:** Refusal. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.7:** Evidence. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.8:** Hot-path proof. Pass the proving test in test-spec.md.

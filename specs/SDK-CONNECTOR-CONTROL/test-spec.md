@@ -256,3 +256,15 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R014.14`: `tests/test_connector_runtime_adds.py::test_r014_14_env_drift_against_declarations` builds a connector with each read and declaration kind and checks the exact findings and the `--check` exit.
 - `SDK-CONNECTOR-CONTROL-R014.15`: `tests/test_document_sources.py::test_connector_ingestion_syncs_external_acl` ingests a restricted file and a quarantined one and asserts the committed access properties and that no local path is persisted.
 - `SDK-CONNECTOR-CONTROL-R014.16`: `tests/test_http_dns_pinned_egress.py` covers pinned Host/SNI, private-resolution refusal, the private allow-list, loopback, plaintext, peer mismatch, URL limits and allow-list validation.
+
+## Connector packs authored as Turtle (R067)
+
+- `SDK-CONNECTOR-CONTROL-R067`: Rollup closes when every child `.1` to `.8` passes its proving test.
+- `SDK-CONNECTOR-CONTROL-R067.1`: `tests/test_pack_declaration.py::test_declaration_round_trip_and_nested_property_refusal`.
+- `SDK-CONNECTOR-CONTROL-R067.2`: `tests/test_pack_turtle.py::test_emit_is_deterministic_and_uses_engine_terms`.
+- `SDK-CONNECTOR-CONTROL-R067.3`: `tests/test_pack_declaration.py::test_views_render_and_fingerprint_id_is_sdk_owned`.
+- `SDK-CONNECTOR-CONTROL-R067.4`: `tests/test_pack_turtle.py::test_preflight_uses_engine_validation`.
+- `SDK-CONNECTOR-CONTROL-R067.5`: `tests/test_pack_turtle.py::test_content_pack_carries_contract_entry`.
+- `SDK-CONNECTOR-CONTROL-R067.6`: `tests/test_pack_declaration.py::test_declaration_refusals_name_the_field`.
+- `SDK-CONNECTOR-CONTROL-R067.7`: `tests/test_pack_declaration.py::test_certification_records_accepted_contract_digest`.
+- `SDK-CONNECTOR-CONTROL-R067.8`: `tests/test_pack_rdf_served.py::test_declaration_to_engine_pack_end_to_end`.

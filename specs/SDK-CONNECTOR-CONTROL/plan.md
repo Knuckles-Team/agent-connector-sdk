@@ -524,3 +524,11 @@ Component health endpoint states explicitly separate unconfigured components fro
 ### R060.1-R060.6: EG scaling proposal → GraphOS capacity application → applied-state receipt
 
 EG supplies scaled-hosting proposals based on load and headroom premises. GraphOS applies the proposal and confirms accepted scaling in hosted application state. Scaling actuation loop closes when applied state is recorded and acknowledged by EG.
+
+## Connector packs authored as Turtle (R067)
+
+Every connector ships one OWL/RDF ontology pack. The pack holds the domain ontology, the ingest contract, and the connector's features, tools, prompts and skills. The engine imports it as native relationships (`EG-TYPED-PACKS-R101`, `EG-TYPED-PACKS-R102`). Selection is an engine decision over that ontology. The SDK authors the pack and does not decide.
+
+One typed `ConnectorPackDeclaration` per connector is the single source of truth. `connector_manifest.yml` and `ontology/mappings/source.yaml` are generated views of it. Call path: certification command → `ConnectorPackDeclaration` → `emit_pack_turtle` → engine `ShaclValidate` preflight → `build_connector_content_pack` (`agent_connector_sdk/artifacts/pack.py:159`) → `ConnectorPackClient` import → engine `ConnectorPack.Import`. A runtime domain ontology revision goes through the engine's `ImportOntology` operation (`EG-TYPED-PACKS-R103`).
+
+Current state: the SDK compiles manifest YAML into ontology classes only (`agent_connector_sdk/manifest/ontology_pack.py:190`). Mappings, keys, cursors, access, privacy and provenance stay in YAML and JSON. The SDK keeps a separate `ac:` access vocabulary that R067.2 retires. The tool fingerprint domain at `agent_connector_sdk/manifest/tool_schema.py:31` names another package; R067.3 replaces it.
