@@ -199,3 +199,18 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.4:** Refuse invalid premises and incompatible strategies without partial application.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.5:** Record proposal load/headroom premises, applied instance count and loop closure.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.6:** Verify EG generates proposal, GraphOS applies it and loop closes on receipt.
+
+- [ ] **SDK-CONNECTOR-CONTROL-R068 (rollup):** Each connector serves its seed graph and contract resources for first connect (rollup).
+- [ ] **SDK-CONNECTOR-CONTROL-R068.1 (Model):** Add the typed model.
+- [ ] **SDK-CONNECTOR-CONTROL-R068.2 (Behavior):** Implement the behavior.
+- [ ] **SDK-CONNECTOR-CONTROL-R068.3 (Wiring):** Wire the production call site.
+- [ ] **SDK-CONNECTOR-CONTROL-R068.4 (Refusal):** Add the typed refusals.
+- [ ] **SDK-CONNECTOR-CONTROL-R068.5 (Evidence):** Emit the evidence.
+- [ ] **SDK-CONNECTOR-CONTROL-R068.6 (Hot-path proof):** Add the served hot-path test.
+- [ ] **SDK-CONNECTOR-CONTROL-R069 (rollup):** Connector transports are declared contracts per connection protocol (rollup).
+- [ ] **SDK-CONNECTOR-CONTROL-R069.1 (Model):** Add the typed model.
+- [ ] **SDK-CONNECTOR-CONTROL-R069.2 (Behavior):** Implement the behavior.
+- [ ] **SDK-CONNECTOR-CONTROL-R069.3 (Wiring):** Wire the production call site.
+- [ ] **SDK-CONNECTOR-CONTROL-R069.4 (Refusal):** Add the typed refusals.
+- [ ] **SDK-CONNECTOR-CONTROL-R069.5 (Evidence):** Emit the evidence.
+- [ ] **SDK-CONNECTOR-CONTROL-R069.6 (Hot-path proof):** Add the served hot-path test.

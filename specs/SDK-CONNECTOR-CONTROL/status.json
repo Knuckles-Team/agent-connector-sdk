@@ -209,7 +209,21 @@
     "SDK-CONNECTOR-CONTROL-R014.17",
     "SDK-CONNECTOR-CONTROL-R014.18",
     "SDK-CONNECTOR-CONTROL-R014.19",
-    "SDK-CONNECTOR-CONTROL-R014.20"
+    "SDK-CONNECTOR-CONTROL-R014.20",
+    "SDK-CONNECTOR-CONTROL-R068",
+    "SDK-CONNECTOR-CONTROL-R068.1",
+    "SDK-CONNECTOR-CONTROL-R068.2",
+    "SDK-CONNECTOR-CONTROL-R068.3",
+    "SDK-CONNECTOR-CONTROL-R068.4",
+    "SDK-CONNECTOR-CONTROL-R068.5",
+    "SDK-CONNECTOR-CONTROL-R068.6",
+    "SDK-CONNECTOR-CONTROL-R069",
+    "SDK-CONNECTOR-CONTROL-R069.1",
+    "SDK-CONNECTOR-CONTROL-R069.2",
+    "SDK-CONNECTOR-CONTROL-R069.3",
+    "SDK-CONNECTOR-CONTROL-R069.4",
+    "SDK-CONNECTOR-CONTROL-R069.5",
+    "SDK-CONNECTOR-CONTROL-R069.6"
   ],
   "requirements": [
     {
@@ -2063,6 +2077,120 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.20",
       "title": "Plugin entry-point groups use the SDK namespace",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068",
+      "title": "Each connector serves its seed graph and contract resources for first connect (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R068.1",
+        "SDK-CONNECTOR-CONTROL-R068.2",
+        "SDK-CONNECTOR-CONTROL-R068.3",
+        "SDK-CONNECTOR-CONTROL-R068.4",
+        "SDK-CONNECTOR-CONTROL-R068.5",
+        "SDK-CONNECTOR-CONTROL-R068.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069",
+      "title": "Connector transports are declared contracts per connection protocol (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R069.1",
+        "SDK-CONNECTOR-CONTROL-R069.2",
+        "SDK-CONNECTOR-CONTROL-R069.3",
+        "SDK-CONNECTOR-CONTROL-R069.4",
+        "SDK-CONNECTOR-CONTROL-R069.5",
+        "SDK-CONNECTOR-CONTROL-R069.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069.6",
+      "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
