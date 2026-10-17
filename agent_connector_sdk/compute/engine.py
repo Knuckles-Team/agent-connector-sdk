@@ -110,7 +110,8 @@ class EngineCompute:
         target = getattr(getattr(self._client, namespace, None), name, None)
         if not callable(target):
             raise MethodNotServedError(method)
-        return target
+        bound: Callable[..., Any] = target
+        return bound
 
     def call(self, method: str, /, **params: Any) -> Any:
         """Call the served method at client path ``method`` with ``params``.

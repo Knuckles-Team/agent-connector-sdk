@@ -11,6 +11,8 @@ graph: durable task state and graph-derived cards belong to the host.
 
 from __future__ import annotations
 
+from typing import Any
+
 from .client import A2AClient, A2AResult
 from .models import (
     A2AMessage,
@@ -36,7 +38,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     if name == "create_a2a_app":
         from .app import create_a2a_app
 

@@ -10,6 +10,7 @@ app behind its own admission and authentication.
 from __future__ import annotations
 
 import importlib
+from collections.abc import AsyncIterator
 from typing import Any
 
 from .models import AgentSkill
@@ -62,7 +63,9 @@ def create_a2a_app(
         for skill in skills or []
     ]
 
-    async def lifespan(app: Any):  # pragma: no cover - exercised by the host
+    async def lifespan(
+        app: Any,
+    ) -> AsyncIterator[None]:  # pragma: no cover - exercised by the host
         async with app.task_manager, worker.run():
             yield
 

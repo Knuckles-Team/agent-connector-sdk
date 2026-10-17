@@ -162,6 +162,8 @@ module = [
     "atlassian_agent.*",
     "ccxt",
     "emerald_exchange.*",
+    "fasta2a",
+    "fasta2a.*",
     "feedparser",
     "great_expectations",
     "markitdown",
@@ -176,6 +178,8 @@ module = [
     "pymongo",
     "pymysql",
     "pyodbc",
+    "starlette",
+    "starlette.*",
     "yfinance",
 ]
 ignore_missing_imports = true
