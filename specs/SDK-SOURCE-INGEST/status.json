@@ -149,7 +149,42 @@
     "SDK-SOURCE-INGEST-R016.3",
     "SDK-SOURCE-INGEST-R016.4",
     "SDK-SOURCE-INGEST-R016.5",
-    "SDK-SOURCE-INGEST-R016.6"
+    "SDK-SOURCE-INGEST-R016.6",
+    "SDK-SOURCE-INGEST-R800",
+    "SDK-SOURCE-INGEST-R800.1",
+    "SDK-SOURCE-INGEST-R800.2",
+    "SDK-SOURCE-INGEST-R800.3",
+    "SDK-SOURCE-INGEST-R800.4",
+    "SDK-SOURCE-INGEST-R800.5",
+    "SDK-SOURCE-INGEST-R800.6",
+    "SDK-SOURCE-INGEST-R801",
+    "SDK-SOURCE-INGEST-R801.1",
+    "SDK-SOURCE-INGEST-R801.2",
+    "SDK-SOURCE-INGEST-R801.3",
+    "SDK-SOURCE-INGEST-R801.4",
+    "SDK-SOURCE-INGEST-R801.5",
+    "SDK-SOURCE-INGEST-R801.6",
+    "SDK-SOURCE-INGEST-R802",
+    "SDK-SOURCE-INGEST-R802.1",
+    "SDK-SOURCE-INGEST-R802.2",
+    "SDK-SOURCE-INGEST-R802.3",
+    "SDK-SOURCE-INGEST-R802.4",
+    "SDK-SOURCE-INGEST-R802.5",
+    "SDK-SOURCE-INGEST-R802.6",
+    "SDK-SOURCE-INGEST-R803",
+    "SDK-SOURCE-INGEST-R803.1",
+    "SDK-SOURCE-INGEST-R803.2",
+    "SDK-SOURCE-INGEST-R803.3",
+    "SDK-SOURCE-INGEST-R803.4",
+    "SDK-SOURCE-INGEST-R803.5",
+    "SDK-SOURCE-INGEST-R803.6",
+    "SDK-SOURCE-INGEST-R804",
+    "SDK-SOURCE-INGEST-R804.1",
+    "SDK-SOURCE-INGEST-R804.2",
+    "SDK-SOURCE-INGEST-R804.3",
+    "SDK-SOURCE-INGEST-R804.4",
+    "SDK-SOURCE-INGEST-R804.5",
+    "SDK-SOURCE-INGEST-R804.6"
   ],
   "requirements": [
     {
@@ -1616,6 +1651,314 @@
     },
     {
       "id": "SDK-SOURCE-INGEST-R016.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R800",
+      "title": "Document-source connector framework (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [
+        "101b2c9c6a28"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:45"
+      ],
+      "rollup_of": [
+        "SDK-SOURCE-INGEST-R800.1",
+        "SDK-SOURCE-INGEST-R800.2",
+        "SDK-SOURCE-INGEST-R800.3",
+        "SDK-SOURCE-INGEST-R800.4",
+        "SDK-SOURCE-INGEST-R800.5",
+        "SDK-SOURCE-INGEST-R800.6"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R800.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R800.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R800.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R800.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R800.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R800.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R801",
+      "title": "Governed outbound HTTP boundary for source reads (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [
+        "101b2c9c6a28"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:46"
+      ],
+      "rollup_of": [
+        "SDK-SOURCE-INGEST-R801.1",
+        "SDK-SOURCE-INGEST-R801.2",
+        "SDK-SOURCE-INGEST-R801.3",
+        "SDK-SOURCE-INGEST-R801.4",
+        "SDK-SOURCE-INGEST-R801.5",
+        "SDK-SOURCE-INGEST-R801.6"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R801.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R801.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R801.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R801.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R801.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R801.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R802",
+      "title": "Fleet HTTP helpers (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [
+        "101b2c9c6a28"
+      ],
+      "verified_by": [
+        "tests/httpsupport/test_httpsupport.py:27",
+        "tests/httpsupport/test_pagination.py:17"
+      ],
+      "rollup_of": [
+        "SDK-SOURCE-INGEST-R802.1",
+        "SDK-SOURCE-INGEST-R802.2",
+        "SDK-SOURCE-INGEST-R802.3",
+        "SDK-SOURCE-INGEST-R802.4",
+        "SDK-SOURCE-INGEST-R802.5",
+        "SDK-SOURCE-INGEST-R802.6"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R802.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R802.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R802.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R802.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R802.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R802.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803",
+      "title": "Typed, privacy-safe data preparation kernel (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [
+        "101b2c9c6a28"
+      ],
+      "verified_by": [
+        "tests/data_prep/certification/test_job.py:28",
+        "tests/data_prep/test_kernel.py:23",
+        "tests/data_prep/test_profiling.py:29"
+      ],
+      "rollup_of": [
+        "SDK-SOURCE-INGEST-R803.1",
+        "SDK-SOURCE-INGEST-R803.2",
+        "SDK-SOURCE-INGEST-R803.3",
+        "SDK-SOURCE-INGEST-R803.4",
+        "SDK-SOURCE-INGEST-R803.5",
+        "SDK-SOURCE-INGEST-R803.6"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R804",
+      "title": "Voice-model provenance manifest and license gate (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [
+        "101b2c9c6a28"
+      ],
+      "verified_by": [
+        "tests/voice_supply_chain/test_voice_supply_chain.py:23"
+      ],
+      "rollup_of": [
+        "SDK-SOURCE-INGEST-R804.1",
+        "SDK-SOURCE-INGEST-R804.2",
+        "SDK-SOURCE-INGEST-R804.3",
+        "SDK-SOURCE-INGEST-R804.4",
+        "SDK-SOURCE-INGEST-R804.5",
+        "SDK-SOURCE-INGEST-R804.6"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R804.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R804.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R804.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R804.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R804.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R804.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
