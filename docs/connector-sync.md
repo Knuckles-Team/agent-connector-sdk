@@ -22,7 +22,7 @@ everything:
 
 ## Composition and running
 
-The SDK does not discover epistemic-graph or mint its request identity. GraphOS
+The SDK does not discover epistemic-graph or mint its request identity. Arbora
 builds the checked generated client from its authenticated runtime context
 and injects it at the public composition seam:
 
@@ -41,7 +41,7 @@ import and returns the current generated `McpCatalogSnapshotBinding` and
 `AgentLibraryMutationContext`. It is never cached. Omitting either injected
 dependency for the `epistemic_graph` sink fails before a runner is built;
 supplying either to another sink also fails. The standalone CLI consequently
-cannot manufacture a usable EG composition; GraphOS owns that authenticated
+cannot manufacture a usable EG composition; Arbora owns that authenticated
 composition boundary.
 
 Provisioning reads the current EG pack head before upload. A matching canonical

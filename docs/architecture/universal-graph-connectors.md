@@ -38,7 +38,7 @@ bounded incremental read, which produces a `ChangeEnvelope`/`MutationBatch`
 
 No bundled profile describes a particular environment. Endpoints, authentication,
 TLS trust, GraphQL operations, database names, discovered schema, source labels,
-queries, and raw identifiers are runtime secret material. GraphOS responses,
+queries, and raw identifiers are runtime secret material. Arbora responses,
 doctor output, logs, traces, and reports contain only aliases, counts, capability
 flags, digests, and HMAC pseudonyms.
 
@@ -66,11 +66,11 @@ seeing that sentinel marks discovery partial and prevents proposal approval.
 
 The remote epistemic-graph adapter is a non-authoritative, role=`read` connector
 client. It does not enter `GraphComputeEngine`'s process-authority singleton and
-cannot replace GraphOS's routed authority client. Its separate source transport
+cannot replace Arbora's routed authority client. Its separate source transport
 can be opened only by the central graph transport bootstrap, so connector feature
 code cannot create an unmanaged engine socket or bypass the shared TLS policy.
 
-## GraphOS workflow
+## Arbora workflow
 
 All payloads below contain aliases and policy choices only. Runtime connection and
 mapping profiles are secret references.
@@ -99,7 +99,7 @@ Each entry uses a secret-backed `connection_profile_ref` and may use a
 `auth_profile_ref`, and `variables_ref` values. The canonical `graphql` backend
 accepts either a mapping-policy reference or explicit `allow_introspection=true`;
 it never accepts an endpoint, header,
-query, mapping, variables object, or TLS file in a GraphOS action. Discovery is
+query, mapping, variables object, or TLS file in an Arbora action. Discovery is
 bounded by `discovery_max_types` (maximum 500) and `discovery_max_depth`
 (maximum 12); ingestion is bounded by `ingest_max_records` (maximum 10,000).
 `ingest_operation` is only a neutral operation alias. Approval and fail-closed

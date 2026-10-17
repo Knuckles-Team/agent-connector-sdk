@@ -351,12 +351,12 @@ connector reports **nothing**:
    `connector_manifest.yml` before any source record is read. Provider-owned
    presets and exact live MCP schema fingerprints are part of the signed
    contract. An installed connector distribution is checked directly; when the
-   connector runs as a remote Kubernetes MCP service, GraphOS resolves the same
+   connector runs as a remote Kubernetes MCP service, Arbora resolves the same
    data from the complete-manifest signature and `ontology.lock`-pinned bundled
    snapshot. The resolved preset always enables live MCP schema verification
    before pulling records. A broken installed provider never falls back to its
    bundled snapshot, while a genuinely absent remote-only distribution can use
-   that signed snapshot without being installed into GraphOS. Boot sweeps likewise
+   that signed snapshot without being installed into Arbora. Boot sweeps likewise
    enqueue an in-process materializer only when its provider module is installed;
    known-but-absent instances are not reported as contract failures. The
    in-package native connector bundle signs the local-module closure for `rss`,

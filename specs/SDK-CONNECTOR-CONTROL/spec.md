@@ -57,7 +57,7 @@ Requirement IDs are defined in [requirements.md](requirements.md); delivery stat
 
 Each connector ontology declares how a consumer reads each class live. The `ac:` vocabulary in `agent_connector_sdk/ontology/access_contract.ttl` defines `ac:AccessContract` and `ac:PropertyBinding`. A contract names the class, the source, the entity and the key field. It names the access kind: `mcp_tool`, `http_endpoint`, `graphql_query` or `a2a_skill`. It names the operation, its parameters, the pagination mode and the pushdown operations. Pushdown operations are `filter`, `sort`, `limit` and `project`. `ac:authRef` holds an `env://` or `openbao://` reference, never a secret. Rate limit, freshness and cost hints let a consumer choose a live read or a copied hot slice. A missing hint means unknown.
 
-`parse_access_contracts` reads the flat Turtle profile and returns typed `AccessContract` values. `virtual_mapping_fields` returns the agent-utilities `VirtualMapping` arguments. graph-os onboarding imports these contracts as unapproved mappings. EG-UNIFIED-DATA-PLANE-R037/R038 and EG-FEDERATED-QUERY-R072/R073 consume the result.
+`parse_access_contracts` reads the flat Turtle profile and returns typed `AccessContract` values. `virtual_mapping_fields` returns the agent-utilities `VirtualMapping` arguments. arbora onboarding imports these contracts as unapproved mappings. EG-UNIFIED-DATA-PLANE-R037/R038 and EG-FEDERATED-QUERY-R072/R073 consume the result.
 
 ## Pack-scoped ontology imports (SDK-CONNECTOR-CONTROL-R022)
 
@@ -97,7 +97,7 @@ SDK-CONNECTOR-CONTROL-R050 defines the shared context for every registered tool.
 Callers receive ordered progress without polling and a correlated terminal result.
 A call without a progress token emits no progress notification.
 Context state is a disposable request cache; durable knowledge remains owned by EG.
-EG owns approval decisions. GraphOS serves the authenticated approval exchange and returns EG's decision unchanged.
+EG owns approval decisions. Arbora serves the authenticated approval exchange and returns EG's decision unchanged.
 The SDK checks the decision's binding before a source effect.
 Reconnect recovery refuses when its authenticated durable result producer is unavailable.
 Acceptance requires the served integration cases CC-50 through CC-55.
@@ -132,19 +132,19 @@ The gate checks transition, artifact, inventory, package source, current pin, an
 
 ## Sandbox allocation producer for AU:29 (R051.1-R051.6)
 
-The SDK provisions and reconciles admitted sandbox requests through one typed port. GraphOS owns host admission and the certified support matrix. Source trace: `AU:29 49df21c60c947240d4f02b1424b1de29183f10a69c76bd885f19d13e7237061c`.
+The SDK provisions and reconciles admitted sandbox requests through one typed port. Arbora owns host admission and the certified support matrix. Source trace: `AU:29 49df21c60c947240d4f02b1424b1de29183f10a69c76bd885f19d13e7237061c`.
 
-**SDK-CONNECTOR-CONTROL-R051.1 — Model.** Define SandboxProvisioner. It consumes GraphOS ProvisionRequest. It returns ProvisionResult with allocation ID, actual instances, observed image/platform, state, timestamps, and provider receipt.
+**SDK-CONNECTOR-CONTROL-R051.1 — Model.** Define SandboxProvisioner. It consumes Arbora ProvisionRequest. It returns ProvisionResult with allocation ID, actual instances, observed image/platform, state, timestamps, and provider receipt.
 
 **SDK-CONNECTOR-CONTROL-R051.2 — Behavior.** Allocate once per stable operation ID. Reconcile uncertain results before retry. Transport loss never proves no allocation.
 
-**SDK-CONNECTOR-CONTROL-R051.3 — Wiring.** Plan agent_connector_sdk.ports.sandbox.SandboxProvisioner. Route AU sandbox access through GraphOS agents.run and NativeWorkItemAdmissionProtocol/CapacityLedger. Call the SDK adapter, then return its receipt to GraphOS. This producer and binding are absent.
+**SDK-CONNECTOR-CONTROL-R051.3 — Wiring.** Plan agent_connector_sdk.ports.sandbox.SandboxProvisioner. Route AU sandbox access through Arbora agents.run and NativeWorkItemAdmissionProtocol/CapacityLedger. Call the SDK adapter, then return its receipt to Arbora. This producer and binding are absent.
 
 **SDK-CONNECTOR-CONTROL-R051.4 — Refusal.** Refuse unsupported profiles, missing grants, expired requests, and conflicting replay IDs before provider calls. Reconcile unresolved outcomes before retry. Unsupported combinations allocate nothing.
 
 **SDK-CONNECTOR-CONTROL-R051.5 — Evidence.** Bind request/result digests, adapter version, matrix revision, operation/allocation IDs, instances, state, timestamps, and reconciliation. Exclude credentials and secret values.
 
-**SDK-CONNECTOR-CONTROL-R051.6 — Hot-path proof.** Future served tests enter GraphOS agents.run. Use a disposable certified adapter. Observe instances and independent readback. Test unsupported profiles and response loss without duplicates.
+**SDK-CONNECTOR-CONTROL-R051.6 — Hot-path proof.** Future served tests enter Arbora agents.run. Use a disposable certified adapter. Observe instances and independent readback. Test unsupported profiles and response loss without duplicates.
 
 ## Visual observation transport for AU:35 (R052.1-R052.6)
 
@@ -166,7 +166,7 @@ The SDK transports visual observations and provenance between steps. EG owns dur
 
 R053 defines the planned public environment_declarations operation in agent_connector_sdk.config.
 It exports only SDK-owned declarations and deterministic census evidence.
-GraphOS composes the host manifest and owns all startup validation and admission decisions.
+Arbora composes the host manifest and owns all startup validation and admission decisions.
 The SDK must preserve configuration precedence, typed coercion and value-free diagnostics.
 The host composer and AU producer remain separate prerequisites.
 R053's six children define model, behavior, wiring, refusal, evidence and served acceptance.
@@ -180,7 +180,7 @@ The served source and replacement surfaces must preserve operation, schema, tag,
 The SDK must preserve the explicit R026 and R032 registration opt-ins.
 Unknown loaders or unavailable source evidence must block replacement.
 The SDK owns the reusable gate; each connector owns its startup binding and backend fixture.
-EG policy and GraphOS admission remain outside this migration contract.
+EG policy and Arbora admission remain outside this migration contract.
 
 Success requires the complete served matrix in test-spec.md and independent receipt reconstruction.
 A spec definition, import scan or isolated helper test supplies no runtime acceptance.

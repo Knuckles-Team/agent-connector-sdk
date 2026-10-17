@@ -1313,7 +1313,7 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R055",
-      "title": "GraphOS producer-consumer handoff for AU disclosure-set gate",
+      "title": "Arbora producer-consumer handoff for AU disclosure-set gate",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
@@ -1879,7 +1879,7 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R066",
-      "title": "EG defines closed-loop load and headroom scaling proposals to GraphOS with applied-state receipt",
+      "title": "EG defines closed-loop load and headroom scaling proposals to Arbora with applied-state receipt",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": [],

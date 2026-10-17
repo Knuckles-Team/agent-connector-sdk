@@ -242,7 +242,7 @@ async def test_declared_content_providers_import_as_separate_pack_heads(
             b"@prefix sh: <urn:sh:> .\n<urn:au> a sh:NodeShape .\n",
         ),
         (
-            "graph-os",
+            "arbora",
             "runtime.shapes.ttl",
             b"@prefix sh: <urn:sh:> .\n<urn:os> a sh:NodeShape .\n",
         ),
@@ -267,10 +267,10 @@ async def test_declared_content_providers_import_as_separate_pack_heads(
     assert all(outcome.changed for outcome in outcomes)
     assert len(sink.packs) == 2
     packs = {pack.connector: pack for pack in sink.packs.values()}
-    assert set(packs) == {"agent-utilities", "graph-os"}
+    assert set(packs) == {"agent-utilities", "arbora"}
     expected_names = {
         "agent-utilities": "governance.shapes.ttl",
-        "graph-os": "runtime.shapes.ttl",
+        "arbora": "runtime.shapes.ttl",
     }
     for connector, pack in packs.items():
         assert pack.archive.server.uri == f"mcp-server://{connector}"

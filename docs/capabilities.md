@@ -19,7 +19,7 @@ part of the current public package.
 
 The SDK depends on `epistemic-graph>=2.27.0`. SourceIngest, ConnectorPack,
 IndexRepository, and WriteBack graph models come from Epistemic Graph's
-generated surface. Graph OS provides the checked client, identity, and live
+generated surface. Arbora provides the checked client, identity, and live
 authority required for graph-bound runtime composition.
 
 The SDK owns connector transport and lifecycle behavior. Connector packages own

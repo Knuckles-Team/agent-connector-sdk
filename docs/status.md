@@ -17,7 +17,7 @@ authoritative detail.
 
 ## Runtime authority
 
-Graph-bound operation is composed by Graph OS. It injects checked identity,
+Graph-bound operation is composed by Arbora. It injects checked identity,
 the generated Epistemic Graph client, and current catalog authority. The SDK
 fails closed when a required dependency, source receipt, authorization decision,
 or extension certification is absent or does not match.

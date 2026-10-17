@@ -142,7 +142,7 @@ skipped_unchanged}` per page. `list_chunked_sources()` enumerates the registered
 
 A full drain returns its handle instantly, so progress is observed out-of-band. The
 new **`source_drain`** MCP tool (registered in `mcp/tools/ontology_tools.py`,
-tags `graph-os` / `ingestion`) is how an operator or agent watches it:
+tags `arbora` / `ingestion`) is how an operator or agent watches it:
 
 | action | argument | returns |
 |---|---|---|

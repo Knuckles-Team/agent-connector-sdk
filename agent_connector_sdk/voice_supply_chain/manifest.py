@@ -3,7 +3,7 @@
 Typed, versioned records for the Piper voice-model acquisition path this package owns.
 These mirror the ``voice.model.manifest.v1`` / ``voice.config.manifest.v1`` /
 ``voice.license.decision.v1`` contracts defined in the lane doc
-(``plans/graph-os-completion-program/lanes/GOC-36-voice-model-supply-chain-qualification.md``
+(``plans/arbora-completion-program/lanes/GOC-36-voice-model-supply-chain-qualification.md``
 §"Schemas and APIs") — the AU-side subset this repo is authorized to own
 (``agent-utilities governed voice-model registry/acquisition adapter and evidence consumer
 only`` per the lane contract table).

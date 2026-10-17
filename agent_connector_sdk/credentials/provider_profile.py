@@ -1,7 +1,7 @@
 """Selected-provider credential profiles (SDK-CONNECTOR-CONTROL-R014.19).
 
 Ported from ``agent_utilities.core.provider_runtime`` (the selection and
-resolution half; child-process projection stays with graph-os). A deployment
+resolution half; child-process projection stays with arbora). A deployment
 declares named provider profiles in ``PROVIDER_CONFIGS`` as JSON. A profile holds
 only runtime *references* (``env://``, ``vault://``, ``secret://``) and a named
 TLS selector, never values. The launcher selects one with

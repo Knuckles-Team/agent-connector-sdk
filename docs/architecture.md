@@ -1,7 +1,7 @@
 # Architecture
 
 The Agent Connector SDK is the connector transport and lifecycle layer between
-MCP clients, vendor systems, GraphOS, and epistemic-graph. It keeps vendor `I/O`
+MCP clients, vendor systems, Arbora, and epistemic-graph. It keeps vendor `I/O`
 replaceable while one generated graph contract owns durable identity and state.
 
 ![Agent ecosystem runtime architecture](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)
@@ -23,7 +23,7 @@ replaceable while one generated graph contract owns durable identity and state.
       <div class="site-ownership__value">Generated contracts, graph schemas, source checkpoints, content identity, provenance, reasoning, and durable receipts.</div>
     </div>
     <div class="site-ownership__item">
-      <div class="site-ownership__label">GraphOS</div>
+      <div class="site-ownership__label">Arbora</div>
       <div class="site-ownership__value">Verified runtime identity, authority injection, service composition, and external protocol exposure.</div>
     </div>
   </div>
@@ -35,7 +35,7 @@ SDK does not copy graph request DTOs, receipt types, or digest algorithms.
 
 ## Shared runtime
 
-Super Intelligence (SI) is the Graph OS project term for model-backed agents.
+Super Intelligence (SI) is the Arbora project term for model-backed agents.
 
 <ol class="site-flow">
   <li class="site-flow__step">
@@ -51,7 +51,7 @@ Super Intelligence (SI) is the Graph OS project term for model-backed agents.
     <div class="site-flow__title">Authorize</div>
 
     <div class="site-flow__body">
-      Graph OS hands the SDK runtime a verified identity and authority.
+      Arbora hands the SDK runtime a verified identity and authority.
       The runtime discovers and extracts through the connector server.
     </div>
   </li>
@@ -117,7 +117,7 @@ version, and served MCP safety hints. Conflicting declarations fail closed.
 <div class="admonition architecture" markdown>
 <p class="admonition-title">Write-back sequence</p>
 
-epistemic-graph hands Graph OS an authorized `SourceChangeSet`; Graph OS
+epistemic-graph hands Arbora an authorized `SourceChangeSet`; Arbora
 passes the Connector SDK a generated contract and verified identity. The SDK
 reads the vendor source's current version, dry-runs the exact field diff,
 then applies with an idempotency key. When the effect is confirmed, the
@@ -125,7 +125,7 @@ source returns an applied observation directly; when the outcome is
 uncertain, the SDK reconciles using the key and source version, resolving to
 applied, no-effect, or still-uncertain. The SDK reports attempt and
 reconciliation observations back to epistemic-graph, which returns durable
-receipts to Graph OS.
+receipts to Arbora.
 
 </div>
 

@@ -58,7 +58,7 @@ checkpoints, provenance, and receipts stay authoritative in epistemic-graph.
       <div class="site-ownership__value">Graph schemas, source state, content identity, reasoning, provenance, and durable receipts.</div>
     </div>
     <div class="site-ownership__item">
-      <div class="site-ownership__label">GraphOS owns</div>
+      <div class="site-ownership__label">Arbora owns</div>
       <div class="site-ownership__value">Verified runtime identity, authority injection, composition, and protocol exposure.</div>
     </div>
   </div>

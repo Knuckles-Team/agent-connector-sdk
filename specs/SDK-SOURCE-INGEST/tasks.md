@@ -146,20 +146,20 @@
 <!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
 ## Supported-harness session sync (R013; WEBUI:3)
 
-- [ ] **SDK-SOURCE-INGEST-R013:** Obtain the owner-approved complete harness/source manifest and exact EG/GraphOS IDs. Keep work blocked until owners register every source operation.
+- [ ] **SDK-SOURCE-INGEST-R013:** Obtain the owner-approved complete harness/source manifest and exact EG/Arbora IDs. Keep work blocked until owners register every source operation.
 - [ ] **SDK-SOURCE-INGEST-R013.1:** Define the versioned manifest and refuse unbound operations before source calls.
 - [ ] **SDK-SOURCE-INGEST-R013.2:** Prove complete first-run coverage, retry deduplication, restart resume, and visible per-source partial denial.
-- [ ] **SDK-SOURCE-INGEST-R013.3:** Wire connector-sync --once/McpToolSourceAdapter to generated SourceIngest and the approved GraphOS consumer.
+- [ ] **SDK-SOURCE-INGEST-R013.3:** Wire connector-sync --once/McpToolSourceAdapter to generated SourceIngest and the approved Arbora consumer.
 - [ ] **SDK-SOURCE-INGEST-R013.4:** Prove typed denial, zero unauthorized calls, no tenant leakage, and no denied-source cursor advance.
 - [ ] **SDK-SOURCE-INGEST-R013.5:** Persist and independently read back manifest-, identity-, revision-, cursor-, outcome-, and graph-receipt-bound evidence.
 - [ ] **SDK-SOURCE-INGEST-R013.6:** Exercise every approved entry through served discovery, EG readback, and WEBUI-APPS-R006.4; record full coverage.
 
 ## Live meeting and summary transport (R014; WEBUI:10)
 
-- [ ] **SDK-SOURCE-INGEST-R014:** Obtain the real meeting operation/repository and exact EG/GraphOS/provider IDs; preserve single-shot dictation and leave unbound operations unresolved.
+- [ ] **SDK-SOURCE-INGEST-R014:** Obtain the real meeting operation/repository and exact EG/Arbora/provider IDs; preserve single-shot dictation and leave unbound operations unresolved.
 - [ ] **SDK-SOURCE-INGEST-R014.1:** Define closed event/provider fields and distinguish exact receipt-bound replay from conflicting duplicate payload/revision.
 - [ ] **SDK-SOURCE-INGEST-R014.2:** Specify bounded ordered partial ingestion, idempotent replay, newer-revision corrections, and complete-sequence finalization.
-- [ ] **SDK-SOURCE-INGEST-R014.3:** Bind the owner-registered meeting operation through real SDK dispatch, EG transcript authority, and GraphOS selection.
+- [ ] **SDK-SOURCE-INGEST-R014.3:** Bind the owner-registered meeting operation through real SDK dispatch, EG transcript authority, and Arbora selection.
 - [ ] **SDK-SOURCE-INGEST-R014.4:** Prove gaps block finalization. Prove complete sequences finalize and issue bound receipts. Prove summary dispatch without that receipt refuses with zero provider effects.
 - [ ] **SDK-SOURCE-INGEST-R014.5:** Persist redacted provenance bound to final transcript, provider revisions, authorization, and invocation receipt.
 - [ ] **SDK-SOURCE-INGEST-R014.6:** Test partial -> correction -> complete finalization with zero premature summary calls, plus independent local/hosted selection and refusals.

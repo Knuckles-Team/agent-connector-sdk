@@ -110,7 +110,7 @@ Client-credentials tokens are cached, refreshed 30 seconds before expiry and
 re-minted once on a 401; the client secret is resolved at every mint, so a
 rotated secret is picked up. `ClientCredentialsConfig.from_settings()` reads
 `OIDC_ISSUER` (or `OIDC_TOKEN_URL`), `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET_REF`,
-`OIDC_AUDIENCE` and `OIDC_SCOPE`: the same service identity graph-os presents to
+`OIDC_AUDIENCE` and `OIDC_SCOPE`: the same service identity arbora presents to
 fleet MCP servers.
 
 Delegation exchanges only the access token the connector's own MCP server

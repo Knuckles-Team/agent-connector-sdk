@@ -79,7 +79,7 @@ These children extend the original parent requirements and acceptance without re
 Original extraction, migration, generated contract, full/delta/reconcile and governed write-back obligations remain required.
 Existing modules offer integration points; these six complete contracts and their served acceptance remain unimplemented.
 EG owns durable state, ontology, admission and query semantics. SDK runs approved source operations and preserves authoritative receipts.
-GraphOS owns hosting. AU runs received harness work without owning source progress tokens.
+Arbora owns hosting. AU runs received harness work without owning source progress tokens.
 Definition checks do not establish runtime acceptance.
 
 ## Generated approval receiver
@@ -98,7 +98,7 @@ The producer reuses connector-sync --once, agent_connector_sdk/runner/worker.py,
 
 The SDK emits session identity, tenant, source revision, cursor, coverage, and per-source outcome. Retries preserve receipt identity. Restart resumes accepted cursors. A denial remains visible as partial coverage.
 
-Flow: approved manifest -> SDK sync -> generated SourceIngest -> EG index and readback -> GraphOS browse/search -> WEBUI-APPS-R006.4. EG and GraphOS owners allocate their exact requirement IDs. No ID is inferred here. Two sample harnesses cannot prove full coverage.
+Flow: approved manifest -> SDK sync -> generated SourceIngest -> EG index and readback -> Arbora browse/search -> WEBUI-APPS-R006.4. EG and Arbora owners allocate their exact requirement IDs. No ID is inferred here. Two sample harnesses cannot prove full coverage.
 
 ## Live meeting transcript and summary transport (SDK-SOURCE-INGEST-R014; WEBUI:10)
 
@@ -112,11 +112,11 @@ Each transcript binds meeting, tenant, segment, sequence, correction revision, s
 
 Summaries bind to the finalized transcript receipt and selected provider/model revisions. Capture and egress admission precede effects. No summary call occurs before a complete sequence has transitioned to finalized and yielded that receipt. An unavailable local provider cannot fall back to hosted.
 
-Flow: WebUI capture -> registered audio operation -> SDK tools/call -> EG transcript/context authority -> GraphOS live updates and selected summaries -> WEBUI-APPS-R001.5. EG and GraphOS owners allocate counterpart IDs. No new meeting operation or provider binding is asserted.
+Flow: WebUI capture -> registered audio operation -> SDK tools/call -> EG transcript/context authority -> Arbora live updates and selected summaries -> WEBUI-APPS-R001.5. EG and Arbora owners allocate counterpart IDs. No new meeting operation or provider binding is asserted.
 
 ## Open owner identities
 
 Owners must publish every supported-harness entry and its registered source operation. The audio owner must confirm whether transcribe_audio can serve a segment path. If not, owners must identify the real meeting operation and its repository.
 
-EG and GraphOS must publish their exact counterpart IDs and summary-provider bindings. Until then, both candidate inputs remain pending. This definition records no runtime delivery or closure.
+EG and Arbora must publish their exact counterpart IDs and summary-provider bindings. Until then, both candidate inputs remain pending. This definition records no runtime delivery or closure.
 <!-- /spec-definition-patch -->

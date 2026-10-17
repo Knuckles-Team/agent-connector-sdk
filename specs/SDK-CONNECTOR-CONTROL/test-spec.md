@@ -79,7 +79,7 @@ reused effect key with changed arguments. Also exercise duplicate requests and n
 The served reconnect case must preserve the original request and effect identity across the disconnected sessions.
 Exercise it with no authenticated producer mapping and assert the typed refusal before any repeated backend call.
 Do not accept a helper-only refusal or an effect receipt as proof of terminal result retrieval.
-Approval tests assert GraphOS returns EG's decision unchanged and the SDK refuses a mismatched binding.
+Approval tests assert Arbora returns EG's decision unchanged and the SDK refuses a mismatched binding.
 Use bounded barriers to prove notification arrival before the backend completes.
 Assert no messages arrive after terminal completion and cache state is cleared.
 Record server revision, transport, exact command, result and redacted trace receipt.
@@ -115,7 +115,7 @@ For exchange-bound opaque tokens, validate authenticated provider/client/PKCE an
 For introspection-required opaque tokens, active and correctly bound evidence succeeds; inactive, unavailable or missing required fields refuses.
 An opaque token without provider expiry may use only the explicit bounded host lease. Assert evidence distinguishes the two validity sources.
 Forged profile selection, wrong connector, cross-tenant binding, excess scopes and unapproved resource audience all refuse with zero resumed effects.
-The outbound opaque profile must not admit an unsigned GraphOS API bearer or remove its required tenant claim.
+The outbound opaque profile must not admit an unsigned Arbora API bearer or remove its required tenant claim.
 Inspect responses and logs for token/code leakage. These acceptance cases have not run. They require the runtime wiring.
 
 <!-- spec-definition-patch:sdk5-r007-major-version-tests -->
@@ -217,7 +217,7 @@ Duplicate source or target mappings and unpaired schema/refusal evidence must fa
 
 ## SDK environment declaration acceptance
 
-Seed 53 must pin SDK and GraphOS package revisions and all source census inputs.
+Seed 53 must pin SDK and Arbora package revisions and all source census inputs.
 Import environment_declarations through the installed public config module.
 List every SDK literal reader and each explicit dynamic binding independently of the exporter.
 Test unknown files, aliases, missing bindings, duplicate names, conflicting defaults and unsupported conditions.
@@ -230,7 +230,7 @@ Inject distinct secret canaries through process configuration and credential ref
 Assert none appears in exported rows, receipts, errors, logs or diagnostic output.
 Safe static defaults and null must retain the host schema's exact meaning.
 
-The served fixture must run the real GraphOS launcher with the installed SDK export and controlled remaining owner manifests.
+The served fixture must run the real Arbora launcher with the installed SDK export and controlled remaining owner manifests.
 Valid enabled components must start and serve a probe.
 Missing required settings, malformed values and unresolved declarations must open zero listeners and start zero children.
 Enable and disable the same conditional component; only the enabled case must require its credential.

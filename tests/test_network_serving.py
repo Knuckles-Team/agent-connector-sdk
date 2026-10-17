@@ -1,4 +1,4 @@
-"""The SDK-owned network boundary used by connectors and GraphOS."""
+"""The SDK-owned network boundary used by connectors and Arbora."""
 
 from __future__ import annotations
 

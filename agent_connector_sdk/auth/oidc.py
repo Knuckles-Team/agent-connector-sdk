@@ -2,7 +2,7 @@
 
 The same configuration authenticates a connector to a vendor API and the
 connector-sync runner or ``connector-certify`` to a fleet MCP server. It matches
-the service identity graph-os presents to fleet servers: the
+the service identity arbora presents to fleet servers: the
 ``client_credentials`` grant with HTTP Basic client authentication, an
 ``audience`` the servers verify and optional scopes, against a token endpoint
 set directly or discovered from the issuer.

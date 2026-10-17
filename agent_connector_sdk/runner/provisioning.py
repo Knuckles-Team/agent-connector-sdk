@@ -67,7 +67,7 @@ async def provision_connector_content(
     """Capture and import one explicitly composed content provider.
 
     Calling this once per provider preserves independent ConnectorPack heads
-    and receipts even when their resources are served by one GraphOS process.
+    and receipts even when their resources are served by one Arbora process.
     """
     return await _import_pack(await build_connector_content_pack(content), sink)
 

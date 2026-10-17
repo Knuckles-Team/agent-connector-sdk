@@ -102,12 +102,12 @@ then choose the reference that matches the work:
 - [Current status](https://knuckles-team.github.io/agent-connector-sdk/status/)
 
 Sibling authorities: [Epistemic Graph](https://knuckles-team.github.io/epistemic-graph/)
-owns durable graph state and generated contracts; [Graph OS](https://knuckles-team.github.io/graph-os/)
+owns durable graph state and generated contracts; [Arbora](https://knuckles-team.github.io/arbora/)
 owns authenticated runtime composition.
 
 ## Architecture
 
-![Runtime architecture: people and clients enter through Graph OS. Source systems flow through Agent Connector SDK into Epistemic Graph.](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)
+![Runtime architecture: people and clients enter through Arbora. Source systems flow through Agent Connector SDK into Epistemic Graph.](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)
 
 | Boundary | Owned here | Owned elsewhere |
 |---|---|---|
@@ -115,7 +115,7 @@ owns authenticated runtime composition.
 | Source ingest | Discovery, bounded extraction, transport, receipt verification | Epistemic Graph owns mapping, checkpoints, provenance, and commit receipts. |
 | Repository ingest | Authenticated snapshots, stable manifests, bounded object transport | Epistemic Graph owns indexing, graph projection, and semantic interpretation. |
 | Write-back | Preview, source-version checks, apply, and reconciliation | Epistemic Graph owns change sets, authorization decisions, and durable outcomes. |
-| Runtime composition | Typed ports and checked dependency requirements | Graph OS supplies authenticated identity, clients, and live authority. |
+| Runtime composition | Typed ports and checked dependency requirements | Arbora supplies authenticated identity, clients, and live authority. |
 
 The SDK depends directly on `epistemic-graph>=2.27.0`. Generated SourceIngest,
 ConnectorPack, IndexRepository, and WriteBack clients and models are the graph
