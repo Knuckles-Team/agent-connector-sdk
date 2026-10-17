@@ -168,7 +168,7 @@ class CryptoProvider:
             import ccxt
         except ImportError as e:
             raise ImportError(
-                "ccxt is required for crypto markets. install agent-connector-sdk[market]"
+                "ccxt is required for crypto markets; install the ccxt package"
             ) from e
 
         # Map '1d' to CCXT timeframe format

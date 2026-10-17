@@ -62,7 +62,6 @@ graphql = [
 market = [
     "pandas>=2.2.0",
     "yfinance>=0.2.50",
-    "ccxt>=4.4.0",
 ]
 stream = [
     "websockets>=14.0",
