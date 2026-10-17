@@ -40,13 +40,13 @@ docs = [
     { name = "mkdocs-material" },
 ]
 test = [
-    { name = "agent-connector-sdk", extra = ["dataprep", "feeds", "mcp"] },
+    { name = "agent-connector-sdk", extra = ["dataprep", "feeds", "integrity", "mcp"] },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-timeout" },
 ]
 typecheck = [
-    { name = "agent-connector-sdk", extra = ["dataprep", "feeds", "mcp"] },
+    { name = "agent-connector-sdk", extra = ["dataprep", "feeds", "integrity", "mcp"] },
     { name = "mypy" },
     { name = "types-pyyaml" },
 ]
@@ -72,13 +72,13 @@ provides-extras = ["integrity", "mcp", "feeds", "dataprep"]
 [package.metadata.requires-dev]
 docs = [{ name = "mkdocs-material", specifier = "==9.7.7" }]
 test = [
-    { name = "agent-connector-sdk", extras = ["mcp", "feeds", "dataprep"] },
+    { name = "agent-connector-sdk", extras = ["mcp", "feeds", "dataprep", "integrity"] },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "pytest-asyncio", specifier = ">=1.4.0" },
     { name = "pytest-timeout", specifier = ">=2.4.0" },
 ]
 typecheck = [
-    { name = "agent-connector-sdk", extras = ["mcp", "feeds", "dataprep"] },
+    { name = "agent-connector-sdk", extras = ["mcp", "feeds", "dataprep", "integrity"] },
     { name = "mypy", specifier = "==2.4.0" },
     { name = "types-pyyaml", specifier = "==6.0.12.20260906" },
 ]
