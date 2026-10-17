@@ -82,15 +82,21 @@ class EngineSettings:
             ),
         )
 
-    def verified_context(self) -> dict[str, Any]:
-        """The request-context claims this service signs its requests with."""
+    def verified_context(
+        self, scopes: tuple[str, ...] = INGEST_SCOPES
+    ) -> dict[str, Any]:
+        """The request-context claims this service signs its requests with.
+
+        ``scopes`` defaults to the ingest scopes; the compute adapter asks for
+        its own (see :mod:`agent_connector_sdk.compute`).
+        """
         return {
             "principal": self.principal,
             "tenant": self.tenant,
             "audience": "epistemic-graph",
             "agent_id": self.principal,
             "roles": ["connector"],
-            "scopes": list(INGEST_SCOPES),
+            "scopes": list(scopes),
             "policy_version": self.policy_version,
             "delegation": [],
         }

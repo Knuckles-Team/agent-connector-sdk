@@ -239,7 +239,7 @@ Record host and SDK revisions, fixture seed, manifest and census digests, proces
 The host records its own decision; the SDK export receipt supplies no startup authority.
 Missing host or AU producer implementation keeps the corresponding served acceptance pending.
 
-## Connector runtime utilities moved from agent-utilities (R014.2-R014.15)
+## Connector runtime utilities moved from agent-utilities (R014.2-R014.18)
 
 - `SDK-CONNECTOR-CONTROL-R014.2`: `tests/test_connector_runtime_from_au.py::test_r014_2_file_lock_exclusive_and_nonblocking` holds a lock, proves a second descriptor is refused, then acquires it after release.
 - `SDK-CONNECTOR-CONTROL-R014.3`: `test_r014_3_tool_version_stamps_async_tool`.
@@ -256,3 +256,5 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R014.14`: `tests/test_connector_runtime_adds.py::test_r014_14_env_drift_against_declarations` builds a connector with each read and declaration kind and checks the exact findings and the `--check` exit.
 - `SDK-CONNECTOR-CONTROL-R014.15`: `tests/test_document_sources.py::test_connector_ingestion_syncs_external_acl` ingests a restricted file and a quarantined one and asserts the committed access properties and that no local path is persisted.
 - `SDK-CONNECTOR-CONTROL-R014.16`: `tests/test_http_dns_pinned_egress.py` covers pinned Host/SNI, private-resolution refusal, the private allow-list, loopback, plaintext, peer mismatch, URL limits and allow-list validation.
+- `SDK-CONNECTOR-CONTROL-R014.17`: `tests/test_embeddings.py` covers OpenAI and Ollama requests, sub-batching, bearer auth from a reference, body non-disclosure, invalid settings, caching per endpoint and the DNS-pinned no-redirect client.
+- `SDK-CONNECTOR-CONTROL-R014.18`: `tests/test_compute_adapter.py` covers SPARQL algorithm selection and the served run, refusal of unbound analyses and unserved methods, IRI and client-path validation, unavailable endpoint and the compute-only scopes.
