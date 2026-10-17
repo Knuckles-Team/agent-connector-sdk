@@ -224,7 +224,7 @@ Current dictation routes are single-shot. These tests require a registered meeti
 
 ## Document sources moved from agent-utilities (R005.37-R005.39)
 
-- `SDK-SOURCE-INGEST-R005.37`: `tests/test_document_sources.py::test_two_domain_packs_ingested_with_lineage` and `::test_incremental_change_updates_only_the_touched_file` ingest two packs from a scratch git repository, read lineage back from the committed records, then touch and delete files and observe one upsert and one withdrawal.
+- `SDK-SOURCE-INGEST-R005.37`: `tests/test_document_sources.py::test_two_domain_packs_ingested_with_lineage` and `::test_incremental_change_updates_only_the_touched_file` ingest two packs from a scratch git repository. They read lineage back from the committed records. They then modify and remove files and observe one upsert and one withdrawal.
 - `SDK-SOURCE-INGEST-R005.38`: `tests/test_document_sources.py::test_filesystem_connector_ingestion_live_path` ingests a tree with refused entries, re-runs without change, then advances one file.
 - `SDK-SOURCE-INGEST-R005.39`: `tests/test_document_sources.py::test_governed_connector_applies_envelope_before_embedding`, `::test_governed_connector_failure_blocks_document_and_checkpoint` and `::test_governance_failure_leaves_real_engine_checkpoint` (a real `epistemic-graph-server`) prove the envelope is stamped before submission and a refusal leaves the durable checkpoint unchanged.
 

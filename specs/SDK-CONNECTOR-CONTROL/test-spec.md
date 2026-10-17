@@ -254,14 +254,14 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R014.12`: `tests/test_connector_runtime_adds.py::test_r014_12_graphql_helpers_sync_async_and_failure`.
 - `SDK-CONNECTOR-CONTROL-R014.13`: `tests/test_connector_runtime_adds.py::test_r014_13_external_access_descriptor`.
 - `SDK-CONNECTOR-CONTROL-R014.14`: `tests/test_connector_runtime_adds.py::test_r014_14_env_drift_against_declarations` builds a connector with each read and declaration kind and checks the exact findings and the `--check` exit.
-- `SDK-CONNECTOR-CONTROL-R014.15`: `tests/test_document_sources.py::test_connector_ingestion_syncs_external_acl` ingests a restricted file and a quarantined one and asserts the committed access properties and that no local path is persisted.
+- `SDK-CONNECTOR-CONTROL-R014.15`: `tests/test_document_sources.py::test_connector_ingestion_syncs_external_acl` ingests a restricted file and a quarantined one. It asserts the committed access properties and that no local path is persisted.
 - `SDK-CONNECTOR-CONTROL-R014.16`: `tests/test_http_dns_pinned_egress.py` covers pinned Host/SNI, private-resolution refusal, the private allow-list, loopback, plaintext, peer mismatch, URL limits and allow-list validation.
 - `SDK-CONNECTOR-CONTROL-R014.17`: `tests/test_base_install_mcp_free.py` imports the base modules with `fastmcp` and `mcp` blocked and checks the MCP surface names the extra.
 - `SDK-CONNECTOR-CONTROL-R014.18`: `tests/test_served_security_and_provider_profile.py::test_r014_18_*` cover refusal without auth or audience and the middleware's identity/tenant/ACL/session cases. They also cover default application by `create_mcp_server`, the logged override and the static tenant claim.
 - `SDK-CONNECTOR-CONTROL-R014.19`: `tests/test_served_security_and_provider_profile.py::test_r014_19_*` cover resolution, close, every failure code and every invalid document.
 - `SDK-CONNECTOR-CONTROL-R014.20`: `tests/test_served_security_and_provider_profile.py::test_r014_20_entry_point_groups_use_the_sdk_namespace`.
 - `SDK-CONNECTOR-CONTROL-R014.22`: `tests/test_embeddings.py` covers OpenAI and Ollama requests, sub-batching and bearer auth from a reference. It also covers body non-disclosure, invalid settings, caching per endpoint and the DNS-pinned no-redirect client.
-- `SDK-CONNECTOR-CONTROL-R014.23`: `tests/test_compute_adapter.py` covers SPARQL algorithm selection and the served run, refusal of unbound analyses and unserved methods, IRI and client-path validation, unavailable endpoint and the compute-only scopes.
+- `SDK-CONNECTOR-CONTROL-R014.23`: `tests/test_compute_adapter.py` covers SPARQL algorithm selection and the served run. It also covers refusal of unbound analyses and unserved methods and IRI and client-path validation. It covers the unavailable endpoint and the compute-only scopes.
 
 ## Connector packs authored as Turtle (R067)
 
