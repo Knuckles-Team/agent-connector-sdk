@@ -205,7 +205,9 @@
     "SDK-CONNECTOR-CONTROL-R014.13",
     "SDK-CONNECTOR-CONTROL-R014.14",
     "SDK-CONNECTOR-CONTROL-R014.15",
-    "SDK-CONNECTOR-CONTROL-R014.16"
+    "SDK-CONNECTOR-CONTROL-R014.16",
+    "SDK-CONNECTOR-CONTROL-R014.17",
+    "SDK-CONNECTOR-CONTROL-R014.18"
   ],
   "requirements": [
     {
@@ -392,7 +394,9 @@
         "SDK-CONNECTOR-CONTROL-R014.13",
         "SDK-CONNECTOR-CONTROL-R014.14",
         "SDK-CONNECTOR-CONTROL-R014.15",
-        "SDK-CONNECTOR-CONTROL-R014.16"
+        "SDK-CONNECTOR-CONTROL-R014.16",
+        "SDK-CONNECTOR-CONTROL-R014.17",
+        "SDK-CONNECTOR-CONTROL-R014.18"
       ]
     },
     {
@@ -2030,6 +2034,28 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.17",
+      "title": "External embedding API client",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2cf934b4be18"
+      ],
+      "verified_by": [
+        "tests/test_embeddings.py:17"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.18",
+      "title": "Typed epistemic-graph compute adapter",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2cf934b4be18"
+      ],
+      "verified_by": [
+        "tests/test_compute_adapter.py:19"
+      ]
     }
   ]
 }
