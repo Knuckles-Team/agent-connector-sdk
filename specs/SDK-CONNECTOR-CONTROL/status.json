@@ -205,7 +205,16 @@
     "SDK-CONNECTOR-CONTROL-R014.13",
     "SDK-CONNECTOR-CONTROL-R014.14",
     "SDK-CONNECTOR-CONTROL-R014.15",
-    "SDK-CONNECTOR-CONTROL-R014.16"
+    "SDK-CONNECTOR-CONTROL-R014.16",
+    "SDK-CONNECTOR-CONTROL-R067",
+    "SDK-CONNECTOR-CONTROL-R067.1",
+    "SDK-CONNECTOR-CONTROL-R067.2",
+    "SDK-CONNECTOR-CONTROL-R067.3",
+    "SDK-CONNECTOR-CONTROL-R067.4",
+    "SDK-CONNECTOR-CONTROL-R067.5",
+    "SDK-CONNECTOR-CONTROL-R067.6",
+    "SDK-CONNECTOR-CONTROL-R067.7",
+    "SDK-CONNECTOR-CONTROL-R067.8"
   ],
   "requirements": [
     {
@@ -2027,6 +2036,79 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.16",
       "title": "DNS-pinned egress on the governed client",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067",
+      "title": "The SDK authors each connector pack as Turtle from typed declarations (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R067.1",
+        "SDK-CONNECTOR-CONTROL-R067.2",
+        "SDK-CONNECTOR-CONTROL-R067.3",
+        "SDK-CONNECTOR-CONTROL-R067.4",
+        "SDK-CONNECTOR-CONTROL-R067.5",
+        "SDK-CONNECTOR-CONTROL-R067.6",
+        "SDK-CONNECTOR-CONTROL-R067.7",
+        "SDK-CONNECTOR-CONTROL-R067.8"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.3",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.4",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.5",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.6",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.7",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.8",
+      "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
