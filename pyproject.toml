@@ -115,7 +115,8 @@ agent_connector_sdk = ["py.typed", "skills/**/*", "ontology/*.ttl"]
 
 [dependency-groups]
 test = [
-    "agent-connector-sdk[mcp,graphql,feeds,dataprep,integrity]",
+    "agent-connector-sdk[mcp,feeds,dataprep,integrity]",
+    "graphql-core>=3.2.5",
     "pandas>=2.2.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
