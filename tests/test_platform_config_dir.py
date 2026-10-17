@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 import pytest
 
@@ -81,3 +82,15 @@ def test_neither_present_returns_new_path_without_creating(tmp_path, caplog):
         assert paths.platform_config_dir() == new
     assert not new.exists()
     assert not caplog.records
+
+
+def test_preferred_and_legacy_directories_follow_their_settings(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    monkeypatch.delenv("GRAPH_OS_CONFIG_DIR", raising=False)
+    monkeypatch.delenv("AGENT_UTILITIES_CONFIG_DIR", raising=False)
+    assert paths.preferred_platform_config_dir() == tmp_path / "graph-os"
+    assert paths.legacy_platform_config_dir() == tmp_path / "agent-utilities"
+    monkeypatch.setenv("GRAPH_OS_CONFIG_DIR", str(tmp_path / "explicit"))
+    assert paths.preferred_platform_config_dir() == tmp_path / "explicit"
