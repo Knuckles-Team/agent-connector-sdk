@@ -120,6 +120,7 @@
     "SDK-CONNECTOR-CONTROL-R058",
     "SDK-CONNECTOR-CONTROL-R059",
     "SDK-CONNECTOR-CONTROL-R060",
+    "SDK-CONNECTOR-CONTROL-R650",
     "SDK-CONNECTOR-CONTROL-R051",
     "SDK-CONNECTOR-CONTROL-R051.1",
     "SDK-CONNECTOR-CONTROL-R051.2",
@@ -1308,6 +1309,17 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R650",
+      "title": "Connector manifest release integrity",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2a66f988ddd1"
+      ],
+      "verified_by": [
+        "tests/test_manifest_integrity.py:3"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R051",
