@@ -212,7 +212,21 @@
     "SDK-CONNECTOR-CONTROL-R014.19",
     "SDK-CONNECTOR-CONTROL-R014.20",
     "SDK-CONNECTOR-CONTROL-R700",
-    "SDK-CONNECTOR-CONTROL-R701"
+    "SDK-CONNECTOR-CONTROL-R701",
+    "SDK-CONNECTOR-CONTROL-R900",
+    "SDK-CONNECTOR-CONTROL-R900.1",
+    "SDK-CONNECTOR-CONTROL-R900.2",
+    "SDK-CONNECTOR-CONTROL-R900.3",
+    "SDK-CONNECTOR-CONTROL-R900.4",
+    "SDK-CONNECTOR-CONTROL-R900.5",
+    "SDK-CONNECTOR-CONTROL-R900.6",
+    "SDK-CONNECTOR-CONTROL-R901",
+    "SDK-CONNECTOR-CONTROL-R901.1",
+    "SDK-CONNECTOR-CONTROL-R901.2",
+    "SDK-CONNECTOR-CONTROL-R901.3",
+    "SDK-CONNECTOR-CONTROL-R901.4",
+    "SDK-CONNECTOR-CONTROL-R901.5",
+    "SDK-CONNECTOR-CONTROL-R901.6"
   ],
   "requirements": [
     {
@@ -1315,7 +1329,7 @@
       "title": "Connector manifest release integrity",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "e3586dde3dac"
+        "ad6af590e63c"
       ],
       "verified_by": [
         "tests/test_manifest_integrity.py:3"
@@ -2157,6 +2171,120 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R701",
       "title": "Bundle-based lifecycle certification (definition only, awaiting implementation)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R900",
+      "title": "Source credentials by source name (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R900.1",
+        "SDK-CONNECTOR-CONTROL-R900.2",
+        "SDK-CONNECTOR-CONTROL-R900.3",
+        "SDK-CONNECTOR-CONTROL-R900.4",
+        "SDK-CONNECTOR-CONTROL-R900.5",
+        "SDK-CONNECTOR-CONTROL-R900.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R900.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R900.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R900.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R900.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R900.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R900.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R901",
+      "title": "Identifier gate and datapoint signing (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R901.1",
+        "SDK-CONNECTOR-CONTROL-R901.2",
+        "SDK-CONNECTOR-CONTROL-R901.3",
+        "SDK-CONNECTOR-CONTROL-R901.4",
+        "SDK-CONNECTOR-CONTROL-R901.5",
+        "SDK-CONNECTOR-CONTROL-R901.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R901.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R901.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R901.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R901.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R901.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R901.6",
+      "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
