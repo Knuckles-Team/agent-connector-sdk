@@ -206,7 +206,10 @@
     "SDK-CONNECTOR-CONTROL-R014.14",
     "SDK-CONNECTOR-CONTROL-R014.15",
     "SDK-CONNECTOR-CONTROL-R014.16",
-    "SDK-CONNECTOR-CONTROL-R014.17"
+    "SDK-CONNECTOR-CONTROL-R014.17",
+    "SDK-CONNECTOR-CONTROL-R014.18",
+    "SDK-CONNECTOR-CONTROL-R014.19",
+    "SDK-CONNECTOR-CONTROL-R014.20"
   ],
   "requirements": [
     {
@@ -394,7 +397,10 @@
         "SDK-CONNECTOR-CONTROL-R014.14",
         "SDK-CONNECTOR-CONTROL-R014.15",
         "SDK-CONNECTOR-CONTROL-R014.16",
-        "SDK-CONNECTOR-CONTROL-R014.17"
+        "SDK-CONNECTOR-CONTROL-R014.17",
+        "SDK-CONNECTOR-CONTROL-R014.18",
+        "SDK-CONNECTOR-CONTROL-R014.19",
+        "SDK-CONNECTOR-CONTROL-R014.20"
       ]
     },
     {
@@ -2036,6 +2042,27 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.17",
       "title": "MCP-free base install",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.18",
+      "title": "Default fail-closed served security profile",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.19",
+      "title": "Selected-provider credential profile",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.20",
+      "title": "Plugin entry-point groups use the SDK namespace",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
