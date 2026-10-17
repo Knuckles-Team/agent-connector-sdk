@@ -209,7 +209,9 @@
     "SDK-CONNECTOR-CONTROL-R014.17",
     "SDK-CONNECTOR-CONTROL-R014.18",
     "SDK-CONNECTOR-CONTROL-R014.19",
-    "SDK-CONNECTOR-CONTROL-R014.20"
+    "SDK-CONNECTOR-CONTROL-R014.20",
+    "SDK-CONNECTOR-CONTROL-R700",
+    "SDK-CONNECTOR-CONTROL-R701"
   ],
   "requirements": [
     {
@@ -2128,6 +2130,24 @@
       "verified_by": [
         "tests/test_served_security_and_provider_profile.py:273"
       ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R700",
+      "title": "Declared semantic coverage refusal",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4f1348f6da30"
+      ],
+      "verified_by": [
+        "tests/test_certify_declared_coverage.py:15"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R701",
+      "title": "Bundle-based lifecycle certification (definition only, awaiting implementation)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
