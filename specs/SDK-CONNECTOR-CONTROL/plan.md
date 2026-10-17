@@ -53,7 +53,7 @@ Cross-repository rows. Depends on the `EG-TYPED-PACKS` row that adds `side_effec
 ## Scoped credentials and bounded PKCE (SDK-CONNECTOR-CONTROL-R035, R046)
 
 Data flow: authenticated connector request -> qualified host grant -> SDK credential/PKCE transport -> approved vault receipt -> authorized provider call.
-GRAPHOS-IDENTITY-R023.1 through R023.6 owns scoped broker reuse, challenge lifecycle and persistence.
+ARBORA-IDENTITY-R023.1 through R023.6 owns scoped broker reuse, challenge lifecycle and persistence.
 EG remains the decision and durable grant authority. The SDK validates injected binding facts; it creates no local approval or token database.
 The exact binding includes tenant, owner principal, requesting principal/client, connector, provider, audience, scope set, resource and operation.
 Compare each field against qualified request authority and the current grant before resolving either environment or vault references.
@@ -200,7 +200,7 @@ EG must own a durable mapping from the stable request identity to the terminal r
 Arbora must serve an authenticated read of that mapping.
 The mapping must bind tenant, actor, connector, operation, argument digest, change-set ID and effect idempotency key.
 No established producer operation or SDK adapter for that mapping is identified here.
-`GRAPHOS-A2A-R006` defines invocation and confirmation, not result retrieval.
+`ARBORA-A2A-R006` defines invocation and confirmation, not result retrieval.
 Until those producer requirements and their SDK binding exist, reconnect recovery must return `recovery_unavailable`.
 It must not synthesize a result, reconstruct one from transient progress or repeat a source effect.
 
@@ -215,8 +215,8 @@ Decision: attach context to the existing served call and dispatch boundary.
 Rejected alternative: a separate progress service and effect retry queue, which
 creates another authority for call state and mutation outcomes.
 
-Cross-repository rows: `GRAPHOS-A2A-R005.4` serves EG's admission verdict unchanged;
-`GRAPHOS-A2A-R006` owns invocation and confirmation. `EG-ORCH-VOCAB-R013` owns durable trace
+Cross-repository rows: `ARBORA-A2A-R005.4` serves EG's admission verdict unchanged;
+`ARBORA-A2A-R006` owns invocation and confirmation. `EG-ORCH-VOCAB-R013` owns durable trace
 records. `SDK-GOVERNED-WRITEBACK-R004` owns approval-bound effect idempotency.
 Consumers: AU runs the received action; WebUI renders received progress.
 Neither consumer selects connector routes or creates approval decisions here.
@@ -229,7 +229,7 @@ requires each notification's progress value to increase, even without a known to
 
 ## Connector-bound grants and provider token profiles
 
-This shared contract refines GRAPHOS-IDENTITY-R023 and SDK-CONNECTOR-CONTROL-R035/R046. Implementation still needs the required runtime wiring.
+This shared contract refines ARBORA-IDENTITY-R023 and SDK-CONNECTOR-CONTROL-R035/R046. Implementation still needs the required runtime wiring.
 The exact credential-use tuple includes tenant, owner principal, requesting principal/client, connector, provider, audience, scopes, resource and operation.
 The host derives connector from authenticated admission and the certified target connector registration, with its immutable registry revision.
 A caller's connector ID is only a requested target; it cannot populate the trusted binding or current grant.
@@ -261,7 +261,7 @@ No reuse outlives the current grant or profile validity policy. Refresh tokens g
 Refresh preserves connector, issuer/provider, client, tenant, account, audience and consent ceilings; any required missing evidence refuses.
 
 Host tenant and requesting identity always come from authenticated admission and EG authority, including for opaque provider tokens.
-This profile applies to outbound provider credentials only. GRAPHOS-IDENTITY-R017 API bearer admission still requires its signed tenant claim.
+This profile applies to outbound provider credentials only. ARBORA-IDENTITY-R017 API bearer admission still requires its signed tenant claim.
 The broker stores profile revision, validation method, binding digest and provenance for validity metadata alongside the vault receipt.
 Opaque exchange metadata and host lease bounds remain distinct from signed JWT claims in evidence and logs.
 Map profile errors to `invalid_token_profile` or `token_validation_failed`; required introspection failures use `introspection_unavailable` or `token_inactive`.
@@ -507,7 +507,7 @@ The SDK defines shared typed service and log interfaces mapping operations to na
 
 ### R056.1-R056.6: EG attestation → AU orchestration consumer → Arbora invoke validation
 
-EG produces final attestation decisions tied to decision request digests. AU consumes and acts only on accepted attestations. Existing GRAPHOS-FLEET-R034.7-.12 identity bindings carry tenant and actor facts. New rows link certification outputs to AU orchestration inputs with complete identity binding.
+EG produces final attestation decisions tied to decision request digests. AU consumes and acts only on accepted attestations. Existing ARBORA-FLEET-R034.7-.12 identity bindings carry tenant and actor facts. New rows link certification outputs to AU orchestration inputs with complete identity binding.
 
 ### R057.1-R057.6: SDK/AU declaration producers → Arbora host manifest composer → launcher validation
 
@@ -534,7 +534,7 @@ One typed `ConnectorPackDeclaration` per connector is the single source of truth
 Current state: the SDK compiles manifest YAML into ontology classes only (`agent_connector_sdk/manifest/ontology_pack.py:190`). Mappings, keys, cursors, access, privacy and provenance stay in YAML and JSON. The SDK keeps a separate `ac:` access vocabulary that R067.2 retires. The tool fingerprint domain at `agent_connector_sdk/manifest/tool_schema.py:31` names another package; R067.3 replaces it.
 ## SDK-CONNECTOR-CONTROL-R068 — connect-time contract resources
 
-References: [EG-TYPED-PACKS-R104](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/typed-packs-and-catalog/spec.md), [GRAPHOS-FLEET-R036](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SDK-CONNECTOR-CONTROL-R019, SDK-CONNECTOR-CONTROL-R067
+References: [EG-TYPED-PACKS-R104](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/typed-packs-and-catalog/spec.md), [ARBORA-FLEET-R036](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SDK-CONNECTOR-CONTROL-R019, SDK-CONNECTOR-CONTROL-R067
 
 Call path: connector start -> `register_connector_content` (`content.py:163`) -> `manifest://connector`, `ontology://`, `shapes://` and `seed://` resources -> arbora multiplexer reads them on first connect.
 
@@ -542,9 +542,9 @@ The SDK serves the resources and notifies on change. The engine validates and st
 
 ## SDK-CONNECTOR-CONTROL-R069 — connection-protocol transports
 
-References: [EG-FEDERATED-QUERY-R073.2](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/spec.md), [GRAPHOS-FLEET-R038](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SDK-CONNECTOR-CONTROL-R014.17, SDK-CONNECTOR-CONTROL-R040, SDK-CONNECTOR-CONTROL-R041, SDK-CONNECTOR-CONTROL-R042, SDK-CONNECTOR-CONTROL-R043, SDK-CONNECTOR-CONTROL-R044
+References: [EG-FEDERATED-QUERY-R073.2](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/spec.md), [ARBORA-FLEET-R038](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SDK-CONNECTOR-CONTROL-R014.17, SDK-CONNECTOR-CONTROL-R040, SDK-CONNECTOR-CONTROL-R041, SDK-CONNECTOR-CONTROL-R042, SDK-CONNECTOR-CONTROL-R043, SDK-CONNECTOR-CONTROL-R044
 
-One protocol stack has one implementation per role (`GRAPHOS-FLEET-R038`). The SDK owns connector client transports and connector server scaffolding. arbora owns serving and the multiplexer client side.
+One protocol stack has one implementation per role (`ARBORA-FLEET-R038`). The SDK owns connector client transports and connector server scaffolding. arbora owns serving and the multiplexer client side.
 
 MCP and A2A have two roles each. MCP serving by a connector uses the SDK `[mcp]` extra (`SDK-CONNECTOR-CONTROL-R014.17`). MCP consuming by a connector wraps an external MCP server (`SDK-CONNECTOR-CONTROL-R040`). A2A consuming treats an external agent as a source (`SDK-CONNECTOR-CONTROL-R041`). A2A serving and MCP platform serving belong to arbora.
 

@@ -163,7 +163,7 @@ def create_mcp_server(
 def _register_native_primitives(mcp: FastMCP[Any], name: str) -> None:
     """Register native prompt/resource/resource-template primitives.
 
-    GRAPHOS-FLEET-R007.1: every connector server answers a native prompt
+    ARBORA-FLEET-R007.1: every connector server answers a native prompt
     list, a native resource read and a native resource-template list,
     independent of any connector content and alongside its ``.tool()``/
     Skills-over-MCP registrations.

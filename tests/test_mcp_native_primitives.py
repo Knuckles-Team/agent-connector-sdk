@@ -18,8 +18,8 @@ from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.transports.mcp import McpTransport
 
 
-# spec: GRAPHOS-FLEET-R007.1
-@pytest.mark.spec("GRAPHOS-FLEET-R007.1")
+# spec: ARBORA-FLEET-R007.1
+@pytest.mark.spec("ARBORA-FLEET-R007.1")
 async def test_create_mcp_server_serves_native_prompts_resources_and_templates() -> (
     None
 ):

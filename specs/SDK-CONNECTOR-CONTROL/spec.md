@@ -107,7 +107,7 @@ Acceptance requires the served integration cases CC-50 through CC-55.
 
 R035.1 through R035.6 require exact host-authorized tenant/client/resource bindings for every secret reference, including process-visible environment values.
 R046 uses the same host-owned challenge and vault authority for bounded inline PKCE, without blocking stdin or pasted-code files.
-GRAPHOS-IDENTITY-R023 defines the matching consumer; qualified grant, challenge and persistence ports remain missing integration.
+ARBORA-IDENTITY-R023 defines the matching consumer; qualified grant, challenge and persistence ports remain missing integration.
 All added or refined work requires served integration acceptance.
 
 <!-- spec-definition-patch:sdk5-r007-major-version-gate -->
