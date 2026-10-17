@@ -4,6 +4,14 @@ This file defines the current repository architecture and the rules contributors
 and automation must preserve. The public guides are built from [`docs/`](docs/)
 and published through GitHub Pages.
 
+## Boundaries
+
+- **Owns:** connector contracts and transports. The transports are REST, GraphQL, gRPC, MCP, the A2A protocol library and the others. It also owns the EG client adapter and connector ontology pack generation.
+- **Never builds:** serving or routing (route them to graph-os). Facts, storage and pushdown planning go to epistemic-graph.
+- **Allowed dependencies:** the epistemic-graph client and protocol libraries. It never imports `agent_utilities` or `graph_os`. Connectors depend on this SDK only.
+
+Route every feature with the [ecosystem boundaries standard](https://github.com/Knuckles-Team/pipelines/blob/main/reference/ecosystem-boundaries.md) before any code. A part this repository does not own goes to its owner's specs.
+
 ## What this repository owns
 
 `agent-connector-sdk` is the connector control and transport layer. It owns:
