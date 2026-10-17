@@ -129,7 +129,7 @@ warn_unreachable = true
 # feedparser and the certification/markdown backends load only when a caller
 # opts in, and none ships inline types.
 [[tool.mypy.overrides]]
-module = ["pyarrow", "pyarrow.*", "feedparser", "great_expectations", "pandera", "markitdown"]
+module = ["pyarrow", "pyarrow.*", "feedparser", "great_expectations", "pandera", "markitdown", "plane_agent.*", "atlassian_agent.*", "emerald_exchange.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
@@ -359,6 +359,34 @@ public_modules = [
     "agent_connector_sdk.voice_supply_chain.license_registry",
     "agent_connector_sdk.voice_supply_chain.manifest",
     "agent_connector_sdk.voice_supply_chain.store",
+    # Vendor write-back sinks moved from agent-utilities (SDK-SOURCE-INGEST-R600).
+    "agent_connector_sdk.writeback_sinks",
+    "agent_connector_sdk.writeback_sinks._env",
+    "agent_connector_sdk.writeback_sinks.core",
+    "agent_connector_sdk.writeback_sinks.governed",
+    "agent_connector_sdk.writeback_sinks.models",
+    "agent_connector_sdk.writeback_sinks.sinks",
+    "agent_connector_sdk.writeback_sinks.sinks.ansible",
+    "agent_connector_sdk.writeback_sinks.sinks.archimate",
+    "agent_connector_sdk.writeback_sinks.sinks.capability",
+    "agent_connector_sdk.writeback_sinks.sinks.ciso_assistant",
+    "agent_connector_sdk.writeback_sinks.sinks.egeria",
+    "agent_connector_sdk.writeback_sinks.sinks.emerald",
+    "agent_connector_sdk.writeback_sinks.sinks.erpnext",
+    "agent_connector_sdk.writeback_sinks.sinks.home_assistant",
+    "agent_connector_sdk.writeback_sinks.sinks.identity",
+    "agent_connector_sdk.writeback_sinks.sinks.issue_tracker",
+    "agent_connector_sdk.writeback_sinks.sinks.leanix",
+    "agent_connector_sdk.writeback_sinks.sinks.legal",
+    "agent_connector_sdk.writeback_sinks.sinks.mealie",
+    "agent_connector_sdk.writeback_sinks.sinks.nextcloud",
+    "agent_connector_sdk.writeback_sinks.sinks.ops",
+    "agent_connector_sdk.writeback_sinks.sinks.process",
+    "agent_connector_sdk.writeback_sinks.sinks.salesforce",
+    "agent_connector_sdk.writeback_sinks.sinks.servicenow",
+    "agent_connector_sdk.writeback_sinks.sinks.twenty",
+    "agent_connector_sdk.writeback_sinks.sinks.wger",
+    "agent_connector_sdk.writeback_sinks.spec_link",
 ]
 
 # Inputs of the shared hooks (Knuckles-Team/pipelines .pre-commit-hooks.yaml).
