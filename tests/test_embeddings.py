@@ -142,3 +142,16 @@ def test_real_client_is_dns_pinned_without_redirects(monkeypatch):
     client = model._client
     assert client.follow_redirects is False
     assert type(client._transport).__name__ == "DnsPinnedEgressTransport"
+
+
+def test_providers_and_model_type_are_the_public_surface(monkeypatch):
+    from agent_connector_sdk.embeddings import PROVIDERS, EmbeddingModel
+
+    assert PROVIDERS == ("openai", "ollama")
+    monkeypatch.setenv("EMBEDDING_MODEL", "nomic-embed")
+    monkeypatch.setenv("EMBEDDING_API_KEY_REF", "env://EMBED_TOKEN")
+    monkeypatch.setenv("EMBED_TOKEN", "s3cret")
+    model = create_embedding_model(transport=_openai_transport([]))
+    assert isinstance(model, EmbeddingModel)
+    with pytest.raises(ValueError):
+        create_embedding_model(provider="not-a-provider")

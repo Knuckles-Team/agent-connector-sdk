@@ -122,3 +122,26 @@ def test_r014_21_base_import_does_not_load_the_server_stack() -> None:
         "assert 'fasta2a' not in sys.modules"
     )
     subprocess.run([sys.executable, "-c", probe], check=True)
+
+
+def test_r014_21_status_parts_and_result_shapes() -> None:
+    from typing import get_args
+
+    from agent_connector_sdk.a2a import A2AResult, A2ATaskStatus, TaskState, TextPart
+    from agent_connector_sdk.a2a.client import CARD_PATH
+
+    assert A2ATaskStatus().state == "unknown"
+    assert "completed" in get_args(TaskState)
+    with pytest.raises(ValueError):
+        A2ATaskStatus.model_validate({"state": "exploded"})
+    message = A2AMessage(role="agent", parts=[TextPart(text="a"), TextPart(text="b")])
+    assert message.text() == "ab" and message.parts[0].model_dump()["kind"] == "text"
+    assert A2AResult(content="x").ok and not A2AResult(error="refused").ok
+    assert CARD_PATH == "/.well-known/agent-card.json"
+
+
+def test_r014_21_app_factory_builds_with_the_extra() -> None:
+    pytest.importorskip("fasta2a")
+    from agent_connector_sdk.a2a import create_a2a_app
+
+    assert callable(create_a2a_app)
