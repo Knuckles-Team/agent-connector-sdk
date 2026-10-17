@@ -50,8 +50,28 @@ def test_legacy_fallback_warns_once(monkeypatch, tmp_path, caplog):
     warnings = [r for r in caplog.records if r.levelno == logging.WARNING]
     assert len(warnings) == 1
     message = warnings[0].getMessage()
-    assert str(legacy / "workspace.yml") in message
+    assert str(legacy) in message
     assert str(tmp_path / "xdg" / "graph-os") in message
+
+
+def test_default_legacy_xdg_fallback_per_file(tmp_path, caplog):
+    new = tmp_path / "xdg" / "graph-os"
+    new.mkdir(parents=True)
+    (new / "workspace.yml").write_text("name: x\n")
+    legacy = tmp_path / "xdg" / "agent-utilities"
+    legacy.mkdir(parents=True)
+    (legacy / "config.json").write_text("{}")
+    with caplog.at_level(logging.WARNING):
+        assert paths.platform_config_file("workspace.yml") == new / "workspace.yml"
+        assert paths.platform_config_dir() == legacy
+    assert len(caplog.records) == 1
+    assert str(legacy / "config.json") in caplog.records[0].getMessage()
+
+
+def test_explicit_legacy_override_still_honoured(monkeypatch, tmp_path):
+    legacy = tmp_path / "explicit"
+    monkeypatch.setenv("AGENT_UTILITIES_CONFIG_DIR", str(legacy))
+    assert paths.platform_config_dir() == legacy
 
 
 def test_neither_present_returns_new_path_without_creating(tmp_path, caplog):
