@@ -204,7 +204,8 @@
     "SDK-CONNECTOR-CONTROL-R014.12",
     "SDK-CONNECTOR-CONTROL-R014.13",
     "SDK-CONNECTOR-CONTROL-R014.14",
-    "SDK-CONNECTOR-CONTROL-R014.15"
+    "SDK-CONNECTOR-CONTROL-R014.15",
+    "SDK-CONNECTOR-CONTROL-R014.16"
   ],
   "requirements": [
     {
@@ -370,7 +371,7 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014",
       "title": "SDK fully supersedes the duplicated connector toolkit",
-      "delivery_state": "LANDED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "5e1bd9257555"
       ],
@@ -390,7 +391,8 @@
         "SDK-CONNECTOR-CONTROL-R014.12",
         "SDK-CONNECTOR-CONTROL-R014.13",
         "SDK-CONNECTOR-CONTROL-R014.14",
-        "SDK-CONNECTOR-CONTROL-R014.15"
+        "SDK-CONNECTOR-CONTROL-R014.15",
+        "SDK-CONNECTOR-CONTROL-R014.16"
       ]
     },
     {
@@ -2021,6 +2023,13 @@
       "verified_by": [
         "tests/test_document_sources.py:216"
       ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.16",
+      "title": "DNS-pinned egress on the governed client",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
