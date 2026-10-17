@@ -1668,7 +1668,7 @@
       "title": "Vendor write-back sinks run through one governed, fail-closed, dry-run-first entry point (rollup)",
       "delivery_state": "SPECIFIED",
       "landed_in": [
-        "625b32c2ec0c"
+        "50fea1b37a18"
       ],
       "verified_by": [
         "tests/test_writeback_sinks.py:26"
