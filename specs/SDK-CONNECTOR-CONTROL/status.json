@@ -211,6 +211,23 @@
     "SDK-CONNECTOR-CONTROL-R014.18",
     "SDK-CONNECTOR-CONTROL-R014.19",
     "SDK-CONNECTOR-CONTROL-R014.20",
+    "SDK-CONNECTOR-CONTROL-R014.22",
+    "SDK-CONNECTOR-CONTROL-R014.23",
+    "SDK-CONNECTOR-CONTROL-R068",
+    "SDK-CONNECTOR-CONTROL-R068.1",
+    "SDK-CONNECTOR-CONTROL-R068.2",
+    "SDK-CONNECTOR-CONTROL-R068.3",
+    "SDK-CONNECTOR-CONTROL-R068.4",
+    "SDK-CONNECTOR-CONTROL-R068.5",
+    "SDK-CONNECTOR-CONTROL-R068.6",
+    "SDK-CONNECTOR-CONTROL-R069",
+    "SDK-CONNECTOR-CONTROL-R069.1",
+    "SDK-CONNECTOR-CONTROL-R069.2",
+    "SDK-CONNECTOR-CONTROL-R069.3",
+    "SDK-CONNECTOR-CONTROL-R069.4",
+    "SDK-CONNECTOR-CONTROL-R069.5",
+    "SDK-CONNECTOR-CONTROL-R069.6",
+    "SDK-CONNECTOR-CONTROL-R014.21",
     "SDK-CONNECTOR-CONTROL-R700",
     "SDK-CONNECTOR-CONTROL-R701",
     "SDK-CONNECTOR-CONTROL-R900",
@@ -226,7 +243,16 @@
     "SDK-CONNECTOR-CONTROL-R901.3",
     "SDK-CONNECTOR-CONTROL-R901.4",
     "SDK-CONNECTOR-CONTROL-R901.5",
-    "SDK-CONNECTOR-CONTROL-R901.6"
+    "SDK-CONNECTOR-CONTROL-R901.6",
+    "SDK-CONNECTOR-CONTROL-R067",
+    "SDK-CONNECTOR-CONTROL-R067.1",
+    "SDK-CONNECTOR-CONTROL-R067.2",
+    "SDK-CONNECTOR-CONTROL-R067.3",
+    "SDK-CONNECTOR-CONTROL-R067.4",
+    "SDK-CONNECTOR-CONTROL-R067.5",
+    "SDK-CONNECTOR-CONTROL-R067.6",
+    "SDK-CONNECTOR-CONTROL-R067.7",
+    "SDK-CONNECTOR-CONTROL-R067.8"
   ],
   "requirements": [
     {
@@ -392,7 +418,7 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014",
       "title": "SDK fully supersedes the duplicated connector toolkit",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "5e1bd9257555"
       ],
@@ -417,7 +443,10 @@
         "SDK-CONNECTOR-CONTROL-R014.17",
         "SDK-CONNECTOR-CONTROL-R014.18",
         "SDK-CONNECTOR-CONTROL-R014.19",
-        "SDK-CONNECTOR-CONTROL-R014.20"
+        "SDK-CONNECTOR-CONTROL-R014.20",
+        "SDK-CONNECTOR-CONTROL-R014.22",
+        "SDK-CONNECTOR-CONTROL-R014.23",
+        "SDK-CONNECTOR-CONTROL-R014.21"
       ]
     },
     {
@@ -2109,7 +2138,8 @@
       "title": "MCP-free base install",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "15b099abed9d"
+        "15b099abed9d",
+        "981a56cad151"
       ],
       "verified_by": [
         "tests/test_base_install_mcp_free.py:35",
@@ -2122,7 +2152,8 @@
       "title": "Default fail-closed served security profile",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "15b099abed9d"
+        "15b099abed9d",
+        "981a56cad151"
       ],
       "verified_by": [
         "tests/test_served_security_and_provider_profile.py:116",
@@ -2156,6 +2187,149 @@
       "verified_by": [
         "tests/test_served_security_and_provider_profile.py:273"
       ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.22",
+      "title": "External embedding API client",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "44ec6a283997"
+      ],
+      "verified_by": [
+        "tests/test_embeddings.py:17"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.23",
+      "title": "Typed epistemic-graph compute adapter",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "44ec6a283997"
+      ],
+      "verified_by": [
+        "tests/test_compute_adapter.py:19"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068",
+      "title": "Each connector serves its seed graph and contract resources for first connect (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R068.1",
+        "SDK-CONNECTOR-CONTROL-R068.2",
+        "SDK-CONNECTOR-CONTROL-R068.3",
+        "SDK-CONNECTOR-CONTROL-R068.4",
+        "SDK-CONNECTOR-CONTROL-R068.5",
+        "SDK-CONNECTOR-CONTROL-R068.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R068.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069",
+      "title": "Connector transports are declared contracts per connection protocol (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R069.1",
+        "SDK-CONNECTOR-CONTROL-R069.2",
+        "SDK-CONNECTOR-CONTROL-R069.3",
+        "SDK-CONNECTOR-CONTROL-R069.4",
+        "SDK-CONNECTOR-CONTROL-R069.5",
+        "SDK-CONNECTOR-CONTROL-R069.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R069.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.21",
+      "title": "Reusable A2A protocol module",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R700",
@@ -2284,6 +2458,79 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R901.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067",
+      "title": "The SDK authors each connector pack as Turtle from typed declarations (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R067.1",
+        "SDK-CONNECTOR-CONTROL-R067.2",
+        "SDK-CONNECTOR-CONTROL-R067.3",
+        "SDK-CONNECTOR-CONTROL-R067.4",
+        "SDK-CONNECTOR-CONTROL-R067.5",
+        "SDK-CONNECTOR-CONTROL-R067.6",
+        "SDK-CONNECTOR-CONTROL-R067.7",
+        "SDK-CONNECTOR-CONTROL-R067.8"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.3",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.4",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.5",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.6",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.7",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R067.8",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
