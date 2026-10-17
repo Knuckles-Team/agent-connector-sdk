@@ -37,6 +37,12 @@ mcp = [
     "fastmcp>=4.1.0,<5",
     "mcp>=2.3.0,<3",
 ]
+# Server-side A2A application factory (agent_connector_sdk.a2a.app). The wire
+# models and the client are in the base install.
+a2a = [
+    "fasta2a[pydantic-ai]>=0.6.1,<1.0.0",
+    "starlette>=1.8.0,<2",
+]
 
 [[project.authors]]
 name = "Repository Maintainers"
