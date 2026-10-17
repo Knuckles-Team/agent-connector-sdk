@@ -13,6 +13,8 @@ so it becomes first-class ``Document`` + ``Chunk`` ontology objects with OWL
 semantics, bitemporal slicing, and entailment-aware ACLs.
 """
 
+from typing import Any
+
 from .base import (
     BaseSourceConnector,
     ExternalAccess,
@@ -54,7 +56,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     """Resolve :func:`access_properties` lazily.
 
     A connector reports each document's :class:`ExternalAccess`;

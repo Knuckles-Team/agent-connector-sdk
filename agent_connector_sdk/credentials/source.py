@@ -262,9 +262,14 @@ def _default_token_poster(tls_service: str, timeout: float) -> TokenPoster:
         trust = resolve_tls_profile(tls_service)
         try:
             with httpx.Client(timeout=timeout, **trust.httpx_kwargs()) as client:
-                response = client.post(url, data=form, auth=auth)
+                response = client.post(
+                    url,
+                    data=form,
+                    auth=auth if auth is not None else httpx.USE_CLIENT_DEFAULT,
+                )
                 response.raise_for_status()
-                return response.json()
+                payload: Mapping[str, Any] = response.json()
+                return payload
         finally:
             trust.cleanup()
 
