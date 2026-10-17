@@ -314,3 +314,6 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R068`: `tests/test_seed_graph_served.p
 
 
 Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_served.py::test_declared_transports_serve_virtual_reads`.
+- `SDK-CONNECTOR-CONTROL-R780.1` to `SDK-CONNECTOR-CONTROL-R780.5`: `tests/test_au_helper_parity.py` (5 tests).
+- `SDK-CONNECTOR-CONTROL-R781`: `tests/test_trajectory_recorder.py`.
+- `SDK-CONNECTOR-CONTROL-R782`: `tests/test_stream_adapter.py`.

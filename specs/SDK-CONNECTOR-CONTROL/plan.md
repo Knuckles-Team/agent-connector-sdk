@@ -569,3 +569,7 @@ MCP and A2A have two roles each. MCP serving by a connector uses the SDK `[mcp]`
 | LDAP | simple bind, SASL | paged results control | filter, project, limit | `directory` | to add |
 | IMAP and SMTP | password, OAuth 2.0 | sequence ranges | filter, project, time_range | `mailbox` | to add |
 | CalDAV and CardDAV | basic, OAuth 2.0 | sync tokens | filter, project, time_range | `calendar_collection` | to add |
+
+## Parity rows R780 to R782
+
+R780 maps each retired agent-utilities harness module to its SDK module: identity, exceptions, `http.client` with `http.retry`, `tls.resolve`, `utilities` with `config`. R780.6 lists what has no SDK equivalent. R781 and R782 compose existing engine methods into SDK helpers and add no engine method.
