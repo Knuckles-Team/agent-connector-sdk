@@ -227,3 +227,13 @@ Current dictation routes are single-shot. These tests require a registered meeti
 - `SDK-SOURCE-INGEST-R005.37`: `tests/test_document_sources.py::test_two_domain_packs_ingested_with_lineage` and `::test_incremental_change_updates_only_the_touched_file` ingest two packs from a scratch git repository, read lineage back from the committed records, then touch and delete files and observe one upsert and one withdrawal.
 - `SDK-SOURCE-INGEST-R005.38`: `tests/test_document_sources.py::test_filesystem_connector_ingestion_live_path` ingests a tree with refused entries, re-runs without change, then advances one file.
 - `SDK-SOURCE-INGEST-R005.39`: `tests/test_document_sources.py::test_governed_connector_applies_envelope_before_embedding`, `::test_governed_connector_failure_blocks_document_and_checkpoint` and `::test_governance_failure_leaves_real_engine_checkpoint` (a real `epistemic-graph-server`) prove the envelope is stamped before submission and a refusal leaves the durable checkpoint unchanged.
+
+## Ingest under an accepted contract (R017)
+
+- `SDK-SOURCE-INGEST-R017`: Rollup closes when every child `.1` to `.6` passes its proving test.
+- `SDK-SOURCE-INGEST-R017.1`: `tests/test_ingest_contract_binding.py::test_binding_carries_contract_iri`.
+- `SDK-SOURCE-INGEST-R017.2`: `tests/test_ingest_contract_binding.py::test_nested_values_become_relationships`.
+- `SDK-SOURCE-INGEST-R017.3`: `tests/test_ingest_contract_binding.py::test_submit_checks_accepted_contract`.
+- `SDK-SOURCE-INGEST-R017.4`: `tests/test_ingest_contract_binding.py::test_refusals_keep_checkpoint`.
+- `SDK-SOURCE-INGEST-R017.5`: `tests/test_ingest_contract_binding.py::test_report_matches_engine_receipt`.
+- `SDK-SOURCE-INGEST-R017.6`: `tests/test_ingest_contract_served.py::test_ingest_requires_accepted_contract`.
