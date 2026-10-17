@@ -22,9 +22,11 @@ from agent_connector_sdk.artifacts.prompts_helpers import (
 )
 from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
 from agent_connector_sdk.http.bodies import DEFAULT_MAX_RESPONSE_BYTES
-from agent_connector_sdk.ports.errors import MalformedArtifactError
+from agent_connector_sdk.ports.errors import (
+    MalformedArtifactError,
+    McpPromptRejectedError,
+)
 from agent_connector_sdk.ports.session import McpSession
-from agent_connector_sdk.transports.mcp_session import McpPromptRejectedError
 
 __all__ = ["PromptArtifactKind"]
 

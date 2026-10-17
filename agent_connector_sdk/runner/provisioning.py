@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from epistemic_graph.generated.connector_pack import (
     PackImportResultImported,
@@ -15,11 +16,13 @@ from agent_connector_sdk.artifacts.pack import (
     build_connector_content_pack,
     build_content_pack,
 )
-from agent_connector_sdk.mcp.content import ConnectorContent
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
 from agent_connector_sdk.ports.session import McpSession
 from agent_connector_sdk.ports.sink import Sink
 from agent_connector_sdk.runner.errors import SinkReceiptError
+
+if TYPE_CHECKING:
+    from agent_connector_sdk.mcp.content import ConnectorContent
 
 __all__ = [
     "ProvisionOutcome",

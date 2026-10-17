@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from epistemic_graph.connector_pack import (
     ConnectorPackArchive,
@@ -12,19 +13,16 @@ from epistemic_graph.connector_pack import (
     ConnectorPackEntryContent,
 )
 from epistemic_graph.generated.connector_pack import PackEntryKind
-from fastmcp import FastMCP
 
 from agent_connector_sdk.artifacts.common import json_object
 from agent_connector_sdk.artifacts.ontology_imports import scope_ontology_imports
 from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
-from agent_connector_sdk.mcp.content import (
-    ConnectorContent,
-    register_connector_content,
-)
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
 from agent_connector_sdk.ports.errors import MalformedArtifactError
 from agent_connector_sdk.ports.session import McpSession, TransportEndpoint
-from agent_connector_sdk.transports.mcp import McpTransport
+
+if TYPE_CHECKING:
+    from agent_connector_sdk.mcp.content import ConnectorContent
 
 __all__ = [
     "CapturedConnectorPack",
@@ -165,9 +163,13 @@ async def build_connector_content_pack(
     as a remotely served connector. One invocation has exactly one connector
     identity, so composing multiple providers cannot merge their pack heads.
     """
+    from fastmcp import FastMCP
+
     from agent_connector_sdk.artifacts.prompts import PromptArtifactKind
     from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
     from agent_connector_sdk.artifacts.skills import SkillArtifactKind
+    from agent_connector_sdk.mcp.content import register_connector_content
+    from agent_connector_sdk.transports.mcp import McpTransport
 
     server: FastMCP[object] = FastMCP(
         content.connector, version=content.package_version

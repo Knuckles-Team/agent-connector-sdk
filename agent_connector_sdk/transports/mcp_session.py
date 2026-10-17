@@ -15,6 +15,7 @@ from mcp.shared.exceptions import MCPError
 
 from agent_connector_sdk.contracts import ServerIdentity
 from agent_connector_sdk.ports.change_source import ChangeEvent
+from agent_connector_sdk.ports.errors import McpPromptRejectedError, McpTransportError
 from agent_connector_sdk.transports.mcp_changes import (
     ChangeFeed,
     forward_listen_events,
@@ -26,22 +27,6 @@ __all__ = [
     "McpTransportError",
     "decode_tool_result",
 ]
-
-
-class McpTransportError(RuntimeError):
-    """An MCP operation failed; the message names the operation, not the payload."""
-
-
-class McpPromptRejectedError(McpTransportError):
-    """``prompts/get`` reached the server, which then returned a protocol error.
-
-    Raised only for a well-formed :class:`mcp.shared.exceptions.MCPError`
-    response -- the server is reachable and answered, it just rejected the
-    bound arguments (for example a typed parameter refusing the `{{name}}`
-    placeholder). A transport failure such as a timeout or a dropped
-    connection never surfaces as this error; it stays a plain
-    :class:`McpTransportError`.
-    """
 
 
 def decode_tool_result(result: Any) -> Any:

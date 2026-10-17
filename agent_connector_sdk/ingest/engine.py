@@ -31,10 +31,10 @@ from epistemic_graph.client import EpistemicGraphClient
 from agent_connector_sdk.config import setting
 from agent_connector_sdk.credentials.resolution import resolve_secret_reference
 from agent_connector_sdk.credentials.resolver import CredentialResolver
+from agent_connector_sdk.exposure import is_loopback_host
 from agent_connector_sdk.ingest.errors import IngestUnavailableError
 from agent_connector_sdk.ingest.service import KnowledgeIngest
 from agent_connector_sdk.ingest.transport import EpistemicGraphIngestTransport
-from agent_connector_sdk.mcp.exposure import is_loopback_host
 from agent_connector_sdk.tls.resolve import resolve_tls_profile
 
 __all__ = ["INGEST_SCOPES", "EngineSettings", "connect_ingest"]

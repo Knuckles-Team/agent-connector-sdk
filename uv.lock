@@ -21,12 +21,17 @@ dependencies = [
     { name = "anyio" },
     { name = "cryptography" },
     { name = "epistemic-graph" },
-    { name = "fastmcp" },
     { name = "httpx" },
     { name = "httpx2" },
-    { name = "mcp" },
+    { name = "mcp-types" },
     { name = "pydantic" },
     { name = "pyyaml" },
+]
+
+[package.optional-dependencies]
+mcp = [
+    { name = "fastmcp" },
+    { name = "mcp" },
 ]
 
 [package.dev-dependencies]
@@ -34,11 +39,13 @@ docs = [
     { name = "mkdocs-material" },
 ]
 test = [
+    { name = "agent-connector-sdk", extra = ["mcp"] },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-timeout" },
 ]
 typecheck = [
+    { name = "agent-connector-sdk", extra = ["mcp"] },
     { name = "mypy" },
     { name = "types-pyyaml" },
 ]
@@ -48,22 +55,26 @@ requires-dist = [
     { name = "anyio", specifier = ">=4.15.1" },
     { name = "cryptography", specifier = ">=50.0.2" },
     { name = "epistemic-graph", git = "https://github.com/Knuckles-Team/epistemic-graph.git?rev=168df952ed0f7aceaaba68245a7c1667aea61f01" },
-    { name = "fastmcp", specifier = ">=4.1.0,<5" },
+    { name = "fastmcp", marker = "extra == 'mcp'", specifier = ">=4.1.0,<5" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "httpx2", specifier = ">=2.13.1" },
-    { name = "mcp", specifier = ">=2.3.0,<3" },
+    { name = "mcp", marker = "extra == 'mcp'", specifier = ">=2.3.0,<3" },
+    { name = "mcp-types", specifier = ">=2.3.0,<3" },
     { name = "pydantic", specifier = ">=2.14.1,<3" },
     { name = "pyyaml", specifier = ">=6.0.3" },
 ]
+provides-extras = ["mcp"]
 
 [package.metadata.requires-dev]
 docs = [{ name = "mkdocs-material", specifier = "==9.7.7" }]
 test = [
+    { name = "agent-connector-sdk", extras = ["mcp"] },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "pytest-asyncio", specifier = ">=1.4.0" },
     { name = "pytest-timeout", specifier = ">=2.4.0" },
 ]
 typecheck = [
+    { name = "agent-connector-sdk", extras = ["mcp"] },
     { name = "mypy", specifier = "==2.4.0" },
     { name = "types-pyyaml", specifier = "==6.0.12.20260906" },
 ]

@@ -256,3 +256,4 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R014.14`: `tests/test_connector_runtime_adds.py::test_r014_14_env_drift_against_declarations` builds a connector with each read and declaration kind and checks the exact findings and the `--check` exit.
 - `SDK-CONNECTOR-CONTROL-R014.15`: `tests/test_document_sources.py::test_connector_ingestion_syncs_external_acl` ingests a restricted file and a quarantined one and asserts the committed access properties and that no local path is persisted.
 - `SDK-CONNECTOR-CONTROL-R014.16`: `tests/test_http_dns_pinned_egress.py` covers pinned Host/SNI, private-resolution refusal, the private allow-list, loopback, plaintext, peer mismatch, URL limits and allow-list validation.
+- `SDK-CONNECTOR-CONTROL-R014.17`: `tests/test_base_install_mcp_free.py` imports the base modules with `fastmcp` and `mcp` blocked and checks the MCP surface names the extra.

@@ -37,7 +37,6 @@ from agent_connector_sdk.certify.pins import PinWriteError, write_certified_pins
 from agent_connector_sdk.credentials.references import SecretReferenceError
 from agent_connector_sdk.credentials.resolution import resolve_secret_reference
 from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.transports.mcp import McpTransport
 
 __all__ = [
     "PLACEHOLDER_VALUE",
@@ -175,6 +174,8 @@ async def _run_certification(
             endpoint = await anyio.to_thread.run_sync(
                 endpoint_factory, abandon_on_cancel=True
             )
+            from agent_connector_sdk.transports.mcp import McpTransport
+
             return await certify_connector(
                 checkout,
                 McpTransport(),

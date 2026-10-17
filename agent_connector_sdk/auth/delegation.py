@@ -22,11 +22,12 @@ import threading
 from collections import OrderedDict
 from collections.abc import AsyncGenerator, Generator
 from dataclasses import dataclass
+from typing import Any
 
 import anyio
 import httpx
-from fastmcp.server.dependencies import get_access_token
 
+from agent_connector_sdk._extras import require_mcp_extra
 from agent_connector_sdk.auth.tokens import (
     AccessToken,
     TokenRequestError,
@@ -101,6 +102,14 @@ class DelegationSettings:
             audience=str(setting("AUDIENCE", "")),
             scopes=str(setting("DELEGATED_SCOPES", "api")),
         )
+
+
+def get_access_token() -> Any:
+    """The FastMCP access token of the request being served (needs the ``mcp`` extra)."""
+    require_mcp_extra("agent_connector_sdk.auth.delegation")
+    from fastmcp.server.dependencies import get_access_token as _get
+
+    return _get()
 
 
 def current_user_token() -> str | None:
