@@ -49,14 +49,14 @@ That proof-binding extension is an explicit dependency; never manufacture a rece
 
 Decision: SDK owns cryptographic source verification, Arbora consumes its fact, and EG remains the decision and durable record authority.
 Rejected alternative: an Arbora verifier or wallet-specific approval store, which duplicates the producer and weakens replay fencing.
-Cross-repository consumer: GRAPHOS-DATA-MARKET-R007. Existing SDK-GOVERNED-WRITEBACK-R004 owns effect approval and idempotency.
+Cross-repository consumer: ARBORA-DATA-MARKET-R007. Existing SDK-GOVERNED-WRITEBACK-R004 owns effect approval and idempotency.
 References: [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) defines canonical JSON;
 [RFC 8032](https://www.rfc-editor.org/rfc/rfc8032) defines Ed25519. No research-paper derivation is claimed.
 
 
 ## Immutable intent and separate execution proof
 
-This contract is shared by SDK-GOVERNED-WRITEBACK-R001 and GRAPHOS-DATA-MARKET-R007. The proof transport wiring has not been implemented.
+This contract is shared by SDK-GOVERNED-WRITEBACK-R001 and ARBORA-DATA-MARKET-R007. The proof transport wiring has not been implemented.
 `WalletBusinessIntent` is a closed JSON object with these exact required keys:
 `schema_version`, `operation_id`, `connector_id`, `account_id`, `wallet_id`, `network_id`, `mode`, `action`,
 `destination`, `asset_id`, `amount`, `business_terms`, `change_set_id`, `idempotency_key`.
@@ -177,4 +177,4 @@ After a possible mutation, readback failure, lost response or failed ledger appe
 
 Keep R004.1–R004.4 as independent generic residual units. Then implement request validation (R004.5), path resolution (R004.6), approved composition (R004.7), provider compare-and-apply (R004.8), receipt binding (R004.9), readback (R004.10), reconciliation (R004.11), and served composition (R004.12). Each unit has one proposed acceptance function in test-spec.md. No generic helper test alone proves a production provider effect.
 
-Arbora consumes these exact request/receipt contracts under GRAPHOS-FLEET-R003, using GRAPHOS-OPS-R009's existing invoke authority. Its producer-composition definition must wait for the SDK definition to merge. EG-TYPED-PACKS-R094.7 can name both after their definitions merge. EG-TYPED-PACKS-R002.10 still requires a separately coordinated AU model-dispatch consumer; source write-back does not meet that requirement. No candidate accounting change or runtime completion follows from these definitions.
+Arbora consumes these exact request/receipt contracts under ARBORA-FLEET-R003, using ARBORA-OPS-R009's existing invoke authority. Its producer-composition definition must wait for the SDK definition to merge. EG-TYPED-PACKS-R094.7 can name both after their definitions merge. EG-TYPED-PACKS-R002.10 still requires a separately coordinated AU model-dispatch consumer; source write-back does not meet that requirement. No candidate accounting change or runtime completion follows from these definitions.
