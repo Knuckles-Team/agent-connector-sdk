@@ -262,3 +262,15 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R014.20`: `tests/test_served_security_and_provider_profile.py::test_r014_20_entry_point_groups_use_the_sdk_namespace`.
 - `SDK-CONNECTOR-CONTROL-R014.22`: `tests/test_embeddings.py` covers OpenAI and Ollama requests, sub-batching, bearer auth from a reference, body non-disclosure, invalid settings, caching per endpoint and the DNS-pinned no-redirect client.
 - `SDK-CONNECTOR-CONTROL-R014.23`: `tests/test_compute_adapter.py` covers SPARQL algorithm selection and the served run, refusal of unbound analyses and unserved methods, IRI and client-path validation, unavailable endpoint and the compute-only scopes.
+
+## Connector packs authored as Turtle (R067)
+
+- `SDK-CONNECTOR-CONTROL-R067`: Rollup closes when every child `.1` to `.8` passes its proving test.
+- `SDK-CONNECTOR-CONTROL-R067.1`: `tests/test_pack_declaration.py::test_declaration_round_trip_and_nested_property_refusal`.
+- `SDK-CONNECTOR-CONTROL-R067.2`: `tests/test_pack_turtle.py::test_emit_is_deterministic_and_uses_engine_terms`.
+- `SDK-CONNECTOR-CONTROL-R067.3`: `tests/test_pack_declaration.py::test_views_render_and_fingerprint_id_is_sdk_owned`.
+- `SDK-CONNECTOR-CONTROL-R067.4`: `tests/test_pack_turtle.py::test_preflight_uses_engine_validation`.
+- `SDK-CONNECTOR-CONTROL-R067.5`: `tests/test_pack_turtle.py::test_content_pack_carries_contract_entry`.
+- `SDK-CONNECTOR-CONTROL-R067.6`: `tests/test_pack_declaration.py::test_declaration_refusals_name_the_field`.
+- `SDK-CONNECTOR-CONTROL-R067.7`: `tests/test_pack_declaration.py::test_certification_records_accepted_contract_digest`.
+- `SDK-CONNECTOR-CONTROL-R067.8`: `tests/test_pack_rdf_served.py::test_declaration_to_engine_pack_end_to_end`.
