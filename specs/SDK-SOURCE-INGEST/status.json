@@ -150,6 +150,13 @@
     "SDK-SOURCE-INGEST-R016.4",
     "SDK-SOURCE-INGEST-R016.5",
     "SDK-SOURCE-INGEST-R016.6",
+    "SDK-SOURCE-INGEST-R600",
+    "SDK-SOURCE-INGEST-R600.1",
+    "SDK-SOURCE-INGEST-R600.2",
+    "SDK-SOURCE-INGEST-R600.3",
+    "SDK-SOURCE-INGEST-R600.4",
+    "SDK-SOURCE-INGEST-R600.5",
+    "SDK-SOURCE-INGEST-R600.6",
     "SDK-SOURCE-INGEST-R800",
     "SDK-SOURCE-INGEST-R800.1",
     "SDK-SOURCE-INGEST-R800.2",
@@ -1651,6 +1658,67 @@
     },
     {
       "id": "SDK-SOURCE-INGEST-R016.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R600",
+      "title": "Vendor write-back sinks run through one governed, fail-closed, dry-run-first entry point (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [
+        "625b32c2ec0c"
+      ],
+      "verified_by": [
+        "tests/test_writeback_sinks.py:26"
+      ],
+      "rollup_of": [
+        "SDK-SOURCE-INGEST-R600.1",
+        "SDK-SOURCE-INGEST-R600.2",
+        "SDK-SOURCE-INGEST-R600.3",
+        "SDK-SOURCE-INGEST-R600.4",
+        "SDK-SOURCE-INGEST-R600.5",
+        "SDK-SOURCE-INGEST-R600.6"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R600.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R600.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R600.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R600.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R600.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R600.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
