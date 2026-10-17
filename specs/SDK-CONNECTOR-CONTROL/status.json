@@ -252,7 +252,16 @@
     "SDK-CONNECTOR-CONTROL-R067.5",
     "SDK-CONNECTOR-CONTROL-R067.6",
     "SDK-CONNECTOR-CONTROL-R067.7",
-    "SDK-CONNECTOR-CONTROL-R067.8"
+    "SDK-CONNECTOR-CONTROL-R067.8",
+    "SDK-CONNECTOR-CONTROL-R780",
+    "SDK-CONNECTOR-CONTROL-R780.1",
+    "SDK-CONNECTOR-CONTROL-R780.2",
+    "SDK-CONNECTOR-CONTROL-R780.3",
+    "SDK-CONNECTOR-CONTROL-R780.4",
+    "SDK-CONNECTOR-CONTROL-R780.5",
+    "SDK-CONNECTOR-CONTROL-R780.6",
+    "SDK-CONNECTOR-CONTROL-R781",
+    "SDK-CONNECTOR-CONTROL-R782"
   ],
   "requirements": [
     {
@@ -2532,6 +2541,97 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R067.8",
       "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R780",
+      "title": "SDK helpers replace the retired agent-utilities harness modules",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R780.1",
+        "SDK-CONNECTOR-CONTROL-R780.2",
+        "SDK-CONNECTOR-CONTROL-R780.3",
+        "SDK-CONNECTOR-CONTROL-R780.4",
+        "SDK-CONNECTOR-CONTROL-R780.5",
+        "SDK-CONNECTOR-CONTROL-R780.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R780.1",
+      "title": "Actor type",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "889be6e354c7"
+      ],
+      "verified_by": [
+        "tests/test_au_helper_parity.py:15"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R780.2",
+      "title": "Exceptions",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "889be6e354c7"
+      ],
+      "verified_by": [
+        "tests/test_au_helper_parity.py:27"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R780.3",
+      "title": "Governed HTTP client and retry",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "889be6e354c7"
+      ],
+      "verified_by": [
+        "tests/test_au_helper_parity.py:42"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R780.4",
+      "title": "TLS profile resolution",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "889be6e354c7"
+      ],
+      "verified_by": [
+        "tests/test_au_helper_parity.py:61"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R780.5",
+      "title": "Value helpers and configuration projection",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "889be6e354c7"
+      ],
+      "verified_by": [
+        "tests/test_au_helper_parity.py:66"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R780.6",
+      "title": "Remainder with no SDK equivalent",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R781",
+      "title": "Training-trajectory recorder helper",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R782",
+      "title": "Message-stream adapters normalize into change envelopes",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
