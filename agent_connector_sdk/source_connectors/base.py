@@ -39,6 +39,12 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from agent_connector_sdk.contracts import (
+    CONNECTOR_UNCONFIGURED_MARKING,
+    ExternalAccess,
+    default_external_access,
+)
+
 from .checkpoint import CheckpointedBatch, ConnectorCheckpoint
 
 # Re-export so callers can ``from ...base import ConnectorCheckpoint``.
@@ -56,63 +62,6 @@ __all__ = [
     "SourceDocument",
     "default_external_access",
 ]
-
-# Mandatory marking for a document whose connector could not report a real
-# ACL. No actor holds it by default, so the graph service restricts the
-# document to nobody until an operator reviews it and grants the marking.
-CONNECTOR_UNCONFIGURED_MARKING = "connector-unconfigured-acl"
-
-
-class ExternalAccess(BaseModel):
-    """The access-control facts a source reports for one document.
-
-    :func:`~agent_connector_sdk.adapters.document_sources.access_properties`
-    renders it as record properties the graph service enforces. Mirrors Onyx's ``ExternalAccess``: a document is
-    either world-public, or readable by an explicit set of users / groups, and may
-    additionally carry mandatory compartment markings.
-
-    Attributes:
-        is_public: When true the document receives an explicit public ACL.
-        user_emails: Individual principals granted read access.
-        group_ids: Group principals granted read access.
-        read_roles: Provider-neutral authorization roles granted read access.
-            These are useful for internal machine sources whose governing role
-            is already a stable platform capability rather than an external
-            user or directory group.
-        markings: Mandatory-control compartment names (KG-2.46 ``Marking``).
-    """
-
-    is_public: bool = False
-    user_emails: list[str] = Field(default_factory=list)
-    group_ids: list[str] = Field(default_factory=list)
-    read_roles: list[str] = Field(default_factory=list)
-    markings: list[str] = Field(default_factory=list)
-
-    @classmethod
-    def public(cls) -> ExternalAccess:
-        """A world-readable access descriptor."""
-        return cls(is_public=True)
-
-    @classmethod
-    def quarantined(cls) -> ExternalAccess:
-        """The most-restrictive access descriptor (CONCEPT:AU-P0-4).
-
-        Not public, no principals granted, and carries
-        :data:`CONNECTOR_UNCONFIGURED_MARKING` so the document is actually
-        denied by the KG-2.46 read gate (see the constant's docstring) rather
-        than silently defaulting open. This is the fail-closed default for an
-        unproven/unconfigured connector — the opposite of :meth:`public`.
-        """
-        return cls(is_public=False, markings=[CONNECTOR_UNCONFIGURED_MARKING])
-
-
-def default_external_access() -> ExternalAccess:
-    """The connector default when a source reports no ACL at all (CONCEPT:AU-P0-4).
-
-    Fail-closed: "unknown" never means "public". A public grant is accepted only
-    when a certified source deliberately supplies it as record data.
-    """
-    return ExternalAccess.quarantined()
 
 
 class SourceDocument(BaseModel):

@@ -35,7 +35,7 @@ class DataFetchResult:
     row_count: int = 0
     warnings: list[str] = field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.fetched_at:
             self.fetched_at = datetime.now(UTC).isoformat()
         self.row_count = len(self.data) if self.data is not None else 0
@@ -199,7 +199,7 @@ class DataRegistry:
     and returns the first successful result.
     """
 
-    def __init__(self, providers: list | None = None):
+    def __init__(self, providers: list[MarketDataProvider] | None = None) -> None:
         if providers is not None:
             self._providers = providers
         else:
@@ -212,7 +212,9 @@ class DataRegistry:
                 CryptoProvider(),
             ]
 
-    def add_provider(self, provider, priority: int | None = None):
+    def add_provider(
+        self, provider: MarketDataProvider, priority: int | None = None
+    ) -> None:
         """Add a data provider. Lower priority index = higher priority."""
         if priority is not None:
             self._providers.insert(priority, provider)

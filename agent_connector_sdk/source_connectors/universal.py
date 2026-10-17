@@ -187,23 +187,23 @@ class UniversalConnector:
 
                 return sqlite3
             if self.kind == "postgresql":
-                import psycopg  # type: ignore[import-not-found]
+                import psycopg
 
                 return psycopg
             if self.kind == "mysql":
-                import pymysql  # type: ignore[import-not-found,import-untyped]
+                import pymysql
 
                 return pymysql
             if self.kind == "mssql":
-                import pyodbc  # type: ignore[import-not-found]
+                import pyodbc
 
                 return pyodbc
             if self.kind == "oracle":
-                import oracledb  # type: ignore[import-not-found]
+                import oracledb
 
                 return oracledb
             if self.kind == "mongodb":
-                import pymongo  # type: ignore[import-not-found]
+                import pymongo
 
                 return pymongo
         except ImportError as exc:
@@ -428,7 +428,7 @@ class UniversalConnector:
 
     @classmethod
     def _validate_param_mapping(
-        cls, value: Mapping, depth: int, budget: list[int]
+        cls, value: Mapping[str, Any], depth: int, budget: list[int]
     ) -> None:
         if len(value) > 1_000:
             raise ValueError("database query has too many parameters")
@@ -440,7 +440,7 @@ class UniversalConnector:
 
     @classmethod
     def _validate_param_sequence(
-        cls, value: Sequence, depth: int, budget: list[int]
+        cls, value: Sequence[Any], depth: int, budget: list[int]
     ) -> None:
         if len(value) > 1_000:
             raise ValueError("database query has too many parameters")
@@ -477,7 +477,7 @@ class UniversalConnector:
         return None
 
     @classmethod
-    def _mapping_cell_size(cls, value: Mapping, depth: int) -> int:
+    def _mapping_cell_size(cls, value: Mapping[str, Any], depth: int) -> int:
         if len(value) > 10_000:
             raise RuntimeError("database result object has too many fields")
         return sum(
@@ -487,7 +487,7 @@ class UniversalConnector:
         )
 
     @classmethod
-    def _sequence_cell_size(cls, value: Sequence, depth: int) -> int:
+    def _sequence_cell_size(cls, value: Sequence[Any], depth: int) -> int:
         if len(value) > 10_000:
             raise RuntimeError("database result array has too many values")
         return sum(cls._bounded_cell_size(item, depth=depth + 1) for item in value)
@@ -518,7 +518,9 @@ class UniversalConnector:
             raise ValueError("MongoDB filter value is unsupported")
 
     @classmethod
-    def _validate_mongo_filter_mapping(cls, value: Mapping, depth: int) -> None:
+    def _validate_mongo_filter_mapping(
+        cls, value: Mapping[str, Any], depth: int
+    ) -> None:
         if len(value) > 1_000:
             raise ValueError("MongoDB filter has too many fields")
         for raw_key, item in value.items():
@@ -530,7 +532,7 @@ class UniversalConnector:
             cls._validate_mongo_filter(item, depth=depth + 1)
 
     @classmethod
-    def _validate_mongo_filter_sequence(cls, value: Sequence, depth: int) -> None:
+    def _validate_mongo_filter_sequence(cls, value: Sequence[Any], depth: int) -> None:
         if len(value) > 1_000:
             raise ValueError("MongoDB filter has too many values")
         for item in value:

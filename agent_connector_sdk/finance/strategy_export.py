@@ -268,7 +268,7 @@ class StrategyExporter:
         results = exporter.export_all(spec)
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._exporters: dict[ExportPlatform, Any] = {
             ExportPlatform.PINE_SCRIPT_V6: PineScriptExporter(),
             ExportPlatform.MQL5: MQL5Exporter(),
@@ -285,7 +285,8 @@ class StrategyExporter:
                 filename="",
                 warnings=[f"Unsupported platform: {platform}"],
             )
-        return exporter.export(spec)
+        result: ExportResult = exporter.export(spec)
+        return result
 
     def export_all(self, spec: StrategySpec) -> list[ExportResult]:
         """Export to all supported platforms."""

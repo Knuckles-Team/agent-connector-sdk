@@ -10,9 +10,11 @@ from __future__ import annotations
 
 import hashlib
 import logging
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +45,7 @@ class PaymentChallenge:
     chain: str = "base"
     challenge_id: str = ""
     expires_at: str = ""
-    metadata: dict = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -63,7 +65,7 @@ class PaymentProof:
     signed_at: str = ""
     proof_hash: str = ""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.signed_at:
             self.signed_at = datetime.now(UTC).isoformat()
         if not self.proof_hash:
@@ -83,7 +85,7 @@ class PaymentRecord:
     completed_at: str = ""
     error_message: str = ""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.created_at:
             self.created_at = datetime.now(UTC).isoformat()
 
@@ -158,17 +160,17 @@ class PaymentGuard:
 
         return True, "Approved"
 
-    def record_spend(self, amount: float):
+    def record_spend(self, amount: float) -> None:
         """Record a completed payment for budget tracking."""
         self._daily_spend += amount
         self._monthly_spend += amount
         self._payment_count += 1
 
-    def reset_daily(self):
+    def reset_daily(self) -> None:
         """Reset daily spend counter (call at midnight)."""
         self._daily_spend = 0.0
 
-    def reset_monthly(self):
+    def reset_monthly(self) -> None:
         """Reset monthly spend counter (call at month start)."""
         self._monthly_spend = 0.0
 
@@ -203,7 +205,9 @@ class X402PaymentClient:
         self._records: list[PaymentRecord] = []
         self._payment_counter = 0
 
-    def handle_402(self, response_headers: dict, resource_url: str) -> PaymentChallenge:
+    def handle_402(
+        self, response_headers: Mapping[str, str], resource_url: str
+    ) -> PaymentChallenge:
         """
         Parse an HTTP 402 response into a PaymentChallenge.
 

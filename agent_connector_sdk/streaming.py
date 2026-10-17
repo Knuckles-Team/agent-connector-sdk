@@ -30,7 +30,7 @@ class StreamMessage:
     source: str = ""
     sequence: int = 0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.timestamp:
             self.timestamp = datetime.now(UTC).isoformat()
 
@@ -72,9 +72,9 @@ class CallbackSubscriber(StreamSubscriber):
 
     def __init__(
         self,
-        on_message_fn: Callable | None = None,
-        on_error_fn: Callable | None = None,
-        on_disconnect_fn: Callable | None = None,
+        on_message_fn: Callable[[StreamMessage], Any] | None = None,
+        on_error_fn: Callable[[Exception], Any] | None = None,
+        on_disconnect_fn: Callable[[], Any] | None = None,
     ):
         self._on_message = on_message_fn
         self._on_error = on_error_fn
@@ -113,7 +113,7 @@ class StreamBus:
         await bus.publish(StreamMessage(topic="market.AAPL.trades", data={...}))
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._subscribers: dict[str, list[StreamSubscriber]] = defaultdict(list)
         self._sequence: int = 0
         self._running = False

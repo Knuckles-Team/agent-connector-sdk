@@ -6,6 +6,7 @@ Ticks are published by symbol and aggregated into live OHLCV bars.
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
@@ -26,7 +27,7 @@ class Tick:
     ask: float = 0.0
     timestamp: str = ""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.timestamp:
             self.timestamp = datetime.now(UTC).isoformat()
 
@@ -151,13 +152,15 @@ class MarketFeedBus:
         self._alerts: list[dict[str, Any]] = []
         self._tick_count = 0
 
-    def subscribe_ticks(self, symbol: str, callback) -> None:
+    def subscribe_ticks(self, symbol: str, callback: Callable[[Any], Any]) -> None:
         """Subscribe to real-time ticks for a symbol."""
         topic = f"market.{symbol}.ticks"
         sub = CallbackSubscriber(on_message_fn=callback)
         self.bus.subscribe(topic, sub)
 
-    def subscribe_bars(self, symbol: str, bar_size: int, callback) -> None:
+    def subscribe_bars(
+        self, symbol: str, bar_size: int, callback: Callable[[Any], Any]
+    ) -> None:
         """Subscribe to aggregated bars for a symbol."""
         topic = f"market.{symbol}.bars.{bar_size}s"
         sub = CallbackSubscriber(on_message_fn=callback)
@@ -167,7 +170,11 @@ class MarketFeedBus:
             self._aggregators[symbol] = TickAggregator(symbol, bar_size)
 
     def add_price_alert(
-        self, symbol: str, price: float, direction: str = "above", callback=None
+        self,
+        symbol: str,
+        price: float,
+        direction: str = "above",
+        callback: Callable[[Any], Any] | None = None,
     ) -> None:
         """Set a price alert that triggers when price crosses a level."""
         self._alerts.append(
