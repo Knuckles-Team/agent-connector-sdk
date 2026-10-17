@@ -85,14 +85,16 @@ def get_mcp_config_path() -> str | None:
 # or ``$XDG_CONFIG_HOME/graph-os``. For one release, a file that is absent
 # there is read from the legacy agent-utilities location
 # (``AGENT_UTILITIES_CONFIG_DIR`` or ``$XDG_CONFIG_HOME/agent-utilities``),
-# and a single deprecation warning names both paths.
+# and a single deprecation warning names both paths. An explicit
+# ``AGENT_UTILITIES_CONFIG_DIR`` with no ``GRAPH_OS_CONFIG_DIR`` is still
+# honoured as the directory (with the same warning) for that release.
 
 PLATFORM_CONFIG_DIR_SETTING = "GRAPH_OS_CONFIG_DIR"
 LEGACY_PLATFORM_CONFIG_DIR_SETTING = "AGENT_UTILITIES_CONFIG_DIR"
 PLATFORM_APP_DIR = "graph-os"
 LEGACY_PLATFORM_APP_DIR = "agent-utilities"
 
-_logger = logging.getLogger(__name__)
+_platform_logger = logging.getLogger(__name__)
 _legacy_warned = False
 
 
@@ -100,35 +102,36 @@ def _config_home() -> Path:
     return Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config")
 
 
-def _dir_from(setting_name: str, app_dir: str) -> Path:
-    raw = os.environ.get(setting_name)
-    return Path(raw).expanduser() if raw else _config_home() / app_dir
+def _env_dir(name: str) -> Path | None:
+    raw = os.environ.get(name)
+    return Path(raw).expanduser() if raw else None
 
 
 def preferred_platform_config_dir() -> Path:
     """``GRAPH_OS_CONFIG_DIR`` or ``$XDG_CONFIG_HOME/graph-os`` (no fallback)."""
-    return _dir_from(PLATFORM_CONFIG_DIR_SETTING, PLATFORM_APP_DIR)
+    return _env_dir(PLATFORM_CONFIG_DIR_SETTING) or _config_home() / PLATFORM_APP_DIR
 
 
 def legacy_platform_config_dir() -> Path:
     """``AGENT_UTILITIES_CONFIG_DIR`` or ``$XDG_CONFIG_HOME/agent-utilities``."""
-    return _dir_from(LEGACY_PLATFORM_CONFIG_DIR_SETTING, LEGACY_PLATFORM_APP_DIR)
+    return (
+        _env_dir(LEGACY_PLATFORM_CONFIG_DIR_SETTING)
+        or _config_home() / LEGACY_PLATFORM_APP_DIR
+    )
 
 
-def _warn_legacy(new: Path, old: Path) -> None:
+def _warn_legacy(legacy: Path) -> None:
     global _legacy_warned
     if _legacy_warned:
         return
     _legacy_warned = True
-    _logger.warning(
-        "Deprecated config location: reading %s because %s has no such file. "
-        "Move the platform configuration to %s (or set %s); the %s fallback "
-        "is removed in the next release.",
-        old,
-        new,
+    _platform_logger.warning(
+        "Deprecated config location %s is in use; move the platform "
+        "configuration to %s (or set %s). The agent-utilities fallback is "
+        "removed in the next release.",
+        legacy,
         preferred_platform_config_dir(),
         PLATFORM_CONFIG_DIR_SETTING,
-        LEGACY_PLATFORM_APP_DIR,
     )
 
 
@@ -138,13 +141,19 @@ def platform_config_file(name: str) -> Path:
     Returns the file under :func:`preferred_platform_config_dir` when it exists
     there; otherwise the legacy file when that exists (logging the one-time
     deprecation warning); otherwise the preferred path, for a writer to create.
+    An explicit legacy ``AGENT_UTILITIES_CONFIG_DIR`` without
+    ``GRAPH_OS_CONFIG_DIR`` resolves inside that directory.
     """
+    explicit_legacy = _env_dir(LEGACY_PLATFORM_CONFIG_DIR_SETTING)
+    if explicit_legacy and not _env_dir(PLATFORM_CONFIG_DIR_SETTING):
+        _warn_legacy(explicit_legacy)
+        return explicit_legacy / name
     preferred = preferred_platform_config_dir() / name
     if preferred.exists():
         return preferred
     legacy = legacy_platform_config_dir() / name
     if legacy.exists():
-        _warn_legacy(preferred, legacy)
+        _warn_legacy(legacy)
         return legacy
     return preferred
 
