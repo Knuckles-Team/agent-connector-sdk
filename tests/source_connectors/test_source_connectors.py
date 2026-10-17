@@ -43,6 +43,7 @@ ATOM = """<?xml version="1.0" encoding="utf-8"?>
 
 pytestmark = [
     pytest.mark.spec("SDK-SOURCE-INGEST-R800"),
+    pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.5"),
     pytest.mark.spec("SDK-SOURCE-INGEST-R801"),
 ]
 
