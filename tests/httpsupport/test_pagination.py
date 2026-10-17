@@ -14,6 +14,7 @@ from agent_connector_sdk.httpsupport.pagination import (
 )
 
 pytestmark = [
+    pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.10"),
     pytest.mark.spec("SDK-SOURCE-INGEST-R802"),
 ]
 

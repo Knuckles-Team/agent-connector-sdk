@@ -24,6 +24,7 @@ from agent_connector_sdk.httpsupport.rate_limit import (
 from agent_connector_sdk.httpsupport.redaction import REDACTED, LogRedactor, redact_text
 
 pytestmark = [
+    pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.10"),
     pytest.mark.spec("SDK-SOURCE-INGEST-R802"),
 ]
 
