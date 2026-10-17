@@ -1315,7 +1315,7 @@
       "title": "Connector manifest release integrity",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "95e3ce1e407d"
+        "e3586dde3dac"
       ],
       "verified_by": [
         "tests/test_manifest_integrity.py:3"
@@ -2148,7 +2148,7 @@
       "title": "Declared semantic coverage refusal",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "fd2dbd615198"
+        "91301b15d255"
       ],
       "verified_by": [
         "tests/test_certify_declared_coverage.py:15"
