@@ -158,6 +158,7 @@ public_modules = [
     "agent_connector_sdk.adapters.mcp_tool",
     "agent_connector_sdk.adapters.web_fetch",
     "agent_connector_sdk.certify.cli",
+    "agent_connector_sdk.certify.declared_coverage",
     "agent_connector_sdk.artifacts.pack",
     "agent_connector_sdk.auth.client_credentials",
     "agent_connector_sdk.auth.delegation",
