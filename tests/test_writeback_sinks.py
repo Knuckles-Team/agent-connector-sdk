@@ -434,3 +434,84 @@ def test_spec_link_dry_run_live_refusal_and_pull(monkeypatch):
         "plane", user="u-alice", project_id="p", client=FakePlane()
     )
     assert [i["id"] for i in pulled["items"]] == ["w1"]
+
+
+# --- the sink registry: every vendor sink is registered under its domain ---
+
+from agent_connector_sdk.writeback_sinks import (  # noqa: E402
+    WritebackSink,
+    get_sink,
+    list_sinks,
+)
+from agent_connector_sdk.writeback_sinks.sinks import (  # noqa: E402
+    ansible,
+    archimate,
+    capability,
+    ciso_assistant,
+    egeria,
+    emerald,
+    erpnext,
+    home_assistant,
+    identity,
+    issue_tracker,
+    leanix,
+    legal,
+    mealie,
+    nextcloud,
+    ops,
+    process,
+    salesforce,
+    servicenow,
+    twenty,
+    wger,
+)
+
+VENDOR_SINKS = (
+    ansible.AnsibleSink,
+    archimate.ArchimateSink,
+    capability.CapabilitySink,
+    ciso_assistant.CisoAssistantSink,
+    egeria.EgeriaSink,
+    emerald.EmeraldSink,
+    erpnext.ErpNextSink,
+    home_assistant.HomeAssistantSink,
+    identity.OktaSink,
+    identity.KeycloakSink,
+    issue_tracker.GitLabIssueSink,
+    issue_tracker.GitHubIssueSink,
+    issue_tracker.PlaneIssueSink,
+    issue_tracker.JiraIssueSink,
+    issue_tracker.JiraTransitionSink,
+    issue_tracker.PlaneStateSink,
+    leanix.LeanixSink,
+    legal.LegalSink,
+    mealie.MealieSink,
+    nextcloud.NextcloudSink,
+    ops.TechnitiumSink,
+    ops.CaddySink,
+    ops.UptimeKumaSink,
+    ops.KafkaSink,
+    ops.PortainerSink,
+    ops.LgtmSink,
+    process.ProcessSink,
+    salesforce.SalesforceSink,
+    servicenow.ServiceNowSink,
+    twenty.TwentySink,
+    wger.WgerSink,
+)
+
+
+@pytest.mark.parametrize("sink_class", VENDOR_SINKS, ids=lambda c: c.__name__)
+def test_every_vendor_sink_is_registered_under_its_domain(sink_class):
+    assert sink_class.domain and sink_class.domain == sink_class.domain.lower()
+    assert sink_class.enable_flag and sink_class.enable_flag.isupper()
+    registered = get_sink(f"  {sink_class.domain.upper()} ")
+    assert type(registered) is sink_class
+    assert isinstance(registered, WritebackSink)
+    assert sink_class.domain in list_sinks()
+
+
+def test_registry_domains_are_unique_per_sink():
+    domains = [sink_class.domain for sink_class in VENDOR_SINKS]
+    assert len(domains) == len(set(domains))
+    assert get_sink("no-such-target") is None
