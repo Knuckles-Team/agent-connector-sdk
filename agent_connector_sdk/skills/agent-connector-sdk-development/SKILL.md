@@ -25,6 +25,15 @@ to the owning connector, `epistemic-graph`, and the agent control plane.
 `agent-utilities` is not a dependency of this package; keep dependency
 direction enforceable by the `phase-direction` gate.
 
+## Step 0: route the feature
+
+Route the feature before any code.
+
+1. Read the [ecosystem boundaries standard](https://github.com/Knuckles-Team/pipelines/blob/main/reference/ecosystem-boundaries.md).
+2. Split the feature into parts with its routing procedure.
+3. If a part is not owned by agent-connector-sdk, stop work on that part. Write its row in the owner's `specs/`, then link it by ID.
+4. Continue here only with the parts that agent-connector-sdk owns.
+
 ## Rapid delivery: the 5-minute contract
 
 Specs are already designed. The work is implementation, delivered in very small, continuously landed slices.
