@@ -239,7 +239,7 @@ Record host and SDK revisions, fixture seed, manifest and census digests, proces
 The host records its own decision; the SDK export receipt supplies no startup authority.
 Missing host or AU producer implementation keeps the corresponding served acceptance pending.
 
-## Connector runtime utilities moved from agent-utilities (R014.2-R014.18)
+## Connector runtime utilities moved from agent-utilities (R014.2-R014.23)
 
 - `SDK-CONNECTOR-CONTROL-R014.2`: `tests/test_connector_runtime_from_au.py::test_r014_2_file_lock_exclusive_and_nonblocking` holds a lock, proves a second descriptor is refused, then acquires it after release.
 - `SDK-CONNECTOR-CONTROL-R014.3`: `test_r014_3_tool_version_stamps_async_tool`.
@@ -260,5 +260,5 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R014.18`: `tests/test_served_security_and_provider_profile.py::test_r014_18_*` cover refusal without auth or audience, the middleware's identity/tenant/ACL/session cases, default application by `create_mcp_server`, the logged override and the static tenant claim.
 - `SDK-CONNECTOR-CONTROL-R014.19`: `tests/test_served_security_and_provider_profile.py::test_r014_19_*` cover resolution, close, every failure code and every invalid document.
 - `SDK-CONNECTOR-CONTROL-R014.20`: `tests/test_served_security_and_provider_profile.py::test_r014_20_entry_point_groups_use_the_sdk_namespace`.
-- `SDK-CONNECTOR-CONTROL-R014.17`: `tests/test_embeddings.py` covers OpenAI and Ollama requests, sub-batching, bearer auth from a reference, body non-disclosure, invalid settings, caching per endpoint and the DNS-pinned no-redirect client.
-- `SDK-CONNECTOR-CONTROL-R014.18`: `tests/test_compute_adapter.py` covers SPARQL algorithm selection and the served run, refusal of unbound analyses and unserved methods, IRI and client-path validation, unavailable endpoint and the compute-only scopes.
+- `SDK-CONNECTOR-CONTROL-R014.22`: `tests/test_embeddings.py` covers OpenAI and Ollama requests, sub-batching, bearer auth from a reference, body non-disclosure, invalid settings, caching per endpoint and the DNS-pinned no-redirect client.
+- `SDK-CONNECTOR-CONTROL-R014.23`: `tests/test_compute_adapter.py` covers SPARQL algorithm selection and the served run, refusal of unbound analyses and unserved methods, IRI and client-path validation, unavailable endpoint and the compute-only scopes.

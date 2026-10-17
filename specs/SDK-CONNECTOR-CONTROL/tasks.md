@@ -27,8 +27,8 @@
 - [x] **R014.18:** Default fail-closed served security profile (`apply_served_security_profile`) for every connector MCP server.
 - [x] **R014.19:** Selected-provider credential profile in `agent_connector_sdk.credentials.provider_profile`.
 - [x] **R014.20:** Entry-point groups renamed to `agent_connector_sdk.<x>`.
-- [x] **R014.17:** External embedding API client (`agent_connector_sdk.embeddings`). Moved from agent-utilities so connectors depend only on the SDK.
-- [x] **R014.18:** Typed epistemic-graph compute adapter with ontology-driven algorithm selection (`agent_connector_sdk.compute`). Replaces connector-local finance computation imported from agent-utilities.
+- [x] **R014.22:** External embedding API client (`agent_connector_sdk.embeddings`). Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.23:** Typed epistemic-graph compute adapter with ontology-driven algorithm selection (`agent_connector_sdk.compute`). Replaces connector-local finance computation imported from agent-utilities.
 - [ ] **R015.1:** Add `scan_for_duplicate_manifest_or_certify_definitions` to `agent_connector_sdk.testing.duplicate_symbol_scan` — flags a connector package that locally defines `ConnectorManifest`/`CertificationReport`/`certify_connector` instead of importing them from the SDK.
   - [x] Port `agent_utilities.security.entitlements.identity_scoped_resources` to `agent_connector_sdk.entitlements`, over the SDK's own `identity.ActorContext` (SDK-CONNECTOR-CONTROL-R025). A fleet consumer (`vector-mcp`, `documentdb-mcp`, `sql-mcp`, `dockerhub-api`, `keycloak-agent`, `openbao-mcp`, `portainer-agent`, `tunnel-manager`, `systems-manager`, `container-manager-mcp` and others) can now swap its import with no call-site change.
 - [ ] **R020.1:** Extend `scan_many_packages` to inventory JSON tag loaders and prove parity across source and replacement registration.
