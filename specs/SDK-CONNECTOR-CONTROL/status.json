@@ -205,7 +205,8 @@
     "SDK-CONNECTOR-CONTROL-R014.13",
     "SDK-CONNECTOR-CONTROL-R014.14",
     "SDK-CONNECTOR-CONTROL-R014.15",
-    "SDK-CONNECTOR-CONTROL-R014.16"
+    "SDK-CONNECTOR-CONTROL-R014.16",
+    "SDK-CONNECTOR-CONTROL-R014.17"
   ],
   "requirements": [
     {
@@ -392,7 +393,8 @@
         "SDK-CONNECTOR-CONTROL-R014.13",
         "SDK-CONNECTOR-CONTROL-R014.14",
         "SDK-CONNECTOR-CONTROL-R014.15",
-        "SDK-CONNECTOR-CONTROL-R014.16"
+        "SDK-CONNECTOR-CONTROL-R014.16",
+        "SDK-CONNECTOR-CONTROL-R014.17"
       ]
     },
     {
@@ -2027,6 +2029,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.16",
       "title": "DNS-pinned egress on the governed client",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.17",
+      "title": "MCP-free base install",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
