@@ -532,3 +532,40 @@ Every connector ships one OWL/RDF ontology pack. The pack holds the domain ontol
 One typed `ConnectorPackDeclaration` per connector is the single source of truth. `connector_manifest.yml` and `ontology/mappings/source.yaml` are generated views of it. Call path: certification command → `ConnectorPackDeclaration` → `emit_pack_turtle` → engine `ShaclValidate` preflight → `build_connector_content_pack` (`agent_connector_sdk/artifacts/pack.py:159`) → `ConnectorPackClient` import → engine `ConnectorPack.Import`. A runtime domain ontology revision goes through the engine's `ImportOntology` operation (`EG-TYPED-PACKS-R103`).
 
 Current state: the SDK compiles manifest YAML into ontology classes only (`agent_connector_sdk/manifest/ontology_pack.py:190`). Mappings, keys, cursors, access, privacy and provenance stay in YAML and JSON. The SDK keeps a separate `ac:` access vocabulary that R067.2 retires. The tool fingerprint domain at `agent_connector_sdk/manifest/tool_schema.py:31` names another package; R067.3 replaces it.
+## SDK-CONNECTOR-CONTROL-R068 — connect-time contract resources
+
+References: [EG-TYPED-PACKS-R104](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/typed-packs-and-catalog/spec.md), [GRAPHOS-FLEET-R036](https://github.com/Knuckles-Team/graph-os/blob/main/specs/fleet-catalog-and-tools/spec.md), SDK-CONNECTOR-CONTROL-R019, SDK-CONNECTOR-CONTROL-R067
+
+Call path: connector start -> `register_connector_content` (`content.py:163`) -> `manifest://connector`, `ontology://`, `shapes://` and `seed://` resources -> graph-os multiplexer reads them on first connect.
+
+The SDK serves the resources and notifies on change. The engine validates and stores them. graph-os forwards changed resources.
+
+## SDK-CONNECTOR-CONTROL-R069 — connection-protocol transports
+
+References: [EG-FEDERATED-QUERY-R073.2](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/spec.md), [GRAPHOS-FLEET-R038](https://github.com/Knuckles-Team/graph-os/blob/main/specs/fleet-catalog-and-tools/spec.md), SDK-CONNECTOR-CONTROL-R014.17, SDK-CONNECTOR-CONTROL-R040, SDK-CONNECTOR-CONTROL-R041, SDK-CONNECTOR-CONTROL-R042, SDK-CONNECTOR-CONTROL-R043, SDK-CONNECTOR-CONTROL-R044
+
+One protocol stack has one implementation per role (`GRAPHOS-FLEET-R038`). The SDK owns connector client transports and connector server scaffolding. graph-os owns serving and the multiplexer client side.
+
+MCP and A2A have two roles each. MCP serving by a connector uses the SDK `[mcp]` extra (`SDK-CONNECTOR-CONTROL-R014.17`). MCP consuming by a connector wraps an external MCP server (`SDK-CONNECTOR-CONTROL-R040`). A2A consuming treats an external agent as a source (`SDK-CONNECTOR-CONTROL-R041`). A2A serving and MCP platform serving belong to graph-os.
+
+| Protocol | Authentication | Paging or streaming | Pushdown | Contract term | SDK transport |
+|---|---|---|---|---|---|
+| REST with OpenAPI | API key, OAuth 2.0, mutual TLS | cursor, offset, page | filter, project, sort, limit | `http_endpoint` | `agent_connector_sdk/http` |
+| GraphQL | bearer token, OAuth 2.0 | connection cursors | filter, project, limit | `graphql_query` | `agent_connector_sdk/mcp/graphql.py` |
+| gRPC | mutual TLS, bearer token | server streaming | filter, limit | `grpc_method` | to add |
+| OData | OAuth 2.0, basic | `$skip` and `$top` | filter, project, sort, limit, aggregate | `odata_entity_set` | to add |
+| SOAP with WSDL | WS-Security, basic | declared page elements | filter | `soap_operation` | to add |
+| JSON-RPC | bearer token | declared page parameters | filter | `jsonrpc_method` | to add |
+| MCP, consuming | OAuth 2.0, bearer token | result pages | filter, limit | `mcp_tool` | `agent_connector_sdk/transports/mcp.py`, `agent_connector_sdk/adapters/mcp_tool.py` |
+| A2A, consuming | OAuth 2.0, bearer token | task artifacts, streams | filter | `a2a_skill` | to add beside `agent_connector_sdk/ports/transport.py` |
+| SPARQL endpoint | basic, bearer token | bind-join batches | filter, project, join, limit, sort | `sparql_endpoint` | to add |
+| openCypher or Gremlin endpoint | basic, bearer token | result pages | filter, project, join, aggregate, limit | `graph_endpoint` | to add |
+| SQL through ODBC or JDBC, PostgreSQL wire, Arrow Flight SQL | password, mutual TLS, token | cursors, record batches | filter, project, join, aggregate, limit, time_range | `virtual_graph` | `SDK-CONNECTOR-CONTROL-R044` |
+| AMQP, MQTT, Kafka-protocol streams | SASL, mutual TLS | stream offsets | time_range | `stream_topic` | to add |
+| Change data capture | source credentials | change positions | time_range | `change_feed` | to add |
+| Webhooks | HMAC signature | pushed events | none | `webhook_event` | `agent_connector_sdk/adapters/event_feed.py` |
+| WebSocket and server-sent events | bearer token | stream frames | time_range | `event_stream` | to add |
+| HTTP object API, SFTP, WebDAV | access key, SSH key, basic | listing pages, range reads | filter, project | `file_store` | to add |
+| LDAP | simple bind, SASL | paged results control | filter, project, limit | `directory` | to add |
+| IMAP and SMTP | password, OAuth 2.0 | sequence ranges | filter, project, time_range | `mailbox` | to add |
+| CalDAV and CardDAV | basic, OAuth 2.0 | sync tokens | filter, project, time_range | `calendar_collection` | to add |
