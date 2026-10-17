@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R014.17: external embedding API client."""
+"""SDK-CONNECTOR-CONTROL-R014.22: external embedding API client."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from agent_connector_sdk.embeddings import (
     create_embedding_model,
 )
 
-pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.17")
+pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.22")
 
 
 @pytest.fixture(autouse=True)

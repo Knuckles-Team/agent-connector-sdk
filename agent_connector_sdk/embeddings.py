@@ -31,7 +31,6 @@ import math
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any
 
 import httpx
 

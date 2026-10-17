@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R014.18: typed epistemic-graph compute adapter."""
+"""SDK-CONNECTOR-CONTROL-R014.23: typed epistemic-graph compute adapter."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from agent_connector_sdk.compute import (
 )
 from agent_connector_sdk.ingest.engine import EngineSettings
 
-pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.18")
+pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.23")
 
 VOCAB = "http://knuckles.team/kg/quant#"
 ANALYSIS = "http://knuckles.team/kg/quant#SignalFusionAnalysis"
