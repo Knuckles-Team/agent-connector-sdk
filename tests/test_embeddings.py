@@ -76,11 +76,11 @@ def test_ollama_endpoint_and_missing_embeddings_refused(monkeypatch):
     model = create_embedding_model(
         provider="ollama",
         model="m",
-        base_url="https://ollama.internal",
+        base_url="https://ollama.example.test",
         transport=httpx.MockTransport(handler),
     )
     assert model.get_text_embedding("x") == [0.5]
-    assert calls[0] == "https://ollama.internal/api/embed"
+    assert calls[0] == "https://ollama.example.test/api/embed"
     with pytest.raises(ValueError, match="missing 'embeddings'"):
         model.get_text_embedding("y")
 
@@ -89,7 +89,7 @@ def test_http_error_never_echoes_body(monkeypatch):
     model = create_embedding_model(
         provider="ollama",
         model="m",
-        base_url="https://ollama.internal",
+        base_url="https://ollama.example.test",
         transport=httpx.MockTransport(
             lambda request: httpx.Response(400, text="secret request text")
         ),
@@ -135,9 +135,9 @@ def test_client_is_cached_per_resolved_endpoint(monkeypatch):
 
 
 def test_real_client_is_dns_pinned_without_redirects(monkeypatch):
-    monkeypatch.setenv("EMBEDDING_ALLOWED_PRIVATE_HOSTS", "ollama.lan")
+    monkeypatch.setenv("EMBEDDING_ALLOWED_PRIVATE_HOSTS", "ollama.example.test")
     model = create_embedding_model(
-        provider="ollama", model="m", base_url="https://ollama.lan"
+        provider="ollama", model="m", base_url="https://ollama.example.test"
     )
     client = model._client
     assert client.follow_redirects is False
