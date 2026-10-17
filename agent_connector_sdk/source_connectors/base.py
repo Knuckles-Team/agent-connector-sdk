@@ -57,26 +57,17 @@ __all__ = [
     "default_external_access",
 ]
 
-# Mandatory-control marking applied to a document whose connector could not
-# report a real ACL (CONCEPT:AU-P0-4 fail-closed connector permissions). No
-# actor holds ``marking:connector-unconfigured-acl`` by default, so
-# the Graph OS permission-sync consumer restricts the document to nobody until an
-# operator explicitly reviews it and grants the marking — the fail-closed
-# counterpart to a verified ``ExternalAccess.public()`` grant. Every supplied
-# descriptor now creates an explicit ACL — a quarantined document with
-# ``is_public=False`` and empty ``group_ids``/``user_emails`` would otherwise
-# register NO discretionary ACL at all (that consumer only builds one when
-# ``roles`` is non-empty) and silently fall through to a default-allow read
-# gate; the marking remains the mandatory quarantine control and never relies
-# on an absent-policy interpretation.
+# Mandatory marking for a document whose connector could not report a real
+# ACL. No actor holds it by default, so the graph service restricts the
+# document to nobody until an operator reviews it and grants the marking.
 CONNECTOR_UNCONFIGURED_MARKING = "connector-unconfigured-acl"
 
 
 class ExternalAccess(BaseModel):
     """The access-control facts a source reports for one document.
 
-    CONCEPT:AU-ECO.connector.external-permission-sync — the shape the Graph OS permission-sync consumer maps onto the
-    KG-2.46 permissioning model. Mirrors Onyx's ``ExternalAccess``: a document is
+    :func:`~agent_connector_sdk.adapters.document_sources.access_properties`
+    renders it as record properties the graph service enforces. Mirrors Onyx's ``ExternalAccess``: a document is
     either world-public, or readable by an explicit set of users / groups, and may
     additionally carry mandatory compartment markings.
 
@@ -273,9 +264,9 @@ class SlimConnector(BaseSourceConnector):
 class PermSyncConnector(SlimConnector):
     """A slim connector that also reports per-document external access.
 
-    CONCEPT:AU-ECO.connector.external-permission-sync — Onyx ``SlimConnectorWithPermSync``. ``fetch_access`` yields
-    ``(document_id, ExternalAccess)`` pairs consumed by
-    the Graph OS permission-sync consumer to mirror source ACLs into KG-2.46.
+    ``fetch_access`` yields ``(document_id, ExternalAccess)`` pairs; their
+    :func:`~agent_connector_sdk.adapters.document_sources.access_properties`
+    carry the source ACL to the graph service.
     """
 
     @abc.abstractmethod

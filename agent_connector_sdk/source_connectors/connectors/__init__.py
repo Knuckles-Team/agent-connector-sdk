@@ -1,16 +1,21 @@
-"""Built-in document-source connectors (CONCEPT:AU-ECO.connector.document-source-framework).
+"""Built-in document-source connectors.
 
-Each module in this package registers its connector via the ``@register_source``
-decorator (CONCEPT:AU-ECO.connector.factory-ingestion-adaptor). They are imported by
-:func:`agent_connector_sdk.source_connectors.registry.discover`, which walks
-this package so the decorators run on the live ingestion path. Importing this
-package directly does **not** import the submodules (discovery is explicit) — this
-keeps connector heavy-deps lazy.
+Each module registers its connector with ``@register_source``.
+:func:`agent_connector_sdk.source_connectors.registry.discover` imports every
+module here so the decorators run; importing this package alone imports no
+submodule, so heavy optional dependencies stay lazy.
 
-Reference connectors:
-  * :mod:`web` — recursive same-domain crawler (``web``).
-  * :mod:`rest` — paginated JSON endpoint (``rest``).
-  * :mod:`rss` — RSS and Atom feeds (``rss``).
-  * :mod:`arxiv` — arXiv category feeds (``arxiv``).
-  * :mod:`package_manifest` — package presets for the connector fleet.
+* :mod:`web`: same-domain crawler (``web``).
+* :mod:`rest`: paginated JSON endpoint (``rest``).
+* :mod:`rss`: syndication feeds (``rss``, ``feeds`` extra).
+* :mod:`arxiv`: paper metadata (``arxiv``).
+* :mod:`database`: rows of one read-only query (``database``, ``db`` extra).
+* :mod:`graphql_document`: secret-profiled GraphQL responses
+  (``graphql_document``, ``graphql`` extra).
+* :mod:`mcp_package`: a connector package's MCP tool (``mcp``, ``mcp`` extra).
+* :mod:`package_manifest`: the package preset catalog.
+
+Filesystem and git-markdown corpora are
+:mod:`agent_connector_sdk.adapters.document_sources`; declarative MCP-tool
+record listing is :mod:`agent_connector_sdk.adapters.mcp_tool`.
 """

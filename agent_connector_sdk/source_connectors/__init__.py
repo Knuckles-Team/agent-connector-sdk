@@ -3,7 +3,8 @@
 Onyx-parity document ingestion bolted onto agent-utilities' semantic core: a
 ``load`` / ``poll`` / ``slim`` connector abstraction (:mod:`base`), resumable
 checkpoints (:mod:`checkpoint`, ECO-4.26), a self-registering factory
-(:mod:`registry`, ECO-4.27), and reference connectors under
+(:mod:`registry`, ECO-4.27), access descriptors rendered as record
+properties (:func:`access_properties`), and reference connectors under
 :mod:`connectors` (web/filesystem/rest + the agent-package fleet adapter, ECO-4.29).
 
 Documents enter the Knowledge Graph through the ``CONNECTOR`` ingestion adaptor,
@@ -44,9 +45,25 @@ __all__ = [
     "SlimConnector",
     "SlimDocument",
     "SourceDocument",
+    "access_properties",
     "build_connector",
     "discover",
     "get_connector_class",
     "list_sources",
     "register_source",
 ]
+
+
+def __getattr__(name: str):
+    """Resolve :func:`access_properties` lazily.
+
+    A connector reports each document's :class:`ExternalAccess`;
+    :func:`~agent_connector_sdk.adapters.document_sources.access_properties`
+    renders it as the record properties epistemic-graph enforces. The ACL
+    itself is written by the graph service, not by this package.
+    """
+    if name == "access_properties":
+        from agent_connector_sdk.adapters.document_sources import access_properties
+
+        return access_properties
+    raise AttributeError(name)

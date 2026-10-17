@@ -48,13 +48,6 @@ pytestmark = [
 ]
 
 
-@pytest.fixture(autouse=True)
-def _open_gate():
-    set_activation_gate(lambda _source: True)
-    yield
-    set_activation_gate(None)
-
-
 def test_registry_lists_builtin_sources_and_rejects_unknown():
     assert {"web", "rest", "rss", "arxiv"} <= set(list_sources())
     with pytest.raises(KeyError, match="Available"):
