@@ -10,6 +10,7 @@ from urllib.parse import urlsplit
 
 import httpx
 
+from agent_connector_sdk.http.egress import normalize_private_hosts
 from agent_connector_sdk.http.redaction import is_sensitive_name
 from agent_connector_sdk.http.retry import RetryPolicy
 from agent_connector_sdk.tls.profile import ResolvedTLSProfile
@@ -68,6 +69,16 @@ class HttpClientOptions:
         headers: Default headers; credential-bearing names are rejected.
         limits: Connection pool limits.
         allow_plaintext: Permit ``http://`` to a non-loopback host.
+        pin_egress: Resolve every request once, refuse destinations outside the
+            public boundary, dial only the resolved address (``Host``/SNI kept)
+            and require the connected peer to match it. Off by default, as in
+            agent-utilities; it forbids proxies and redirects.
+        allowed_private_hosts: Exact hostnames or IP literals that may resolve
+            into private space (RFC 1918, RFC 6598, ULA, loopback); needs
+            ``pin_egress``.
+        allow_loopback: Permit loopback destinations under ``pin_egress``.
+        verify_pinned_peer: Check the connected peer against the pin; disable
+            only for an injected in-process test transport.
 
     Raises:
         ValueError: on construction, when any of the rules above is broken.
@@ -81,6 +92,10 @@ class HttpClientOptions:
     headers: Mapping[str, str] = field(default_factory=dict)
     limits: httpx.Limits | None = None
     allow_plaintext: bool = False
+    pin_egress: bool = False
+    allowed_private_hosts: tuple[str, ...] = ()
+    allow_loopback: bool = False
+    verify_pinned_peer: bool = True
 
     def __post_init__(self) -> None:
         credential_headers = any(is_sensitive_name(name) for name in self.headers)
@@ -91,7 +106,19 @@ class HttpClientOptions:
             if credential_headers
             else None,
             _plaintext_problem(self.base_url, self.allow_plaintext),
+            self._egress_problem(),
         )
         problem = next((item for item in problems if item), None)
         if problem is not None:
             raise ValueError(problem)
+
+    def _egress_problem(self) -> str | None:
+        try:
+            normalize_private_hosts(self.allowed_private_hosts)
+        except ValueError as exc:
+            return str(exc)
+        if (self.allowed_private_hosts or self.allow_loopback) and not self.pin_egress:
+            return "allowed_private_hosts and allow_loopback require pin_egress"
+        if self.pin_egress and self.tls is not None and self.tls.proxy_url is not None:
+            return "pin_egress does not accept a proxy"
+        return None

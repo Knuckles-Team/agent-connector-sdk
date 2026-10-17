@@ -561,3 +561,7 @@ Acceptance enters real SDK dispatch. It observes ordered partials, exact replay,
 
 EG and GraphOS owners supply their operation IDs. No runtime work is authorized in this definition slice.
 <!-- /spec-definition-patch -->
+
+## Ingest under an accepted contract (R017)
+
+The runner ingests only under the contract revision that the engine accepted (`EG-TYPED-PACKS-R101`). Call path: sync runner → `ingest_documents` (`agent_connector_sdk/adapters/document_sources.py:402`) → `submit` (`agent_connector_sdk/ingest/service.py:74`) → accepted-contract digest comparison → entity request creation (`agent_connector_sdk/ingest/request.py:85`) → engine `SourceIngest`. Nested source values become declared entities and relationships, not nested properties. The pack is generated from the connector's typed declaration (`SDK-CONNECTOR-CONTROL-R067`).

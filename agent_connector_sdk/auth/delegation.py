@@ -22,11 +22,12 @@ import threading
 from collections import OrderedDict
 from collections.abc import AsyncGenerator, Generator
 from dataclasses import dataclass
+from typing import Any
 
 import anyio
 import httpx
-from fastmcp.server.dependencies import get_access_token
 
+from agent_connector_sdk._extras import require_mcp_extra
 from agent_connector_sdk.auth.tokens import (
     AccessToken,
     TokenRequestError,
@@ -50,6 +51,8 @@ __all__ = [
     "current_user_identity",
     "current_user_token",
     "exchange_token",
+    "get_delegated_token",
+    "is_delegation_enabled",
 ]
 
 _EXCHANGE_GRANT = "urn:ietf:params:oauth:grant-type:token-exchange"
@@ -99,6 +102,14 @@ class DelegationSettings:
             audience=str(setting("AUDIENCE", "")),
             scopes=str(setting("DELEGATED_SCOPES", "api")),
         )
+
+
+def get_access_token() -> Any:
+    """The FastMCP access token of the request being served (needs the ``mcp`` extra)."""
+    require_mcp_extra("agent_connector_sdk.auth.delegation")
+    from fastmcp.server.dependencies import get_access_token as _get
+
+    return _get()
 
 
 def current_user_token() -> str | None:
@@ -216,3 +227,40 @@ class DelegatedTokenAuth(httpx.Auth):
             f"Bearer {await anyio.to_thread.run_sync(exchange)}"
         )
         yield request
+
+
+def is_delegation_enabled(settings: DelegationSettings | None = None) -> bool:
+    """Whether OIDC token delegation is on (SDK-CONNECTOR-CONTROL-R014.8)."""
+    return (settings or DelegationSettings.from_settings()).enabled
+
+
+def get_delegated_token(
+    *,
+    http_client: httpx.Client,
+    settings: DelegationSettings | None = None,
+    audience: str | None = None,
+    scopes: str | None = None,
+    resolver: CredentialResolver | None = None,
+) -> str:
+    """Exchange the served caller's token for a downstream token string.
+
+    Replaces agent-utilities ``mcp.delegated_auth.get_delegated_token``
+    (SDK-CONNECTOR-CONTROL-R014.8). Raises :class:`LoginRequiredError` when no
+    caller token is in context and :class:`TokenRequestError` on exchange failure.
+    """
+    base = settings or DelegationSettings.from_settings()
+    if audience is not None or scopes is not None:
+        base = DelegationSettings(
+            enabled=base.enabled,
+            token_endpoint=base.token_endpoint,
+            client_id=base.client_id,
+            client_secret_ref=base.client_secret_ref,
+            audience=audience if audience is not None else base.audience,
+            scopes=scopes if scopes is not None else base.scopes,
+        )
+    subject = current_user_token()
+    if not subject:
+        raise LoginRequiredError("no caller token to delegate")
+    return exchange_token(
+        base, subject_token=subject, http_client=http_client, resolver=resolver
+    ).value

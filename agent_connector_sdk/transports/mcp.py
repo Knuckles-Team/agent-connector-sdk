@@ -6,7 +6,12 @@ session collects the server's change notifications and can open a
 :class:`~agent_connector_sdk.ports.change_source.ChangeSource`).
 """
 
+# ruff: noqa: E402
 from __future__ import annotations
+
+from agent_connector_sdk._extras import require_mcp_extra
+
+require_mcp_extra("agent_connector_sdk.transports.mcp")
 
 from collections.abc import AsyncIterator
 from contextlib import AbstractAsyncContextManager, asynccontextmanager

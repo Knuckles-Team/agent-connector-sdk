@@ -31,10 +31,10 @@ from epistemic_graph.client import EpistemicGraphClient
 from agent_connector_sdk.config import setting
 from agent_connector_sdk.credentials.resolution import resolve_secret_reference
 from agent_connector_sdk.credentials.resolver import CredentialResolver
+from agent_connector_sdk.exposure import is_loopback_host
 from agent_connector_sdk.ingest.errors import IngestUnavailableError
 from agent_connector_sdk.ingest.service import KnowledgeIngest
 from agent_connector_sdk.ingest.transport import EpistemicGraphIngestTransport
-from agent_connector_sdk.mcp.exposure import is_loopback_host
 from agent_connector_sdk.tls.resolve import resolve_tls_profile
 
 __all__ = ["INGEST_SCOPES", "EngineSettings", "connect_ingest"]
@@ -82,15 +82,21 @@ class EngineSettings:
             ),
         )
 
-    def verified_context(self) -> dict[str, Any]:
-        """The request-context claims this service signs its requests with."""
+    def verified_context(
+        self, scopes: tuple[str, ...] = INGEST_SCOPES
+    ) -> dict[str, Any]:
+        """The request-context claims this service signs its requests with.
+
+        ``scopes`` defaults to the ingest scopes; the compute adapter asks for
+        its own (see :mod:`agent_connector_sdk.compute`).
+        """
         return {
             "principal": self.principal,
             "tenant": self.tenant,
             "audience": "epistemic-graph",
             "agent_id": self.principal,
             "roles": ["connector"],
-            "scopes": list(INGEST_SCOPES),
+            "scopes": list(scopes),
             "policy_version": self.policy_version,
             "delegation": [],
         }

@@ -58,8 +58,9 @@ repos:
   - id: codespell
     stages: [pre-push]
     # "opps" is the CRM-domain abbreviation for "opportunities" (Salesforce,
-    # Twenty vendor extractors), not a misspelling of "oops".
-    args: ["-L", "opps"]
+    # Twenty vendor extractors), not a misspelling of "oops". "te" is the HTTP
+    # TE request header and "nin" the MongoDB $nin operator.
+    args: ["-L", "opps,te,nin"]
 - repo: https://github.com/PyCQA/bandit
   rev: 92ae8b82fb422a639f0ed8d99e96cea769594e08 # 1.9.4
   hooks:
@@ -158,18 +159,18 @@ repos:
 - repo: local
   hooks:
   # ── Types, tests, build, docs (CI parity) ────────────────────────────────
-  # scripts/bootstrap.sh prepares these dependencies and the source-only EG
-  # contract; --no-sync prevents a hook from resolving/installing EG from Git.
+  # scripts/bootstrap.sh prepares these dependencies, EG included as its PyPI
+  # wheel; --no-sync keeps a hook from re-resolving the environment.
   - id: mypy
     stages: [pre-push]
     name: mypy (strict, project environment)
-    entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && PYTHONPATH=.ci/epistemic-graph uv run --frozen --no-sync python -m mypy agent_connector_sdk'
+    entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && uv run --frozen --no-sync python -m mypy agent_connector_sdk'
     language: system
     pass_filenames: false
     files: ^(agent_connector_sdk/.*\.py|pyproject\.toml|uv\.lock)$
   - id: pytest
     name: pytest (full suite)
-    entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && PYTHONPATH=.ci/epistemic-graph uv run --frozen --no-sync python -m pytest -q'
+    entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && uv run --frozen --no-sync python -m pytest -q'
     language: system
     pass_filenames: false
     always_run: true

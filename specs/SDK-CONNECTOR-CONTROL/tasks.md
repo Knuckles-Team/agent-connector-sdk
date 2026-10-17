@@ -8,6 +8,27 @@
   - [x] Run it against the live fleet: as of this scan, 2 of 74 `agents/*` packages (`market-data-mcp`, `world-reference-mcp`) carry zero `agent_utilities` imports, but both are scaffolded clean from their first commit, not migrated from an agent_utilities base — no batch (A-E, F-J, K-O, P-S, T-Z) has an actual migration commit yet. SDK-CONNECTOR-CONTROL-R009–R013 remain SPECIFIED; those migration commits land in each connector package's own repository.
 - [x] Retire duplicate toolkit/certification/config paths only after consumer import scans (SDK-CONNECTOR-CONTROL-R014, SDK-CONNECTOR-CONTROL-R015, SDK-CONNECTOR-CONTROL-R016).
 - [ ] **R014.1:** Add `scan_many_packages` to `agent_connector_sdk.testing.fleet_migration` — one call site that scans several package roots and keys each `PackageScanResult` by name, reused by R014's fleet census and every R009-R013 batch scan.
+- [x] **R014.2:** Cross-platform advisory file locks. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.3:** Tool version metadata. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.4:** Reference-only CLI secrets. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.5:** Operator base-URL egress guard. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.6:** PII sanitizer. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.7:** Connector state directories. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.8:** Delegated-token helpers. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.9:** Keyless credential sentinel. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.10:** Class-based API client base and auth strategies. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.11:** Browser OAuth (PKCE) login. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.12:** GraphQL schema discovery over a connector executor. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.13:** Per-record external access descriptor. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.14:** Connector env-var drift check. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.15:** External ACL sync into ingested documents. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.16:** DNS-pinned egress (`pin_egress`, `allowed_private_hosts`) on `HttpClientOptions`. Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.17:** MCP-free base install; `fastmcp` and `mcp` move to the `mcp` extra.
+- [x] **R014.18:** Default fail-closed served security profile (`apply_served_security_profile`) for every connector MCP server.
+- [x] **R014.19:** Selected-provider credential profile in `agent_connector_sdk.credentials.provider_profile`.
+- [x] **R014.20:** Entry-point groups renamed to `agent_connector_sdk.<x>`.
+- [x] **R014.22:** External embedding API client (`agent_connector_sdk.embeddings`). Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.23:** Typed epistemic-graph compute adapter with ontology-driven algorithm selection (`agent_connector_sdk.compute`). Replaces connector-local finance computation imported from agent-utilities.
 - [ ] **R015.1:** Add `scan_for_duplicate_manifest_or_certify_definitions` to `agent_connector_sdk.testing.duplicate_symbol_scan` — flags a connector package that locally defines `ConnectorManifest`/`CertificationReport`/`certify_connector` instead of importing them from the SDK.
   - [x] Port `agent_utilities.security.entitlements.identity_scoped_resources` to `agent_connector_sdk.entitlements`, over the SDK's own `identity.ActorContext` (SDK-CONNECTOR-CONTROL-R025). A fleet consumer (`vector-mcp`, `documentdb-mcp`, `sql-mcp`, `dockerhub-api`, `keycloak-agent`, `openbao-mcp`, `portainer-agent`, `tunnel-manager`, `systems-manager`, `container-manager-mcp` and others) can now swap its import with no call-site change.
 - [ ] **R020.1:** Extend `scan_many_packages` to inventory JSON tag loaders and prove parity across source and replacement registration.
@@ -180,3 +201,29 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.4:** Refuse invalid premises and incompatible strategies without partial application.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.5:** Record proposal load/headroom premises, applied instance count and loop closure.
 - [ ] **SDK-CONNECTOR-CONTROL-R066.6:** Verify EG generates proposal, GraphOS applies it and loop closes on receipt.
+
+## Connector packs authored as Turtle (R067)
+
+- [ ] **SDK-CONNECTOR-CONTROL-R067:** The SDK authors each connector pack as Turtle from typed declarations. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.1:** Model. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.2:** Behavior. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.3:** Behavior. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.4:** Behavior. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.5:** Wiring. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.6:** Refusal. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.7:** Evidence. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R067.8:** Hot-path proof. Pass the proving test in test-spec.md.
+- [ ] **SDK-CONNECTOR-CONTROL-R068 (rollup):** Each connector serves its seed graph and contract resources for first connect (rollup).
+- [ ] **SDK-CONNECTOR-CONTROL-R068.1 (Model):** Add the typed model.
+- [ ] **SDK-CONNECTOR-CONTROL-R068.2 (Behavior):** Implement the behavior.
+- [ ] **SDK-CONNECTOR-CONTROL-R068.3 (Wiring):** Wire the production call site.
+- [ ] **SDK-CONNECTOR-CONTROL-R068.4 (Refusal):** Add the typed refusals.
+- [ ] **SDK-CONNECTOR-CONTROL-R068.5 (Evidence):** Emit the evidence.
+- [ ] **SDK-CONNECTOR-CONTROL-R068.6 (Hot-path proof):** Add the served hot-path test.
+- [ ] **SDK-CONNECTOR-CONTROL-R069 (rollup):** Connector transports are declared contracts per connection protocol (rollup).
+- [ ] **SDK-CONNECTOR-CONTROL-R069.1 (Model):** Add the typed model.
+- [ ] **SDK-CONNECTOR-CONTROL-R069.2 (Behavior):** Implement the behavior.
+- [ ] **SDK-CONNECTOR-CONTROL-R069.3 (Wiring):** Wire the production call site.
+- [ ] **SDK-CONNECTOR-CONTROL-R069.4 (Refusal):** Add the typed refusals.
+- [ ] **SDK-CONNECTOR-CONTROL-R069.5 (Evidence):** Emit the evidence.
+- [ ] **SDK-CONNECTOR-CONTROL-R069.6 (Hot-path proof):** Add the served hot-path test.

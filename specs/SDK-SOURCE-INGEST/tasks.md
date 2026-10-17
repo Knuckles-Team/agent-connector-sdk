@@ -99,6 +99,12 @@
 - [ ] `SDK-SOURCE-INGEST-R005.35`: implement and prove evidence for citation-edge paper extraction.
 - [ ] `SDK-SOURCE-INGEST-R005.36`: implement and prove hot-path proof for citation-edge paper extraction.
 
+## Document sources moved from agent-utilities (R005.37-R005.39)
+
+- [x] `SDK-SOURCE-INGEST-R005.37`: git-markdown domain packs with lineage and diff-based re-ingest.
+- [x] `SDK-SOURCE-INGEST-R005.38`: filesystem document source with a live ingestion path.
+- [x] `SDK-SOURCE-INGEST-R005.39`: governed document ingest applies the permission envelope before embedding.
+
 ## Interchangeable enterprise operations
 
 - [ ] `SDK-SOURCE-INGEST-R006.32`: implement and prove model for interchangeable enterprise operations.
@@ -158,3 +164,13 @@
 - [ ] **SDK-SOURCE-INGEST-R014.5:** Persist redacted provenance bound to final transcript, provider revisions, authorization, and invocation receipt.
 - [ ] **SDK-SOURCE-INGEST-R014.6:** Test partial -> correction -> complete finalization with zero premature summary calls, plus independent local/hosted selection and refusals.
 <!-- /spec-definition-patch -->
+
+## Ingest under an accepted contract (R017)
+
+- [ ] **SDK-SOURCE-INGEST-R017:** Source ingest runs only under an engine-accepted ingest contract. Pass the proving test in test-spec.md.
+- [ ] **SDK-SOURCE-INGEST-R017.1:** Model. Pass the proving test in test-spec.md.
+- [ ] **SDK-SOURCE-INGEST-R017.2:** Behavior. Pass the proving test in test-spec.md.
+- [ ] **SDK-SOURCE-INGEST-R017.3:** Wiring. Pass the proving test in test-spec.md.
+- [ ] **SDK-SOURCE-INGEST-R017.4:** Refusal. Pass the proving test in test-spec.md.
+- [ ] **SDK-SOURCE-INGEST-R017.5:** Evidence. Pass the proving test in test-spec.md.
+- [ ] **SDK-SOURCE-INGEST-R017.6:** Hot-path proof. Pass the proving test in test-spec.md.

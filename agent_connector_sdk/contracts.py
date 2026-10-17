@@ -25,13 +25,16 @@ from pydantic import BaseModel, ConfigDict, Field
 from agent_connector_sdk.schema_drift import EvolutionPolicy, SchemaContract
 
 __all__ = [
+    "CONNECTOR_UNCONFIGURED_MARKING",
     "SEAM_SCHEMA_VERSION",
     "CapabilityDescriptor",
     "CapturedArtifact",
+    "ExternalAccess",
     "ReconciliationReport",
     "RecordPage",
     "ServerIdentity",
     "StreamDescriptor",
+    "default_external_access",
 ]
 
 #: Version of the SDK-side seam types. An epistemic-graph contract-generated
@@ -103,3 +106,41 @@ class CapturedArtifact(_Frozen):
     body: str
     server: ServerIdentity
     annotations: PackAnnotations = Field(default_factory=PackAnnotations)
+
+
+#: Marking on a record whose source reported no ACL. No principal holds it by
+#: default, so the record is readable by nobody until an operator grants it.
+CONNECTOR_UNCONFIGURED_MARKING = "connector-unconfigured-acl"
+
+
+class ExternalAccess(BaseModel):
+    """The access-control facts a source reports for one record (SDK-CONNECTOR-CONTROL-R014.13).
+
+    A per-record ACL a connector stamps onto an ingested payload: either
+    world-public, or readable by explicit users, groups or provider-neutral
+    read roles, optionally under mandatory compartment markings. Replaces
+    ``agent_utilities.protocols.source_connectors.base.ExternalAccess``.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    is_public: bool = False
+    user_emails: list[str] = Field(default_factory=list)
+    group_ids: list[str] = Field(default_factory=list)
+    read_roles: list[str] = Field(default_factory=list)
+    markings: list[str] = Field(default_factory=list)
+
+    @classmethod
+    def public(cls) -> ExternalAccess:
+        """A world-readable descriptor."""
+        return cls(is_public=True)
+
+    @classmethod
+    def quarantined(cls) -> ExternalAccess:
+        """The fail-closed descriptor: no principals, the unconfigured marking."""
+        return cls(is_public=False, markings=[CONNECTOR_UNCONFIGURED_MARKING])
+
+
+def default_external_access() -> ExternalAccess:
+    """The descriptor for a source that reports no ACL: never public."""
+    return ExternalAccess.quarantined()

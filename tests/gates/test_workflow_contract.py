@@ -13,6 +13,7 @@ checked against `main` instead of a commit digest.
 import re
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 from typing import Any
 
@@ -22,7 +23,6 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 GATES = ROOT / ".github" / "workflows" / "gates.yml"
-GATES_SKIP = ROOT / ".github" / "workflows" / "gates-skip.yml"
 BUILD = ROOT / ".github" / "workflows" / "build.yml"
 CI_SETUP = ROOT / "scripts" / "ci_setup.sh"
 PAGES = ROOT / ".github" / "workflows" / "pages.yml"
@@ -90,13 +90,15 @@ def test_gates_trigger_standard_and_cancel_superseded_runs() -> None:
     triggers = workflow[True]
     ignore = ["specs/**", "docs/**", "**/*.md", "plans/**", "LICENSE"]
 
-    assert triggers["pull_request"]["paths-ignore"] == ignore
+    # Pull requests always run the one `gates / gates` check; the job detects a
+    # docs-only diff itself, so no same-named skip companion exists.
+    assert triggers["pull_request"] is None
+    assert not (GATES.parent / "gates-skip.yml").exists()
+    patterns = workflow["jobs"]["gates"]["with"]["docs-only-paths"].split()
+    assert patterns == ["specs/*", "docs/*", "*.md", "plans/*", "LICENSE"]
     assert triggers["push"]["paths-ignore"] == ignore
     assert triggers["push"]["branches"] == ["main"]
     assert workflow["concurrency"]["cancel-in-progress"] is True
-    skip = _yaml(GATES_SKIP)
-    assert skip[True]["pull_request"]["paths"] == ignore
-    assert skip["jobs"]["gates"]["name"] == "gates / gates"
 
 
 def test_release_publishes_only_for_a_tag_or_dispatch() -> None:
@@ -122,20 +124,31 @@ def test_ci_setup_bootstraps_the_contract_and_identity_catalog() -> None:
     script = CI_SETUP.read_text(encoding="utf-8")
 
     assert "scripts/bootstrap.sh" in script
-    assert "PYTHONPATH=.ci/epistemic-graph" in script
-    assert "epistemic_graph.generated.source_ingestion" in script
+    assert "PYTHONPATH" not in script
+    assert ".ci/epistemic-graph" not in script
     assert "PROHIBITED_IDENTITY_CATALOG" in script
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_bootstrap_and_release_ci_preserve_source_only_eg_contract() -> None:
+def test_bootstrap_installs_eg_from_its_pypi_wheel_only() -> None:
     bootstrap = BOOTSTRAP.read_text(encoding="utf-8")
+    contract = CONTRACT.read_text(encoding="utf-8")
+    assert "uv sync --frozen" in bootstrap
     assert "bash scripts/bootstrap_epistemic_graph_contract.sh" in bootstrap
-    assert "--no-install-package epistemic-graph" in bootstrap
-    assert "_epistemic_graph_contract.pth" in bootstrap
+    for text in (bootstrap, contract, PRE_COMMIT.read_text(encoding="utf-8")):
+        assert "--no-install-package epistemic-graph" not in text
+        assert ".ci/epistemic-graph" not in text
+        assert "PYTHONPATH=" not in text
+    assert "epistemic_graph.generated.source_ingestion" in contract
+    assert "https://pypi.org/" in contract
+
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    uv = pyproject["tool"]["uv"]
+    assert "epistemic-graph" in uv["no-build-package"]
+    assert "epistemic-graph" not in uv.get("sources", {})
+    assert "dependency-metadata" not in uv
 
     script = CI_SETUP.read_text(encoding="utf-8")
-    assert script.count("uv run --frozen --no-sync") == 1
     assert "uv run --frozen python" not in script
 
 
@@ -146,8 +159,8 @@ def test_bootstrap_python_floor_uses_root_project_metadata(tmp_path: Path) -> No
         "[project]\n"
         'name = "test-sdk"\n'
         'requires-python = ">=3.12,<3.15"\n'
-        "[tool.uv.dependency-metadata.epistemic-graph]\n"
-        'requires-python = ">=3.10"\n',
+        "[tool.uv]\n"
+        'no-build-package = ["epistemic-graph"]\n',
         encoding="utf-8",
     )
     result = subprocess.run(
@@ -238,7 +251,7 @@ def test_every_release_job_using_uvx_installs_uv_first() -> None:
 
 
 def test_workflow_actions_are_pinned_to_immutable_commits() -> None:
-    for path in (RELEASE, GATES, GATES_SKIP, BUILD, PAGES):
+    for path in (RELEASE, GATES, BUILD, PAGES):
         for line in path.read_text(encoding="utf-8").splitlines():
             match = re.search(r"uses:\s*([^\s#]+)", line)
             if match and not match.group(1).startswith("./"):
@@ -270,20 +283,6 @@ def test_scanner_toolchain_comes_from_the_single_install_script() -> None:
     assert cccc_rev
     assert COMMIT.fullmatch(cccc_rev.group(1))
     assert '--git "$CCCC_GIT" --rev "$CCCC_REV"' in script
-
-
-def test_generated_contract_source_is_fetched_at_an_immutable_commit() -> None:
-    contract = CONTRACT.read_text(encoding="utf-8")
-    bootstrap = BOOTSTRAP.read_text(encoding="utf-8")
-    revision = re.search(r"^revision=(\S+)$", contract, re.MULTILINE)
-
-    assert revision
-    assert COMMIT.fullmatch(revision.group(1))
-    assert 'git -C "$target" checkout --detach "$revision"' in contract
-    assert "bash scripts/bootstrap_epistemic_graph_contract.sh" in bootstrap
-    assert "uv sync --frozen" in bootstrap
-    assert "--no-install-package epistemic-graph" in bootstrap
-    assert "bash scripts/bootstrap.sh" in CI_SETUP.read_text(encoding="utf-8")
 
 
 def test_no_gate_depends_on_an_external_audit_service() -> None:

@@ -170,6 +170,7 @@ class ChangeSet:
     mode: SourceIngestionMode = SourceIngestionMode.DELTA
     live_ids: tuple[str, ...] | None = None
     empty_approval: str | None = None
+    cursor: str | None = None
 
     def __post_init__(self) -> None:
         if self.mode is SourceIngestionMode.RECONCILE and self.live_ids is None:

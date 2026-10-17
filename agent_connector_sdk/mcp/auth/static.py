@@ -45,6 +45,11 @@ def _static_entry(token: str, claims: object) -> dict[str, Any]:
     }
     if not _identity_is_valid(entry["client_id"], entry["scopes"]):
         raise AuthConfigurationError("static token client_id or scopes are invalid")
+    tenant = claims.get("tenant_id")
+    if tenant is not None:
+        if not isinstance(tenant, str) or not 1 <= len(tenant) <= 256:
+            raise AuthConfigurationError("static token tenant_id is invalid")
+        entry["tenant_id"] = tenant
     if "expires_at" not in claims:
         return entry
     if not claims_are_current({"exp": claims["expires_at"]}, float("-inf")):

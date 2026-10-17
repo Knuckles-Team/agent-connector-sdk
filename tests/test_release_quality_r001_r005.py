@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
-import io
 import json
 import sys
 import zipfile
@@ -34,7 +33,6 @@ def _load(module_name: str):
 
 _graph = _load("check_import_graph_reproducibility")
 _wheel = sys.modules["epistemic_graph_wheel_provenance"]
-_installer = _load("install_epistemic_graph_release_wheel")
 _compat = _load("check_wheel_consumer_compatibility")
 
 FIXTURE = _graph.FIXTURE
@@ -88,7 +86,7 @@ def test_isolated_install_plan_rejects_a_non_wheel_path() -> None:
 def test_local_pinned_install_reproduces_hosted_import_graph() -> None:
     """The exact import graph computed under this pinned environment must
     equal the recorded graph committed from an equivalently pinned
-    source-only resolve, proving local verification never drifts
+    PyPI resolve, proving local verification never drifts
     from the hosted release check without a visible, reviewable diff."""
     assert FIXTURE.exists(), "tests/fixtures/pinned_import_graph.txt must be committed"
     recorded = read_recorded_graph()
@@ -96,27 +94,8 @@ def test_local_pinned_install_reproduces_hosted_import_graph() -> None:
     live = list(evidence.graph)
     assert live == recorded, (
         "local import graph drifted from the recorded hosted result; "
-        "re-run PYTHONPATH=.ci/epistemic-graph uv run --frozen --no-sync "
+        "re-run uv run --frozen --no-sync "
         "python scripts/check_import_graph_reproducibility.py --record"
-    )
-
-
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_source_git_probe_ignores_sdk_hook_repository_context(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    sdk_git_dir = _graph._git(_graph.ROOT, "rev-parse", "--absolute-git-dir")
-    monkeypatch.setenv("GIT_DIR", sdk_git_dir)
-    monkeypatch.setenv("GIT_WORK_TREE", str(_graph.ROOT))
-
-    assert _graph._git(_graph.SOURCE_ROOT, "rev-parse", "HEAD") == (
-        "168df952ed0f7aceaaba68245a7c1667aea61f01"
-    )
-    assert (
-        _graph._normalize_remote(
-            _graph._git(_graph.SOURCE_ROOT, "remote", "get-url", "origin")
-        )
-        == _graph.SOURCE_REMOTE
     )
 
 
@@ -125,62 +104,6 @@ def test_recorded_import_graph_is_sorted_and_deduplicated() -> None:
     recorded = read_recorded_graph()
     assert recorded == sorted(set(recorded))
     assert all("==" in entry for entry in recorded)
-
-
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_source_declaration_proves_dynamic_version_and_locked_dependencies() -> None:
-    case = _source_declaration_case()
-    locked = _graph._prove_source_declaration(**case)
-    assert locked == (
-        "httpx==0.28.1",
-        "msgpack==1.2.1",
-        "pydantic==2.13.5",
-        "pyoxigraph==0.3.22",
-    )
-
-
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-@pytest.mark.parametrize(
-    ("field", "value", "message"),
-    [
-        ("git_revision", "0" * 40, "checkout is"),
-        ("source_version", "2.28.0", "source version"),
-        ("import_origin", Path("/tmp/unpinned/epistemic_graph/__init__.py"), "origin"),
-        ("git_remote", "https://example.invalid/epistemic-graph.git", "remote"),
-    ],
-)
-def test_source_declaration_rejects_wrong_commit_origin_version_or_remote(
-    field: str, value: object, message: str
-) -> None:
-    case = _source_declaration_case()
-    case[field] = value
-    with pytest.raises(_graph.ImportGraphError, match=message):
-        _graph._prove_source_declaration(**case)
-
-
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_source_declaration_rejects_a_missing_locked_runtime_dependency() -> None:
-    case = _source_declaration_case()
-    case["lock_packages"] = [
-        package for package in case["lock_packages"] if package["name"] != "pyoxigraph"
-    ]
-    with pytest.raises(_graph.ImportGraphError, match=r"absent from uv\.lock"):
-        _graph._prove_source_declaration(**case)
-
-
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_source_declaration_rejects_a_missing_package_edge() -> None:
-    case = _source_declaration_case()
-    package = case["lock_package"]
-    case["lock_package"] = _graph.LockedPackage(
-        package.version,
-        package.source,
-        tuple(
-            edge for edge in package.dependencies if edge.get("name") != "pyoxigraph"
-        ),
-    )
-    with pytest.raises(_graph.ImportGraphError, match="runtime dependencies differ"):
-        _graph._prove_source_declaration(**case)
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
@@ -209,52 +132,6 @@ def test_missing_activated_extra_dependency_fails_closed() -> None:
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_recorded_graph_provenance_separates_source_and_installed_evidence() -> None:
-    evidence = compute_import_graph_evidence()
-    graph_bytes = _graph._graph_bytes(evidence.graph)
-    _graph._validate_recorded_provenance(evidence, graph_bytes)
-    provenance = json.loads(_graph.PROVENANCE_FIXTURE.read_text(encoding="utf-8"))
-    assert (
-        hashlib.sha256(FIXTURE.read_bytes()).hexdigest() == provenance["graph_sha256"]
-    )
-    source = evidence.source_declarations[0]
-    assert source.name == "epistemic-graph"
-    assert source.version == "2.27.1"
-    assert source.revision == "168df952ed0f7aceaaba68245a7c1667aea61f01"
-    assert any(item.startswith("pyoxigraph==") for item in source.locked_dependencies)
-    assert {
-        "epistemic_graph.generated.query",
-        "epistemic_graph.generated.coordination",
-    } <= set(source.consumed_modules)
-    assert source.consumed_modules
-    assert all(
-        path.startswith(".ci/epistemic-graph/")
-        for path in source.consumed_modules.values()
-    )
-    graph_names = {item.split("==", 1)[0] for item in evidence.graph}
-    source_names = {source.name}
-    installed_names = {
-        item.split("==", 1)[0] for item in evidence.installed_distributions
-    }
-    assert graph_names == source_names | installed_names
-    assert {
-        "epistemic-graph",
-        "pyoxigraph",
-        "mcp",
-        "authlib",
-        "uvicorn",
-        "email-validator",
-    } <= graph_names
-    assert isinstance(provenance["installed_distributions"], list)
-    assert provenance["installed_distributions"] == list(
-        evidence.installed_distributions
-    )
-    assert provenance["installed_evidence_kind"] == (
-        "importlib.metadata distribution metadata"
-    )
-
-
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
 @pytest.mark.parametrize(
     ("field", "value", "message"),
     [
@@ -278,62 +155,6 @@ def test_recorded_provenance_rejects_tampered_installed_evidence(
     monkeypatch.setattr(_graph, "PROVENANCE_FIXTURE", path)
     with pytest.raises(_graph.ImportGraphError, match=message):
         _graph._validate_recorded_provenance(evidence, graph_bytes)
-
-
-def _source_declaration_case() -> dict[str, object]:
-    revision = "168df952ed0f7aceaaba68245a7c1667aea61f01"
-    requirements = (
-        "httpx>=0.24.0",
-        "msgpack>=1.2.1",
-        "pydantic>=2,<3",
-        "pyoxigraph>=0.3.22",
-    )
-    source = _graph.SOURCE_REMOTE + f"?rev={revision}#{revision}"
-    dependencies = tuple(
-        {"name": name} for name in ("httpx", "msgpack", "pydantic", "pyoxigraph")
-    )
-    lock_package = _graph.LockedPackage(
-        "2.27.1",
-        {"git": source},
-        dependencies,
-    )
-    packages = [
-        {
-            "name": "epistemic-graph",
-            "version": "2.27.1",
-            "source": {"git": source},
-            "dependencies": list(dependencies),
-        },
-        {"name": "httpx", "version": "0.28.1", "source": {"registry": "pypi"}},
-        {"name": "msgpack", "version": "1.2.1", "source": {"registry": "pypi"}},
-        {"name": "pydantic", "version": "2.13.5", "source": {"registry": "pypi"}},
-        {"name": "pyoxigraph", "version": "0.3.22", "source": {"registry": "pypi"}},
-    ]
-    lock_metadata = {
-        "name": "epistemic-graph",
-        "version": "2.27.1",
-        "requires-python": ">=3.10",
-        "requires-dist": list(requirements),
-    }
-    return {
-        "name": "epistemic-graph",
-        "source_version": "2.27.1",
-        "source_requires_python": ">=3.10",
-        "source_requires": requirements,
-        "lock_package": lock_package,
-        "lock_metadata": lock_metadata,
-        "lock_source_url": _graph.SOURCE_REMOTE,
-        "configured_revision": revision,
-        "bootstrap_revision": revision,
-        "git_revision": revision,
-        "git_remote": _graph.SOURCE_REMOTE,
-        "import_origin": Path(".ci/epistemic-graph/epistemic_graph/__init__.py"),
-        "expected_import_origin": Path(
-            ".ci/epistemic-graph/epistemic_graph/__init__.py"
-        ),
-        "environment": _graph.default_environment(),
-        "lock_packages": packages,
-    }
 
 
 def _extras_lock_packages() -> list[dict[str, object]]:
@@ -409,167 +230,7 @@ def _walk_extras_graph(
         get_installed=lambda name: (
             (installed[name], object()) if name in installed else None
         ),
-        source_fallback=_graph.PackageMetadata("2.27.1", ()),
     )
-
-
-def _fake_source_package(
-    tmp_path: Path, *additional_paths: Path
-) -> tuple[Path, object]:
-    package_root = tmp_path / "checkout" / "epistemic_graph"
-    package_root.mkdir(parents=True)
-    package = type("Package", (), {})()
-    package.__file__ = str(package_root / "__init__.py")
-    package.__path__ = [
-        str(package_root),
-        *(str(path) for path in additional_paths),
-    ]
-    return package_root, package
-
-
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_unknown_source_package_path_overlay_is_rejected(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    package_root, package = _fake_source_package(
-        tmp_path, tmp_path / "unexpected-overlay" / "epistemic_graph"
-    )
-    monkeypatch.setattr(_graph.importlib, "import_module", lambda _: package)
-    monkeypatch.setattr(_graph, "_find_sdk_imports", lambda: [])
-    with pytest.raises(_graph.ImportGraphError, match="unverified package overlay"):
-        _graph._verify_import_origins(package_root.parent, None)
-
-
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-@pytest.mark.parametrize(
-    "module_name",
-    [
-        "epistemic_graph.generated.source_ingestion",
-        "epistemic_graph.generated.query",
-        "epistemic_graph.generated.coordination",
-    ],
-)
-def test_consumed_contract_module_from_wheel_overlay_is_rejected(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, module_name: str
-) -> None:
-    package_root, package = _fake_source_package(tmp_path)
-    spec = type("ModuleSpec", (), {})()
-    spec.origin = str(
-        tmp_path
-        / "site-packages"
-        / "epistemic_graph"
-        / "generated"
-        / "source_ingestion.py"
-    )
-    monkeypatch.setattr(_graph.importlib, "import_module", lambda _: package)
-    monkeypatch.setattr(
-        _graph,
-        "_find_sdk_imports",
-        lambda: [module_name],
-    )
-    monkeypatch.setattr(_graph.importlib.util, "find_spec", lambda _: spec)
-    with pytest.raises(
-        _graph.ImportGraphError, match="outside the pinned source checkout"
-    ):
-        _graph._verify_import_origins(package_root.parent, None)
-
-
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_import_origins_allow_only_source_and_installed_package_paths(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    source_root = _graph.SOURCE_ROOT.resolve()
-    source_package = source_root / "epistemic_graph"
-    overlay_package = tmp_path / "site-packages" / "epistemic_graph"
-    overlay_package.mkdir(parents=True)
-    (overlay_package / "numeric.abi3.so").write_bytes(b"wheel native member")
-    manifest = _wheel.EXPECTED
-    direct_url = {
-        "url": f"file:///tmp/{manifest['wheel_filename']}",
-        "archive_info": {"hashes": {"sha256": manifest["wheel_sha256"]}},
-    }
-    installed = type(
-        "Distribution",
-        (),
-        {
-            "version": manifest["version"],
-            "read_text": lambda self, _: json.dumps(direct_url),
-            "locate_file": lambda self, path: (
-                overlay_package
-                if path == "epistemic_graph"
-                else overlay_package / "numeric.abi3.so"
-            ),
-        },
-    )()
-    package = type("Package", (), {})()
-    package.__file__ = str(source_package / "__init__.py")
-    package.__path__ = [str(source_package), str(overlay_package)]
-    spec = type("ModuleSpec", (), {})()
-    spec.origin = str(source_package / "generated" / "query.py")
-    monkeypatch.setattr(_graph.importlib, "import_module", lambda _: package)
-    monkeypatch.setattr(
-        _graph, "_find_sdk_imports", lambda: ["epistemic_graph.generated.query"]
-    )
-    monkeypatch.setattr(_graph.importlib.util, "find_spec", lambda _: spec)
-    monkeypatch.setattr(_wheel, "verify_installed_distribution", lambda *_: manifest)
-
-    package_file, consumed = _graph._verify_import_origins(source_root, installed)
-    assert package_file == (source_package / "__init__.py").resolve()
-    assert consumed["epistemic_graph.generated.query"].startswith(
-        ".ci/epistemic-graph/"
-    )
-
-
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_installed_eg_overlay_without_release_wheel_receipt_is_rejected(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    source_root = _graph.SOURCE_ROOT.resolve()
-    source_package = source_root / "epistemic_graph"
-    overlay_package = tmp_path / "site-packages" / "epistemic_graph"
-    overlay_package.mkdir(parents=True)
-    package = type("Package", (), {})()
-    package.__file__ = str(source_package / "__init__.py")
-    package.__path__ = [str(source_package), str(overlay_package)]
-    installed = type(
-        "Distribution",
-        (),
-        {
-            "version": "2.27.1",
-            "read_text": lambda self, _: None,
-            "locate_file": lambda self, _: overlay_package,
-        },
-    )()
-    monkeypatch.setattr(_graph.importlib, "import_module", lambda _: package)
-    monkeypatch.setattr(_graph, "_find_sdk_imports", lambda: [])
-
-    with pytest.raises(_wheel.ProvenanceError, match="no valid PEP 610 wheel receipt"):
-        _graph._verify_import_origins(source_root, installed)
-
-
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_release_asset_fetch_uses_asset_id_and_binary_accept_header(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    manifest = _wheel.EXPECTED
-    destination = tmp_path / manifest["wheel_filename"]
-    requests = []
-
-    def open_url(request: object, *, timeout: int) -> io.BytesIO:
-        assert timeout == 60
-        requests.append(request)
-        return io.BytesIO(b"fixture wheel bytes")
-
-    monkeypatch.setattr(_installer.urllib.request, "urlopen", open_url)
-    monkeypatch.setattr(_installer, "verify_wheel_archive", lambda *_: None)
-    _installer._download(destination, manifest["wheel_url"], manifest)
-
-    request = requests[0]
-    assert request.full_url == manifest["wheel_url"]
-    assert request.get_header("Accept") == "application/octet-stream"
-    assert manifest["wheel_asset_id"] == "pypi:epistemic-graph==2.27.1"
-    assert destination.read_bytes() == b"fixture wheel bytes"
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
@@ -654,39 +315,160 @@ def test_release_wheel_receipt_rejects_a_different_artifact_hash() -> None:
         _wheel.verify_installed_distribution(installed, _graph.RELEASE_MANIFEST)
 
 
+def _eg_lock_package(**over: object) -> dict[str, object]:
+    package: dict[str, object] = {
+        "name": "epistemic-graph",
+        "version": "2.27.1",
+        "source": {"registry": _graph.REGISTRY},
+        "wheels": [
+            {
+                "url": "https://files.pythonhosted.org/x/epistemic_graph-2.27.1-cp39-abi3-manylinux_2_28_x86_64.whl",
+                "hash": "sha256:" + "a" * 64,
+            }
+        ],
+    }
+    package.update(over)
+    return package
+
+
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
-def test_installed_eg_metadata_is_checked_against_source_declarations() -> None:
-    source = _graph.SourceDeclaration(
-        name="epistemic-graph",
-        version="2.27.1",
-        revision="168df952ed0f7aceaaba68245a7c1667aea61f01",
-        remote=_graph.SOURCE_REMOTE,
-        import_origin=".ci/epistemic-graph/epistemic_graph/__init__.py",
-        metadata_sha256={},
-        declared_dependencies=(
-            "httpx>=0.24.0",
-            "msgpack>=1.2.1",
-            "pydantic>=2,<3",
-            "pyoxigraph>=0.3.22",
+def test_locked_eg_is_a_pypi_wheel_and_never_a_source_build() -> None:
+    assert _graph._locked_wheels(_eg_lock_package()) == {
+        "epistemic_graph-2.27.1-cp39-abi3-manylinux_2_28_x86_64.whl": "a" * 64
+    }
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.parametrize(
+    ("over", "message"),
+    [
+        (
+            {"source": {"git": "https://github.com/Knuckles-Team/epistemic-graph.git"}},
+            "must pin epistemic-graph to",
         ),
-        locked_dependencies=(),
-        consumed_modules={},
-    )
-    environment = _graph.default_environment()
-    _graph._validate_installed_source_metadata(
-        _graph.PackageMetadata("2.27.1", source.declared_dependencies),
-        source,
-        environment,
-    )
-    with pytest.raises(_graph.ImportGraphError, match="installed EG version"):
-        _graph._validate_installed_source_metadata(
-            _graph.PackageMetadata("2.23.0", source.declared_dependencies),
-            source,
-            environment,
+        ({"sdist": {"url": "https://x/eg.tar.gz"}}, "no source build"),
+        ({"wheels": []}, "pins no epistemic-graph wheel"),
+        ({"wheels": [{"url": "https://x/eg.whl", "hash": "md5:0"}]}, "unverifiable"),
+    ],
+)
+def test_locked_eg_rejects_git_sdist_or_unhashed_sources(
+    over: dict[str, object], message: str
+) -> None:
+    with pytest.raises(_graph.ImportGraphError, match=message):
+        _graph._locked_wheels(_eg_lock_package(**over))
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+def test_pyproject_must_forbid_an_eg_source_build() -> None:
+    _graph._no_build_configured(_graph._read_toml(_graph.ROOT_PYPROJECT))
+    with pytest.raises(_graph.ImportGraphError, match="no-build-package"):
+        _graph._no_build_configured({"tool": {"uv": {}}})
+    with pytest.raises(_graph.ImportGraphError, match="override"):
+        _graph._no_build_configured(
+            {
+                "tool": {
+                    "uv": {
+                        "no-build-package": ["epistemic-graph"],
+                        "sources": {"epistemic-graph": {"git": "x"}},
+                    }
+                }
+            }
         )
-    with pytest.raises(_graph.ImportGraphError, match="dependency metadata"):
-        _graph._validate_installed_source_metadata(
-            _graph.PackageMetadata("2.27.1", ("httpx>=0.24.0",)),
-            source,
-            environment,
-        )
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+def test_recorded_graph_provenance_binds_the_installed_pypi_wheel() -> None:
+    evidence = compute_import_graph_evidence()
+    graph_bytes = _graph._graph_bytes(evidence.graph)
+    _graph._validate_recorded_provenance(evidence, graph_bytes)
+    provenance = json.loads(_graph.PROVENANCE_FIXTURE.read_text(encoding="utf-8"))
+    assert (
+        hashlib.sha256(FIXTURE.read_bytes()).hexdigest() == provenance["graph_sha256"]
+    )
+    (declaration,) = evidence.registry_declarations
+    assert (declaration.name, declaration.registry) == (
+        "epistemic-graph",
+        "https://pypi.org/simple",
+    )
+    manifest = _wheel.read_manifest(_graph.RELEASE_MANIFEST)
+    assert declaration.version == manifest["version"]
+    assert (
+        declaration.locked_wheels[manifest["wheel_filename"]]
+        == manifest["wheel_sha256"]
+    )
+    assert any(
+        item.startswith("pyoxigraph==") for item in declaration.locked_dependencies
+    )
+    assert {
+        "epistemic_graph.generated.query",
+        "epistemic_graph.generated.coordination",
+        "epistemic_graph.generated.source_ingestion",
+    } <= set(declaration.consumed_modules)
+    assert all(
+        path.startswith("epistemic_graph/")
+        for path in declaration.consumed_modules.values()
+    )
+    graph_names = {item.split("==", 1)[0] for item in evidence.graph}
+    installed_names = {
+        item.split("==", 1)[0] for item in evidence.installed_distributions
+    }
+    assert graph_names == installed_names
+    assert {
+        "epistemic-graph",
+        "pyoxigraph",
+        "mcp-types",
+        "httpx2",
+        "cryptography",
+    } <= graph_names
+    assert provenance["installed_evidence_kind"] == (
+        "importlib.metadata distribution metadata"
+    )
+
+
+class _Package:
+    def __init__(self, *paths: Path) -> None:
+        self.__path__ = [str(path) for path in paths]
+
+
+class _Distribution:
+    def __init__(self, package: Path) -> None:
+        self._package = package
+
+    def locate_file(self, name: str) -> Path:
+        return self._package.parent / name
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+def test_package_overlay_beyond_the_installed_wheel_is_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    wheel = tmp_path / "site-packages" / "epistemic_graph"
+    wheel.mkdir(parents=True)
+    overlay = tmp_path / "checkout" / "epistemic_graph"
+    monkeypatch.setattr(
+        _graph.importlib, "import_module", lambda _: _Package(overlay, wheel)
+    )
+    with pytest.raises(_graph.ImportGraphError, match="package overlay"):
+        _graph._verify_import_origins(_Distribution(wheel))
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+def test_consumed_module_outside_the_installed_wheel_is_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    wheel = tmp_path / "site-packages" / "epistemic_graph"
+    wheel.mkdir(parents=True)
+    spec = type("ModuleSpec", (), {})()
+    spec.origin = str(tmp_path / "checkout" / "epistemic_graph" / "generated" / "q.py")
+    monkeypatch.setattr(_graph.importlib, "import_module", lambda _: _Package(wheel))
+    monkeypatch.setattr(
+        _graph, "_find_sdk_imports", lambda: ["epistemic_graph.generated.query"]
+    )
+    monkeypatch.setattr(_graph.importlib.util, "find_spec", lambda _: spec)
+    with pytest.raises(_graph.ImportGraphError, match="outside the installed PyPI"):
+        _graph._verify_import_origins(_Distribution(wheel))
+
+    spec.origin = str(wheel / "generated" / "query.py")
+    assert _graph._verify_import_origins(_Distribution(wheel)) == {
+        "epistemic_graph.generated.query": "epistemic_graph/generated/query.py"
+    }

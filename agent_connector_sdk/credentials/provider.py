@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from agent_connector_sdk.credentials.references import SecretReference
 from agent_connector_sdk.credentials.resolver import CredentialResolver
 
-__all__ = ["CredentialProvider", "CredentialScopeError"]
+__all__ = ["CredentialProvider", "CredentialScopeError", "NoCredential"]
 
 
 class CredentialScopeError(PermissionError):
@@ -53,3 +53,16 @@ class CredentialProvider:
                 "secret reference is outside the requesting connector's scope"
             )
         return self.resolver.resolve(reference)
+
+
+@dataclass(frozen=True)
+class NoCredential:
+    """Keyless sentinel: present, contributes no auth material (SDK-CONNECTOR-CONTROL-R014.9)."""
+
+    type_name: str = "none"
+
+    def is_present(self) -> bool:
+        return True
+
+    def headers(self) -> dict[str, str]:
+        return {}

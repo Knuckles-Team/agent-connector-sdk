@@ -1,22 +1,7 @@
-"""Network exposure error and address classification primitives."""
+"""Network exposure primitives, re-exported; they live in :mod:`agent_connector_sdk.exposure`."""
 
 from __future__ import annotations
 
-import ipaddress
+from agent_connector_sdk.exposure import NetworkExposureError, is_loopback_host
 
 __all__ = ["NetworkExposureError", "is_loopback_host"]
-
-
-class NetworkExposureError(RuntimeError):
-    """A non-loopback listener lacks authentication, TLS or a host allowlist."""
-
-
-def is_loopback_host(host: object) -> bool:
-    """True only for ``localhost`` or a loopback IP literal."""
-    value = str(host or "").strip().lower()
-    if value in {"localhost", "localhost."}:
-        return True
-    try:
-        return ipaddress.ip_address(value.strip("[]").split("%", 1)[0]).is_loopback
-    except ValueError:
-        return False

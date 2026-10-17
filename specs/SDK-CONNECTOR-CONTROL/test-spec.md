@@ -238,3 +238,79 @@ Denied startup must retain component, input name and typed reason without the va
 Record host and SDK revisions, fixture seed, manifest and census digests, process exit and independently observed effect counts.
 The host records its own decision; the SDK export receipt supplies no startup authority.
 Missing host or AU producer implementation keeps the corresponding served acceptance pending.
+
+## Connector runtime utilities moved from agent-utilities (R014.2-R014.23)
+
+- `SDK-CONNECTOR-CONTROL-R014.2`: `tests/test_connector_runtime_from_au.py::test_r014_2_file_lock_exclusive_and_nonblocking` holds a lock, proves a second descriptor is refused, then acquires it after release.
+- `SDK-CONNECTOR-CONTROL-R014.3`: `test_r014_3_tool_version_stamps_async_tool`.
+- `SDK-CONNECTOR-CONTROL-R014.4`: `test_r014_4_runtime_secret_references` covers resolution, refusal, non-disclosure and the argparse action.
+- `SDK-CONNECTOR-CONTROL-R014.5`: `test_r014_5_validate_base_url` covers literal and resolved refusal and loopback control.
+- `SDK-CONNECTOR-CONTROL-R014.6`: `test_r014_6_pii_sanitizer_redacts`.
+- `SDK-CONNECTOR-CONTROL-R014.7`: `test_r014_7_paths_honour_overrides`.
+- `SDK-CONNECTOR-CONTROL-R014.8`: `test_r014_8_delegation_helpers`.
+- `SDK-CONNECTOR-CONTROL-R014.9`: `test_r014_9_no_credential`.
+- `SDK-CONNECTOR-CONTROL-R014.10`: `tests/test_connector_runtime_adds.py::test_r014_10_token_auth_envelope_and_error_mapping` and `test_r014_10_auth_strategies_and_retries` cover the header token, envelope, error mapping, redaction, destructive gate, 429 backoff, 401 refresh and TLS-override refusal.
+- `SDK-CONNECTOR-CONTROL-R014.11`: `tests/test_connector_runtime_adds.py::test_r014_11_browser_auth_pkce_store_and_refresh` covers the S256 challenge, the 0600 store, the proactive refresh and the API-key override.
+- `SDK-CONNECTOR-CONTROL-R014.12`: `tests/test_connector_runtime_adds.py::test_r014_12_graphql_helpers_sync_async_and_failure`.
+- `SDK-CONNECTOR-CONTROL-R014.13`: `tests/test_connector_runtime_adds.py::test_r014_13_external_access_descriptor`.
+- `SDK-CONNECTOR-CONTROL-R014.14`: `tests/test_connector_runtime_adds.py::test_r014_14_env_drift_against_declarations` builds a connector with each read and declaration kind and checks the exact findings and the `--check` exit.
+- `SDK-CONNECTOR-CONTROL-R014.15`: `tests/test_document_sources.py::test_connector_ingestion_syncs_external_acl` ingests a restricted file and a quarantined one. It asserts the committed access properties and that no local path is persisted.
+- `SDK-CONNECTOR-CONTROL-R014.16`: `tests/test_http_dns_pinned_egress.py` covers pinned Host/SNI, private-resolution refusal, the private allow-list, loopback, plaintext, peer mismatch, URL limits and allow-list validation.
+- `SDK-CONNECTOR-CONTROL-R014.17`: `tests/test_base_install_mcp_free.py` imports the base modules with `fastmcp` and `mcp` blocked and checks the MCP surface names the extra.
+- `SDK-CONNECTOR-CONTROL-R014.18`: `tests/test_served_security_and_provider_profile.py::test_r014_18_*` cover refusal without auth or audience and the middleware's identity/tenant/ACL/session cases. They also cover default application by `create_mcp_server`, the logged override and the static tenant claim.
+- `SDK-CONNECTOR-CONTROL-R014.19`: `tests/test_served_security_and_provider_profile.py::test_r014_19_*` cover resolution, close, every failure code and every invalid document.
+- `SDK-CONNECTOR-CONTROL-R014.20`: `tests/test_served_security_and_provider_profile.py::test_r014_20_entry_point_groups_use_the_sdk_namespace`.
+- `SDK-CONNECTOR-CONTROL-R014.22`: `tests/test_embeddings.py` covers OpenAI and Ollama requests, sub-batching and bearer auth from a reference. It also covers body non-disclosure, invalid settings, caching per endpoint and the DNS-pinned no-redirect client.
+- `SDK-CONNECTOR-CONTROL-R014.23`: `tests/test_compute_adapter.py` covers SPARQL algorithm selection and the served run. It also covers refusal of unbound analyses and unserved methods and IRI and client-path validation. It covers the unavailable endpoint and the compute-only scopes.
+
+## Connector packs authored as Turtle (R067)
+
+- `SDK-CONNECTOR-CONTROL-R067`: Rollup closes when every child `.1` to `.8` passes its proving test.
+- `SDK-CONNECTOR-CONTROL-R067.1`: `tests/test_pack_declaration.py::test_declaration_round_trip_and_nested_property_refusal`.
+- `SDK-CONNECTOR-CONTROL-R067.2`: `tests/test_pack_turtle.py::test_emit_is_deterministic_and_uses_engine_terms`.
+- `SDK-CONNECTOR-CONTROL-R067.3`: `tests/test_pack_declaration.py::test_views_render_and_fingerprint_id_is_sdk_owned`.
+- `SDK-CONNECTOR-CONTROL-R067.4`: `tests/test_pack_turtle.py::test_preflight_uses_engine_validation`.
+- `SDK-CONNECTOR-CONTROL-R067.5`: `tests/test_pack_turtle.py::test_content_pack_carries_contract_entry`.
+- `SDK-CONNECTOR-CONTROL-R067.6`: `tests/test_pack_declaration.py::test_declaration_refusals_name_the_field`.
+- `SDK-CONNECTOR-CONTROL-R067.7`: `tests/test_pack_declaration.py::test_certification_records_accepted_contract_digest`.
+- `SDK-CONNECTOR-CONTROL-R067.8`: `tests/test_pack_rdf_served.py::test_declaration_to_engine_pack_end_to_end`.
+
+## SDK-CONNECTOR-CONTROL-R068 acceptance
+
+| Case | Row | Proving test and observation |
+|---|---|---|
+
+| Model | `SDK-CONNECTOR-CONTROL-R068.1` | `tests/test_seed_graph.py::test_seed_declaration_round_trips`: A round trip keeps every field and refuses a blank instance IRI. |
+
+| Behavior | `SDK-CONNECTOR-CONTROL-R068.2` | `tests/test_seed_graph.py::test_seed_turtle_is_deterministic`: Two emissions of one declaration are byte-identical, with one digest per part. |
+
+| Wiring | `SDK-CONNECTOR-CONTROL-R068.3` | `tests/test_seed_graph.py::test_server_registers_seed_and_notifies`: A served connector lists the seed resource, and a digest change sends one notification. |
+
+| Refusal | `SDK-CONNECTOR-CONTROL-R068.4` | `tests/test_seed_graph.py::test_seed_refusals`: Each case raises its code, and no seed resource is served. |
+
+| Evidence | `SDK-CONNECTOR-CONTROL-R068.5` | `tests/test_seed_graph.py::test_resource_metadata_carries_digest`: The resource metadata digest equals the digest of the body. |
+
+| Hot-path proof | `SDK-CONNECTOR-CONTROL-R068.6` | `tests/test_seed_graph_served.py::test_connector_serves_contract_resources_and_notifies`: The client reads all three resource kinds, and the change sends one notification with a new seed digest. |
+
+
+Hot-path proof for `SDK-CONNECTOR-CONTROL-R068`: `tests/test_seed_graph_served.py::test_connector_serves_contract_resources_and_notifies`.
+
+## SDK-CONNECTOR-CONTROL-R069 acceptance
+
+| Case | Row | Proving test and observation |
+|---|---|---|
+
+| Model | `SDK-CONNECTOR-CONTROL-R069.1` | `tests/test_transport_contract.py::test_transport_contract_round_trips`: A round trip keeps every field and refuses an unknown protocol or pushdown value. |
+
+| Behavior | `SDK-CONNECTOR-CONTROL-R069.2` | `tests/test_transport_contract.py::test_registry_one_transport_per_protocol`: The registry holds one transport per protocol, and a stream contract with a filter refuses. |
+
+| Wiring | `SDK-CONNECTOR-CONTROL-R069.3` | `tests/test_transport_contract.py::test_certification_checks_registry`: Certification of a pack reaches the registry check. |
+
+| Refusal | `SDK-CONNECTOR-CONTROL-R069.4` | `tests/test_transport_contract.py::test_transport_refusals`: Each case refuses with its code. |
+
+| Evidence | `SDK-CONNECTOR-CONTROL-R069.5` | `tests/test_transport_contract.py::test_certification_records_matrix`: The certification file lists every declared protocol with its transport module. |
+
+| Hot-path proof | `SDK-CONNECTOR-CONTROL-R069.6` | `tests/test_transport_contract_served.py::test_declared_transports_serve_virtual_reads`: Each read returns rows through its declared transport, and the engine records the protocol. |
+
+
+Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_served.py::test_declared_transports_serve_virtual_reads`.

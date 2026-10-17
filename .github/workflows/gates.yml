@@ -4,12 +4,13 @@ name: Gates
 # the full pre-commit and pre-push stages over the changed files plus the
 # affected-test subset. Push to main: the same job over every file with the full
 # test suite, the advisory scanner-quality job, and the reproducible build. Never
-# publishes (release.yml, v* tag only). Docs and spec-only changes skip this
-# workflow; gates-skip.yml reports the required check for them.
+# publishes (release.yml, v* tag only). Every pull request runs this workflow:
+# the job itself detects a docs/spec-only diff (`docs-only-paths`) and passes in
+# seconds, so a pull request has exactly one `gates / gates` check and no skip
+# companion can mask a failing real run. A docs-only push to main skips it.
 
 on:
   pull_request:
-    paths-ignore: [specs/**, docs/**, '**/*.md', plans/**, LICENSE]
   push:
     branches: [main]
     paths-ignore: [specs/**, docs/**, '**/*.md', plans/**, LICENSE]
@@ -35,6 +36,8 @@ jobs:
       # fast-tests duplicates the shared affected-test step; a fork cannot read the identity catalog.
       skip-hooks: ${{ github.event.pull_request.head.repo.fork && 'fast-tests,tracked-privacy' || 'fast-tests' }}
       extra-manual-hooks: ${{ github.event_name == 'push' && 'tracked-privacy wheel-build mkdocs-build' || 'tracked-privacy' }}
+      # Bash patterns (`*` crosses `/`); the same set as the push paths-ignore.
+      docs-only-paths: 'specs/* docs/* *.md plans/* LICENSE'
 
   scanner-quality:
     name: scanner-quality
@@ -43,20 +46,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           python-version: '3.12'
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '20'
       - uses: dtolnay/rust-toolchain@fa04a1451ff1842e2626ccb99004d0195b455a88 # master
         with:
           toolchain: stable
-      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           version: '0.11.7'
           enable-cache: true
@@ -64,7 +67,7 @@ jobs:
       # scripts/install_scanners.sh is the one place the scanner pins live, so
       # its hash keys the cache: a pin change rebuilds, nothing else does.
       - name: Cache the pinned scanner toolchain
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.local/share/pipelines-scanners
           key: scanners-${{ runner.os }}-${{ hashFiles('scripts/install_scanners.sh') }}

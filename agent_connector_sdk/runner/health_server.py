@@ -17,7 +17,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import anyio
 
-from agent_connector_sdk.mcp.exposure import is_loopback_host
+from agent_connector_sdk.exposure import is_loopback_host
 from agent_connector_sdk.runner.errors import RunnerConfigurationError
 from agent_connector_sdk.runner.health_state import HealthReport, RunnerHealth
 
