@@ -274,3 +274,43 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R067.6`: `tests/test_pack_declaration.py::test_declaration_refusals_name_the_field`.
 - `SDK-CONNECTOR-CONTROL-R067.7`: `tests/test_pack_declaration.py::test_certification_records_accepted_contract_digest`.
 - `SDK-CONNECTOR-CONTROL-R067.8`: `tests/test_pack_rdf_served.py::test_declaration_to_engine_pack_end_to_end`.
+
+## SDK-CONNECTOR-CONTROL-R068 acceptance
+
+| Case | Row | Proving test and observation |
+|---|---|---|
+
+| Model | `SDK-CONNECTOR-CONTROL-R068.1` | `tests/test_seed_graph.py::test_seed_declaration_round_trips`: A round trip keeps every field and refuses a blank instance IRI. |
+
+| Behavior | `SDK-CONNECTOR-CONTROL-R068.2` | `tests/test_seed_graph.py::test_seed_turtle_is_deterministic`: Two emissions of one declaration are byte-identical, with one digest per part. |
+
+| Wiring | `SDK-CONNECTOR-CONTROL-R068.3` | `tests/test_seed_graph.py::test_server_registers_seed_and_notifies`: A served connector lists the seed resource, and a digest change sends one notification. |
+
+| Refusal | `SDK-CONNECTOR-CONTROL-R068.4` | `tests/test_seed_graph.py::test_seed_refusals`: Each case raises its code, and no seed resource is served. |
+
+| Evidence | `SDK-CONNECTOR-CONTROL-R068.5` | `tests/test_seed_graph.py::test_resource_metadata_carries_digest`: The resource metadata digest equals the digest of the body. |
+
+| Hot-path proof | `SDK-CONNECTOR-CONTROL-R068.6` | `tests/test_seed_graph_served.py::test_connector_serves_contract_resources_and_notifies`: The client reads all three resource kinds, and the change sends one notification with a new seed digest. |
+
+
+Hot-path proof for `SDK-CONNECTOR-CONTROL-R068`: `tests/test_seed_graph_served.py::test_connector_serves_contract_resources_and_notifies`.
+
+## SDK-CONNECTOR-CONTROL-R069 acceptance
+
+| Case | Row | Proving test and observation |
+|---|---|---|
+
+| Model | `SDK-CONNECTOR-CONTROL-R069.1` | `tests/test_transport_contract.py::test_transport_contract_round_trips`: A round trip keeps every field and refuses an unknown protocol or pushdown value. |
+
+| Behavior | `SDK-CONNECTOR-CONTROL-R069.2` | `tests/test_transport_contract.py::test_registry_one_transport_per_protocol`: The registry holds one transport per protocol, and a stream contract with a filter refuses. |
+
+| Wiring | `SDK-CONNECTOR-CONTROL-R069.3` | `tests/test_transport_contract.py::test_certification_checks_registry`: Certification of a pack reaches the registry check. |
+
+| Refusal | `SDK-CONNECTOR-CONTROL-R069.4` | `tests/test_transport_contract.py::test_transport_refusals`: Each case refuses with its code. |
+
+| Evidence | `SDK-CONNECTOR-CONTROL-R069.5` | `tests/test_transport_contract.py::test_certification_records_matrix`: The certification file lists every declared protocol with its transport module. |
+
+| Hot-path proof | `SDK-CONNECTOR-CONTROL-R069.6` | `tests/test_transport_contract_served.py::test_declared_transports_serve_virtual_reads`: Each read returns rows through its declared transport, and the engine records the protocol. |
+
+
+Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_served.py::test_declared_transports_serve_virtual_reads`.
