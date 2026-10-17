@@ -58,8 +58,9 @@ repos:
   - id: codespell
     stages: [pre-push]
     # "opps" is the CRM-domain abbreviation for "opportunities" (Salesforce,
-    # Twenty vendor extractors), not a misspelling of "oops".
-    args: ["-L", "opps"]
+    # Twenty vendor extractors), not a misspelling of "oops". "te" is the HTTP
+    # TE request header and "nin" the MongoDB $nin operator.
+    args: ["-L", "opps,te,nin"]
 - repo: https://github.com/PyCQA/bandit
   rev: 92ae8b82fb422a639f0ed8d99e96cea769594e08 # 1.9.4
   hooks:

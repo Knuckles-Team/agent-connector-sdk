@@ -115,9 +115,6 @@ class SourceCredential(abc.ABC):
         """Whether this credential carries usable material."""
         raise NotImplementedError  # ABSTRACT-OK
 
-    def refresh(self) -> None:  # noqa: B027 - static credentials need no refresh
-        """Refresh the credential in place."""
-
     @classmethod
     @abc.abstractmethod
     def from_descriptor(
