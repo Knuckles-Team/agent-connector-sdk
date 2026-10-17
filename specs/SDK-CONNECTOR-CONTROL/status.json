@@ -1923,11 +1923,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.5",
       "title": "Operator base-URL egress guard",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "8b001fee8ebb",
         "b1a75903b188"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:46"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.6",
@@ -1970,9 +1973,12 @@
       "title": "Class-based API client base and auth strategies",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "8b001fee8ebb",
         "afc686a65836"
       ],
       "verified_by": [
+        "tests/httpsupport/test_httpsupport.py:27",
+        "tests/httpsupport/test_pagination.py:17",
         "tests/test_connector_runtime_adds.py:49",
         "tests/test_connector_runtime_adds.py:78"
       ]
