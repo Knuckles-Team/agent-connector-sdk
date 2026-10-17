@@ -47,6 +47,26 @@ feeds = [
 dataprep = [
     "pyarrow>=24.0.0",
 ]
+db = [
+    "psycopg[binary]>=3.2.0",
+    "PyMySQL>=1.1.1",
+    "pymongo>=4.10.0",
+    "oracledb>=2.5.0",
+]
+mssql = [
+    "pyodbc>=5.2.0",
+]
+graphql = [
+    "graphql-core>=3.2.5",
+]
+market = [
+    "pandas>=2.2.0",
+    "yfinance>=0.2.50",
+    "ccxt>=4.4.0",
+]
+stream = [
+    "websockets>=14.0",
+]
 
 [[project.authors]]
 name = "Repository Maintainers"
@@ -95,7 +115,8 @@ agent_connector_sdk = ["py.typed", "skills/**/*", "ontology/*.ttl"]
 
 [dependency-groups]
 test = [
-    "agent-connector-sdk[mcp,feeds,dataprep,integrity]",
+    "agent-connector-sdk[mcp,graphql,feeds,dataprep,integrity]",
+    "pandas>=2.2.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "pytest-timeout>=2.4.0",
@@ -160,6 +181,7 @@ public_modules = [
     "agent_connector_sdk.adapters.event_feed_bindings",
     "agent_connector_sdk.adapters.mcp_tool",
     "agent_connector_sdk.adapters.web_fetch",
+    "agent_connector_sdk.auth.browser",
     "agent_connector_sdk.certify.cli",
     "agent_connector_sdk.certify.declared_coverage",
     "agent_connector_sdk.manifest.integrity",
@@ -172,6 +194,33 @@ public_modules = [
     "agent_connector_sdk.auth.values",
     "agent_connector_sdk.config",
     "agent_connector_sdk.contracts",
+    "agent_connector_sdk.credentials.provider_profile",
+    "agent_connector_sdk.credentials.runtime_references",
+    "agent_connector_sdk.credentials.sensitivity",
+    "agent_connector_sdk.credentials.source",
+    "agent_connector_sdk.data_prep.certification",
+    "agent_connector_sdk.data_prep.certification.adapters",
+    "agent_connector_sdk.data_prep.certification.job",
+    "agent_connector_sdk.data_prep.certification.models",
+    "agent_connector_sdk.file_lock",
+    "agent_connector_sdk.finance.banking",
+    "agent_connector_sdk.finance.crypto",
+    "agent_connector_sdk.finance.feeds",
+    "agent_connector_sdk.finance.market_data",
+    "agent_connector_sdk.finance.strategy_export",
+    "agent_connector_sdk.http.support",
+    "agent_connector_sdk.httpsupport",
+    "agent_connector_sdk.httpsupport.auth",
+    "agent_connector_sdk.httpsupport.client_protocol",
+    "agent_connector_sdk.httpsupport.pagination",
+    "agent_connector_sdk.httpsupport.rate_limit",
+    "agent_connector_sdk.httpsupport.redaction",
+    "agent_connector_sdk.identifiers",
+    "agent_connector_sdk.mcp.env_drift",
+    "agent_connector_sdk.mcp.graphql",
+    "agent_connector_sdk.mcp.versioning",
+    "agent_connector_sdk.payments",
+    "agent_connector_sdk.privacy_pii",
     "agent_connector_sdk.schema_drift",
     "agent_connector_sdk.schema_repair",
     "agent_connector_sdk.credentials.openbao",
@@ -260,6 +309,15 @@ public_modules = [
     "agent_connector_sdk.runner.provisioning",
     "agent_connector_sdk.runner.static_registry",
     "agent_connector_sdk.runner.supervisor",
+    "agent_connector_sdk.signing",
+    "agent_connector_sdk.source_connectors.connectors.arxiv",
+    "agent_connector_sdk.source_connectors.connectors.database",
+    "agent_connector_sdk.source_connectors.connectors.graphql_document",
+    "agent_connector_sdk.source_connectors.connectors.mcp_package",
+    "agent_connector_sdk.source_connectors.connectors.rss",
+    "agent_connector_sdk.source_connectors.connectors.web",
+    "agent_connector_sdk.source_connectors.universal",
+    "agent_connector_sdk.streaming",
     "agent_connector_sdk.taxonomy.records",
     "agent_connector_sdk.testing.artifact_kinds",
     "agent_connector_sdk.testing.certificates",
@@ -311,6 +369,10 @@ public_modules = [
     "agent_connector_sdk.vendor_extractors.twenty",
     "agent_connector_sdk.vendor_extractors.uptime_kuma",
     "agent_connector_sdk.vendor_extractors.wger",
+    "agent_connector_sdk.voice_supply_chain",
+    "agent_connector_sdk.voice_supply_chain.license_registry",
+    "agent_connector_sdk.voice_supply_chain.manifest",
+    "agent_connector_sdk.voice_supply_chain.store",
     "agent_connector_sdk.writeback.authorization",
     "agent_connector_sdk.writeback.connector",
     "agent_connector_sdk.writeback.durable_ledger",
