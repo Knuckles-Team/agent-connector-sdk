@@ -80,7 +80,9 @@ def test_r014_4_runtime_secret_references(monkeypatch):
 def test_r014_5_validate_base_url():
     assert validate_base_url("https://example.com").allowed
     assert not validate_base_url("ftp://example.com").allowed
-    assert not validate_base_url("https://u:p@example.com").allowed
+    assert not validate_base_url(
+        "https://u:p@example.com"  # sanitizer:ignore - synthetic fixture
+    ).allowed
     assert not validate_base_url("http://10.0.0.1").allowed
     assert not validate_base_url("http://169.254.169.254").allowed
     assert validate_base_url("http://127.0.0.1").allowed

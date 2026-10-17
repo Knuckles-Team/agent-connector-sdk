@@ -22,6 +22,7 @@ import asyncio
 import dataclasses
 import fnmatch
 import hashlib
+import shutil
 import subprocess  # nosec B404 - fixed git argv, no shell
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
@@ -293,8 +294,11 @@ class GitMarkdownDocumentSource:
         self._namespace = _namespace(source_id, str(self._root))
 
     def _git(self, *args: str) -> bytes:
-        return subprocess.run(  # nosec B603 - fixed git argv
-            ["git", "-C", str(self._root), *args],
+        git = shutil.which("git")
+        if git is None:
+            raise FileNotFoundError("git is required for a repository document source")
+        return subprocess.run(  # nosec B603 - fixed git argv, absolute executable
+            [git, "-C", str(self._root), *args],
             capture_output=True,
             timeout=_GIT_TIMEOUT_S,
             check=True,
