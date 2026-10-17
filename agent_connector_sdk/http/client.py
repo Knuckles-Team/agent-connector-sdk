@@ -13,6 +13,8 @@ Every client built here:
 * isolates cookies for API-key authenticated clients;
 * retries under its :class:`~agent_connector_sdk.http.retry.RetryPolicy` and logs
   each attempt to the ``agent_connector_sdk.http`` logger with secrets redacted;
+* with ``pin_egress``, resolves each request once, refuses non-public
+  destinations (except ``allowed_private_hosts``) and dials only that address;
 * rejects credential-bearing default headers: credentials go through ``auth``.
 
 The options are :class:`~agent_connector_sdk.http.options.HttpClientOptions`.
@@ -29,6 +31,10 @@ import httpx
 
 from agent_connector_sdk._version import __version__
 from agent_connector_sdk.auth.static import ApiKeyAuth
+from agent_connector_sdk.http.egress import (
+    AsyncDnsPinnedEgressTransport,
+    DnsPinnedEgressTransport,
+)
 from agent_connector_sdk.http.options import HttpClientOptions
 from agent_connector_sdk.http.redaction import redact_url
 from agent_connector_sdk.http.transport import AsyncGovernedTransport, GovernedTransport
@@ -92,12 +98,19 @@ def create_http_client(
     by the retrying, logging transport, and the TLS profile does not apply to it.
     """
     inner = transport or httpx.HTTPTransport(**_transport_kwargs(options))
-    governed = GovernedTransport(
+    governed: httpx.BaseTransport = GovernedTransport(
         inner,
         policy=options.retry,
         logger=_logger,
         isolate_cookies=isinstance(options.auth, ApiKeyAuth),
     )
+    if options.pin_egress:
+        governed = DnsPinnedEgressTransport(
+            governed,
+            allowed_private_hosts=options.allowed_private_hosts,
+            allow_loopback=options.allow_loopback,
+            verify_peer=options.verify_pinned_peer,
+        )
     return httpx.Client(transport=governed, **_client_kwargs(options))
 
 
@@ -106,10 +119,17 @@ def create_async_http_client(
 ) -> httpx.AsyncClient:
     """An asynchronous governed client; see :func:`create_http_client`."""
     inner = transport or httpx.AsyncHTTPTransport(**_transport_kwargs(options))
-    governed = AsyncGovernedTransport(
+    governed: httpx.AsyncBaseTransport = AsyncGovernedTransport(
         inner,
         policy=options.retry,
         logger=_logger,
         isolate_cookies=isinstance(options.auth, ApiKeyAuth),
     )
+    if options.pin_egress:
+        governed = AsyncDnsPinnedEgressTransport(
+            governed,
+            allowed_private_hosts=options.allowed_private_hosts,
+            allow_loopback=options.allow_loopback,
+            verify_peer=options.verify_pinned_peer,
+        )
     return httpx.AsyncClient(transport=governed, **_client_kwargs(options))
