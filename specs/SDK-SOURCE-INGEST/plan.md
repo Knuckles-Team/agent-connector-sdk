@@ -585,3 +585,5 @@ Call path: host → `SourceSyncRunner.sync` → `McpSession.call_tool` for each 
 The checkpoint holds the cursor, the record digests, the last report and the state. It lives in engine KV under the shared scope. The key is `ingest-source/<connector>/<source>`. A shared key lets every admitted host resume the same source. A digest match skips the record, so a repeated run is idempotent.
 
 Budgets bound each run: pages, records, batch size and seconds. A tool call retries with the existing `Backoff` (`agent_connector_sdk/runner/backoff.py`). The host owns admission and scheduling. The engine owns storage, the durable `SourceIngest` checkpoint and KV.
+
+The engine admits a source record only under an imported connector pack mapping. The mapping reference is `manifest:<connector>#schema_mappings/<record type>`. Without that pack, the engine answers `UNKNOWN_MAPPING_REFERENCE`, and the runner reports `ingest_refused`. A declared record type therefore names a manifest `schema_mappings` entry (R004.25). The engine needs no change.
