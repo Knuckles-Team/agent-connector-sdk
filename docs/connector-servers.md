@@ -89,14 +89,23 @@ An unknown mode is an error, never an unauthenticated server. With
 
 ## Tool surface
 
-`register_tool_surface(mcp, service=..., ...)` registers one condensed,
-action-routed tool per registrar, tagged `gated` so a fleet gateway holds it
-back from a default session view and reveals it on demand — the one condensed
-intent contract; `MCP_TOOL_MODE` and its `condensed`/`verbose`/`both`/`intent`
-modes are gone.
+`register_tool_surface(mcp, service=..., client_cls=Api, get_client=...)`
+registers one MCP tool per API operation: one per public method of the client
+class, named `<prefix>_<operation>`. A fleet gateway scales the catalog through
+lazy `find` and load. The SDK tags every tool `gated`, and the gateway reveals it on demand.
 
-Each condensed registrar honours a `<TAG>TOOL` setting. A destructive operation
-asks the connected user to confirm and is cancelled when it cannot.
+| Tool property | Source |
+|---|---|
+| Name | `<prefix>_<method>`; `prefix` is `tool_prefix` or the service name without `-mcp`/`-agent`/`-api`/`-server` |
+| Input schema | the OpenAPI operation manifest (`manifest=`), else the method signature and type hints |
+| Description | the manifest summary, else the docstring |
+| Annotations | the HTTP verb: GET is read-only; DELETE is destructive; PUT and DELETE are idempotent; other verbs are not read-only |
+
+Registrars (`tools_module`, `tool_registry` or `registrars`) add the tools that
+are not client-method wrappers, such as ingest tools; each honours a
+`<TAG>TOOL` setting. The SDK drops a registrar tool that routes an `action`
+string to client methods. `action_dispatch=True` keeps it for compatibility. No environment mode selects the surface. A destructive
+operation asks the connected user to confirm and is cancelled when it cannot.
 
 ## Visibility
 

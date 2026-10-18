@@ -92,11 +92,12 @@ async def test_condensed_tool_is_callable() -> None:
     assert result.content[0].text == "get_item"
 
 
-def test_retired_verbose_parameters_are_accepted_and_ignored() -> None:
-    """``client_cls``/``get_client``/etc. built the retired verbose surface.
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+def test_client_registers_operations_and_retires_action_tools() -> None:
+    """``client_cls``/``get_client`` register one tool per client operation.
 
-    They stay in the signature so the fleet's existing call sites (``client_cls=``,
-    ``get_client=``, ...) need no edit, but they register nothing.
+    A registrar's ``action``-routed tool leaves the served surface when the
+    operation tools register (SDK-CONNECTOR-CONTROL-R020).
     """
     mcp: FastMCP[Any] = FastMCP("demo")
     register_tool_surface(
@@ -105,14 +106,11 @@ def test_retired_verbose_parameters_are_accepted_and_ignored() -> None:
         client_cls=DemoApiUsers,
         get_client=get_client,
         registrars=[register_items_tools],
-        manifest=[{"method": "get_item"}],
         tool_prefix="demo",
-        verbose_targets=[{"client_cls": DemoApiUsers, "get_client": get_client}],
-        verbose_register=lambda server: None,
         action_providers={"demo_items": ["get_item"]},
     )
     names = set(registered_tools(mcp))
-    assert names == {"demo_items"}
+    assert names == {"demo_get_item", "demo_delete_item", "demo_list_users"}
 
 
 def test_invalid_surface_declarations() -> None:
@@ -123,6 +121,7 @@ def test_invalid_surface_declarations() -> None:
         register_tool_surface(mcp, service="demo", registrars=["not callable"])
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R032")
 def test_verbose_register_runs_alongside_condensed() -> None:
     """SDK-CONNECTOR-CONTROL-R032: an opt-in verbose registrar runs too."""
     mcp: FastMCP[Any] = FastMCP("demo")
@@ -142,9 +141,10 @@ def test_verbose_register_runs_alongside_condensed() -> None:
     assert tags == ["items"]
     names = set(registered_tools(mcp))
     assert names == {"demo_items", "demo_get_item"}
-    assert gated_tool_names(mcp) == {"demo_items"}
+    assert gated_tool_names(mcp) == {"demo_items"}  # no client: registrars only
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R032")
 def test_verbose_register_name_collision_with_condensed_rejected() -> None:
     """A verbose tool reusing a condensed tool's name is refused."""
     mcp: FastMCP[Any] = FastMCP("demo")
@@ -165,12 +165,11 @@ def test_verbose_register_name_collision_with_condensed_rejected() -> None:
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
-def test_one_condensed_intent_contract_no_mode_parameter_or_toggle() -> None:
-    """``register_tool_surface`` always registers condensed, gated tools.
+def test_no_mode_parameter_or_environment_toggle() -> None:
+    """No ``MCP_TOOL_MODE``/mode parameter or environment branch selects the surface.
 
-    There is no ``MCP_TOOL_MODE``/mode parameter or branch; a repository-wide
-    scan confirms no live reference to a mode toggle or a separate verbose
-    1:1 tool-surface module remains outside explanatory retirement notes.
+    Registrar tools register gated; a repository-wide scan confirms no live
+    reference to a mode toggle remains outside explanatory prose.
     """
     import inspect
 

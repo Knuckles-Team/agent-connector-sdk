@@ -62,8 +62,9 @@ if __name__ == "__main__":
 
 `create_mcp_server` installs the common health route, visibility transform,
 change-subscription surface, authentication policy, and middleware. The tool
-registrar goes through `register_tool_surface`, so SDK tool modes and per-domain
-toggles apply consistently.
+registrar goes through `register_tool_surface`, so per-domain toggles apply
+consistently. A connector with an API client also passes `client_cls` and
+`get_client`, and gets one tool per API operation.
 
 ## 3. Run and observe it
 
