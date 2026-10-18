@@ -1619,12 +1619,13 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "811c14f0f2bc",
-        "a75e2e16240a"
+        "a75e2e16240a",
+        "df027da7439a"
       ],
       "verified_by": [
         "tests/test_ingest_citable_fields.py:36",
         "tests/test_ingest_citable_fields.py:55",
-        "tests/test_ingest_citable_fields.py:76"
+        "tests/test_ingest_citable_fields.py:75"
       ]
     },
     {
