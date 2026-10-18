@@ -7,7 +7,7 @@
 | CC-03 | Publish same canonical pack twice through a fake generated client | Same idempotency key and result. Changed content yields new digest/key. |
 | CC-04 | Feed duplicate entries, bad URI scheme, undeclared kind, literal credential, or oversized body | Deterministic named refusal. No pack call and no secret in output. |
 | CC-05 | Request event/tool-choice proposal | Proposal can be logged and rejected; it cannot call write-back or grant an action. |
-| CC-06 | Build wheel and install it in isolated environment with the locked published graph wheel | Generated DTO imports and client/pack calls work without source path overlays. |
+| CC-06 | Build the wheel. Install it in isolation with the locked published graph wheel. | Generated DTO imports and client/pack calls work without source path overlays. |
 | CC-07 | Scan every migrated connector batch | No runtime import or declared dependency on `agent_utilities`; SDK conformance suite and connector's own tests pass. |
 | CC-08 | Submit one synthetic pack to a contributor-owned running graph service | Receipt binds tenant, connector, digest, and retry identity. Wrong tenant and stale contract pin refuse. |
 | CC-09 | Submit SQL change page with generated SourceIngest client | Typed receipt binds table/key/schema/checkpoint and advances only on accepted result; mismatched tenant or schema refuses. |
@@ -317,3 +317,7 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_
 - `SDK-CONNECTOR-CONTROL-R780.1` to `SDK-CONNECTOR-CONTROL-R780.5`: `tests/test_au_helper_parity.py` (5 tests).
 - `SDK-CONNECTOR-CONTROL-R781`: `tests/test_trajectory_recorder.py`.
 - `SDK-CONNECTOR-CONTROL-R782`: `tests/test_stream_adapter.py`.
+
+## SDK-CONNECTOR-CONTROL-R070
+
+`tests/test_current_plan.py` uses synthetic JSON and Python values. Positive cases cover available empty/populated snapshots, all statuses, unavailable/null and ordered JSON round trips. Negative cases cover unknown authority fields, scalar coercion, negative/bool revisions, invalid statuses, empty/oversized IDs, naive/non-UTC/reversed timestamps, availability mismatch and malformed nested instances. Frozen tuples and model fields refuse mutation. These tests require no server, engine or model call.
