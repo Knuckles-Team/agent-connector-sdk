@@ -291,3 +291,24 @@ def test_default_result_coercion_is_json_ready() -> None:
     assert jsonable_result(b"\x00\xff") == "AP8="
     assert jsonable_result({"r": Raw()}) == {"r": {"status_code": 204}}
     assert jsonable_result(inspect) == str(inspect)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+async def test_plain_json_return_hint_becomes_the_output_schema() -> None:
+    class StatusApi:
+        def get_status(self) -> dict[str, Any]:
+            """Status."""
+            return {"ok": True}
+
+        def get_model(self) -> SearchModel:
+            """A model the coercer reshapes."""
+            return SearchModel(query="q")
+
+    mcp: FastMCP[Any] = FastMCP("sample")
+    register_method_tools(mcp, StatusApi, StatusApi, prefix="sample")
+    tools = await _listed(mcp)
+    assert tools["sample_get_status"].output_schema["type"] == "object"
+    assert tools["sample_get_model"].output_schema is None
+    async with Client(mcp) as client:
+        result = await client.call_tool("sample_get_status", {})
+    assert result.structured_content == {"ok": True}

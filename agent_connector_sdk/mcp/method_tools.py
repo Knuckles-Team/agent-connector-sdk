@@ -33,6 +33,7 @@ from __future__ import annotations
 import inspect
 import os.path
 import re
+import types
 import typing
 from collections.abc import Callable, Mapping
 from typing import Any
@@ -368,6 +369,33 @@ def _manifest_parameters(
     return required + optional
 
 
+_JSON_LEAVES = (str, int, float, bool, type(None))
+
+
+def _is_plain_json(hint: Any) -> bool:
+    if hint is Any or hint in _JSON_LEAVES:
+        return True
+    origin = typing.get_origin(hint)
+    if origin in (dict, list, typing.Union, types.UnionType):
+        return all(_is_plain_json(arg) for arg in typing.get_args(hint))
+    return False
+
+
+def _json_return(method: Callable[..., Any]) -> Any:
+    """The method's return hint when it is plain JSON data, so it can be an output schema.
+
+    Any other hint (a model, a raw response object) stays ``Any``: the default
+    result coercer reshapes those values, so their hint is not the wire shape.
+    """
+    try:
+        hint = typing.get_type_hints(method).get("return", Any)
+    except Exception:  # unresolved hints have no output schema
+        return Any
+    if typing.get_origin(hint) not in (dict, list):
+        return Any
+    return hint if _is_plain_json(hint) else Any
+
+
 def _context_name(params: list[inspect.Parameter]) -> str:
     taken = {p.name for p in params}
     return "ctx" if "ctx" not in taken else "mcp_ctx"
@@ -404,6 +432,7 @@ def _typed_tool(
     extra_json: bool,
     destructive: bool,
     coercer: Callable[[Any], Any],
+    returns: Any = Any,
 ) -> Callable[..., Any]:
     """A tool whose signature mirrors the operation's typed parameters."""
     ctx_name = _context_name(params)
@@ -448,9 +477,11 @@ def _typed_tool(
         )
     )
     _tool.__signature__ = inspect.Signature(  # type: ignore[attr-defined]
-        ordered, return_annotation=Any
+        ordered, return_annotation=returns
     )
-    _tool.__annotations__ = {p.name: p.annotation for p in ordered} | {"return": Any}
+    _tool.__annotations__ = {p.name: p.annotation for p in ordered} | {
+        "return": returns
+    }
     return _tool
 
 
@@ -569,6 +600,7 @@ def register_method_tools(
                     extra_json=typed[1],
                     destructive=destructive,
                     coercer=coercer,
+                    returns=_json_return(method) if result_coercer is None else Any,
                 )
             )
         except (TypeError, ValueError) as error:
