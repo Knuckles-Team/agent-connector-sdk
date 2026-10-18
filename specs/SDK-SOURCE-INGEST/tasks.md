@@ -174,3 +174,13 @@
 - [ ] **SDK-SOURCE-INGEST-R017.4:** Refusal. Pass the proving test in test-spec.md.
 - [ ] **SDK-SOURCE-INGEST-R017.5:** Evidence. Pass the proving test in test-spec.md.
 - [ ] **SDK-SOURCE-INGEST-R017.6:** Hot-path proof. Pass the proving test in test-spec.md.
+
+## Web-source fetch contract (R005.40)
+
+- [ ] **SDK-SOURCE-INGEST-R005.40:** Web-source fetch contract. Pass the proving test in test-spec.md.
+- [ ] **SDK-SOURCE-INGEST-R005.40.1:** Model. Add the request, result and refusal types.
+- [ ] **SDK-SOURCE-INGEST-R005.40.2:** Behavior. Add the conformance kit for the five obligations.
+- [ ] **SDK-SOURCE-INGEST-R005.40.3:** Wiring. Route the adapter through the connector tool.
+- [ ] **SDK-SOURCE-INGEST-R005.40.4:** Refusal. Return typed refusals and keep the checkpoint.
+- [ ] **SDK-SOURCE-INGEST-R005.40.5:** Evidence. Map the record provenance onto the engine model.
+- [ ] **SDK-SOURCE-INGEST-R005.40.6:** Hot-path proof. Add the served two-connector test.
