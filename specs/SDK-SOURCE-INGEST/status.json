@@ -129,6 +129,12 @@
     "SDK-SOURCE-INGEST-R004.16",
     "SDK-SOURCE-INGEST-R004.17",
     "SDK-SOURCE-INGEST-R004.18",
+    "SDK-SOURCE-INGEST-R004.19",
+    "SDK-SOURCE-INGEST-R004.20",
+    "SDK-SOURCE-INGEST-R004.21",
+    "SDK-SOURCE-INGEST-R004.22",
+    "SDK-SOURCE-INGEST-R004.23",
+    "SDK-SOURCE-INGEST-R004.24",
     "SDK-SOURCE-INGEST-R013",
     "SDK-SOURCE-INGEST-R013.1",
     "SDK-SOURCE-INGEST-R013.2",
@@ -286,7 +292,13 @@
         "SDK-SOURCE-INGEST-R004.15",
         "SDK-SOURCE-INGEST-R004.16",
         "SDK-SOURCE-INGEST-R004.17",
-        "SDK-SOURCE-INGEST-R004.18"
+        "SDK-SOURCE-INGEST-R004.18",
+        "SDK-SOURCE-INGEST-R004.19",
+        "SDK-SOURCE-INGEST-R004.20",
+        "SDK-SOURCE-INGEST-R004.21",
+        "SDK-SOURCE-INGEST-R004.22",
+        "SDK-SOURCE-INGEST-R004.23",
+        "SDK-SOURCE-INGEST-R004.24"
       ]
     },
     {
@@ -1509,6 +1521,48 @@
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.18",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.19",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.20",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.21",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.22",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.23",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.24",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],

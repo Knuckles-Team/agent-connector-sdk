@@ -80,6 +80,12 @@
 - [ ] `SDK-SOURCE-INGEST-R004.16`: implement and prove refusal for incremental repository indexing.
 - [ ] `SDK-SOURCE-INGEST-R004.17`: implement and prove evidence for incremental repository indexing.
 - [ ] `SDK-SOURCE-INGEST-R004.18`: implement and prove hot-path proof for incremental repository indexing.
+- [ ] `SDK-SOURCE-INGEST-R004.19`: implement and prove model for declared connector sources.
+- [ ] `SDK-SOURCE-INGEST-R004.20`: implement and prove behavior for declared connector sources.
+- [ ] `SDK-SOURCE-INGEST-R004.21`: implement and prove wiring for declared connector sources.
+- [ ] `SDK-SOURCE-INGEST-R004.22`: implement and prove refusal for declared connector sources.
+- [ ] `SDK-SOURCE-INGEST-R004.23`: implement and prove evidence for declared connector sources.
+- [ ] `SDK-SOURCE-INGEST-R004.24`: implement and prove hot-path proof for declared connector sources.
 
 ## Scheduled paper sourcing (R005.25-R005.30)
 

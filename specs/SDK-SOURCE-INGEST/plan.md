@@ -575,3 +575,13 @@ Call path: engine `WebPage` work item -> ingest worker runner (`SDK-SOURCE-INGES
 Reuse: `fetch_page` (`agent_connector_sdk/adapters/web_fetch.py:86`) stops issuing HTTP requests. The conformance kit reuses the fixture server in `agent_connector_sdk/testing/http_server.py`. Enrichment belongs to `EG-UNIFIED-DATA-PLANE-R651.7`; the SDK transports records only.
 
 Budget: 5 MiB default `max_bytes` and 1 request per second per domain. These are starting defaults. A measurement on this platform replaces them.
+
+## Declared connector sources (SDK-SOURCE-INGEST-R004.19 through R004.24)
+
+A connector declares each ingestible source in `<package>/ontology/ingest_sources.json`. The SDK validates the file as `IngestSourceDeclaration`. `register_tool_surface` serves it as the read-only tool `<prefix>_ingest_sources`. A host reads the declarations through that tool. The host needs no engine listing method.
+
+Call path: host → `SourceSyncRunner.sync` → `McpSession.call_tool` for each declared tool → record mapping → `KnowledgeIngest.submit` (`agent_connector_sdk/ingest/service.py`) → engine `SourceIngest`. After each accepted batch, the runner writes the checkpoint through `KvSourceCheckpoints`.
+
+The checkpoint holds the cursor, the record digests, the last report and the state. It lives in engine KV under the shared scope. The key is `ingest-source/<connector>/<source>`. A shared key lets every admitted host resume the same source. A digest match skips the record, so a repeated run is idempotent.
+
+Budgets bound each run: pages, records, batch size and seconds. A tool call retries with the existing `Backoff` (`agent_connector_sdk/runner/backoff.py`). The host owns admission and scheduling. The engine owns storage, the durable `SourceIngest` checkpoint and KV.
