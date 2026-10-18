@@ -1618,7 +1618,8 @@
       "title": "Citable fields",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "811c14f0f2bc"
+        "811c14f0f2bc",
+        "a75e2e16240a"
       ],
       "verified_by": [
         "tests/test_ingest_citable_fields.py:36",
