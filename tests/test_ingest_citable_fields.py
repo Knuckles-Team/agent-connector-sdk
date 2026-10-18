@@ -58,7 +58,7 @@ def test_citable_fields_keep_public_urls_and_nothing_else() -> None:
     [
         "http://127.0.0.1:8080/x",
         "http://10.0.0.5/x",
-        "https://user:pw@example.org/x",
+        "https://user:pw@example.org/x",  # sanitizer:ignore - synthetic credentialed URL proving redaction
         "http://intranet/x",
         "http://service.arpa/x",
         "file:///etc/passwd",
