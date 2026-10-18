@@ -135,6 +135,7 @@
     "SDK-SOURCE-INGEST-R004.22",
     "SDK-SOURCE-INGEST-R004.23",
     "SDK-SOURCE-INGEST-R004.24",
+    "SDK-SOURCE-INGEST-R004.25",
     "SDK-SOURCE-INGEST-R013",
     "SDK-SOURCE-INGEST-R013.1",
     "SDK-SOURCE-INGEST-R013.2",
@@ -298,7 +299,8 @@
         "SDK-SOURCE-INGEST-R004.21",
         "SDK-SOURCE-INGEST-R004.22",
         "SDK-SOURCE-INGEST-R004.23",
-        "SDK-SOURCE-INGEST-R004.24"
+        "SDK-SOURCE-INGEST-R004.24",
+        "SDK-SOURCE-INGEST-R004.25"
       ]
     },
     {
@@ -1566,6 +1568,7 @@
       "title": "Refusal",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "ce0f7eaf04e2",
         "e877477e46b8"
       ],
       "verified_by": [
@@ -1586,6 +1589,17 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.24",
       "title": "Hot-path proof",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ce0f7eaf04e2"
+      ],
+      "verified_by": [
+        "tests/test_source_sync_served.py:96"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.25",
+      "title": "Pack mapping",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
