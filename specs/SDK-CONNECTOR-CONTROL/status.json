@@ -557,18 +557,18 @@
       "title": "One tool per API operation is the default",
       "delivery_state": "SPECIFIED",
       "landed_in": [
+        "1d0259e2c41b",
         "38b66f26f32a",
         "6ccbf6e01d12",
         "c9a2cf7b23cc",
-        "d3617301012c",
-        "ffb9260d7602"
+        "d3617301012c"
       ],
       "verified_by": [
+        "tests/test_action_split.py:39",
+        "tests/test_action_split.py:44",
         "tests/test_operation_tools.py:100",
         "tests/test_operation_tools.py:130",
-        "tests/test_operation_tools.py:141",
-        "tests/test_operation_tools.py:160",
-        "tests/test_operation_tools.py:169"
+        "tests/test_operation_tools.py:141"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R020.1"
