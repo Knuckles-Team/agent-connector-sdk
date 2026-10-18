@@ -575,3 +575,34 @@ async def test_in_memory_sink_passes_record_submission_tck() -> None:
         checkpoint=SourceCheckpoint(stream="demo", position={}, watermark="w"),
     )
     assert_conformant(await run_sink_suite(InMemorySink, batch))
+
+
+def _import_requests(client: _PackClient) -> list[dict[str, object]]:
+    found: list[dict[str, object]] = []
+    for method, params, _key in client.calls:
+        if method != "ConnectorPack" or params is None:
+            continue
+        operation = params["op"]
+        if isinstance(operation, dict) and operation.get("op") == "import":
+            request = operation.get("request")
+            assert isinstance(request, dict)
+            found.append(request)
+    return found
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.27")
+@pytest.mark.parametrize("allow", [False, True])
+async def test_sink_passes_the_mass_withdrawal_decision_to_the_engine(
+    allow: bool,
+) -> None:
+    async def authority(
+        connector: str,
+    ) -> tuple[McpCatalogSnapshotBinding, AgentLibraryMutationContext]:
+        return _catalog(), _mutation_context()
+
+    client = _PackClient()
+    await EpistemicGraphSink(client, authority).import_pack(
+        _pack(), allow_mass_withdrawal=allow
+    )
+    (request,) = _import_requests(client)
+    assert request["allow_mass_withdrawal"] is allow

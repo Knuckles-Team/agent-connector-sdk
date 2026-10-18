@@ -116,18 +116,30 @@ class EpistemicGraphSink:
         """Read the sole durable checkpoint from EG's generated status method."""
         return await self._channel.source_status(connector, stream)
 
-    def import_pack(self, pack: CapturedConnectorPack) -> Awaitable[PackImportResult]:
-        """Resolve current authority and import through the generated facade."""
-        return self._import_pack(pack)
+    def import_pack(
+        self, pack: CapturedConnectorPack, *, allow_mass_withdrawal: bool = False
+    ) -> Awaitable[PackImportResult]:
+        """Resolve current authority and import through the generated facade.
 
-    async def _import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
+        ``allow_mass_withdrawal`` passes the operator's decision through to EG,
+        which then requires ``admin:connector-pack``.
+        """
+        return self._import_pack(pack, allow_mass_withdrawal=allow_mass_withdrawal)
+
+    async def _import_pack(
+        self, pack: CapturedConnectorPack, *, allow_mass_withdrawal: bool
+    ) -> PackImportResult:
         catalog, context = await self._pack_import_authority(pack.connector)
         status = await self._packs.status(
             tenant_id=context.tenant_id, connector=pack.connector
         )
         try:
             return await self._import_after_status(
-                pack, catalog=catalog, context=context, status=status
+                pack,
+                catalog=catalog,
+                context=context,
+                status=status,
+                allow_mass_withdrawal=allow_mass_withdrawal,
             )
         except ConnectorPackWriteError as error:
             if error.code is not PackWriteErrorCode.PACK_HEAD_CONFLICT:
@@ -136,7 +148,11 @@ class EpistemicGraphSink:
             tenant_id=context.tenant_id, connector=pack.connector
         )
         return await self._import_after_status(
-            pack, catalog=catalog, context=context, status=status
+            pack,
+            catalog=catalog,
+            context=context,
+            status=status,
+            allow_mass_withdrawal=allow_mass_withdrawal,
         )
 
     async def _import_after_status(
@@ -146,6 +162,7 @@ class EpistemicGraphSink:
         catalog: McpCatalogSnapshotBinding,
         context: AgentLibraryMutationContext,
         status: Any,
+        allow_mass_withdrawal: bool = False,
     ) -> PackImportResult:
         digest = pack_digest(
             pack.connector, catalog, pack.archive.server, pack.archive.entries
@@ -163,6 +180,7 @@ class EpistemicGraphSink:
             producer=PackProducer(name="agent-connector-sdk", version=__version__),
             catalog=catalog,
             context=context,
+            allow_mass_withdrawal=allow_mass_withdrawal,
             expected_head=(
                 None
                 if status.head is None

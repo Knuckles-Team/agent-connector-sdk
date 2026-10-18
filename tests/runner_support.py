@@ -128,10 +128,14 @@ class RecordingSink:
         """Delegate the authoritative status read."""
         return await self.inner.source_status(connector, stream)
 
-    async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
+    async def import_pack(
+        self, pack: CapturedConnectorPack, *, allow_mass_withdrawal: bool = False
+    ) -> PackImportResult:
         """Import through the in-memory sink."""
         self.imports += 1
-        return await self.inner.import_pack(pack)
+        return await self.inner.import_pack(
+            pack, allow_mass_withdrawal=allow_mass_withdrawal
+        )
 
     async def readiness(self) -> SinkReadiness:
         """Delegate to the wrapped in-memory sink."""

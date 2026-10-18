@@ -47,6 +47,10 @@ class IngestBinding:
         sanitize: Pass record properties through the persistence privacy
             guard (:mod:`agent_connector_sdk.privacy`) before they leave the
             process.
+        citable_fields: Location fields whose value is a public ``http(s)``
+            URL the record cites, such as a public web page's ``source_uri``.
+            The guard keeps such a value; any other value of the field, and
+            every other location field, is still redacted.
     """
 
     connector: str
@@ -57,6 +61,7 @@ class IngestBinding:
     media_type: str = "MediaAsset"
     strict_schema: bool = False
     sanitize: bool = True
+    citable_fields: frozenset[str] = frozenset()
 
     def __post_init__(self) -> None:
         for name in ("connector", "stream", "tool", "document_type", "media_type"):

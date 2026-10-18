@@ -241,7 +241,10 @@ class InMemorySink:
         )
         return receipt
 
-    async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
+    async def import_pack(
+        self, pack: CapturedConnectorPack, *, allow_mass_withdrawal: bool = False
+    ) -> PackImportResult:
+        del allow_mass_withdrawal
         digest = pack_digest(
             pack.connector, _FIXTURE_CATALOG, pack.archive.server, pack.archive.entries
         )

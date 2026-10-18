@@ -192,7 +192,11 @@ def build_request(
         *extra_entities,
     )
     types = {entity.id: entity.node_type for entity in entities}
-    guard = PersistencePrivacyGuard() if binding.sanitize else None
+    guard = (
+        PersistencePrivacyGuard(citable_fields=binding.citable_fields)
+        if binding.sanitize
+        else None
+    )
     try:
         records = [_record(binding, entity, guard) for entity in entities]
         relationships = [
