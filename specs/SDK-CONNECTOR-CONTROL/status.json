@@ -766,11 +766,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R029",
       "title": "SDK exposes a structured configuration singleton, not only a flat `setting()` lookup",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "284fb12a19ed"
+        "284fb12a19ed",
+        "7aad77a0eb66"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_agent_config.py:17",
+        "tests/test_agent_config.py:34",
+        "tests/test_agent_config.py:50"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R030",
