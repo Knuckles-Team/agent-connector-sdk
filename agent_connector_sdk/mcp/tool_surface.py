@@ -194,13 +194,16 @@ def _register_operations(
     return names
 
 
-def _settle_action_tools(mcp: Any, *, operations: dict[str, str], keep: bool) -> None:
+def _settle_action_tools(
+    mcp: Any, *, clients: dict[Any, dict[str, str]], keep: bool
+) -> None:
     """Keep (``keep``) or split every action-routed registrar tool; never drop one.
 
-    ``operations`` maps each client method that will be served as an operation
-    tool to that tool's name; a split action that duplicates one is covered by
-    it and recorded in the registration report.
+    ``clients`` maps each served client class and factory to ``{method: tool}`` for
+    the operation tools about to be served; a split action that duplicates one
+    is covered by it and recorded in the registration report.
     """
+    operations = _flat_operations(clients)
     gated: set[str] = getattr(mcp, GATED_TOOLS_ATTRIBUTE, set())
     for name, tool in list(registered_tools(mcp).items()):
         if not _is_action_dispatch(tool) or SPLIT_ACTION_TAG in (tool.tags or set()):
@@ -214,6 +217,7 @@ def _settle_action_tools(mcp: Any, *, operations: dict[str, str], keep: bool) ->
             tool,
             operations=operations,
             taken=set(registered_tools(mcp)) - {name},
+            clients=clients,
         )
         if name not in added:
             gated.discard(name)
@@ -224,21 +228,39 @@ def _settle_action_tools(mcp: Any, *, operations: dict[str, str], keep: bool) ->
 def _operation_methods(
     prefix: str,
     client_cls: type | None,
+    get_client: Any,
     manifest: list[dict[str, Any]] | None,
     verbose_targets: list[dict[str, Any]] | None,
-) -> dict[str, str]:
-    """``{method: tool_name}`` for every operation tool about to be served."""
-    targets = [(client_cls, prefix, manifest)] if client_cls is not None else []
+) -> dict[Any, dict[str, str]]:
+    """``{client class or factory: {method: tool_name}}`` for every operation tool."""
+    targets = (
+        [(client_cls, get_client, prefix, manifest)] if client_cls is not None else []
+    )
     targets += [
-        (t["client_cls"], str(t.get("prefix") or prefix), t.get("manifest"))
+        (
+            t["client_cls"],
+            t.get("get_client"),
+            str(t.get("prefix") or prefix),
+            t.get("manifest"),
+        )
         for t in verbose_targets or []
         if "client_cls" in t
     ]
-    names: dict[str, str] = {}
-    for cls, target_prefix, target_manifest in targets:
-        for method, tool in operation_tool_names(
+    clients: dict[Any, dict[str, str]] = {}
+    for cls, factory, target_prefix, target_manifest in targets:
+        names = operation_tool_names(
             cls, prefix=target_prefix, manifest=target_manifest
-        ).items():
+        )
+        clients.setdefault(cls, names)
+        if factory is not None:
+            clients.setdefault(factory, names)
+    return clients
+
+
+def _flat_operations(clients: dict[Any, dict[str, str]]) -> dict[str, str]:
+    names: dict[str, str] = {}
+    for operations in clients.values():
+        for method, tool in operations.items():
             names.setdefault(method, tool)
     return names
 
@@ -348,8 +370,8 @@ def register_tool_surface(
         # Split action-routed tools first so an operation may reuse a name.
         _settle_action_tools(
             mcp,
-            operations=_operation_methods(
-                prefix, client_cls, manifest, verbose_targets
+            clients=_operation_methods(
+                prefix, client_cls, get_client, manifest, verbose_targets
             ),
             keep=action_dispatch,
         )
