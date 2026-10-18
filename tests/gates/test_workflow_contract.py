@@ -295,4 +295,8 @@ def test_no_gate_depends_on_an_external_audit_service() -> None:
 def test_publish_requires_the_dependency_floor_on_the_public_index() -> None:
     commands = _runs(_yaml(RELEASE)["jobs"]["publish-pypi"])
 
-    assert commands.index("uv lock --check") < commands.index("uv publish dist/*.whl")
+    publish = (
+        "uv publish --check-url https://pypi.org/simple/ dist/*.whl dist/*.tar.gz"
+    )
+    # The release publishes the wheel and the sdist, after the lock check.
+    assert commands.index("uv lock --check") < commands.index(publish)
