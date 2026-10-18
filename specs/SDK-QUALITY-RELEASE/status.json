@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "SDK-QUALITY-RELEASE",
   "owner_repo": "agent-connector-sdk",
-  "delivery_state": "LANDED",
+  "delivery_state": "VERIFIED",
   "requirement_ids": [
     "SDK-QUALITY-RELEASE-R001",
     "SDK-QUALITY-RELEASE-R002",
@@ -55,12 +55,16 @@
     {
       "id": "SDK-QUALITY-RELEASE-R004",
       "title": "Public documentation follows a task-first README and site structure",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "010681764371",
         "cbbf859a5c38",
         "fad5328aee62"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_public_docs_structure.py:21",
+        "tests/test_public_docs_structure.py:40"
+      ]
     },
     {
       "id": "SDK-QUALITY-RELEASE-R005",
