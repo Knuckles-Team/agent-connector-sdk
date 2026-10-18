@@ -45,11 +45,18 @@
     {
       "id": "SDK-FINANCE-SOURCES-R003",
       "title": "FX, commodities, and real-estate adapters with roll and staleness rules",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "13fcdacb3ff1",
         "6ef04661acc2"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_finance_records.py:101",
+        "tests/test_finance_records.py:113",
+        "tests/test_finance_records.py:119",
+        "tests/test_finance_records.py:130",
+        "tests/test_finance_records.py:142"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R004",
