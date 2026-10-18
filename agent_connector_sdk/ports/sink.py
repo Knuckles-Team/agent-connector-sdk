@@ -42,8 +42,16 @@ class Sink(Protocol):
         """Read EG's sole durable checkpoint and live-set status."""
         ...
 
-    async def import_pack(self, pack: CapturedConnectorPack) -> PackImportResult:
-        """Import a capture through EG's generated ConnectorPack contract."""
+    async def import_pack(
+        self, pack: CapturedConnectorPack, *, allow_mass_withdrawal: bool = False
+    ) -> PackImportResult:
+        """Import a capture through EG's generated ConnectorPack contract.
+
+        ``allow_mass_withdrawal`` is the operator's decision to publish a pack
+        that withdraws more than half of the published surface, for example a
+        connector moving to one tool per operation. EG requires the stronger
+        ``admin:connector-pack`` action for it.
+        """
         ...
 
     async def readiness(self) -> SinkReadiness:

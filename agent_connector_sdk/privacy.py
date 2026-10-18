@@ -15,10 +15,12 @@ secret behind ``PERSISTENCE_IDENTITY_HMAC_KEY_REF`` when set.
 
 from __future__ import annotations
 
+import ipaddress
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
+from urllib.parse import urlsplit
 
 from agent_connector_sdk.privacy_reference import persistence_reference
 from agent_connector_sdk.privacy_rules import (
@@ -34,6 +36,7 @@ __all__ = [
     "PersistencePrivacyGuard",
     "PrivacyReport",
     "persistence_reference",
+    "public_http_url",
     "sanitize_for_persistence",
 ]
 
@@ -58,10 +61,46 @@ class PrivacyReport:
         }
 
 
+def public_http_url(value: Any) -> bool:
+    """Whether ``value`` is an absolute ``http(s)`` URL to a public host.
+
+    A URL with credentials, or one naming a loopback, private, link-local or
+    single-label host, is not public and stays redacted.
+    """
+    if not isinstance(value, str) or any(c in value for c in "\r\n\t "):
+        return False
+    try:
+        parts = urlsplit(value)
+    except ValueError:
+        return False
+    host = (parts.hostname or "").lower()
+    if parts.scheme not in {"http", "https"} or not host:
+        return False
+    if parts.username is not None or parts.password is not None:
+        return False
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        return (
+            "." in host
+            and host not in {"localhost"}
+            and not host.endswith(
+                (".local", ".localhost", ".internal", ".arpa", ".lan", ".home")
+            )
+        )
+    return address.is_global
+
+
 class PersistencePrivacyGuard:
     """Deep sanitizer for data entering durable or external observability stores."""
 
-    def __init__(self, *, deny_terms: Iterable[str] | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        deny_terms: Iterable[str] | None = None,
+        citable_fields: Iterable[str] = (),
+    ) -> None:
+        self._citable = frozenset(field_name(name) for name in citable_fields)
         terms = runtime_deny_terms() if deny_terms is None else usable_terms(deny_terms)
         self._patterns = (
             *PATTERNS,
@@ -103,6 +142,8 @@ class PersistencePrivacyGuard:
         self, key: str, item: Any, counts: dict[str, int], context: tuple[str, ...]
     ) -> Any:
         field = field_name(key)
+        if field in self._citable and public_http_url(item):
+            return item
         redaction = field_redaction(field, item, context)
         if redaction is not None:
             label, replacement = redaction
