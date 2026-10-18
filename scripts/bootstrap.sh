@@ -50,8 +50,8 @@ if ! uv_is_current; then
 fi
 uv_is_current || { echo "bootstrap.sh: uv >= $uv_minimum is required" >&2; exit 2; }
 
-# Read only the SDK project's Python floor; uv.lock also records dependency metadata.
-python_version=$(python3 scripts/project_python_floor.py pyproject.toml)
+# The environment interpreter is pinned in .python-version; requires-python is the 3.12 install floor.
+python_version=$(tr -d '[:space:]' < .python-version)
 uv python install "$python_version"
 
 # epistemic-graph comes from PyPI only: uv.lock pins its registry wheels by

@@ -7,7 +7,7 @@ name = "agent-connector-sdk"
 dynamic = ["version"]
 description = "Connector SDK for the agent-packages fleet: MCP server scaffolding, connector manifests, and typed source/content extension ports"
 readme = "README.md"
-requires-python = ">=3.12,<3.15"
+requires-python = ">=3.12"
 license = "MIT"
 classifiers = [
     "Development Status :: 4 - Beta",
