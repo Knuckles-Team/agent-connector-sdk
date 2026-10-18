@@ -56,10 +56,16 @@ jobs:
           version: '0.11.7'
       - name: Require a published dependency resolution before release
         run: uv lock --check
-      - name: Publish the validated wheel
+      - name: Require the wheel and the source distribution
+        run: |
+          set -euo pipefail
+          ls dist/*.whl dist/*.tar.gz
+      # Wheel and sdist upload together. --check-url skips a file PyPI already
+      # holds with the same hash, so re-running a release only adds what is missing.
+      - name: Publish the validated wheel and source distribution
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-        run: uv publish dist/*.whl
+        run: uv publish --check-url https://pypi.org/simple/ dist/*.whl dist/*.tar.gz
 
   # The GitHub release for the tag, created only after the wheel is on PyPI, so
   # the release always links to a package that exists.

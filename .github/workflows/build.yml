@@ -1,6 +1,6 @@
 name: Build
 
-# Reproducible wheel build and installed-wheel compatibility check. Reusable:
+# Reproducible wheel build, source distribution and installed-wheel compatibility check. Reusable:
 # gates.yml calls it on a push to main (no upload beyond the 7-day candidate
 # artifact); release.yml calls it for a v* tag or dispatch, then publishes.
 
@@ -45,6 +45,13 @@ jobs:
           python3 -c "from hashlib import sha256; from pathlib import Path; a=sorted(Path('dist-primary').glob('*.whl')); b=sorted(Path('dist-reproduction').glob('*.whl')); assert len(a)==len(b)==1 and a[0].name==b[0].name; assert sha256(a[0].read_bytes()).digest()==sha256(b[0].read_bytes()).digest(), 'wheel is not reproducible'; print('reproducible', a[0].name)"
           mkdir dist
           cp dist-primary/*.whl dist/
+      # A release publishes the wheel and the source distribution together, so
+      # PyPI never shows a half-published version.
+      - name: Build the source distribution
+        run: |
+          set -euo pipefail
+          uv build --sdist --out-dir dist
+          python3 -c "from pathlib import Path; w=sorted(Path('dist').glob('*.whl')); s=sorted(Path('dist').glob('*.tar.gz')); assert len(w)==1 and len(s)==1, (w, s); ver=w[0].name.split('-')[1]; assert s[0].name.endswith(f'-{ver}.tar.gz'), (w, s); print('sdist', s[0].name)"
       # The pinned engine wheel from PyPI (scripts/epistemic_graph_release.json). The
       # rolling engine-main release replaces its asset on every engine main build.
       - name: Download the pinned epistemic-graph engine wheel (PyPI)
@@ -61,6 +68,8 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: agent-connector-sdk-wheel
-          path: dist/*.whl
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
           if-no-files-found: error
           retention-days: 7
