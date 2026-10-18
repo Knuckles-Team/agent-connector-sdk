@@ -207,3 +207,51 @@ async def test_a_refusal_is_a_result_and_a_bad_digest_is_refused() -> None:
         "detail": "private address",
     }
     assert tampered["kind"] == "refusal" and tampered["reason"] == "upstream_failed"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.40.1")
+async def test_contract_defaults_protocol_and_kit_surface() -> None:
+    from typing import get_args
+
+    from agent_connector_sdk.ports.web_source import (
+        DEFAULT_ACCEPTED_TYPES,
+        DEFAULT_MAX_BYTES,
+        DEFAULT_MIN_INTERVAL_S,
+        RefusalReason,
+        WebSource,
+    )
+    from agent_connector_sdk.testing.http_server import RoutedHttpServer, RoutedRequest
+    from agent_connector_sdk.testing.web_source_conformance import (
+        ARTICLE_SENTENCE,
+        Caller,
+        ConformanceReport,
+        contract_tool_schemas,
+    )
+
+    assert DEFAULT_MAX_BYTES == 5 * 1024 * 1024
+    assert DEFAULT_MIN_INTERVAL_S == 1.0
+    assert "text/html" in DEFAULT_ACCEPTED_TYPES
+    assert get_args(RefusalReason) == REFUSAL_REASONS
+    assert isinstance(FixtureSource(), WebSource)
+    schemas = await contract_tool_schemas()
+    assert set(schemas) == {"web_fetch", "web_extract"}
+    assert schemas["web_fetch"]["input"]["required"] == ["request"]
+    report = ConformanceReport()
+    report.record("robots", None)
+    report.record("max_bytes", "not refused")
+    assert report.broken == ("max_bytes",) and not report.ok
+    with fixture_site() as site:
+        assert isinstance(site, RoutedHttpServer)
+        with urllib.request.urlopen(f"{site.base_url}/article", timeout=10) as response:
+            assert ARTICLE_SENTENCE.encode() in response.read()
+        (request,) = site.served("/article")
+        assert isinstance(request, RoutedRequest) and request.path == "/article"
+
+    async def call(tool: str, arguments: dict[str, Any]) -> dict[str, Any]:
+        return {"tool": tool, **arguments}
+
+    caller: Caller = call
+    assert await caller("web_fetch", {"request": {}}) == {
+        "tool": "web_fetch",
+        "request": {},
+    }
