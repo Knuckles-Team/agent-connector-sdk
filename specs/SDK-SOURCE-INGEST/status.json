@@ -1384,7 +1384,8 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "ad0b0e131b53",
-        "b432221a8c03"
+        "b432221a8c03",
+        "f0fbc061dd6b"
       ],
       "verified_by": [
         "tests/test_web_source_contract.py:167"
