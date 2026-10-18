@@ -105,6 +105,7 @@ def test_sync_runner_against_real_engine(
     # mapping (manifest:<connector>#schema_mappings/<record type>). This
     # fixture connector imported none, so the engine refuses the batch.
     assert first.state == "failed" and first.reason == "ingest_refused", first
+    assert first.engine_code == "UNKNOWN_MAPPING_REFERENCE", first
     assert first.submitted == 0 and first.records_seen == 3
     assert second.state == "failed" and second.unchanged == 0, second
     assert rows == [], rows

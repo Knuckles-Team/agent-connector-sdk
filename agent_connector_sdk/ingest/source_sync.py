@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import time
 from collections.abc import Awaitable, Callable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -47,6 +48,7 @@ __all__ = [
 #: The KV namespace every source checkpoint lives in.
 CHECKPOINT_NAMESPACE = "agent-connector-sdk"
 _MAX_DIGESTS = 50_000
+_ENGINE_CODE = re.compile(r"\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b")
 _SCALARS = (str, int, float, bool)
 
 SyncState = Literal["completed", "partial", "failed"]
@@ -105,6 +107,9 @@ class SourceSyncReport(BaseModel):
     cursor_before: str | None = None
     cursor_after: str | None = None
     reason: str | None = None
+    #: The engine's refusal code (for example ``UNKNOWN_MAPPING_REFERENCE``)
+    #: when ``reason`` is ``ingest_refused``; never a payload.
+    engine_code: str | None = None
 
 
 @dataclass(frozen=True)
@@ -321,13 +326,20 @@ class SourceSyncRunner:
         )
         final: SyncState = "completed"
         reason: str | None = None
+        engine_code: str | None = None
         try:
             final = await self._sweep(run)
         except SourceSyncError as exc:
             if exc.reason == "checkpoint_conflict":
                 raise
             final, reason = "failed", exc.reason
-        report = self._report(run, final, reason)
+            found = _ENGINE_CODE.search(str(exc))
+            engine_code = (
+                found.group(0) if exc.reason == "ingest_refused" and found else None
+            )
+        report = self._report(run, final, reason).model_copy(
+            update={"engine_code": engine_code}
+        )
         run.state = run.state.model_copy(
             update={
                 "state": final,
