@@ -205,7 +205,7 @@ repos:
   # ── Wiring ───────────────────────────────────────────────────────────────
   - id: check-orphan-modules
     name: Wiring — no orphan package modules
-    # The project interpreter: the package uses Python 3.12 syntax.
+    # The project interpreter; the package keeps Python 3.12 syntax (the floor).
     entry: uv run --frozen --no-sync python scripts/check_wiring.py orphans
     language: system
     pass_filenames: false

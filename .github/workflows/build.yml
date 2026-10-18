@@ -35,7 +35,7 @@ jobs:
           # this job builds the released wheel, so it must never fall back to
           # the hosting runner's system Python the way the gates job's own
           # explicit pin already prevents.
-          python-version: '3.12'
+          python-version: '3.14'
       - name: Build the wheel twice
         run: |
           uv build --wheel --out-dir dist-primary
