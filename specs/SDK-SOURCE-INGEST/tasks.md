@@ -184,7 +184,7 @@
 
 ## Web-source fetch contract (R005.40)
 
-- [ ] **SDK-SOURCE-INGEST-R005.40:** Web-source fetch contract. Pass the proving test in test-spec.md.
+- [ ] **SDK-SOURCE-INGEST-R005.40:** Web-source fetch contract. `.1` (model and tool registration) and `.2` (obligations and conformance kit) are delivered; `.3` to `.6` (adapter wiring, refusal, evidence, served proof) remain.
 - [ ] **SDK-SOURCE-INGEST-R005.40.1:** Model. Add the request, result and refusal types.
 - [ ] **SDK-SOURCE-INGEST-R005.40.2:** Behavior. Add the conformance kit for the five obligations.
 - [ ] **SDK-SOURCE-INGEST-R005.40.3:** Wiring. Route the adapter through the connector tool.
