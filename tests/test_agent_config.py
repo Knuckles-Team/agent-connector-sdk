@@ -14,6 +14,7 @@ from agent_connector_sdk.config import (
 )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R029")
 def test_constructs_from_environment_input(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("CONNECTOR_AUTH_TOKEN_URL", "https://issuer.example.com/token")
     monkeypatch.setenv("CONNECTOR_AUTH_CLIENT_ID", "fleet-client")
@@ -30,6 +31,7 @@ def test_constructs_from_environment_input(monkeypatch: pytest.MonkeyPatch) -> N
     assert config.limits.max_keepalive_connections == 10
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R029")
 @pytest.mark.parametrize(
     "section_factory",
     [
@@ -45,6 +47,7 @@ def test_invalid_combinations_fail_at_construction(section_factory) -> None:  # 
         section_factory()
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R029")
 def test_singleton_accessor_returns_the_same_instance(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
