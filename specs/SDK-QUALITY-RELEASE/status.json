@@ -67,11 +67,11 @@
       "title": "Hosted CI reproduces the pinned dependency graph from published wheels",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "096f27ee29e5",
         "0c1f49ced769",
         "42b930057c3e",
         "6856dbff0136",
-        "851969957034",
-        "bdd3916109d0"
+        "851969957034"
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:132",
