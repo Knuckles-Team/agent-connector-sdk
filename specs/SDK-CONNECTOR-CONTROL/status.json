@@ -554,14 +554,20 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R020",
-      "title": "Condensed registration is the default",
+      "title": "One tool per API operation is the default",
       "delivery_state": "SPECIFIED",
       "landed_in": [
+        "38b66f26f32a",
+        "6ccbf6e01d12",
         "d3617301012c",
         "ffb9260d7602"
       ],
       "verified_by": [
-        "tests/test_tool_surface.py:167"
+        "tests/test_operation_tools.py:100",
+        "tests/test_operation_tools.py:130",
+        "tests/test_operation_tools.py:141",
+        "tests/test_operation_tools.py:160",
+        "tests/test_operation_tools.py:169"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R020.1"
@@ -633,12 +639,19 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R026",
-      "title": "SDK provides opt-in per-client-method MCP tool derivation",
+      "title": "SDK derives one typed tool per client method",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "38b66f26f32a",
         "d3617301012c"
       ],
-      "verified_by": [],
+      "verified_by": [
+        "tests/test_method_tools.py:27",
+        "tests/test_method_tools.py:37",
+        "tests/test_method_tools.py:57",
+        "tests/test_method_tools.py:66",
+        "tests/test_method_tools.py:79"
+      ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R026.1"
       ]
@@ -728,13 +741,17 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R032",
-      "title": "Explicit additional method registration",
-      "delivery_state": "LANDED",
+      "title": "Explicit additional registration",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "38b66f26f32a",
         "629ef53c29f0",
         "bac65b612ced"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_tool_surface.py:124",
+        "tests/test_tool_surface.py:147"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R033",
@@ -1954,9 +1971,9 @@
         "d76f26e0e5fa"
       ],
       "verified_by": [
-        "tests/test_mcp_confirmation_roundtrip.py:138",
-        "tests/test_mcp_confirmation_roundtrip.py:182",
-        "tests/test_mcp_confirmation_roundtrip.py:202",
+        "tests/test_mcp_confirmation_roundtrip.py:134",
+        "tests/test_mcp_confirmation_roundtrip.py:178",
+        "tests/test_mcp_confirmation_roundtrip.py:198",
         "tests/test_mcp_confirmation_roundtrip.py:36"
       ]
     },
