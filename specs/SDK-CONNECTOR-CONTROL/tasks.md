@@ -236,3 +236,5 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R780:** Rollup of the helper replacements.
 - [ ] **SDK-CONNECTOR-CONTROL-R781:** Training-trajectory recorder helper.
 - [ ] **SDK-CONNECTOR-CONTROL-R782:** Message-stream adapters normalize into change envelopes.
+
+- [x] **SDK-CONNECTOR-CONTROL-R070:** Implement and validate current-plan boundary models.

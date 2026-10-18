@@ -161,3 +161,9 @@ Source ingestion, ConnectorPack, and WriteBack request/result models come
 directly from `epistemic_graph.generated`. The SDK owns only connector authoring,
 capture, transport, and extraction shapes; it defines no parallel EG DTO or
 digest.
+
+## Current-plan values
+
+`agent_connector_sdk.current_plan` exports `CurrentPlanRequest`, `PlanItem`, `CurrentPlanSnapshot` and `CurrentPlanRead`. The request selects only a run ID. Snapshots carry a nonnegative revision, UTC observation and expiry, and ordered immutable items. An available read contains a snapshot, which can have no items. An unavailable read has no snapshot. All models reject unknown fields and coercion. Use `model_validate_json` for JSON input and `model_dump_json` for output.
+
+The models validate shape and the timestamp interval. They do not establish caller authority, run ownership, current freshness or a live lease. The serving owner must verify those conditions before returning an available read.

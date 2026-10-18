@@ -573,3 +573,9 @@ MCP and A2A have two roles each. MCP serving by a connector uses the SDK `[mcp]`
 ## Parity rows R780 to R782
 
 R780 maps each retired agent-utilities harness module to its SDK module: identity, exceptions, `http.client` with `http.retry`, `tls.resolve`, `utilities` with `config`. R780.6 lists what has no SDK equivalent. R781 and R782 compose existing engine methods into SDK helpers and add no engine method.
+
+## Amendment 2026-10-18: current-plan boundary models
+
+R070 supplies the SDK-owned request and snapshot models assigned by the ecosystem boundaries standard's current-plan example. It preserves the wire fields of Arbora `api.ops.runs` at `2d62cd8` and the migrated AU-HARNESS-R014 contract retained by AU-BOUNDARY-R043.4 and R043.5.1. The module owns boundary validation only. It imports neither Arbora nor AU and does not duplicate an EG record contract.
+
+Arbora's ARBORA-OPS-R021.4.5 remains responsible for authenticated tenant/principal binding, current-time validation and refusal. EG owns records and live run leases. AU owns the real run state. Consumer migration and publication/readback remain dependent changes; this DTO slice does not make a reader available. A syntactically valid historical snapshot is permitted by the DTO and must still be refused by a live reader. No validity duration or run lease is fabricated here.
