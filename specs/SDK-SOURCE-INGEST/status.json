@@ -1618,9 +1618,9 @@
       "title": "Citable fields",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "811c14f0f2bc",
-        "a75e2e16240a",
-        "df027da7439a"
+        "5199756f499e",
+        "865af0861030",
+        "c4795a2e0d04"
       ],
       "verified_by": [
         "tests/test_ingest_citable_fields.py:36",
@@ -1633,7 +1633,7 @@
       "title": "Operator-approved mass withdrawal",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "811c14f0f2bc"
+        "c4795a2e0d04"
       ],
       "verified_by": [
         "tests/test_contracts_and_sink.py:593"
