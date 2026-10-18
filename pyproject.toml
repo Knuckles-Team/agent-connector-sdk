@@ -22,7 +22,7 @@ classifiers = [
 # epistemic-graph client. The MCP server/client stack is the "mcp" extra.
 # It must never depend on the agent control plane.
 dependencies = [
-    "epistemic-graph>=2.27.1,<3.0.0",
+    "epistemic-graph>=2.27.3,<3.0.0",
     "mcp-types>=2.3.0,<3",
     "pydantic>=2.14.1,<3",
     "PyYAML>=6.0.3",
@@ -203,6 +203,7 @@ exclude_dirs = ["tests", "scripts"]
 # The documented public surface. scripts/check_wiring.py orphans treats these and
 # every entry-point target as roots; every other module must be imported by one.
 public_modules = [
+    "agent_connector_sdk.ingest.source_sync",
     "agent_connector_sdk.current_plan",
     "agent_connector_sdk.a2a",
     "agent_connector_sdk.a2a.app",

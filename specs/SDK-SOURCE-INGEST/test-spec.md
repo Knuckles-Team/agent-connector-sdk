@@ -197,7 +197,8 @@ The modules are `tests/test_source_sync.py` and `tests/test_source_sync_served.p
 | `SDK-SOURCE-INGEST-R004.21` | Wiring | `tests/test_source_sync.py::test_tool_surface_serves_declarations` lists the tool with a read-only annotation and returns the declarations. |
 | `SDK-SOURCE-INGEST-R004.22` | Refusal | `tests/test_source_sync.py::test_runner_refusals_and_budgets` covers each refusal, the retry limit and a partial run. |
 | `SDK-SOURCE-INGEST-R004.23` | Evidence | `tests/test_source_sync.py::test_report_binds_receipts` compares report batch digests with the engine receipts. |
-| `SDK-SOURCE-INGEST-R004.24` | Hot-path proof | The test reads each node with its connector and tool provenance. The second run submits zero records. |
+| `SDK-SOURCE-INGEST-R004.24` | Hot-path proof | The test observes the engine refusal, the failed KV checkpoint and zero written nodes. |
+| `SDK-SOURCE-INGEST-R004.25` | Pack mapping | A connector test resolves each declared record type in its manifest `schema_mappings`. |
 
 <!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
 ## Supported-harness session synchronization (WEBUI:3)

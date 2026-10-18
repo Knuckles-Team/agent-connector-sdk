@@ -15,6 +15,7 @@ import subprocess  # nosec B404 - fixed server argv, test-only
 import time
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -43,6 +44,22 @@ def _context(roles: list[str], scopes: list[str]) -> dict[str, object]:
         "policy_version": POLICY,
         "delegation": [],
     }
+
+
+#: The socket of the engine the current ``live_ingest`` fixture started.
+_LIVE: dict[str, Path] = {}
+
+
+async def scoped_client(scopes: list[str]) -> Any:
+    """Another client on the live engine's graph with ``scopes``."""
+    from epistemic_graph import EpistemicGraphClient
+
+    return await EpistemicGraphClient.connect(
+        socket_path=str(_LIVE["socket"]),
+        auth_secret=_SECRET,
+        graph_name=GRAPH,
+        verified_context=_context(["connector"], scopes),
+    )
 
 
 def _wait_for(socket_path: Path, proc: subprocess.Popen[bytes]) -> None:
@@ -135,6 +152,7 @@ def live_ingest(
         try:
             _wait_for(socket_path, proc)
             _bootstrap(socket_path)
+            _LIVE["socket"] = socket_path
             monkeypatch.setenv(_SECRET_ENV, _SECRET)
             yield connect_ingest(
                 EngineSettings(

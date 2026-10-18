@@ -86,6 +86,7 @@
 - [ ] `SDK-SOURCE-INGEST-R004.22`: implement and prove refusal for declared connector sources.
 - [ ] `SDK-SOURCE-INGEST-R004.23`: implement and prove evidence for declared connector sources.
 - [ ] `SDK-SOURCE-INGEST-R004.24`: implement and prove hot-path proof for declared connector sources.
+- [ ] `SDK-SOURCE-INGEST-R004.25`: implement and prove pack mapping for declared connector sources.
 
 ## Scheduled paper sourcing (R005.25-R005.30)
 

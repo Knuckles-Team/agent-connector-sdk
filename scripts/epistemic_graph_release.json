@@ -1,12 +1,12 @@
 {
   "distribution": "epistemic-graph",
-  "version": "2.27.1",
+  "version": "2.27.3",
   "source_remote": "https://github.com/Knuckles-Team/epistemic-graph.git",
-  "source_revision": "168df952ed0f7aceaaba68245a7c1667aea61f01",
-  "release_tag": "v2.27.1",
-  "wheel_filename": "epistemic_graph-2.27.1-cp39-abi3-manylinux_2_28_x86_64.whl",
-  "wheel_asset_id": "pypi:epistemic-graph==2.27.1",
-  "wheel_url": "https://files.pythonhosted.org/packages/c0/32/a85902e5d893a1a8c401c7676d116c653e432dcb51928571a89b9501c81b/epistemic_graph-2.27.1-cp39-abi3-manylinux_2_28_x86_64.whl",
-  "wheel_sha256": "df997e55cb2c0ee73da3ac33fb96a723ce79529aac58bc41d05cb950bf15ba60",
+  "source_revision": "02ee4e1aa653507aff9ec3242220c15ef96cabbe",
+  "release_tag": "v2.27.3",
+  "wheel_filename": "epistemic_graph-2.27.3-cp39-abi3-manylinux_2_28_x86_64.whl",
+  "wheel_asset_id": "pypi:epistemic-graph==2.27.3",
+  "wheel_url": "https://files.pythonhosted.org/packages/b6/8c/0efdc2c6f6289d916d5dd564db562e045f9ee19c598cd1f5552dd31e62d1/epistemic_graph-2.27.3-cp39-abi3-manylinux_2_28_x86_64.whl",
+  "wheel_sha256": "7e38d04234d87c969228a4bc9c53f9b53fbcf5c9c6871d354716fd7d80ded8e9",
   "native_member": "epistemic_graph/numeric.abi3.so"
 }
