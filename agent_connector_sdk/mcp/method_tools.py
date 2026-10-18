@@ -57,6 +57,7 @@ __all__ = [
     "UNTYPED_TOOLS_ATTRIBUTE",
     "jsonable_result",
     "operation_annotations",
+    "operation_tool_names",
     "operation_verb",
     "register_method_tools",
 ]
@@ -533,6 +534,19 @@ def _manifest_index(
             raise ValueError(f"duplicate manifest entry for method {method!r}")
         index[str(method)] = entry
     return index
+
+
+def operation_tool_names(
+    client_cls: type, *, prefix: str, manifest: list[dict[str, Any]] | None = None
+) -> dict[str, str]:
+    """``{method: tool_name}`` for every operation :func:`register_method_tools` serves."""
+    operations = _manifest_index(manifest)
+    return {
+        method_name: _tool_name(
+            str(operations.get(method_name, {}).get("name") or method_name), prefix
+        )
+        for method_name in _domain_methods(client_cls)
+    }
 
 
 def register_method_tools(
