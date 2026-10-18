@@ -31,6 +31,7 @@ client is called (SDK-CONNECTOR-CONTROL-R026.1).
 from __future__ import annotations
 
 import inspect
+import keyword
 import os.path
 import re
 import types
@@ -334,12 +335,22 @@ def _manifest_parameters(
     required: list[inspect.Parameter] = []
     optional: list[inspect.Parameter] = []
     for item in declared or []:
-        name = str(item.get("python_name") or _camel_to_snake(str(item["name"])))
+        wire = str(item["name"])
+        name = str(item.get("python_name") or _camel_to_snake(wire))
         schema = item.get("schema") or {}
         kind = _JSON_TYPES.get(str(schema.get("type")), Any)
-        if item.get("required") or item.get("in") == "path":
+        is_required = bool(item.get("required") or item.get("in") == "path")
+        annotation: Any = kind if is_required else kind | None
+        if keyword.iskeyword(wire) and name != wire:
+            # A Python keyword (``from``) cannot be a parameter name: the parameter
+            # keeps its python_name (``from_``) and the schema shows the wire name
+            # through a pydantic field alias.
+            annotation = typing.Annotated[annotation, Field(alias=wire)]
+        if is_required:
             required.append(
-                inspect.Parameter(name, inspect.Parameter.KEYWORD_ONLY, annotation=kind)
+                inspect.Parameter(
+                    name, inspect.Parameter.KEYWORD_ONLY, annotation=annotation
+                )
             )
         else:
             optional.append(
@@ -347,7 +358,7 @@ def _manifest_parameters(
                     name,
                     inspect.Parameter.KEYWORD_ONLY,
                     default=None,
-                    annotation=kind | None,
+                    annotation=annotation,
                 )
             )
     if body is not None:

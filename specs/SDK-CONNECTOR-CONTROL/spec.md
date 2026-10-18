@@ -209,6 +209,12 @@ The current SDK tree lacks these four producers and bindings. This packet adds d
 <!-- /spec-definition-patch -->
 
 
+
+## SDK-CONNECTOR-CONTROL-R026.2 — Keyword-named manifest fields
+
+An OpenAPI field such as `from` cannot be a Python parameter. The manifest names it
+`python_name: from_`. The generated tool declares `from_` with a pydantic field alias
+`from`. The tool schema and calls use `from`, and the client receives `from_`.
 ## API-key cookie isolation (SDK-CONNECTOR-CONTROL-R028.3)
 
 The public SDK authentication strategies include header-based API keys, bearer tokens, client credentials, and delegated tokens; they document no provider cookie-session authentication. Public mentions of cookies or sessions refer to MCP/source sessions, not provider identity. Isolation therefore applies only to ApiKeyAuth and preserves existing behavior for other auth strategies.

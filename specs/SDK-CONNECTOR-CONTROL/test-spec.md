@@ -193,6 +193,10 @@ These are required future tests. None ran during definition authoring.
 - CC-108 / SDK-CONNECTOR-CONTROL-R026.1: `tests/test_mcp_confirmation_roundtrip.py::test_legacy_boolean_guard_fails_closed_on_pending_modern_confirmation` runs as a served modern tool. Use the old `if not await` guard. Confirm pending confirmation raises before elicitation or backend effect.
 - CC-109 / SDK-CONNECTOR-CONTROL-R026.1: `tests/test_mcp_confirmation_roundtrip.py::test_nondestructive_served_call_does_not_request_confirmation` runs a nondestructive `tools/call` in both client modes and dispatch paths. Confirm it reaches the controlled backend without elicitation.
 - CC-110 / SDK-CONNECTOR-CONTROL-R026.1: `tests/test_mcp_confirmation_roundtrip.py::test_missing_or_unversioned_context_denies_before_provider_effect` proves those contexts cancel before the controlled backend. Record package versions from live request context. Helper-only tests cannot satisfy CC-107.
+
+## Keyword-named manifest fields (SDK-CONNECTOR-CONTROL-R026.2)
+
+- SDK-CONNECTOR-CONTROL-R026.2: `tests/test_operation_tools.py::test_keyword_field_is_exposed_under_its_wire_name` registers a manifest with `from` and `in` fields. The listed schema shows `from` and `in`, `in` stays required, and a served call delivers `from_` and `in_` to the client.
 <!-- /spec-definition-patch -->
 
 

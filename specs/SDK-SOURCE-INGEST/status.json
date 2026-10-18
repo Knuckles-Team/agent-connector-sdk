@@ -1369,8 +1369,8 @@
       "title": "Model",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "90d36a48e0ed",
-        "b432221a8c03"
+        "a775ed2ea1ef",
+        "e35075fa40ff"
       ],
       "verified_by": [
         "tests/test_web_source_contract.py:125",
@@ -1383,9 +1383,9 @@
       "title": "Behavior",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "ad0b0e131b53",
-        "b432221a8c03",
-        "f0fbc061dd6b"
+        "36bc3184a30e",
+        "a775ed2ea1ef",
+        "e202f57c928d"
       ],
       "verified_by": [
         "tests/test_web_source_contract.py:167"
