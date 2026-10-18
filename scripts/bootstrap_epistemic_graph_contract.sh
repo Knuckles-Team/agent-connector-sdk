@@ -18,8 +18,11 @@ lock = tomllib.loads(Path("uv.lock").read_text(encoding="utf-8"))
 (locked,) = [p for p in lock["package"] if p["name"] == "epistemic-graph"]
 if not str(locked.get("source", {}).get("registry", "")).startswith("https://pypi.org/"):
     raise SystemExit(f"uv.lock does not pin epistemic-graph to PyPI: {locked.get('source')}")
-if "sdist" in locked or not locked.get("wheels"):
-    raise SystemExit("uv.lock must pin epistemic-graph to published wheels only")
+# A release may publish an sdist beside its wheels; uv records both. The
+# contract is that a published wheel exists and is what installs:
+# [tool.uv] no-build-package forbids building epistemic-graph from source.
+if not locked.get("wheels"):
+    raise SystemExit("uv.lock pins no published epistemic-graph wheel")
 dist = metadata.distribution("epistemic-graph")
 if dist.version != locked["version"]:
     raise SystemExit(f"installed epistemic-graph {dist.version} != uv.lock {locked['version']}")

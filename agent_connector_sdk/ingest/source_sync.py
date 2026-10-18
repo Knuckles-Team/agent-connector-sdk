@@ -433,9 +433,17 @@ class SourceSyncRunner:
             tool=tool or spec.tools[0],
         )
         entities = tuple(entity for entity, _ in run.pending)
-        receipt = await self._ingest.submit(
-            binding, ChangeSet(entities=entities, cursor=run.cursor)
-        )
+        try:
+            receipt = await self._ingest.submit(
+                binding, ChangeSet(entities=entities, cursor=run.cursor)
+            )
+        except SourceSyncError:
+            raise
+        except IngestError as exc:
+            # The engine refused the batch (for example an unmapped record
+            # type); nothing advances and the run reports the refusal.
+            run.pending.clear()
+            raise SourceSyncError("ingest_refused", str(exc)) from exc
         run.batches.append(str(receipt.batch_digest))
         digests = dict(run.state.digests)
         digests.update({entity.id: digest for entity, digest in run.pending})
