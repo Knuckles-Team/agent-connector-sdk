@@ -704,11 +704,18 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R028.1",
       "title": "A standalone, typed SSRF egress-destination check and pinned-address transport",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "284fb12a19ed"
+        "284fb12a19ed",
+        "54744d32428a"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_http_egress.py:17",
+        "tests/test_http_egress.py:24",
+        "tests/test_http_egress.py:31",
+        "tests/test_http_egress.py:36",
+        "tests/test_http_egress.py:41"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R028.2",
@@ -755,11 +762,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R031",
       "title": "SDK's client-credentials token provider accepts a literal client secret, matching the signature connectors already call",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "284fb12a19ed"
+        "284fb12a19ed",
+        "eed8dd9a117e"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_client_credentials_literal_secret.py:29",
+        "tests/test_client_credentials_literal_secret.py:49",
+        "tests/test_client_credentials_literal_secret.py:68"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R032",
@@ -778,12 +790,17 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R033",
       "title": "SDK's governed HTTP layer provides a `safe_post_json` helper with the same private-host allowance as its GET path",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "629ef53c29f0",
+        "67802528f518",
         "bac65b612ced"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_safe_post.py:19",
+        "tests/test_safe_post.py:29",
+        "tests/test_safe_post.py:45"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R034",
