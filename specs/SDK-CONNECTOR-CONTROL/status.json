@@ -637,11 +637,18 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R025",
       "title": "SDK provides identity-scoped resource entitlement resolution",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "5a476653a386"
+        "5a476653a386",
+        "e266bf988bb9"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_entitlements.py:34",
+        "tests/test_entitlements.py:39",
+        "tests/test_entitlements.py:44",
+        "tests/test_entitlements.py:52",
+        "tests/test_entitlements.py:61"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R020.1",
@@ -690,13 +697,19 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R027",
       "title": "SDK resolves the selected provider-runtime profile for a multi-backend connector",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "284fb12a19ed",
         "584fb45cdf24",
-        "602215e2ddd8"
+        "602215e2ddd8",
+        "9e35fb93e960"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_provider_runtime.py:27",
+        "tests/test_provider_runtime.py:35",
+        "tests/test_provider_runtime.py:42",
+        "tests/test_provider_runtime.py:48"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R028",
@@ -762,11 +775,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R030",
       "title": "SDK provides GraphQL introspection context helpers for connector tools",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "284fb12a19ed"
+        "284fb12a19ed",
+        "e4ffa1a49677"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_mcp_graphql_context.py:67",
+        "tests/test_mcp_graphql_context.py:74",
+        "tests/test_mcp_graphql_context.py:90"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R031",

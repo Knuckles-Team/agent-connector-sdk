@@ -64,12 +64,14 @@ class _FakeGraphQLSession:
         return self._responses["type_details"]
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R030")
 async def test_lists_declared_types() -> None:
     ctx = _FakeGraphQLSession({"list_types": _SCHEMA_TYPES, "type_details": {}})
     types = await ctx_graphql_list_types(ctx)
     assert types == ("Widget", "Order")
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R030")
 async def test_returns_a_named_types_fields_and_arguments() -> None:
     ctx = _FakeGraphQLSession({"list_types": {}, "type_details": _WIDGET_TYPE})
     details = await ctx_graphql_get_type_details(ctx, "Widget")
@@ -85,6 +87,7 @@ async def test_returns_a_named_types_fields_and_arguments() -> None:
     assert by_name["orders"].arguments[0].type_name == "Int"
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R030")
 async def test_unknown_type_name_raises() -> None:
     ctx = _FakeGraphQLSession({"list_types": {}, "type_details": _MISSING_TYPE})
     with pytest.raises(GraphQLTypeNotFoundError):
