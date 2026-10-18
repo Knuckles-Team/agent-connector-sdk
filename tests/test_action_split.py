@@ -44,7 +44,7 @@ def test_tool_actions_reads_literal_and_branches() -> None:
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
 def test_split_trims_parameters_and_tags_tools() -> None:
     mcp = _server()
-    added = split_action_tool(mcp, "demo", _tools(mcp)["demo"], operations=set())
+    added = split_action_tool(mcp, "demo", _tools(mcp)["demo"], operations={})
     tools = _tools(mcp)
     assert added == ["demo_status", "demo_purge"] and "demo" not in tools
     assert set(tools["demo_status"].parameters["properties"]) == {"target"}
