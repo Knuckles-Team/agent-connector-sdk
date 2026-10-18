@@ -224,7 +224,9 @@ async def test_operation_may_reuse_a_retired_action_tool_name() -> None:
         registrars=[register_condensed_tools],
     )
     tools = await _listed(mcp)
-    assert set(tools) == {"sample_widgets"}
+    # The action tool's get_widget action is no served operation here, so it
+    # is split (never dropped) and the operation reuses the freed name.
+    assert set(tools) == {"sample_widgets", "sample_widgets_get_widget"}
     assert "action" not in tools["sample_widgets"].input_schema["properties"]
     with pytest.raises(ValueError, match="collides"):
         register_tool_surface(
@@ -312,3 +314,64 @@ async def test_plain_json_return_hint_becomes_the_output_schema() -> None:
     async with Client(mcp) as client:
         result = await client.call_tool("sample_get_status", {})
     assert result.structured_content == {"ok": True}
+
+
+class _Ledger:
+    def get_balance(self, account: str) -> dict[str, Any]:
+        """Read one balance."""
+        return {"account": account, "balance": 10.0}
+
+
+def register_analytic_tools(mcp: FastMCP[Any]) -> None:
+    @mcp.tool()
+    def sample_risk(
+        action: Literal["get_balance", "kelly", "drawdown_check"],
+        account: str = "",
+        win_rate: float = 0.5,
+        ratio: float = 1.5,
+        drawdown: float = 0.0,
+    ) -> dict[str, Any]:
+        """Risk analytics."""
+        if action == "get_balance":
+            return _Ledger().get_balance(account)
+        if action == "kelly":
+            return {"fraction": win_rate - (1 - win_rate) / ratio}
+        if action == "drawdown_check":
+            return {"breached": drawdown > 0.1}
+        return {"error": "unknown"}
+
+    @mcp.tool()
+    def sample_opaque(action: str, value: int = 0) -> int:
+        """Actions cannot be enumerated from this tool."""
+        return value
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+async def test_action_tools_are_split_never_dropped() -> None:
+    mcp: FastMCP[Any] = FastMCP("sample")
+    register_tool_surface(
+        mcp,
+        service="sample-mcp",
+        client_cls=_Ledger,
+        get_client=_Ledger,
+        registrars=[register_analytic_tools],
+    )
+    tools = await _listed(mcp)
+    # get_balance only passes the served operation through: covered by it.
+    assert "sample_get_balance" in tools
+    assert "sample_risk_get_balance" not in tools
+    # Computed actions become typed tools with only the parameters they read.
+    kelly = tools["sample_risk_kelly"].input_schema["properties"]
+    assert set(kelly) == {"win_rate", "ratio"}
+    assert set(tools["sample_risk_drawdown_check"].input_schema["properties"]) == {
+        "drawdown"
+    }
+    assert tools["sample_risk_kelly"].annotations.read_only_hint is False
+    assert tools["sample_risk_drawdown_check"].annotations.read_only_hint is True
+    # A tool whose actions cannot be enumerated is kept whole, not dropped.
+    assert "sample_opaque" in tools
+    async with Client(mcp) as client:
+        result = await client.call_tool(
+            "sample_risk_kelly", {"win_rate": 0.6, "ratio": 2.0}
+        )
+    assert result.data == {"fraction": pytest.approx(0.4)}

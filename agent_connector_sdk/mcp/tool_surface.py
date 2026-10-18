@@ -10,10 +10,11 @@ tagged :data:`GATED_TAG` so it is revealed on demand.
 
 Registrars (``tool_registry``, ``tools_module`` or ``registrars``) still run
 for tools that are not client-method wrappers, such as KG ingest or GraphQL
-tools. A registrar tool that routes an ``action`` string to client methods is
-an action-dispatch tool: it is dropped from the served surface whenever the
-operation tools register, unless the caller opts in with
-``action_dispatch=True`` for compatibility. No environment mode selects the
+tools. A registrar tool that routes an ``action`` string is never dropped: when the
+operation tools register, it is split into one typed tool per action
+(:mod:`agent_connector_sdk.mcp.action_split`), except actions that only pass a
+served operation through, unless the caller opts in with
+``action_dispatch=True`` to keep it whole for compatibility. No environment mode selects the
 surface; ``MCP_TOOL_MODE`` does not exist.
 """
 
@@ -31,9 +32,11 @@ from agent_connector_sdk.ingest.sources import (
     register_ingest_sources_tool,
 )
 from agent_connector_sdk.manifest.package_validation import MANIFEST_FILE_NAME
+from agent_connector_sdk.mcp.action_split import SPLIT_ACTION_TAG, split_action_tool
 from agent_connector_sdk.mcp.method_tools import (
     GATED_TAG,
     GRANULAR_TAG,
+    _domain_methods,
     register_method_tools,
 )
 
@@ -190,16 +193,31 @@ def _register_operations(
 
 
 def _settle_action_tools(mcp: Any, *, operations: set[str], keep: bool) -> None:
+    """Keep (``keep``) or split every action-routed registrar tool; never drop one.
+
+    ``operations`` are the client method names that will be served as operation
+    tools; split actions that only pass one of them through are covered by it.
+    """
     gated: set[str] = getattr(mcp, GATED_TOOLS_ATTRIBUTE, set())
-    for name, tool in registered_tools(mcp).items():
-        if name in operations or not _is_action_dispatch(tool):
+    for name, tool in list(registered_tools(mcp).items()):
+        if not _is_action_dispatch(tool) or SPLIT_ACTION_TAG in (tool.tags or set()):
             continue
         if keep:
             tool.tags.add(ACTION_DISPATCH_TAG)
             continue
-        mcp.local_provider.remove_tool(name)
-        gated.discard(name)
+        added = split_action_tool(mcp, name, tool, operations=operations)
+        if name not in added:
+            gated.discard(name)
+        gated.update(added)
     setattr(mcp, GATED_TOOLS_ATTRIBUTE, gated)
+
+
+def _operation_methods(
+    client_cls: type | None, verbose_targets: list[dict[str, Any]] | None
+) -> set[str]:
+    classes = [client_cls] if client_cls is not None else []
+    classes += [t["client_cls"] for t in verbose_targets or [] if "client_cls" in t]
+    return {name for cls in classes for name in _domain_methods(cls)}
 
 
 def _package_root(owner: Any) -> Path | None:
@@ -271,8 +289,10 @@ def register_tool_surface(
     ``register_<tag>_tools`` callable on it) or ``registrars``; each runs
     unless its ``<TAG>TOOL`` setting is false. A registrar tool with an
     ``action`` input is an action-dispatch tool: when operation tools
-    registered it is dropped unless ``action_dispatch=True`` keeps it, tagged
-    :data:`ACTION_DISPATCH_TAG`. With no client, registrar tools are the whole
+    register it is split into one typed ``<tool>_<action>`` tool per action
+    (actions that only pass a served operation through are covered by it),
+    or kept whole with a warning when its actions cannot be enumerated;
+    ``action_dispatch=True`` keeps it whole, tagged :data:`ACTION_DISPATCH_TAG`. With no client, registrar tools are the whole
     surface. Every tool is tagged :data:`GRANULAR_TAG` and :data:`GATED_TAG`.
 
     A package that ships ``ontology/ingest_sources.json`` also serves its
@@ -299,8 +319,12 @@ def register_tool_surface(
         verbose_targets
     )
     if has_client:
-        # Retire action-dispatch tools first so an operation may reuse a name.
-        _settle_action_tools(mcp, operations=set(), keep=action_dispatch)
+        # Split action-routed tools first so an operation may reuse a name.
+        _settle_action_tools(
+            mcp,
+            operations=_operation_methods(client_cls, verbose_targets),
+            keep=action_dispatch,
+        )
     prefix = operation_prefix(service, tool_prefix)
     operations = _register_operations(
         mcp,
