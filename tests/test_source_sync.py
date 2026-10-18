@@ -270,3 +270,23 @@ async def test_kv_checkpoints_use_the_shared_scope() -> None:
     assert register_ingest_sources_tool(mcp, "direct", declaration) == (
         "direct_ingest_sources"
     )
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.25")
+async def test_tool_surface_serves_the_packaged_manifest(tmp_path: Path) -> None:
+    (tmp_path / "connector_manifest.yml").write_text(
+        "connector: fixture-mcp\nschema_mappings:\n  FixtureItem: {}\n"
+    )
+    mcp = FastMCP("fixture")
+    register_tool_surface(mcp, service="fixture-mcp", package_root=tmp_path)
+    async with Client(mcp) as client:
+        uris = {str(resource.uri) for resource in await client.list_resources()}
+        assert "manifest://connector" in uris
+        body = await client.read_resource("manifest://connector")
+    assert "FixtureItem" in body[0].text
+    bare = FastMCP("bare")
+    register_tool_surface(bare, service="bare-mcp", package_root=tmp_path / "none")
+    async with Client(bare) as client:
+        assert not [
+            r for r in await client.list_resources() if "manifest" in str(r.uri)
+        ]

@@ -1580,6 +1580,7 @@
       "title": "Evidence",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "6519a20529e9",
         "e877477e46b8"
       ],
       "verified_by": [
@@ -1600,9 +1601,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.25",
       "title": "Pack mapping",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6519a20529e9"
+      ],
+      "verified_by": [
+        "tests/test_source_sync.py:275"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R013",
