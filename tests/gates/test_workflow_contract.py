@@ -175,7 +175,7 @@ def test_bootstrap_python_floor_uses_root_project_metadata(tmp_path: Path) -> No
     )
     assert result.stdout == "3.12\n"
     assert (
-        "python_version=$(python3 scripts/project_python_floor.py pyproject.toml)"
+        "python_version=$(tr -d '[:space:]' < .python-version)"
         in BOOTSTRAP.read_text(encoding="utf-8")
     )
 
@@ -193,10 +193,8 @@ def test_build_job_pins_the_managed_python_not_the_system_one() -> None:
     must declare `python-version` on its setup-uv step rather than letting
     `uv build` fall back to whatever interpreter the hosting runner ships."""
     workflow = _yaml(BUILD)
-    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    floor = re.search(r'requires-python\s*=\s*">=(\d+\.\d+)', pyproject)
-    assert floor is not None
-    pinned_version = floor.group(1)
+    pinned_version = (ROOT / ".python-version").read_text(encoding="utf-8").strip()
+    assert pinned_version == "3.14"
 
     for job_name in ("build",):
         job = workflow["jobs"][job_name]

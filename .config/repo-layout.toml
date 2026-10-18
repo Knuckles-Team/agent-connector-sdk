@@ -26,3 +26,4 @@ docs = "public GitHub Pages sources and generated shared-theme assets"
 [dotfiles]
 ".bumpversion.cfg" = "bump2version release configuration"
 ".gitignore" = "git exclusion patterns (carries the fleet-shared REQUIRED set)"
+".python-version" = "the environment interpreter (3.14) that uv, bootstrap and CI use"
