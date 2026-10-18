@@ -208,6 +208,35 @@ async def test_manifest_supplies_schema_name_description_and_verb() -> None:
     assert result.data == {"query": "q", "limit": 10}
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+async def test_operation_may_reuse_a_retired_action_tool_name() -> None:
+    class WidgetsApi:
+        def widgets(self) -> list[str]:
+            """List widgets."""
+            return []
+
+    mcp: FastMCP[Any] = FastMCP("sample")
+    register_tool_surface(
+        mcp,
+        service="sample-mcp",
+        client_cls=WidgetsApi,
+        get_client=WidgetsApi,
+        registrars=[register_condensed_tools],
+    )
+    tools = await _listed(mcp)
+    assert set(tools) == {"sample_widgets"}
+    assert "action" not in tools["sample_widgets"].input_schema["properties"]
+    with pytest.raises(ValueError, match="collides"):
+        register_tool_surface(
+            FastMCP("x"),
+            service="sample-mcp",
+            client_cls=WidgetsApi,
+            get_client=WidgetsApi,
+            registrars=[register_condensed_tools],
+            action_dispatch=True,
+        )
+
+
 def test_bare_kwargs_method_falls_back_to_params_json_and_is_recorded() -> None:
     mcp: FastMCP[Any] = FastMCP("sample")
     register_method_tools(mcp, ModelledApi, ModelledApi, prefix="sample")

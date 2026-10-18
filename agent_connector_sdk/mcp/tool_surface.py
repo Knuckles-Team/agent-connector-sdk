@@ -245,6 +245,12 @@ def register_tool_surface(
     tags = _register_condensed(
         mcp, _condensed_entries(tool_registry, tools_module, registrars)
     )
+    has_client = (client_cls is not None and get_client is not None) or bool(
+        verbose_targets
+    )
+    if has_client:
+        # Retire action-dispatch tools first so an operation may reuse a name.
+        _settle_action_tools(mcp, operations=set(), keep=action_dispatch)
     operations = _register_operations(
         mcp,
         prefix=operation_prefix(service, tool_prefix),
@@ -257,7 +263,6 @@ def register_tool_surface(
     if operations:
         gated: set[str] = getattr(mcp, GATED_TOOLS_ATTRIBUTE, set())
         setattr(mcp, GATED_TOOLS_ATTRIBUTE, gated | set(operations))
-        _settle_action_tools(mcp, operations=set(operations), keep=action_dispatch)
     if verbose_register is not None:
         before = registered_tools(mcp)
         verbose_register(mcp)
