@@ -2004,7 +2004,7 @@
       "title": "A manifest field named after a Python keyword keeps its wire name in the schema",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "7019d1fca794"
+        "ec63e38e9b5d"
       ],
       "verified_by": [
         "tests/test_operation_tools.py:380"
