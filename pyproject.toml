@@ -22,7 +22,7 @@ classifiers = [
 # epistemic-graph client. The MCP server/client stack is the "mcp" extra.
 # It must never depend on the agent control plane.
 dependencies = [
-    "epistemic-graph>=2.27.1,<3.0.0",
+    "epistemic-graph>=2.27.3,<3.0.0",
     "mcp-types>=2.3.0,<3",
     "pydantic>=2.14.1,<3",
     "PyYAML>=6.0.3",
