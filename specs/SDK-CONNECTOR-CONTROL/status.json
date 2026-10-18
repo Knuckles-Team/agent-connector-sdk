@@ -193,6 +193,7 @@
     "SDK-CONNECTOR-CONTROL-R066.5",
     "SDK-CONNECTOR-CONTROL-R066.6",
     "SDK-CONNECTOR-CONTROL-R026.1",
+    "SDK-CONNECTOR-CONTROL-R026.2",
     "SDK-CONNECTOR-CONTROL-R014.2",
     "SDK-CONNECTOR-CONTROL-R014.3",
     "SDK-CONNECTOR-CONTROL-R014.4",
@@ -673,7 +674,8 @@
         "tests/test_method_tools.py:79"
       ],
       "rollup_of": [
-        "SDK-CONNECTOR-CONTROL-R026.1"
+        "SDK-CONNECTOR-CONTROL-R026.1",
+        "SDK-CONNECTOR-CONTROL-R026.2"
       ]
     },
     {
@@ -1995,6 +1997,17 @@
         "tests/test_mcp_confirmation_roundtrip.py:178",
         "tests/test_mcp_confirmation_roundtrip.py:198",
         "tests/test_mcp_confirmation_roundtrip.py:36"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R026.2",
+      "title": "A manifest field named after a Python keyword keeps its wire name in the schema",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "7019d1fca794"
+      ],
+      "verified_by": [
+        "tests/test_operation_tools.py:380"
       ]
     },
     {

@@ -375,3 +375,44 @@ async def test_action_tools_are_split_never_dropped() -> None:
             "sample_risk_kelly", {"win_rate": 0.6, "ratio": 2.0}
         )
     assert result.data == {"fraction": pytest.approx(0.4)}
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R026.2")
+async def test_keyword_field_is_exposed_under_its_wire_name() -> None:
+    class LogsApi:
+        def search_logs(self, **kwargs: Any) -> dict[str, Any]:
+            """Search logs."""
+            return dict(kwargs)
+
+    manifest = [
+        {
+            "method": "search_logs",
+            "http": "POST",
+            "path": "/logs/search",
+            "summary": "Search logs.",
+            "parameters": [
+                {
+                    "name": "from",
+                    "python_name": "from_",
+                    "in": "body",
+                    "schema": {"type": "integer"},
+                },
+                {
+                    "name": "in",
+                    "python_name": "in_",
+                    "in": "query",
+                    "required": True,
+                    "schema": {"type": "string"},
+                },
+            ],
+        }
+    ]
+    mcp: FastMCP[Any] = FastMCP("logs")
+    register_method_tools(mcp, LogsApi, LogsApi, prefix="logs", manifest=manifest)
+    tool = (await _listed(mcp))["logs_search_logs"]
+    assert set(tool.input_schema["properties"]) == {"from", "in"}
+    assert tool.input_schema["required"] == ["in"]
+    async with Client(mcp) as client:
+        result = await client.call_tool("logs_search_logs", {"from": 3, "in": "team"})
+    # The client receives the Python-safe names declared as python_name.
+    assert result.data == {"from_": 3, "in_": "team"}
