@@ -163,6 +163,7 @@ async def test_prompt_capture_binds_required_arguments_as_template() -> None:
     }
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R024")
 async def test_prompt_capture_falls_back_to_template_when_server_rejects_bound_argument() -> (
     None
 ):
@@ -205,6 +206,7 @@ async def test_prompt_capture_falls_back_to_template_when_server_rejects_bound_a
     )
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R024")
 async def test_prompt_capture_still_fails_when_rejected_with_no_required_argument() -> (
     None
 ):
@@ -220,6 +222,7 @@ async def test_prompt_capture_still_fails_when_rejected_with_no_required_argumen
         await kind.list_entries(session, SERVER)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R024")
 async def test_prompt_capture_propagates_genuine_transport_failures() -> None:
     """A server-unreachable failure must still fail the capture, never fall back."""
     session = SimpleNamespace(
