@@ -261,7 +261,8 @@
     "SDK-CONNECTOR-CONTROL-R780.5",
     "SDK-CONNECTOR-CONTROL-R780.6",
     "SDK-CONNECTOR-CONTROL-R781",
-    "SDK-CONNECTOR-CONTROL-R782"
+    "SDK-CONNECTOR-CONTROL-R782",
+    "SDK-CONNECTOR-CONTROL-R070"
   ],
   "requirements": [
     {
@@ -2635,6 +2636,17 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R070",
+      "title": "Current-plan boundary models",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ea6e90065040"
+      ],
+      "verified_by": [
+        "tests/test_current_plan.py:16"
+      ]
     }
   ]
 }
