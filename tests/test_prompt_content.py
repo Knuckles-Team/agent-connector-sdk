@@ -25,6 +25,7 @@ from agent_connector_sdk.transports.mcp_session import (
 SERVER = ServerIdentity(name="demo-mcp", version="1.4.0")
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R023")
 async def test_whole_content_pack_retains_rendered_prompt(
     sessions: SessionFactory,
 ) -> None:
@@ -126,6 +127,7 @@ async def test_prompt_capture_preserves_order_types_and_content_identity() -> No
     assert changed.archive.data != pack.archive.data
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R023")
 async def test_prompt_capture_binds_required_arguments_as_template() -> None:
     prompt = mcp_types.Prompt(
         name="demo",
