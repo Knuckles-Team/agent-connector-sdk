@@ -1529,37 +1529,58 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.19",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e877477e46b8"
+      ],
+      "verified_by": [
+        "tests/test_source_sync.py:125"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.20",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e877477e46b8"
+      ],
+      "verified_by": [
+        "tests/test_source_sync.py:143"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.21",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e877477e46b8"
+      ],
+      "verified_by": [
+        "tests/test_source_sync.py:168",
+        "tests/test_source_sync.py:245"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.22",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e877477e46b8"
+      ],
+      "verified_by": [
+        "tests/test_source_sync.py:188"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.23",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e877477e46b8"
+      ],
+      "verified_by": [
+        "tests/test_source_sync.py:213"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.24",
