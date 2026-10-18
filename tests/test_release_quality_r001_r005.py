@@ -241,12 +241,12 @@ def test_tampered_installed_native_file_fails_with_matching_pep610_hash(
     wheel = tmp_path / manifest["wheel_filename"]
     native = manifest["native_member"]
     members = {
-        "epistemic_graph/__init__.py": b"__version__ = '2.27.1'\n",
+        "epistemic_graph/__init__.py": b"__version__ = '2.27.3'\n",
         native: b"trusted native engine",
-        "epistemic_graph-2.27.1.dist-info/METADATA": (
-            b"Metadata-Version: 2.3\nName: epistemic-graph\nVersion: 2.27.1\n"
+        "epistemic_graph-2.27.3.dist-info/METADATA": (
+            b"Metadata-Version: 2.3\nName: epistemic-graph\nVersion: 2.27.3\n"
         ),
-        "epistemic_graph-2.27.1.dist-info/WHEEL": (
+        "epistemic_graph-2.27.3.dist-info/WHEEL": (
             b"Wheel-Version: 1.0\nRoot-Is-Purelib: false\n"
             b"Tag: cp39-abi3-manylinux_2_28_x86_64\n"
         ),
@@ -346,16 +346,23 @@ def test_locked_eg_is_a_pypi_wheel_and_never_a_source_build() -> None:
             {"source": {"git": "https://github.com/Knuckles-Team/epistemic-graph.git"}},
             "must pin epistemic-graph to",
         ),
-        ({"sdist": {"url": "https://x/eg.tar.gz"}}, "no source build"),
         ({"wheels": []}, "pins no epistemic-graph wheel"),
         ({"wheels": [{"url": "https://x/eg.whl", "hash": "md5:0"}]}, "unverifiable"),
     ],
 )
-def test_locked_eg_rejects_git_sdist_or_unhashed_sources(
+def test_locked_eg_rejects_git_or_unhashed_sources(
     over: dict[str, object], message: str
 ) -> None:
     with pytest.raises(_graph.ImportGraphError, match=message):
         _graph._locked_wheels(_eg_lock_package(**over))
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+def test_locked_eg_sdist_beside_wheels_still_installs_the_wheel() -> None:
+    package = _eg_lock_package(sdist={"url": "https://x/eg.tar.gz"})
+    assert _graph._locked_wheels(package) == {
+        "epistemic_graph-2.27.1-cp39-abi3-manylinux_2_28_x86_64.whl": "a" * 64
+    }
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")

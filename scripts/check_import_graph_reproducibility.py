@@ -2,7 +2,7 @@
 """Reproduce CI's lock-resolved import graph with explicit registry provenance.
 
 epistemic-graph installs from PyPI only: uv.lock pins it to registry wheels by
-hash (no sdist, and ``[tool.uv] no-build-package`` forbids a source build), and
+hash (``[tool.uv] no-build-package`` forbids a source build), and
 the SDK's generated-contract imports must resolve inside that installed wheel.
 Every node of the graph, EG included, is verified from real installed
 distribution metadata against uv.lock. No synthetic dist-info is created.
@@ -324,8 +324,9 @@ def _locked_wheels(package: Mapping[str, object]) -> dict[str, str]:
     registry = source.get("registry") if isinstance(source, dict) else None
     if registry != REGISTRY:
         _raise(f"uv.lock must pin epistemic-graph to {REGISTRY}, not {source}")
-    if "sdist" in package:
-        _raise("uv.lock must not carry an epistemic-graph sdist (no source build)")
+    # A release may publish an sdist beside its wheels and uv records both;
+    # [tool.uv] no-build-package (checked by _no_build_configured) is what
+    # forbids a source build. A verified wheel must exist.
     wheels = package.get("wheels", [])
     found: dict[str, str] = {}
     for wheel in wheels if isinstance(wheels, list) else []:
