@@ -136,6 +136,8 @@
     "SDK-SOURCE-INGEST-R004.23",
     "SDK-SOURCE-INGEST-R004.24",
     "SDK-SOURCE-INGEST-R004.25",
+    "SDK-SOURCE-INGEST-R004.26",
+    "SDK-SOURCE-INGEST-R004.27",
     "SDK-SOURCE-INGEST-R013",
     "SDK-SOURCE-INGEST-R013.1",
     "SDK-SOURCE-INGEST-R013.2",
@@ -300,7 +302,9 @@
         "SDK-SOURCE-INGEST-R004.22",
         "SDK-SOURCE-INGEST-R004.23",
         "SDK-SOURCE-INGEST-R004.24",
-        "SDK-SOURCE-INGEST-R004.25"
+        "SDK-SOURCE-INGEST-R004.25",
+        "SDK-SOURCE-INGEST-R004.26",
+        "SDK-SOURCE-INGEST-R004.27"
       ]
     },
     {
@@ -1607,6 +1611,30 @@
       ],
       "verified_by": [
         "tests/test_source_sync.py:275"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.26",
+      "title": "Citable fields",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "811c14f0f2bc"
+      ],
+      "verified_by": [
+        "tests/test_ingest_citable_fields.py:36",
+        "tests/test_ingest_citable_fields.py:55",
+        "tests/test_ingest_citable_fields.py:76"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.27",
+      "title": "Operator-approved mass withdrawal",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "811c14f0f2bc"
+      ],
+      "verified_by": [
+        "tests/test_contracts_and_sink.py:593"
       ]
     },
     {
