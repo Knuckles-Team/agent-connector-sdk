@@ -20,10 +20,16 @@ surface; ``MCP_TOOL_MODE`` does not exist.
 from __future__ import annotations
 
 import re
+import sys
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 from agent_connector_sdk.config import setting
+from agent_connector_sdk.ingest.sources import (
+    load_ingest_sources,
+    register_ingest_sources_tool,
+)
 from agent_connector_sdk.mcp.method_tools import (
     GATED_TAG,
     GRANULAR_TAG,
@@ -195,6 +201,24 @@ def _settle_action_tools(mcp: Any, *, operations: set[str], keep: bool) -> None:
     setattr(mcp, GATED_TOOLS_ATTRIBUTE, gated)
 
 
+def _package_root(owner: Any) -> Path | None:
+    """The directory of the top-level package that defines ``owner``."""
+    module_name = getattr(owner, "__module__", None) or getattr(owner, "__name__", "")
+    top = str(module_name).split(".", 1)[0]
+    module = sys.modules.get(top)
+    location = getattr(module, "__file__", None)
+    return Path(location).parent if location else None
+
+
+def _register_declared_sources(mcp: Any, prefix: str, root: Path | None) -> None:
+    """Serve the package's ingest-source declaration when it ships one."""
+    if root is None:
+        return
+    declaration = load_ingest_sources(root)
+    if declaration is not None:
+        register_ingest_sources_tool(mcp, prefix, declaration)
+
+
 def register_tool_surface(
     mcp: Any,
     *,
@@ -211,6 +235,7 @@ def register_tool_surface(
     action_providers: dict[str, Any] | None = None,
     action_dispatch: bool = False,
     result_coercer: Callable[[Any], Any] | None = None,
+    package_root: Path | None = None,
 ) -> list[str]:
     """Register one tool per API operation, plus the connector's other tools.
 
@@ -229,6 +254,11 @@ def register_tool_surface(
     registered it is dropped unless ``action_dispatch=True`` keeps it, tagged
     :data:`ACTION_DISPATCH_TAG`. With no client, registrar tools are the whole
     surface. Every tool is tagged :data:`GRANULAR_TAG` and :data:`GATED_TAG`.
+
+    A package that ships ``ontology/ingest_sources.json`` also serves its
+    declared sources as the read-only ``<prefix>_ingest_sources`` tool
+    (SDK-SOURCE-INGEST-R004.21). ``package_root`` names that package; it
+    defaults to the top-level package of ``client_cls`` or ``tools_module``.
 
     ``verbose_register``, when given, runs last (SDK-CONNECTOR-CONTROL-R032)
     and must not replace a registered name. ``action_providers`` is accepted
@@ -251,9 +281,10 @@ def register_tool_surface(
     if has_client:
         # Retire action-dispatch tools first so an operation may reuse a name.
         _settle_action_tools(mcp, operations=set(), keep=action_dispatch)
+    prefix = operation_prefix(service, tool_prefix)
     operations = _register_operations(
         mcp,
-        prefix=operation_prefix(service, tool_prefix),
+        prefix=prefix,
         client_cls=client_cls,
         get_client=get_client,
         manifest=manifest,
@@ -263,6 +294,9 @@ def register_tool_surface(
     if operations:
         gated: set[str] = getattr(mcp, GATED_TOOLS_ATTRIBUTE, set())
         setattr(mcp, GATED_TOOLS_ATTRIBUTE, gated | set(operations))
+    _register_declared_sources(
+        mcp, prefix, package_root or _package_root(client_cls or tools_module)
+    )
     if verbose_register is not None:
         before = registered_tools(mcp)
         verbose_register(mcp)
