@@ -609,21 +609,30 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R023",
       "title": "A prompt with a required argument becomes a template",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "1cbd6f28d13d",
         "713782e7901c",
         "b9a9652c0135"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_prompt_content.py:130",
+        "tests/test_prompt_content.py:28"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R024",
       "title": "A prompt the server rejects for its bound placeholder still captures as a template",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "713782e7901c"
+        "713782e7901c",
+        "830a844c6c51"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_prompt_content.py:166",
+        "tests/test_prompt_content.py:209",
+        "tests/test_prompt_content.py:225"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R025",
@@ -805,12 +814,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R034",
       "title": "SDK provides shared library-file-path resolution and cross-process file locking utilities",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "2c4e8ae0f172",
         "629ef53c29f0",
         "bac65b612ced"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_library_state.py:14",
+        "tests/test_library_state.py:24"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R035",
