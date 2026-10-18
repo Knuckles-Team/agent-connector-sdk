@@ -85,7 +85,8 @@ class SplitDecision:
     tool), ``covered`` (``served_by`` is the per-operation tool that serves the
     same call; ``split`` is the name that was not registered) or ``kept`` (the
     whole tool stays because its actions cannot be enumerated). ``reason``
-    says why an action is covered: ``name``, ``operation`` or ``table``.
+    says why an action is covered: ``name``, ``operation``, ``table`` or
+    ``dispatch`` (a generic router over one served client).
     """
 
     tool: str
@@ -113,6 +114,10 @@ _DESTRUCTIVE = re.compile(
 )
 _COMPARE = re.compile(r"""\baction\s*==\s*["']([a-z][a-z0-9_]*)["']""")
 _QUOTED = re.compile(r"'([a-z][a-z0-9_]*)'")
+_LISTED = re.compile(
+    r"one of:\s*([a-z][a-z0-9_]*(?:\s*,\s*(?:or\s+)?[a-z][a-z0-9_]*)+)", re.IGNORECASE
+)
+_LISTED_NAME = re.compile(r"[a-z][a-z0-9_]*")
 _DISCOVERY = frozenset({"list_actions", "help", "actions"})
 
 
@@ -146,12 +151,23 @@ def tool_actions(tool: Any) -> list[str]:
     found += [str(item) for item in prop.get("enum") or []]
     if fn is not None:
         found += _COMPARE.findall(_source(fn))
-    found += _QUOTED.findall(str(prop.get("description", "")))
+    found += _described_actions(str(prop.get("description", "")))
     seen: list[str] = []
     for name in found:
         if name not in seen and name not in _DISCOVERY:
             seen.append(name)
     return seen
+
+
+def _described_actions(description: str) -> list[str]:
+    """Actions an ``action`` description lists: quoted names, else ``One of: a, b``."""
+    quoted = _QUOTED.findall(description)
+    if quoted:
+        return list(quoted)
+    match = _LISTED.search(description)
+    if match is None:
+        return []
+    return [name for name in _LISTED_NAME.findall(match.group(1)) if name != "or"]
 
 
 def _branches(fn: Callable[..., Any]) -> dict[str, ast.AST]:
@@ -281,9 +297,13 @@ def _cell_strings(value: Any) -> Iterator[str]:
 def _action_tables(fn: Callable[..., Any], actions: list[str]) -> list[dict[str, Any]]:
     """``{action: method}`` tables the tool body refers to (globals or closure)."""
     target = inspect.unwrap(fn)
-    names = getattr(getattr(target, "__code__", None), "co_names", ())
-    scope = getattr(target, "__globals__", {})
-    candidates = [scope.get(name) for name in names]
+    tree = _function_body(target)
+    owners = [target] + (_delegates(target, tree) if tree is not None else [])
+    candidates = [
+        getattr(owner, "__globals__", {}).get(name)
+        for owner in owners
+        for name in getattr(getattr(owner, "__code__", None), "co_names", ())
+    ]
     for cell in getattr(target, "__closure__", None) or ():
         try:
             candidates.append(cell.cell_contents)
@@ -312,6 +332,8 @@ def _table_operations(
             continue
         entry = table[action]
         handler = _branch_operation(_function_body(entry), operations)
+        if handler is None:
+            handler = _lambda_operation(entry, operations)
         if handler is not None:
             return [handler]
         if not hasattr(entry, "__code__") or getattr(entry, "__closure__", None):
@@ -442,6 +464,86 @@ def _branch_operation(
     return refs.pop()
 
 
+def _lambda_operation(fn: Any, operations: Mapping[str, str]) -> str | None:
+    """The one served operation a handler lambda calls, when it calls nothing else.
+
+    A lambda's source cannot be parsed on its own, so its code object is read:
+    it names exactly one served operation and no other module function.
+    """
+    code = getattr(fn, "__code__", None)
+    if code is None or getattr(fn, "__name__", "") != "<lambda>":
+        return None
+    names = set(code.co_names)
+    served = names & set(operations)
+    scope = getattr(fn, "__globals__", {})
+    computing = {
+        name
+        for name in names - served
+        if callable(scope.get(name)) and name not in _ADAPTERS
+    }
+    return served.pop() if len(served) == 1 and not computing else None
+
+
+def _returned_class(factory: Any) -> Any:
+    """The class a client factory's return annotation names, or ``None``."""
+    try:
+        return typing.get_type_hints(factory).get("return")
+    except Exception:
+        return None
+
+
+def _client_factories(fn: Any, tree: ast.AST) -> dict[str, list[Any]]:
+    """``{variable: [factory, returned class]}`` for clients ``fn`` builds or injects."""
+    scope = getattr(inspect.unwrap(fn), "__globals__", {})
+    factories: dict[str, Any] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
+            func = node.value.func
+            factory = scope.get(func.id) if isinstance(func, ast.Name) else None
+            for target in node.targets:
+                if isinstance(target, ast.Name) and callable(factory):
+                    factories[target.id] = factory
+    for name, param in inspect.signature(fn).parameters.items():
+        factory = getattr(param.default, "dependency", None)
+        if callable(factory):
+            factories[name] = factory
+    return {name: [f, _returned_class(f)] for name, f in factories.items()}
+
+
+def _dispatched_client(
+    fn: Any, clients: Mapping[Any, Mapping[str, str]]
+) -> Mapping[str, str] | None:
+    """Operations of the one served client a generic router dispatches to.
+
+    A router whose actions are any method of a client (``getattr(client,
+    action)`` or ``dispatch(client, action, ...)``) serves exactly that
+    client's operations, each already served as its own tool.
+    """
+    tree = _function_body(fn)
+    if tree is None:
+        return None
+    factories = _client_factories(fn, tree)
+    matches: list[Mapping[str, str]] = []
+    for call in ast.walk(tree):
+        if not isinstance(call, ast.Call):
+            continue
+        args = [*call.args, *(k.value for k in call.keywords)]
+        names = {a.id for a in args if isinstance(a, ast.Name)}
+        if "action" not in names:
+            continue
+        for name in names & set(factories):
+            found = [clients[k] for k in factories[name] if _hashable_in(k, clients)]
+            matches += [m for m in found[:1] if m not in matches]
+    return matches[0] if len(matches) == 1 else None
+
+
+def _hashable_in(key: Any, mapping: Mapping[Any, Any]) -> bool:
+    try:
+        return key is not None and key in mapping
+    except TypeError:
+        return False
+
+
 def _function_body(fn: Any) -> ast.AST | None:
     source = _source(fn) if callable(fn) and hasattr(fn, "__code__") else ""
     try:
@@ -502,12 +604,15 @@ def split_action_tool(
     *,
     operations: Mapping[str, str],
     taken: Collection[str] = (),
+    clients: Mapping[Any, Mapping[str, str]] | None = None,
 ) -> list[str]:
     """Replace one action-routed tool by per-action tools; never lose an action.
 
     ``operations`` maps each client method served as an operation tool to that
     tool's name; ``taken`` holds every other tool name already served or about
-    to be. An action an operation tool already serves is not registered twice:
+    to be; ``clients`` maps each served client class and its factory to its operations,
+    so a generic router over one client is covered by that client's tools.
+    An action an operation tool already serves is not registered twice:
     the operation tool wins, and the decision is logged at debug level and
     recorded in :func:`action_split_report`. Returns the names of the tools
     added; an empty list means every action is covered. When the actions
@@ -515,6 +620,16 @@ def split_action_tool(
     logged.
     """
     actions = tool_actions(tool)
+    dispatched = None if actions else _dispatched_client(tool.fn, clients or {})
+    if dispatched:
+        mcp.local_provider.remove_tool(name)
+        for method, served_by in dispatched.items():
+            split = f"{name}_{method}"
+            _record(
+                mcp,
+                SplitDecision(name, method, split, "covered", served_by, "dispatch"),
+            )
+        return []
     if not actions:
         logger.warning(
             "action-routed tool %r kept unsplit: its actions could not be enumerated",

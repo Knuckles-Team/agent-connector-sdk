@@ -304,3 +304,112 @@ def test_two_different_tools_with_one_name_still_raise() -> None:
             get_client=HubApi,
             registrars=[register_clash],
         )
+
+
+class OktaApi:
+    def list_apps(self, limit: int = 200) -> list[str]:
+        """List apps."""
+        return ["app"] * min(limit, 1)
+
+    def get_app(self, app_id: str) -> dict[str, Any]:
+        """One app."""
+        return {"id": app_id}
+
+
+APP_ACTIONS = "list, get, audit"
+
+_APP_HANDLERS: dict[str, Any] = {
+    "list": lambda client, p: client.list_apps(limit=p.get("limit", 200)),
+    "get": lambda client, p: client.get_app(p["app_id"]),
+    "audit": lambda client, p: _summarize(client.get_app(p["app_id"])),
+}
+
+
+def run_apps(action: str, params_json: str) -> Any:
+    return _APP_HANDLERS[action](OktaApi(), json.loads(params_json))
+
+
+def register_lambda_tools(mcp: FastMCP[Any]) -> None:
+    @mcp.tool()
+    def sample_apps(
+        action: str = Field(description=f"Action to perform. One of: {APP_ACTIONS}."),
+        params_json: str = "{}",
+    ) -> Any:
+        """Apps, okta-agent shape."""
+        return run_apps(action, params_json)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.2")
+async def test_listed_actions_and_lambda_handlers_resolve() -> None:
+    mcp: FastMCP[Any] = FastMCP("sample")
+    register_tool_surface(
+        mcp,
+        service="sample-mcp",
+        client_cls=OktaApi,
+        get_client=OktaApi,
+        registrars=[register_lambda_tools],
+    )
+    report = _report(mcp)
+    assert report["sample_apps_list"]["served_by"] == "sample_list_apps"
+    assert report["sample_apps_get"]["served_by"] == "sample_get_app"
+    # A handler that computes over operation data stays a tool of its own.
+    assert report["sample_apps_audit"]["outcome"] == "split"
+    assert "sample_apps_audit" in await _listed(mcp)
+
+
+class RadarrApi:
+    def get_movie(self, movie_id: int = 0) -> dict[str, Any]:
+        """One movie."""
+        return {"id": movie_id}
+
+    def get_system_status(self) -> dict[str, Any]:
+        """Status."""
+        return {"ok": True}
+
+
+class SonarrApi:
+    def get_system_status(self) -> dict[str, Any]:
+        """Status."""
+        return {"ok": True}
+
+
+def get_radarr_client() -> RadarrApi:
+    return RadarrApi()
+
+
+def dispatch(client: Any, action: str, kwargs: dict[str, Any]) -> Any:
+    return getattr(client, action)(**kwargs)
+
+
+def register_router_tools(mcp: FastMCP[Any]) -> None:
+    @mcp.tool()
+    def radarr_action(action: str, params_json: str = "{}") -> Any:
+        """Execute any Radarr method, arr-mcp shape."""
+        client = get_radarr_client()
+        return dispatch(client, action, json.loads(params_json))
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.2")
+async def test_generic_router_is_covered_by_its_clients_operations() -> None:
+    mcp: FastMCP[Any] = FastMCP("sample")
+    register_tool_surface(
+        mcp,
+        service="arr-mcp",
+        registrars=[register_router_tools],
+        verbose_targets=[
+            {"client_cls": SonarrApi, "get_client": SonarrApi, "prefix": "sonarr"},
+            {
+                "client_cls": RadarrApi,
+                "get_client": get_radarr_client,
+                "prefix": "radarr",
+            },
+        ],
+    )
+    tools = await _listed(mcp)
+    report = _report(mcp)
+    assert "radarr_action" not in tools
+    assert report["radarr_action_get_system_status"]["served_by"] == (
+        "radarr_get_system_status"
+    )
+    assert {entry["reason"] for entry in report.values()} == {"dispatch"}
+    assert all(entry["served_by"] in tools for entry in report.values())
