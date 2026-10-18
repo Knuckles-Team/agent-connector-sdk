@@ -186,6 +186,19 @@ All tests in this section are planned and unexecuted.
 | `SDK-SOURCE-INGEST-R004.11` | Evidence | `tests/test_approved_sql_source.py::test_page_provenance_and_redaction` compares immutable bindings, verification receipts, terminal totals and redacted failures. |
 | `SDK-SOURCE-INGEST-R004.12` | Hot-path proof | Use real authenticated dispatch on both sides. Mocks of approval, driver, dispatcher or durable ingestion cannot close acceptance. |
 
+## Declared connector sources
+
+The modules are `tests/test_source_sync.py` and `tests/test_source_sync_served.py`.
+
+| Requirement | Case | Required assertion |
+|---|---|---|
+| `SDK-SOURCE-INGEST-R004.19` | Model | `tests/test_source_sync.py::test_declaration_validates_sources` refuses a duplicate ID, an empty tool list and an incremental source without a cursor field. |
+| `SDK-SOURCE-INGEST-R004.20` | Behavior | `tests/test_source_sync.py::test_runner_submits_typed_batches_once` runs twice over one fixture page set and submits each record once. |
+| `SDK-SOURCE-INGEST-R004.21` | Wiring | `tests/test_source_sync.py::test_tool_surface_serves_declarations` lists the tool with a read-only annotation and returns the declarations. |
+| `SDK-SOURCE-INGEST-R004.22` | Refusal | `tests/test_source_sync.py::test_runner_refusals_and_budgets` covers each refusal, the retry limit and a partial run. |
+| `SDK-SOURCE-INGEST-R004.23` | Evidence | `tests/test_source_sync.py::test_report_binds_receipts` compares report batch digests with the engine receipts. |
+| `SDK-SOURCE-INGEST-R004.24` | Hot-path proof | The test reads each node with its connector and tool provenance. The second run submits zero records. |
+
 <!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
 ## Supported-harness session synchronization (WEBUI:3)
 
