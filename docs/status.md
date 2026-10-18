@@ -6,7 +6,7 @@ authoritative detail.
 
 | Area | Availability | Current contract |
 |---|:---:|---|
-| Python package | Available | Version 0.2.1; Python 3.12–3.14 |
+| Python package | Available | Version 0.2.2; Python 3.12–3.14 |
 | Connector MCP server | Available | `create_mcp_server` with the shared security, health, content, and tool-surface policies |
 | Connector certification | Available | `connector-certify` checks live MCP schemas and pinned fingerprints without invoking vendor actions |
 | Source synchronization | Available | `connector-sync` supervises certified adapters and advances only from matching Epistemic Graph receipts |
