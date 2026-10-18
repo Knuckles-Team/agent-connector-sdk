@@ -32,6 +32,7 @@
     "SDK-CONNECTOR-CONTROL-R024",
     "SDK-CONNECTOR-CONTROL-R025",
     "SDK-CONNECTOR-CONTROL-R020.1",
+    "SDK-CONNECTOR-CONTROL-R020.2",
     "SDK-CONNECTOR-CONTROL-R026",
     "SDK-CONNECTOR-CONTROL-R027",
     "SDK-CONNECTOR-CONTROL-R028",
@@ -557,7 +558,7 @@
       "title": "One tool per API operation is the default",
       "delivery_state": "SPECIFIED",
       "landed_in": [
-        "1d0259e2c41b",
+        "0bc459ee7335",
         "38b66f26f32a",
         "6ccbf6e01d12",
         "c9a2cf7b23cc",
@@ -571,7 +572,8 @@
         "tests/test_operation_tools.py:141"
       ],
       "rollup_of": [
-        "SDK-CONNECTOR-CONTROL-R020.1"
+        "SDK-CONNECTOR-CONTROL-R020.1",
+        "SDK-CONNECTOR-CONTROL-R020.2"
       ]
     },
     {
@@ -637,6 +639,21 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R020.2",
+      "title": "A split action never duplicates or collides with an operation tool",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ae05eddb4588"
+      ],
+      "verified_by": [
+        "tests/test_action_split_dedupe.py:128",
+        "tests/test_action_split_dedupe.py:191",
+        "tests/test_action_split_dedupe.py:263",
+        "tests/test_action_split_dedupe.py:290",
+        "tests/test_action_split_dedupe.py:73"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R026",
