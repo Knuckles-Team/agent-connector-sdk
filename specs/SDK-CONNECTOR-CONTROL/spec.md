@@ -32,7 +32,7 @@ vendor connector package ──manifest and entry point──▶ SDK discovery/c
 7. Connector-internal tool choice or inbound event triage may request a proposal from a decision service. This proposal is observational only. It never directly authorizes a side effect or bypasses deterministic write-back rules.
 8. The release contract locks a published compatible graph-client wheel. An isolated installed consumer verifies its generated types, native kernels, and error catalog. A source overlay, unpinned wheel, or stale lock cannot replace the release dependency.
 9. Every connector package performs HTTPS calls through the SDK's shared TLS profile in `tls/`; no connector may disable certificate verification with a bare boolean flag or silence the underlying TLS warning library (SDK-CONNECTOR-CONTROL-R017). The SDK's full test suite, strict type checking, and documentation build must pass cleanly against the connector control implementation from a fresh checkout, with no partial or broken module left in the merged source tree (SDK-CONNECTOR-CONTROL-R018).
-10. `register_tool_surface` must register condensed tools by default without implicit mode selection. R026 and R032 preserve explicit additional registration.
+10. `register_tool_surface` must register one typed, annotated tool per API operation by default, without environment mode selection. Action-dispatch tools are an opt-in compatibility mode. R026 derives the operation tools and R032 preserves explicit additional registration.
 
 ## Portable development and contribution
 

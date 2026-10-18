@@ -67,7 +67,7 @@ Connector packages retain vendor behavior. The SDK owns transport, lifecycle,
 certification, and effect execution. Generated Epistemic Graph contracts own
 durable graph records, checkpoints, content identity, and receipts.
 
-Package version: 0.2.1.
+Package version: 0.3.0.
 
 ## Key Capabilities
 

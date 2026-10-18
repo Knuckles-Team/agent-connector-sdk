@@ -117,11 +117,7 @@ async def test_served_destructive_confirmation_never_bypasses_gate(
 
         async with Client(server, mode=mode, elicitation_handler=elicit) as mcp_client:
             await mcp_client.call_tool("observed_protocol", {})
-            tool_arguments = (
-                {"params_json": '{"item_id":"x"}'}
-                if path == "generated_method"
-                else {"item_id": "x"}
-            )
+            tool_arguments = {"item_id": "x"}
             if decision == "error" and mode == "auto":
                 with pytest.raises(MCPError, match="elicitation transport failed"):
                     await mcp_client.call_tool(tool_name, tool_arguments)
@@ -160,7 +156,7 @@ async def test_nondestructive_served_call_does_not_request_confirmation(
         if path == "generated_method":
             register_method_tools(server, _Api, lambda: api, prefix="provider")
             tool_name = "provider_get_item"
-            arguments = {"params_json": '{"item_id":"x"}'}
+            arguments = {"item_id": "x"}
         else:
 
             @server.tool(name="provider_get_item")

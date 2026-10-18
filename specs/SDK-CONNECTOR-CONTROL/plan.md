@@ -269,7 +269,7 @@ These shared typed refusals stop persistence readiness and operation continuatio
 
 ## Condensed registration and JSON loader migration (SDK-CONNECTOR-CONTROL-R020.1)
 
-JSON tag-loader migration inventory binds each loader to its source and target operation. The SDK supplies the reusable census and the served parity gate. Preserve condensed default (R020) and explicit opt-ins (R026, R032) across both source and replacement registrations. Migration must prove that all operations, schemas, tags, authorization and refusals survive the move. The gate compares source and target servers end-to-end before replacement.
+JSON tag-loader migration inventory binds each loader to its source and target operation. The SDK supplies the reusable census and the served parity gate. Preserve the one-tool-per-operation default (R020), its derivation (R026) and explicit callbacks (R032) across both source and replacement registrations. Migration must prove that all operations, schemas, tags, authorization and refusals survive the move. The gate compares source and target servers end-to-end before replacement.
 
 Data flow: inventory → parity gate → operation comparison → schema/tag/auth/refusal check → served tools/list and tools/call → backend assertions.
 
@@ -434,7 +434,7 @@ Each connector owns its fixture and migration commit; the SDK owns the reusable 
 Missing fixtures or unavailable legacy transport block completion instead of producing passing empty comparisons.
 
 Decision: R020 removes implicit mode selection, while R026 and R032 retain explicit registration opt-ins.
-The existing verbose_register callback follows condensed registration; register_method_tools remains the per-method primitive.
+The verbose_register callback runs after operation and registrar tools; register_method_tools is the per-operation primitive.
 Reject a blanket ban on explicit callbacks because it contradicts R026/R032 and removes supported connector behavior.
 Do not change R026.1 confirmation or its producer dependencies.
 

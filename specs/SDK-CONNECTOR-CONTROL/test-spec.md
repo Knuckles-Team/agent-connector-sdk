@@ -181,6 +181,12 @@ These are required future tests. None ran during definition authoring.
 <!-- /spec-definition-patch -->
 
 <!-- spec-definition-patch:sdk-confirmation-r026-1 -->
+## One tool per API operation (SDK-CONNECTOR-CONTROL-R020, R026, R032)
+
+- SDK-CONNECTOR-CONTROL-R020: `tests/test_operation_tools.py::test_default_surface_is_one_typed_annotated_tool_per_operation` serves a sample client with GET, POST, PUT and DELETE operations through `tools/list`. It checks the tool count, names, typed required fields, descriptions and verb annotations. `test_action_dispatch_is_opt_in_compatibility` proves only the opt-in keeps action-dispatch tools. `tests/test_tool_surface.py::test_client_registers_operations_and_retires_action_tools` proves the default drops them. `test_manifest_supplies_schema_name_description_and_verb` covers the OpenAPI manifest path.
+- SDK-CONNECTOR-CONTROL-R026: `tests/test_method_tools.py` proves per-method derivation, typed dispatch, base-infrastructure exclusion, destructive confirmation and asynchronous client resolution.
+- SDK-CONNECTOR-CONTROL-R032: `tests/test_tool_surface.py::test_verbose_register_runs_alongside_condensed` and `test_verbose_register_name_collision_with_condensed_rejected` prove callback-last ordering and collision refusal.
+
 ## Destructive MCP confirmation compatibility (SDK-CONNECTOR-CONTROL-R026.1)
 
 - CC-107 / SDK-CONNECTOR-CONTROL-R026.1: `tests/test_mcp_confirmation_roundtrip.py::test_served_destructive_confirmation_never_bypasses_gate` calls both dispatch paths through served `tools/call`. Run auto 2026-07-28 and legacy 2025-11-25 sessions. Record FastMCP 4.0.11 and MCP 2.3.0. Explicit acceptance yields one HTTPX MockTransport effect. False, truthy-false, nonboolean, decline, cancel, missing content, or elicitation failure yields zero effects.
