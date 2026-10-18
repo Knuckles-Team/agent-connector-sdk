@@ -206,10 +206,10 @@ def operation_annotations(
         idempotent = verb in ("GET", "HEAD", "PUT", "DELETE")
     return ToolAnnotations(
         title=title or name.replace("_", " ").capitalize(),
-        readOnlyHint=read_only,
-        destructiveHint=False if read_only else destructive,
-        idempotentHint=idempotent,
-        openWorldHint=True,
+        read_only_hint=read_only,
+        destructive_hint=False if read_only else destructive,
+        idempotent_hint=idempotent,
+        open_world_hint=True,
     )
 
 
@@ -447,7 +447,9 @@ def _typed_tool(
             annotation=Context | None,
         )
     )
-    _tool.__signature__ = inspect.Signature(ordered, return_annotation=Any)
+    _tool.__signature__ = inspect.Signature(  # type: ignore[attr-defined]
+        ordered, return_annotation=Any
+    )
     _tool.__annotations__ = {p.name: p.annotation for p in ordered} | {"return": Any}
     return _tool
 
