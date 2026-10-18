@@ -565,3 +565,13 @@ EG and Arbora owners supply their operation IDs. No runtime work is authorized i
 ## Ingest under an accepted contract (R017)
 
 The runner ingests only under the contract revision that the engine accepted (`EG-TYPED-PACKS-R101`). Call path: sync runner → `ingest_documents` (`agent_connector_sdk/adapters/document_sources.py:402`) → `submit` (`agent_connector_sdk/ingest/service.py:74`) → accepted-contract digest comparison → entity request creation (`agent_connector_sdk/ingest/request.py:85`) → engine `SourceIngest`. Nested source values become declared entities and relationships, not nested properties. The pack is generated from the connector's typed declaration (`SDK-CONNECTOR-CONTROL-R067`).
+
+## Web-source fetch contract (R005.40)
+
+The SDK owns the contract only. A connector owns the fetch, the `robots.txt` rule, the rate limit and the extraction. The primary connector is `webarchiver` (`CONN-WEBARCHIVER-WEB-SOURCE`). The secondary connector is `archivebox-api` (`CONN-ARCHIVEBOX-API-WEB-SOURCE`).
+
+Call path: engine `WebPage` work item -> ingest worker runner (`SDK-SOURCE-INGEST-R010`) -> `WebFetchSourceAdapter.extract` (`agent_connector_sdk/adapters/web_fetch.py:182`) -> connector `web_extract` tool -> `SourceSyncRunner.sync` -> engine `SourceIngest`.
+
+Reuse: `fetch_page` (`agent_connector_sdk/adapters/web_fetch.py:86`) stops issuing HTTP requests. The conformance kit reuses the fixture server in `agent_connector_sdk/testing/http_server.py`. Enrichment belongs to `EG-UNIFIED-DATA-PLANE-R651.7`; the SDK transports records only.
+
+Budget: 5 MiB default `max_bytes` and 1 request per second per domain. These are starting defaults. A measurement on this platform replaces them.

@@ -237,3 +237,13 @@ Current dictation routes are single-shot. These tests require a registered meeti
 - `SDK-SOURCE-INGEST-R017.4`: `tests/test_ingest_contract_binding.py::test_refusals_keep_checkpoint`.
 - `SDK-SOURCE-INGEST-R017.5`: `tests/test_ingest_contract_binding.py::test_report_matches_engine_receipt`.
 - `SDK-SOURCE-INGEST-R017.6`: `tests/test_ingest_contract_served.py::test_ingest_requires_accepted_contract`.
+
+## Web-source fetch contract (R005.40)
+
+- `SDK-SOURCE-INGEST-R005.40`: Rollup closes when every child `.1` to `.6` passes its proving test.
+- `SDK-SOURCE-INGEST-R005.40.1`: `tests/test_web_source_contract.py::test_models_round_trip`.
+- `SDK-SOURCE-INGEST-R005.40.2`: `tests/test_web_source_contract.py::test_conformance_kit_flags_each_obligation`.
+- `SDK-SOURCE-INGEST-R005.40.3`: `tests/test_adapters_web_fetch_source_adapter.py::test_extract_calls_connector_tool`.
+- `SDK-SOURCE-INGEST-R005.40.4`: `tests/test_adapters_web_fetch_source_adapter.py::test_refusal_keeps_checkpoint`.
+- `SDK-SOURCE-INGEST-R005.40.5`: `tests/test_adapters_web_fetch_source_adapter.py::test_record_provenance_matches_engine_model`.
+- `SDK-SOURCE-INGEST-R005.40.6`: `tests/test_web_source_served.py::test_two_backends_produce_equal_records`.
