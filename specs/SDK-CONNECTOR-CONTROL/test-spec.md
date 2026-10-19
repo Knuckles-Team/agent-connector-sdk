@@ -270,7 +270,7 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R014.18`: `tests/test_served_security_and_provider_profile.py::test_r014_18_*` cover refusal without auth or audience and the middleware's identity/tenant/ACL/session cases. They also cover default application by `create_mcp_server`, the logged override and the static tenant claim.
 - `SDK-CONNECTOR-CONTROL-R014.19`: `tests/test_served_security_and_provider_profile.py::test_r014_19_*` cover resolution, close, every failure code and every invalid document.
 - `SDK-CONNECTOR-CONTROL-R014.20`: `tests/test_served_security_and_provider_profile.py::test_r014_20_entry_point_groups_use_the_sdk_namespace`.
-- `SDK-CONNECTOR-CONTROL-R014.22`: `tests/test_embeddings.py` covers OpenAI and Ollama requests, sub-batching and bearer auth from a reference. It also covers body non-disclosure, invalid settings, caching per endpoint and the DNS-pinned no-redirect client.
+- `SDK-CONNECTOR-CONTROL-R014.22`: `tests/test_embeddings.py` covers requests in both embeddings endpoint formats, sub-batching and bearer auth from a reference. It also covers body non-disclosure, invalid settings, caching per endpoint and the DNS-pinned no-redirect client.
 - `SDK-CONNECTOR-CONTROL-R014.23`: `tests/test_compute_adapter.py` covers SPARQL algorithm selection and the served run. It also covers refusal of unbound analyses and unserved methods and IRI and client-path validation. It covers the unavailable endpoint and the compute-only scopes.
 
 ## Connector packs authored as Turtle (R067)
