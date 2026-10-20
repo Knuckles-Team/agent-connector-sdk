@@ -153,7 +153,7 @@ All R012 rows require actual connector registration and served acceptance.
 Decision: reuse the SDK dispatcher, governed HTTP, certification and SourceAdapter boundary.
 Rejected alternative: a separate routing service that selects semantic actions or introduces another health authority and ingestion store.
 Operational status is bounded observation; it is neither EG knowledge nor an authorization decision.
-References: the source motivates ordered per-channel backends and observed status; no arXiv derivation is claimed.
+References: the source motivates ordered per-channel backends and observed status.
 
 ## Source contract extension design
 
