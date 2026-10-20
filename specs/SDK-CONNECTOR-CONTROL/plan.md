@@ -90,7 +90,6 @@ Register connector credential-missing handling through `register_tool_surface` a
 Reuse governed HTTP, endpoint validation and credential references. PkceAuthManager and its host ports remain unimplemented.
 For `no_credential`, the host projects `credential_missing`; preserve the shared challenge error names unchanged.
 All new R035 children and the refined R046 children require real local issuer/callback and served connector evidence.
-No arXiv derivation is claimed for this protocol contract.
 
 ## Agent-card discovery (SDK-CONNECTOR-CONTROL-R047)
 
@@ -123,9 +122,6 @@ Reused: `canonical_json` body building in `_tool_entry`. New: the form, the rend
 Decision. The score is the fraction of graded questions answered from the text form. The rejected alternative is a free-form model judgment, which cannot be replayed offline.
 
 Cross-repository rows. The engine's tool-subset decision (`EG-DECISION-ENGINE`) may read `score` through the generated pack annotation; that field needs the `EG-TYPED-PACKS` row first.
-
-References
-- arXiv:2605.03808 — Singh et al., "Agentic-imodels: Evolving agentic interpretability tools via autoresearch" (2026)
 
 ## Payment challenge handling (SDK-CONNECTOR-CONTROL-R049)
 
