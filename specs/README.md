@@ -61,4 +61,5 @@ bootstrap skill, together with the [SDD full lifecycle](https://github.com/Knuck
 - [`SDK-OBSERVABILITY-FEEDS`](SDK-OBSERVABILITY-FEEDS/spec.md) — telemetry and observability feeds.
 - [`SDK-QUALITY-RELEASE`](SDK-QUALITY-RELEASE/spec.md) — package and release proof.
 - [`SDK-REPOSITORY-TRANSPORT`](SDK-REPOSITORY-TRANSPORT/spec.md) — repository transport contract.
+- [`SDK-SCM`](SDK-SCM/spec.md) — source client and virtual workspace.
 - [`SDK-SOURCE-INGEST`](SDK-SOURCE-INGEST/spec.md) — source ingestion contracts.
