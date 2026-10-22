@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from agent_connector_sdk.certify.pin_journal import (
@@ -114,8 +114,12 @@ def _validate_identity(
         raise ManifestError("; ".join(violations))
 
 
-def load_checkout(root: Path) -> ConnectorCheckout:
+def load_checkout(root: Path, *, repair_connector: bool = False) -> ConnectorCheckout:
     """Load a connector checkout for certification.
+
+    ``repair_connector`` (``connector-certify --write``) takes the connector
+    name from the manifest when the fingerprints still carry an older name,
+    so a rename regenerates the fingerprints instead of refusing the checkout.
 
     Raises:
         ManifestError: a package file is missing or malformed, or the presets do
@@ -131,6 +135,8 @@ def load_checkout(root: Path) -> ConnectorCheckout:
             "the presets of one connector must name exactly one MCP server"
         )
     fingerprints = _load_fingerprints(manifest.connector, directory)
+    if repair_connector and fingerprints.connector != manifest.connector:
+        fingerprints = replace(fingerprints, connector=manifest.connector)
     _validate_identity(manifest, presets, fingerprints)
     return ConnectorCheckout(
         root=root,

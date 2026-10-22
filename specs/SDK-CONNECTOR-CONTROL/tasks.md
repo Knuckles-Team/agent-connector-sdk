@@ -240,6 +240,7 @@ Runtime work and test execution remain outstanding.
 
 - [x] **SDK-CONNECTOR-CONTROL-R070:** Implement and validate current-plan boundary models.
 - [x] **SDK-CONNECTOR-CONTROL-R071:** Declare one connector identity and resolve pack, manifest and ingest names from it.
+- [x] **SDK-CONNECTOR-CONTROL-R072:** Let `connector-certify --write` regenerate fingerprints after a connector rename.
 
 ## Never-drop splitter, successor parity and actor forwarding (R020.3, R020.4, R902)
 

@@ -196,7 +196,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parse_arguments(sys.argv[1:] if argv is None else argv)
     _configure_logging()
     try:
-        checkout = load_checkout(args.package)
+        checkout = load_checkout(args.package, repair_connector=args.write)
         run = partial(_run_certification, checkout, args)
         report = anyio.run(run)
     except Exception:

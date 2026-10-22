@@ -336,6 +336,10 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_
 
 `tests/test_connector_identity.py` resolves the name from a fake entry-point table and from a `pyproject.toml`. It checks the refusal of zero, duplicate and invalid names. It builds both `for_package` constructors under one name. It checks the refusal of content that disagrees with its manifest.
 
+## SDK-CONNECTOR-CONTROL-R072
+
+`tests/test_certify_connector_rename.py` gives the fixture fingerprints an older connector name. `--check` refuses the checkout. `--write` rewrites the name from the manifest, and `--check` then passes.
+
 ## Never-drop splitter, successor parity and actor forwarding (R020.3, R020.4, R902)
 
 - `SDK-CONNECTOR-CONTROL-R020.3`: `tests/test_action_split.py` registers a router with three actions and a router with unlistable actions. It asserts three split tools, one kept router and no lost tool.
