@@ -878,10 +878,14 @@
       "title": "SDK provides a CredentialProvider/SecretsClient abstraction for connectors, not only a credential-reference string",
       "delivery_state": "SPECIFIED",
       "landed_in": [
+        "19ec36c4137a",
         "629ef53c29f0",
+        "7cdafa5f12f7",
         "bac65b612ced"
       ],
-      "verified_by": [],
+      "verified_by": [
+        "tests/test_credentials.py:124"
+      ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R035.1",
         "SDK-CONNECTOR-CONTROL-R035.2",
