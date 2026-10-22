@@ -275,7 +275,8 @@
     "SDK-CONNECTOR-CONTROL-R781",
     "SDK-CONNECTOR-CONTROL-R782",
     "SDK-CONNECTOR-CONTROL-R070",
-    "SDK-CONNECTOR-CONTROL-R071"
+    "SDK-CONNECTOR-CONTROL-R071",
+    "SDK-CONNECTOR-CONTROL-R072"
   ],
   "requirements": [
     {
@@ -2872,6 +2873,17 @@
       ],
       "verified_by": [
         "tests/test_connector_identity.py:20"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R072",
+      "title": "Certify repairs a renamed connector",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "560814d5e963"
+      ],
+      "verified_by": [
+        "tests/test_certify_connector_rename.py:16"
       ]
     }
   ]
