@@ -107,7 +107,9 @@ owns authenticated runtime composition.
 
 ## Architecture
 
-![Runtime architecture: people and clients enter through Arbora. Source systems flow through Agent Connector SDK into Epistemic Graph.](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)
+[![Runtime architecture: people and clients enter through Arbora. Source systems flow through Agent Connector SDK into Epistemic Graph.](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
+
+[Explore the live architecture](https://knuckles-team.github.io/.github/architecture/#sdk)
 
 | Boundary | Owned here | Owned elsewhere |
 |---|---|---|
