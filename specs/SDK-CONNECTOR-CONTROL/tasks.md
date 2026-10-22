@@ -239,6 +239,7 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R782:** Message-stream adapters normalize into change envelopes.
 
 - [x] **SDK-CONNECTOR-CONTROL-R070:** Implement and validate current-plan boundary models.
+- [x] **SDK-CONNECTOR-CONTROL-R071:** Declare one connector identity and resolve pack, manifest and ingest names from it.
 
 ## Never-drop splitter, successor parity and actor forwarding (R020.3, R020.4, R902)
 
