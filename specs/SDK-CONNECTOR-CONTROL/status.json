@@ -33,6 +33,8 @@
     "SDK-CONNECTOR-CONTROL-R025",
     "SDK-CONNECTOR-CONTROL-R020.1",
     "SDK-CONNECTOR-CONTROL-R020.2",
+    "SDK-CONNECTOR-CONTROL-R020.3",
+    "SDK-CONNECTOR-CONTROL-R020.4",
     "SDK-CONNECTOR-CONTROL-R026",
     "SDK-CONNECTOR-CONTROL-R027",
     "SDK-CONNECTOR-CONTROL-R028",
@@ -246,6 +248,13 @@
     "SDK-CONNECTOR-CONTROL-R901.4",
     "SDK-CONNECTOR-CONTROL-R901.5",
     "SDK-CONNECTOR-CONTROL-R901.6",
+    "SDK-CONNECTOR-CONTROL-R902",
+    "SDK-CONNECTOR-CONTROL-R902.1",
+    "SDK-CONNECTOR-CONTROL-R902.2",
+    "SDK-CONNECTOR-CONTROL-R902.3",
+    "SDK-CONNECTOR-CONTROL-R902.4",
+    "SDK-CONNECTOR-CONTROL-R902.5",
+    "SDK-CONNECTOR-CONTROL-R902.6",
     "SDK-CONNECTOR-CONTROL-R067",
     "SDK-CONNECTOR-CONTROL-R067.1",
     "SDK-CONNECTOR-CONTROL-R067.2",
@@ -574,7 +583,9 @@
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R020.1",
-        "SDK-CONNECTOR-CONTROL-R020.2"
+        "SDK-CONNECTOR-CONTROL-R020.2",
+        "SDK-CONNECTOR-CONTROL-R020.3",
+        "SDK-CONNECTOR-CONTROL-R020.4"
       ]
     },
     {
@@ -672,6 +683,20 @@
         "tests/test_action_split_dedupe.py:290",
         "tests/test_action_split_dedupe.py:342"
       ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R020.3",
+      "title": "A router tool is split, never dropped",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R020.4",
+      "title": "A successor release keeps every predecessor tool",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R026",
@@ -2571,6 +2596,63 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R901.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R902",
+      "title": "Connector tools declare and receive an acting user (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R902.1",
+        "SDK-CONNECTOR-CONTROL-R902.2",
+        "SDK-CONNECTOR-CONTROL-R902.3",
+        "SDK-CONNECTOR-CONTROL-R902.4",
+        "SDK-CONNECTOR-CONTROL-R902.5",
+        "SDK-CONNECTOR-CONTROL-R902.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R902.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R902.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R902.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R902.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R902.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R902.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],

@@ -239,3 +239,15 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R782:** Message-stream adapters normalize into change envelopes.
 
 - [x] **SDK-CONNECTOR-CONTROL-R070:** Implement and validate current-plan boundary models.
+
+## Never-drop splitter, successor parity and actor forwarding (R020.3, R020.4, R902)
+
+- [ ] **SDK-CONNECTOR-CONTROL-R020.3:** A router tool is split, never dropped.
+- [ ] **SDK-CONNECTOR-CONTROL-R020.4:** A successor release keeps every predecessor tool.
+- [ ] **SDK-CONNECTOR-CONTROL-R902:** Connector tools declare and receive an acting user (rollup).
+- [ ] **SDK-CONNECTOR-CONTROL-R902.1:** Model.
+- [ ] **SDK-CONNECTOR-CONTROL-R902.2:** Behavior.
+- [ ] **SDK-CONNECTOR-CONTROL-R902.3:** Wiring.
+- [ ] **SDK-CONNECTOR-CONTROL-R902.4:** Refusal.
+- [ ] **SDK-CONNECTOR-CONTROL-R902.5:** Evidence.
+- [ ] **SDK-CONNECTOR-CONTROL-R902.6:** Hot-path proof.

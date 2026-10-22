@@ -270,7 +270,7 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R014.18`: `tests/test_served_security_and_provider_profile.py::test_r014_18_*` cover refusal without auth or audience and the middleware's identity/tenant/ACL/session cases. They also cover default application by `create_mcp_server`, the logged override and the static tenant claim.
 - `SDK-CONNECTOR-CONTROL-R014.19`: `tests/test_served_security_and_provider_profile.py::test_r014_19_*` cover resolution, close, every failure code and every invalid document.
 - `SDK-CONNECTOR-CONTROL-R014.20`: `tests/test_served_security_and_provider_profile.py::test_r014_20_entry_point_groups_use_the_sdk_namespace`.
-- `SDK-CONNECTOR-CONTROL-R014.22`: `tests/test_embeddings.py` covers OpenAI and Ollama requests, sub-batching and bearer auth from a reference. It also covers body non-disclosure, invalid settings, caching per endpoint and the DNS-pinned no-redirect client.
+- `SDK-CONNECTOR-CONTROL-R014.22`: `tests/test_embeddings.py` covers `openai` and `ollama` provider requests, sub-batching and bearer auth from a reference. It also covers body non-disclosure, invalid settings, caching per endpoint and the DNS-pinned no-redirect client.
 - `SDK-CONNECTOR-CONTROL-R014.23`: `tests/test_compute_adapter.py` covers SPARQL algorithm selection and the served run. It also covers refusal of unbound analyses and unserved methods and IRI and client-path validation. It covers the unavailable endpoint and the compute-only scopes.
 
 ## Connector packs authored as Turtle (R067)
@@ -331,3 +331,17 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_
 ## SDK-CONNECTOR-CONTROL-R070
 
 `tests/test_current_plan.py` uses synthetic JSON and Python values. Positive cases cover available empty/populated snapshots, all statuses, unavailable/null and ordered JSON round trips. Negative cases cover unknown authority fields, scalar coercion, negative/bool revisions, invalid statuses, empty/oversized IDs, naive/non-UTC/reversed timestamps, availability mismatch and malformed nested instances. Frozen tuples and model fields refuse mutation. These tests require no server, engine or model call.
+
+## Never-drop splitter, successor parity and actor forwarding (R020.3, R020.4, R902)
+
+- `SDK-CONNECTOR-CONTROL-R020.3`: `tests/test_action_split.py` registers a router with three actions and a router with unlistable actions. It asserts three split tools, one kept router and no lost tool.
+- `SDK-CONNECTOR-CONTROL-R020.4`: `tests/test_successor_tool_parity.py` compares a predecessor and a successor tool list. It asserts kept, split and covered outcomes, and a refusal for one lost tool.
+- `SDK-CONNECTOR-CONTROL-R902`: The rollup holds when its six children hold.
+- `SDK-CONNECTOR-CONTROL-R902.1`: A unit test reads the flag from a fixture manifest.
+- `SDK-CONNECTOR-CONTROL-R902.2`: Tests cover one actor-required call and one ordinary call.
+- `SDK-CONNECTOR-CONTROL-R902.3`: A served test calls an actor-required tool with a forwarded token and reads the subject.
+- `SDK-CONNECTOR-CONTROL-R902.4`: A served test asserts each refusal and no upstream call.
+- `SDK-CONNECTOR-CONTROL-R902.5`: A test reads the trace event and asserts no token.
+- `SDK-CONNECTOR-CONTROL-R902.6`: `tests/test_actor_forwarding_served.py::test_actor_required_tool_binds_forwarded_user` passes.
+
+Hot-path proof for `SDK-CONNECTOR-CONTROL-R902`: `tests/test_actor_forwarding_served.py::test_actor_required_tool_binds_forwarded_user`.
