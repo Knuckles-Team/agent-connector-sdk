@@ -2357,8 +2357,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.24",
       "title": "Engine audience from the environment",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a30460e27dae"
+      ],
       "verified_by": [
         "tests/test_compute_adapter.py:128"
       ]
