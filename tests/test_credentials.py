@@ -121,6 +121,7 @@ def test_openbao_from_settings(monkeypatch: pytest.MonkeyPatch) -> None:
     assert resolve_secret_reference("openbao://apps/x#TOKEN", resolver) == "s3cret"
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R035")
 def test_openbao_addr_without_token_ref_falls_back_to_env(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
