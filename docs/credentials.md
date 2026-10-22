@@ -25,7 +25,9 @@ For example, `openbao://apps/freshrss-agent#FRESHRSS_TOKEN`.
 `OpenBaoCredentialResolver.from_settings()` reads `OPENBAO_ADDR`,
 `OPENBAO_NAMESPACE` and `OPENBAO_TOKEN_REF`. The token reference must be
 `env://`, because the token that unlocks OpenBao cannot itself be stored there.
-HTTPS is required outside loopback.
+HTTPS is required outside loopback. With `OPENBAO_ADDR` set and
+`OPENBAO_TOKEN_REF` unset or blank, `default_credential_resolver()` adds no
+OpenBao resolver and serves `env://` references from the environment.
 
 ## Configuration files
 
