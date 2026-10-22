@@ -221,7 +221,14 @@
     "SDK-SOURCE-INGEST-R017.3",
     "SDK-SOURCE-INGEST-R017.4",
     "SDK-SOURCE-INGEST-R017.5",
-    "SDK-SOURCE-INGEST-R017.6"
+    "SDK-SOURCE-INGEST-R017.6",
+    "SDK-SOURCE-INGEST-R805",
+    "SDK-SOURCE-INGEST-R805.1",
+    "SDK-SOURCE-INGEST-R805.2",
+    "SDK-SOURCE-INGEST-R805.3",
+    "SDK-SOURCE-INGEST-R805.4",
+    "SDK-SOURCE-INGEST-R805.5",
+    "SDK-SOURCE-INGEST-R805.6"
   ],
   "requirements": [
     {
@@ -2349,6 +2356,63 @@
     },
     {
       "id": "SDK-SOURCE-INGEST-R017.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R805",
+      "title": "Source access, enumeration and hierarchy contract (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-SOURCE-INGEST-R805.1",
+        "SDK-SOURCE-INGEST-R805.2",
+        "SDK-SOURCE-INGEST-R805.3",
+        "SDK-SOURCE-INGEST-R805.4",
+        "SDK-SOURCE-INGEST-R805.5",
+        "SDK-SOURCE-INGEST-R805.6"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R805.1",
+      "title": "Permission and group sync",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R805.2",
+      "title": "Identifier enumeration",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R805.3",
+      "title": "Container hierarchy",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R805.4",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R805.5",
+      "title": "Read-time access lookup port",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R805.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],

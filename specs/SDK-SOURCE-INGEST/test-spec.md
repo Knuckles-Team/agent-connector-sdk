@@ -263,3 +263,15 @@ Current dictation routes are single-shot. These tests require a registered meeti
 - `SDK-SOURCE-INGEST-R005.40.6`: `tests/test_web_source_served.py::test_two_backends_produce_equal_records`.
 - `SDK-SOURCE-INGEST-R004.26`: `tests/test_ingest_citable_fields.py::test_citable_fields_keep_public_urls_and_nothing_else`.
 - `SDK-SOURCE-INGEST-R004.27`: `tests/test_contracts_and_sink.py::test_sink_passes_the_mass_withdrawal_decision_to_the_engine`.
+
+## Permission sync, identifier enumeration, containers and the read-time access check
+
+| Row | Proving test |
+|---|---|
+| `SDK-SOURCE-INGEST-R805` | See each child. |
+| `SDK-SOURCE-INGEST-R805.1` | `tests/source_connectors/test_permission_sync.py::test_access_batch_carries_no_content` |
+| `SDK-SOURCE-INGEST-R805.2` | `tests/source_connectors/test_permission_sync.py::test_interrupted_enumeration_is_incomplete` |
+| `SDK-SOURCE-INGEST-R805.3` | `tests/source_connectors/test_permission_sync.py::test_container_batch_preserves_parents` |
+| `SDK-SOURCE-INGEST-R805.4` | `tests/test_source_sync.py::test_runner_schedules_access_enumeration_and_containers` |
+| `SDK-SOURCE-INGEST-R805.5` | `tests/test_access_check_port.py::test_timeout_denies_every_record` |
+| `SDK-SOURCE-INGEST-R805.6` | `tests/test_permission_sync_served.py::test_revocation_and_prune_against_real_engine` |
