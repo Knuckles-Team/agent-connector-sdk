@@ -1,5 +1,17 @@
 # agent-connector-sdk engineering contract
 
+<!-- agent-contract:start -->
+## Agent contract
+
+Tool-neutral rules for any AI agent or human working in this repository. This block is maintained by the fleet standard; edit outside the markers.
+
+- **Owner boundary:** this repository owns connector contracts, transports (including the MCP and A2A libraries), the engine client adapter and ontology pack generation (spec prefix `SDK-`). Feature routing across repositories: [ecosystem boundaries](https://github.com/Knuckles-Team/pipelines/blob/main/reference/ecosystem-boundaries.md).
+- **Setup:** run `scripts/bootstrap.sh`. It is idempotent and non-interactive: it pins uv and Python, syncs the locked environment, installs the git hooks and prints the gate command.
+- **Gates:** `uvx pre-commit run --all-files` must pass before you push. Do not bypass hooks to get green.
+- **Commits:** one logical change per commit with a `Spec: <ID>` trailer (or `Spec: none (<reason>)`), plus a `Co-Authored-By:` trailer naming the assisting agent. Stage explicit paths only; never `git add -A` or `git add .`. Use your own configured Git identity, never a tool or bot name.
+- **Org rules:** [organization AGENTS.md](https://github.com/Knuckles-Team/.github/blob/main/AGENTS.md).
+<!-- agent-contract:end -->
+
 This file defines the current repository architecture and the rules contributors
 and automation must preserve. The public guides are built from [`docs/`](docs/)
 and published through GitHub Pages.
