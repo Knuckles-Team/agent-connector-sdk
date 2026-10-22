@@ -2868,7 +2868,7 @@
       "title": "One declared connector identity",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "e9ed7830df3c"
+        "be84b80873fa"
       ],
       "verified_by": [
         "tests/test_connector_identity.py:20"
