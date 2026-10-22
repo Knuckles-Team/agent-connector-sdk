@@ -62,7 +62,10 @@ db = [
 mssql = [
     "pyodbc>=5.2.0",
 ]
+# The shared GraphQL client (agent_connector_sdk.transports.graphql) and the
+# introspection helpers. Connectors declare only this extra for GraphQL.
 graphql = [
+    "gql[requests]>=4.4.0",
     "graphql-core>=3.2.5",
 ]
 market = [
@@ -120,8 +123,7 @@ agent_connector_sdk = ["py.typed", "skills/**/*", "ontology/*.ttl"]
 
 [dependency-groups]
 test = [
-    "agent-connector-sdk[mcp,feeds,dataprep,integrity]",
-    "graphql-core>=3.2.5",
+    "agent-connector-sdk[mcp,feeds,dataprep,integrity,graphql]",
     "pandas>=2.2.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
@@ -131,7 +133,7 @@ docs = [
     "mkdocs-material==9.7.7",
 ]
 typecheck = [
-    "agent-connector-sdk[mcp,feeds,dataprep,integrity]",
+    "agent-connector-sdk[mcp,feeds,dataprep,integrity,graphql]",
     "mypy==2.4.0",
     "types-PyYAML==6.0.12.20260906",
 ]
@@ -203,6 +205,7 @@ exclude_dirs = ["tests", "scripts"]
 # The documented public surface. scripts/check_wiring.py orphans treats these and
 # every entry-point target as roots; every other module must be imported by one.
 public_modules = [
+    "agent_connector_sdk.transports.graphql",
     "agent_connector_sdk.ingest.source_sync",
     "agent_connector_sdk.current_plan",
     "agent_connector_sdk.a2a",
