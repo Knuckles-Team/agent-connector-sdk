@@ -87,12 +87,18 @@ class OpenBaoCredentialResolver:
         """Build from ``OPENBAO_ADDR`` and ``OPENBAO_TOKEN_REF`` (``env://`` only).
 
         The token that unlocks OpenBao cannot itself live in OpenBao. Returns
-        ``None`` when ``OPENBAO_ADDR`` is unset.
+        ``None`` when ``OPENBAO_ADDR`` is unset, or when it is set but
+        ``OPENBAO_TOKEN_REF`` is unset or blank: with no token reference there
+        is no way to unlock OpenBao, so the caller falls back to plain
+        environment resolution.
         """
         address = setting("OPENBAO_ADDR")
         if not address:
             return None
-        token_reference = parse_secret_reference(str(setting("OPENBAO_TOKEN_REF", "")))
+        token_setting = str(setting("OPENBAO_TOKEN_REF", "") or "").strip()
+        if not token_setting:
+            return None
+        token_reference = parse_secret_reference(token_setting)
         if token_reference.scheme != "env":
             raise SecretReferenceError("OPENBAO_TOKEN_REF must be an env:// reference")
         return cls(
