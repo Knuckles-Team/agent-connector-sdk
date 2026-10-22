@@ -575,3 +575,9 @@ R780 maps each retired agent-utilities harness module to its SDK module: identit
 R070 supplies the SDK-owned request and snapshot models assigned by the ecosystem boundaries standard's current-plan example. It preserves the wire fields of Arbora `api.ops.runs` at `2d62cd8` and the migrated AU-HARNESS-R014 contract retained by AU-BOUNDARY-R043.4 and R043.5.1. The module owns boundary validation only. It imports neither Arbora nor AU and does not duplicate an EG record contract.
 
 Arbora's ARBORA-OPS-R021.4.5 remains responsible for authenticated tenant/principal binding, current-time validation and refusal. EG owns records and live run leases. AU owns the real run state. Consumer migration and publication/readback remain dependent changes; this DTO slice does not make a reader available. A syntactically valid historical snapshot is permitted by the DTO and must still be refused by a live reader. No validity duration or run lease is fabricated here.
+
+## Never-drop splitter, successor parity and actor forwarding (R020.3, R020.4, R902)
+
+SDK 0.3.4 split action-routed tools instead of dropping them. SDK 0.3.5 and 0.3.6 stopped split tools from colliding with operation tools (R020.2). R020.3 states the never-drop rule. R020.4 states the successor parity rule: a release keeps, splits or covers each predecessor tool.
+
+R902 lets a tool declare that it needs an acting user. arbora forwards a delegated token for such tools (ARBORA-IDENTITY-R028). The transport binds the user before the tool body runs.
