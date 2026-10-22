@@ -123,3 +123,22 @@ def test_compute_session_asks_for_compute_scopes_only():
     claims = settings.verified_context(COMPUTE_SCOPES)
     assert claims["scopes"] == ["compute:finance", "sparql:read"]
     assert settings.verified_context()["scopes"] == ["source:ingest", "blob:write"]
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.24")
+def test_r014_24_audience_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    for key, value in {
+        "EPISTEMIC_GRAPH_ENDPOINT": "tcp://127.0.0.1:9100",
+        "EPISTEMIC_GRAPH_AUTH_SECRET_REF": "env://EG_SECRET",
+        "EPISTEMIC_GRAPH_TENANT": "tenant-a",
+        "EPISTEMIC_GRAPH_GRAPH": "kg",
+    }.items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.delenv("EPISTEMIC_GRAPH_AUDIENCE", raising=False)
+    default = EngineSettings.from_settings()
+    assert default is not None
+    assert default.verified_context()["audience"] == "epistemic-graph"
+    monkeypatch.setenv("EPISTEMIC_GRAPH_AUDIENCE", "agent-services")
+    custom = EngineSettings.from_settings()
+    assert custom is not None
+    assert custom.verified_context()["audience"] == "agent-services"

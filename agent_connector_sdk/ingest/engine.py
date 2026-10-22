@@ -55,6 +55,7 @@ class EngineSettings:
     graph: str
     principal: str = "service:connector"
     policy_version: str = "policy:current"
+    audience: str = "epistemic-graph"
 
     def __post_init__(self) -> None:
         missing = [name for name in _REQUIRED if not getattr(self, name)]
@@ -80,6 +81,7 @@ class EngineSettings:
             policy_version=str(
                 setting("EPISTEMIC_GRAPH_POLICY_VERSION", "policy:current")
             ),
+            audience=str(setting("EPISTEMIC_GRAPH_AUDIENCE", "epistemic-graph")),
         )
 
     def verified_context(
@@ -93,7 +95,7 @@ class EngineSettings:
         return {
             "principal": self.principal,
             "tenant": self.tenant,
-            "audience": "epistemic-graph",
+            "audience": self.audience,
             "agent_id": self.principal,
             "roles": ["connector"],
             "scopes": list(scopes),
