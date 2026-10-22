@@ -353,3 +353,4 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_
 - `SDK-CONNECTOR-CONTROL-R902.6`: `tests/test_actor_forwarding_served.py::test_actor_required_tool_binds_forwarded_user` passes.
 
 Hot-path proof for `SDK-CONNECTOR-CONTROL-R902`: `tests/test_actor_forwarding_served.py::test_actor_required_tool_binds_forwarded_user`.
+- `SDK-CONNECTOR-CONTROL-R030.1`: `tests/test_graphql_client.py` passes. It covers auth headers, bounded retry, redaction, pagination and the async call.
