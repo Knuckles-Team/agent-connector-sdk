@@ -43,6 +43,7 @@
     "SDK-CONNECTOR-CONTROL-R028.3",
     "SDK-CONNECTOR-CONTROL-R029",
     "SDK-CONNECTOR-CONTROL-R030",
+    "SDK-CONNECTOR-CONTROL-R030.1",
     "SDK-CONNECTOR-CONTROL-R031",
     "SDK-CONNECTOR-CONTROL-R032",
     "SDK-CONNECTOR-CONTROL-R033",
@@ -824,12 +825,28 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "284fb12a19ed",
-        "e4ffa1a49677"
+        "e4ffa1a49677",
+        "fe098dd55c33"
       ],
       "verified_by": [
+        "tests/test_graphql_client.py:20",
         "tests/test_mcp_graphql_context.py:67",
         "tests/test_mcp_graphql_context.py:74",
         "tests/test_mcp_graphql_context.py:90"
+      ],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R030.1"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R030.1",
+      "title": "SDK owns the one GraphQL client for connectors",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "fe098dd55c33"
+      ],
+      "verified_by": [
+        "tests/test_graphql_client.py:20"
       ]
     },
     {
