@@ -193,3 +193,11 @@
 - [ ] **SDK-SOURCE-INGEST-R005.40.6:** Hot-path proof. Add the served two-connector test.
 - [x] `SDK-SOURCE-INGEST-R004.26` — Citable public URL fields kept by the persistence guard.
 - [x] `SDK-SOURCE-INGEST-R004.27` — Pass the operator's mass-withdrawal decision through the sink.
+
+- [ ] **SDK-SOURCE-INGEST-R805:** Source access, enumeration and hierarchy contract (rollup).
+- [ ] **SDK-SOURCE-INGEST-R805.1:** Permission and group sync.
+- [ ] **SDK-SOURCE-INGEST-R805.2:** Identifier enumeration.
+- [ ] **SDK-SOURCE-INGEST-R805.3:** Container hierarchy.
+- [ ] **SDK-SOURCE-INGEST-R805.4:** Wiring.
+- [ ] **SDK-SOURCE-INGEST-R805.5:** Read-time access lookup port.
+- [ ] **SDK-SOURCE-INGEST-R805.6:** Hot-path proof.

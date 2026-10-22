@@ -587,3 +587,11 @@ The checkpoint holds the cursor, the record digests, the last report and the sta
 Budgets bound each run: pages, records, batch size and seconds. A tool call retries with the existing `Backoff` (`agent_connector_sdk/runner/backoff.py`). The host owns admission and scheduling. The engine owns storage, the durable `SourceIngest` checkpoint and KV.
 
 The engine admits a source record only under an imported connector pack mapping. The mapping reference is `manifest:<connector>#schema_mappings/<record type>`. Without that pack, the engine answers `UNKNOWN_MAPPING_REFERENCE`, and the runner reports `ingest_refused`. A declared record type therefore names a manifest `schema_mappings` entry (R004.25). The engine needs no change.
+
+## Source access, enumeration and hierarchy (R805)
+
+R800 owns the load, poll and slim connector shapes. R805 adds three batch kinds and one port.
+The runner sends `access`, `groups`, `enumeration` and `containers` batches to the engine
+`SourceIngest` method. The engine admits them under EG-INGEST-WORKER-R902 to R904. The access
+lookup port answers EG-FEDERATED-QUERY-R703 for sources that decide access at read time. The
+SDK holds the contract and the transport only. The engine holds the records and the decisions.
