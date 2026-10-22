@@ -68,6 +68,18 @@ class IngestBinding:
             if not str(getattr(self, name)).strip():
                 raise ValueError(f"ingest binding {name} is required")
 
+    @classmethod
+    def for_package(cls, package: str, stream: str, **fields: Any) -> IngestBinding:
+        """Bind ``package``'s change sets under its declared fleet name.
+
+        The connector comes from
+        :func:`agent_connector_sdk.connector_identity.connector_name`, so the binding,
+        the content pack and the manifest all carry the one identity.
+        """
+        from agent_connector_sdk.connector_identity import connector_name
+
+        return cls(connector=connector_name(package), stream=stream, **fields)
+
     @property
     def server_name(self) -> str:
         """The server named in provenance."""

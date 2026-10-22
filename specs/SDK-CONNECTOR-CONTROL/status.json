@@ -274,7 +274,8 @@
     "SDK-CONNECTOR-CONTROL-R780.6",
     "SDK-CONNECTOR-CONTROL-R781",
     "SDK-CONNECTOR-CONTROL-R782",
-    "SDK-CONNECTOR-CONTROL-R070"
+    "SDK-CONNECTOR-CONTROL-R070",
+    "SDK-CONNECTOR-CONTROL-R071"
   ],
   "requirements": [
     {
@@ -490,9 +491,19 @@
       "title": "SDK is sole owner of connector source lifecycle and certification",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "5e1bd9257555"
+        "061f9b58abb2",
+        "077a14c9f3d3",
+        "5e1bd9257555",
+        "9cec9cea7d37",
+        "fad5328aee62"
       ],
-      "verified_by": [],
+      "verified_by": [
+        "tests/test_duplicate_symbol_scan.py:21",
+        "tests/test_duplicate_symbol_scan.py:29",
+        "tests/test_duplicate_symbol_scan.py:43",
+        "tests/test_duplicate_symbol_scan.py:56",
+        "tests/test_duplicate_symbol_scan.py:69"
+      ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R015.1"
       ]
@@ -706,15 +717,17 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "38b66f26f32a",
+        "851969957034",
+        "c529b133556b",
         "c65195236264",
         "d3617301012c"
       ],
       "verified_by": [
-        "tests/test_method_tools.py:27",
-        "tests/test_method_tools.py:37",
-        "tests/test_method_tools.py:57",
-        "tests/test_method_tools.py:66",
-        "tests/test_method_tools.py:79"
+        "tests/test_mcp_confirmation_roundtrip.py:134",
+        "tests/test_mcp_confirmation_roundtrip.py:178",
+        "tests/test_mcp_confirmation_roundtrip.py:198",
+        "tests/test_mcp_confirmation_roundtrip.py:36",
+        "tests/test_method_tools.py:27"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R026.1",
@@ -2359,7 +2372,7 @@
       "title": "Engine audience from the environment",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "a30460e27dae"
+        "16cb53774404"
       ],
       "verified_by": [
         "tests/test_compute_adapter.py:128"
@@ -2848,6 +2861,17 @@
       ],
       "verified_by": [
         "tests/test_current_plan.py:16"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R071",
+      "title": "One declared connector identity",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e9ed7830df3c"
+      ],
+      "verified_by": [
+        "tests/test_connector_identity.py:20"
       ]
     }
   ]

@@ -332,6 +332,10 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_
 
 `tests/test_current_plan.py` uses synthetic JSON and Python values. Positive cases cover available empty/populated snapshots, all statuses, unavailable/null and ordered JSON round trips. Negative cases cover unknown authority fields, scalar coercion, negative/bool revisions, invalid statuses, empty/oversized IDs, naive/non-UTC/reversed timestamps, availability mismatch and malformed nested instances. Frozen tuples and model fields refuse mutation. These tests require no server, engine or model call.
 
+## SDK-CONNECTOR-CONTROL-R071
+
+`tests/test_connector_identity.py` resolves the name from a fake entry-point table and from a `pyproject.toml`. It checks the refusal of zero, duplicate and invalid names. It builds both `for_package` constructors under one name. It checks the refusal of content that disagrees with its manifest.
+
 ## Never-drop splitter, successor parity and actor forwarding (R020.3, R020.4, R902)
 
 - `SDK-CONNECTOR-CONTROL-R020.3`: `tests/test_action_split.py` registers a router with three actions and a router with unlistable actions. It asserts three split tools, one kept router and no lost tool.

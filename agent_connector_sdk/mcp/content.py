@@ -70,6 +70,55 @@ class ConnectorContent:
     def __post_init__(self) -> None:
         if not self.connector.strip() or not self.package_version.strip():
             raise ValueError("connector and package_version are required")
+        declared = _manifest_connector(self.manifest_path)
+        if declared is not None and declared != self.connector:
+            raise ContentError(
+                f"content connector {self.connector!r} disagrees with the "
+                f"manifest connector {declared!r}"
+            )
+
+    @classmethod
+    def for_package(
+        cls,
+        package: str,
+        package_root: Path,
+        package_version: str,
+        manifest_path: Path | None = None,
+    ) -> ConnectorContent:
+        """Build the content of ``package`` under its declared fleet name.
+
+        The connector name comes from
+        :func:`agent_connector_sdk.connector_identity.connector_name`; a connector passes
+        no name literal. ``manifest_path`` defaults to
+        ``package_root/connector_manifest.yml`` when that file exists.
+        """
+        from agent_connector_sdk.connector_identity import connector_name
+
+        if manifest_path is None and (package_root / MANIFEST_FILE).is_file():
+            manifest_path = package_root / MANIFEST_FILE
+        return cls(
+            connector=connector_name(package),
+            package_root=package_root,
+            package_version=package_version,
+            manifest_path=manifest_path,
+        )
+
+
+MANIFEST_FILE = "connector_manifest.yml"
+
+
+def _manifest_connector(path: Path | None) -> str | None:
+    """The ``connector`` a packaged manifest declares, if it is readable."""
+    if path is None or not path.is_file():
+        return None
+    import yaml
+
+    try:
+        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, yaml.YAMLError) as exc:
+        raise ContentError(f"manifest {path.name} is not readable YAML") from exc
+    connector = document.get("connector") if isinstance(document, dict) else None
+    return connector if isinstance(connector, str) else None
 
 
 @dataclass(frozen=True)
