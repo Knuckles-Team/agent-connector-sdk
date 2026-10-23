@@ -2401,8 +2401,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.25",
       "title": "SDK-consumed env vars are never drift",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "eb0b3b299f31"
+      ],
       "verified_by": [
         "tests/test_connector_runtime_adds.py:268"
       ]
