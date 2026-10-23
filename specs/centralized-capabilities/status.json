@@ -1,0 +1,330 @@
+{
+  "schema_version": 2,
+  "spec_id": "SDK-CENTRALIZED-CAPABILITIES",
+  "owner_repo": "agent-connector-sdk",
+  "delivery_state": "SPECIFIED",
+  "requirement_ids": [
+    "SDK-CENTRALIZED-CAPABILITIES-R001",
+    "SDK-CENTRALIZED-CAPABILITIES-R002",
+    "SDK-CENTRALIZED-CAPABILITIES-R003",
+    "SDK-CENTRALIZED-CAPABILITIES-R004",
+    "SDK-CENTRALIZED-CAPABILITIES-R005",
+    "SDK-CENTRALIZED-CAPABILITIES-R006",
+    "SDK-CENTRALIZED-CAPABILITIES-R007",
+    "SDK-CENTRALIZED-CAPABILITIES-R008",
+    "SDK-CENTRALIZED-CAPABILITIES-R009",
+    "SDK-CENTRALIZED-CAPABILITIES-R010",
+    "SDK-CENTRALIZED-CAPABILITIES-R011",
+    "SDK-CENTRALIZED-CAPABILITIES-R012",
+    "SDK-CENTRALIZED-CAPABILITIES-R013",
+    "SDK-CENTRALIZED-CAPABILITIES-R014",
+    "SDK-CENTRALIZED-CAPABILITIES-R015",
+    "SDK-CENTRALIZED-CAPABILITIES-R016",
+    "SDK-CENTRALIZED-CAPABILITIES-R017",
+    "SDK-CENTRALIZED-CAPABILITIES-R018",
+    "SDK-CENTRALIZED-CAPABILITIES-R019",
+    "SDK-CENTRALIZED-CAPABILITIES-R020",
+    "SDK-CENTRALIZED-CAPABILITIES-R021",
+    "SDK-CENTRALIZED-CAPABILITIES-R022",
+    "SDK-CENTRALIZED-CAPABILITIES-R023",
+    "SDK-CENTRALIZED-CAPABILITIES-R024",
+    "SDK-CENTRALIZED-CAPABILITIES-R025",
+    "SDK-CENTRALIZED-CAPABILITIES-R026",
+    "SDK-CENTRALIZED-CAPABILITIES-R027",
+    "SDK-CENTRALIZED-CAPABILITIES-R028",
+    "SDK-CENTRALIZED-CAPABILITIES-R029",
+    "SDK-CENTRALIZED-CAPABILITIES-R030",
+    "SDK-CENTRALIZED-CAPABILITIES-R031",
+    "SDK-CENTRALIZED-CAPABILITIES-R032",
+    "SDK-CENTRALIZED-CAPABILITIES-R033",
+    "SDK-CENTRALIZED-CAPABILITIES-R034",
+    "SDK-CENTRALIZED-CAPABILITIES-R035",
+    "SDK-CENTRALIZED-CAPABILITIES-R036",
+    "SDK-CENTRALIZED-CAPABILITIES-R037",
+    "SDK-CENTRALIZED-CAPABILITIES-R038",
+    "SDK-CENTRALIZED-CAPABILITIES-R039",
+    "SDK-CENTRALIZED-CAPABILITIES-R040"
+  ],
+  "requirements": [
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R001",
+      "title": "Governed HTTP client and retry",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R002",
+      "title": "Egress guard and pinned addresses",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R003",
+      "title": "API client base and auth strategies",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R004",
+      "title": "Pagination helpers",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R005",
+      "title": "Rate-limit telemetry and concurrency",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R006",
+      "title": "Error redaction and typed problems",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R007",
+      "title": "Payment challenge handling",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R008",
+      "title": "TLS profiles",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R009",
+      "title": "Credential and secret-reference resolution",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R010",
+      "title": "Selected-provider credential profile",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R011",
+      "title": "Token providers and source credentials",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R012",
+      "title": "OIDC delegation and actor identity",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R013",
+      "title": "Browser OAuth with PKCE",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R014",
+      "title": "MCP server factory and served security",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R015",
+      "title": "Tool surface and tool context",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R016",
+      "title": "GraphQL",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R017",
+      "title": "A2A protocol",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R018",
+      "title": "Engine client adapter and compute",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R019",
+      "title": "Ingest bindings and source adapters",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R020",
+      "title": "Database sources",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R021",
+      "title": "Feed and document sources",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R022",
+      "title": "Message streams",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R023",
+      "title": "Market data",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R024",
+      "title": "Data preparation",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R025",
+      "title": "Embedding client",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R026",
+      "title": "Vendor extractors",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R027",
+      "title": "Ontology and content packs",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R028",
+      "title": "Connector manifest and integrity",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R029",
+      "title": "Certification and fingerprints",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R030",
+      "title": "Connector identity",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R031",
+      "title": "Governed write-back",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R032",
+      "title": "Runner and CLI bootstrap",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R033",
+      "title": "Health and observability",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R034",
+      "title": "Configuration, paths, and locks",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R035",
+      "title": "Privacy, entitlements, and external access",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R036",
+      "title": "Source client and repository transport",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R037",
+      "title": "Plugin entry-point groups",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R038",
+      "title": "Connector test kit",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R039",
+      "title": "Domain record models",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R040",
+      "title": "Optional dependencies come from SDK extras",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    }
+  ]
+}
