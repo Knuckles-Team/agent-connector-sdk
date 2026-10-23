@@ -2971,7 +2971,8 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "268d030fffad",
-        "57d0997107dd"
+        "57d0997107dd",
+        "cf3d6e92c008"
       ],
       "verified_by": [
         "tests/test_default_content.py:14"
