@@ -261,7 +261,7 @@ def _record(**payload: object) -> SourceRecord:
     return SourceRecord(
         stream="demo",
         record_id="1",
-        mapping_reference="manifest:demo-agent#schema_mappings/Document",
+        mapping_reference="connector:demo-agent#mappings/Document",
         payload=dict(payload),
         provenance=_provenance(),
     )

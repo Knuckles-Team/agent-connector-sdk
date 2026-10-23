@@ -90,7 +90,7 @@ class _StaticAdapter:
                 SourceRecord(
                     stream="items",
                     record_id="item-1",
-                    mapping_reference="manifest:repairable",
+                    mapping_reference="connector:repairable",
                     payload={"id": "item-1"},
                     provenance=SourceRecordProvenance(
                         connector="repairable",

@@ -141,7 +141,7 @@ def _adapter(
         preset,
         connector=CONNECTOR,
         tool_schema_sha256=_compatibility_sha256(descriptor),
-        mapping_reference=f"manifest:{CONNECTOR}#schema_mappings/Event",
+        mapping_reference=f"connector:{CONNECTOR}#mappings/Event",
     )
 
 
@@ -546,7 +546,7 @@ def test_event_feed_adapter_rejects_unpinned_construction_and_unsupported_preset
             reconciling,
             connector=CONNECTOR,
             tool_schema_sha256="a" * 64,
-            mapping_reference=f"manifest:{CONNECTOR}#schema_mappings/Event",
+            mapping_reference=f"connector:{CONNECTOR}#mappings/Event",
         )
 
 

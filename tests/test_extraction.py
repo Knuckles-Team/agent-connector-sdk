@@ -120,7 +120,7 @@ async def test_adapter_fails_closed(
             adapter._preset,
             connector=CONNECTOR,
             tool_schema_sha256="0" * 64,
-            mapping_reference="manifest:demo-agent#schema_mappings/Document",
+            mapping_reference="connector:demo-agent#mappings/Document",
         )
         with pytest.raises(SourceContractError):
             await drifted.discover(session)
@@ -133,7 +133,7 @@ async def test_adapter_fails_closed(
         McpToolSourceAdapter(
             adapter._preset,
             connector="",
-            mapping_reference="manifest:demo-agent#schema_mappings/Document",
+            mapping_reference="connector:demo-agent#mappings/Document",
         )
 
 
@@ -256,7 +256,7 @@ def test_record_helpers() -> None:
             {"title": "no id"},
             connector="c",
             schema_sha256="a" * 64,
-            mapping_reference="manifest:c#schema_mappings/Document",
+            mapping_reference="connector:c#mappings/Document",
         )
     with pytest.raises(MalformedSourceDataError):
         source_record(
@@ -264,7 +264,7 @@ def test_record_helpers() -> None:
             {"id": 1, "blob": object()},
             connector="c",
             schema_sha256="a" * 64,
-            mapping_reference="manifest:c#schema_mappings/Document",
+            mapping_reference="connector:c#mappings/Document",
         )
     strict = ToolPreset(
         name="typed",
@@ -281,7 +281,7 @@ def test_record_helpers() -> None:
             {"id": "1", "node_type": "Document", "secret": "drop-me"},
             connector="c",
             schema_sha256="a" * 64,
-            mapping_reference="manifest:c#schema_mappings/Document",
+            mapping_reference="connector:c#mappings/Document",
         )
     with pytest.raises(MalformedSourceDataError, match="no usable node type"):
         source_record(
@@ -289,7 +289,7 @@ def test_record_helpers() -> None:
             {"id": "1", "node_type": ""},
             connector="c",
             schema_sha256="a" * 64,
-            mapping_reference="manifest:c#schema_mappings/Document",
+            mapping_reference="connector:c#mappings/Document",
         )
 
 
@@ -388,7 +388,7 @@ async def test_conformance_checks_report_failures(
         adapter._preset.model_copy(update={"params": {"count": 50}}),
         connector=CONNECTOR,
         tool_schema_sha256=adapter._pinned,
-        mapping_reference="manifest:demo-agent#schema_mappings/Document",
+        mapping_reference="connector:demo-agent#mappings/Document",
     )
     assert not (await check_pagination(single_page, sessions)).passed
     assert not (await check_checkpoint_resume(single_page, sessions)).passed

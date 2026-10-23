@@ -92,19 +92,18 @@ def uninstalled() -> Iterator[None]:
     install_ingest(None)
 
 
-def test_change_set_maps_to_exact_manifest_references() -> None:
+# spec: SDK-CONNECTOR-CONTROL-R075.6
+def test_change_set_maps_to_exact_declared_references() -> None:
     request = build_request(BINDING, _changes(), previous=None)
     assert [r.mapping_reference for r in request.records] == [
-        "manifest:demo-mcp#schema_mappings/Query",
-        "manifest:demo-mcp#schema_mappings/Document",
+        "connector:demo-mcp#mappings/Query",
+        "connector:demo-mcp#mappings/Document",
     ]
     assert request.records[0].payload == {"text": "q"}
     document = request.records[1].payload
     assert document["content_hash"] == hashlib.sha256(b"body").hexdigest()
     (edge,) = request.relationships
-    assert edge.relation_reference == (
-        "manifest:demo-mcp#resources/Document/relations/resultOf"
-    )
+    assert edge.relation_reference == ("connector:demo-mcp#relations/Document/resultOf")
     assert request.mode is SourceIngestionMode.DELTA
     assert request.expected_previous_checkpoint is None
     assert request.provider_checkpoint.position["sequence"] == 1
@@ -153,7 +152,7 @@ def test_relationship_source_type_is_never_guessed() -> None:
     )
     (edge,) = build_request(BINDING, typed, previous=None).relationships
     assert edge.source.stream == "other"
-    assert edge.relation_reference.endswith("resources/Item/relations/rel")
+    assert edge.relation_reference.endswith("relations/Item/rel")
 
 
 def test_malformed_change_sets_fail_before_io() -> None:
@@ -211,7 +210,7 @@ async def test_media_bytes_go_to_blob_storage_first() -> None:
     assert transport.blobs == {digest: b"\x89PNG"}
     (record,) = transport.requests[0].records
     assert record.record_id == f"blob:{digest}"
-    assert record.mapping_reference.endswith("schema_mappings/MediaAsset")
+    assert record.mapping_reference.endswith("#mappings/MediaAsset")
     assert record.payload == dict(media_entity(BINDING, asset, digest).properties)
     with pytest.raises(IngestError, match="no bytes"):
         await KnowledgeIngest(transport).submit(

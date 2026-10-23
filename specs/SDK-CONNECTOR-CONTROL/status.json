@@ -295,7 +295,8 @@
     "SDK-CONNECTOR-CONTROL-R075.2",
     "SDK-CONNECTOR-CONTROL-R075.3",
     "SDK-CONNECTOR-CONTROL-R075.4",
-    "SDK-CONNECTOR-CONTROL-R075.5"
+    "SDK-CONNECTOR-CONTROL-R075.5",
+    "SDK-CONNECTOR-CONTROL-R075.6"
   ],
   "requirements": [
     {
@@ -3066,21 +3067,23 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "0d150cf96fd8",
-        "f0b9e7f4f535"
+        "f0b9e7f4f535",
+        "fba8d8d864b6"
       ],
       "verified_by": [
+        "tests/test_ingest.py:95",
         "tests/test_single_declaration.py:102",
         "tests/test_single_declaration.py:112",
         "tests/test_single_declaration.py:192",
-        "tests/test_single_declaration.py:230",
-        "tests/test_single_declaration.py:84"
+        "tests/test_single_declaration.py:230"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R075.1",
         "SDK-CONNECTOR-CONTROL-R075.2",
         "SDK-CONNECTOR-CONTROL-R075.3",
         "SDK-CONNECTOR-CONTROL-R075.4",
-        "SDK-CONNECTOR-CONTROL-R075.5"
+        "SDK-CONNECTOR-CONTROL-R075.5",
+        "SDK-CONNECTOR-CONTROL-R075.6"
       ]
     },
     {
@@ -3139,6 +3142,17 @@
       ],
       "verified_by": [
         "tests/test_single_declaration.py:230"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R075.6",
+      "title": "Mapping references name the declaration",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "fba8d8d864b6"
+      ],
+      "verified_by": [
+        "tests/test_ingest.py:95"
       ]
     }
   ]

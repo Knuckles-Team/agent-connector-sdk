@@ -59,7 +59,7 @@ async def test_config_anchors_paths_and_lists_connectors(tmp_path: Path) -> None
     assert isinstance(loaded, RunnerConfig)
     assert isinstance(loaded.settings, RunnerSettings)
     (descriptor,) = loaded.connectors
-    assert descriptor.resolved_mapping_reference == "manifest:freshrss-agent"
+    assert descriptor.resolved_mapping_reference == "connector:freshrss-agent"
     registry = StaticConfigRegistry(config)
     assert isinstance(registry, ConnectorRegistry)
     (listed,) = await registry.connectors()
@@ -123,7 +123,7 @@ async def test_load_sync_adapters_fails_closed() -> None:
     assert list(await load_sync_adapters(freshrss_descriptor(), session)) == [
         "freshrss"
     ]
-    exact = "manifest:freshrss-agent#schema_mappings/news_article"
+    exact = "connector:freshrss-agent#mappings/news_article"
     adapters = await load_sync_adapters(
         freshrss_descriptor(mapping_reference=exact), session
     )
@@ -133,11 +133,11 @@ async def test_load_sync_adapters_fails_closed() -> None:
         ({"data_resources": {"data://x": ("other",)}}, "is not selected"),
         ({"connector": "archivebox-api", "data_resources": {}}, "declares connector"),
         (
-            {"mapping_reference": ("manifest:freshrss-agent#schema_mappings/missing")},
+            {"mapping_reference": ("connector:freshrss-agent#mappings/missing")},
             "does not name a declared mapping",
         ),
         (
-            {"mapping_reference": "manifest:other#schema_mappings/news_article"},
+            {"mapping_reference": "connector:other#mappings/news_article"},
             "must name this connector",
         ),
         (

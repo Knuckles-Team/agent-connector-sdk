@@ -102,7 +102,7 @@ def test_sync_runner_against_real_engine(
         _run(live_ingest), loop
     ).result(120)
     # The engine admits source records only under an imported connector pack
-    # mapping (manifest:<connector>#schema_mappings/<record type>). This
+    # mapping (connector:<connector>#mappings/<record type>). This
     # fixture connector imported none, so the engine refuses the batch.
     assert first.state == "failed" and first.reason == "ingest_refused", first
     assert first.engine_code == "UNKNOWN_MAPPING_REFERENCE", first

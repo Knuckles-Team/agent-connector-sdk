@@ -65,7 +65,7 @@ def _mapping_reference_problems(
     selected_specs: Mapping[str, SyncSpec],
 ) -> list[str]:
     reference = descriptor.resolved_mapping_reference
-    manifest_reference = f"manifest:{descriptor.connector}"
+    manifest_reference = f"connector:{descriptor.connector}"
     if reference == manifest_reference:
         return _whole_declaration_mapping_problems(manifest, selected_specs)
     return _explicit_mapping_problems(reference, manifest_reference, manifest)
@@ -96,7 +96,7 @@ def _whole_declaration_mapping_problems(
 def _explicit_mapping_problems(
     reference: str, manifest_reference: str, manifest: SyncContract
 ) -> list[str]:
-    prefix = f"{manifest_reference}#schema_mappings/"
+    prefix = f"{manifest_reference}#mappings/"
     if not reference.startswith(prefix):
         return ["a mapping reference must name this connector's exact declared mapping"]
     key = reference.removeprefix(prefix)
