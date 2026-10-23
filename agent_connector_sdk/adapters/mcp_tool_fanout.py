@@ -68,7 +68,8 @@ async def parent_values(
     """The distinct ``field`` values of every record of ``preset``'s parent."""
     check_parents(preset, parents)
     link = preset.for_each
-    assert link is not None
+    if link is None:
+        return []
     parent = parents[link.source]
     scopes: list[dict[str, Any]] = [{}]
     if parent.for_each is not None:
@@ -133,7 +134,8 @@ async def extract_fanned(
     """
     preset: ToolPreset = adapter.preset
     link = preset.for_each
-    assert link is not None
+    if link is None:
+        raise SourceContractError("extract_fanned needs a preset with for_each")
     position = checkpoint.position if isinstance(checkpoint.position, Mapping) else {}
     index = int(position.get(FAN_KEY, 0))
     if index >= len(values):

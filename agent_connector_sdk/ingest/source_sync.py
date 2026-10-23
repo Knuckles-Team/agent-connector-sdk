@@ -406,7 +406,8 @@ class SourceSyncRunner:
     ) -> list[Any]:
         """The distinct values ``spec.for_each`` fans out over, in parent order."""
         link = spec.for_each
-        assert link is not None
+        if link is None:
+            return []
         chain = (*chain, spec.source_id)
         parent = sources.get(link.source)
         if parent is None:
