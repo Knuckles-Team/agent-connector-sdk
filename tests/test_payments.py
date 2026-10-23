@@ -35,6 +35,7 @@ def test_proof_hash_is_deterministic_and_content_bound() -> None:
     assert _proof().proof_hash != _proof(transaction_hash="0xdef").proof_hash
 
 
+# spec: SDK-FINANCE-SOURCES-R900.4
 @pytest.mark.parametrize(
     ("limits", "spent", "challenge", "reason"),
     [
@@ -89,6 +90,7 @@ def test_guard_remaining_budget_and_daily_reset() -> None:
     assert guard.remaining_daily == pytest.approx(100.0)
 
 
+# spec: SDK-FINANCE-SOURCES-R900.6
 def test_client_parses_402_proves_and_records_spend() -> None:
     client = X402PaymentClient(
         wallet_address="0xwallet", budget_limits=BudgetLimits(max_daily_spend=5.0)

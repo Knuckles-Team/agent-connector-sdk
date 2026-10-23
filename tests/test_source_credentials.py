@@ -74,6 +74,7 @@ def test_descriptor_materializes_request_auth(
     assert (material.headers, material.params) == (headers, params)
 
 
+# spec: SDK-CONNECTOR-CONTROL-R900.4
 @pytest.mark.parametrize(
     "descriptor",
     [
@@ -133,6 +134,7 @@ def test_oauth2_failed_refresh_sends_no_header() -> None:
     assert credential.is_present()
 
 
+# spec: SDK-CONNECTOR-CONTROL-R900.6
 def test_registry_caches_degrades_and_reports_status_without_values(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

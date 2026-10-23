@@ -60,6 +60,7 @@ def test_package_preset_fills_the_tool_contract() -> None:
     assert source.tool == preset["tool"] and source.name == "mcp:scholarx"
 
 
+# spec: SDK-SOURCE-INGEST-R902.2
 def test_cursor_poll_pages_then_dedups() -> None:
     calls, call_tool = _caller(
         {"items": [{"id": "a", "text": "one"}], "next": "c2"},
@@ -131,6 +132,7 @@ def test_unconfigured_server_names_the_offline_option(
         list(build_connector("mcp", {"server": "s", "tool": "t"}).load())
 
 
+# spec: SDK-SOURCE-INGEST-R902.6
 async def test_run_sync_works_inside_a_running_loop() -> None:
     async def answer() -> int:
         return 42

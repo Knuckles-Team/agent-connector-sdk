@@ -122,6 +122,7 @@ def test_live_write_records_change_set_audit_and_receipt(fake_sink, ledger, flag
     assert [r["receipt"]["effect_status"] for r in receipts] == ["applied"]
 
 
+# spec: SDK-SOURCE-INGEST-R600.4
 def test_live_write_refused_without_flag(fake_sink, ledger, flag):
     flag(False)
     sink = fake_sink(FakeSink())

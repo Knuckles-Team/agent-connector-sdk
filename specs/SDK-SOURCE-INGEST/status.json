@@ -1930,9 +1930,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R600.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/test_writeback_sinks.py:125"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R600.5",
@@ -1977,9 +1981,14 @@
     {
       "id": "SDK-SOURCE-INGEST-R800.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:122",
+        "tests/source_connectors/test_source_connectors.py:145"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R800.3",
@@ -1991,9 +2000,14 @@
     {
       "id": "SDK-SOURCE-INGEST-R800.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:51",
+        "tests/source_connectors/test_source_connectors.py:58"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R800.5",
@@ -2005,9 +2019,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R800.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:145"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R803",
@@ -2101,9 +2119,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R804.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/voice_supply_chain/test_voice_supply_chain.py:69"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R804.3",
@@ -2115,9 +2137,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R804.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/voice_supply_chain/test_voice_supply_chain.py:48"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R804.5",
@@ -2172,9 +2198,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R900.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_database.py:48"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R900.5",
@@ -2186,9 +2216,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R900.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_database.py:39"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R901",
@@ -2215,9 +2249,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R901.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_graphql_document.py:355"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R901.3",
@@ -2229,9 +2267,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R901.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_graphql_document.py:283"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R901.5",
@@ -2243,9 +2285,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R901.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_graphql_document.py:324"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R902",
@@ -2272,9 +2318,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R902.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_mcp_package.py:63"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R902.3",
@@ -2300,9 +2350,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R902.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_mcp_package.py:135"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R017",

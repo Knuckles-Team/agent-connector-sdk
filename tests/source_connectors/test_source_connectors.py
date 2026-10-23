@@ -48,12 +48,14 @@ pytestmark = [
 ]
 
 
+# spec: SDK-SOURCE-INGEST-R800.4
 def test_registry_lists_builtin_sources_and_rejects_unknown():
     assert {"web", "rest", "rss", "arxiv"} <= set(list_sources())
     with pytest.raises(KeyError, match="Available"):
         build_connector("nope", {})
 
 
+# spec: SDK-SOURCE-INGEST-R800.4
 @pytest.mark.parametrize("gate", [None, lambda _source: False])
 def test_activation_is_refused_without_a_certifying_gate(gate):
     set_activation_gate(gate)
@@ -117,6 +119,7 @@ def test_rest_connector_follows_cursor_and_refuses_cross_host_next_url():
         list(hostile.load())
 
 
+# spec: SDK-SOURCE-INGEST-R800.2
 def test_rss_connector_parses_rss_and_atom_and_polls_by_watermark():
     feeds = {"http://f/rss": RSS, "http://f/atom": ATOM.replace("2601.00090v1", "x")}
     conn = build_connector("rss", {"feed_urls": list(feeds), "fetch_fn": feeds.get})
@@ -139,6 +142,7 @@ def _boom(*_args):
     raise RuntimeError("network down")
 
 
+# spec: SDK-SOURCE-INGEST-R800.2, SDK-SOURCE-INGEST-R800.6
 @pytest.mark.parametrize(
     ("kind", "config"),
     [("rss", {"feed_urls": "http://dead/"}), ("arxiv", {"categories": ["cs.AI"]})],

@@ -45,6 +45,7 @@ def test_parses_dex_volume_tvl_and_funding_rate() -> None:
     assert urls[0].endswith("symbol=BTCUSDT")
 
 
+# spec: SDK-FINANCE-SOURCES-R900.4
 @pytest.mark.parametrize(
     "call",
     [

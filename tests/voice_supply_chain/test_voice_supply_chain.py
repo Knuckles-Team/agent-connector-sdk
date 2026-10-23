@@ -45,6 +45,7 @@ def _manifest(**over: object) -> VoiceModelManifest:
     return VoiceModelManifest(**fields)
 
 
+# spec: SDK-SOURCE-INGEST-R804.4
 @pytest.mark.parametrize(
     ("over", "match"),
     [
@@ -65,6 +66,7 @@ def test_manifest_normalizes_digest_case_and_defaults_are_fail_closed():
         VoiceLicenseDecision(asset_manifest_id=SHA, counsel_decision="maybe")
 
 
+# spec: SDK-SOURCE-INGEST-R804.2
 @pytest.mark.parametrize(
     ("decision", "status", "ready", "reason"),
     [

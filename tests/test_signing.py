@@ -18,6 +18,7 @@ def test_signature_round_trips_over_canonical_json() -> None:
     assert signing.verify_datapoint('{"a":1,"b":2}', signature, public)
 
 
+# spec: SDK-CONNECTOR-CONTROL-R901.4
 @pytest.mark.parametrize(
     ("datapoint", "signature", "public"),
     [
@@ -38,6 +39,7 @@ def test_any_mismatch_fails_closed(
     assert signing.verify_datapoint(datapoint, signature, public) is False
 
 
+# spec: SDK-CONNECTOR-CONTROL-R901.4, SDK-CONNECTOR-CONTROL-R901.6
 def test_configured_seed_is_used_and_malformed_seed_is_refused(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
