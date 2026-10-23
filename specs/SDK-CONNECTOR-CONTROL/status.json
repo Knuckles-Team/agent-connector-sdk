@@ -348,7 +348,7 @@
       "verified_by": [
         "tests/test_contracts_and_sink.py:54",
         "tests/test_mcp_native_primitives.py:47",
-        "tests/test_mcp_native_primitives.py:79"
+        "tests/test_mcp_native_primitives.py:80"
       ]
     },
     {
@@ -396,9 +396,9 @@
         "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_artifacts_discovery.py:350",
-        "tests/test_artifacts_discovery.py:367",
-        "tests/test_artifacts_discovery.py:383"
+        "tests/test_artifacts_discovery.py:351",
+        "tests/test_artifacts_discovery.py:368",
+        "tests/test_artifacts_discovery.py:384"
       ]
     },
     {
@@ -586,8 +586,8 @@
         "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_registry_visibility_content.py:276",
-        "tests/test_registry_visibility_content.py:293",
+        "tests/test_registry_visibility_content.py:278",
+        "tests/test_registry_visibility_content.py:295",
         "tests/test_schema_disclosure_provider.py:142",
         "tests/test_schema_disclosure_provider.py:63"
       ]
@@ -2998,7 +2998,8 @@
         "SDK-CONNECTOR-CONTROL-R074.3",
         "SDK-CONNECTOR-CONTROL-R074.4",
         "SDK-CONNECTOR-CONTROL-R074.5",
-        "SDK-CONNECTOR-CONTROL-R074.6"
+        "SDK-CONNECTOR-CONTROL-R074.6",
+        "SDK-CONNECTOR-CONTROL-R074.7"
       ]
     },
     {
@@ -3046,9 +3047,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R074.7",
       "title": "Default declarations",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0e82e09896ef"
+      ],
+      "verified_by": [
+        "tests/test_resource_declarations.py:33"
+      ]
     }
   ]
 }
