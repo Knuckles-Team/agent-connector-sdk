@@ -1172,7 +1172,7 @@
         "c4394740073f"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:168"
+        "tests/test_single_declaration.py:169"
       ]
     },
     {
@@ -2975,7 +2975,7 @@
         "c4394740073f"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:183"
+        "tests/test_single_declaration.py:184"
       ]
     },
     {
@@ -3063,11 +3063,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R075",
       "title": "The connector's MCP server is the only place its metadata is read from (rollup)",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "39713ec21ea9"
+        "39713ec21ea9",
+        "3e3c1cf8c020"
       ],
       "verified_by": [
+        "tests/test_single_declaration.py:102",
+        "tests/test_single_declaration.py:112",
+        "tests/test_single_declaration.py:192",
+        "tests/test_single_declaration.py:230",
         "tests/test_single_declaration.py:84"
       ],
       "rollup_of": [
@@ -3081,11 +3086,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R075.1",
       "title": "No file fallback",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "39713ec21ea9"
+        "39713ec21ea9",
+        "3e3c1cf8c020"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_single_declaration.py:85"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R075.2",
@@ -3095,7 +3103,7 @@
         "39713ec21ea9"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:85"
+        "tests/test_single_declaration.py:86"
       ]
     },
     {
@@ -3106,9 +3114,9 @@
         "39713ec21ea9"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:101",
-        "tests/test_single_declaration.py:111",
-        "tests/test_single_declaration.py:86"
+        "tests/test_single_declaration.py:102",
+        "tests/test_single_declaration.py:112",
+        "tests/test_single_declaration.py:87"
       ]
     },
     {
@@ -3119,7 +3127,7 @@
         "39713ec21ea9"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:191"
+        "tests/test_single_declaration.py:192"
       ]
     },
     {
@@ -3130,7 +3138,7 @@
         "39713ec21ea9"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:229"
+        "tests/test_single_declaration.py:230"
       ]
     }
   ]
