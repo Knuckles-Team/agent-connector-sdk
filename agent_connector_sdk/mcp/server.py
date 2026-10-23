@@ -101,6 +101,11 @@ def _calling_package() -> str | None:
     frame: Any = sys._getframe(1)
     while frame is not None:
         module = str(frame.f_globals.get("__name__", ""))
+        if module == "__main__":
+            # ``python -m pkg.mod`` runs as __main__; __package__ keeps the package.
+            module = str(frame.f_globals.get("__package__") or "")
+            if not module:
+                return None
         if module and module.split(".", 1)[0] != "agent_connector_sdk":
             return module.split(".", 1)[0]
         frame = frame.f_back
@@ -116,7 +121,10 @@ def _default_content(
     its packaged skills, prompts, ontology and manifest. A caller with no
     ``agent_connector_sdk.connector`` entry point is logged, not skipped silently.
     """
-    spec = importlib.util.find_spec(package) if package else None
+    try:
+        spec = importlib.util.find_spec(package) if package else None
+    except (ImportError, ValueError):
+        spec = None
     locations = list(spec.submodule_search_locations or []) if spec else []
     if not package or not locations:
         _logger.warning(

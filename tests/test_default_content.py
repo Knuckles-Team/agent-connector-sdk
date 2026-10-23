@@ -81,3 +81,26 @@ async def test_missing_entry_point_warns_and_serves_tools_only(
     async with Client(mcp) as client:
         uris = {str(r.uri) for r in await client.list_resources()}
     assert not any(u.startswith(("skill://", "ontology://")) for u in uris)
+
+
+async def test_module_run_as_main_resolves_its_package(tmp_path, monkeypatch):
+    module = _scaffold(tmp_path, monkeypatch, declared=True)
+    namespace = {"__name__": "__main__", "__package__": "scaffold_mcp"}
+    exec(
+        "from agent_connector_sdk.mcp.server import create_mcp_server\n"
+        "result = create_mcp_server('scaffold-mcp', version='1', command_args=[])",
+        namespace,
+    )
+    async with Client(namespace["result"][1]) as client:
+        uris = {str(r.uri) for r in await client.list_resources()}
+    assert module and any(u.startswith("skill://") for u in uris)
+
+
+def test_main_without_a_package_serves_tools_only():
+    namespace = {"__name__": "__main__", "__package__": None}
+    exec(
+        "from agent_connector_sdk.mcp.server import create_mcp_server\n"
+        "result = create_mcp_server('x', version='1', command_args=[])",
+        namespace,
+    )
+    assert namespace["result"][1] is not None
