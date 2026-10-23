@@ -18,6 +18,7 @@ from agent_connector_sdk.artifacts.common import json_object
 from agent_connector_sdk.artifacts.ontology_imports import scope_ontology_imports
 from agent_connector_sdk.artifacts.resource_descriptor import RESOURCES_URI
 from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
+from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
 from agent_connector_sdk.ports.errors import MalformedArtifactError
 from agent_connector_sdk.ports.session import McpSession, TransportEndpoint
@@ -60,6 +61,11 @@ def _canonical_json_bytes(value: object) -> bytes:
     ).encode("utf-8")
 
 
+def declaration_content_schema() -> bytes:
+    """The JSON Schema of the ``connector://resources`` body, from its model."""
+    return _canonical_json_bytes(IngestSourceDeclaration.model_json_schema())
+
+
 def _entry_content(entry: CapturedArtifact) -> ConnectorPackEntryContent:
     kind_name = entry.kind
     uri = entry.uri
@@ -84,6 +90,8 @@ def _entry_content(entry: CapturedArtifact) -> ConnectorPackEntryContent:
         input_schema = _canonical_json_bytes(document["input_schema"])
         if document.get("output_schema") is not None:
             output_schema = _canonical_json_bytes(document["output_schema"])
+    elif pack_kind is PackEntryKind.RESOURCE:
+        output_schema = declaration_content_schema()
     return ConnectorPackEntryContent(
         kind=pack_kind,
         uri=uri,
