@@ -263,3 +263,20 @@ def test_r014_14_env_drift_against_declarations(tmp_path, capsys):
     assert "[DEAD] DEMO_STALE" in capsys.readouterr().out
     assert env_drift._format is env_drift.format_report
     assert "AGENT_UTILITIES" not in " ".join(env_drift.framework_reads())
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.25")
+def test_r014_25_sdk_consumed_env_not_dead(tmp_path):
+    pkg = tmp_path / "demo_connector"
+    pkg.mkdir()
+    (pkg / "__init__.py").write_text("")
+    (tmp_path / ".env.example").write_text(
+        "DEMO_TLS_PROFILE=\nDEMO_TLS_PROFILE_REF=\nTLS_PROFILE=\n"
+        "TLS_PROFILES_REF=\nDEMO_CA_BUNDLE_REF=\nDEMO_STALE=1\n"
+    )
+    report = env_drift.analyze(tmp_path)
+    assert {(f["type"], f["var"]) for f in report["findings"]} == {
+        ("DEAD", "DEMO_STALE")
+    }
+    assert "TLS_PROFILE" in env_drift.SDK_CONSUMED_ENV
+    assert env_drift.SDK_CONSUMED_ENV_PATTERNS

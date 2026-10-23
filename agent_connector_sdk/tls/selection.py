@@ -19,7 +19,13 @@ from typing import Any
 from agent_connector_sdk.config import setting
 from agent_connector_sdk.tls.errors import TransportSecurityError
 
-__all__ = ["SelectedProfile", "select_profile", "service_prefix"]
+__all__ = [
+    "SDK_CONSUMED_ENV",
+    "SDK_CONSUMED_ENV_PATTERNS",
+    "SelectedProfile",
+    "select_profile",
+    "service_prefix",
+]
 
 _NAME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,63}$")
 _MAX_PROFILE_BYTES = 256_000
@@ -45,6 +51,31 @@ _ENVIRONMENT_KEYS: dict[str, tuple[str, str]] = {
     "system_trust": ("TLS_SYSTEM_TRUST", "TLS_SYSTEM_TRUST"),
     "trust_env": ("TLS_TRUST_ENV", "TLS_TRUST_ENV"),
 }
+
+#: Exact variables the TLS selection reads on a connector's behalf.
+SDK_CONSUMED_ENV: frozenset[str] = frozenset(
+    {
+        "TLS_PROFILE",
+        "TLS_PROFILE_REF",
+        "TLS_PROFILES",
+        "TLS_PROFILES_REF",
+        "SSL_CERT_FILE",
+        "SSL_CERT_DIR",
+        "REQUESTS_CA_BUNDLE",
+        *(global_key for _suffix, global_key in _ENVIRONMENT_KEYS.values()),
+    }
+)
+#: Regexes for the per-service variables (``<SERVICE>_<suffix>``) the SDK reads.
+SDK_CONSUMED_ENV_PATTERNS: tuple[str, ...] = (
+    "^[A-Z][A-Z0-9_]*_(?:"
+    + "|".join(
+        sorted(
+            {"TLS_PROFILE", "TLS_PROFILE_REF"}
+            | {suffix for suffix, _global in _ENVIRONMENT_KEYS.values()}
+        )
+    )
+    + ")$",
+)
 
 
 @dataclass(frozen=True)

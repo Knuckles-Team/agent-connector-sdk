@@ -219,6 +219,7 @@
     "SDK-CONNECTOR-CONTROL-R014.22",
     "SDK-CONNECTOR-CONTROL-R014.23",
     "SDK-CONNECTOR-CONTROL-R014.24",
+    "SDK-CONNECTOR-CONTROL-R014.25",
     "SDK-CONNECTOR-CONTROL-R068",
     "SDK-CONNECTOR-CONTROL-R068.1",
     "SDK-CONNECTOR-CONTROL-R068.2",
@@ -472,6 +473,7 @@
         "SDK-CONNECTOR-CONTROL-R014.22",
         "SDK-CONNECTOR-CONTROL-R014.23",
         "SDK-CONNECTOR-CONTROL-R014.24",
+        "SDK-CONNECTOR-CONTROL-R014.25",
         "SDK-CONNECTOR-CONTROL-R014.21"
       ]
     },
@@ -2394,6 +2396,15 @@
       ],
       "verified_by": [
         "tests/test_compute_adapter.py:128"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.25",
+      "title": "SDK-consumed env vars are never drift",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:268"
       ]
     },
     {
