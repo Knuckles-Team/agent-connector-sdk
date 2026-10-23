@@ -220,6 +220,7 @@
     "SDK-CONNECTOR-CONTROL-R014.23",
     "SDK-CONNECTOR-CONTROL-R014.24",
     "SDK-CONNECTOR-CONTROL-R014.25",
+    "SDK-CONNECTOR-CONTROL-R014.26",
     "SDK-CONNECTOR-CONTROL-R068",
     "SDK-CONNECTOR-CONTROL-R068.1",
     "SDK-CONNECTOR-CONTROL-R068.2",
@@ -474,6 +475,7 @@
         "SDK-CONNECTOR-CONTROL-R014.23",
         "SDK-CONNECTOR-CONTROL-R014.24",
         "SDK-CONNECTOR-CONTROL-R014.25",
+        "SDK-CONNECTOR-CONTROL-R014.26",
         "SDK-CONNECTOR-CONTROL-R014.21"
       ]
     },
@@ -2407,6 +2409,15 @@
       ],
       "verified_by": [
         "tests/test_connector_runtime_adds.py:268"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.26",
+      "title": "Server parser settings are never drift",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:285"
       ]
     },
     {

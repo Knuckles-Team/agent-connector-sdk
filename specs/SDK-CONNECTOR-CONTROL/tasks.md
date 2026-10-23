@@ -22,6 +22,7 @@
 - [x] **R014.13:** Per-record external access descriptor. Moved from agent-utilities so connectors depend only on the SDK.
 - [x] **R014.14:** Connector env-var drift check. Moved from agent-utilities so connectors depend only on the SDK.
 - [x] **R014.25:** SDK-consumed env vars (TLS profile settings) are never env-var drift.
+- [x] **R014.26:** Server parser settings are never env-var drift.
 - [x] **R014.15:** External ACL sync into ingested documents. Moved from agent-utilities so connectors depend only on the SDK.
 - [x] **R014.16:** DNS-pinned egress (`pin_egress`, `allowed_private_hosts`) on `HttpClientOptions`. Moved from agent-utilities so connectors depend only on the SDK.
 - [x] **R014.17:** MCP-free base install; `fastmcp` and `mcp` move to the `mcp` extra.

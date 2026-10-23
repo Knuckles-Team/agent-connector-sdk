@@ -8,8 +8,8 @@ declarations against the code-read set:
 
 - ``DEAD``: declared, but no code reads it. Remove it.
 Variables the SDK reads on the connector's behalf (``SDK_CONSUMED_ENV`` and
-``SDK_CONSUMED_ENV_PATTERNS``, exported by ``agent_connector_sdk.tls.selection``:
-the TLS profile settings) are never ``DEAD``.
+``SDK_CONSUMED_ENV_PATTERNS``: the TLS profile settings and the settings behind the
+server parser's flag defaults) are never ``DEAD``.
 
 - ``UNDOCUMENTED``: the package code reads it, but ``.env.example`` lacks it. Add it.
 
@@ -44,10 +44,16 @@ from typing import Any, TextIO
 
 import yaml
 
+from agent_connector_sdk.mcp.parser import PARSER_ENV
 from agent_connector_sdk.tls.selection import (
-    SDK_CONSUMED_ENV,
+    SDK_CONSUMED_ENV as _TLS_CONSUMED_ENV,
+)
+from agent_connector_sdk.tls.selection import (
     SDK_CONSUMED_ENV_PATTERNS,
 )
+
+#: Settings the SDK reads for a connector: the TLS selection and the server parser.
+SDK_CONSUMED_ENV: frozenset[str] = _TLS_CONSUMED_ENV | PARSER_ENV
 
 __all__ = [
     "FRAMEWORK_ENV",
