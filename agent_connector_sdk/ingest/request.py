@@ -79,7 +79,7 @@ def _record(
         stream=binding.stream,
         record_id=entity.id,
         mapping_reference=(
-            f"manifest:{binding.connector}#schema_mappings/{entity.node_type}"
+            f"connector:{binding.connector}#mappings/{entity.node_type}"
         ),
         payload=_json_object(
             entity.properties, what=f"entity {entity.id!r}", guard=guard
@@ -125,8 +125,8 @@ def _relationship(
         source=source,
         target=target,
         relation_reference=(
-            f"manifest:{binding.connector}#resources/{source_type}"
-            f"/relations/{relationship.relationship}"
+            f"connector:{binding.connector}#relations/{source_type}"
+            f"/{relationship.relationship}"
         ),
         properties=(
             None

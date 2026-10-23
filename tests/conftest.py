@@ -76,7 +76,7 @@ def adapter() -> McpToolSourceAdapter:
     return McpToolSourceAdapter.from_sync_spec(
         spec,
         connector=CONNECTOR,
-        mapping_reference=f"manifest:{CONNECTOR}",
+        mapping_reference=f"connector:{CONNECTOR}",
         schema_mappings={"DemoItem": SchemaMapping(ontology_class="Document")},
         resources=[
             ResourceSpec(name="DemoItem", label="Demo Item", id_prefix="demoitem")

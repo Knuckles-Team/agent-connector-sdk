@@ -81,7 +81,7 @@ class ConnectorDescriptor(_Strict):
     @property
     def resolved_mapping_reference(self) -> str:
         """Configured exact mapping, or the single-mapping manifest shorthand."""
-        return self.mapping_reference or f"manifest:{self.connector}"
+        return self.mapping_reference or f"connector:{self.connector}"
 
 
 class RunnerSettings(_Strict):

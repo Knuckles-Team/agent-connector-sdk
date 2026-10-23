@@ -372,3 +372,4 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R902`: `tests/test_actor_forwarding_se
 - `SDK-CONNECTOR-CONTROL-R075.3`: `tests/test_single_declaration.py::test_declared_connector_must_match_descriptor`, `::test_server_without_a_sync_preset_is_refused` and `::test_certify_reads_the_declaration_and_checks_tools_live`.
 - `SDK-CONNECTOR-CONTROL-R075.4`: `tests/test_single_declaration.py::test_prompt_serves_its_directive_and_carries_metadata_over_mcp`.
 - `SDK-CONNECTOR-CONTROL-R075.5`: `tests/test_single_declaration.py::test_skill_directory_name_matches_frontmatter_name`.
+- `SDK-CONNECTOR-CONTROL-R075.6`: `tests/test_ingest.py::test_change_set_maps_to_exact_declared_references`.

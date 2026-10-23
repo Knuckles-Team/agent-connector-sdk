@@ -152,7 +152,7 @@ async def test_page_mode_adapter_passes_the_conformance_kit() -> None:
     adapter = McpToolSourceAdapter.from_sync_spec(
         small_pages,
         connector="archivebox-api",
-        mapping_reference="manifest:archivebox-api",
+        mapping_reference="connector:archivebox-api",
         schema_mappings={
             key: SchemaMapping.model_validate(value)
             for key, value in declared["schema_mappings"].items()
@@ -183,7 +183,7 @@ async def test_offset_mode_adapter_passes_the_conformance_kit() -> None:
         ToolPreset.from_mapping("servicenow-incidents", SERVICENOW_STYLE),
         connector="servicenow-api",
         tool_schema_sha256=TABLE_WIRE_SHA256,
-        mapping_reference="manifest:servicenow-api#schema_mappings/Incident",
+        mapping_reference="connector:servicenow-api#mappings/Incident",
     )
     results = await run_source_adapter_suite(
         adapter,

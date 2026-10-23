@@ -166,10 +166,10 @@ def _record_mapping(
     raw: dict[str, Any],
 ) -> str:
     """Resolve the authoring shorthand to one exact manifest mapping."""
-    prefix = f"manifest:{connector}#schema_mappings/"
+    prefix = f"connector:{connector}#mappings/"
     if configured.startswith(prefix):
         return configured
-    if configured != f"manifest:{connector}":
+    if configured != f"connector:{connector}":
         raise SourceContractError("mapping_reference is not an exact declared mapping")
     key = (
         next(iter(mappings))
@@ -194,7 +194,7 @@ def _relation_reference(
     source_id = dig_path(raw, preset.relationship_source_field)
     if isinstance(source_id, Mapping):
         source_id = source_id.get("record_id", source_id.get("id"))
-    prefix = f"manifest:{connector}#schema_mappings/"
+    prefix = f"connector:{connector}#mappings/"
     mapping_reference = mappings_by_id.get(str(source_id))
     if mapping_reference is None or not mapping_reference.startswith(prefix):
         raise SourceContractError(
@@ -213,7 +213,7 @@ def _relation_reference(
         raise SourceContractError(
             "relationship predicate is not declared by its manifest resource"
         )
-    return f"manifest:{connector}#resources/{resource.name}/relations/{relation}"
+    return f"connector:{connector}#relations/{resource.name}/{relation}"
 
 
 def _ingestion_mode(

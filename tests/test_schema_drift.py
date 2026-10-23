@@ -150,7 +150,7 @@ class SyntheticAdapter:
                 SourceRecord(
                     stream="items",
                     record_id="item-1",
-                    mapping_reference="manifest:synthetic",
+                    mapping_reference="connector:synthetic",
                     payload={"id": "item-1", "state": "open", "detail": {"count": 1}},
                     provenance=SourceRecordProvenance(
                         connector="synthetic",

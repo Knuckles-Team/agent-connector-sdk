@@ -83,11 +83,12 @@ expected previous checkpoint. The runner sends it through generated
 only from the matching generated receipt. EG compare-and-swaps the expected
 position atomically with the commit.
 
-A manifest mapping reference names one exact mapping:
-`manifest:<connector>#schema_mappings/<key>`. The shorter
-`manifest:<connector>` form is a convenience only for a manifest containing
-exactly one `schema_mappings` entry. Package validation fails closed when the
-short form is ambiguous or an explicit fragment names no declared key. Other
+A mapping reference names one exact mapping the connector declares at
+`connector://resources`: `connector:<connector>#mappings/<key>`. A relation
+reference is `connector:<connector>#relations/<resource>/<relation>`. The
+shorter `connector:<connector>` form is a convenience only for a declaration
+holding exactly one mapping. Package validation fails closed when the short
+form is ambiguous or an explicit fragment names no declared key. Other
 reference schemes are rejected at the EG boundary.
 
 Lifecycle mode is explicit on every page. `full` is a non-authoritative load,
