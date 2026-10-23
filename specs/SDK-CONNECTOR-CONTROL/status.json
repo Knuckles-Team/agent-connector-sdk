@@ -280,7 +280,8 @@
     "SDK-CONNECTOR-CONTROL-R782",
     "SDK-CONNECTOR-CONTROL-R070",
     "SDK-CONNECTOR-CONTROL-R071",
-    "SDK-CONNECTOR-CONTROL-R072"
+    "SDK-CONNECTOR-CONTROL-R072",
+    "SDK-CONNECTOR-CONTROL-R073"
   ],
   "requirements": [
     {
@@ -2963,6 +2964,13 @@
       "verified_by": [
         "tests/test_certify_connector_rename.py:16"
       ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R073",
+      "title": "The server factory serves all five connector surfaces and keeps the parent link",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
