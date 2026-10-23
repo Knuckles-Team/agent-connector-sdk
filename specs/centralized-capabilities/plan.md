@@ -4,7 +4,7 @@ Governing spec: [spec.md](spec.md).
 
 ## Existing system and reuse
 
-The SDK already owns each capability below in an earlier row. This spec adds one class, `RateLimiter` in `httpsupport/rate_limit.py`, and two extras, `vector` and `vector-chroma`. It indexes the capabilities and states the rule for connectors in one row each. Owner rows keep their contracts. Rows marked "this spec" had no earlier owner.
+The SDK already owns each capability below in an earlier row. This spec adds the `RateLimiter` class in `httpsupport/rate_limit.py`, the `next_url` pagination mode in `httpsupport/pagination.py`, and two extras, `vector` and `vector-chroma`. It indexes the capabilities and states the rule for connectors in one row each. Owner rows keep their contracts. Rows marked "this spec" had no earlier owner.
 
 Search method: `grep -rn` over `specs/` for the module name and the capability term, then a read of each hit's row. The rows cited in the table are the result.
 
@@ -15,7 +15,7 @@ Search method: `grep -rn` over `specs/` for the module name and the capability t
 | `SDK-CENTRALIZED-CAPABILITIES-R001` | Governed HTTP client and retry | `SDK-CONNECTOR-CONTROL-RR780.3`, `SDK-CONNECTOR-CONTROL-RR028` | `http/client.py`, `http/retry.py`, `http/transport.py` | pipelines `sdk-conformance` (`PIPE-GATES-R013`): direct `requests`, hand-built `httpx` clients, own retry loops. Warns; `--strict` blocks. |
 | `SDK-CENTRALIZED-CAPABILITIES-R002` | Egress guard and pinned addresses | `SDK-CONNECTOR-CONTROL-RR014.5`, `SDK-CONNECTOR-CONTROL-RR014.16`, `SDK-CONNECTOR-CONTROL-RR028.1`, `SDK-CONNECTOR-CONTROL-RR033` | `http/egress.py`, `http/safe_post.py` | unchecked |
 | `SDK-CENTRALIZED-CAPABILITIES-R003` | API client base and auth strategies | `SDK-CONNECTOR-CONTROL-RR014.10`, `SDK-CONNECTOR-CONTROL-RR028.3` | `http/support.py`, `httpsupport/auth.py`, `httpsupport/client_protocol.py` | unchecked |
-| `SDK-CENTRALIZED-CAPABILITIES-R004` | Pagination helpers | `SDK-CENTRALIZED-CAPABILITIES-R004` | `http/pagination.py`, `httpsupport/pagination.py` | unchecked |
+| `SDK-CENTRALIZED-CAPABILITIES-R004` | Pagination helpers | `SDK-CENTRALIZED-CAPABILITIES-R004` | `http/pagination.py`, `httpsupport/pagination.py` (mode `next_url`) | Unit tests `tests/httpsupport/test_pagination_next_url.py`. No connector scan. |
 | `SDK-CENTRALIZED-CAPABILITIES-R005` | Rate-limit telemetry and concurrency | `SDK-CENTRALIZED-CAPABILITIES-R005` | `httpsupport/rate_limit.py`, `mcp/concurrency.py` | Unit tests `tests/httpsupport/test_rate_limiter.py`. No connector scan. |
 | `SDK-CENTRALIZED-CAPABILITIES-R006` | Error redaction and typed problems | `SDK-CONNECTOR-CONTROL-RR780.2`, `SDK-CONNECTOR-CONTROL-RR014.6`, `SDK-CONNECTOR-CONTROL-RR014.12` | `exceptions.py`, `http/errors.py`, `http/problems.py`, `http/redaction.py`, `httpsupport/redaction.py`, `privacy_pii.py` | unchecked |
 | `SDK-CENTRALIZED-CAPABILITIES-R007` | Payment challenge handling | `SDK-CONNECTOR-CONTROL-RR049`, `SDK-FINANCE-SOURCES-R900` | `payments.py` | unchecked |
@@ -59,7 +59,9 @@ A connector depends on the SDK only. The SDK modules sit between the connector a
 
 ## Interfaces and data model
 
-Each module's interface stays in its owner row. This spec adds two interfaces.
+Each module's interface stays in its owner row. This spec adds three interfaces.
+
+`PaginationIterator(fetch_page, endpoint, *, mode="next_url", next_path="next", base_url=None, items_path=..., max_pages=100, ...)` and its async twin `AsyncPaginationIterator` in `agent_connector_sdk.httpsupport.pagination`. The mode reads the next URL at `next_path` in the body. It resolves the URL against the current request URL with `urljoin`. `base_url` makes a relative `endpoint` absolute, and the mode refuses a relative endpoint without it. The first request fixes the origin. A next URL with another scheme, host, or port raises `PaginationOriginError`, a subclass of `HttpProblemError` with the problem kind `cross-origin-next-url`. A URL that the sweep already fetched ends the sweep with `truncated` set.
 
 `RateLimiter(min_interval_seconds, *, clock=time.monotonic, sleep=asyncio.sleep)` in `agent_connector_sdk.httpsupport.rate_limit`, exported from `agent_connector_sdk.httpsupport`. The coroutine `wait()` sleeps only as long as the minimum interval needs. Concurrent callers queue on one lock. The first call never waits. The class is also an async context manager. The property `min_interval_seconds` returns the clamped interval.
 
@@ -71,7 +73,7 @@ The connector entry point calls the server factory, the runner, and the governed
 
 ## Conformance state
 
-The pipelines gate `sdk-conformance` (`PIPE-GATES-R013`) scans a connector for an SDK capability it reimplements. It checks rows R001, R008, R009, R016, and R040, and each finding cites its row. It warns by default and blocks under `--strict`. A connector turns strict on once it is migrated. The warn-mode findings across the fleet are the migration backlog. The SDK unit tests also check `R005` and `R040` inside the SDK. The other rows have no automated check. The SDK also ships three scans: `testing/fleet_migration.py`, `testing/duplicate_symbol_scan.py`, and the TLS scan in `SDK-CONNECTOR-CONTROL-R017`. Each connector or a test run must call them.
+The pipelines gate `sdk-conformance` (`PIPE-GATES-R013`) scans a connector for an SDK capability it reimplements. It checks rows R001, R008, R009, R016, and R040, and each finding cites its row. It warns by default and blocks under `--strict`. A connector turns strict on once it is migrated. The warn-mode findings across the fleet are the migration backlog. The SDK unit tests also check `R004`, `R005`, and `R040` inside the SDK. The other rows have no automated check. The SDK also ships three scans: `testing/fleet_migration.py`, `testing/duplicate_symbol_scan.py`, and the TLS scan in `SDK-CONNECTOR-CONTROL-R017`. Each connector or a test run must call them.
 
 ## Quality and release gates
 
@@ -80,6 +82,8 @@ Run `pipelines-hook spec-standard`, `pipelines-hook spec-status`, and `ste-stage
 ## Risks, alternatives, and decisions
 
 Decision: one index spec with one row per capability, not one spec per capability. A second spec for an owned capability is a defect under the spec standard. Decision: the SDK declares the vector-store clients as two extras, `vector` and `vector-chroma`. The vector connector selects one store per deployment. The `qdrant-client`, `psycopg`, and `pymongo` clients are small, so they share the `vector` extra. The embedded-index store client and its index adapter pull a large native stack and the index framework. They install apart, as `mssql` installs apart from `db`. One extra per store adds names without benefit, because three of the four stores are small. The `vector` extra lists `psycopg` and `pymongo` with the `db` floors and does not depend on `db`. The `db` extra also pulls the MySQL and Oracle drivers, which a vector store does not need.
+
+Decision: the next-URL mode extends the existing iterator, not a new helper. Its origin rule matches `next_link_cursor` in `http/pagination.py` and reuses the same origin key. Default ports compare equal to explicit ones.
 
 Decision: the shared `RateLimiter` lives in `httpsupport/rate_limit.py`, next to the rate-limit telemetry. Two connectors carried identical copies. The SDK keeps their constructor argument and `wait()` coroutine, so their switch is an import change. The connectors' `build_async_client` wrappers stay in the connectors. Each one builds `create_async_http_client` options from the connector's own user agent and endpoint type.
 
