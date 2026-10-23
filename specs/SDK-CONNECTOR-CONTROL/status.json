@@ -505,13 +505,7 @@
         "9cec9cea7d37",
         "fad5328aee62"
       ],
-      "verified_by": [
-        "tests/test_duplicate_symbol_scan.py:21",
-        "tests/test_duplicate_symbol_scan.py:29",
-        "tests/test_duplicate_symbol_scan.py:43",
-        "tests/test_duplicate_symbol_scan.py:56",
-        "tests/test_duplicate_symbol_scan.py:69"
-      ],
+      "verified_by": [],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R015.1"
       ]
@@ -746,11 +740,11 @@
         "d3617301012c"
       ],
       "verified_by": [
-        "tests/test_mcp_confirmation_roundtrip.py:134",
-        "tests/test_mcp_confirmation_roundtrip.py:178",
-        "tests/test_mcp_confirmation_roundtrip.py:198",
-        "tests/test_mcp_confirmation_roundtrip.py:36",
-        "tests/test_method_tools.py:27"
+        "tests/test_method_tools.py:27",
+        "tests/test_method_tools.py:37",
+        "tests/test_method_tools.py:57",
+        "tests/test_method_tools.py:66",
+        "tests/test_method_tools.py:79"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R026.1",
@@ -850,7 +844,6 @@
         "f5de79afc1e0"
       ],
       "verified_by": [
-        "tests/test_graphql_client.py:20",
         "tests/test_mcp_graphql_context.py:67",
         "tests/test_mcp_graphql_context.py:74",
         "tests/test_mcp_graphql_context.py:90"
@@ -2968,9 +2961,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R073",
       "title": "The server factory serves all five connector surfaces and keeps the parent link",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "268d030fffad",
+        "57d0997107dd"
+      ],
+      "verified_by": [
+        "tests/test_default_content.py:14"
+      ]
     }
   ]
 }
