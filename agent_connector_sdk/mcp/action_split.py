@@ -42,14 +42,19 @@ __all__ = [
     "SPLIT_ACTION_TAG",
     "SplitDecision",
     "action_split_report",
+    "assert_tools_classified",
     "split_action_tool",
+    "split_tool_classes",
     "tool_actions",
+    "unclassified_tools",
 ]
 
 #: Tag on every tool produced by splitting an action-routed tool.
 SPLIT_ACTION_TAG = "split-action"
 #: Server attribute holding the registration report (``list[SplitDecision]``).
 _SPLIT_REPORT_ATTRIBUTE = "_action_split_report"
+#: Server attribute holding the names of parents declared read-only (``set[str]``).
+_READ_ONLY_PARENTS_ATTRIBUTE = "_action_split_read_only_parents"
 #: Calls that adapt how an operation runs or is returned, never what it computes.
 _ADAPTERS = frozenset(
     {
@@ -645,6 +650,13 @@ def split_action_tool(
         _action_tables(tool.fn, actions),
         _literal_tables(tool.fn),
     )
+    declared = tool.annotations
+    if getattr(declared, "readOnlyHint", None) is True and not getattr(
+        declared, "destructiveHint", None
+    ):
+        parents: set[str] = getattr(mcp, _READ_ONLY_PARENTS_ATTRIBUTE, set())
+        parents.add(name)
+        setattr(mcp, _READ_ONLY_PARENTS_ATTRIBUTE, parents)
     mcp.local_provider.remove_tool(name)
     added: list[str] = []
     for action in actions:
@@ -656,3 +668,80 @@ def split_action_tool(
         added.append(_register_split(mcp, ctx, tool, action))
         _record(mcp, SplitDecision(name, action, split, "split", split))
     return added
+
+
+def split_tool_classes(
+    mcp: Any,
+    declared: Mapping[str, str | Mapping[str, str]],
+    *,
+    read_classes: Collection[str] = (),
+) -> dict[str, str]:
+    """Risk class of every split ``<tool>_<action>`` tool that can be derived.
+
+    ``declared`` maps a tool name to its class (one string for the whole tool)
+    or to a per-action mapping. A split tool takes its own action's declared
+    class first, then its parent's single class. A parent class listed in
+    ``read_classes`` is inherited only by an action whose verb reads, or by any
+    action of a parent that declared ``readOnlyHint`` itself: a
+    mutating or unrecognised action of any other parent is left out, so it stays unclassified and
+    can never become read-only by inheritance. A split tool with no declared
+    parent is left out too.
+    """
+    reads = frozenset(read_classes)
+    read_parents: set[str] = getattr(mcp, _READ_ONLY_PARENTS_ATTRIBUTE, set())
+    classes: dict[str, str] = {}
+    for item in getattr(mcp, _SPLIT_REPORT_ATTRIBUTE, []):
+        if item.outcome != "split" or item.tool not in declared:
+            continue
+        parent = declared[item.tool]
+        if not isinstance(parent, str):
+            if item.action in parent:
+                classes[item.split] = parent[item.action]
+            continue
+        verb_reads = bool(_READ_ONLY.search(item.action)) and not _DESTRUCTIVE.search(
+            item.action
+        )
+        if parent in reads and not (verb_reads or item.tool in read_parents):
+            continue
+        classes[item.split] = parent
+    return classes
+
+
+def unclassified_tools(
+    mcp: Any,
+    classified: Collection[str],
+    declared: Mapping[str, str | Mapping[str, str]] | None = None,
+    *,
+    read_classes: Collection[str] = (),
+) -> list[str]:
+    """Registered tool names with no class, counting inherited split classes."""
+    known = set(classified)
+    known |= set(split_tool_classes(mcp, declared or {}, read_classes=read_classes))
+    return sorted(
+        {
+            str(getattr(component, "name", "") or "")
+            for key, component in mcp.local_provider._components.items()
+            if str(key).startswith("tool:") and getattr(component, "name", None)
+        }
+        - known
+    )
+
+
+def assert_tools_classified(
+    mcp: Any,
+    classified: Collection[str],
+    declared: Mapping[str, str | Mapping[str, str]] | None = None,
+    *,
+    read_classes: Collection[str] = (),
+) -> None:
+    """Refuse startup when a registered tool has no class; fail closed.
+
+    ``classified`` lists tools classified by name. A split tool is classified
+    by inheritance from ``declared`` (see :func:`split_tool_classes`); anything
+    else unknown raises, so an unknown tool is never treated as read-only.
+    """
+    missing = unclassified_tools(mcp, classified, declared, read_classes=read_classes)
+    if missing:
+        raise RuntimeError(
+            "Unclassified MCP tools prevent startup: " + ", ".join(missing)
+        )
