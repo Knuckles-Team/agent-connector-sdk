@@ -357,3 +357,11 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_
 
 Hot-path proof for `SDK-CONNECTOR-CONTROL-R902`: `tests/test_actor_forwarding_served.py::test_actor_required_tool_binds_forwarded_user`.
 - `SDK-CONNECTOR-CONTROL-R030.1`: `tests/test_graphql_client.py` passes. It covers auth headers, bounded retry, redaction, pagination and the async call.
+
+- `SDK-CONNECTOR-CONTROL-R074`: See each child.
+- `SDK-CONNECTOR-CONTROL-R074.1`: `tests/test_resource_descriptor.py::test_descriptor_round_trips_and_names_only_a_credential_reference` builds a descriptor, serialises it and reads it back.
+- `SDK-CONNECTOR-CONTROL-R074.2`: `tests/test_prompt_role.py::test_prompt_role_and_concepts_reach_the_pack_entry` packs a `system` prompt and reads `role` and the class IRIs from the entry.
+- `SDK-CONNECTOR-CONTROL-R074.3`: `tests/test_pack_surfaces.py::test_pack_lists_all_surfaces_and_contract` builds a fixture pack and reads six counts and one contract from the manifest.
+- `SDK-CONNECTOR-CONTROL-R074.4`: `tests/test_pack_surfaces.py::test_live_resource_listing_equals_pack_descriptors` compares `resources/list` with the pack entries.
+- `SDK-CONNECTOR-CONTROL-R074.5`: `tests/test_resource_descriptor.py::test_build_refuses_unmapped_unknown_unpaged_and_secret_descriptors` asserts each of the four codes.
+- `SDK-CONNECTOR-CONTROL-R074.6`: `tests/test_pack_surfaces_served.py::test_factory_serves_and_packs_every_surface_with_a_parseable_contract`.

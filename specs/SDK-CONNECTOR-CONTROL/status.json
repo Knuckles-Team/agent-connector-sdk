@@ -281,7 +281,14 @@
     "SDK-CONNECTOR-CONTROL-R070",
     "SDK-CONNECTOR-CONTROL-R071",
     "SDK-CONNECTOR-CONTROL-R072",
-    "SDK-CONNECTOR-CONTROL-R073"
+    "SDK-CONNECTOR-CONTROL-R073",
+    "SDK-CONNECTOR-CONTROL-R074",
+    "SDK-CONNECTOR-CONTROL-R074.1",
+    "SDK-CONNECTOR-CONTROL-R074.2",
+    "SDK-CONNECTOR-CONTROL-R074.3",
+    "SDK-CONNECTOR-CONTROL-R074.4",
+    "SDK-CONNECTOR-CONTROL-R074.5",
+    "SDK-CONNECTOR-CONTROL-R074.6"
   ],
   "requirements": [
     {
@@ -2977,6 +2984,63 @@
       "verified_by": [
         "tests/test_default_content.py:14"
       ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R074",
+      "title": "A connector pack declares every surface and the source contracts for virtual access (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R074.1",
+        "SDK-CONNECTOR-CONTROL-R074.2",
+        "SDK-CONNECTOR-CONTROL-R074.3",
+        "SDK-CONNECTOR-CONTROL-R074.4",
+        "SDK-CONNECTOR-CONTROL-R074.5",
+        "SDK-CONNECTOR-CONTROL-R074.6"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R074.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R074.2",
+      "title": "Prompt role",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R074.3",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R074.4",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R074.5",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R074.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
