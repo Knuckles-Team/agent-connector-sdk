@@ -3068,7 +3068,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "0d150cf96fd8",
-        "3437dde87317",
+        "2078ee0208c5",
         "647f3de98067",
         "95f251043be1",
         "f0b9e7f4f535"
@@ -3107,7 +3107,7 @@
       "title": "Data sources are declared in code and served live",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "3437dde87317",
+        "2078ee0208c5",
         "f0b9e7f4f535"
       ],
       "verified_by": [

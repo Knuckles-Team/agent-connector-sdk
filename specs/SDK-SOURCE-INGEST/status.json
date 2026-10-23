@@ -1666,8 +1666,8 @@
       "title": "Per-parent fan-out",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "3437dde87317",
-        "d8f9ca047c1a"
+        "2078ee0208c5",
+        "531ffd4a90d4"
       ],
       "verified_by": [
         "tests/test_for_each.py:105",
