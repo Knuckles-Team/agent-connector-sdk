@@ -225,7 +225,9 @@ async def test_connector_content_is_served(package_root: Path) -> None:
             manifest_path=package_root / "connector_manifest.yml",
         ),
     )
-    assert registration == ContentRegistration(skills=1, prompts=1, resources=3)
+    assert registration == ContentRegistration(
+        skills=1, prompts=1, resources=3, data_resources=1
+    )
     async with Client(mcp) as client:
         uris = {str(resource.uri) for resource in await client.list_resources()}
         prompt = await client.get_prompt("demo_agent")

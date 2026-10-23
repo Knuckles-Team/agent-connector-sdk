@@ -11,6 +11,7 @@ from pydantic import ValidationError
 
 from agent_connector_sdk.artifacts.annotations import _annotations_from_mcp
 from agent_connector_sdk.artifacts.common import json_object, mime_type, require_kind
+from agent_connector_sdk.artifacts.resource_descriptor import RESOURCES_URI
 from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
 from agent_connector_sdk.manifest.model import ConnectorManifest
 from agent_connector_sdk.ports.errors import MalformedArtifactError
@@ -29,7 +30,9 @@ def _scheme(uri: str) -> str:
 
 
 def _validate_body(entry: CapturedArtifact, scheme: str) -> None:
-    if scheme == "manifest":
+    if entry.uri == RESOURCES_URI:
+        json_object(entry)
+    elif scheme == "manifest":
         try:
             ConnectorManifest.model_validate(yaml.safe_load(entry.body))
         except (yaml.YAMLError, ValidationError) as exc:

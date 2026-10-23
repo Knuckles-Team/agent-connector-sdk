@@ -193,6 +193,7 @@ async def test_content_pack_is_complete_and_stable(sessions: SessionFactory) -> 
     uris = sorted(entry.uri for entry in pack.archive.entries)
     assert uris == [
         "manifest://connector",
+        "manifest://connector/resources",
         "ontology://demo-agent/demo.ttl",
         "prompt://demo-mcp/demo_agent",
         "shapes://demo-agent/demo.shapes.ttl",

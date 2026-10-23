@@ -263,3 +263,4 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R074.4:** Wiring.
 - [ ] **SDK-CONNECTOR-CONTROL-R074.5:** Refusal.
 - [ ] **SDK-CONNECTOR-CONTROL-R074.6:** Hot-path proof.
+- [x] **SDK-CONNECTOR-CONTROL-R074.7:** Default declarations.

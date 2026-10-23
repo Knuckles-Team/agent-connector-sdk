@@ -365,3 +365,4 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R902`: `tests/test_actor_forwarding_se
 - `SDK-CONNECTOR-CONTROL-R074.4`: `tests/test_pack_surfaces.py::test_live_resource_listing_equals_pack_descriptors` compares `resources/list` with the pack entries.
 - `SDK-CONNECTOR-CONTROL-R074.5`: `tests/test_resource_descriptor.py::test_build_refuses_unmapped_unknown_unpaged_and_secret_descriptors` asserts each of the four codes.
 - `SDK-CONNECTOR-CONTROL-R074.6`: `tests/test_pack_surfaces_served.py::test_factory_serves_and_packs_every_surface_with_a_parseable_contract`.
+- `SDK-CONNECTOR-CONTROL-R074.7`: `tests/test_resource_declarations.py::test_real_connector_repos_list_yields_a_proposed_resource` derives the github-agent repository list. `tests/test_resource_declarations.py::test_scaffolded_connector_serves_derived_resources` reads the served `manifest://connector/resources`.

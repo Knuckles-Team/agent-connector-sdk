@@ -33,6 +33,19 @@ from fastmcp.resources import FileResource
 from fastmcp.server.providers.skills import SkillsDirectoryProvider
 from pydantic import AnyUrl
 
+from agent_connector_sdk.artifacts.resource_derivation import (
+    derive_descriptors,
+    scan_ontology,
+)
+from agent_connector_sdk.artifacts.resource_descriptor import (
+    RESOURCES_URI,
+    ResourceDeclarationError,
+    check_declarations,
+    load_declarations,
+    merge_declarations,
+    render_resources_document,
+)
+
 __all__ = [
     "MANIFEST_RESOURCE_URI",
     "ConnectorContent",
@@ -128,6 +141,7 @@ class ContentRegistration:
     skills: int
     prompts: int
     resources: int
+    data_resources: int = 0
 
 
 def _prompt_directive(path: Path) -> tuple[str, str]:
@@ -209,6 +223,57 @@ def _content_resources(content: ConnectorContent) -> list[FileResource]:
     return resources
 
 
+def _ontology_texts(content: ConnectorContent) -> list[str]:
+    directory = content.package_root / "ontology"
+    return [p.read_text(encoding="utf-8") for p in sorted(directory.glob("*.ttl"))]
+
+
+def _resource_descriptors(mcp: Any, content: ConnectorContent) -> str:
+    """The ``manifest://connector/resources`` body, derived when it is read.
+
+    Tools register after the factory runs, so the defaults are derived from
+    the tools registered at read time and overlaid by the connector's own
+    ``data_resources.json``.
+    """
+    from agent_connector_sdk.mcp.tool_surface import registered_tools
+
+    terms = scan_ontology(_ontology_texts(content))
+    derived = derive_descriptors(
+        content.connector, registered_tools(mcp).values(), terms
+    )
+    descriptors = merge_declarations(
+        content.connector,
+        derived,
+        load_declarations(content.package_root),
+        terms.class_iris or None,
+    )
+    return render_resources_document(content.connector, descriptors)
+
+
+def _register_resource_descriptors(mcp: Any, content: ConnectorContent) -> int:
+    """Serve the data-resource declarations when the package has an ontology."""
+    declared = load_declarations(content.package_root)
+    texts = _ontology_texts(content)
+    if not texts and not declared:
+        return 0
+    try:
+        classes = scan_ontology(texts).class_iris
+        check_declarations(declared, classes or None)
+    except ResourceDeclarationError as exc:
+        raise ContentError(str(exc)) from exc
+
+    def read() -> str:
+        return _resource_descriptors(mcp, content)
+
+    mcp.resource(
+        RESOURCES_URI,
+        name=RESOURCES_URI,
+        mime_type="application/json",
+        description="Data resources this connector exposes for virtual access.",
+    )(read)
+    return 1
+
+
 def register_connector_content(
     mcp: Any, content: ConnectorContent
 ) -> ContentRegistration:
@@ -228,6 +293,10 @@ def register_connector_content(
     resources = _content_resources(content)
     for resource in resources:
         mcp.add_resource(resource)
+    descriptors = _register_resource_descriptors(mcp, content)
     return ContentRegistration(
-        skills=skill_count, prompts=len(prompt_paths), resources=len(resources)
+        skills=skill_count,
+        prompts=len(prompt_paths),
+        resources=len(resources),
+        data_resources=descriptors,
     )
