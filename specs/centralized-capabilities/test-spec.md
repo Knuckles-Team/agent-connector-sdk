@@ -49,6 +49,9 @@ Governing spec: [spec.md](spec.md).
 | CC-43 | `SDK-CENTRALIZED-CAPABILITIES-R005` | Unit | `RateLimiter(2.0)` with a fake clock and sleep. Calls 0.5 s apart, then 5 s apart. | The first call does not sleep. The second sleeps 1.5 s. The third does not sleep. `test_rate_respected_with_fake_clock` passes. |
 | CC-44 | `SDK-CENTRALIZED-CAPABILITIES-R005` | Unit | Five concurrent `wait()` calls on `RateLimiter(1.0)` with a fake clock. | The calls leave one second apart in order. `test_concurrent_callers_are_spaced_in_order` passes. |
 | CC-45 | `SDK-CENTRALIZED-CAPABILITIES-R005` | Unit | `async with RateLimiter(0.05)` twice on the real clock. | The second entry waits at least the interval. `test_async_context_manager_and_real_clock` passes. |
+| CC-46 | `SDK-CENTRALIZED-CAPABILITIES-R004` | Unit | `next_url` mode over three fake pages. The first next URL is relative, the second is absolute, and the third is null. | All three pages are fetched in order. `truncated` is false. `test_follows_relative_and_absolute_next_and_stops_on_null` passes. |
+| CC-47 | `SDK-CENTRALIZED-CAPABILITIES-R004` | Unit | A next URL on another host, a scheme-relative host, `http` instead of `https`, and port 8443. | Each raises `PaginationOriginError` before the URL is fetched. `test_rejects_cross_origin_next` passes. |
+| CC-48 | `SDK-CENTRALIZED-CAPABILITIES-R004` | Unit | A second page whose next URL repeats itself, and an endless walk with `max_pages=3`. | The sweep stops and sets `truncated`. `test_loop_guard_stops_on_a_repeated_url` and `test_page_cap_bounds_the_sweep` pass. |
 
 ## Negative and boundary cases
 
@@ -56,4 +59,4 @@ A negative or zero interval clamps to zero and never sleeps (`test_interval_is_c
 
 ## Quality and release proof
 
-Run `uv run pytest tests/test_centralized_capability_index.py tests/test_centralized_extras.py tests/httpsupport/test_rate_limiter.py`. Run the `spec-standard` and `spec-status` hooks on the directory. A fleet-wide scan of connectors is outside this spec.
+Run `uv run pytest tests/test_centralized_capability_index.py tests/test_centralized_extras.py tests/httpsupport/test_rate_limiter.py tests/httpsupport/test_pagination_next_url.py`. Run the `spec-standard` and `spec-status` hooks on the directory. A fleet-wide scan of connectors is outside this spec.

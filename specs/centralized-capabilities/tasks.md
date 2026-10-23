@@ -6,6 +6,7 @@ Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requireme
 - [ ] Check the module and owner row for egress guard and pinned addresses in the index test (SDK-CENTRALIZED-CAPABILITIES-R002).
 - [ ] Check the module and owner row for api client base and auth strategies in the index test (SDK-CENTRALIZED-CAPABILITIES-R003).
 - [ ] Check the module and owner row for pagination helpers in the index test (SDK-CENTRALIZED-CAPABILITIES-R004).
+- [x] Add the same-origin `next_url` pagination mode with a loop guard and test it (SDK-CENTRALIZED-CAPABILITIES-R004).
 - [ ] Check the module and owner row for rate-limit telemetry and concurrency in the index test (SDK-CENTRALIZED-CAPABILITIES-R005).
 - [x] Move the shared `RateLimiter` into `httpsupport/rate_limit.py` and test it with a fake clock (SDK-CENTRALIZED-CAPABILITIES-R005).
 - [ ] Check the module and owner row for error redaction and typed problems in the index test (SDK-CENTRALIZED-CAPABILITIES-R006).

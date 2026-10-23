@@ -9,7 +9,11 @@ Five pagination dialects cover the fleet's upstream APIs:
 * ``page`` — page-number / page-size params, stopping on a short page;
 * ``offset`` — offset / limit params, advancing by the items received;
 * ``link`` — RFC 5988 ``Link: <...>; rel="next"`` headers (Okta, GitHub);
-* ``since_id`` — keyset pagination resuming from the last record's id.
+* ``since_id`` — keyset pagination resuming from the last record's id;
+* ``next_url`` — an absolute or relative next-page URL at a dotted path in
+  the response body (``next`` by default), resolved against the request URL.
+  Every followed URL must keep the first request's scheme, host and port, or
+  :class:`PaginationOriginError` is raised. A repeated URL ends the sweep.
 
 Relationship to the KG-2.59 ``mcp_tool`` source connector: that connector
 also paginates (``cursor``/``page`` modes), but its machinery is interwoven
@@ -35,14 +39,36 @@ from __future__ import annotations
 import re
 from collections.abc import Awaitable, Callable, Mapping
 from typing import Any
+from urllib.parse import urljoin, urlsplit
+
+from agent_connector_sdk.http.errors import HttpProblemError
+from agent_connector_sdk.http.pagination import _origin
+from agent_connector_sdk.http.problems import ProblemDetails
 
 __all__ = [
     "AsyncPaginationIterator",
     "PaginationIterator",
+    "PaginationOriginError",
 ]
 
 #: Pagination dialects supported by the iterators.
-PAGINATION_MODES = ("cursor", "page", "offset", "link", "since_id")
+PAGINATION_MODES = ("cursor", "page", "offset", "link", "since_id", "next_url")
+
+
+class PaginationOriginError(HttpProblemError):
+    """A next-page URL leaves the scheme, host, or port of the first request."""
+
+    @classmethod
+    def for_url(cls, url: str) -> PaginationOriginError:
+        parts = urlsplit(url)
+        return cls(
+            ProblemDetails.sdk(
+                "cross-origin-next-url",
+                "Next-page URL leaves the API origin",
+                detail=f"refused {parts.scheme}://{parts.netloc}",
+            )
+        )
+
 
 _LINK_NEXT_RE = re.compile(r'<(?P<url>[^>]+)>\s*;[^,]*\brel="?next"?')
 
@@ -100,10 +126,20 @@ class _PageWalk:
         limit_param: str,
         since_param: str,
         id_field: str,
+        next_path: str = "next",
+        base_url: str | None = None,
     ) -> None:
         if mode not in PAGINATION_MODES:
             raise ValueError(f"mode must be one of {PAGINATION_MODES}, got {mode!r}")
         self.mode = mode
+        self.next_path = next_path
+        self._current_url = urljoin(base_url or "", endpoint)
+        if mode == "next_url" and not urlsplit(self._current_url).scheme:
+            raise ValueError("next_url mode needs an absolute endpoint or base_url")
+        self._first_origin = _origin(self._current_url)
+        self._seen_urls = {self._current_url}
+        #: Set when a repeated next URL ended the sweep (``next_url`` mode).
+        self.loop_detected = False
         self.endpoint = endpoint
         self.base_params = dict(params or {})
         self.cursor_param = cursor_param
@@ -155,6 +191,9 @@ class _PageWalk:
             # The next URL already carries the full query string.
             return next_url, {}
 
+        if self.mode == "next_url":
+            return self._advance_next_url(data)
+
         if self.mode == "since_id":
             if not items:
                 self.next_cursor = None
@@ -177,6 +216,24 @@ class _PageWalk:
         else:
             self._offset += len(items)
         return self.start()
+
+    def _advance_next_url(self, data: Any) -> tuple[str, dict[str, Any]] | None:
+        raw = _dig(data, self.next_path)
+        if not raw or not isinstance(raw, str):
+            self.next_cursor = None
+            return None
+        absolute = urljoin(self._current_url, raw)
+        if _origin(absolute) != self._first_origin:
+            raise PaginationOriginError.for_url(absolute)
+        if absolute in self._seen_urls:
+            self.loop_detected = True
+            self.next_cursor = None
+            return None
+        self._seen_urls.add(absolute)
+        self._current_url = absolute
+        self.next_cursor = absolute
+        # The next URL already carries the full query string.
+        return absolute, {}
 
 
 class _PaginationConfig:
@@ -201,6 +258,8 @@ class _PaginationConfig:
         limit_param: str = "limit",
         since_param: str = "since_id",
         id_field: str = "id",
+        next_path: str = "next",
+        base_url: str | None = None,
     ) -> None:
         if mode not in PAGINATION_MODES:
             raise ValueError(f"mode must be one of {PAGINATION_MODES}, got {mode!r}")
@@ -216,6 +275,8 @@ class _PaginationConfig:
         self._limit_param = limit_param
         self._since_param = since_param
         self._id_field = id_field
+        self._next_path = next_path
+        self._base_url = base_url
         self.endpoint = endpoint
         self.items_path = items_path
         self.max_items = max(0, int(max_items))
@@ -241,6 +302,8 @@ class _PaginationConfig:
             limit_param=self._limit_param,
             since_param=self._since_param,
             id_field=self._id_field,
+            next_path=self._next_path,
+            base_url=self._base_url,
         )
 
     def _extract_items(self, data: Any) -> list[Any]:
@@ -276,6 +339,8 @@ class _PaginationConfig:
         if next_request is not None and self.pages_fetched >= self.max_pages:
             self.truncated = True
             next_request = None
+        if self._walk.loop_detected:
+            self.truncated = True
         self.next_cursor = self._walk.next_cursor
         return to_yield, next_request
 
@@ -304,6 +369,13 @@ class PaginationIterator(_PaginationConfig):
         page_param / page_size_param / page_size / start_page: ``page`` mode.
         offset_param / limit_param: ``offset`` mode (shares ``page_size``).
         since_param / id_field: ``since_id`` keyset mode.
+        next_path / base_url: ``next_url`` mode. ``next_path`` is the dotted
+            body path of the next URL (default ``next``). ``base_url`` makes a
+            relative ``endpoint`` absolute; the first request fixes the origin.
+
+    Raises:
+        PaginationOriginError: in ``next_url`` mode, a next URL changes the
+            scheme, host, or port of the first request.
     """
 
     def __init__(self, fetch_page: FetchPage, endpoint: str, **options: Any) -> None:
