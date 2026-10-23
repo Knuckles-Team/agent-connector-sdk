@@ -15,6 +15,12 @@ from agent_connector_sdk.adapters.mcp_tool_extract import (
     _mapped_relationships,
     _page_checkpoint,
 )
+from agent_connector_sdk.adapters.mcp_tool_fanout import (
+    FAN_KEY,
+    check_parents,
+    extract_fanned,
+    parent_values,
+)
 from agent_connector_sdk.adapters.mcp_tool_lifecycle import (
     _ingestion_mode,
     _source_withdrawals,
@@ -33,6 +39,7 @@ from agent_connector_sdk.contracts import (
     RecordPage,
     StreamDescriptor,
 )
+from agent_connector_sdk.ingest.for_each import MAX_FAN_OUT
 from agent_connector_sdk.manifest.live_contract import validate_preset_tool_contract
 from agent_connector_sdk.manifest.model import ResourceSpec, SchemaMapping, SyncSpec
 from agent_connector_sdk.manifest.presets import ToolPreset
@@ -61,8 +68,14 @@ class McpToolSourceAdapter:
         tool_schema_sha256: str = "",
         schema_mappings: Mapping[str, SchemaMapping] | None = None,
         resources: Sequence[ResourceSpec] = (),
+        parents: Mapping[str, ToolPreset] | None = None,
+        max_fan_out: int = MAX_FAN_OUT,
     ) -> None:
         _require_identity(connector, mapping_reference)
+        self._parents = dict(parents or {})
+        self._max_fan_out = max_fan_out
+        if preset.for_each is not None:
+            check_parents(preset, self._parents)
         self._preset = preset
         self._connector = connector
         self._pinned = tool_schema_sha256
@@ -70,6 +83,7 @@ class McpToolSourceAdapter:
         self._schema_mappings = dict(schema_mappings or {})
         self._resources = {resource.name: resource for resource in resources}
         self._verified_sha256 = ""
+        self._fan_values: list[Any] | None = None
 
     @classmethod
     def from_sync_spec(
@@ -80,6 +94,8 @@ class McpToolSourceAdapter:
         mapping_reference: str,
         schema_mappings: Mapping[str, SchemaMapping] | None = None,
         resources: Sequence[ResourceSpec] = (),
+        parents: Mapping[str, SyncSpec] | None = None,
+        max_fan_out: int = MAX_FAN_OUT,
     ) -> McpToolSourceAdapter:
         """Build an adapter from a sync declaration.
 
@@ -92,7 +108,30 @@ class McpToolSourceAdapter:
             mapping_reference=mapping_reference,
             schema_mappings=schema_mappings,
             resources=resources,
+            parents={
+                name: ToolPreset.from_mapping(name, dict(parent.raw))
+                for name, parent in (parents or {}).items()
+            },
+            max_fan_out=max_fan_out,
         )
+
+    @property
+    def preset(self) -> ToolPreset:
+        """The preset this adapter extracts."""
+        return self._preset
+
+    def derive(self, preset: ToolPreset) -> McpToolSourceAdapter:
+        """An adapter for ``preset`` that shares this adapter's verified tool."""
+        derived = McpToolSourceAdapter(
+            preset,
+            connector=self._connector,
+            mapping_reference=self._mapping_reference,
+            tool_schema_sha256=self._pinned,
+            schema_mappings=self._schema_mappings,
+            resources=tuple(self._resources.values()),
+        )
+        derived._verified_sha256 = self._verified_sha256
+        return derived
 
     @property
     def stream(self) -> str:
@@ -123,6 +162,13 @@ class McpToolSourceAdapter:
             raise SourceContractError(
                 "extraction needs a verified tool and this stream's checkpoint"
             )
+        if self._preset.for_each is not None:
+            if not isinstance(current.position, Mapping) or (
+                FAN_KEY not in current.position
+            ):
+                self._fan_values = None  # a new sweep re-reads the parents
+            values = await self._fan_out_values(session)
+            return await extract_fanned(self, session, current, values)
         since: Any = (
             current.position if self._preset.checkpoint_path else current.watermark
         )
@@ -180,6 +226,13 @@ class McpToolSourceAdapter:
                 update={"identifier_fields": (self._preset.id_field,)}
             ),
         )
+
+    async def _fan_out_values(self, session: McpSession) -> list[Any]:
+        if self._fan_values is None:
+            self._fan_values = await parent_values(
+                session, self._preset, self._parents, limit=self._max_fan_out
+            )
+        return self._fan_values
 
     async def reconcile(
         self, session: McpSession, known_ids: frozenset[str]

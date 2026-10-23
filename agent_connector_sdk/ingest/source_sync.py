@@ -28,6 +28,7 @@ import anyio
 from pydantic import BaseModel, ConfigDict, Field
 
 from agent_connector_sdk.ingest.errors import IngestError
+from agent_connector_sdk.ingest.for_each import MAX_FAN_OUT
 from agent_connector_sdk.ingest.model import ChangeSet, Entity, IngestBinding
 from agent_connector_sdk.ingest.sources import IngestSourceSpec
 from agent_connector_sdk.runner.backoff import Backoff
@@ -120,12 +121,22 @@ class SyncBudget:
     max_records: int = 5_000
     batch_size: int = 200
     max_seconds: float = 120.0
+    max_fan_out: int = MAX_FAN_OUT
     attempts: int = 3
     backoff_initial_seconds: float = 0.5
     backoff_max_seconds: float = 8.0
 
     def __post_init__(self) -> None:
-        if min(self.max_pages, self.max_records, self.batch_size, self.attempts) < 1:
+        if (
+            min(
+                self.max_pages,
+                self.max_records,
+                self.batch_size,
+                self.attempts,
+                self.max_fan_out,
+            )
+            < 1
+        ):
             raise ValueError("every sync budget must be at least 1")
 
 
@@ -299,8 +310,15 @@ class SourceSyncRunner:
         *,
         mode: str = "incremental",
         job_id: str | None = None,
+        sources: Mapping[str, IngestSourceSpec] | None = None,
     ) -> SourceSyncReport:
         """Sync ``spec`` once within the budget; return the run report.
+
+        ``sources`` are the connector's declared sources, needed when ``spec``
+        has ``for_each`` to find its parent. A missing parent, a cycle and a
+        fan-out over ``budget.max_fan_out`` parent records are reported as a
+        ``failed`` run with reason ``unknown_parent_source``,
+        ``for_each_cycle`` and ``fan_out_exceeded``.
 
         Raises:
             SourceSyncError: ``not_read_only`` before any call, or
@@ -328,7 +346,7 @@ class SourceSyncRunner:
         reason: str | None = None
         engine_code: str | None = None
         try:
-            final = await self._sweep(run)
+            final = await self._sweep(run, sources)
         except SourceSyncError as exc:
             if exc.reason == "checkpoint_conflict":
                 raise
@@ -350,24 +368,95 @@ class SourceSyncRunner:
         run.version = await self._checkpoints.store(run.state, run.version)
         return report
 
-    async def _sweep(self, run: _Run) -> SyncState:
+    async def _sweep(
+        self, run: _Run, sources: Mapping[str, IngestSourceSpec] | None
+    ) -> SyncState:
         spec = run.spec
-        for tool in spec.tools:
-            page = spec.start_page
-            while True:
-                if self._exhausted(run):
-                    await self._flush(run)
-                    return "partial"
-                result = await self._call(tool, self._arguments(spec, page))
-                records = _records(result, spec)
-                run.pages += 1
-                for record in records:
-                    await self._take(run, record, tool)
-                if spec.pagination != "page" or len(records) < spec.page_size:
-                    break
-                page += 1
-            await self._flush(run, tool=tool)
+        scopes: list[dict[str, Any]] = [{}]
+        if spec.for_each is not None:
+            argument = spec.for_each.argument
+            scopes = [
+                {argument: value}
+                for value in await self._parent_values(run, spec, sources or {}, ())
+            ]
+        for scope in scopes:
+            for tool in spec.tools:
+                page = spec.start_page
+                while True:
+                    if self._exhausted(run):
+                        await self._flush(run)
+                        return "partial"
+                    result = await self._call(tool, self._arguments(spec, page, scope))
+                    records = _records(result, spec)
+                    run.pages += 1
+                    for record in records:
+                        await self._take(run, record, tool)
+                    if spec.pagination != "page" or len(records) < spec.page_size:
+                        break
+                    page += 1
+                await self._flush(run, tool=tool)
         return "completed"
+
+    async def _parent_values(
+        self,
+        run: _Run,
+        spec: IngestSourceSpec,
+        sources: Mapping[str, IngestSourceSpec],
+        chain: tuple[str, ...],
+    ) -> list[Any]:
+        """The distinct values ``spec.for_each`` fans out over, in parent order."""
+        link = spec.for_each
+        assert link is not None
+        chain = (*chain, spec.source_id)
+        parent = sources.get(link.source)
+        if parent is None:
+            raise SourceSyncError(
+                "unknown_parent_source",
+                f"source {spec.source_id!r} follows undeclared source {link.source!r}",
+            )
+        if link.source in chain:
+            raise SourceSyncError(
+                "for_each_cycle", f"sources {' -> '.join([*chain, link.source])}"
+            )
+        scopes: list[dict[str, Any]] = [{}]
+        if parent.for_each is not None:
+            scopes = [
+                {parent.for_each.argument: value}
+                for value in await self._parent_values(run, parent, sources, chain)
+            ]
+        values: list[Any] = []
+        for scope in scopes:
+            for tool in parent.tools:
+                if not await self._session.tool_is_read_only(tool):
+                    raise SourceSyncError(
+                        "not_read_only", f"tool {tool!r} is not marked read-only"
+                    )
+                page = parent.start_page
+                while True:
+                    if self._exhausted(run):
+                        raise SourceSyncError(
+                            "parent_budget_exhausted",
+                            f"budget ended while reading parent {parent.source_id!r}",
+                        )
+                    result = await self._call(
+                        tool, self._arguments(parent, page, scope)
+                    )
+                    records = _records(result, parent)
+                    run.pages += 1
+                    for record in records:
+                        value = record.get(link.field)
+                        if value is not None and value not in values:
+                            values.append(value)
+                    if parent.pagination != "page" or len(records) < parent.page_size:
+                        break
+                    page += 1
+            if len(values) > self._budget.max_fan_out:
+                raise SourceSyncError(
+                    "fan_out_exceeded",
+                    f"{parent.source_id!r} has more than "
+                    f"{self._budget.max_fan_out} records to fan out over",
+                )
+        return values
 
     def _exhausted(self, run: _Run) -> bool:
         budget = self._budget
@@ -378,8 +467,10 @@ class SourceSyncRunner:
         )
 
     @staticmethod
-    def _arguments(spec: IngestSourceSpec, page: int) -> dict[str, Any]:
-        arguments: dict[str, Any] = dict(spec.arguments)
+    def _arguments(
+        spec: IngestSourceSpec, page: int, scope: Mapping[str, Any] | None = None
+    ) -> dict[str, Any]:
+        arguments: dict[str, Any] = {**spec.arguments, **(scope or {})}
         if spec.pagination == "page" and spec.page_param:
             arguments[spec.page_param] = page
             if spec.page_size_param:

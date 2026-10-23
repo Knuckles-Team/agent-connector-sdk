@@ -138,6 +138,7 @@
     "SDK-SOURCE-INGEST-R004.25",
     "SDK-SOURCE-INGEST-R004.26",
     "SDK-SOURCE-INGEST-R004.27",
+    "SDK-SOURCE-INGEST-R004.28",
     "SDK-SOURCE-INGEST-R013",
     "SDK-SOURCE-INGEST-R013.1",
     "SDK-SOURCE-INGEST-R013.2",
@@ -311,7 +312,8 @@
         "SDK-SOURCE-INGEST-R004.24",
         "SDK-SOURCE-INGEST-R004.25",
         "SDK-SOURCE-INGEST-R004.26",
-        "SDK-SOURCE-INGEST-R004.27"
+        "SDK-SOURCE-INGEST-R004.27",
+        "SDK-SOURCE-INGEST-R004.28"
       ]
     },
     {
@@ -1657,6 +1659,21 @@
       ],
       "verified_by": [
         "tests/test_contracts_and_sink.py:593"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.28",
+      "title": "Per-parent fan-out",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "063dd22e9e55"
+      ],
+      "verified_by": [
+        "tests/test_for_each.py:105",
+        "tests/test_for_each.py:122",
+        "tests/test_for_each.py:140",
+        "tests/test_for_each.py:152",
+        "tests/test_for_each.py:180"
       ]
     },
     {

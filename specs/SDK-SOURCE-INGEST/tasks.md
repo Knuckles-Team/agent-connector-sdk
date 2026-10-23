@@ -149,6 +149,7 @@
 - [ ] `SDK-SOURCE-INGEST-R004.10`: implement and prove refusal for the generated approval receiver.
 - [ ] `SDK-SOURCE-INGEST-R004.11`: implement and prove evidence for the generated approval receiver.
 - [ ] `SDK-SOURCE-INGEST-R004.12`: implement and prove hot-path proof for the generated approval receiver.
+- [ ] `SDK-SOURCE-INGEST-R004.28`: implement and prove per-parent fan-out (`for_each`) for declared connector sources.
 
 <!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
 ## Supported-harness session sync (R013; WEBUI:3)

@@ -13,6 +13,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
+from agent_connector_sdk.ingest.for_each import ForEach, check_for_each
 from agent_connector_sdk.manifest.model import ResourceSpec, SchemaMapping
 
 __all__ = ["IngestSourceDeclaration", "IngestSourceSpec"]
@@ -32,7 +33,8 @@ class IngestSourceSpec(_Strict):
     ``page_param`` (starting at ``start_page``) and ``page_size_param``; a
     page shorter than ``page_size`` ends the sweep. ``cursor_field`` names the
     record field that orders records; an ``incremental`` source skips records
-    at or before the stored cursor.
+    at or before the stored cursor. ``for_each`` runs the source once per
+    record of a parent source, passing the parent's field as a tool argument.
     """
 
     source_id: str = Field(pattern=_ID_PATTERN)
@@ -53,6 +55,7 @@ class IngestSourceSpec(_Strict):
     description: str = ""
     server: str = ""
     preset: dict[str, JsonValue] | None = None
+    for_each: ForEach | None = None
 
     @model_validator(mode="after")
     def _check(self) -> IngestSourceSpec:
@@ -81,6 +84,7 @@ class IngestSourceDeclaration(_Strict):
         ids = [source.source_id for source in self.sources]
         if len(set(ids)) != len(ids):
             raise ValueError("source_id values must be unique within a connector")
+        check_for_each({s.source_id: s.for_each for s in self.sources})
         return self
 
     def source(self, source_id: str) -> IngestSourceSpec | None:
