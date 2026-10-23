@@ -85,3 +85,18 @@ def test_content_name_disagreeing_with_manifest_is_refused(tmp_path: Path):
             package_version="1.0.0",
             manifest_path=manifest,
         )
+
+
+def test_uninstalled_source_checkout_reads_its_pyproject(monkeypatch, tmp_path: Path):
+    monkeypatch.setattr(identity, "entry_points", _points())
+    package = tmp_path / "checkout_only_pkg"
+    package.mkdir()
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "checkout-only"\n'
+        f'[project.entry-points."{CONNECTOR_ENTRY_POINT_GROUP}"]\n'
+        'checkout-only-mcp = "checkout_only_pkg"\n',
+        encoding="utf-8",
+    )
+    monkeypatch.syspath_prepend(str(tmp_path))
+    assert connector_name("checkout_only_pkg.kg_ingest") == "checkout-only-mcp"

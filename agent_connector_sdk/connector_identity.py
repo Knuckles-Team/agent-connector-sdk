@@ -17,6 +17,7 @@ passes no name literal of its own.
 
 from __future__ import annotations
 
+import importlib.util
 import re
 import tomllib
 from importlib.metadata import entry_points
@@ -62,12 +63,35 @@ def connector_name(package: str) -> str:
             if _top_level(point.value.split(":", 1)[0].strip()) == top
         }
     )
+    if not names:
+        source = _source_checkout_name(top)
+        if source is not None:
+            return source
     if len(names) != 1:
         raise ConnectorIdentityError(
             f"package {top!r} must declare exactly one "
             f"{CONNECTOR_ENTRY_POINT_GROUP} entry point; found {names or 'none'}"
         )
     return _checked(names[0], top)
+
+
+def _source_checkout_name(top: str) -> str | None:
+    """The declaration of an uninstalled source checkout, read from its pyproject.
+
+    A package imported from a checkout on ``sys.path`` (a test run, a scaffold
+    smoke) has no installed entry points; its ``pyproject.toml`` sits in the
+    directory above the package and holds the same declaration.
+    """
+    spec = importlib.util.find_spec(top)
+    if spec is None or not spec.submodule_search_locations:
+        return None
+    for location in spec.submodule_search_locations:
+        pyproject = Path(location).parent / "pyproject.toml"
+        if pyproject.is_file():
+            name = declared_connector_name(pyproject)
+            if name is not None:
+                return name
+    return None
 
 
 def declared_connector_name(pyproject: Path) -> str | None:
