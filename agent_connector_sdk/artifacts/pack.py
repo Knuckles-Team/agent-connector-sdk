@@ -16,6 +16,7 @@ from epistemic_graph.generated.connector_pack import PackEntryKind
 
 from agent_connector_sdk.artifacts.common import json_object
 from agent_connector_sdk.artifacts.ontology_imports import scope_ontology_imports
+from agent_connector_sdk.artifacts.resource_descriptor import RESOURCES_URI
 from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
 from agent_connector_sdk.ports.errors import MalformedArtifactError
@@ -63,7 +64,11 @@ def _entry_content(entry: CapturedArtifact) -> ConnectorPackEntryContent:
     kind_name = entry.kind
     uri = entry.uri
     if kind_name == "resource":
-        pack_kind = _RESOURCE_KINDS.get(uri.partition("://")[0])
+        pack_kind = (
+            PackEntryKind.RESOURCE
+            if uri == RESOURCES_URI
+            else _RESOURCE_KINDS.get(uri.partition("://")[0])
+        )
         if pack_kind is None:
             raise MalformedArtifactError(f"{uri} has no ConnectorPack entry kind")
     else:

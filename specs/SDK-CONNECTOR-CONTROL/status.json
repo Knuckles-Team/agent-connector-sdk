@@ -288,7 +288,8 @@
     "SDK-CONNECTOR-CONTROL-R074.3",
     "SDK-CONNECTOR-CONTROL-R074.4",
     "SDK-CONNECTOR-CONTROL-R074.5",
-    "SDK-CONNECTOR-CONTROL-R074.6"
+    "SDK-CONNECTOR-CONTROL-R074.6",
+    "SDK-CONNECTOR-CONTROL-R074.7"
   ],
   "requirements": [
     {
@@ -3038,6 +3039,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R074.6",
       "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R074.7",
+      "title": "Default declarations",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []

@@ -69,6 +69,7 @@ async def test_native_status_does_not_block_packaged_content_capture(
         assert "search" in await session.read_resource("connector://capability/search")
     assert pack.resource_uris == {
         "manifest://connector",
+        "manifest://connector/resources",
         "ontology://demo-agent/demo.ttl",
         "shapes://demo-agent/demo.shapes.ttl",
         "skill://demo-reader/SKILL.md",

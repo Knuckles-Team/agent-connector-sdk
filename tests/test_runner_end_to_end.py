@@ -132,6 +132,7 @@ async def test_provisioning_is_a_noop_when_the_pack_digest_is_unchanged(
         "prompt",
         "ontology",
         "manifest",
+        "resource",
     }
     assert len(sink.record_ids("freshrss-agent")) == 250
     assert len(sink.record_ids("archivebox-api")) == 250 and archive.pages == [0, 1, 2]

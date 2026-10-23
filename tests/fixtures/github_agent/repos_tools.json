@@ -1,0 +1,60 @@
+{
+  "tools": [
+    {
+      "name": "get_repositories",
+      "annotations": {"readOnlyHint": true},
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "page": {"type": "integer"},
+          "per_page": {"type": "integer"},
+          "visibility": {"type": "string"}
+        },
+        "required": []
+      },
+      "output_schema": {
+        "type": "object",
+        "x-fastmcp-wrap-result": true,
+        "properties": {
+          "result": {"type": "array", "items": {"$ref": "#/$defs/Repo"}}
+        },
+        "$defs": {
+          "Repo": {
+            "type": "object",
+            "properties": {
+              "id": {"type": "integer"},
+              "name": {"type": "string"},
+              "full_name": {"type": "string"},
+              "html_url": {"type": "string"},
+              "default_branch": {"type": "string"},
+              "private": {"type": "boolean"},
+              "owner": {"type": "object", "properties": {"login": {"type": "string"}}}
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "get_repository",
+      "annotations": {"readOnlyHint": true},
+      "parameters": {
+        "type": "object",
+        "properties": {"owner": {"type": "string"}, "repo": {"type": "string"}},
+        "required": ["owner", "repo"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "full_name": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "delete_repository",
+      "annotations": {"readOnlyHint": false, "destructiveHint": true},
+      "parameters": {"type": "object", "properties": {"owner": {"type": "string"}}},
+      "output_schema": {"type": "object", "properties": {"id": {"type": "integer"}}}
+    }
+  ]
+}
