@@ -11,6 +11,7 @@ from typing import Any
 import pytest
 from fastmcp import Client, FastMCP
 
+from agent_connector_sdk.ingest.live_declaration import source_meta
 from agent_connector_sdk.ingest.source_sync import (
     CHECKPOINT_NAMESPACE,
     KvSourceCheckpoints,
@@ -24,12 +25,8 @@ from agent_connector_sdk.ingest.source_sync import (
     record_digest,
 )
 from agent_connector_sdk.ingest.sources import (
-    DECLARATION_FILE,
     IngestSourceDeclaration,
     IngestSourceSpec,
-    ingest_sources_tool_name,
-    load_ingest_sources,
-    register_ingest_sources_tool,
 )
 from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 
@@ -130,14 +127,8 @@ def test_declaration_validates_sources(tmp_path: Path) -> None:
         _spec(tools=())
     with pytest.raises(ValueError, match="unique"):
         IngestSourceDeclaration(connector="c", sources=(_spec(), _spec()))
-    assert load_ingest_sources(tmp_path) is None
-    path = tmp_path / DECLARATION_FILE
-    path.parent.mkdir(parents=True)
-    path.write_text(
-        json.dumps({"connector": "c", "sources": [_spec().model_dump(mode="json")]})
-    )
-    declaration = load_ingest_sources(tmp_path)
-    assert declaration is not None and declaration.source("items") is not None
+    declaration = IngestSourceDeclaration(connector="c", sources=(_spec(),))
+    assert declaration.source("items") is not None
 
 
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.20")
@@ -167,21 +158,26 @@ async def test_runner_submits_typed_batches_once() -> None:
 
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.21")
 async def test_tool_surface_serves_declarations(tmp_path: Path) -> None:
-    path = tmp_path / DECLARATION_FILE
-    path.parent.mkdir(parents=True)
-    path.write_text(
-        json.dumps(
-            {"connector": "fixture-mcp", "sources": [_spec().model_dump(mode="json")]}
+    mcp = FastMCP("fixture")
+
+    @mcp.tool(
+        meta=source_meta(
+            source_id="items",
+            record_type="FixtureItem",
+            id_field="id",
+            cursor_field="updated",
         )
     )
-    mcp = FastMCP("fixture")
+    def fixture_list_items() -> dict:
+        """List fixture items."""
+        return {}
+
     register_tool_surface(mcp, service="fixture-mcp", package_root=tmp_path)
     async with Client(mcp) as client:
-        tools = {tool.name: tool for tool in await client.list_tools()}
-        tool = tools["fixture_ingest_sources"]
-        assert tool.annotations is not None and tool.annotations.read_only_hint is True
-        result = await client.call_tool("fixture_ingest_sources", {})
-    assert result.data["sources"][0]["source_id"] == "items"
+        body = await client.read_resource("connector://resources")
+    document = json.loads(body[0].text)
+    assert document["sources"][0]["source_id"] == "items"
+    assert document["sources"][0]["tools"] == ["fixture_list_items"]
     assert checkpoint_key("fixture-mcp", "items") == "ingest-source/fixture-mcp/items"
 
 
@@ -256,7 +252,6 @@ async def test_kv_checkpoints_use_the_shared_scope() -> None:
     ]
     with pytest.raises(SourceSyncError, match="checkpoint_conflict"):
         await store.store(loaded, 0)
-    assert ingest_sources_tool_name("fixture") == "fixture_ingest_sources"
     assert len(record_digest({"a": 1})) == 64
     assert isinstance(_Session(ITEMS), SourceSession)
     assert (
@@ -265,28 +260,12 @@ async def test_kv_checkpoints_use_the_shared_scope() -> None:
         ).submitted
         == 0
     )
-    mcp = FastMCP("direct")
-    declaration = IngestSourceDeclaration(connector="c", sources=(_spec(),))
-    assert register_ingest_sources_tool(mcp, "direct", declaration) == (
-        "direct_ingest_sources"
-    )
 
 
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.25")
-async def test_tool_surface_serves_the_packaged_manifest(tmp_path: Path) -> None:
-    (tmp_path / "connector_manifest.yml").write_text(
-        "connector: fixture-mcp\nschema_mappings:\n  FixtureItem: {}\n"
-    )
+async def test_tool_surface_serves_one_declaration_resource(tmp_path: Path) -> None:
     mcp = FastMCP("fixture")
     register_tool_surface(mcp, service="fixture-mcp", package_root=tmp_path)
     async with Client(mcp) as client:
         uris = {str(resource.uri) for resource in await client.list_resources()}
-        assert "manifest://connector" in uris
-        body = await client.read_resource("manifest://connector")
-    assert "FixtureItem" in body[0].text
-    bare = FastMCP("bare")
-    register_tool_surface(bare, service="bare-mcp", package_root=tmp_path / "none")
-    async with Client(bare) as client:
-        assert not [
-            r for r in await client.list_resources() if "manifest" in str(r.uri)
-        ]
+    assert uris == {"connector://resources"}

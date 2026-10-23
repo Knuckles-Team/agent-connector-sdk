@@ -10,10 +10,9 @@ migration is required. The ``build_enumerated_*`` builders serve the future
 schema that the fixture packages pin and the positive runner tests consume;
 its fingerprint is named ``*_ENUM_SHA256``.
 
-The presets in ``fleet_packages`` are copied from the connector repositories,
-except that archivebox-api's ``page_kind: page`` is written ``page_kind: number``,
-the one spelling the SDK accepts; the manifests keep only the ``sync`` section
-and provenance.
+The declarations in ``fleet_declarations`` are copied from the connector
+repositories, except that archivebox-api's ``page_kind: page`` is written
+``page_kind: number``, the one spelling the SDK accepts.
 """
 
 from __future__ import annotations
@@ -25,15 +24,15 @@ from pathlib import Path
 from typing import Any, Literal
 
 from fastmcp import FastMCP
+from fleet_declarations import DECLARATIONS
 
+from agent_connector_sdk.artifacts.resource_descriptor import RESOURCES_URI
 from agent_connector_sdk.mcp.change_events import serve_change_subscriptions
 from agent_connector_sdk.mcp.content import ConnectorContent, register_connector_content
 
 FLEET_PACKAGES = Path(__file__).parent / "fleet_packages"
 FRESHRSS_ROOT = FLEET_PACKAGES / "freshrss-agent"
 ARCHIVEBOX_ROOT = FLEET_PACKAGES / "archivebox-api"
-FRESHRSS_CONNECTORS = FRESHRSS_ROOT / "freshrss_agent" / "connectors"
-ARCHIVEBOX_CONNECTORS = ARCHIVEBOX_ROOT / "archivebox_api" / "connectors"
 FRESHRSS_ENUM_SHA256 = (
     "7e18bf9ed1c48cadece180e17777cc68da409d0e86cb79fbebcf69172794d3b4"
 )
@@ -115,13 +114,14 @@ class FakeArchiveBox:
 
 
 def _content(mcp: FastMCP[Any], root: Path, module: str) -> None:
+    declaration = json.dumps(DECLARATIONS[root.name])
+    mcp.resource(RESOURCES_URI, mime_type="application/json")(lambda: declaration)
     register_connector_content(
         mcp,
         ConnectorContent(
             connector=root.name,
             package_root=root / module,
             package_version="2.1.0",
-            manifest_path=root / "connector_manifest.yml",
         ),
     )
 

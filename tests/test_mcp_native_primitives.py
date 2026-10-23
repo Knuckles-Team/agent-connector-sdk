@@ -56,7 +56,6 @@ async def test_native_status_does_not_block_packaged_content_capture(
             connector="demo-agent",
             package_root=package_root,
             package_version="1.0.0",
-            manifest_path=package_root / "connector_manifest.yml",
         ),
     )
     async with McpTransport().session(TransportEndpoint(in_process=mcp)) as session:
@@ -68,8 +67,7 @@ async def test_native_status_does_not_block_packaged_content_capture(
         assert "native-mcp" in await session.read_resource("connector://status")
         assert "search" in await session.read_resource("connector://capability/search")
     assert pack.resource_uris == {
-        "manifest://connector",
-        "manifest://connector/resources",
+        "connector://resources",
         "ontology://demo-agent/demo.ttl",
         "shapes://demo-agent/demo.shapes.ttl",
         "skill://demo-reader/SKILL.md",

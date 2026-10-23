@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from collections.abc import Callable
 from pathlib import Path
@@ -19,12 +20,9 @@ from epistemic_graph.generated.source_ingestion import (
     SourceIngestionRequest,
     SourceIngestStatus,
 )
+from fleet_declarations import DECLARATIONS
 from fleet_fixtures import (
-    ARCHIVEBOX_CONNECTORS,
-    ARCHIVEBOX_ROOT,
-    FRESHRSS_CONNECTORS,
     FRESHRSS_READING_LIST,
-    FRESHRSS_ROOT,
 )
 
 from agent_connector_sdk.artifacts.pack import CapturedConnectorPack
@@ -69,12 +67,21 @@ async def pack_authority_unexpected(
     raise AssertionError(f"pack authority unexpectedly requested for {connector}")
 
 
+class DeclaredSession:
+    """A session whose ``connector://resources`` is a fixture declaration."""
+
+    def __init__(self, connector: str = "freshrss-agent") -> None:
+        self._connector = connector
+
+    async def read_resource(self, uri: str) -> str:
+        assert uri == "connector://resources"
+        return json.dumps(DECLARATIONS[self._connector])
+
+
 def freshrss_descriptor(**overrides: Any) -> ConnectorDescriptor:
     """The freshrss-agent fixture package, synced on reading-list updates."""
     values: dict[str, Any] = {
         "connector": "freshrss-agent",
-        "package_root": FRESHRSS_ROOT,
-        "connectors_dir": FRESHRSS_CONNECTORS,
         "endpoint": UNUSED_URL,
         "data_resources": {FRESHRSS_READING_LIST: ("freshrss",)},
         "interval_seconds": 3600.0,
@@ -86,8 +93,6 @@ def archivebox_descriptor(**overrides: Any) -> ConnectorDescriptor:
     """The archivebox-api fixture package."""
     values: dict[str, Any] = {
         "connector": "archivebox-api",
-        "package_root": ARCHIVEBOX_ROOT,
-        "connectors_dir": ARCHIVEBOX_CONNECTORS,
         "endpoint": UNUSED_URL,
         "interval_seconds": 3600.0,
     }

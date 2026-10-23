@@ -98,11 +98,9 @@ class ConnectorWorker:
                 await anyio.sleep(delay)
 
     async def _connect(self, *, follow: bool) -> None:
-        # Package validation and credential resolution both fail closed
-        # before any session is opened.
-        adapters = await anyio.to_thread.run_sync(load_sync_adapters, self._descriptor)
         endpoint = await resolve_endpoint(self._services, self._descriptor)
         async with self._services.transport.session(endpoint) as session:
+            adapters = await load_sync_adapters(self._descriptor, session)
             await self._cycle(session, adapters, full_plan(self._descriptor, adapters))
             self._backoff.reset()
             if follow:

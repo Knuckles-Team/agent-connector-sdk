@@ -1,7 +1,7 @@
 """Serve a connector's declarative content as native MCP primitives.
 
 RF-ADR-009 section 2.1: skills, prompts, ontologies, SHACL shapes and the
-connector manifest reach epistemic-graph through the MCP primitives the server
+data-source declaration reach epistemic-graph through the MCP primitives the server
 already serves. Registered from the connector package layout:
 
 ==================================  ==============================================
@@ -11,7 +11,7 @@ Package path                        Served as
 ``prompts/<name>.json``             MCP prompt ``<name>`` (``prompts/list``)
 ``ontology/<file>.ttl``             ``ontology://<connector>/<file>.ttl``
 ``ontology/shapes/<file>.ttl``      ``shapes://<connector>/<file>.ttl``
-``connector_manifest.yml``          ``manifest://connector``
+(tool ``meta`` via ``source_meta``)   ``connector://resources``
 ==================================  ==============================================
 
 Replaces ``_register_skill_providers`` and ``_register_prompt_providers`` in
@@ -37,17 +37,8 @@ from agent_connector_sdk.artifacts.resource_derivation import (
     derive_descriptors,
     scan_ontology,
 )
-from agent_connector_sdk.artifacts.resource_descriptor import (
-    RESOURCES_URI,
-    ResourceDeclarationError,
-    check_declarations,
-    load_declarations,
-    merge_declarations,
-    render_resources_document,
-)
 
 __all__ = [
-    "MANIFEST_RESOURCE_URI",
     "ConnectorContent",
     "ContentError",
     "ContentRegistration",
@@ -55,8 +46,6 @@ __all__ = [
     "register_connector_content",
     "register_ontology_resources",
 ]
-
-MANIFEST_RESOURCE_URI = "manifest://connector"
 
 
 class ContentError(ValueError):
@@ -72,23 +61,15 @@ class ConnectorContent:
         package_root: The package directory holding ``skills/``, ``prompts/``
             and ``ontology/``.
         package_version: The publisher version recorded on ConnectorPack import.
-        manifest_path: The ``connector_manifest.yml`` to serve, if packaged.
     """
 
     connector: str
     package_root: Path
     package_version: str
-    manifest_path: Path | None = None
 
     def __post_init__(self) -> None:
         if not self.connector.strip() or not self.package_version.strip():
             raise ValueError("connector and package_version are required")
-        declared = _manifest_connector(self.manifest_path)
-        if declared is not None and declared != self.connector:
-            raise ContentError(
-                f"content connector {self.connector!r} disagrees with the "
-                f"manifest connector {declared!r}"
-            )
 
     @classmethod
     def for_package(
@@ -96,42 +77,20 @@ class ConnectorContent:
         package: str,
         package_root: Path,
         package_version: str,
-        manifest_path: Path | None = None,
     ) -> ConnectorContent:
         """Build the content of ``package`` under its declared fleet name.
 
         The connector name comes from
         :func:`agent_connector_sdk.connector_identity.connector_name`; a connector passes
-        no name literal. ``manifest_path`` defaults to
-        ``package_root/connector_manifest.yml`` when that file exists.
+        no name literal.
         """
         from agent_connector_sdk.connector_identity import connector_name
 
-        if manifest_path is None and (package_root / MANIFEST_FILE).is_file():
-            manifest_path = package_root / MANIFEST_FILE
         return cls(
             connector=connector_name(package),
             package_root=package_root,
             package_version=package_version,
-            manifest_path=manifest_path,
         )
-
-
-MANIFEST_FILE = "connector_manifest.yml"
-
-
-def _manifest_connector(path: Path | None) -> str | None:
-    """The ``connector`` a packaged manifest declares, if it is readable."""
-    if path is None or not path.is_file():
-        return None
-    import yaml
-
-    try:
-        document = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeDecodeError, yaml.YAMLError) as exc:
-        raise ContentError(f"manifest {path.name} is not readable YAML") from exc
-    connector = document.get("connector") if isinstance(document, dict) else None
-    return connector if isinstance(connector, str) else None
 
 
 @dataclass(frozen=True)
@@ -144,28 +103,78 @@ class ContentRegistration:
     data_resources: int = 0
 
 
-def _prompt_directive(path: Path) -> tuple[str, str]:
+#: Reverse-DNS ``_meta`` key carrying a prompt's role, topic, version and target.
+PROMPT_META_KEY = "team.knuckles/prompt"
+
+
+def _prompt_document(path: Path) -> dict[str, Any]:
     try:
         document = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ContentError(f"prompt {path.name} is not readable JSON") from exc
-    instructions = document.get("instructions") if isinstance(document, dict) else None
+    if not isinstance(document, dict):
+        raise ContentError(f"prompt {path.name} has no instructions.core_directive")
+    return document
+
+
+def _composed_text(path: Path, document: dict[str, Any]) -> str:
+    instructions = document.get("instructions")
     directive = (
         instructions.get("core_directive") if isinstance(instructions, dict) else None
     )
     if not isinstance(directive, str) or not directive.strip():
         raise ContentError(f"prompt {path.name} has no instructions.core_directive")
-    return directive, str(document.get("description") or "")
+    return directive
+
+
+def _prompt_directive(path: Path) -> tuple[str, str]:
+    document = _prompt_document(path)
+    return _composed_text(path, document), str(document.get("description") or "")
+
+
+def _prompt_meta(document: dict[str, Any]) -> dict[str, Any]:
+    """Role, topic, version and system-prompt target, for ``prompts/list`` ``_meta``."""
+    raw_metadata = document.get("metadata")
+    raw_identity = document.get("identity")
+    metadata: dict[str, Any] = raw_metadata if isinstance(raw_metadata, dict) else {}
+    identity: dict[str, Any] = raw_identity if isinstance(raw_identity, dict) else {}
+    values = {
+        "role": identity.get("role") or document.get("role"),
+        "goal": identity.get("goal") or document.get("goal"),
+        "topic": metadata.get("topic") or document.get("topic"),
+        "tone": metadata.get("tone") or document.get("tone"),
+        "style": metadata.get("style") or document.get("style"),
+        "version": document.get("prompt_version"),
+        "systemPromptFor": document.get("serves") or document.get("ontology_class"),
+    }
+    return {PROMPT_META_KEY: {k: v for k, v in values.items() if v}}
 
 
 def _register_prompt(mcp: Any, path: Path) -> None:
-    text, description = _prompt_directive(path)
+    document = _prompt_document(path)
+    text = _composed_text(path, document)
+    identity = document.get("identity")
+    title = identity.get("role") if isinstance(identity, dict) else None
 
     def render() -> str:
         return text
 
     mcp.add_prompt(
-        Prompt.from_function(render, name=path.stem, description=description)
+        Prompt.from_function(
+            render,
+            name=path.stem,
+            title=title or None,
+            description=str(document.get("description") or ""),
+            tags={
+                "prompt",
+                *(
+                    (["system"])
+                    if document.get("serves") or document.get("ontology_class")
+                    else []
+                ),
+            },
+            meta=_prompt_meta(document),
+        )
     )
 
 
@@ -212,15 +221,7 @@ def register_ontology_resources(mcp: Any, connector: str, ontology_dir: Path) ->
 
 
 def _content_resources(content: ConnectorContent) -> list[FileResource]:
-    resources = ontology_resources(content.connector, content.package_root / "ontology")
-    if content.manifest_path is None:
-        return resources
-    if not content.manifest_path.is_file():
-        raise ContentError("declared connector manifest does not exist")
-    resources.append(
-        _file_resource(MANIFEST_RESOURCE_URI, content.manifest_path, "text/yaml")
-    )
-    return resources
+    return ontology_resources(content.connector, content.package_root / "ontology")
 
 
 def _ontology_texts(content: ConnectorContent) -> list[str]:
@@ -228,49 +229,31 @@ def _ontology_texts(content: ConnectorContent) -> list[str]:
     return [p.read_text(encoding="utf-8") for p in sorted(directory.glob("*.ttl"))]
 
 
-def _resource_descriptors(mcp: Any, content: ConnectorContent) -> str:
-    """The ``manifest://connector/resources`` body, derived when it is read.
-
-    Tools register after the factory runs, so the defaults are derived from
-    the tools registered at read time and overlaid by the connector's own
-    ``data_resources.json``.
-    """
+def _register_resource_descriptors(mcp: Any, content: ConnectorContent) -> int:
+    """Serve ``connector://resources`` with the derived data-resource descriptors."""
+    from agent_connector_sdk.ingest.live_declaration import (
+        load_sources_module,
+        register_live_declaration,
+    )
     from agent_connector_sdk.mcp.tool_surface import registered_tools
 
-    terms = scan_ontology(_ontology_texts(content))
-    derived = derive_descriptors(
-        content.connector, registered_tools(mcp).values(), terms
-    )
-    descriptors = merge_declarations(
-        content.connector,
-        derived,
-        load_declarations(content.package_root),
-        terms.class_iris or None,
-    )
-    return render_resources_document(content.connector, descriptors)
-
-
-def _register_resource_descriptors(mcp: Any, content: ConnectorContent) -> int:
-    """Serve the data-resource declarations when the package has an ontology."""
-    declared = load_declarations(content.package_root)
-    texts = _ontology_texts(content)
-    if not texts and not declared:
+    declared = load_sources_module(content.package_root)
+    if not _ontology_texts(content) and not declared:
         return 0
-    try:
-        classes = scan_ontology(texts).class_iris
-        check_declarations(declared, classes or None)
-    except ResourceDeclarationError as exc:
-        raise ContentError(str(exc)) from exc
 
-    def read() -> str:
-        return _resource_descriptors(mcp, content)
+    def descriptors() -> list[dict[str, Any]]:
+        terms = scan_ontology(_ontology_texts(content))
+        derived = derive_descriptors(
+            content.connector, registered_tools(mcp).values(), terms
+        )
+        return [d.to_json() for d in derived]
 
-    mcp.resource(
-        RESOURCES_URI,
-        name=RESOURCES_URI,
-        mime_type="application/json",
-        description="Data resources this connector exposes for virtual access.",
-    )(read)
+    register_live_declaration(
+        mcp,
+        content.connector,
+        descriptors,
+        declared=declared,
+    )
     return 1
 
 
@@ -280,7 +263,7 @@ def register_connector_content(
     """Register the connector's skills, prompts and content resources on ``mcp``.
 
     Raises:
-        ContentError: a prompt is malformed, or a declared manifest is missing.
+        ContentError: a prompt is malformed.
     """
     skill_count = _register_skills(mcp, content.package_root / "skills")
     prompt_paths = sorted(

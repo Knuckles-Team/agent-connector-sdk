@@ -33,7 +33,7 @@ Data flow: tool declaration (`eg.annotations` in `_meta`, or MCP `ToolAnnotation
 
 Types and fields. `ToolContractFacts` holds `read_only` (boolean), `side_effects` (closed set `none`, `workspace_write`, `external_write`, `network`), `arg_schema`, `schema_tokens` and `declared_by` (`connector`, `mcp_hint`, `default`). The engine and the run loop read these names. They define no second spelling.
 
-Attach point. `_tool_entry` already builds the canonical body and the annotations in one place (`tools.py:38`, `tools.py:47`). The facts builder runs there. The manifest side attaches at `write_certified_pins` (`agent_connector_sdk/certify/pins.py:111`). The generator renders `connector_manifest.yml`. No person edits that file.
+Attach point. `_tool_entry` already builds the canonical body and the annotations in one place (`tools.py:38`, `tools.py:47`). The facts builder runs there. The declaration side is `source_meta` on the read tool; the server serves it at `connector://resources`. No file holds these facts.
 
 Failure and refusal. An undeclared tool gets `read_only = false` and `side_effects = {external_write}` with `declared_by = default`. A contradictory declaration (read-only with a write effect) raises `MalformedArtifactError`. A self-declared `read_only` without a fixture yields the `unproven` verdict and no pin. A fixture that records a write yields the `read_only_violation` verdict.
 
@@ -525,14 +525,14 @@ EG supplies scaled-hosting proposals based on load and headroom premises. Arbora
 
 Every connector ships one OWL/RDF ontology pack. The pack holds the domain ontology, the ingest contract, and the connector's features, tools, prompts and skills. The engine imports it as native relationships (`EG-TYPED-PACKS-R101`, `EG-TYPED-PACKS-R102`). Selection is an engine decision over that ontology. The SDK authors the pack and does not decide.
 
-One typed `ConnectorPackDeclaration` per connector is the single source of truth. `connector_manifest.yml` and `ontology/mappings/source.yaml` are generated views of it. Call path: certification command → `ConnectorPackDeclaration` → `emit_pack_turtle` → engine `ShaclValidate` preflight → `build_connector_content_pack` (`agent_connector_sdk/artifacts/pack.py:159`) → `ConnectorPackClient` import → engine `ConnectorPack.Import`. A runtime domain ontology revision goes through the engine's `ImportOntology` operation (`EG-TYPED-PACKS-R103`).
+One typed `ConnectorPackDeclaration` per connector is the single source of truth. `ontology/mappings/source.yaml` is a generated view of it. Call path: certification command → `ConnectorPackDeclaration` → `emit_pack_turtle` → engine `ShaclValidate` preflight → `build_connector_content_pack` (`agent_connector_sdk/artifacts/pack.py:159`) → `ConnectorPackClient` import → engine `ConnectorPack.Import`. A runtime domain ontology revision goes through the engine's `ImportOntology` operation (`EG-TYPED-PACKS-R103`).
 
 Current state: the SDK compiles manifest YAML into ontology classes only (`agent_connector_sdk/manifest/ontology_pack.py:190`). Mappings, keys, cursors, access, privacy and provenance stay in YAML and JSON. The SDK keeps a separate `ac:` access vocabulary that R067.2 retires. The tool fingerprint domain at `agent_connector_sdk/manifest/tool_schema.py:31` names another package; R067.3 replaces it.
 ## SDK-CONNECTOR-CONTROL-R068 — connect-time contract resources
 
 References: [EG-TYPED-PACKS-R104](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/typed-packs-and-catalog/spec.md), [ARBORA-FLEET-R036](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SDK-CONNECTOR-CONTROL-R019, SDK-CONNECTOR-CONTROL-R067
 
-Call path: connector start -> `register_connector_content` (`content.py:163`) -> `manifest://connector`, `ontology://`, `shapes://` and `seed://` resources -> arbora multiplexer reads them on first connect.
+Call path: connector start -> `register_connector_content` (`content.py:163`) -> `connector://resources`, `ontology://`, `shapes://` and `seed://` resources -> arbora multiplexer reads them on first connect.
 
 The SDK serves the resources and notifies on change. The engine validates and stores them. arbora forwards changed resources.
 

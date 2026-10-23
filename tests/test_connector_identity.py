@@ -15,7 +15,7 @@ from agent_connector_sdk.connector_identity import (
     declared_connector_name,
 )
 from agent_connector_sdk.ingest.model import IngestBinding
-from agent_connector_sdk.mcp.content import ConnectorContent, ContentError
+from agent_connector_sdk.mcp.content import ConnectorContent
 
 pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R071")
 
@@ -66,25 +66,9 @@ def test_binding_and_content_take_the_declared_name(monkeypatch, tmp_path: Path)
     monkeypatch.setattr(
         identity, "entry_points", _points(("searxng-mcp", "searxng_mcp"))
     )
-    (tmp_path / "connector_manifest.yml").write_text(
-        "connector: searxng-mcp\n", encoding="utf-8"
-    )
     binding = IngestBinding.for_package("searxng_mcp.kg_ingest", stream="searxng")
     content = ConnectorContent.for_package("searxng_mcp", tmp_path, "1.0.0")
     assert binding.connector == content.connector == "searxng-mcp"
-    assert content.manifest_path == tmp_path / "connector_manifest.yml"
-
-
-def test_content_name_disagreeing_with_manifest_is_refused(tmp_path: Path):
-    manifest = tmp_path / "connector_manifest.yml"
-    manifest.write_text('{"connector": "searxng-mcp"}\n', encoding="utf-8")
-    with pytest.raises(ContentError, match="disagrees"):
-        ConnectorContent(
-            connector="searxng-api",
-            package_root=tmp_path,
-            package_version="1.0.0",
-            manifest_path=manifest,
-        )
 
 
 def test_uninstalled_source_checkout_reads_its_pyproject(monkeypatch, tmp_path: Path):

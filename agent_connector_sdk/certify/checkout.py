@@ -1,58 +1,26 @@
-"""A connector checkout: its sync presets and the pins certification checks."""
+"""A connector as certification sees it: its declared sync presets."""
 
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass, replace
-from pathlib import Path
+from dataclasses import dataclass
 
-from agent_connector_sdk.certify.pin_journal import (
-    _PinTransactionError,
-    _recover_pin_transaction,
+from agent_connector_sdk.manifest.declaration import (
+    ContractError,
+    contract_from_document,
 )
-from agent_connector_sdk.manifest.loader import (
-    FINGERPRINTS_FILE_NAME,
-    MANIFEST_FILE_NAME,
-    PRESETS_FILE_NAME,
-    ManifestError,
-    ToolSchemaFingerprints,
-    load_manifest,
-    load_tool_presets,
-    load_tool_schema_fingerprints,
-    validate_connector_package,
-)
-from agent_connector_sdk.manifest.model import ConnectorManifest
 from agent_connector_sdk.manifest.presets import ToolPreset
 
-__all__ = ["ConnectorCheckout", "find_connectors_dir", "load_checkout"]
+__all__ = ["ConnectorCheckout", "checkout_from_resources"]
 
 
 @dataclass(frozen=True)
 class ConnectorCheckout:
-    """The certification view of one connector package.
+    """The connector's name, its MCP server name and its declared presets."""
 
-    ``tool_pins`` are the ``tool_schema_fingerprints.json`` entries;
-    ``manifest_pins`` map each manifest ``sync`` preset to its
-    ``tool_schema_sha256`` (``""`` when unset).
-    """
-
-    root: Path
-    connectors_dir: Path
     connector: str
     server: str
     presets: Mapping[str, ToolPreset]
-    tool_pins: Mapping[str, str]
-    manifest_pins: Mapping[str, str]
-
-    @property
-    def manifest_path(self) -> Path:
-        """``<root>/connector_manifest.yml``."""
-        return self.root / MANIFEST_FILE_NAME
-
-    @property
-    def fingerprints_path(self) -> Path:
-        """``<connectors_dir>/tool_schema_fingerprints.json``."""
-        return self.connectors_dir / FINGERPRINTS_FILE_NAME
 
     @property
     def tools(self) -> tuple[str, ...]:
@@ -66,86 +34,25 @@ class ConnectorCheckout:
         )
 
 
-def find_connectors_dir(root: Path) -> Path:
-    """``<root>/connectors``, else the one ``<root>/*/connectors`` holding presets.
+def checkout_from_resources(text: str) -> ConnectorCheckout:
+    """The checkout described by a ``connector://resources`` body.
 
     Raises:
-        ManifestError: the checkout has no presets, or more than one set.
+        ContractError: the body is invalid, declares no preset, or its presets
+            do not name exactly one MCP server.
     """
-    direct = root / "connectors"
-    if (direct / PRESETS_FILE_NAME).is_file():
-        return direct
-    found = sorted(root.glob(f"*/connectors/{PRESETS_FILE_NAME}"))
-    if len(found) != 1:
-        raise ManifestError(
-            f"a connector checkout needs exactly one connectors/{PRESETS_FILE_NAME}; "
-            f"found {len(found)}"
-        )
-    return found[0].parent
-
-
-def _recover_pin_files(root: Path, directory: Path) -> None:
-    try:
-        _recover_pin_transaction(
-            root / MANIFEST_FILE_NAME, directory / FINGERPRINTS_FILE_NAME
-        )
-    except _PinTransactionError as exc:
-        raise ManifestError("an interrupted pin update could not be recovered") from exc
-
-
-def _load_fingerprints(
-    manifest_connector: str, directory: Path
-) -> ToolSchemaFingerprints:
-    path = directory / FINGERPRINTS_FILE_NAME
-    if path.is_file():
-        return load_tool_schema_fingerprints(path)
-    return ToolSchemaFingerprints(connector=manifest_connector, algorithm="", tools={})
-
-
-def _validate_identity(
-    manifest: ConnectorManifest,
-    presets: dict[str, ToolPreset],
-    fingerprints: ToolSchemaFingerprints,
-) -> None:
-    violations = validate_connector_package(
-        manifest, presets, fingerprints, allow_pin_migration=True
-    )
-    if violations:
-        raise ManifestError("; ".join(violations))
-
-
-def load_checkout(root: Path, *, repair_connector: bool = False) -> ConnectorCheckout:
-    """Load a connector checkout for certification.
-
-    ``repair_connector`` (``connector-certify --write``) takes the connector
-    name from the manifest when the fingerprints still carry an older name,
-    so a rename regenerates the fingerprints instead of refusing the checkout.
-
-    Raises:
-        ManifestError: a package file is missing or malformed, or the presets do
-            not name exactly one MCP server.
-    """
-    directory = find_connectors_dir(root)
-    _recover_pin_files(root, directory)
-    manifest = load_manifest(root / MANIFEST_FILE_NAME)
-    presets = load_tool_presets(directory / PRESETS_FILE_NAME)
+    contract = contract_from_document(text)
+    if contract is None:
+        raise ContractError("the server declares no sync preset")
+    presets = {
+        spec.preset: ToolPreset.from_mapping(spec.preset, dict(spec.raw))
+        for spec in contract.sync
+    }
     servers = {preset.server for preset in presets.values()}
     if len(servers) != 1:
-        raise ManifestError(
+        raise ContractError(
             "the presets of one connector must name exactly one MCP server"
         )
-    fingerprints = _load_fingerprints(manifest.connector, directory)
-    if repair_connector and fingerprints.connector != manifest.connector:
-        fingerprints = replace(fingerprints, connector=manifest.connector)
-    _validate_identity(manifest, presets, fingerprints)
     return ConnectorCheckout(
-        root=root,
-        connectors_dir=directory,
-        connector=manifest.connector,
-        server=servers.pop(),
-        presets=presets,
-        tool_pins=dict(fingerprints.tools),
-        manifest_pins={
-            entry.preset: entry.tool_schema_sha256 or "" for entry in manifest.sync
-        },
+        connector=contract.connector, server=servers.pop(), presets=presets
     )

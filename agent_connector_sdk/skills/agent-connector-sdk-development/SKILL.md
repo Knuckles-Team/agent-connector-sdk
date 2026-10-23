@@ -116,9 +116,8 @@ Specs are already designed. The work is implementation, delivered in very small,
   `ActivationPolicy` (e.g. `CertifiedExtensions`) authorizes the exact
   `(group, name, distribution, version)` tuple — there is no permissive
   default. `connector-certify` (`agent_connector_sdk.certify.cli:main`) is the
-  separate console script that compares a running connector's live tool
-  fingerprints against its pinned manifest (`--check`) or writes new pins
-  (`--write`).
+  separate console script that checks a running connector's declared sync tools
+  against their live definitions.
 - **Public surface contract** (`pyproject.toml`
   `[tool.agent_connector_sdk.wiring] public_modules`): the declared roots for
   this repository's own wiring gate. A module is reachable when it is in that
@@ -128,8 +127,9 @@ Specs are already designed. The work is implementation, delivered in very small,
 
 ## How to build a connector with it
 
-1. Write the connector's manifest against `agent_connector_sdk.manifest.model`
-   (`ConnectorManifest` and its nested specs).
+1. Declare each ingestible source with `source_meta(...)` on its read tool
+   (`agent_connector_sdk.ingest.live_declaration`); the server serves them at
+   `connector://resources`.
 2. Implement the typed port(s) the connector needs (`SourceAdapter`,
    `ArtifactKind`, `Transport`, `Sink`, `WriteBackPort`, ...) from
    `agent_connector_sdk/ports/`.
@@ -144,9 +144,9 @@ Specs are already designed. The work is implementation, delivered in very small,
    `writeback` (dry-run, optimistic conflict, authorization, idempotency,
    uncertain-outcome reconciliation) — assert with
    `agent_connector_sdk.testing.results.assert_conformant`.
-5. Run `connector-certify PACKAGE --check -- COMMAND [ARG ...]` against the
-   connector's own MCP server to confirm its live tool fingerprints match its
-   pinned manifest before it is certified for activation.
+5. Run `connector-certify -- COMMAND [ARG ...]` against the connector's own MCP
+   server to confirm its declared sync tools are valid before it is certified
+   for activation.
 
 ## How to test it
 

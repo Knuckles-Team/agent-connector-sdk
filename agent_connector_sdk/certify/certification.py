@@ -1,4 +1,4 @@
-"""Certify one connector checkout against its live MCP server."""
+"""Certify one connector against its live MCP server."""
 
 from __future__ import annotations
 
@@ -6,9 +6,10 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from agent_connector_sdk.certify.checkout import ConnectorCheckout
+from agent_connector_sdk.certify.checkout import checkout_from_resources
 from agent_connector_sdk.certify.listing import ToolListingError, list_server_tools
-from agent_connector_sdk.certify.verdicts import PinStatus, ToolVerdict, tool_verdicts
+from agent_connector_sdk.certify.verdicts import ToolStatus, ToolVerdict, tool_verdicts
+from agent_connector_sdk.manifest.declaration import ContractError
 from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.ports.transport import Transport
 
@@ -40,15 +41,15 @@ class CertificationReport:
 
     @property
     def passed(self) -> bool:
-        """Whether every preset tool is listed and every pin matches."""
+        """Whether every declared preset tool is listed and valid."""
         return (
             self.listed
             and bool(self.verdicts)
-            and all(verdict.status is PinStatus.MATCH for verdict in self.verdicts)
+            and all(verdict.status is ToolStatus.CERTIFIED for verdict in self.verdicts)
         )
 
     def document(self) -> dict[str, Any]:
-        """A JSON-compatible rendering (pins and fingerprints only, no endpoints)."""
+        """A JSON-compatible rendering (fingerprints only, no endpoints)."""
         return {
             "connector": self.connector,
             "server": self.server,
@@ -63,7 +64,6 @@ class CertificationReport:
                     "presets": list(verdict.presets),
                     "status": verdict.status.value,
                     "live": verdict.live,
-                    "pins": dict(verdict.pins),
                     "output_schema_sha256": verdict.output_schema_sha256,
                     "defect": verdict.defect,
                 }
@@ -73,22 +73,22 @@ class CertificationReport:
 
 
 async def certify_connector(
-    checkout: ConnectorCheckout,
     transport: Transport,
     endpoint: TransportEndpoint,
     *,
     timeout_seconds: float,
 ) -> CertificationReport:
-    """List the server's tools and compare every preset tool's pins."""
+    """List the server's tools and declaration; check every preset tool live."""
     try:
         listing = await list_server_tools(
             transport, endpoint, timeout_seconds=timeout_seconds
         )
-    except ToolListingError as exc:
-        _logger.warning("connector %s: %s", checkout.connector, exc)
+        checkout = checkout_from_resources(listing.resources)
+    except (ToolListingError, ContractError) as exc:
+        _logger.warning("connector certification failed: %s", exc)
         return CertificationReport(
-            connector=checkout.connector,
-            server=checkout.server,
+            connector="",
+            server="",
             listed=False,
             reason=f"{exc}; {UNLISTED_DEFECT}",
         )

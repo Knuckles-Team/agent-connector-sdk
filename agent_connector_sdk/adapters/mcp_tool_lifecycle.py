@@ -170,9 +170,7 @@ def _record_mapping(
     if configured.startswith(prefix):
         return configured
     if configured != f"manifest:{connector}":
-        raise SourceContractError(
-            "mapping_reference is not an exact Connector Manifest mapping"
-        )
+        raise SourceContractError("mapping_reference is not an exact declared mapping")
     key = (
         next(iter(mappings))
         if len(mappings) == 1

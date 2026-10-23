@@ -578,7 +578,7 @@ Budget: 5 MiB default `max_bytes` and 1 request per second per domain. These are
 
 ## Declared connector sources (SDK-SOURCE-INGEST-R004.19 through R004.24)
 
-A connector declares each ingestible source in `<package>/ontology/ingest_sources.json`. The SDK validates the file as `IngestSourceDeclaration`. `register_tool_surface` serves it as the read-only tool `<prefix>_ingest_sources`. A host reads the declarations through that tool. The host needs no engine listing method.
+A connector declares each ingestible source with `source_meta` on its read tool. The SDK assembles `IngestSourceDeclaration`. `register_tool_surface` serves it as the resource `connector://resources`. A host reads the declarations through that resource. The host needs no engine listing method.
 
 Call path: host → `SourceSyncRunner.sync` → `McpSession.call_tool` for each declared tool → record mapping → `KnowledgeIngest.submit` (`agent_connector_sdk/ingest/service.py`) → engine `SourceIngest`. After each accepted batch, the runner writes the checkpoint through `KvSourceCheckpoints`.
 

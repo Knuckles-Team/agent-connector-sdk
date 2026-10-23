@@ -9,7 +9,7 @@ import pytest
 import yaml
 from fleet_fixtures import FRESHRSS_READING_LIST
 from pydantic import ValidationError
-from runner_support import freshrss_descriptor
+from runner_support import DeclaredSession, freshrss_descriptor
 
 from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
 from agent_connector_sdk.ports.change_source import ChangeEvent
@@ -41,7 +41,6 @@ from agent_connector_sdk.runner.static_registry import (
 def _connector(**endpoint: Any) -> dict[str, Any]:
     return {
         "connector": "freshrss-agent",
-        "package_root": "packages/freshrss-agent",
         "endpoint": endpoint or {"url": "https://freshrss.example.invalid/mcp"},
     }
 
@@ -60,7 +59,6 @@ async def test_config_anchors_paths_and_lists_connectors(tmp_path: Path) -> None
     assert isinstance(loaded, RunnerConfig)
     assert isinstance(loaded.settings, RunnerSettings)
     (descriptor,) = loaded.connectors
-    assert descriptor.package_root == tmp_path.resolve() / "packages/freshrss-agent"
     assert descriptor.resolved_mapping_reference == "manifest:freshrss-agent"
     registry = StaticConfigRegistry(config)
     assert isinstance(registry, ConnectorRegistry)
@@ -120,20 +118,23 @@ def test_credential_endpoints_resolve_or_refuse(
         factory(descriptor)
 
 
-def test_load_sync_adapters_fails_closed(tmp_path: Path) -> None:
-    assert list(load_sync_adapters(freshrss_descriptor())) == ["freshrss"]
-    exact = "manifest:freshrss-agent#schema_mappings/news_article"
-    assert list(load_sync_adapters(freshrss_descriptor(mapping_reference=exact))) == [
+async def test_load_sync_adapters_fails_closed() -> None:
+    session: Any = DeclaredSession()
+    assert list(await load_sync_adapters(freshrss_descriptor(), session)) == [
         "freshrss"
     ]
+    exact = "manifest:freshrss-agent#schema_mappings/news_article"
+    adapters = await load_sync_adapters(
+        freshrss_descriptor(mapping_reference=exact), session
+    )
+    assert list(adapters) == ["freshrss"]
     for overrides, message in (
-        ({"presets": ("missing",)}, "not in the manifest"),
+        ({"presets": ("missing",)}, "is not declared"),
         ({"data_resources": {"data://x": ("other",)}}, "is not selected"),
-        ({"connector": "archivebox-api", "data_resources": {}}, "is connector"),
-        ({"package_root": tmp_path}, "unreadable"),
+        ({"connector": "archivebox-api", "data_resources": {}}, "declares connector"),
         (
             {"mapping_reference": ("manifest:freshrss-agent#schema_mappings/missing")},
-            "does not name a manifest mapping",
+            "does not name a declared mapping",
         ),
         (
             {"mapping_reference": "manifest:other#schema_mappings/news_article"},
@@ -145,7 +146,7 @@ def test_load_sync_adapters_fails_closed(tmp_path: Path) -> None:
         ),
     ):
         with pytest.raises(RunnerConfigurationError, match=message):
-            load_sync_adapters(freshrss_descriptor(**overrides))
+            await load_sync_adapters(freshrss_descriptor(**overrides), session)
 
 
 def test_cycle_plans() -> None:

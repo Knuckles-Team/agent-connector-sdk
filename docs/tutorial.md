@@ -95,7 +95,6 @@ only with the SDK's authentication, TLS-boundary, and allowed-host policies.
 A production connector can publish content beside its server:
 
 - `demo_connector/`
-    - `connector_manifest.yml`
     - `ontology/`
         - `demo.ttl`
         - `shapes/demo-shapes.ttl`
@@ -109,15 +108,14 @@ file is missing or malformed.
 ## 5. Certify the tool contract
 
 Connector sync pins the live input and output schemas returned by `tools/list`.
-Once the project has its manifest and presets, certify the running server:
+Once the read tools declare their sources, certify the running server:
 
 ```bash
-connector-certify . --check \
+connector-certify \
   -- uv run python connector.py --transport stdio
 ```
 
-Certification lists tools without invoking them or reaching the vendor API. Use
-`--write` only when intentionally refreshing reviewed fingerprint files.
+Certification lists tools without invoking them or reaching the vendor API.
 
 ## 6. Join the source lifecycle
 

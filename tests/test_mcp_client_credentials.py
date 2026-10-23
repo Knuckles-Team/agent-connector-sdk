@@ -116,9 +116,7 @@ def _descriptor(
     tmp_path: Path, url: str, config: ClientCredentialsConfig
 ) -> ConnectorDescriptor:
     spec = EndpointSpec(url=url, client_credentials=config)
-    return ConnectorDescriptor(
-        connector="fleet-fixture", package_root=tmp_path, endpoint=spec
-    )
+    return ConnectorDescriptor(connector="fleet-fixture", endpoint=spec)
 
 
 async def _tool_names(endpoint: TransportEndpoint) -> list[str]:

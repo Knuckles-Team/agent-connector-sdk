@@ -1,4 +1,4 @@
-"""Declarative ``mcp_tool`` sync presets (``mcp_source_presets.json``).
+"""Declarative `mcp_tool` sync presets (the `preset` of `source_meta`).
 
 A preset names the MCP tool a source is extracted through, how its arguments
 are assembled, where records live in the result, and how the result paginates.

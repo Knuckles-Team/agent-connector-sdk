@@ -1,9 +1,0 @@
-{
-  "_comment": "Test-only post-migration target. The real 2026-09-13 server still exposes a free-string action and certification refuses it.",
-  "algorithm": "agent-connector-sdk:mcp-tool-contract-compat:v2",
-  "connector": "archivebox-api",
-  "schema_version": "1",
-  "tools": {
-    "archivebox_core": "f86ef345d867f55d1a343f684357291f80a1071bccdef5bde8ff859fea3dcc8d"
-  }
-}

@@ -1,6 +1,6 @@
 """List a connector server's tools through the ``Transport`` port, bounded in time.
 
-Certification opens a session and calls ``tools/list`` only: it never calls a
+Certification opens a session, calls ``tools/list`` and reads ``connector://resources``: it never calls a
 tool, so it never reaches the connector's upstream API.
 """
 
@@ -12,6 +12,7 @@ from typing import Any
 
 import anyio
 
+from agent_connector_sdk.artifacts.resource_descriptor import RESOURCES_URI
 from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.ports.transport import Transport
 
@@ -24,18 +25,20 @@ class ToolListingError(RuntimeError):
 
 @dataclass(frozen=True)
 class ToolListing:
-    """What a server reported: its identity and its client-visible tools."""
+    """What a server reported: its identity, its tools and its declaration."""
 
     server_name: str
     server_version: str
     tools: tuple[Any, ...]
+    resources: str = ""
 
 
 async def _listing(transport: Transport, endpoint: TransportEndpoint) -> ToolListing:
     async with transport.session(endpoint) as session:
         identity = await session.server_identity()
         tools = await session.list_tools()
-    return ToolListing(identity.name, identity.version, tuple(tools))
+        resources = await session.read_resource(RESOURCES_URI)
+    return ToolListing(identity.name, identity.version, tuple(tools), resources)
 
 
 def _bounded_timeout(timeout_seconds: float) -> float:

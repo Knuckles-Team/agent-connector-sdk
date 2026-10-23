@@ -10,8 +10,8 @@ entry point of the ``agent_connector_sdk.connector`` group::
 
 The entry-point name is the fleet name; the value is the connector's
 top-level package. :class:`~agent_connector_sdk.mcp.content.ConnectorContent`,
-:class:`~agent_connector_sdk.ingest.model.IngestBinding` and the generated
-``connector_manifest.yml`` all resolve the name from here, so a connector
+:class:`~agent_connector_sdk.ingest.model.IngestBinding` and the served
+``connector://resources`` declaration all resolve the name from here, so a connector
 passes no name literal of its own.
 """
 
@@ -98,8 +98,8 @@ def declared_connector_name(pyproject: Path) -> str | None:
     """Return the fleet name a ``pyproject.toml`` declares, without installing it.
 
     Returns ``None`` when the file declares no connector entry point; raises
-    :class:`ConnectorIdentityError` when it declares more than one. Manifest
-    generators and the pipelines name gate read the identity through this.
+    :class:`ConnectorIdentityError` when it declares more than one. Gate
+    tools and the pipelines name gate read the identity through this.
     """
     document = tomllib.loads(pyproject.read_text(encoding="utf-8"))
     group = (

@@ -16,7 +16,6 @@ from __future__ import annotations
 import json
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 from agent_connector_sdk._contract_fields import ACCESS_KINDS, PAGINATION_MODES
@@ -26,21 +25,17 @@ from agent_connector_sdk.credentials.references import (
 )
 
 __all__ = [
-    "DECLARATION_FILE",
     "RESOURCES_URI",
     "FieldBinding",
     "ResourceDeclarationError",
     "ResourceDescriptor",
     "check_declarations",
-    "load_declarations",
     "merge_declarations",
     "render_resources_document",
 ]
 
 #: The served resource that lists every data-resource descriptor.
-RESOURCES_URI = "manifest://connector/resources"
-#: The connector's own declarations, relative to its package root.
-DECLARATION_FILE = "data_resources.json"
+RESOURCES_URI = "connector://resources"
 
 _REQUIRED = ("name", "ontology_class", "operation", "key_field", "pagination")
 
@@ -183,29 +178,6 @@ def check_declarations(
         refusal = _validate(checked, classes)
         if refusal is not None:
             raise refusal
-
-
-def load_declarations(package_root: Path) -> list[dict[str, Any]]:
-    """The connector's own declarations (``data_resources.json``), or none.
-
-    Raises:
-        ResourceDeclarationError: the file is not a JSON list under ``resources``.
-    """
-    path = package_root / DECLARATION_FILE
-    if not path.is_file():
-        return []
-    try:
-        document = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise ResourceDeclarationError(
-            "DECLARATION_UNREADABLE", f"{DECLARATION_FILE} is not readable JSON"
-        ) from exc
-    entries = document.get("resources") if isinstance(document, dict) else None
-    if not isinstance(entries, list) or not all(isinstance(e, dict) for e in entries):
-        raise ResourceDeclarationError(
-            "DECLARATION_UNREADABLE", f"{DECLARATION_FILE} needs a resources list"
-        )
-    return entries
 
 
 def _declared(

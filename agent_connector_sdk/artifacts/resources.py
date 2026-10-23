@@ -1,4 +1,4 @@
-"""The ``resource`` artifact kind: ontologies, shapes, manifest, profiles, A2A cards.
+"""The ``resource`` artifact kind: ontologies, shapes, profiles, A2A cards.
 
 Only generated ConnectorPack resource schemes are accepted; an unknown scheme
 is rejected, never guessed.
@@ -6,22 +6,16 @@ is rejected, never guessed.
 
 from __future__ import annotations
 
-import yaml
-from pydantic import ValidationError
-
 from agent_connector_sdk.artifacts.annotations import _annotations_from_mcp
 from agent_connector_sdk.artifacts.common import json_object, mime_type, require_kind
 from agent_connector_sdk.artifacts.resource_descriptor import RESOURCES_URI
 from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
-from agent_connector_sdk.manifest.model import ConnectorManifest
 from agent_connector_sdk.ports.errors import MalformedArtifactError
 from agent_connector_sdk.ports.session import McpSession
 
 __all__ = ["ResourceArtifactKind"]
 
-_RESOURCE_SCHEMES = frozenset(
-    {"ontology", "shapes", "manifest", "model-profile", "a2a-card"}
-)
+_RESOURCE_SCHEMES = frozenset({"ontology", "shapes", "model-profile", "a2a-card"})
 
 
 def _scheme(uri: str) -> str:
@@ -32,13 +26,6 @@ def _scheme(uri: str) -> str:
 def _validate_body(entry: CapturedArtifact, scheme: str) -> None:
     if entry.uri == RESOURCES_URI:
         json_object(entry)
-    elif scheme == "manifest":
-        try:
-            ConnectorManifest.model_validate(yaml.safe_load(entry.body))
-        except (yaml.YAMLError, ValidationError) as exc:
-            raise MalformedArtifactError(
-                f"{entry.uri} is not a valid manifest"
-            ) from exc
     if scheme in {"a2a-card", "model-profile"}:
         json_object(entry)
 
@@ -74,7 +61,9 @@ class ResourceArtifactKind:
         """Known scheme, non-empty body, and a body that parses for its kind."""
         require_kind(entry, self.kind)
         scheme = _scheme(entry.uri)
-        if scheme not in _RESOURCE_SCHEMES or not entry.body.strip():
+        if (
+            scheme not in _RESOURCE_SCHEMES and entry.uri != RESOURCES_URI
+        ) or not entry.body.strip():
             raise MalformedArtifactError(
                 f"{entry.uri} has an unknown scheme or empty body"
             )
