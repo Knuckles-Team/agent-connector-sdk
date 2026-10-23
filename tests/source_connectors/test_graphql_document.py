@@ -280,6 +280,7 @@ def _with(path: tuple[str, ...], value: Any) -> dict[str, Any]:
 QUERY = ("operations", "entity_document", "query")
 
 
+# spec: SDK-SOURCE-INGEST-R901.4
 @pytest.mark.parametrize(
     ("profile", "payload", "match"),
     [
@@ -320,6 +321,7 @@ def test_unsafe_profiles_and_upstream_errors_are_refused(
         list(_connector(profile, _Transport(payload)).load())
 
 
+# spec: SDK-SOURCE-INGEST-R901.6
 def test_hierarchy_poll_emits_governed_entities_and_is_idempotent() -> None:
     transport = _Transport(*_pages())
     connector = _connector(HIERARCHY_PROFILE, transport)
@@ -350,6 +352,7 @@ def test_hierarchy_poll_emits_governed_entities_and_is_idempotent() -> None:
     assert connector.last_envelopes == []
 
 
+# spec: SDK-SOURCE-INGEST-R901.2
 def test_authoritative_snapshot_withdraws_a_removed_record_once() -> None:
     pages = _pages()
     connector = _connector(HIERARCHY_PROFILE, _Transport(*pages))

@@ -24,6 +24,7 @@ HOSTILE = [
 ]
 
 
+# spec: SDK-CONNECTOR-CONTROL-R901.4
 @pytest.mark.parametrize("name", HOSTILE)
 @pytest.mark.parametrize("check", [validate_identifier, validate_sql_identifier])
 def test_hostile_names_are_refused_without_echo(check, name: object) -> None:

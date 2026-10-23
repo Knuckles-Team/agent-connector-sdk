@@ -36,6 +36,7 @@ def test_rows_become_private_documents(sqlite_dsn: str) -> None:
     assert all(d.external_access.is_public is False for d in docs)
 
 
+# spec: SDK-SOURCE-INGEST-R900.6
 def test_poll_advances_the_watermark_and_is_idempotent(sqlite_dsn: str) -> None:
     source = _source(sqlite_dsn)
     first = source.poll(ConnectorCheckpoint(watermark="1"))
@@ -44,6 +45,7 @@ def test_poll_advances_the_watermark_and_is_idempotent(sqlite_dsn: str) -> None:
     assert source.poll(first.checkpoint).documents == []
 
 
+# spec: SDK-SOURCE-INGEST-R900.4
 @pytest.mark.parametrize(
     ("config", "error"),
     [
