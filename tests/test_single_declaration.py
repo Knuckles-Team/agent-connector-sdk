@@ -82,6 +82,7 @@ class _LiveSession:
 
 
 # spec: SDK-CONNECTOR-CONTROL-R075
+# spec: SDK-CONNECTOR-CONTROL-R075.1
 # spec: SDK-CONNECTOR-CONTROL-R075.2
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.3")
 def test_server_serves_declaration_live_and_runner_reads_only_that() -> None:
