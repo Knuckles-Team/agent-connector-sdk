@@ -70,16 +70,24 @@
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R004",
       "title": "Pagination helpers",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e8aa3af68acd"
+      ],
+      "verified_by": [
+        "tests/httpsupport/test_pagination_next_url.py:15"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R005",
       "title": "Rate-limit telemetry and concurrency",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "edbdeb13389e"
+      ],
+      "verified_by": [
+        "tests/httpsupport/test_rate_limiter.py:13"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R006",
@@ -217,9 +225,13 @@
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R025",
       "title": "Embedding client",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "edbdeb13389e"
+      ],
+      "verified_by": [
+        "tests/test_centralized_extras.py:36"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R026",
@@ -322,9 +334,14 @@
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R040",
       "title": "Optional dependencies come from SDK extras",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "edbdeb13389e"
+      ],
+      "verified_by": [
+        "tests/test_centralized_extras.py:27",
+        "tests/test_centralized_extras.py:37"
+      ]
     }
   ]
 }
