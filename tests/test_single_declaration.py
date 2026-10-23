@@ -165,6 +165,7 @@ class _Transport:
         return McpTransport().session(TransportEndpoint(in_process=self._mcp))
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.11")
 def test_certify_reads_the_declaration_and_checks_tools_live() -> None:
     async def run() -> None:
         report = await certify_connector(
@@ -179,6 +180,7 @@ def test_certify_reads_the_declaration_and_checks_tools_live() -> None:
     anyio.run(run)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R072")
 def test_checkout_names_exactly_one_server() -> None:
     declaration = build_declaration("demo-mcp", registered_tools(_server()).values())
     checkout = checkout_from_resources(declaration.model_dump_json())
