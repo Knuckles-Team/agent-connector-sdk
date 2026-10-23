@@ -39,6 +39,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
+from agent_connector_sdk.ingest.for_each import ForEach
 from agent_connector_sdk.schema_drift import EvolutionPolicy
 
 __all__ = ["ToolPreset"]
@@ -92,6 +93,7 @@ _EXTRACTION_KEYS = frozenset(
         "evolution_policy",
         "content_fields",
         "metadata_fields",
+        "for_each",
     }
 )
 
@@ -157,6 +159,7 @@ class ToolPreset(BaseModel):
     content_fields: tuple[str, ...] = ()
     metadata_fields: tuple[str, ...] = ()
     mapping_hints: dict[str, JsonValue] = Field(default_factory=dict)
+    for_each: ForEach | None = None
 
     @model_validator(mode="before")
     @classmethod

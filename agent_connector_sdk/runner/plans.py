@@ -160,6 +160,7 @@ def _build_sync_adapters(
             mapping_reference=descriptor.resolved_mapping_reference,
             schema_mappings=manifest.schema_mappings,
             resources=manifest.resources,
+            parents=specs,
         )
         for name in selected
     }

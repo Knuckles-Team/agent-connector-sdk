@@ -199,6 +199,7 @@ The modules are `tests/test_source_sync.py` and `tests/test_source_sync_served.p
 | `SDK-SOURCE-INGEST-R004.23` | Evidence | `tests/test_source_sync.py::test_report_binds_receipts` compares report batch digests with the engine receipts. |
 | `SDK-SOURCE-INGEST-R004.24` | Hot-path proof | The test observes the engine refusal, the failed KV checkpoint and zero written nodes. |
 | `SDK-SOURCE-INGEST-R004.25` | Pack mapping | A connector test resolves each declared record type in its manifest `schema_mappings`. |
+| `SDK-SOURCE-INGEST-R004.28` | Per-parent fan-out | `tests/test_for_each.py::test_child_runs_once_per_parent_record`, `::test_missing_parent_and_cycle_are_typed_refusals`, `::test_fan_out_is_capped`, `::test_for_each_is_in_the_served_schema`, `::test_preset_adapter_fans_out_and_pages_each_parent` and `::test_preset_adapter_refuses_unknown_parent`. |
 
 <!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
 ## Supported-harness session synchronization (WEBUI:3)

@@ -68,6 +68,8 @@ def _raw_preset(source: IngestSourceSpec, connector: str) -> dict[str, Any]:
     ):
         if name in set_fields:
             raw[renamed.get(name, name)] = getattr(source, name)
+    if source.for_each is not None:
+        raw["for_each"] = source.for_each.model_dump()
     raw.update(source.preset or {})
     return {key: value for key, value in raw.items() if value is not None}
 
