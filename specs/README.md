@@ -55,6 +55,7 @@ bootstrap skill, together with the [SDD full lifecycle](https://github.com/Knuck
 
 ## Local specifications
 
+- [`SDK-CENTRALIZED-CAPABILITIES`](centralized-capabilities/spec.md) — index of every capability connectors take from the SDK.
 - [`SDK-CONNECTOR-CONTROL`](SDK-CONNECTOR-CONTROL/spec.md) — connector control and certification.
 - [`SDK-FINANCE-SOURCES`](SDK-FINANCE-SOURCES/spec.md) — finance source contracts.
 - [`SDK-GOVERNED-WRITEBACK`](SDK-GOVERNED-WRITEBACK/spec.md) — governed effects and write-back.
