@@ -2238,8 +2238,8 @@
       "verified_by": [
         "tests/httpsupport/test_httpsupport.py:27",
         "tests/httpsupport/test_pagination.py:17",
-        "tests/test_connector_runtime_adds.py:49",
-        "tests/test_connector_runtime_adds.py:78"
+        "tests/test_connector_runtime_adds.py:50",
+        "tests/test_connector_runtime_adds.py:79"
       ]
     },
     {
@@ -2250,7 +2250,7 @@
         "afc686a65836"
       ],
       "verified_by": [
-        "tests/test_connector_runtime_adds.py:128"
+        "tests/test_connector_runtime_adds.py:129"
       ]
     },
     {
@@ -2261,7 +2261,7 @@
         "afc686a65836"
       ],
       "verified_by": [
-        "tests/test_connector_runtime_adds.py:178"
+        "tests/test_connector_runtime_adds.py:179"
       ]
     },
     {
@@ -2272,7 +2272,7 @@
         "afc686a65836"
       ],
       "verified_by": [
-        "tests/test_connector_runtime_adds.py:204"
+        "tests/test_connector_runtime_adds.py:205"
       ]
     },
     {
@@ -2283,7 +2283,7 @@
         "afc686a65836"
       ],
       "verified_by": [
-        "tests/test_connector_runtime_adds.py:221"
+        "tests/test_connector_runtime_adds.py:222"
       ]
     },
     {
@@ -2408,16 +2408,18 @@
         "eb0b3b299f31"
       ],
       "verified_by": [
-        "tests/test_connector_runtime_adds.py:268"
+        "tests/test_connector_runtime_adds.py:269"
       ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.26",
       "title": "Server parser settings are never drift",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "682810f22bdd"
+      ],
       "verified_by": [
-        "tests/test_connector_runtime_adds.py:285"
+        "tests/test_connector_runtime_adds.py:286"
       ]
     },
     {
