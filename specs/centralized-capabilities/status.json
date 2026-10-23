@@ -72,7 +72,7 @@
       "title": "Pagination helpers",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "e8aa3af68acd"
+        "c842d089626d"
       ],
       "verified_by": [
         "tests/httpsupport/test_pagination_next_url.py:15"
@@ -83,7 +83,7 @@
       "title": "Rate-limit telemetry and concurrency",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "edbdeb13389e"
+        "fb85cad4b0ba"
       ],
       "verified_by": [
         "tests/httpsupport/test_rate_limiter.py:13"
@@ -227,7 +227,7 @@
       "title": "Embedding client",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "edbdeb13389e"
+        "fb85cad4b0ba"
       ],
       "verified_by": [
         "tests/test_centralized_extras.py:36"
@@ -336,7 +336,7 @@
       "title": "Optional dependencies come from SDK extras",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "edbdeb13389e"
+        "fb85cad4b0ba"
       ],
       "verified_by": [
         "tests/test_centralized_extras.py:27",
