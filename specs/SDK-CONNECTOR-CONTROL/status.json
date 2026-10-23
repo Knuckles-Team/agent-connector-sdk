@@ -1169,7 +1169,7 @@
       "title": "Certify checks the live declared tools and writes no file",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "c4394740073f"
+        "92d09c57796b"
       ],
       "verified_by": [
         "tests/test_single_declaration.py:169"
@@ -2972,7 +2972,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "85fafc5b02ad",
-        "c4394740073f"
+        "92d09c57796b"
       ],
       "verified_by": [
         "tests/test_single_declaration.py:184"
@@ -3065,8 +3065,8 @@
       "title": "The connector's MCP server is the only place its metadata is read from (rollup)",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "39713ec21ea9",
-        "3e3c1cf8c020"
+        "0d150cf96fd8",
+        "f0b9e7f4f535"
       ],
       "verified_by": [
         "tests/test_single_declaration.py:102",
@@ -3088,8 +3088,8 @@
       "title": "No file fallback",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "39713ec21ea9",
-        "3e3c1cf8c020"
+        "0d150cf96fd8",
+        "f0b9e7f4f535"
       ],
       "verified_by": [
         "tests/test_single_declaration.py:85"
@@ -3100,7 +3100,7 @@
       "title": "Data sources are declared in code and served live",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "39713ec21ea9"
+        "f0b9e7f4f535"
       ],
       "verified_by": [
         "tests/test_single_declaration.py:86"
@@ -3111,7 +3111,7 @@
       "title": "The runner and certification read the live declaration",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "39713ec21ea9"
+        "f0b9e7f4f535"
       ],
       "verified_by": [
         "tests/test_single_declaration.py:102",
@@ -3124,7 +3124,7 @@
       "title": "Prompts serve their own directive and carry their metadata over native MCP",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "39713ec21ea9"
+        "f0b9e7f4f535"
       ],
       "verified_by": [
         "tests/test_single_declaration.py:192"
@@ -3135,7 +3135,7 @@
       "title": "Skills, ontology and shapes stay on fastmcp",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "39713ec21ea9"
+        "f0b9e7f4f535"
       ],
       "verified_by": [
         "tests/test_single_declaration.py:230"
