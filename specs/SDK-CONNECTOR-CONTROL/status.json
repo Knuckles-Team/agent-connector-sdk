@@ -34,6 +34,7 @@
     "SDK-CONNECTOR-CONTROL-R020.1",
     "SDK-CONNECTOR-CONTROL-R020.2",
     "SDK-CONNECTOR-CONTROL-R020.3",
+    "SDK-CONNECTOR-CONTROL-R020.5",
     "SDK-CONNECTOR-CONTROL-R020.4",
     "SDK-CONNECTOR-CONTROL-R026",
     "SDK-CONNECTOR-CONTROL-R027",
@@ -604,6 +605,7 @@
         "SDK-CONNECTOR-CONTROL-R020.1",
         "SDK-CONNECTOR-CONTROL-R020.2",
         "SDK-CONNECTOR-CONTROL-R020.3",
+        "SDK-CONNECTOR-CONTROL-R020.5",
         "SDK-CONNECTOR-CONTROL-R020.4"
       ]
     },
@@ -709,6 +711,20 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R020.5",
+      "title": "A split tool inherits its parent's risk class and never gains read-only by inheritance",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "61646340337b"
+      ],
+      "verified_by": [
+        "tests/test_action_split.py:113",
+        "tests/test_action_split.py:63",
+        "tests/test_action_split.py:79",
+        "tests/test_action_split.py:93"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R020.4",
