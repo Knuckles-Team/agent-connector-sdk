@@ -35,5 +35,4 @@ Non-goals: new modules, new extras, and a fleet-wide scan. The SDK declares no v
 
 ## Open questions
 
-- Whether pipelines should add a gate that runs the SDK scans across the connector fleet.
 - Whether the SDK should add a `vector` extra for the vector-store clients that the vector connector pins.
