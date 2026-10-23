@@ -717,7 +717,7 @@
       "title": "A split tool inherits its parent's risk class and never gains read-only by inheritance",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "61646340337b"
+        "d0d04813b42e"
       ],
       "verified_by": [
         "tests/test_action_split.py:113",
