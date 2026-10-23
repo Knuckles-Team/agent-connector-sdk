@@ -42,17 +42,13 @@ from agent_connector_sdk.ports.session import McpSession
 __all__ = ["McpToolSourceAdapter"]
 
 
-def _require_identity(
-    connector: str, tool_schema_sha256: str, mapping_reference: str
-) -> None:
-    if not all((connector, tool_schema_sha256, mapping_reference)):
-        raise ValueError(
-            "connector, mapping_reference and a pinned tool_schema_sha256 are required"
-        )
+def _require_identity(connector: str, mapping_reference: str) -> None:
+    if not all((connector, mapping_reference)):
+        raise ValueError("connector and mapping_reference are required")
 
 
 class McpToolSourceAdapter:
-    """Extract one manifest-declared stream through an MCP tool."""
+    """Extract one declared stream through an MCP tool."""
 
     kind = "mcp_tool"
 
@@ -61,12 +57,12 @@ class McpToolSourceAdapter:
         preset: ToolPreset,
         *,
         connector: str,
-        tool_schema_sha256: str,
         mapping_reference: str,
+        tool_schema_sha256: str = "",
         schema_mappings: Mapping[str, SchemaMapping] | None = None,
         resources: Sequence[ResourceSpec] = (),
     ) -> None:
-        _require_identity(connector, tool_schema_sha256, mapping_reference)
+        _require_identity(connector, mapping_reference)
         self._preset = preset
         self._connector = connector
         self._pinned = tool_schema_sha256
@@ -85,11 +81,14 @@ class McpToolSourceAdapter:
         schema_mappings: Mapping[str, SchemaMapping] | None = None,
         resources: Sequence[ResourceSpec] = (),
     ) -> McpToolSourceAdapter:
-        """Build an adapter from a manifest sync declaration."""
+        """Build an adapter from a sync declaration.
+
+        The tool fingerprint is the live compatibility fingerprint read at
+        discovery (SDK-CONNECTOR-CONTROL-R075.3).
+        """
         return cls(
             ToolPreset.from_mapping(spec.preset, dict(spec.raw)),
             connector=connector,
-            tool_schema_sha256=spec.tool_schema_sha256 or "",
             mapping_reference=mapping_reference,
             schema_mappings=schema_mappings,
             resources=resources,

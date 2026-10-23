@@ -366,3 +366,9 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R902`: `tests/test_actor_forwarding_se
 - `SDK-CONNECTOR-CONTROL-R074.5`: `tests/test_resource_descriptor.py::test_build_refuses_unmapped_unknown_unpaged_and_secret_descriptors` asserts each of the four codes.
 - `SDK-CONNECTOR-CONTROL-R074.6`: `tests/test_pack_surfaces_served.py::test_factory_serves_and_packs_every_surface_with_a_parseable_contract`.
 - `SDK-CONNECTOR-CONTROL-R074.7`: `tests/test_resource_declarations.py::test_real_connector_repos_list_yields_a_proposed_resource` derives the github-agent repository list. `tests/test_resource_declarations.py::test_scaffolded_connector_serves_derived_resources` reads the served `manifest://connector/resources`.
+- `SDK-CONNECTOR-CONTROL-R075`: See each child.
+- `SDK-CONNECTOR-CONTROL-R075.1`: `tests/test_single_declaration.py::test_server_serves_declaration_live_and_runner_reads_only_that` lists `connector://resources` as the only resource of a declared server.
+- `SDK-CONNECTOR-CONTROL-R075.2`: `tests/test_single_declaration.py::test_build_declaration_maps_meta_without_any_file`, `::test_connector_sources_module_declares_by_tool_name` and `tests/test_source_sync.py::test_tool_surface_serves_declarations`.
+- `SDK-CONNECTOR-CONTROL-R075.3`: `tests/test_single_declaration.py::test_declared_connector_must_match_descriptor`, `::test_server_without_a_sync_preset_is_refused` and `::test_certify_reads_the_declaration_and_checks_tools_live`.
+- `SDK-CONNECTOR-CONTROL-R075.4`: `tests/test_single_declaration.py::test_prompt_serves_its_directive_and_carries_metadata_over_mcp`.
+- `SDK-CONNECTOR-CONTROL-R075.5`: `tests/test_single_declaration.py::test_skill_directory_name_matches_frontmatter_name`.

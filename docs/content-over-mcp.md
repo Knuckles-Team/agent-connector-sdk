@@ -14,7 +14,7 @@ what an agent can call is exactly what the knowledge graph records.
 | `prompts/<name>.json` | prompt `<name>` | `prompt` | `McpPrompt` |
 | `ontology/<file>.ttl` | `ontology://<connector>/<file>.ttl` | `resource` | `Ontology` |
 | `ontology/shapes/<file>.ttl` | `shapes://<connector>/<file>.ttl` | `resource` | `ShapesGraph` |
-| `connector_manifest.yml` | `manifest://connector` | `resource` | `ConnectorManifest` |
+| tool `meta` from `source_meta` | `connector://resources` | `resource` | `ConnectorResources` |
 | the server's tools | `tools/list` | `tool` | `Tool` |
 
 A prompt file that has no `instructions.core_directive`, or a declared manifest
@@ -57,21 +57,14 @@ carry all explicitly served MCP safety hints and the SDK compatibility
 fingerprint of their input/output contract. Conflicting declarations fail
 closed instead of silently choosing one.
 
-## Manifest, presets and fingerprints
+## Declaration and fingerprints
 
-A connector package carries three declarations of its sync contract:
+A connector declares its data sources in code: `source_meta(...)` on each read
+tool. The server serves the assembled declaration as the JSON resource
+`connector://resources`: sources, record-type mappings onto the ontology,
+resources and data-resource descriptors. The runner and `connector-certify`
+read that resource and nothing else.
 
-| File | Loader |
-|---|---|
-| `connector_manifest.yml` | `load_manifest` |
-| `connectors/mcp_source_presets.json` | `load_tool_presets` |
-| `connectors/tool_schema_fingerprints.json` | `load_tool_schema_fingerprints` |
-
-`require_valid_connector_package(package_root)` fails when they disagree: a sync
-entry that names a preset that does not exist, a mirrored field that differs, a
-fingerprint that does not match, or a preset the manifest does not declare.
-Fingerprints use the
-`agent-connector-sdk:mcp-tool-contract-compat:v2` algorithm, which binds the
-canonical input and output schemas. Generate pins from the live `tools/list`
-response with [`connector-certify`](connector-certify.md). The package loader
-fails closed on any other algorithm label.
+Fingerprints use the `agent-connector-sdk:mcp-tool-contract-compat:v2`
+algorithm, which binds the canonical input and output schemas. The SDK reads
+the fingerprint from the live `tools/list` response; no file pins it.

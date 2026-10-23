@@ -1,21 +1,16 @@
 """Connector descriptors and runner settings.
 
-A descriptor names a connector package (its manifest, presets and pinned tool
-fingerprints), how its MCP server is reached, which presets run, and which data
+A descriptor names a connector, how its MCP server is reached, which presets run, and which data
 resources trigger which presets. Credentials are references only
 (``env://NAME`` or ``openbao://mount/path#field``); a literal value is rejected.
 """
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    ValidationInfo,
-    field_validator,
     model_validator,
 )
 
@@ -67,17 +62,13 @@ class EndpointSpec(_Strict):
 class ConnectorDescriptor(_Strict):
     """One connector the runner serves.
 
-    ``package_root`` holds ``connector_manifest.yml``; ``connectors_dir`` holds
-    the presets and fingerprints (default ``<package_root>/connectors``).
-    Relative paths are resolved against the configuration file's directory.
-    ``presets`` empty means every ``sync`` preset of the manifest.
+    The server declares its sync presets at ``connector://resources``.
+    ``presets`` empty means every declared sync preset.
     ``data_resources`` maps a resource URI to the presets synced when the
     server reports that resource updated.
     """
 
     connector: str = Field(pattern=_CONNECTOR_NAME)
-    package_root: Path
-    connectors_dir: Path | None = None
     endpoint: EndpointSpec
     presets: tuple[str, ...] = ()
     provision: bool = True
@@ -86,19 +77,6 @@ class ConnectorDescriptor(_Strict):
     mapping_reference: str = ""
     empty_authoritative_approval: str = ""
     max_pages_per_cycle: int = Field(default=1_000, ge=1, le=1_000_000)
-
-    @field_validator("package_root", "connectors_dir")
-    @classmethod
-    def _anchor_path(cls, value: Path | None, info: ValidationInfo) -> Path | None:
-        base = (info.context or {}).get("base_dir")
-        if value is None or value.is_absolute() or base is None:
-            return value
-        return Path(base) / value
-
-    @property
-    def resolved_connectors_dir(self) -> Path:
-        """``connectors_dir``, or ``<package_root>/connectors`` when unset."""
-        return self.connectors_dir or self.package_root / "connectors"
 
     @property
     def resolved_mapping_reference(self) -> str:

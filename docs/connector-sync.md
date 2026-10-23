@@ -132,8 +132,6 @@ settings:
   registry_refresh_seconds: 60  # how often the registry is re-read
 connectors:
   - connector: freshrss-agent
-    package_root: ../agents/freshrss-agent            # holds connector_manifest.yml
-    connectors_dir: ../agents/freshrss-agent/freshrss_agent/connectors
     endpoint:
       url: https://freshrss-mcp.example.invalid/mcp
       bearer_token: openbao://apps/freshrss-agent#MCP_TOKEN

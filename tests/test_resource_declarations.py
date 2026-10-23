@@ -24,11 +24,10 @@ from agent_connector_sdk.artifacts.resource_descriptor import (
     ResourceDeclarationError,
     ResourceDescriptor,
     check_declarations,
-    load_declarations,
     merge_declarations,
     render_resources_document,
 )
-from agent_connector_sdk.mcp.content import ConnectorContent, ContentError
+from agent_connector_sdk.mcp.content import ConnectorContent
 
 pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R074.7")
 
@@ -174,17 +173,13 @@ def test_declarations_are_refused_with_a_named_code(override, code):
     assert raised.value.code == code
 
 
-def _scaffold(tmp_path: Path, monkeypatch, declarations: dict | None = None):
+def _scaffold(tmp_path: Path, monkeypatch):
     root = tmp_path / "scaffold_mcp_repo"
     package = root / "scaffold_mcp"
     (package / "ontology").mkdir(parents=True)
     (package / "__init__.py").write_text("", encoding="utf-8")
     (package / "mcp_server.py").write_text(SERVER, encoding="utf-8")
     (package / "ontology" / "scaffold.ttl").write_text(ONTOLOGY, encoding="utf-8")
-    if declarations is not None:
-        (package / "data_resources.json").write_text(
-            json.dumps(declarations), encoding="utf-8"
-        )
     (root / "pyproject.toml").write_text(
         '[project]\nname = "scaffold-mcp"\nversion = "1.2.3"\n'
         '[project.entry-points."agent_connector_sdk.connector"]\n'
@@ -229,66 +224,10 @@ async def test_scaffolded_connector_serves_derived_resources(tmp_path, monkeypat
     assert serial["mapping_status"] == "proposed"
 
 
-async def test_scaffolded_connector_declaration_overrides_default(
-    tmp_path, monkeypatch
-):
-    declared = {
-        "resources": [
-            {
-                "name": "widgets",
-                "ontology_class": KG + "Widget",
-                "owner": "ops",
-                "pagination": "page",
-                "pagination_param": "page",
-            }
-        ]
-    }
-    module = _scaffold(tmp_path, monkeypatch, declared)
-    _, mcp, _ = module.build()
-    _add_widget_tool(mcp)
-    (widget,) = (await _read_resources(mcp))["descriptors"]
-    assert widget["origin"] == "declared" and widget["mapping_status"] == "declared"
-    assert widget["pagination"] == "page" and widget["owner"] == "ops"
-
-
-def test_bad_declaration_stops_registration(tmp_path, monkeypatch):
-    declared = {
-        "resources": [
-            {
-                "name": "w",
-                "ontology_class": KG + "Gone",
-                "operation": "o",
-                "key_field": "id",
-                "pagination": "none",
-            }
-        ]
-    }
-    module = _scaffold(tmp_path, monkeypatch, declared)
-    with pytest.raises(ContentError, match="RESOURCE_UNMAPPED"):
-        module.build()
-
-
 async def test_pack_carries_the_resource_declarations(tmp_path):
     root = tmp_path / "pkg"
     (root / "ontology").mkdir(parents=True)
     (root / "ontology" / "scaffold.ttl").write_text(ONTOLOGY, encoding="utf-8")
-    (root / "data_resources.json").write_text(
-        json.dumps(
-            {
-                "resources": [
-                    {
-                        "name": "widgets",
-                        "ontology_class": KG + "Widget",
-                        "operation": "list_widgets",
-                        "key_field": "id",
-                        "pagination": "none",
-                        "fields": [{"name": "id"}],
-                    }
-                ]
-            }
-        ),
-        encoding="utf-8",
-    )
     content = ConnectorContent(
         connector="scaffold-mcp", package_root=root, package_version="1.0.0"
     )
@@ -310,9 +249,6 @@ def test_descriptor_renders_and_declarations_load_and_check(tmp_path):
     )
     document = json.loads(render_resources_document("x", (descriptor,)))
     assert document["descriptors"][0]["fields"][0]["mapping_status"] == "unmapped"
-    assert load_declarations(tmp_path) == []
-    (tmp_path / "data_resources.json").write_text('{"resources": []}', encoding="utf-8")
-    assert load_declarations(tmp_path) == []
     terms = OntologyTerms(classes={"widget": KG + "Widget"}, properties={})
     check_declarations(
         [{"name": "widgets", "ontology_class": KG + "Widget"}], terms.class_iris

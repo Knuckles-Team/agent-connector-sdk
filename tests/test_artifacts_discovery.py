@@ -192,8 +192,7 @@ async def test_content_pack_is_complete_and_stable(sessions: SessionFactory) -> 
         again = await build_content_pack(session, connector="demo-agent", kinds=KINDS)
     uris = sorted(entry.uri for entry in pack.archive.entries)
     assert uris == [
-        "manifest://connector",
-        "manifest://connector/resources",
+        "connector://resources",
         "ontology://demo-agent/demo.ttl",
         "prompt://demo-mcp/demo_agent",
         "shapes://demo-agent/demo.shapes.ttl",
@@ -202,7 +201,7 @@ async def test_content_pack_is_complete_and_stable(sessions: SessionFactory) -> 
     ]
     assert pack.archive == again.archive
     assert {entry.kind.value for entry in pack.archive.entries} >= {
-        "manifest",
+        "resource",
         "ontology",
         "shapes",
     }
@@ -437,7 +436,7 @@ def test_artifact_helpers() -> None:
         require_kind(_entry("tool", "tool://x/y", "{}"), "skill")
     with pytest.raises(MalformedArtifactError):
         ResourceArtifactKind().validate(
-            _entry("resource", "manifest://connector", "connector: [bad")
+            _entry("resource", "connector://resources", "  ")
         )
     with pytest.raises(MalformedArtifactError):
         ResourceArtifactKind().validate(

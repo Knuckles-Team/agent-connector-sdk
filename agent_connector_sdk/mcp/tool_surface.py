@@ -29,11 +29,6 @@ from pathlib import Path
 from typing import Any
 
 from agent_connector_sdk.config import setting
-from agent_connector_sdk.ingest.sources import (
-    load_ingest_sources,
-    register_ingest_sources_tool,
-)
-from agent_connector_sdk.manifest.package_validation import MANIFEST_FILE_NAME
 from agent_connector_sdk.mcp.action_split import SPLIT_ACTION_TAG, split_action_tool
 from agent_connector_sdk.mcp.method_tools import (
     GATED_TAG,
@@ -274,32 +269,35 @@ def _package_root(owner: Any) -> Path | None:
     return Path(location).parent if location else None
 
 
+def _declared_connector(root: Path, fallback: str) -> str:
+    from agent_connector_sdk.connector_identity import (
+        ConnectorIdentityError,
+        connector_name,
+    )
+
+    try:
+        return connector_name(root.name)
+    except ConnectorIdentityError:
+        return fallback
+
+
 def _register_declared_sources(mcp: Any, prefix: str, root: Path | None) -> None:
-    """Serve the package's ingest-source declaration when it ships one."""
+    """Serve the connector's live source declaration (SDK-CONNECTOR-CONTROL-R075).
+
+    ``connector://resources`` is built from the read tools' ``meta``.
+    """
     if root is None:
         return
-    declaration = load_ingest_sources(root)
-    if declaration is not None:
-        register_ingest_sources_tool(mcp, prefix, declaration)
-    _register_packaged_manifest(mcp, root)
+    from agent_connector_sdk.ingest.live_declaration import (
+        load_sources_module,
+        register_live_declaration,
+    )
 
-
-def _register_packaged_manifest(mcp: Any, root: Path) -> None:
-    """Serve ``<package>/connector_manifest.yml`` as ``manifest://connector``.
-
-    SDK-SOURCE-INGEST-R004.25: fleet onboarding captures this resource as the
-    pack's manifest, whose ``schema_mappings`` the engine admits source records
-    under. A server that already serves the URI keeps its own resource.
-    """
-    from agent_connector_sdk.mcp.content import MANIFEST_RESOURCE_URI, _file_resource
-
-    path = root / MANIFEST_FILE_NAME
-    if not path.is_file():
-        return
-    served = getattr(getattr(mcp, "_local_provider", None), "_components", {})
-    if any(str(key).endswith(MANIFEST_RESOURCE_URI) for key in served):
-        return
-    mcp.add_resource(_file_resource(MANIFEST_RESOURCE_URI, path, "text/yaml"))
+    register_live_declaration(
+        mcp,
+        _declared_connector(root, prefix),
+        declared=load_sources_module(root),
+    )
 
 
 def register_tool_surface(

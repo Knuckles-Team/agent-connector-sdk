@@ -249,7 +249,7 @@
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R028",
-      "title": "Connector manifest and integrity",
+      "title": "Connector declaration and fingerprints",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []

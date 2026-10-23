@@ -16,7 +16,7 @@ from fixture_server import (
 )
 
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.manifest.loader import require_valid_connector_package
+from agent_connector_sdk.manifest.model import ResourceSpec, SchemaMapping, SyncSpec
 from agent_connector_sdk.ports.session import McpSession, TransportEndpoint
 from agent_connector_sdk.testing.results import SessionFactory
 from agent_connector_sdk.transports.mcp import McpTransport
@@ -47,16 +47,40 @@ def package_root() -> Path:
     return PACKAGE_ROOT
 
 
+DEMO_PRESET: dict[str, object] = {
+    "action": "stream_contents",
+    "cursor_param": "continuation",
+    "cursor_path": "continuation",
+    "doc_type": "demo_item",
+    "id_field": "id",
+    "pagination": "cursor",
+    "params": {"count": 2},
+    "params_style": "json",
+    "records_path": "items",
+    "server": "demo-mcp",
+    "text_field": "text",
+    "title_field": "title",
+    "tool": "demo_reader",
+    "type_field": "kind",
+    "updated_field": "published",
+    "updated_since_param": "newer_than",
+}
+
+
 @pytest.fixture
 def adapter() -> McpToolSourceAdapter:
-    """The ``mcp_tool`` adapter built from the fixture manifest's sync entry."""
-    manifest = require_valid_connector_package(PACKAGE_ROOT)
+    """The ``mcp_tool`` adapter for the fixture connector's declared source."""
+    spec = SyncSpec(
+        preset="demo", server="demo-mcp", tool="demo_reader", raw=DEMO_PRESET
+    )
     return McpToolSourceAdapter.from_sync_spec(
-        manifest.sync[0],
+        spec,
         connector=CONNECTOR,
         mapping_reference=f"manifest:{CONNECTOR}",
-        schema_mappings=manifest.schema_mappings,
-        resources=manifest.resources,
+        schema_mappings={"DemoItem": SchemaMapping(ontology_class="Document")},
+        resources=[
+            ResourceSpec(name="DemoItem", label="Demo Item", id_prefix="demoitem")
+        ],
     )
 
 

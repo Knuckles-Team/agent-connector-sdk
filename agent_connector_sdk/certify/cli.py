@@ -1,18 +1,16 @@
 """The ``connector-certify`` console script.
 
-``connector-certify PACKAGE --check -- COMMAND [ARG ...]`` starts the connector's
-MCP server over stdio (``--url`` reaches one over streamable HTTP instead), calls
-``tools/list`` and compares every preset tool's pins with the live fingerprints.
-``--write`` replaces the pins with the live fingerprints. Certification lists
-tools only; it never calls one.
+``connector-certify -- COMMAND [ARG ...]`` starts the connector's MCP server over
+stdio (``--url`` reaches one over streamable HTTP instead), calls ``tools/list``,
+reads ``connector://resources`` and checks every declared preset tool against its
+live definition. Certification lists tools only; it never calls one.
 
 The stdio child receives only the MCP client's minimal environment plus
 ``--placeholder NAME`` (a fixed non-secret value) and ``--env NAME=REFERENCE``
 (a resolved ``env://`` or ``openbao://`` reference).
 
-Exit ``0``: every pin matches, or the pins were written. ``1``: a pin is wrong,
-missing or empty, or the pins could not be written. ``2``: the checkout is
-invalid or the server could not list its tools.
+Exit ``0``: every declared preset tool is valid. ``1``: a tool is missing or
+invalid. ``2``: the server could not list its tools or declaration.
 """
 
 from __future__ import annotations
@@ -31,9 +29,7 @@ from agent_connector_sdk.certify.certification import (
     CertificationReport,
     certify_connector,
 )
-from agent_connector_sdk.certify.checkout import ConnectorCheckout, load_checkout
 from agent_connector_sdk.certify.options import _oidc_auth, _positive_timeout
-from agent_connector_sdk.certify.pins import PinWriteError, write_certified_pins
 from agent_connector_sdk.credentials.references import SecretReferenceError
 from agent_connector_sdk.credentials.resolution import resolve_secret_reference
 from agent_connector_sdk.ports.session import TransportEndpoint
@@ -71,12 +67,8 @@ def build_parser() -> argparse.ArgumentParser:
     """The command-line parser."""
     parser = argparse.ArgumentParser(
         prog="connector-certify",
-        description="Certify a connector's MCP tool-schema pins from tools/list.",
+        description="Certify a connector's declared sync tools from tools/list.",
     )
-    parser.add_argument("package", type=Path, help="connector checkout root")
-    mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--check", action="store_true", help="fail on a wrong pin")
-    mode.add_argument("--write", action="store_true", help="write the live pins")
     parser.add_argument("--url", default="", help="streamable HTTP endpoint")
     parser.add_argument("--bearer-token", default="", help="reference for --url")
     _add_oidc_arguments(parser)
@@ -139,35 +131,22 @@ def _log_report(report: CertificationReport) -> None:
         _logger.error("connector %s: %s", report.connector, report.reason)
     for verdict in report.verdicts:
         _logger.info(
-            "connector %s tool %s: %s (live %s; pins %s) %s",
+            "connector %s tool %s: %s (live %s) %s",
             report.connector,
             verdict.tool,
             verdict.status.value,
             verdict.live or "-",
-            json.dumps(dict(verdict.pins), sort_keys=True),
             verdict.defect,
         )
 
 
-def _outcome(
-    report: CertificationReport, checkout: ConnectorCheckout, *, write: bool
-) -> int:
+def _outcome(report: CertificationReport) -> int:
     if not report.listed:
         return 2
-    if not write:
-        return 0 if report.passed else 1
-    try:
-        paths = write_certified_pins(checkout, report.verdicts)
-    except PinWriteError as exc:
-        _logger.error("connector %s: %s", report.connector, exc)
-        return 1
-    _logger.info("connector %s: wrote %s", report.connector, [p.name for p in paths])
-    return 0
+    return 0 if report.passed else 1
 
 
-async def _run_certification(
-    checkout: ConnectorCheckout, args: argparse.Namespace
-) -> CertificationReport:
+async def _run_certification(args: argparse.Namespace) -> CertificationReport:
     endpoint_factory = partial(build_endpoint, args)
     try:
         with anyio.fail_after(args.timeout):
@@ -177,15 +156,14 @@ async def _run_certification(
             from agent_connector_sdk.transports.mcp import McpTransport
 
             return await certify_connector(
-                checkout,
                 McpTransport(),
                 endpoint,
                 timeout_seconds=args.timeout,
             )
     except TimeoutError:
         return CertificationReport(
-            connector=checkout.connector,
-            server=checkout.server,
+            connector="",
+            server="",
             listed=False,
             reason="connector certification timed out before tools/list completed",
         )
@@ -196,16 +174,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parse_arguments(sys.argv[1:] if argv is None else argv)
     _configure_logging()
     try:
-        checkout = load_checkout(args.package, repair_connector=args.write)
-        run = partial(_run_certification, checkout, args)
-        report = anyio.run(run)
+        report = anyio.run(partial(_run_certification, args))
     except Exception:
-        _logger.error(
-            "connector-certify cannot start: invalid checkout, endpoint or credentials"
-        )
+        _logger.error("connector-certify cannot start: invalid endpoint or credentials")
         return 2
     _log_report(report)
     if args.report is not None:
         document = json.dumps(report.document(), indent=2, sort_keys=True)
         args.report.write_text(document + "\n", encoding="utf-8")
-    return _outcome(report, checkout, write=args.write)
+    return _outcome(report)

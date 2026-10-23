@@ -104,8 +104,8 @@ async def test_passes_commit_before_advancing(tmp_path: Path) -> None:
     server = build_enumerated_archivebox_server(
         FakeArchiveBox(archivebox_snapshots(250))
     )
-    adapter = load_sync_adapters(archivebox_descriptor())[STREAM]
     async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
+        adapter = (await load_sync_adapters(archivebox_descriptor(), session))[STREAM]
         outcome = await sync_stream(session, adapter, _target(sink, 2))
         assert isinstance(outcome, SyncOutcome) and not outcome.exhausted
         assert (outcome.pages, outcome.records) == (2, 200)
@@ -133,8 +133,8 @@ async def test_passes_commit_before_advancing(tmp_path: Path) -> None:
 async def test_mismatched_receipts_fail_without_rolling_back_eg(tmp_path: Path) -> None:
     sink = _LyingSink()
     server = build_enumerated_archivebox_server(FakeArchiveBox(archivebox_snapshots(3)))
-    adapter = load_sync_adapters(archivebox_descriptor())[STREAM]
     async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
+        adapter = (await load_sync_adapters(archivebox_descriptor(), session))[STREAM]
         with pytest.raises(SinkReceiptError):
             await sync_stream(session, adapter, _target(sink, 5))
         with pytest.raises(SinkReceiptError):

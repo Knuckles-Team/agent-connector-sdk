@@ -1560,7 +1560,7 @@
         "e877477e46b8"
       ],
       "verified_by": [
-        "tests/test_source_sync.py:125"
+        "tests/test_source_sync.py:122"
       ]
     },
     {
@@ -1571,7 +1571,7 @@
         "e877477e46b8"
       ],
       "verified_by": [
-        "tests/test_source_sync.py:143"
+        "tests/test_source_sync.py:134"
       ]
     },
     {
@@ -1583,8 +1583,8 @@
         "e877477e46b8"
       ],
       "verified_by": [
-        "tests/test_source_sync.py:168",
-        "tests/test_source_sync.py:245"
+        "tests/test_source_sync.py:159",
+        "tests/test_source_sync.py:241"
       ]
     },
     {
@@ -1596,7 +1596,7 @@
         "e877477e46b8"
       ],
       "verified_by": [
-        "tests/test_source_sync.py:188"
+        "tests/test_source_sync.py:184"
       ]
     },
     {
@@ -1608,7 +1608,7 @@
         "e877477e46b8"
       ],
       "verified_by": [
-        "tests/test_source_sync.py:213"
+        "tests/test_source_sync.py:209"
       ]
     },
     {
@@ -1630,7 +1630,7 @@
         "6519a20529e9"
       ],
       "verified_by": [
-        "tests/test_source_sync.py:275"
+        "tests/test_source_sync.py:265"
       ]
     },
     {

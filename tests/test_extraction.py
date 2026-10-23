@@ -132,8 +132,7 @@ async def test_adapter_fails_closed(
     with pytest.raises(ValueError):
         McpToolSourceAdapter(
             adapter._preset,
-            connector=CONNECTOR,
-            tool_schema_sha256="",
+            connector="",
             mapping_reference="manifest:demo-agent#schema_mappings/Document",
         )
 

@@ -2,17 +2,13 @@
 
 from __future__ import annotations
 
-import json
 from collections.abc import Callable
 from contextlib import AbstractAsyncContextManager
-from dataclasses import replace
-from pathlib import Path
 from typing import Any
 
 import pytest
+from fleet_declarations import DECLARATIONS
 from fleet_fixtures import (
-    ARCHIVEBOX_CONNECTORS,
-    ARCHIVEBOX_ROOT,
     FakeArchiveBox,
     archivebox_snapshots,
     build_enumerated_archivebox_server,
@@ -22,15 +18,8 @@ from pydantic import ValidationError
 
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from agent_connector_sdk.adapters.mcp_tool_paging import next_position, page_params
-from agent_connector_sdk.manifest.loader import (
-    ManifestError,
-    load_manifest,
-    load_tool_presets,
-    load_tool_schema_fingerprints,
-    validate_connector_package,
-)
+from agent_connector_sdk.manifest.model import SchemaMapping, SyncSpec
 from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.manifest.tool_schema import compatibility_fingerprint
 from agent_connector_sdk.ports.session import McpSession, TransportEndpoint
 from agent_connector_sdk.testing.results import SessionFactory, assert_conformant
 from agent_connector_sdk.testing.source_adapters import run_source_adapter_suite
@@ -123,35 +112,6 @@ def test_pagination_modes_reject_what_does_not_apply() -> None:
             ToolPreset.model_validate({**base, **extra})
 
 
-def test_identityless_sweeps_belong_to_a_data_platform_adapter(tmp_path: Path) -> None:
-    presets = tmp_path / "mcp_source_presets.json"
-    presets.write_text(
-        json.dumps(
-            {"sql-tables": {"server": "sql-mcp", "tool": "sql_schema", "id_field": ""}}
-        )
-    )
-    with pytest.raises(
-        ManifestError,
-        match=r"data-platform source adapter \(RF-ADR-009 section 2.3, wave W7\)",
-    ):
-        load_tool_presets(presets)
-
-
-def test_validator_rejects_pins_of_an_empty_schema() -> None:
-    manifest = load_manifest(ARCHIVEBOX_ROOT / "connector_manifest.yml")
-    presets = load_tool_presets(ARCHIVEBOX_CONNECTORS / "mcp_source_presets.json")
-    pinned = load_tool_schema_fingerprints(
-        ARCHIVEBOX_CONNECTORS / "tool_schema_fingerprints.json"
-    )
-    assert validate_connector_package(manifest, presets, pinned) == []
-    empty = replace(
-        pinned,
-        tools={"archivebox_core": compatibility_fingerprint("archivebox_core", {})},
-    )
-    violations = validate_connector_package(manifest, presets, empty)
-    assert any("empty input schema" in violation for violation in violations)
-
-
 def test_page_and_offset_positions() -> None:
     page = ToolPreset(
         name="p",
@@ -180,15 +140,23 @@ def test_page_and_offset_positions() -> None:
 
 
 async def test_page_mode_adapter_passes_the_conformance_kit() -> None:
-    manifest = load_manifest(ARCHIVEBOX_ROOT / "connector_manifest.yml")
-    spec = manifest.sync[0]
+    declared = DECLARATIONS["archivebox-api"]
+    source = declared["sources"][0]
+    spec = SyncSpec(
+        preset=source["source_id"],
+        server=source["server"],
+        tool=source["tools"][0],
+        raw=source["preset"],
+    )
     small_pages = spec.model_copy(update={"raw": {**spec.raw, "page_size": 2}})
     adapter = McpToolSourceAdapter.from_sync_spec(
         small_pages,
-        connector=manifest.connector,
-        mapping_reference=f"manifest:{manifest.connector}",
-        schema_mappings=manifest.schema_mappings,
-        resources=manifest.resources,
+        connector="archivebox-api",
+        mapping_reference="manifest:archivebox-api",
+        schema_mappings={
+            key: SchemaMapping.model_validate(value)
+            for key, value in declared["schema_mappings"].items()
+        },
     )
     results = await run_source_adapter_suite(
         adapter,

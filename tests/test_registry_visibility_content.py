@@ -15,7 +15,6 @@ from fastmcp import Client, FastMCP
 from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
 
 from agent_connector_sdk.mcp.content import (
-    MANIFEST_RESOURCE_URI,
     ConnectorContent,
     ContentError,
     ContentRegistration,
@@ -222,17 +221,16 @@ async def test_connector_content_is_served(package_root: Path) -> None:
             connector="demo-agent",
             package_root=package_root,
             package_version="1.4.0",
-            manifest_path=package_root / "connector_manifest.yml",
         ),
     )
     assert registration == ContentRegistration(
-        skills=1, prompts=1, resources=3, data_resources=1
+        skills=1, prompts=1, resources=2, data_resources=1
     )
     async with Client(mcp) as client:
         uris = {str(resource.uri) for resource in await client.list_resources()}
         prompt = await client.get_prompt("demo_agent")
     assert {
-        MANIFEST_RESOURCE_URI,
+        "connector://resources",
         "ontology://demo-agent/demo.ttl",
         "shapes://demo-agent/demo.shapes.ttl",
         "skill://demo-reader/SKILL.md",
@@ -250,17 +248,6 @@ def test_connector_content_errors(tmp_path: Path) -> None:
             FastMCP("demo"),
             ConnectorContent(
                 connector="c", package_root=tmp_path, package_version="1.0.0"
-            ),
-        )
-    (tmp_path / "prompts" / "broken.json").unlink()
-    with pytest.raises(ContentError):
-        register_connector_content(
-            FastMCP("demo"),
-            ConnectorContent(
-                connector="c",
-                package_root=tmp_path,
-                package_version="1.0.0",
-                manifest_path=tmp_path / "missing.yml",
             ),
         )
 

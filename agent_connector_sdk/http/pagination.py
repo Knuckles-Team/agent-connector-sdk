@@ -68,7 +68,7 @@ def preset_pagination(
     cursor_param: str = "",
     page_size: int = 100,
 ) -> dict[str, JsonValue]:
-    """The ``mcp_source_presets.json`` fields for a tool returning :class:`ToolPage`."""
+    """The sync preset fields for a tool returning :class:`ToolPage`."""
     fields: dict[str, JsonValue] = {"records_path": "items", "pagination": mode}
     if mode == "cursor":
         return {

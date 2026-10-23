@@ -264,3 +264,9 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R074.5:** Refusal.
 - [ ] **SDK-CONNECTOR-CONTROL-R074.6:** Hot-path proof.
 - [x] **SDK-CONNECTOR-CONTROL-R074.7:** Default declarations.
+- [ ] **SDK-CONNECTOR-CONTROL-R075:** The connector's MCP server is the only place its metadata is read from (rollup).
+- [ ] **SDK-CONNECTOR-CONTROL-R075.1:** No file fallback.
+- [ ] **SDK-CONNECTOR-CONTROL-R075.2:** Data sources are declared in code and served live.
+- [ ] **SDK-CONNECTOR-CONTROL-R075.3:** The runner and certification read the live declaration.
+- [ ] **SDK-CONNECTOR-CONTROL-R075.4:** Prompts serve their own directive and carry their metadata over native MCP.
+- [ ] **SDK-CONNECTOR-CONTROL-R075.5:** Skills, ontology and shapes stay on fastmcp.

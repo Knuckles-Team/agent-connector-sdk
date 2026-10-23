@@ -23,7 +23,7 @@ __all__ = [
     "schema_fingerprint",
 ]
 
-#: Algorithm label written into ``tool_schema_fingerprints.json`` files.
+#: Algorithm label of the compatibility fingerprint.
 COMPATIBILITY_FINGERPRINT_ALGORITHM = "agent-connector-sdk:mcp-tool-contract-compat:v2"
 
 _EXACT_DOMAIN = b"agent-connector-sdk:mcp-tool-contract:v2\x00"

@@ -5,19 +5,19 @@ Everything commits into ``InMemorySink``; epistemic-graph import is wave W1.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
 import anyio
 import pytest
+from fleet_declarations import DECLARATIONS
 from fleet_fixtures import (
     ARCHIVEBOX_CURRENT_SHA256,
     ARCHIVEBOX_ENUM_SHA256,
-    ARCHIVEBOX_ROOT,
     FRESHRSS_CURRENT_SHA256,
     FRESHRSS_ENUM_SHA256,
     FRESHRSS_READING_LIST,
-    FRESHRSS_ROOT,
     FakeArchiveBox,
     FakeFreshRss,
     archivebox_snapshots,
@@ -40,8 +40,8 @@ from runner_support import (
     services,
 )
 
-from agent_connector_sdk.certify.checkout import load_checkout
-from agent_connector_sdk.certify.verdicts import PinStatus, tool_verdicts
+from agent_connector_sdk.certify.checkout import checkout_from_resources
+from agent_connector_sdk.certify.verdicts import ToolStatus, tool_verdicts
 from agent_connector_sdk.manifest.live_contract import (
     validate_live_tool_contract,
     validate_preset_tool_contract,
@@ -62,7 +62,7 @@ async def test_current_fleet_schemas_require_enumeration_migration() -> None:
         (
             build_freshrss_server(FakeFreshRss([])),
             build_enumerated_freshrss_server(FakeFreshRss([])),
-            FRESHRSS_ROOT,
+            "freshrss-agent",
             "freshrss_reader",
             FRESHRSS_CURRENT_SHA256,
             FRESHRSS_ENUM_SHA256,
@@ -70,13 +70,13 @@ async def test_current_fleet_schemas_require_enumeration_migration() -> None:
         (
             build_archivebox_server(FakeArchiveBox([])),
             build_enumerated_archivebox_server(FakeArchiveBox([])),
-            ARCHIVEBOX_ROOT,
+            "archivebox-api",
             "archivebox_core",
             ARCHIVEBOX_CURRENT_SHA256,
             ARCHIVEBOX_ENUM_SHA256,
         ),
     ):
-        checkout = load_checkout(root)
+        checkout = checkout_from_resources(json.dumps(DECLARATIONS[root]))
         async with McpTransport().session(
             TransportEndpoint(in_process=current)
         ) as session:
@@ -88,7 +88,7 @@ async def test_current_fleet_schemas_require_enumeration_migration() -> None:
             )
             (current_verdict,) = tool_verdicts(checkout, tools)
         assert current_contract.compatibility_sha256 == current_pin
-        assert current_verdict.status is PinStatus.TOOL_UNAVAILABLE
+        assert current_verdict.status is ToolStatus.TOOL_UNAVAILABLE
         assert "does not enumerate" in current_verdict.defect
         async with McpTransport().session(
             TransportEndpoint(in_process=future)
@@ -102,7 +102,7 @@ async def test_current_fleet_schemas_require_enumeration_migration() -> None:
             )
             (future_verdict,) = tool_verdicts(checkout, tools)
         assert future_contract.compatibility_sha256 == future_pin
-        assert future_verdict.status is PinStatus.MATCH
+        assert future_verdict.status is ToolStatus.CERTIFIED
         assert future_verdict.live == future_pin
 
 
@@ -131,7 +131,6 @@ async def test_provisioning_is_a_noop_when_the_pack_digest_is_unchanged(
         "skill",
         "prompt",
         "ontology",
-        "manifest",
         "resource",
     }
     assert len(sink.record_ids("freshrss-agent")) == 250

@@ -11,7 +11,7 @@ with its :class:`IngestBinding`::
 The SDK maps the change set to one generated epistemic-graph ``SourceIngest``
 request against the stream's durable checkpoint and returns the generated
 receipt. epistemic-graph resolves every record and relation against the
-connector's published Connector Manifest, so each ``node_type`` and
+connector's declared mappings (``connector://resources``), so each ``node_type`` and
 relationship must be declared there.
 
 The process's service is the one :func:`install_ingest` set, else one built

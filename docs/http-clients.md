@@ -39,7 +39,7 @@ def register(mcp, client):
         return ToolPage.from_cursor(document["items"], document.get("next"))
 ```
 
-The matching `mcp_source_presets.json` entry comes from
+The matching `preset` of `source_meta` comes from
 `preset_pagination("cursor", cursor_param="cursor")`, so extraction pages through
 exactly what the tool returns.
 

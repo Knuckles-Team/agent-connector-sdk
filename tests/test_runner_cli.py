@@ -14,7 +14,6 @@ from epistemic_graph.generated.connector_pack import (
     AgentLibraryMutationContext,
     McpCatalogSnapshotBinding,
 )
-from fleet_fixtures import FRESHRSS_CONNECTORS, FRESHRSS_ROOT
 
 from agent_connector_sdk import decide
 from agent_connector_sdk.decide.epistemic_graph import EpistemicGraphDecisionRunner
@@ -299,8 +298,6 @@ def test_cli_once_over_stdio_refuses_to_mint_an_engine_client(
     server = Path(__file__).parent / "stdio_fleet_server.py"
     connector = {
         "connector": "freshrss-agent",
-        "package_root": str(FRESHRSS_ROOT),
-        "connectors_dir": str(FRESHRSS_CONNECTORS),
         "endpoint": {"command": sys.executable, "args": [str(server)]},
     }
     config = tmp_path / "runner.yml"
