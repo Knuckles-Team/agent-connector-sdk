@@ -825,6 +825,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "284fb12a19ed",
+        "533e88c8fbcb",
         "e4ffa1a49677",
         "f5de79afc1e0"
       ],
@@ -843,6 +844,7 @@
       "title": "SDK owns the one GraphQL client for connectors",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "533e88c8fbcb",
         "f5de79afc1e0"
       ],
       "verified_by": [
