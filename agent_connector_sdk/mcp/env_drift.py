@@ -7,6 +7,10 @@ is the authority on which variables exist. A connector declares them in
 declarations against the code-read set:
 
 - ``DEAD``: declared, but no code reads it. Remove it.
+Variables the SDK reads on the connector's behalf (``SDK_CONSUMED_ENV`` and
+``SDK_CONSUMED_ENV_PATTERNS``, exported by ``agent_connector_sdk.tls.selection``:
+the TLS profile settings) are never ``DEAD``.
+
 - ``UNDOCUMENTED``: the package code reads it, but ``.env.example`` lacks it. Add it.
 
 The code-read set is the package's literal reads (``setting``/``getenv``/
@@ -40,9 +44,16 @@ from typing import Any, TextIO
 
 import yaml
 
+from agent_connector_sdk.tls.selection import (
+    SDK_CONSUMED_ENV,
+    SDK_CONSUMED_ENV_PATTERNS,
+)
+
 __all__ = [
     "FRAMEWORK_ENV",
     "RUNTIME_ALLOWLIST",
+    "SDK_CONSUMED_ENV",
+    "SDK_CONSUMED_ENV_PATTERNS",
     "analyze",
     "format_report",
     "framework_dynamic_families",
@@ -513,6 +524,14 @@ def _framework_known(var: str) -> bool:
     )
 
 
+_SDK_CONSUMED = [re.compile(p) for p in SDK_CONSUMED_ENV_PATTERNS]
+
+
+def _sdk_consumed(var: str) -> bool:
+    """True when the SDK reads ``var`` for the connector (TLS profile settings)."""
+    return var in SDK_CONSUMED_ENV or any(p.match(var) for p in _SDK_CONSUMED)
+
+
 def analyze(root: Path) -> dict[str, Any]:
     """Diff the declared env vars of the connector at ``root`` against its reads."""
     root = Path(root)
@@ -538,7 +557,7 @@ def analyze(root: Path) -> dict[str, Any]:
     findings: list[dict[str, Any]] = [
         {"type": "DEAD", "var": var, "sources": sorted(where), "hint": ""}
         for var, where in sorted(sources.items())
-        if var not in code_read and not _framework_known(var)
+        if var not in code_read and not _framework_known(var) and not _sdk_consumed(var)
     ]
     findings += [
         {"type": "UNDOCUMENTED", "var": var, "sources": ["(code)"], "hint": ""}
