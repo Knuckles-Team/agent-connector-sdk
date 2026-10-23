@@ -36,6 +36,7 @@ from agent_connector_sdk.mcp.graphql import (
     ctx_graphql_get_type_details,
     ctx_graphql_list_types,
 )
+from agent_connector_sdk.mcp.parser import PARSER_ENV
 
 
 def _client(handler, **kwargs) -> BaseApiClient:
@@ -280,3 +281,19 @@ def test_r014_25_sdk_consumed_env_not_dead(tmp_path):
     }
     assert "TLS_PROFILE" in env_drift.SDK_CONSUMED_ENV
     assert env_drift.SDK_CONSUMED_ENV_PATTERNS
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.26")
+def test_r014_26_parser_settings_not_dead(tmp_path):
+    pkg = tmp_path / "demo_connector"
+    pkg.mkdir()
+    (pkg / "__init__.py").write_text("")
+    (tmp_path / ".env.example").write_text(
+        "MCP_ALLOWED_HOSTS=\nMCP_TRUSTED_PROXY_CIDRS=\nDEMO_STALE=1\n"
+    )
+    report = env_drift.analyze(tmp_path)
+    assert {(f["type"], f["var"]) for f in report["findings"]} == {
+        ("DEAD", "DEMO_STALE")
+    }
+    assert {"MCP_ALLOWED_HOSTS", "MCP_TRUSTED_PROXY_CIDRS"} <= PARSER_ENV
+    assert PARSER_ENV <= env_drift.SDK_CONSUMED_ENV

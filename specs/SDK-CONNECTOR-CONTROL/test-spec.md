@@ -273,6 +273,7 @@ Missing host or AU producer implementation keeps the corresponding served accept
 - `SDK-CONNECTOR-CONTROL-R014.22`: `tests/test_embeddings.py` covers `openai` and `ollama` provider requests, sub-batching and bearer auth from a reference. It also covers body non-disclosure, invalid settings, caching per endpoint and the DNS-pinned no-redirect client.
 - `SDK-CONNECTOR-CONTROL-R014.23`: `tests/test_compute_adapter.py` covers SPARQL algorithm selection and the served run. It also covers refusal of unbound analyses and unserved methods and IRI and client-path validation. It covers the unavailable endpoint and the compute-only scopes.
 - `SDK-CONNECTOR-CONTROL-R014.25`: `tests/test_connector_runtime_adds.py::test_r014_25_sdk_consumed_env_not_dead` declares the TLS profile variables for a connector that reads none. It expects no finding. A non-SDK variable stays `DEAD`.
+- `SDK-CONNECTOR-CONTROL-R014.26`: `tests/test_connector_runtime_adds.py::test_r014_26_parser_settings_not_dead` declares parser settings for a connector that reads none. It expects no finding.
 
 ## Connector packs authored as Turtle (R067)
 

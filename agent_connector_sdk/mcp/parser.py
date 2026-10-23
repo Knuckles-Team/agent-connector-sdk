@@ -15,7 +15,13 @@ from collections.abc import Sequence
 from agent_connector_sdk.config import setting
 from agent_connector_sdk.mcp.auth.policy import AUTH_TYPES
 
-__all__ = ["DEFAULT_HOST", "DEFAULT_PORT", "TRANSPORTS", "create_mcp_parser"]
+__all__ = [
+    "DEFAULT_HOST",
+    "DEFAULT_PORT",
+    "PARSER_ENV",
+    "TRANSPORTS",
+    "create_mcp_parser",
+]
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8000
@@ -51,6 +57,9 @@ _SETTING_FLAGS: tuple[tuple[tuple[str, ...], str | None], ...] = (
     (("--tools", "--toolsets"), "MCP_ENABLED_TOOLS"),
     (("--disabled-tools", "--disabled-toolsets"), "MCP_DISABLED_TOOLS"),
 )
+
+#: The settings the parser reads for its flag defaults (consumed on a connector's behalf).
+PARSER_ENV: frozenset[str] = frozenset(name for _flags, name in _SETTING_FLAGS if name)
 
 
 def create_mcp_parser(
