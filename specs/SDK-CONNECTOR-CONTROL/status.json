@@ -2869,6 +2869,7 @@
       "title": "One declared connector identity",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "8ec791033514",
         "e94990c8a480"
       ],
       "verified_by": [
