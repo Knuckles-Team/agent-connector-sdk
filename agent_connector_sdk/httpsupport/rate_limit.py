@@ -15,12 +15,18 @@ APIs into one typed snapshot:
 ``Retry-After`` wins when present, otherwise an epoch ``*-Reset`` header is
 used (clamped so a skewed clock or hostile server can never stall a caller),
 matching the okta-agent and dockerhub-api semantics the fleet converged on.
+
+:class:`RateLimiter` paces requests to one upstream: it enforces a minimum
+interval between calls so a connector honours a vendor's documented request
+budget. The governed transport retries and backs off, but it has no
+source-specific pace.
 """
 
 from __future__ import annotations
 
+import asyncio
 import time
-from collections.abc import Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
@@ -30,6 +36,7 @@ __all__ = [
     "DEFAULT_RETRY_AFTER_CAP_S",
     "RateLimitCapture",
     "RateLimitSnapshot",
+    "RateLimiter",
     "backoff_seconds",
     "parse_rate_limit",
 ]
@@ -193,3 +200,47 @@ class RateLimitCapture:
         if snapshot is not None:
             self.last = snapshot
         return snapshot
+
+
+class RateLimiter:
+    """Cooperatively enforces a minimum interval between requests to one host.
+
+    Concurrent callers queue on one lock, so calls leave at least
+    ``min_interval_seconds`` apart in order of arrival. The first call never
+    waits. ``clock`` and ``sleep`` default to :func:`time.monotonic` and
+    :func:`asyncio.sleep`; tests pass fakes.
+    """
+
+    def __init__(
+        self,
+        min_interval_seconds: float,
+        *,
+        clock: Callable[[], float] = time.monotonic,
+        sleep: Callable[[float], Awaitable[object]] = asyncio.sleep,
+    ) -> None:
+        self._min_interval = max(0.0, float(min_interval_seconds))
+        self._clock = clock
+        self._sleep = sleep
+        self._lock = asyncio.Lock()
+        self._last_call: float | None = None
+
+    @property
+    def min_interval_seconds(self) -> float:
+        """The enforced minimum interval, clamped to zero or more."""
+        return self._min_interval
+
+    async def wait(self) -> None:
+        """Sleep only as long as needed to respect the minimum interval."""
+        async with self._lock:
+            if self._last_call is not None:
+                delay = self._min_interval - (self._clock() - self._last_call)
+                if delay > 0:
+                    await self._sleep(delay)
+            self._last_call = self._clock()
+
+    async def __aenter__(self) -> RateLimiter:
+        await self.wait()
+        return self
+
+    async def __aexit__(self, *_exc: object) -> None:
+        return None
