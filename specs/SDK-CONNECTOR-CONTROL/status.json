@@ -3068,7 +3068,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "0d150cf96fd8",
-        "800bf85b67f4",
+        "647f3de98067",
         "95f251043be1",
         "f0b9e7f4f535"
       ],
@@ -3163,7 +3163,7 @@
       "title": "The declaration entry carries its content schema",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "800bf85b67f4"
+        "647f3de98067"
       ],
       "verified_by": [
         "tests/test_pack_resource_schema.py:30"
