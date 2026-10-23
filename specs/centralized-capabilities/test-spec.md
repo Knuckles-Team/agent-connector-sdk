@@ -44,11 +44,16 @@ Governing spec: [spec.md](spec.md).
 | CC-38 | `SDK-CENTRALIZED-CAPABILITIES-R038` | Unit | The index table row for connector test kit. | Each module path in the row exists in the package. Each owner row ID exists in a `requirements.md` file. `test_r038_module_and_owner_exist` passes. |
 | CC-39 | `SDK-CENTRALIZED-CAPABILITIES-R039` | Unit | The index table row for domain record models. | Each module path in the row exists in the package. Each owner row ID exists in a `requirements.md` file. `test_r039_module_and_owner_exist` passes. |
 | CC-40 | `SDK-CENTRALIZED-CAPABILITIES-R040` | Unit | The index table row for optional dependencies come from sdk extras. | Each module path in the row exists in the package. Each owner row ID exists in a `requirements.md` file. `test_r040_module_and_owner_exist` passes. |
+| CC-41 | `SDK-CENTRALIZED-CAPABILITIES-R040` | Unit | The `[project.optional-dependencies]` keys and the row text. | Every extra is named in the row. `test_every_extra_has_a_row` passes. |
+| CC-42 | `SDK-CENTRALIZED-CAPABILITIES-R025` | Unit | The `vector`, `vector-chroma`, and `db` extras. | The vector extras carry the store clients. The `psycopg` and `pymongo` floors equal the `db` floors. `test_vector_extras_share_db_floors` passes. |
+| CC-43 | `SDK-CENTRALIZED-CAPABILITIES-R005` | Unit | `RateLimiter(2.0)` with a fake clock and sleep. Calls 0.5 s apart, then 5 s apart. | The first call does not sleep. The second sleeps 1.5 s. The third does not sleep. `test_rate_respected_with_fake_clock` passes. |
+| CC-44 | `SDK-CENTRALIZED-CAPABILITIES-R005` | Unit | Five concurrent `wait()` calls on `RateLimiter(1.0)` with a fake clock. | The calls leave one second apart in order. `test_concurrent_callers_are_spaced_in_order` passes. |
+| CC-45 | `SDK-CENTRALIZED-CAPABILITIES-R005` | Unit | `async with RateLimiter(0.05)` twice on the real clock. | The second entry waits at least the interval. `test_async_context_manager_and_real_clock` passes. |
 
 ## Negative and boundary cases
 
-A row that names a missing module path fails its index test. A row that names an unknown owner ID fails its index test. An extra in `pyproject.toml` that no row names fails `test_every_extra_has_a_row`.
+A negative or zero interval clamps to zero and never sleeps (`test_interval_is_clamped_and_zero_never_waits`). A row that names a missing module path fails its index test. A row that names an unknown owner ID fails its index test. An extra in `pyproject.toml` that no row names fails `test_every_extra_has_a_row`.
 
 ## Quality and release proof
 
-Run `uv run pytest tests/test_centralized_capability_index.py`. Run the `spec-standard` and `spec-status` hooks on the directory. A fleet-wide scan of connectors is outside this spec.
+Run `uv run pytest tests/test_centralized_capability_index.py tests/test_centralized_extras.py tests/httpsupport/test_rate_limiter.py`. Run the `spec-standard` and `spec-status` hooks on the directory. A fleet-wide scan of connectors is outside this spec.

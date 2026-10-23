@@ -22,7 +22,7 @@ Search: `grep -rn` over `specs/` for each module and capability term. The specs 
 
 Owned behavior: the connector-facing rule for each capability. The owner rows keep the contracts. Dependencies: the owner rows listed in `plan.md`. GraphQL builds on `SDK-CONNECTOR-CONTROL-R014.12`, which another lane extends. Connector identity is `SDK-CONNECTOR-CONTROL-R071`.
 
-Non-goals: new modules, new extras, and a fleet-wide scan. The SDK declares no vector-store extra. Connectors that integrate a vector store pin its client themselves.
+Non-goals: a fleet-wide scan. Row `SDK-CENTRALIZED-CAPABILITIES-R025` adds the `vector` and `vector-chroma` extras for vector-store clients. Row `SDK-CENTRALIZED-CAPABILITIES-R005` adds the shared request limiter `RateLimiter`.
 
 ## Traceability
 
@@ -31,8 +31,8 @@ Non-goals: new modules, new extras, and a fleet-wide scan. The SDK declares no v
 | FR-001 | plan.md Capability index | CC-01 to CC-40 |  |
 | FR-002 | plan.md Capability index | CC-01 to CC-40 |  |
 | SC-001 | plan.md Live integration path | CC-01 to CC-40 |  |
-| SC-002 | plan.md Interfaces and data model | CC-40 |  |
+| SC-002 | plan.md Interfaces and data model | CC-40, CC-41 |  |
 
 ## Open questions
 
-- Whether the SDK should add a `vector` extra for the vector-store clients that the vector connector pins.
+None.

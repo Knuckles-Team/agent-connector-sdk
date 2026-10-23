@@ -7,6 +7,7 @@ Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requireme
 - [ ] Check the module and owner row for api client base and auth strategies in the index test (SDK-CENTRALIZED-CAPABILITIES-R003).
 - [ ] Check the module and owner row for pagination helpers in the index test (SDK-CENTRALIZED-CAPABILITIES-R004).
 - [ ] Check the module and owner row for rate-limit telemetry and concurrency in the index test (SDK-CENTRALIZED-CAPABILITIES-R005).
+- [x] Move the shared `RateLimiter` into `httpsupport/rate_limit.py` and test it with a fake clock (SDK-CENTRALIZED-CAPABILITIES-R005).
 - [ ] Check the module and owner row for error redaction and typed problems in the index test (SDK-CENTRALIZED-CAPABILITIES-R006).
 - [ ] Check the module and owner row for payment challenge handling in the index test (SDK-CENTRALIZED-CAPABILITIES-R007).
 - [ ] Check the module and owner row for tls profiles in the index test (SDK-CENTRALIZED-CAPABILITIES-R008).
@@ -27,6 +28,7 @@ Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requireme
 - [ ] Check the module and owner row for market data in the index test (SDK-CENTRALIZED-CAPABILITIES-R023).
 - [ ] Check the module and owner row for data preparation in the index test (SDK-CENTRALIZED-CAPABILITIES-R024).
 - [ ] Check the module and owner row for embedding client in the index test (SDK-CENTRALIZED-CAPABILITIES-R025).
+- [x] Add the `vector` and `vector-chroma` extras with the `db` floors and test them (SDK-CENTRALIZED-CAPABILITIES-R025).
 - [ ] Check the module and owner row for vendor extractors in the index test (SDK-CENTRALIZED-CAPABILITIES-R026).
 - [ ] Check the module and owner row for ontology and content packs in the index test (SDK-CENTRALIZED-CAPABILITIES-R027).
 - [ ] Check the module and owner row for connector manifest and integrity in the index test (SDK-CENTRALIZED-CAPABILITIES-R028).
@@ -42,3 +44,4 @@ Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requireme
 - [ ] Check the module and owner row for connector test kit in the index test (SDK-CENTRALIZED-CAPABILITIES-R038).
 - [ ] Check the module and owner row for domain record models in the index test (SDK-CENTRALIZED-CAPABILITIES-R039).
 - [ ] Check the module and owner row for optional dependencies come from sdk extras in the index test (SDK-CENTRALIZED-CAPABILITIES-R040).
+- [x] Check that every extra is named in the extras row (SDK-CENTRALIZED-CAPABILITIES-R040).
