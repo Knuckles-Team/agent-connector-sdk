@@ -3067,8 +3067,8 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "0d150cf96fd8",
-        "f0b9e7f4f535",
-        "fba8d8d864b6"
+        "a2490d54b94c",
+        "f0b9e7f4f535"
       ],
       "verified_by": [
         "tests/test_ingest.py:95",
@@ -3149,7 +3149,7 @@
       "title": "Mapping references name the declaration",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "fba8d8d864b6"
+        "a2490d54b94c"
       ],
       "verified_by": [
         "tests/test_ingest.py:95"
