@@ -98,12 +98,12 @@ async def _health(request: Request) -> JSONResponse:
 
 def _calling_package() -> str | None:
     """Top-level package of the first caller outside this SDK."""
-    frame = sys._getframe(1)
+    frame: Any = sys._getframe(1)
     while frame is not None:
-        module = frame.f_globals.get("__name__", "")
+        module = str(frame.f_globals.get("__name__", ""))
         if module and module.split(".", 1)[0] != "agent_connector_sdk":
-            return str(module).split(".", 1)[0]
-        frame = frame.f_back  # type: ignore[assignment]
+            return module.split(".", 1)[0]
+        frame = frame.f_back
     return None
 
 
