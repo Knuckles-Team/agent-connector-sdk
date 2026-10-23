@@ -826,7 +826,7 @@
       "landed_in": [
         "284fb12a19ed",
         "e4ffa1a49677",
-        "fe098dd55c33"
+        "f5de79afc1e0"
       ],
       "verified_by": [
         "tests/test_graphql_client.py:20",
@@ -843,7 +843,7 @@
       "title": "SDK owns the one GraphQL client for connectors",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "fe098dd55c33"
+        "f5de79afc1e0"
       ],
       "verified_by": [
         "tests/test_graphql_client.py:20"
