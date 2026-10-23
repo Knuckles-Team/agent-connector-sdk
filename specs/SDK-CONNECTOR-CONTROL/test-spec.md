@@ -373,3 +373,4 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R902`: `tests/test_actor_forwarding_se
 - `SDK-CONNECTOR-CONTROL-R075.4`: `tests/test_single_declaration.py::test_prompt_serves_its_directive_and_carries_metadata_over_mcp`.
 - `SDK-CONNECTOR-CONTROL-R075.5`: `tests/test_single_declaration.py::test_skill_directory_name_matches_frontmatter_name`.
 - `SDK-CONNECTOR-CONTROL-R075.6`: `tests/test_ingest.py::test_change_set_maps_to_exact_declared_references`.
+- `SDK-CONNECTOR-CONTROL-R075.7`: `tests/test_pack_resource_schema.py::test_pack_satisfies_engine_resource_schema_rule`.
