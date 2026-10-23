@@ -2574,9 +2574,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R900.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/test_source_credentials.py:77"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R900.5",
@@ -2588,9 +2592,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R900.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/test_source_credentials.py:137"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R901",
@@ -2631,9 +2639,15 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R901.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/test_identifiers.py:27",
+        "tests/test_signing.py:21",
+        "tests/test_signing.py:42"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R901.5",
@@ -2645,9 +2659,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R901.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/test_signing.py:42"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R902",

@@ -132,9 +132,14 @@
     {
       "id": "SDK-FINANCE-SOURCES-R900.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/test_finance_crypto.py:48",
+        "tests/test_payments.py:38"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R900.5",
@@ -146,9 +151,13 @@
     {
       "id": "SDK-FINANCE-SOURCES-R900.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/test_payments.py:93"
+      ]
     }
   ]
 }
