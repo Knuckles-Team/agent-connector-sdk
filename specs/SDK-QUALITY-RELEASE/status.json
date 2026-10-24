@@ -72,11 +72,11 @@
       "title": "Hosted CI reproduces the pinned dependency graph from published wheels",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "00b15b0558ec",
         "096f27ee29e5",
         "0c1f49ced769",
-        "3f88b43de7a5",
-        "42b930057c3e"
+        "42b930057c3e",
+        "6856dbff0136",
+        "851969957034"
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:132",
@@ -94,10 +94,10 @@
       "title": "The SDK ships connector conformance as a test plugin",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "00b15b0558ec",
-        "3f88b43de7a5",
-        "b62b1bc73ba1",
-        "ca889b1d0f50"
+        "8baf6d9167cd",
+        "8f36880f39a7",
+        "9a7af09b0f2c",
+        "aa58c5dd6858"
       ],
       "verified_by": [
         "tests/test_conformance_plugin.py:102",

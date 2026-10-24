@@ -1684,7 +1684,7 @@
       "title": "Declarations are data the SDK reads",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "b62b1bc73ba1"
+        "aa58c5dd6858"
       ],
       "verified_by": [
         "tests/test_load_declaration.py:35",
