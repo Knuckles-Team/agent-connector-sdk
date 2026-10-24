@@ -3277,7 +3277,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "647f3de98067",
-        "cd719e774031"
+        "bbc715bc3431"
       ],
       "verified_by": [
         "tests/test_eg_pack_entry_kinds.py:45",
