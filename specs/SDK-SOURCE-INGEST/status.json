@@ -1780,11 +1780,13 @@
       "title": "Ingest tools are declared as data and registered by the SDK",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "41477e484fa3"
+        "41477e484fa3",
+        "8c9f69cb0c87"
       ],
       "verified_by": [
         "tests/test_ingest_strategies.py:199",
-        "tests/test_ingest_strategies.py:277"
+        "tests/test_ingest_strategies.py:277",
+        "tests/test_ingest_strategies.py:308"
       ]
     },
     {
