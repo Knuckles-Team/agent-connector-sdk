@@ -586,18 +586,18 @@
       "title": "Host servers register ontology resources without duplicate skills or prompts",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "00b15b0558ec",
         "045ba48df230",
         "077a14c9f3d3",
         "3ddd773fb6dc",
-        "b62b1bc73ba1",
-        "d9c0db1b19cf"
+        "b62b1bc73ba1"
       ],
       "verified_by": [
         "tests/test_connector_run.py:104",
         "tests/test_connector_run.py:113",
         "tests/test_connector_run.py:126",
         "tests/test_connector_run.py:132",
-        "tests/test_connector_run.py:49"
+        "tests/test_connector_run.py:189"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R019.1"
@@ -608,6 +608,7 @@
       "title": "The SDK runs the connector server from its declared identity",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "00b15b0558ec",
         "b62b1bc73ba1"
       ],
       "verified_by": [
@@ -615,7 +616,7 @@
         "tests/test_connector_run.py:113",
         "tests/test_connector_run.py:126",
         "tests/test_connector_run.py:132",
-        "tests/test_connector_run.py:49"
+        "tests/test_connector_run.py:189"
       ]
     },
     {
@@ -3040,12 +3041,13 @@
       "title": "The server factory serves all five connector surfaces and keeps the parent link",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "00b15b0558ec",
         "268d030fffad",
         "57d0997107dd",
         "cf3d6e92c008"
       ],
       "verified_by": [
-        "tests/test_default_content.py:14"
+        "tests/test_default_content.py:12"
       ]
     },
     {
