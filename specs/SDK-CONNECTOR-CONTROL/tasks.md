@@ -166,6 +166,12 @@ Runtime work and test execution remain outstanding.
 - [ ] SDK-CONNECTOR-CONTROL-R028.3: Strip request and response cookies for every API-key status in sync and async clients.
 - [ ] SDK-CONNECTOR-CONTROL-R028.3: Prove other auth strategies, transport controls, and downstream cross-caller behavior remain correct.
 
+## Declared auth client factory
+
+- [ ] SDK-CONNECTOR-CONTROL-R028.4: Offer Bearer, ApiKey, Basic, ClientCredentials, RefreshToken, SessionLogin and NoAuth declarations that hold names, never values.
+- [ ] SDK-CONNECTOR-CONTROL-R028.4: Build the governed client from one declaration with the named TLS profile and optional delegation.
+- [ ] SDK-CONNECTOR-CONTROL-R028.4: Re-read rotated static secrets after a 401, refresh OAuth tokens before expiry and keep secrets out of repr, logs and errors.
+
 ## Host provider interface and cross-spec producer bindings
 
 - [ ] **SDK-CONNECTOR-CONTROL-R061.1:** Define ProviderPlatformInterface model with service operations and supported platforms.

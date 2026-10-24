@@ -59,6 +59,13 @@ def default_ssl_context() -> ssl.SSLContext:
     return context
 
 
+def isolates_cookies(auth: httpx.Auth | None) -> bool:
+    """Whether ``auth`` is an API-key identity whose client must not keep cookies."""
+    return isinstance(auth, ApiKeyAuth) or bool(
+        getattr(auth, "isolates_cookies", False)
+    )
+
+
 def _transport_kwargs(options: HttpClientOptions) -> dict[str, Any]:
     tls = options.tls
     kwargs: dict[str, Any] = {
@@ -102,7 +109,7 @@ def create_http_client(
         inner,
         policy=options.retry,
         logger=_logger,
-        isolate_cookies=isinstance(options.auth, ApiKeyAuth),
+        isolate_cookies=isolates_cookies(options.auth),
     )
     if options.pin_egress:
         governed = DnsPinnedEgressTransport(
@@ -123,7 +130,7 @@ def create_async_http_client(
         inner,
         policy=options.retry,
         logger=_logger,
-        isolate_cookies=isinstance(options.auth, ApiKeyAuth),
+        isolate_cookies=isolates_cookies(options.auth),
     )
     if options.pin_egress:
         governed = AsyncDnsPinnedEgressTransport(

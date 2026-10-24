@@ -219,6 +219,7 @@ exclude_dirs = ["tests", "scripts"]
 # every entry-point target as roots; every other module must be imported by one.
 public_modules = [
     "agent_connector_sdk.cli",
+    "agent_connector_sdk.auth.declare",
     "agent_connector_sdk.transports.graphql",
     "agent_connector_sdk.ingest.source_sync",
     "agent_connector_sdk.current_plan",

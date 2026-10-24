@@ -14,4 +14,9 @@ or ``openbao://`` reference, never a value.
 
 Replaces ``agent_utilities.mcp.client_credentials``,
 ``agent_utilities.mcp.delegated_auth`` and ``mcp_auth_config``.
+
+The declaration surface lives in :mod:`~agent_connector_sdk.auth.declare`:
+``Bearer``, ``ApiKey``, ``Basic``, ``ClientCredentials``, ``RefreshToken``,
+``SessionLogin`` and ``NoAuth`` plus ``client_factory``. A connector declares
+its scheme in one line and holds no client or token code.
 """
