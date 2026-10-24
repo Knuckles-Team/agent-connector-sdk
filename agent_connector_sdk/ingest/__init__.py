@@ -37,6 +37,19 @@ from agent_connector_sdk.ingest.live_declaration import (
     DeclarationError,
     load_declaration,
 )
+from agent_connector_sdk.ingest.mapping import (
+    EdgeMap,
+    Mapped,
+    Mapper,
+    RecordMap,
+    document_from_record,
+    entity_from_record,
+    ext_id,
+    read_field,
+    records_of,
+    relationship_from_record,
+    slug,
+)
 from agent_connector_sdk.ingest.model import (
     ChangeSet,
     Document,
@@ -48,26 +61,41 @@ from agent_connector_sdk.ingest.model import (
     Withdrawal,
 )
 from agent_connector_sdk.ingest.service import KnowledgeIngest
+from agent_connector_sdk.ingest.stream import FetchPage, SourceStream, open_client
 
 __all__ = [
     "ChangeSet",
     "DeclarationError",
     "Document",
+    "EdgeMap",
     "Entity",
     "EntityRef",
+    "FetchPage",
     "IngestBinding",
     "IngestConflictError",
     "IngestError",
     "IngestUnavailableError",
     "KnowledgeIngest",
+    "Mapped",
+    "Mapper",
     "MediaAsset",
+    "RecordMap",
     "Relationship",
+    "SourceStream",
     "Withdrawal",
     "aingest_changes",
     "current_ingest",
+    "document_from_record",
+    "entity_from_record",
+    "ext_id",
     "ingest_changes",
     "install_ingest",
     "load_declaration",
+    "open_client",
+    "read_field",
+    "records_of",
+    "relationship_from_record",
+    "slug",
 ]
 
 _PROCESS: list[KnowledgeIngest | None] = [None]
