@@ -227,6 +227,70 @@ def test_prompt_serves_its_directive_and_carries_metadata_over_mcp(
     anyio.run(run)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.4")
+def test_prompt_carries_declared_title_tags_use_case_and_system_target(
+    tmp_path: Path,
+) -> None:
+    def served(document: dict[str, Any]) -> Any:
+        path = tmp_path / "declared.json"
+        document["instructions"] = {"core_directive": "Do it."}
+        path.write_text(json.dumps(document), encoding="utf-8")
+        mcp = FastMCP("demo-mcp")
+        _register_prompt(mcp, path)
+
+        async def run() -> Any:
+            async with Client(mcp) as client:
+                (prompt,) = await client.list_prompts()
+                return prompt
+
+        return anyio.run(run)
+
+    prompt = served(
+        {
+            "title": "Declared Title",
+            "tags": ["media", " ", "triage"],
+            "identity": {"role": "Role", "goal": "Goal"},
+            "metadata": {
+                "topic": "T",
+                "useCase": "Find stale items",
+                "audience": "ops",
+            },
+            "prompt_version": "1.2.0",
+            "systemPromptFor": "demo:Item",
+        }
+    )
+    assert prompt.title == "Declared Title"
+    assert set(prompt.meta["fastmcp"]["tags"]) == {
+        "media",
+        "triage",
+        "prompt",
+        "system",
+    }
+    meta = (prompt.meta or {})[PROMPT_META_KEY]
+    meta.pop("fastmcp", None)
+    assert meta == {
+        "audience": "ops",
+        "role": "Role",
+        "goal": "Goal",
+        "topic": "T",
+        "version": "1.2.0",
+        "systemPromptFor": "demo:Item",
+        "useCase": "Find stale items",
+    }
+
+    plain = served({"use_case": "Top-level use case", "tags": "not-a-list"})
+    assert (plain.meta or {})[PROMPT_META_KEY] == {"useCase": "Top-level use case"}
+    assert plain.title is None
+
+
+def test_prompt_tags_are_declared_tags_plus_surface_kind() -> None:
+    from agent_connector_sdk.mcp.content import _prompt_tags
+
+    assert _prompt_tags({"tags": ["a", "b"]}) == {"a", "b", "prompt"}
+    assert _prompt_tags({"tags": ["a"], "serves": "x:Y"}) == {"a", "prompt", "system"}
+    assert _prompt_tags({}) == {"prompt"}
+
+
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.5")
 def test_skill_directory_name_matches_frontmatter_name() -> None:
     for skill in sorted((FIXTURE / "skills").glob("*/SKILL.md")):
