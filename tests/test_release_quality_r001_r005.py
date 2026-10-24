@@ -241,12 +241,12 @@ def test_tampered_installed_native_file_fails_with_matching_pep610_hash(
     wheel = tmp_path / manifest["wheel_filename"]
     native = manifest["native_member"]
     members = {
-        "epistemic_graph/__init__.py": b"__version__ = '2.27.3'\n",
+        "epistemic_graph/__init__.py": b"__version__ = '2.27.6'\n",
         native: b"trusted native engine",
-        "epistemic_graph-2.27.3.dist-info/METADATA": (
-            b"Metadata-Version: 2.3\nName: epistemic-graph\nVersion: 2.27.3\n"
+        "epistemic_graph-2.27.6.dist-info/METADATA": (
+            b"Metadata-Version: 2.3\nName: epistemic-graph\nVersion: 2.27.6\n"
         ),
-        "epistemic_graph-2.27.3.dist-info/WHEEL": (
+        "epistemic_graph-2.27.6.dist-info/WHEEL": (
             b"Wheel-Version: 1.0\nRoot-Is-Purelib: false\n"
             b"Tag: cp39-abi3-manylinux_2_28_x86_64\n"
         ),

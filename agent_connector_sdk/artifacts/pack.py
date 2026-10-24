@@ -34,7 +34,6 @@ __all__ = [
 _RESOURCE_KINDS = {
     "ontology": PackEntryKind.ONTOLOGY,
     "shapes": PackEntryKind.SHAPES,
-    "manifest": PackEntryKind.MANIFEST,
     "model-profile": PackEntryKind.MODEL_PROFILE,
     "a2a-card": PackEntryKind.A2A_CARD,
 }

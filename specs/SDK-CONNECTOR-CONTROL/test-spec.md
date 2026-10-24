@@ -397,4 +397,4 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R902`: `tests/test_actor_forwarding_se
 - `SDK-CONNECTOR-CONTROL-R075.4`: `tests/test_single_declaration.py::test_prompt_serves_its_directive_and_carries_metadata_over_mcp`.
 - `SDK-CONNECTOR-CONTROL-R075.5`: `tests/test_single_declaration.py::test_skill_directory_name_matches_frontmatter_name`.
 - `SDK-CONNECTOR-CONTROL-R075.6`: `tests/test_ingest.py::test_change_set_maps_to_exact_declared_references`.
-- `SDK-CONNECTOR-CONTROL-R075.7`: `tests/test_pack_resource_schema.py::test_pack_satisfies_engine_resource_schema_rule`.
+- `SDK-CONNECTOR-CONTROL-R075.7`: `tests/test_pack_resource_schema.py::test_pack_satisfies_engine_resource_schema_rule`. `tests/test_eg_pack_entry_kinds.py` proves the SDK against the engine floor. Its tests are `test_every_sdk_module_imports_against_the_engine`, `test_every_mapped_entry_kind_exists_in_the_engine`, `test_a_manifest_resource_has_no_pack_entry_kind` and `test_a_pack_builds_against_the_engine`.

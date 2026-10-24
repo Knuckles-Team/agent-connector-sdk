@@ -117,7 +117,7 @@ owns authenticated runtime composition.
 | Write-back | Preview, source-version checks, apply, and reconciliation | Epistemic Graph owns change sets, authorization decisions, and durable outcomes. |
 | Runtime composition | Typed ports and checked dependency requirements | Arbora supplies authenticated identity, clients, and live authority. |
 
-The SDK depends directly on `epistemic-graph>=2.27.0`. Generated SourceIngest,
+The SDK depends directly on `epistemic-graph>=2.27.6`. Generated SourceIngest,
 ConnectorPack, IndexRepository, and WriteBack clients and models are the graph
 boundary; the SDK adds no parallel graph contract.
 
