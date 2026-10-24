@@ -106,28 +106,32 @@
         "SDK-FINANCE-SOURCES-R900.4",
         "SDK-FINANCE-SOURCES-R900.5",
         "SDK-FINANCE-SOURCES-R900.6"
-      ]
+      ],
+      "priority": 0
     },
     {
       "id": "SDK-FINANCE-SOURCES-R900.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [],
+      "priority": 0
     },
     {
       "id": "SDK-FINANCE-SOURCES-R900.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [],
+      "priority": 0
     },
     {
       "id": "SDK-FINANCE-SOURCES-R900.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [],
+      "priority": 0
     },
     {
       "id": "SDK-FINANCE-SOURCES-R900.4",
@@ -146,7 +150,8 @@
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [],
+      "priority": 0
     },
     {
       "id": "SDK-FINANCE-SOURCES-R900.6",
@@ -159,5 +164,17 @@
         "tests/test_payments.py:93"
       ]
     }
+  ],
+  "frontier": [
+    "SDK-FINANCE-SOURCES-R900.1",
+    "SDK-FINANCE-SOURCES-R900.2",
+    "SDK-FINANCE-SOURCES-R900.3",
+    "SDK-FINANCE-SOURCES-R900.5"
+  ],
+  "unserved": [
+    "SDK-FINANCE-SOURCES-R900.1",
+    "SDK-FINANCE-SOURCES-R900.2",
+    "SDK-FINANCE-SOURCES-R900.3",
+    "SDK-FINANCE-SOURCES-R900.5"
   ]
 }
