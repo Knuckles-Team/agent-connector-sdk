@@ -27,7 +27,8 @@
       "title": "SDK is the sole path for repository-native codebase hydration",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [],
+      "priority": 0
     },
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R003",
@@ -67,5 +68,11 @@
         "tests/test_repository_transport.py:180"
       ]
     }
+  ],
+  "frontier": [
+    "SDK-REPOSITORY-TRANSPORT-R002"
+  ],
+  "unserved": [
+    "SDK-REPOSITORY-TRANSPORT-R002"
   ]
 }
