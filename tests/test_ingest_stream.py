@@ -13,6 +13,7 @@ from agent_connector_sdk.ingest import (
     FetchPage,
     IngestBinding,
     IngestError,
+    IngestUnavailableError,
     Mapped,
     Mapper,
     RecordMap,
@@ -29,13 +30,16 @@ class _Ingest:
     def __init__(self, cursor: str | None = None) -> None:
         self.cursor = cursor
         self.submitted: list[ChangeSet] = []
+        self.bindings: list[IngestBinding] = []
 
     async def submit(self, binding: IngestBinding, changes: ChangeSet) -> Any:
-        assert binding is BINDING
+        self.bindings.append(binding)
         self.submitted.append(changes)
         self.cursor = changes.cursor or self.cursor
         return SimpleNamespace(
-            affected_count=len(changes.entities) + len(changes.documents),
+            affected_count=len(changes.entities)
+            + len(changes.documents)
+            + len(changes.media),
             relationship_count=len(changes.relationships),
         )
 
@@ -157,3 +161,90 @@ def test_open_client_closes_sync_and_async_clients() -> None:
 
     anyio.run(main)
     assert closed == ["sync", "async"]
+
+
+class _Refusing(_Ingest):
+    def __init__(self, error: Exception) -> None:
+        super().__init__()
+        self.error = error
+
+    async def submit(self, binding: IngestBinding, changes: ChangeSet) -> Any:
+        raise self.error
+
+
+DOCS = IngestBinding(connector="demo-mcp", stream="demo-documents")
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.32")
+def test_best_effort_never_raises_and_drops_incomplete_records() -> None:
+    stream = SourceStream(
+        BINDING, {"item": RecordMap("Item", "x:{_id}")}, best_effort=True
+    )
+    sink = _Ingest()
+    assert _run(stream.entities([], ingest=sink)) is None
+    assert _run(stream.documents([{"id": "d"}], ingest=sink)) is None
+    assert _run(stream.records("nope", [{"id": "1"}], ingest=sink)) is None
+    assert _run(stream.media(b"", "image/png", ingest=sink)) is None
+    assert not sink.submitted
+    out = _run(
+        stream.entities(
+            [{"id": "1", "node_type": "T"}, {"node_type": "T"}], ingest=sink
+        )
+    )
+    assert out == {"nodes": 1, "edges": 0}
+    assert len(sink.submitted[0].entities) == 1
+    for error in (IngestError("refused"), IngestUnavailableError("down")):
+        bad = _Refusing(error)
+        assert (
+            _run(stream.entities([{"id": "1", "node_type": "T"}], ingest=bad)) is None
+        )
+    strict = SourceStream(BINDING)
+    with pytest.raises(IngestError):
+        _run(
+            strict.entities(
+                [{"id": "1", "node_type": "T"}], ingest=_Refusing(IngestError("x"))
+            )
+        )
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.32")
+def test_documents_land_in_their_own_stream_when_declared() -> None:
+    stream = SourceStream(
+        BINDING,
+        {"mixed": lambda records: Mapped().entity("e", "E").document("d", "text")},
+        document_binding=DOCS,
+    )
+    sink = _Ingest()
+    _run(stream.documents([{"id": "d", "text": "t"}], ingest=sink))
+    _run(stream.entities([{"id": "e", "node_type": "E"}], ingest=sink))
+    assert sink.bindings == [DOCS, BINDING]
+    sink = _Ingest()
+    assert _run(stream.records("mixed", [{}], ingest=sink)) == {"nodes": 2, "edges": 0}
+    assert sink.bindings == [BINDING, DOCS]
+    assert not sink.submitted[0].documents and sink.submitted[1].documents
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.32")
+def test_batch_media_and_raw_submit_share_one_path() -> None:
+    stream = _stream()
+    sink = _Ingest()
+    out = _run(
+        stream.batch(
+            [{"id": "e", "node_type": "E"}],
+            [{"source": "e", "target": "d", "relationship": "r"}],
+            [{"id": "d", "text": "t"}],
+            ingest=sink,
+        )
+    )
+    assert out == {"nodes": 2, "edges": 1}
+    assert len(sink.submitted) == 1
+    assert _run(stream.media(b"png", "image/png", name="a.png", ingest=sink)) == {
+        "nodes": 1,
+        "edges": 0,
+    }
+    assert sink.submitted[-1].media[0].name == "a.png"
+    with pytest.raises(IngestError):
+        _run(stream.media(b"", "image/png", ingest=sink))
+    other = IngestBinding(connector="demo-mcp", stream="other")
+    _run(stream.submit(ChangeSet(), binding=other, ingest=sink))
+    assert sink.bindings[-1] is other
