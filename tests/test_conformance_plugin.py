@@ -149,3 +149,18 @@ def test_generated_items_carry_the_check_and_spec_marker(tmp_path, monkeypatch) 
 
     assert all(isinstance(check, Check) for check in CHECKS)
     assert ConformanceItem.__mro__[1] is pytest.Item
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005.1")
+def test_startup_check_requires_the_health_route_to_answer(
+    tmp_path, monkeypatch
+) -> None:
+    from agent_connector_sdk.testing import conformance
+
+    resolved = _install(tmp_path, monkeypatch)
+    assert conformance._health_status(conformance._server(resolved)) == 200
+    monkeypatch.setattr(conformance, "_health_status", lambda mcp: 503)
+    with pytest.raises(conformance.ConformanceFailure, match="/health"):
+        run_check("startup", resolved)
+    for name in [m for m in sys.modules if m.split(".")[0] == "democonn"]:
+        sys.modules.pop(name)

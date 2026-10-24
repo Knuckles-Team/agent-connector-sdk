@@ -155,6 +155,14 @@ def check_version_from_metadata(resolved: ResolvedConnector) -> None:
     _require(declared in (None, resolved.version), f"__version__ {declared!r} differs")
 
 
+def _health_status(mcp: Any) -> int:
+    """GET ``/health`` through the server's own ASGI app."""
+    from starlette.testclient import TestClient
+
+    with TestClient(mcp.http_app()) as client:
+        return client.get("/health").status_code
+
+
 def check_startup(resolved: ResolvedConnector) -> None:
     """The connector builds over each transport, reports its version and answers health."""
     try:
@@ -169,13 +177,7 @@ def check_startup(resolved: ResolvedConnector) -> None:
         "server version differs from metadata",
     )
     _require(mcp.name == resolved.name, "server name differs from the fleet name")
-    routes = {
-        getattr(r, "path", "")
-        for r in getattr(
-            mcp, "_additional_http_routes", getattr(mcp, "_custom_routes", [])
-        )
-    }
-    _require("/health" in routes or not routes, f"no /health route in {routes}")
+    _require(_health_status(mcp) == 200, "/health did not answer 200")
     if (resolved.dirs.root / "__main__.py").is_file():
         spec = importlib.util.find_spec(f"{resolved.package}.__main__")
         _require(spec is not None, "module has no spec")

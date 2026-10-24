@@ -71,6 +71,13 @@ class Connector:
         extra_registrations: Callables run with the FastMCP server after the
             tool surface registers, for registrations the SDK does not own.
         transports: Offered transports; defaults to every SDK transport.
+        tool_prefix: Operation-tool name prefix; defaults to one derived from
+            the fleet name.
+        verbose_targets: Extra ``{client_cls, get_client, prefix?, manifest?,
+            result_coercer?}`` operation-tool sources.
+        verbose_register: Callable run last to register further tools.
+        result_coercer: Coerces each operation result.
+        action_dispatch: Keep action-routed tools whole instead of splitting.
     """
 
     instructions: str = ""
@@ -79,6 +86,11 @@ class Connector:
     tools: ModuleType | str | None = None
     extra_registrations: tuple[Callable[[Any], None], ...] = ()
     transports: Sequence[str] | None = None
+    tool_prefix: str | None = None
+    verbose_targets: tuple[dict[str, Any], ...] = ()
+    verbose_register: Callable[[Any], None] | None = None
+    result_coercer: Callable[[Any], Any] | None = None
+    action_dispatch: bool = False
 
     def __post_init__(self) -> None:
         if (self.api is None) != (self.get_client is None):
@@ -213,6 +225,11 @@ def build_server(
         get_client=connector.get_client,
         tools_module=_tools_module(resolved),
         package_root=resolved.dirs.root,
+        tool_prefix=connector.tool_prefix,
+        verbose_targets=list(connector.verbose_targets) or None,
+        verbose_register=connector.verbose_register,
+        result_coercer=connector.result_coercer,
+        action_dispatch=connector.action_dispatch,
     )
     for register in connector.extra_registrations:
         register(mcp)
