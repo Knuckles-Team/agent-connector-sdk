@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import re
 import sys
-from collections.abc import Callable
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -45,6 +45,7 @@ __all__ = [
     "CondensedEntry",
     "gated_tool_names",
     "operation_prefix",
+    "register_action_tools",
     "register_tool_surface",
     "registered_tools",
 ]
@@ -399,4 +400,44 @@ def register_tool_surface(
             raise ValueError(
                 f"verbose tool name collides with a registered tool: {sorted(collisions)}"
             )
+    return tags
+
+
+def register_action_tools(
+    mcp: Any,
+    entries: Sequence[CondensedEntry],
+    *,
+    prefixes: Mapping[str, str] | None = None,
+) -> list[str]:
+    """Run action-routed registrars and serve each action as its own typed tool.
+
+    Each ``(tag, toggle_setting, registrar)`` entry runs unless its setting is
+    false (SDK-CONNECTOR-CONTROL-R019.2). Every tool it adds that routes an
+    ``action`` input is split into ``<prefix>_<action>`` tools, with or without
+    an operation client; ``prefixes`` maps a routed tool name to its prefix,
+    which defaults to the tool name. A split name already served is covered
+    by that tool, not registered twice. Tools without an ``action`` input stay
+    as registered.
+
+    Returns:
+        The tags that registered.
+    """
+    before = set(registered_tools(mcp))
+    tags = _register_condensed(mcp, list(entries))
+    gated: set[str] = getattr(mcp, GATED_TOOLS_ATTRIBUTE, set())
+    for name, tool in list(registered_tools(mcp).items()):
+        if name in before or not _is_action_dispatch(tool):
+            continue
+        added = split_action_tool(
+            mcp,
+            name,
+            tool,
+            operations={},
+            taken=set(registered_tools(mcp)) - {name},
+            prefix=(prefixes or {}).get(name),
+        )
+        if name not in added:
+            gated.discard(name)
+        gated.update(added)
+    setattr(mcp, GATED_TOOLS_ATTRIBUTE, gated)
     return tags

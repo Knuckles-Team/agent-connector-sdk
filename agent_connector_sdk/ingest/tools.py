@@ -16,6 +16,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Any
 
+from agent_connector_sdk.connector_hooks import Registration, RegistrationContext
 from agent_connector_sdk.ingest.errors import IngestError
 from agent_connector_sdk.ingest.mapping import Mapped
 from agent_connector_sdk.ingest.paging import CursorStrategy
@@ -102,15 +103,15 @@ def ingest_registration(
     stream: SourceStream,
     tools: Sequence[IngestTool],
     get_client: Callable[..., Any],
-) -> Callable[[Any], None]:
-    """A registrar for ``Connector(extra_registrations=(...))`` serving ``tools``."""
+) -> Registration:
+    """A registration for ``Connector(extra_registrations=(...))`` serving ``tools``."""
     for spec in tools:
         if spec.paged and spec.kind is None:
             raise ValueError(f"paged ingest tool {spec.name!r} needs a kind")
 
-    def register(mcp: Any) -> None:
+    def register(context: RegistrationContext) -> None:
         for spec in tools:
-            mcp.tool(
+            context.server.tool(
                 name=spec.name,
                 annotations={
                     "title": spec.title,

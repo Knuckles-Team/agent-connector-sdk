@@ -560,6 +560,7 @@ def _function_body(fn: Any) -> ast.AST | None:
 @dataclass(frozen=True)
 class _Context:
     name: str
+    prefix: str
     operations: Mapping[str, str]
     taken: Collection[str]
     branches: dict[str, ast.AST]
@@ -569,7 +570,7 @@ class _Context:
 
 def _coverage(action: str, ctx: _Context) -> tuple[str, str] | None:
     """``(serving_tool, reason)`` when an operation already serves ``action``."""
-    split = f"{ctx.name}_{action}"
+    split = f"{ctx.prefix}_{action}"
     if split in ctx.taken:
         return split, "name"
     if action in ctx.operations:
@@ -591,7 +592,7 @@ def _register_split(mcp: Any, ctx: _Context, tool: Any, action: str) -> str:
     params = set(inspect.signature(tool.fn).parameters)
     keep = (_names(branch) & params) if branch is not None else None
     fn, _served = _per_action(tool, action, keep)
-    tool_name = f"{ctx.name}_{action}"
+    tool_name = f"{ctx.prefix}_{action}"
     mcp.tool(
         name=tool_name,
         description=f"{action.replace('_', ' ').capitalize()} ({ctx.name}). "
@@ -610,8 +611,12 @@ def split_action_tool(
     operations: Mapping[str, str],
     taken: Collection[str] = (),
     clients: Mapping[Any, Mapping[str, str]] | None = None,
+    prefix: str | None = None,
 ) -> list[str]:
     """Replace one action-routed tool by per-action tools; never lose an action.
+
+    Each per-action tool is named ``<prefix>_<action>``; ``prefix`` defaults to
+    the routed tool's own name.
 
     ``operations`` maps each client method served as an operation tool to that
     tool's name; ``taken`` holds every other tool name already served or about
@@ -629,7 +634,7 @@ def split_action_tool(
     if dispatched:
         mcp.local_provider.remove_tool(name)
         for method, served_by in dispatched.items():
-            split = f"{name}_{method}"
+            split = f"{prefix or name}_{method}"
             _record(
                 mcp,
                 SplitDecision(name, method, split, "covered", served_by, "dispatch"),
@@ -644,6 +649,7 @@ def split_action_tool(
         return [name]
     ctx = _Context(
         name,
+        prefix or name,
         operations,
         set(taken) | set(operations.values()),
         _branches(tool.fn),
@@ -660,7 +666,7 @@ def split_action_tool(
     mcp.local_provider.remove_tool(name)
     added: list[str] = []
     for action in actions:
-        split = f"{name}_{action}"
+        split = f"{ctx.prefix}_{action}"
         covered = _coverage(action, ctx)
         if covered is not None:
             _record(mcp, SplitDecision(name, action, split, "covered", *covered))

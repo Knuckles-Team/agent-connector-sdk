@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from typing import Any
@@ -10,6 +11,7 @@ import anyio
 import pytest
 from fastmcp import Client, FastMCP
 
+from agent_connector_sdk.connector_hooks import RegistrationContext
 from agent_connector_sdk.ingest import (
     ChangeSet,
     CursorStrategy,
@@ -31,6 +33,17 @@ from agent_connector_sdk.ingest import (
 from agent_connector_sdk.ingest.tools import INGEST_TOOL_TAGS
 
 BINDING = IngestBinding(connector="demo-mcp", stream="demo")
+
+
+def _context(mcp: FastMCP) -> RegistrationContext:
+    return RegistrationContext(
+        server=mcp,
+        name="demo-mcp",
+        version="0.0.0",
+        settings=argparse.Namespace(),
+        client_factory=None,
+        auth=None,
+    )
 
 
 class _Ingest:
@@ -246,7 +259,7 @@ def test_ingest_tools_register_with_standard_annotations_and_run() -> None:
             get_client,
         )
         mcp = FastMCP("demo-mcp")
-        register(mcp)
+        register(_context(mcp))
 
         async def main() -> None:
             async with Client(mcp) as client:
@@ -314,7 +327,7 @@ def test_a_records_tool_without_a_kind_fails_at_call_time() -> None:
         _stream(), [IngestTool("t", "T", records)], lambda: SimpleNamespace()
     )
     mcp = FastMCP("demo-mcp")
-    register(mcp)
+    register(_context(mcp))
 
     async def main() -> None:
         async with Client(mcp) as client:
