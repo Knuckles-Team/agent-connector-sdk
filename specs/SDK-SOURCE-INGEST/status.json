@@ -140,6 +140,8 @@
     "SDK-SOURCE-INGEST-R004.27",
     "SDK-SOURCE-INGEST-R004.28",
     "SDK-SOURCE-INGEST-R004.29",
+    "SDK-SOURCE-INGEST-R004.30",
+    "SDK-SOURCE-INGEST-R004.31",
     "SDK-SOURCE-INGEST-R013",
     "SDK-SOURCE-INGEST-R013.1",
     "SDK-SOURCE-INGEST-R013.2",
@@ -315,7 +317,9 @@
         "SDK-SOURCE-INGEST-R004.26",
         "SDK-SOURCE-INGEST-R004.27",
         "SDK-SOURCE-INGEST-R004.28",
-        "SDK-SOURCE-INGEST-R004.29"
+        "SDK-SOURCE-INGEST-R004.29",
+        "SDK-SOURCE-INGEST-R004.30",
+        "SDK-SOURCE-INGEST-R004.31"
       ]
     },
     {
@@ -1692,6 +1696,35 @@
         "tests/test_load_declaration.py:54",
         "tests/test_load_declaration.py:63",
         "tests/test_load_declaration.py:73"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.30",
+      "title": "A connector declares its record mappers; the SDK owns the rest",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "077db8362deb"
+      ],
+      "verified_by": [
+        "tests/test_ingest_mapping.py:102",
+        "tests/test_ingest_mapping.py:41",
+        "tests/test_ingest_mapping.py:72",
+        "tests/test_ingest_mapping.py:79",
+        "tests/test_ingest_mapping.py:86"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.31",
+      "title": "One `SourceStream` is the ingest entry",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "077db8362deb"
+      ],
+      "verified_by": [
+        "tests/test_ingest_stream.py:106",
+        "tests/test_ingest_stream.py:137",
+        "tests/test_ingest_stream.py:68",
+        "tests/test_ingest_stream.py:91"
       ]
     },
     {

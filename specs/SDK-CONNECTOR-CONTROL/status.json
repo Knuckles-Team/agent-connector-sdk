@@ -3141,11 +3141,11 @@
       "title": "The connector's MCP server is the only place its metadata is read from (rollup)",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "077db8362deb",
         "0d150cf96fd8",
         "2078ee0208c5",
         "647f3de98067",
-        "95f251043be1",
-        "f0b9e7f4f535"
+        "95f251043be1"
       ],
       "verified_by": [
         "tests/test_ingest.py:95",
@@ -3206,10 +3206,12 @@
       "title": "Prompts serve their own directive and carry their metadata over native MCP",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "077db8362deb",
         "f0b9e7f4f535"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:192"
+        "tests/test_single_declaration.py:192",
+        "tests/test_single_declaration.py:230"
       ]
     },
     {
@@ -3220,7 +3222,7 @@
         "f0b9e7f4f535"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:230"
+        "tests/test_single_declaration.py:294"
       ]
     },
     {
