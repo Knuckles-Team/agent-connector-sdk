@@ -289,7 +289,7 @@ def _edge(
     record_id: str, record_type: str, edge: EdgeSpec, ref: Any
 ) -> list[tuple[Entity | None, Relationship]]:
     element = ref if isinstance(ref, Mapping) else {}
-    raw = element.get(edge.target_id_key) if edge.target_id_key else ref
+    raw = element.get(edge.target_id_key) if edge.target_id_key and element else ref
     if raw is None or isinstance(raw, Mapping | list) or not str(raw).strip():
         return []
     target_id = edge.target_id_template.format(type=edge.target_type, id=raw)
