@@ -25,6 +25,7 @@
     "SDK-CONNECTOR-CONTROL-R017",
     "SDK-CONNECTOR-CONTROL-R018",
     "SDK-CONNECTOR-CONTROL-R019",
+    "SDK-CONNECTOR-CONTROL-R019.1",
     "SDK-CONNECTOR-CONTROL-R020",
     "SDK-CONNECTOR-CONTROL-R021",
     "SDK-CONNECTOR-CONTROL-R022",
@@ -280,6 +281,8 @@
     "SDK-CONNECTOR-CONTROL-R782",
     "SDK-CONNECTOR-CONTROL-R070",
     "SDK-CONNECTOR-CONTROL-R071",
+    "SDK-CONNECTOR-CONTROL-R071.1",
+    "SDK-CONNECTOR-CONTROL-R071.2",
     "SDK-CONNECTOR-CONTROL-R072",
     "SDK-CONNECTOR-CONTROL-R073",
     "SDK-CONNECTOR-CONTROL-R074",
@@ -586,14 +589,33 @@
         "045ba48df230",
         "077a14c9f3d3",
         "3ddd773fb6dc",
-        "d9c0db1b19cf",
-        "fad5328aee62"
+        "b62b1bc73ba1",
+        "d9c0db1b19cf"
       ],
       "verified_by": [
-        "tests/test_registry_visibility_content.py:265",
-        "tests/test_registry_visibility_content.py:282",
-        "tests/test_schema_disclosure_provider.py:142",
-        "tests/test_schema_disclosure_provider.py:63"
+        "tests/test_connector_run.py:104",
+        "tests/test_connector_run.py:113",
+        "tests/test_connector_run.py:126",
+        "tests/test_connector_run.py:132",
+        "tests/test_connector_run.py:49"
+      ],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R019.1"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R019.1",
+      "title": "The SDK runs the connector server from its declared identity",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "b62b1bc73ba1"
+      ],
+      "verified_by": [
+        "tests/test_connector_run.py:104",
+        "tests/test_connector_run.py:113",
+        "tests/test_connector_run.py:126",
+        "tests/test_connector_run.py:132",
+        "tests/test_connector_run.py:49"
       ]
     },
     {
@@ -2962,10 +2984,43 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "8ec791033514",
+        "b62b1bc73ba1",
         "e94990c8a480"
       ],
       "verified_by": [
-        "tests/test_connector_identity.py:20"
+        "tests/test_connector_identity.py:20",
+        "tests/test_connector_run.py:140",
+        "tests/test_connector_run.py:152",
+        "tests/test_connector_run.py:161",
+        "tests/test_connector_run.py:172"
+      ],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R071.1",
+        "SDK-CONNECTOR-CONTROL-R071.2"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R071.1",
+      "title": "Content is found by convention",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "b62b1bc73ba1"
+      ],
+      "verified_by": [
+        "tests/test_connector_run.py:140",
+        "tests/test_connector_run.py:152",
+        "tests/test_connector_run.py:172"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R071.2",
+      "title": "The version is read from package metadata only",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "b62b1bc73ba1"
+      ],
+      "verified_by": [
+        "tests/test_connector_run.py:161"
       ]
     },
     {
