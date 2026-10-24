@@ -868,7 +868,7 @@
       "title": "A connector declares its outbound auth in one line and the SDK builds the governed client",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "76f43b75949f"
+        "19ca24046d12"
       ],
       "verified_by": [
         "tests/test_auth_declarations.py:106",
