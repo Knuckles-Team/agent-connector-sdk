@@ -38,6 +38,7 @@ class AccessToken:
     value: str = field(repr=False)
     ttl_seconds: float
     expires_at: float
+    refresh_token: str | None = field(default=None, repr=False)
 
     def fresh(self, skew_seconds: float) -> bool:
         """Whether the token is still valid ``skew_seconds`` from now."""
@@ -66,7 +67,11 @@ def parse_token_response(body: bytes) -> AccessToken:
     )
     if not (math.isfinite(ttl) and 1.0 <= ttl <= _MAX_TTL_SECONDS):
         raise TokenRequestError("token response has an invalid expires_in")
-    return AccessToken(token, ttl, time.monotonic() + ttl)
+    rotated = payload.get("refresh_token")
+    refresh = (
+        rotated if isinstance(rotated, str) and 1 <= len(rotated) <= 65_536 else None
+    )
+    return AccessToken(token, ttl, time.monotonic() + ttl, refresh)
 
 
 def request_access_token(

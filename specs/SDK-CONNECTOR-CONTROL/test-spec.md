@@ -207,6 +207,10 @@ These are required future tests. None ran during definition authoring.
 - **CC-113 / R028.3:** Run tests/test_http_client.py::test_non_api_key_client_preserves_existing_cookie_behavior. Confirm the Bearer client retains its existing HTTPX cookie-jar behavior. Keep the existing TLS, origin, redirect, and retry tests.
 - **CC-114 / R028.3:** Run downstream acceptance through real modern MCP tools/call. Pin the immutable SDK commit and use a controlled provider transport. Exercise login and finishOAuth before protected calls. Repeat through two distinct MCP clients that share one API-key HTTP client. Assert every provider call carries no Cookie and uses the configured API key. Make no live provider or credential calls.
 
+## Declared auth client factory acceptance
+
+- **CC-115 / R028.4:** Run tests/test_auth_declarations.py against stub servers. Cover Bearer, ApiKey (header and query), Basic and SessionLogin shapes. Assert a 401 after a rotated secret retries once and an unchanged secret does not. Assert ClientCredentials and RefreshToken refresh before expiry, re-mint once on a 401 and keep a rotated refresh token. Assert a CA bundle is trusted only through the declared TLS name. Assert no secret appears in repr, log records or errors, and an incomplete declaration raises AuthConfigurationError.
+
 ## JSON loader served acceptance matrix
 
 Seed 5489 must create two isolated servers and controlled backends for each inventory entry.

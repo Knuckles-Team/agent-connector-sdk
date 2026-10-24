@@ -581,3 +581,11 @@ Arbora's ARBORA-OPS-R021.4.5 remains responsible for authenticated tenant/princi
 SDK 0.3.4 split action-routed tools instead of dropping them. SDK 0.3.5 and 0.3.6 stopped split tools from colliding with operation tools (R020.2). R020.3 states the never-drop rule. R020.4 states the successor parity rule: a release keeps, splits or covers each predecessor tool.
 
 R902 lets a tool declare that it needs an acting user. arbora forwards a delegated token for such tools (ARBORA-IDENTITY-R028). The transport binds the user before the tool body runs.
+
+## Amendment: 2026-10-23 declared auth client factory (R028.4)
+
+The fleet inventory found nine hand-written auth shapes across 63 `auth.py` files. The SDK keeps the best variant of each in `agent_connector_sdk.auth.declare`.
+
+Static, client-credentials and delegation auth already refresh and redact. This amendment adds a rotated-secret retry for static credentials, the refresh-token grant and a cookie-session login. It adds one declaration surface over the TLS profile resolver.
+
+R028.3 requires a separate explicit contract for cookie-session login, and `SessionLogin` is that contract. API-key clients keep cookie isolation.
