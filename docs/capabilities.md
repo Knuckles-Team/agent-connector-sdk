@@ -17,7 +17,7 @@ part of the current public package.
 
 ## Contract boundary
 
-The SDK depends on `epistemic-graph>=2.27.0`. SourceIngest, ConnectorPack,
+The SDK depends on `epistemic-graph>=2.27.6`. SourceIngest, ConnectorPack,
 IndexRepository, and WriteBack graph models come from Epistemic Graph's
 generated surface. Arbora provides the checked client, identity, and live
 authority required for graph-bound runtime composition.

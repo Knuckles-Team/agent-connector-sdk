@@ -1,13 +1,13 @@
 {
-  "graph_sha256": "eab2427fef50975e3e3f159e440fa2bcf3313c830edde99fe6653a431b8fd2ad",
+  "graph_sha256": "b107d8e66ba25786be1854a31f5a9a127851836da69b9dc0545c8a83f7cc910b",
   "installed_distributions": [
-    "agent-connector-sdk==0.5.3",
+    "agent-connector-sdk==0.5.4",
     "annotated-types==0.8.0",
     "anyio==4.15.1",
     "certifi==2026.7.22",
     "cffi==2.1.1",
     "cryptography==50.0.2",
-    "epistemic-graph==2.27.3",
+    "epistemic-graph==2.27.6",
     "h11==0.16.0",
     "httpcore2==2.13.1",
     "httpcore==1.0.9",
@@ -43,19 +43,19 @@
         "epistemic_graph.generated.write_back": "epistemic_graph/generated/write_back.py"
       },
       "declared_dependencies": [
-        "epistemic-graph-server==2.27.3 ; extra == 'server'",
-        "httpx>=0.24.0",
-        "httpx>=0.24.0 ; extra == 'lmcache'",
-        "maturin>=1.0,<2.0 ; extra == 'test'",
-        "msgpack>=1.2.1",
-        "pydantic>=2,<3",
-        "pyoxigraph>=0.3.22",
-        "pyoxigraph>=0.3.22 ; extra == 'owl'",
-        "pytest-asyncio>=0.23.0 ; extra == 'test'",
-        "pytest-cov>=4.0.0 ; extra == 'test'",
-        "pytest-timeout>=2.1.0 ; extra == 'test'",
-        "pytest-xdist>=3.0.0 ; extra == 'test'",
-        "pytest>=7.0.0 ; extra == 'test'",
+        "epistemic-graph-server==2.27.6 ; extra == 'server'",
+        "httpx>=0.28.1",
+        "httpx>=0.28.1 ; extra == 'lmcache'",
+        "maturin>=1.15.0,<2.0 ; extra == 'test'",
+        "msgpack>=1.2.3",
+        "pydantic>=2.14.1,<3",
+        "pyoxigraph>=0.5.11",
+        "pyoxigraph>=0.5.11 ; extra == 'owl'",
+        "pytest-asyncio>=1.4.0 ; extra == 'test'",
+        "pytest-cov>=7.1.0 ; extra == 'test'",
+        "pytest-timeout>=2.4.0 ; extra == 'test'",
+        "pytest-xdist>=3.8.0 ; extra == 'test'",
+        "pytest>=9.1.1 ; extra == 'test'",
         "pyyaml>=6.0.3 ; extra == 'test'"
       ],
       "evidence_kind": "pypi-registry-wheel",
@@ -66,16 +66,16 @@
         "pyoxigraph==0.5.11"
       ],
       "locked_wheels": {
-        "epistemic_graph-2.27.3-cp39-abi3-macosx_11_0_arm64.whl": "c70ba4a8d94ade15e682da8378620cf90d8abc2f0bb5225736969da08da70965",
-        "epistemic_graph-2.27.3-cp39-abi3-manylinux_2_28_aarch64.whl": "01b0265fdcecc71409172c9da2a6a4836fb3bc3676dc23cca8e6991bd24d298f",
-        "epistemic_graph-2.27.3-cp39-abi3-manylinux_2_28_x86_64.whl": "7e38d04234d87c969228a4bc9c53f9b53fbcf5c9c6871d354716fd7d80ded8e9",
-        "epistemic_graph-2.27.3-cp39-abi3-win_amd64.whl": "7ddeddfb4d048cdeae1a670ff1b98477cb83898c300bf0c681ce619a14b21e2a"
+        "epistemic_graph-2.27.6-cp39-abi3-macosx_11_0_arm64.whl": "593de94dc202bf5d6a5b49451d64b1ac1feac089cdfc59bb381a94a6ece1cdc0",
+        "epistemic_graph-2.27.6-cp39-abi3-manylinux_2_28_aarch64.whl": "f43c9977cfd76148f76397852984f225159cf41e441ce0887e258f9e10810e88",
+        "epistemic_graph-2.27.6-cp39-abi3-manylinux_2_28_x86_64.whl": "85c57dbeaad1e5142322e360f44a6fe8032e6cf75882c8293859a84fab5bea0a",
+        "epistemic_graph-2.27.6-cp39-abi3-win_amd64.whl": "15fcd3f87807a838a96148d62be021039c87430ce820023b57e5c531e60b1f40"
       },
       "name": "epistemic-graph",
       "registry": "https://pypi.org/simple",
-      "release_wheel_filename": "epistemic_graph-2.27.3-cp39-abi3-manylinux_2_28_x86_64.whl",
-      "release_wheel_sha256": "7e38d04234d87c969228a4bc9c53f9b53fbcf5c9c6871d354716fd7d80ded8e9",
-      "version": "2.27.3"
+      "release_wheel_filename": "epistemic_graph-2.27.6-cp39-abi3-manylinux_2_28_x86_64.whl",
+      "release_wheel_sha256": "85c57dbeaad1e5142322e360f44a6fe8032e6cf75882c8293859a84fab5bea0a",
+      "version": "2.27.6"
     }
   ],
   "schema_version": 2

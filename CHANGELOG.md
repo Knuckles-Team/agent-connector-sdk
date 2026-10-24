@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.4
+
+### Fixed
+
+- `agent_connector_sdk.artifacts.pack` no longer maps `manifest://` resources
+  to `PackEntryKind.MANIFEST`, which `epistemic-graph` 2.27.6 removed. The SDK
+  imported with `AttributeError` on a fresh install. A `manifest://` resource
+  now has no pack entry kind and `build_content_pack` refuses it
+  (SDK-CONNECTOR-CONTROL-R075.7).
+
+### Changed
+
+- The `epistemic-graph` floor is now `>=2.27.6`. The lock, the release pin and
+  the pinned import-graph fixtures resolve `epistemic-graph` 2.27.6.
+
 ## 0.5.3
 
 ### Added
