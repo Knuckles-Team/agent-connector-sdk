@@ -3183,11 +3183,11 @@
         "95f251043be1"
       ],
       "verified_by": [
-        "tests/test_ingest.py:95",
-        "tests/test_pack_resource_schema.py:30",
-        "tests/test_single_declaration.py:102",
-        "tests/test_single_declaration.py:112",
-        "tests/test_single_declaration.py:192"
+        "tests/test_eg_pack_entry_kinds.py:45",
+        "tests/test_eg_pack_entry_kinds.py:54",
+        "tests/test_eg_pack_entry_kinds.py:68",
+        "tests/test_eg_pack_entry_kinds.py:81",
+        "tests/test_eg_pack_entry_kinds.py:95"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R075.1",
@@ -3276,10 +3276,15 @@
       "title": "The declaration entry carries its content schema",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "647f3de98067"
+        "647f3de98067",
+        "cd719e774031"
       ],
       "verified_by": [
-        "tests/test_pack_resource_schema.py:30"
+        "tests/test_eg_pack_entry_kinds.py:45",
+        "tests/test_eg_pack_entry_kinds.py:54",
+        "tests/test_eg_pack_entry_kinds.py:68",
+        "tests/test_eg_pack_entry_kinds.py:81",
+        "tests/test_eg_pack_entry_kinds.py:95"
       ]
     }
   ]
