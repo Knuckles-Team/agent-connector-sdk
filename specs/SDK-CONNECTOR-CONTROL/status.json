@@ -43,6 +43,7 @@
     "SDK-CONNECTOR-CONTROL-R028.1",
     "SDK-CONNECTOR-CONTROL-R028.2",
     "SDK-CONNECTOR-CONTROL-R028.3",
+    "SDK-CONNECTOR-CONTROL-R028.4",
     "SDK-CONNECTOR-CONTROL-R029",
     "SDK-CONNECTOR-CONTROL-R030",
     "SDK-CONNECTOR-CONTROL-R030.1",
@@ -818,7 +819,8 @@
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R028.1",
         "SDK-CONNECTOR-CONTROL-R028.2",
-        "SDK-CONNECTOR-CONTROL-R028.3"
+        "SDK-CONNECTOR-CONTROL-R028.3",
+        "SDK-CONNECTOR-CONTROL-R028.4"
       ]
     },
     {
@@ -859,6 +861,21 @@
         "tests/test_http_client.py:373",
         "tests/test_http_client.py:395",
         "tests/test_http_client.py:426"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R028.4",
+      "title": "A connector declares its outbound auth in one line and the SDK builds the governed client",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "76f43b75949f"
+      ],
+      "verified_by": [
+        "tests/test_auth_declarations.py:106",
+        "tests/test_auth_declarations.py:114",
+        "tests/test_auth_declarations.py:145",
+        "tests/test_auth_declarations.py:165",
+        "tests/test_auth_declarations.py:192"
       ]
     },
     {
