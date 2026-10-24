@@ -34,8 +34,11 @@ pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R074.7")
 GITHUB = Path(__file__).parent / "fixtures" / "github_agent"
 KG = "http://knuckles.team/kg#"
 SERVER = (
+    "from pathlib import Path\n"
+    "from agent_connector_sdk.mcp.content import ConnectorContent\n"
     "from agent_connector_sdk.mcp.server import create_mcp_server\n"
     "def build(**kw):\n"
+    "    kw.setdefault('content', ConnectorContent('scaffold-mcp', Path(__file__).parent, '1.2.3'))\n"
     "    return create_mcp_server('scaffold-mcp', version='1.2.3', command_args=[], **kw)\n"
 )
 ONTOLOGY = """@prefix : <http://knuckles.team/kg#> .

@@ -184,3 +184,50 @@ def test_resolution_returns_typed_values(democonn) -> None:
     resolved = resolve_connector("democonn")
     assert isinstance(resolved, ResolvedConnector)
     assert isinstance(resolved.dirs, ConnectorContentDirs)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.1")
+def test_connector_forwards_every_tool_surface_keyword(democonn, monkeypatch) -> None:
+    import agent_connector_sdk.mcp.tool_surface as surface
+
+    seen: dict = {}
+    real = surface.register_tool_surface
+
+    def spy(mcp, **kwargs):
+        seen.update(kwargs)
+        return real(mcp, **kwargs)
+
+    monkeypatch.setattr(surface, "register_tool_surface", spy)
+
+    def coerce(value):
+        return value
+
+    def more(mcp):
+        mcp.tool(name="demo_extra")(lambda: "x")
+
+    import democonn
+    from democonn.client import Api, get_client
+
+    monkeypatch.setattr(
+        democonn,
+        "connector",
+        Connector(
+            api=Api,
+            get_client=get_client,
+            tool_prefix="dm",
+            verbose_register=more,
+            result_coercer=coerce,
+            action_dispatch=True,
+            verbose_targets=(
+                {"client_cls": Api, "get_client": get_client, "prefix": "vb"},
+            ),
+        ),
+    )
+    _, mcp = build_server("democonn", command_args=["--transport", "stdio"])
+    assert seen["tool_prefix"] == "dm"
+    assert seen["result_coercer"] is coerce
+    assert seen["verbose_register"] is more
+    assert seen["action_dispatch"] is True
+    assert seen["verbose_targets"][0]["prefix"] == "vb"
+    tools, _, _ = asyncio.run(_read(mcp))
+    assert "demo_extra" in tools and "dm_list_items" in tools

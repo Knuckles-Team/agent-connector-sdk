@@ -11,12 +11,10 @@ through the knowledge graph, and delegation and Eunomia middleware.
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import logging
 import sys
 from collections.abc import Callable, Sequence
 from contextlib import AbstractAsyncContextManager
-from pathlib import Path
 from typing import Any
 
 from fastmcp import FastMCP
@@ -24,10 +22,6 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from agent_connector_sdk.config import setting
-from agent_connector_sdk.connector_identity import (
-    CONNECTOR_ENTRY_POINT_GROUP,
-    ConnectorIdentityError,
-)
 from agent_connector_sdk.credentials.resolver import CredentialResolver
 from agent_connector_sdk.mcp.auth.factory import configure_auth
 from agent_connector_sdk.mcp.auth.policy import AuthConfigurationError
@@ -96,58 +90,6 @@ async def _health(request: Request) -> JSONResponse:
     return JSONResponse({"status": "ok"}, headers={"Cache-Control": "no-store"})
 
 
-def _calling_package() -> str | None:
-    """Top-level package of the first caller outside this SDK."""
-    frame: Any = sys._getframe(1)
-    while frame is not None:
-        module = str(frame.f_globals.get("__name__", ""))
-        if module == "__main__":
-            # ``python -m pkg.mod`` runs as __main__; __package__ keeps the package.
-            module = str(frame.f_globals.get("__package__") or "")
-            if not module:
-                return None
-        if module and module.split(".", 1)[0] != "agent_connector_sdk":
-            return module.split(".", 1)[0]
-        frame = frame.f_back
-    return None
-
-
-def _default_content(
-    name: str, version: str, package: str | None
-) -> ConnectorContent | None:
-    """Resolve the calling connector's packaged content from its declared identity.
-
-    SDK-CONNECTOR-CONTROL-R073: a connector that passes no ``content=`` serves
-    its packaged skills, prompts, ontology and manifest. A caller with no
-    ``agent_connector_sdk.connector`` entry point is logged, not skipped silently.
-    """
-    try:
-        spec = importlib.util.find_spec(package) if package else None
-    except (ImportError, ValueError):
-        spec = None
-    locations = list(spec.submodule_search_locations or []) if spec else []
-    if not package or not locations:
-        _logger.warning(
-            "Server %r serves no packaged content: the caller is not an importable "
-            "connector package. Pass content= explicitly.",
-            name,
-        )
-        return None
-    try:
-        return ConnectorContent.for_package(package, Path(locations[0]), version)
-    except ConnectorIdentityError as exc:
-        _logger.warning(
-            "Server %r serves no packaged skills, prompts or ontology: package %r "
-            "declares no %s entry point (%s). Declare the connector's fleet name "
-            "in pyproject.toml.",
-            name,
-            package,
-            CONNECTOR_ENTRY_POINT_GROUP,
-            exc,
-        )
-        return None
-
-
 def create_mcp_server(
     name: str,
     *,
@@ -169,8 +111,8 @@ def create_mcp_server(
         command_args: Arguments to parse instead of ``sys.argv``.
         transport_choices: Transports this server offers.
         content: Connector content to serve as MCP primitives. When omitted,
-            the calling package's content is resolved from its declared
-            ``agent_connector_sdk.connector`` identity and served by default.
+            no packaged content is served; ``run()`` and ``build_server`` pass
+            the directories from ``content_dirs(package)``.
         server_registry: Registry to renew this server's lease in; the lease
             runs only when ``MCP_FLEET_REGISTRATION`` is true (the default).
         credential_resolver: Resolver for secret references in auth flags.
@@ -215,8 +157,6 @@ def create_mcp_server(
     )
     _register_native_primitives(mcp, name)
     serve_change_subscriptions(mcp)
-    if content is None:
-        content = _default_content(name, version, _calling_package())
     if content is not None:
         register_connector_content(mcp, content)
     return args, mcp, build_middleware()
