@@ -35,9 +35,7 @@ The shared Arbora platform configuration (`workspace.yml`, `config.json`,
 `mcp_config.json`, ...) lives in `$XDG_CONFIG_HOME/arbora` (`~/.config/arbora`),
 overridable with `ARBORA_CONFIG_DIR`. Resolve it with
 `agent_connector_sdk.paths.platform_config_dir()` or `platform_config_file(name)`.
-For one release, a file missing there is read from the legacy
-`$XDG_CONFIG_HOME/agent-utilities` (or `AGENT_UTILITIES_CONFIG_DIR`) location.
-One deprecation warning names both paths.
+There is no fallback to the pre-rename `graph-os` or `agent-utilities` locations.
 
 `load_config()` projects `$XDG_CONFIG_HOME/agent-connector-sdk/config.json` (or
 `CONNECTOR_CONFIG_FILE`) into the environment without overriding variables that
