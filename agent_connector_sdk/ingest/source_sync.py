@@ -29,8 +29,14 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from agent_connector_sdk.ingest.errors import IngestError
 from agent_connector_sdk.ingest.for_each import MAX_FAN_OUT
-from agent_connector_sdk.ingest.model import ChangeSet, Entity, IngestBinding
-from agent_connector_sdk.ingest.sources import IngestSourceSpec
+from agent_connector_sdk.ingest.model import (
+    ChangeSet,
+    Entity,
+    EntityRef,
+    IngestBinding,
+    Relationship,
+)
+from agent_connector_sdk.ingest.sources import EdgeSpec, IngestSourceSpec
 from agent_connector_sdk.runner.backoff import Backoff
 
 __all__ = [
@@ -247,6 +253,72 @@ def _properties(record: Mapping[str, Any], spec: IngestSourceSpec) -> dict[str, 
     return kept
 
 
+def _references(value: Any) -> list[Any]:
+    if value is None or value == "":
+        return []
+    if isinstance(value, list):
+        return [item for item in value if item is not None and item != ""]
+    return [value]
+
+
+def _resolve(record: Mapping[str, Any], path: str) -> list[Any]:
+    """The values at dotted ``path``; a list on the way is mapped element-wise."""
+    values: list[Any] = [record]
+    for part in path.split("."):
+        found: list[Any] = []
+        for value in values:
+            for item in value if isinstance(value, list) else [value]:
+                if isinstance(item, Mapping) and part in item:
+                    found.append(item[part])
+        values = found
+    return [ref for value in values for ref in _references(value)]
+
+
+def _edges(
+    record_id: str, record: Mapping[str, Any], spec: IngestSourceSpec
+) -> list[tuple[Entity | None, Relationship]]:
+    """The target records and relationships ``spec.edges`` declare for ``record``."""
+    out: list[tuple[Entity | None, Relationship]] = []
+    for edge in spec.edges:
+        for ref in _resolve(record, edge.target_field):
+            out.extend(_edge(record_id, spec.record_type, edge, ref))
+    return out
+
+
+def _edge(
+    record_id: str, record_type: str, edge: EdgeSpec, ref: Any
+) -> list[tuple[Entity | None, Relationship]]:
+    element = ref if isinstance(ref, Mapping) else {}
+    raw = element.get(edge.target_id_key) if edge.target_id_key else ref
+    if raw is None or isinstance(raw, Mapping | list) or not str(raw).strip():
+        return []
+    target_id = edge.target_id_template.format(type=edge.target_type, id=raw)
+    if edge.target_stream is not None:
+        reference = EntityRef(id=target_id, stream=edge.target_stream)
+        return [
+            (
+                None,
+                Relationship(
+                    source=EntityRef(id=record_id, node_type=record_type),
+                    target=reference,
+                    relationship=edge.relationship,
+                ),
+            )
+        ]
+    properties = {
+        name: element.get(key)
+        for name, key in edge.target_fields.items()
+        if isinstance(element.get(key), _SCALARS)
+    }
+    target = Entity(id=target_id, node_type=edge.target_type, properties=properties)
+    relationship = Relationship(
+        source=EntityRef(id=record_id, node_type=record_type),
+        target=target_id,
+        relationship=edge.relationship,
+    )
+    return [(target, relationship)]
+
+
 @dataclass
 class _Run:
     spec: IngestSourceSpec
@@ -260,6 +332,9 @@ class _Run:
     unchanged: int = 0
     batches: list[str] = field(default_factory=list)
     pending: list[tuple[Entity, str]] = field(default_factory=list)
+    pending_edges: list[tuple[Entity | None, Relationship]] = field(
+        default_factory=list
+    )
     cursor: str | None = None
     cursor_before: str | None = None
 
@@ -521,6 +596,7 @@ class SourceSyncRunner:
             updated_at=cursor,
         )
         run.pending.append((entity, digest))
+        run.pending_edges.extend(_edges(record_id, record, spec))
         if cursor is not None and (run.cursor is None or cursor > run.cursor):
             run.cursor = cursor
         if len(run.pending) >= self._budget.batch_size:
@@ -536,10 +612,19 @@ class SourceSyncRunner:
             server=self._server,
             tool=tool or spec.tools[0],
         )
-        entities = tuple(entity for entity, _ in run.pending)
+        records = {entity.id: entity for entity, _ in run.pending}
+        for target, _ in run.pending_edges:
+            if target is not None:
+                records.setdefault(target.id, target)
+        relationships = tuple(edge for _, edge in run.pending_edges)
         try:
             receipt = await self._ingest.submit(
-                binding, ChangeSet(entities=entities, cursor=run.cursor)
+                binding,
+                ChangeSet(
+                    entities=tuple(records.values()),
+                    relationships=relationships,
+                    cursor=run.cursor,
+                ),
             )
         except SourceSyncError:
             raise
@@ -547,6 +632,7 @@ class SourceSyncRunner:
             # The engine refused the batch (for example an unmapped record
             # type); nothing advances and the run reports the refusal.
             run.pending.clear()
+            run.pending_edges.clear()
             raise SourceSyncError("ingest_refused", str(exc)) from exc
         run.batches.append(str(receipt.batch_digest))
         digests = dict(run.state.digests)
@@ -555,6 +641,7 @@ class SourceSyncRunner:
             digests = dict(list(digests.items())[-_MAX_DIGESTS:])
         run.submitted += len(run.pending)
         run.pending.clear()
+        run.pending_edges.clear()
         run.state = run.state.model_copy(
             update={
                 "digests": digests,

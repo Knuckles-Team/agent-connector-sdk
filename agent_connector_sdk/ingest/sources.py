@@ -16,13 +16,45 @@ from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 from agent_connector_sdk.ingest.for_each import ForEach, check_for_each
 from agent_connector_sdk.manifest.model import ResourceSpec, SchemaMapping
 
-__all__ = ["IngestSourceDeclaration", "IngestSourceSpec"]
+__all__ = ["EdgeSpec", "IngestSourceDeclaration", "IngestSourceSpec"]
 
 _ID_PATTERN = r"^[a-z0-9][a-z0-9._-]{0,63}$"
 
 
 class _Strict(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+class EdgeSpec(_Strict):
+    """A relationship from each record to the record one of its fields names.
+
+    The declarative form of :class:`~agent_connector_sdk.ingest.mapping.EdgeMap`
+    for declared sources (SDK-SOURCE-INGEST-R004.36). ``target_field`` is a
+    dotted path into the record; it may resolve to a scalar id, a mapping (a
+    reference such as ServiceNow's ``{"value": sys_id}``) or a list of either.
+    For a mapping, ``target_id_key`` names the key that holds the id.
+    ``target_id_template`` forms the target record id from ``{type}`` and
+    ``{id}``. The target is emitted once per batch as a ``target_type`` record
+    carrying ``target_fields`` (property to key of the referenced mapping), and
+    the edge type is ``relationship``: the pack ontology must declare it as an
+    object property whose domain is the source record type. With
+    ``target_stream`` the target is that source's own record (for example a CI
+    of ``cmdb-cis``): no stub is emitted and the edge names that stream.
+    """
+
+    relationship: str = Field(pattern=r"^[A-Za-z][A-Za-z0-9_]{0,63}$")
+    target_field: str = Field(min_length=1)
+    target_type: str = Field(min_length=1, max_length=128)
+    target_id_key: str | None = None
+    target_id_template: str = "{type}:{id}"
+    target_fields: dict[str, str] = Field(default_factory=dict)
+    target_stream: str | None = Field(default=None, pattern=_ID_PATTERN)
+
+    @model_validator(mode="after")
+    def _check(self) -> EdgeSpec:
+        if "{id}" not in self.target_id_template:
+            raise ValueError("target_id_template must contain {id}")
+        return self
 
 
 class IngestSourceSpec(_Strict):
@@ -35,6 +67,7 @@ class IngestSourceSpec(_Strict):
     record field that orders records; an ``incremental`` source skips records
     at or before the stored cursor. ``for_each`` runs the source once per
     record of a parent source, passing the parent's field as a tool argument.
+    ``edges`` link each record to the records its reference fields name.
     """
 
     source_id: str = Field(pattern=_ID_PATTERN)
@@ -56,6 +89,7 @@ class IngestSourceSpec(_Strict):
     server: str = ""
     preset: dict[str, JsonValue] | None = None
     for_each: ForEach | None = None
+    edges: tuple[EdgeSpec, ...] = ()
 
     @model_validator(mode="after")
     def _check(self) -> IngestSourceSpec:

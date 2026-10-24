@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.5
+
+### Added
+
+- Declared sources carry edges (SDK-SOURCE-INGEST-R004.36). `EdgeSpec` and
+  `IngestSourceSpec.edges` declare, in `source_meta(edges=...)`, the
+  relationship from each record to the record a reference field names (owner,
+  steward, assignment group, assignee). `SourceSyncRunner` emits the referenced
+  target records and the relationships with the record batch. The pack
+  ontology must declare each relationship as an object property whose domain
+  is the source record type.
+
 ## 0.5.4
 
 ### Fixed
