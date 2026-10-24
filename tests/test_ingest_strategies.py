@@ -303,3 +303,22 @@ def test_high_water_cursor_reads_only_changes_since_the_accepted_mark() -> None:
         "nodes": 0,
         "edges": 0,
     }
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.35")
+def test_a_records_tool_without_a_kind_fails_at_call_time() -> None:
+    def records(client: Any) -> list[dict[str, Any]]:
+        return [{"id": "1"}]
+
+    register = ingest_registration(
+        _stream(), [IngestTool("t", "T", records)], lambda: SimpleNamespace()
+    )
+    mcp = FastMCP("demo-mcp")
+    register(mcp)
+
+    async def main() -> None:
+        async with Client(mcp) as client:
+            with pytest.raises(Exception, match="no kind"):
+                await client.call_tool("t", {})
+
+    anyio.run(main)

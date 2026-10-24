@@ -16,6 +16,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Any
 
+from agent_connector_sdk.ingest.errors import IngestError
 from agent_connector_sdk.ingest.mapping import Mapped
 from agent_connector_sdk.ingest.paging import CursorStrategy
 from agent_connector_sdk.ingest.stream import SourceStream, open_client
@@ -53,6 +54,12 @@ class IngestTool:
     idempotent: bool = True
 
 
+def _required_kind(spec: IngestTool) -> str:
+    if spec.kind is None:
+        raise IngestError(f"ingest tool {spec.name!r} returned records but has no kind")
+    return spec.kind
+
+
 def _tool_function(
     stream: SourceStream, spec: IngestTool, get_client: Callable[..., Any]
 ) -> Callable[..., Any]:
@@ -68,16 +75,16 @@ def _tool_function(
                     result = spec.source(client, cursor, **arguments)
                     return await result if inspect.isawaitable(result) else result
 
-                assert spec.kind is not None
-                return await stream.sync(spec.kind, fetch, strategy=spec.strategy)
+                return await stream.sync(
+                    _required_kind(spec), fetch, strategy=spec.strategy
+                )
             produced = spec.source(client, **arguments)
             if inspect.isawaitable(produced):
                 produced = await produced
             if isinstance(produced, Mapped):
                 counts = await stream.mapped(produced)
             else:
-                assert spec.kind is not None
-                counts = await stream.records(spec.kind, produced)
+                counts = await stream.records(_required_kind(spec), produced)
             return counts or {"nodes": 0, "edges": 0}
 
     tool.__name__ = spec.name
