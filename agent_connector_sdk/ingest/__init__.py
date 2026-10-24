@@ -33,6 +33,10 @@ from agent_connector_sdk.ingest.errors import (
     IngestError,
     IngestUnavailableError,
 )
+from agent_connector_sdk.ingest.live_declaration import (
+    DeclarationError,
+    load_declaration,
+)
 from agent_connector_sdk.ingest.model import (
     ChangeSet,
     Document,
@@ -47,6 +51,7 @@ from agent_connector_sdk.ingest.service import KnowledgeIngest
 
 __all__ = [
     "ChangeSet",
+    "DeclarationError",
     "Document",
     "Entity",
     "EntityRef",
@@ -62,6 +67,7 @@ __all__ = [
     "current_ingest",
     "ingest_changes",
     "install_ingest",
+    "load_declaration",
 ]
 
 _PROCESS: list[KnowledgeIngest | None] = [None]

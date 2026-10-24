@@ -12,3 +12,7 @@
 | QR-08 | Runtime extras | Traverse requested client/server and email extras with transitive dependencies. Read requirements from distribution metadata. Match active dependencies to `uv.lock`. Fail if metadata for an active locked dependency is missing. Exclude unrequested extras. |
 
 Source PR checks include pytest, Ruff, mypy, CCCC, KISS, Dupehound, jscpd, wiring, privacy and package build. QR-06 belongs to release acceptance and must not be a prerequisite for a cloud pull request.
+
+## SDK-QUALITY-RELEASE-R005.1
+
+`tests/test_conformance_plugin.py` runs every check against a conforming fixture. It breaks the ontology, version, fleet name, provider entry point and sources properties one at a time. A subprocess run in a fixture repository reports one passing test per check. A run without the declaration adds no test. A run with an explicit node id adds none.

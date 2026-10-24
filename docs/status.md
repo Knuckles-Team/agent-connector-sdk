@@ -6,8 +6,8 @@ authoritative detail.
 
 | Area | Availability | Current contract |
 |---|:---:|---|
-| Python package | Available | Version 0.4.3; Python 3.12–3.14 |
-| Connector MCP server | Available | `create_mcp_server` with the shared security, health, content, and tool-surface policies |
+| Python package | Available | Python 3.12–3.14 |
+| Connector MCP server | Available | `agent_connector_sdk.run()` serves a declared `Connector` with the shared security, health, content, and tool-surface policies |
 | Connector certification | Available | `connector-certify` checks declared sync tools against live MCP schemas without invoking vendor actions |
 | Source synchronization | Available | `connector-sync` supervises certified adapters and advances only from matching Epistemic Graph receipts |
 | Epistemic Graph sink | Available through checked composition | Requires an injected generated client and live ConnectorPack authority resolver |

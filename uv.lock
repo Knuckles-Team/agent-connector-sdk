@@ -18,6 +18,7 @@ resolution-markers = [
 
 [[package]]
 name = "agent-connector-sdk"
+version = "0.4.3"
 source = { editable = "." }
 dependencies = [
     { name = "anyio" },

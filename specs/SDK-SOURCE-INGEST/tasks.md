@@ -202,3 +202,4 @@
 - [ ] **SDK-SOURCE-INGEST-R805.4:** Wiring.
 - [ ] **SDK-SOURCE-INGEST-R805.5:** Read-time access lookup port.
 - [ ] **SDK-SOURCE-INGEST-R805.6:** Hot-path proof.
+- [x] `SDK-SOURCE-INGEST-R004.29`: load declarations as typed data with shared field sets.

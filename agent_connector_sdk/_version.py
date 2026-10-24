@@ -1,3 +1,8 @@
-"""Single source of the package version (read by setuptools and bump2version)."""
+"""The SDK version, read from installed package metadata.
 
-__version__ = "0.4.3"
+``pyproject.toml`` is the only file that spells it (SDK-CONNECTOR-CONTROL-R071.2).
+"""
+
+from agent_connector_sdk.connector_identity import distribution_version
+
+__version__ = distribution_version("agent-connector-sdk")

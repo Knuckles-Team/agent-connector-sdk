@@ -20,14 +20,20 @@ from __future__ import annotations
 import importlib.util
 import re
 import tomllib
-from importlib.metadata import entry_points
+from dataclasses import dataclass
+from importlib.metadata import PackageNotFoundError, entry_points, version
 from pathlib import Path
 
 __all__ = [
     "CONNECTOR_ENTRY_POINT_GROUP",
     "ConnectorIdentityError",
+    "ConnectorPoint",
+    "connector_distribution",
     "connector_name",
+    "connector_point",
+    "connector_version",
     "declared_connector_name",
+    "distribution_version",
 ]
 
 CONNECTOR_ENTRY_POINT_GROUP = "agent_connector_sdk.connector"
@@ -114,3 +120,130 @@ def declared_connector_name(pyproject: Path) -> str | None:
             f"{pyproject}: declares {len(group)} connector names; exactly one allowed"
         )
     return _checked(next(iter(group)), str(pyproject))
+
+
+def distribution_version(distribution: str) -> str:
+    """Return the installed version of ``distribution`` from package metadata.
+
+    This is the one place a version is read. A package spells its version once,
+    in ``pyproject.toml``; ``__version__``, the server version and the health
+    report all come from here (SDK-CONNECTOR-CONTROL-R071.2).
+
+    Raises:
+        ConnectorIdentityError: the distribution is not installed.
+    """
+    try:
+        return version(distribution)
+    except PackageNotFoundError as exc:
+        raise ConnectorIdentityError(
+            f"distribution {distribution!r} is not installed; install it "
+            "(editable installs included) so its metadata carries the version"
+        ) from exc
+
+
+@dataclass(frozen=True)
+class ConnectorPoint:
+    """One resolved ``agent_connector_sdk.connector`` declaration.
+
+    Attributes:
+        name: The fleet name (entry-point name).
+        package: The connector's top-level package.
+        attribute: The ``Connector`` attribute named after ``:`` in the value,
+            or ``None`` for a bare package value.
+        distribution: The installed distribution that declares it, or the
+            ``[project].name`` of a source checkout.
+        pyproject: The checkout ``pyproject.toml`` for an uninstalled source
+            checkout, else ``None``.
+    """
+
+    name: str
+    package: str
+    attribute: str | None
+    distribution: str
+    pyproject: Path | None = None
+
+
+def _split_value(value: str) -> tuple[str, str | None]:
+    module, _, attribute = value.partition(":")
+    return module.strip(), (attribute.strip() or None)
+
+
+def connector_point(package: str) -> ConnectorPoint:
+    """Resolve the one connector declaration for ``package``.
+
+    Reads the installed entry point; an uninstalled source checkout falls back
+    to the ``pyproject.toml`` beside its package.
+
+    Raises:
+        ConnectorIdentityError: zero or several declarations, or an invalid name.
+    """
+    top = _top_level(package)
+    points = [
+        point
+        for point in entry_points(group=CONNECTOR_ENTRY_POINT_GROUP)
+        if _top_level(_split_value(point.value)[0]) == top
+    ]
+    if len(points) == 1:
+        point = points[0]
+        module, attribute = _split_value(point.value)
+        dist = point.dist.name if point.dist is not None else top
+        return ConnectorPoint(
+            _checked(point.name, top), _top_level(module), attribute, dist
+        )
+    if not points:
+        checkout = _checkout_point(top)
+        if checkout is not None:
+            return checkout
+    raise ConnectorIdentityError(
+        f"package {top!r} must declare exactly one "
+        f"{CONNECTOR_ENTRY_POINT_GROUP} entry point; "
+        f"found {sorted({p.name for p in points}) or 'none'}"
+    )
+
+
+def _checkout_point(top: str) -> ConnectorPoint | None:
+    spec = importlib.util.find_spec(top)
+    if spec is None or not spec.submodule_search_locations:
+        return None
+    for location in spec.submodule_search_locations:
+        pyproject = Path(location).parent / "pyproject.toml"
+        if not pyproject.is_file():
+            continue
+        document = tomllib.loads(pyproject.read_text(encoding="utf-8"))
+        group = (
+            document.get("project", {})
+            .get("entry-points", {})
+            .get(CONNECTOR_ENTRY_POINT_GROUP, {})
+        )
+        if len(group) == 1:
+            name, value = next(iter(group.items()))
+            module, attribute = _split_value(str(value))
+            dist = str(document.get("project", {}).get("name") or top)
+            return ConnectorPoint(
+                _checked(name, str(pyproject)),
+                _top_level(module),
+                attribute,
+                dist,
+                pyproject,
+            )
+    return None
+
+
+def connector_distribution(package: str) -> str:
+    """The distribution name that ships ``package``'s connector declaration."""
+    return connector_point(package).distribution
+
+
+def connector_version(package: str) -> str:
+    """The connector's version, read from package metadata only."""
+    point = connector_point(package)
+    try:
+        return distribution_version(point.distribution)
+    except ConnectorIdentityError:
+        if point.pyproject is None:
+            raise
+        project = tomllib.loads(point.pyproject.read_text(encoding="utf-8"))["project"]
+        declared = project.get("version")
+        if not declared:
+            raise
+        return str(declared)

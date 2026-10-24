@@ -338,6 +338,18 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_
 
 `tests/test_connector_identity.py` resolves the name from a fake entry-point table and from a `pyproject.toml`. It checks the refusal of zero, duplicate and invalid names. It builds both `for_package` constructors under one name. It checks the refusal of content that disagrees with its manifest.
 
+## SDK-CONNECTOR-CONTROL-R019.1
+
+`tests/test_connector_run.py` builds a fixture connector distribution (installed metadata, package, content) and starts it through `build_server` and `run`. It checks the served tools, skills, prompts, ontology and `connector://resources`, the metadata version, each transport and the unknown-transport refusal.
+
+## SDK-CONNECTOR-CONTROL-R071.1
+
+`tests/test_connector_run.py` resolves content directories and the installed declaration for a fixture with one entry point. `tests/test_conformance_plugin.py` rejects a removed provider group.
+
+## SDK-CONNECTOR-CONTROL-R071.2
+
+`tests/test_connector_run.py` reads the distribution, connector and server versions from metadata and refuses an uninstalled distribution. `tests/test_conformance_plugin.py` rejects a module that spells `__version__`.
+
 ## SDK-CONNECTOR-CONTROL-R072
 
 `tests/test_certify_connector_rename.py` gives the fixture fingerprints an older connector name. `--check` refuses the checkout. `--write` rewrites the name from the manifest, and `--check` then passes.

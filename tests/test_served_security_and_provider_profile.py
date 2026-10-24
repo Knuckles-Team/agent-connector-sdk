@@ -280,6 +280,7 @@ def test_r014_20_entry_point_groups_use_the_sdk_namespace() -> None:
         "agent_connector_sdk.transports",
         "agent_connector_sdk.sinks",
         "agent_connector_sdk.skill_providers",
+        "pytest11",
     }
     offenders = [
         str(path.relative_to(ROOT))

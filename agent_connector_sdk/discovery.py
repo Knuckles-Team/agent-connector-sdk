@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from importlib.metadata import EntryPoint, entry_points
 from typing import Protocol
 
-from agent_connector_sdk._version import __version__
+from agent_connector_sdk import __version__
 
 __all__ = [
     "ARTIFACT_KIND_GROUP",
