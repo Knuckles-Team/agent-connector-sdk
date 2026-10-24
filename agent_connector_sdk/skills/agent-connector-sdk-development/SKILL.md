@@ -186,36 +186,6 @@ before `build` (a byte-identical wheel built twice) runs; `scanner-quality`
 (pinned cccc/KISS/dupehound/jscpd) is advisory; `publish-pypi` runs only on a
 `v*` tag push, after `uv lock --check`.
 
-Release procedure (bump first, tag last; X.Y.Z is the intended version):
-
-1. Bump on a topic branch: set `version` in `pyproject.toml` and
-   `current_version` in `.bumpversion.cfg` to X.Y.Z (`bump2version` also edits
-   `pyproject.toml`; run it with `--no-commit --no-tag`). Refresh `uv.lock`
-   (`uv lock`) and the recorded fixtures that embed the version,
-   `tests/fixtures/pinned_import_graph.txt` and
-   `tests/fixtures/pinned_import_graph.provenance.json`
-   (`grep -rn '<old version>' tests/fixtures uv.lock`).
-2. Merge the bump PR to `main` (rebase merge, `gates` and `build` green).
-3. Read back the merged commit before tagging:
-   `git show <commit>:pyproject.toml | grep ^version` prints `version = "X.Y.Z"`,
-   `git show <commit>:.bumpversion.cfg | grep current_version` prints X.Y.Z, and
-   `curl -s -o /dev/null -w '%{http_code}' https://pypi.org/pypi/agent-connector-sdk/X.Y.Z/json`
-   prints `404`.
-4. Only then tag that exact commit: `git tag vX.Y.Z <commit> && git push origin vX.Y.Z`.
-5. Confirm both the wheel and the sdist (`release.yml` uploads
-   `dist/*.whl dist/*.tar.gz`) appear at
-   `https://pypi.org/pypi/agent-connector-sdk/X.Y.Z/json` (`urls`).
-6. A tag on the wrong commit with nothing published: delete it
-   (`git push origin :refs/tags/vX.Y.Z`, `git tag -d vX.Y.Z`) and re-tag the
-   right commit. If anything was published, never reuse the version: cut the
-   next patch from step 1.
-
-The tag must equal the package version: a tag whose `pyproject.toml` is older
-rebuilds the old version and PyPI refuses it (v0.5.1 on a 0.5.0 commit, twice).
-This workflow does not yet run the shared early guard; wiring it needs
-`uses: Knuckles-Team/pipelines/.github/actions/verify-release-version@<sha>`
-once the pipelines guard is merged.
-
 This repository is a shared multi-worktree checkout:
 
 - Create a real worktree before changing files —
