@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-connector-sdk"
-dynamic = ["version"]
+version = "0.4.3"
 description = "Connector SDK for the agent-packages fleet: MCP server scaffolding, connector manifests, and typed source/content extension ports"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -101,6 +101,9 @@ Documentation = "https://knuckles-team.github.io/agent-connector-sdk/"
 connector-sync = "agent_connector_sdk.runner.cli:main"
 connector-certify = "agent_connector_sdk.certify.cli:main"
 
+[project.entry-points.pytest11]
+agent_connector_sdk = "agent_connector_sdk.testing.plugin"
+
 [project.entry-points."agent_connector_sdk.source_adapters"]
 mcp_tool = "agent_connector_sdk.adapters.mcp_tool:McpToolSourceAdapter"
 web_fetch = "agent_connector_sdk.adapters.web_fetch:WebFetchSourceAdapter"
@@ -123,9 +126,6 @@ mcp = "agent_connector_sdk.transports.mcp:McpTransport"
 
 [project.entry-points."agent_connector_sdk.sinks"]
 epistemic_graph = "agent_connector_sdk.sinks.epistemic_graph:EpistemicGraphSink"
-
-[tool.setuptools.dynamic]
-version = { attr = "agent_connector_sdk._version.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -218,6 +218,7 @@ exclude_dirs = ["tests", "scripts"]
 # The documented public surface. scripts/check_wiring.py orphans treats these and
 # every entry-point target as roots; every other module must be imported by one.
 public_modules = [
+    "agent_connector_sdk.cli",
     "agent_connector_sdk.transports.graphql",
     "agent_connector_sdk.ingest.source_sync",
     "agent_connector_sdk.current_plan",

@@ -272,3 +272,6 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R075.5:** Skills, ontology and shapes stay on fastmcp.
 - [x] **SDK-CONNECTOR-CONTROL-R075.6:** Mapping references name the declaration.
 - [ ] **SDK-CONNECTOR-CONTROL-R075.7:** The declaration entry carries its content schema.
+- [x] **SDK-CONNECTOR-CONTROL-R019.1:** Run a declared connector with `run()` and `Connector`.
+- [x] **SDK-CONNECTOR-CONTROL-R071.1:** Find connector content by convention.
+- [x] **SDK-CONNECTOR-CONTROL-R071.2:** Read the version from package metadata only.

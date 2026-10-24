@@ -1,7 +1,7 @@
 {
-  "graph_sha256": "482c3c69318ea5ac5649cb42482af712c9b8d72decc29f1f5482f7691919767e",
+  "graph_sha256": "3017885f9dcc13e2e8353ab8364d8950809c0c5a8b86e28fa854788422fd7aa0",
   "installed_distributions": [
-    "agent-connector-sdk==0.4.1",
+    "agent-connector-sdk==0.4.3",
     "annotated-types==0.8.0",
     "anyio==4.15.1",
     "certifi==2026.7.22",
