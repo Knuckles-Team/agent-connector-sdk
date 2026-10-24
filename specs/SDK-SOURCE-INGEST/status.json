@@ -146,6 +146,7 @@
     "SDK-SOURCE-INGEST-R004.33",
     "SDK-SOURCE-INGEST-R004.34",
     "SDK-SOURCE-INGEST-R004.35",
+    "SDK-SOURCE-INGEST-R004.36",
     "SDK-SOURCE-INGEST-R013",
     "SDK-SOURCE-INGEST-R013.1",
     "SDK-SOURCE-INGEST-R013.2",
@@ -327,7 +328,8 @@
         "SDK-SOURCE-INGEST-R004.32",
         "SDK-SOURCE-INGEST-R004.33",
         "SDK-SOURCE-INGEST-R004.34",
-        "SDK-SOURCE-INGEST-R004.35"
+        "SDK-SOURCE-INGEST-R004.35",
+        "SDK-SOURCE-INGEST-R004.36"
       ]
     },
     {
@@ -1787,6 +1789,20 @@
         "tests/test_ingest_strategies.py:212",
         "tests/test_ingest_strategies.py:290",
         "tests/test_ingest_strategies.py:321"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.36",
+      "title": "Declared sources carry edges to the records their reference fields name",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "99f0126f91b9"
+      ],
+      "verified_by": [
+        "tests/test_source_sync_edges.py:122",
+        "tests/test_source_sync_edges.py:173",
+        "tests/test_source_sync_edges.py:73",
+        "tests/test_source_sync_edges.py:93"
       ]
     },
     {
