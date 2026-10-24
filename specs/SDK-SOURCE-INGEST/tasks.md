@@ -206,3 +206,6 @@
 - [x] `SDK-SOURCE-INGEST-R004.30`: declared record mappers (`RecordMap`, `Mapped`) and shared field validation.
 - [x] `SDK-SOURCE-INGEST-R004.31`: `SourceStream` entry with paging and cursor checkpointing.
 - [x] `SDK-SOURCE-INGEST-R004.32`: best-effort, split-stream, media and mixed submissions.
+- [x] `SDK-SOURCE-INGEST-R004.33`: cursor strategies on `sync` and batched commits.
+- [x] `SDK-SOURCE-INGEST-R004.34`: projection, guard and size limit inside `submit`.
+- [x] `SDK-SOURCE-INGEST-R004.35`: ingest tools declared as data.

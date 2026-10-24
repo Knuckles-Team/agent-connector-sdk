@@ -13,6 +13,7 @@ import inspect
 import logging
 from collections.abc import AsyncIterator, Awaitable, Callable, Mapping, Sequence
 from contextlib import asynccontextmanager
+from dataclasses import replace
 from typing import Any
 
 from agent_connector_sdk.ingest.errors import IngestError
@@ -25,15 +26,14 @@ from agent_connector_sdk.ingest.mapping import (
     relationship_from_record,
 )
 from agent_connector_sdk.ingest.model import ChangeSet, IngestBinding, MediaAsset
+from agent_connector_sdk.ingest.paging import CursorStrategy
 from agent_connector_sdk.ingest.service import KnowledgeIngest
 
 _LOG = logging.getLogger(__name__)
 
 __all__ = ["FetchPage", "SourceStream", "open_client"]
 
-FetchPage = Callable[
-    [str | None], Awaitable[tuple[Sequence[Mapping[str, Any]], str | None]]
-]
+FetchPage = Callable[[str | None], Awaitable[Any]]
 
 
 @asynccontextmanager
@@ -66,6 +66,14 @@ class SourceStream:
         mappers: Record-kind name to :data:`Mapper` (or a sequence of them).
         document_binding: A second binding for documents, when documents live
             in their own stream.
+        projection: Applied to every change set inside :meth:`submit`, before the
+            commit (for example :meth:`Pseudonymizer.project
+            <agent_connector_sdk.ingest.privacy.Pseudonymizer.project>`).
+        before_submit: A guard called with the binding and the projected change
+            set; it raises :class:`IngestError` to stop the commit.
+        max_records: Refuse a change set with more entities and documents.
+        batch_size: Commit a :class:`Mapped` result in batches of this many
+            records: all entities first, then the relationships.
         best_effort: Never raise. Empty input, records without an id (or a
             document without text), a refused commit and an unavailable engine
             return ``None`` and log at debug level.
@@ -78,7 +86,15 @@ class SourceStream:
         *,
         document_binding: IngestBinding | None = None,
         best_effort: bool = False,
+        projection: Callable[[ChangeSet], ChangeSet] | None = None,
+        before_submit: Callable[[IngestBinding, ChangeSet], None] | None = None,
+        max_records: int | None = None,
+        batch_size: int | None = None,
     ) -> None:
+        self.projection = projection
+        self.before_submit = before_submit
+        self.max_records = max_records
+        self.batch_size = batch_size
         self.binding = binding
         self.mappers = dict(mappers or {})
         self.document_binding = document_binding
@@ -121,18 +137,61 @@ class SourceStream:
         The one submit path every other method uses; call it directly for a
         change set the other methods do not build (a reconcile, a mixed set).
         """
+        receipt = await self.submit_receipt(change_set, binding=binding, ingest=ingest)
+        if receipt is None:
+            return None
+        return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
+
+    async def submit_receipt(
+        self,
+        change_set: ChangeSet,
+        *,
+        binding: IngestBinding | None = None,
+        ingest: KnowledgeIngest | None = None,
+    ) -> Any:
+        """:meth:`submit`, returning the engine's receipt (``None`` when skipped)."""
         try:
+            self._check_size(change_set)
+            if self.projection is not None:
+                change_set = self.projection(change_set)
+            target = binding or self.binding
+            if self.before_submit is not None:
+                self.before_submit(target, change_set)
             if ingest is None:
                 from agent_connector_sdk.ingest import current_ingest
 
                 ingest = current_ingest()
-            receipt = await ingest.submit(binding or self.binding, change_set)
+            return await ingest.submit(target, change_set)
         except IngestError as exc:
             if not self.best_effort:
                 raise
             _LOG.debug("knowledge ingest skipped: %s", exc)
             return None
-        return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
+
+    def _check_size(self, change_set: ChangeSet) -> None:
+        count = len(change_set.entities) + len(change_set.documents)
+        if self.max_records is not None and count > self.max_records:
+            raise IngestError(f"at most {self.max_records} records per change set")
+
+    def scoped(self, suffix: str, **binding_fields: Any) -> SourceStream:
+        """A copy whose stream is ``<stream>:<suffix>``, with binding overrides.
+
+        Use it for a per-account or per-instance checkpoint.
+        """
+        binding = replace(
+            self.binding, stream=f"{self.binding.stream}:{suffix}", **binding_fields
+        )
+        copy = SourceStream(
+            binding,
+            self.mappers,
+            document_binding=self.document_binding,
+            best_effort=self.best_effort,
+            projection=self.projection,
+            before_submit=self.before_submit,
+            max_records=self.max_records,
+            batch_size=self.batch_size,
+        )
+        return copy
 
     def _refuse(self, message: str) -> None:
         if not self.best_effort:
@@ -220,18 +279,10 @@ class SourceStream:
         if not (mapped.entities or mapped.documents):
             self._refuse("mapping produced nothing to ingest")
             return None
-        split = self.document_binding is not None and mapped.documents
+        split = self.document_binding is not None and bool(mapped.documents)
         totals = {"nodes": 0, "edges": 0}
         if mapped.entities or not split:
-            counts = await self.submit(
-                ChangeSet(
-                    entities=tuple(mapped.entities),
-                    documents=() if split else tuple(mapped.documents),
-                    relationships=tuple(mapped.relationships),
-                    cursor=cursor,
-                ),
-                ingest=ingest,
-            )
+            counts = await self._commit_entities(mapped, split, cursor, ingest)
             if counts is None:
                 return None
             totals = _add(totals, counts)
@@ -244,6 +295,58 @@ class SourceStream:
             if counts is None:
                 return None
             totals = _add(totals, counts)
+        return totals
+
+    async def _commit_entities(
+        self,
+        mapped: Mapped,
+        split: bool,
+        cursor: str | None,
+        ingest: KnowledgeIngest | None,
+    ) -> dict[str, int] | None:
+        documents = () if split else tuple(mapped.documents)
+        size = self.batch_size
+        if size is None or not mapped.entities:
+            return await self.submit(
+                ChangeSet(
+                    entities=tuple(mapped.entities),
+                    documents=documents,
+                    relationships=tuple(mapped.relationships),
+                    cursor=cursor,
+                ),
+                ingest=ingest,
+            )
+        totals = {"nodes": 0, "edges": 0}
+        entities, edges = mapped.entities, mapped.relationships
+        for start in range(0, len(entities), size):
+            counts = await self.submit(
+                ChangeSet(entities=tuple(entities[start : start + size])),
+                ingest=ingest,
+            )
+            if counts is None:
+                return None
+            totals = _add(totals, counts)
+        anchor = (entities[0],)
+        for start in range(0, len(edges), size):
+            counts = await self.submit(
+                ChangeSet(
+                    entities=anchor, relationships=tuple(edges[start : start + size])
+                ),
+                ingest=ingest,
+            )
+            if counts is None:
+                return None
+            totals = {
+                "nodes": totals["nodes"],
+                "edges": totals["edges"] + counts["edges"],
+            }
+        if documents or cursor:
+            counts = await self.submit(
+                ChangeSet(documents=documents, cursor=cursor, entities=anchor),
+                ingest=ingest,
+            )
+            if counts is None:
+                return None
         return totals
 
     async def records(
@@ -277,12 +380,16 @@ class SourceStream:
         ingest: KnowledgeIngest | None = None,
         resume: bool = True,
         max_pages: int | None = None,
+        strategy: CursorStrategy | None = None,
     ) -> dict[str, int]:
         """Page through a source and ingest each page, checkpointing the cursor.
 
         ``fetch_page(cursor)`` returns ``(records, next_cursor)``; ``None`` as
         the next cursor ends the walk. Each page commits with its next cursor,
         so a later run resumes from the stream's accepted cursor.
+
+        With a ``strategy``, ``fetch_page(cursor)`` returns only the records and
+        the strategy decides the next cursor (offset, key-set or time window).
         """
         service = ingest
         if service is None:
@@ -290,10 +397,17 @@ class SourceStream:
 
             service = current_ingest()
         cursor = await service.accepted_cursor(self.binding) if resume else None
+        if cursor is None and strategy is not None:
+            cursor = strategy.first()
         totals = {"nodes": 0, "edges": 0}
         pages = 0
         while max_pages is None or pages < max_pages:
-            records, next_cursor = await fetch_page(cursor)
+            fetched = await fetch_page(cursor)
+            if strategy is None:
+                records, next_cursor = fetched
+            else:
+                records = fetched
+                next_cursor = strategy.advance(records, cursor)
             pages += 1
             mapped = self._mapper(kind, records)
             if mapped.entities or mapped.documents:
