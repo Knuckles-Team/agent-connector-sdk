@@ -1751,8 +1751,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.33",
       "title": "`sync` takes a cursor strategy; `mapped` takes a batch size",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "41477e484fa3"
+      ],
       "verified_by": [
         "tests/test_ingest_strategies.py:185",
         "tests/test_ingest_strategies.py:286",
@@ -1763,8 +1765,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.34",
       "title": "A projection, a guard and a size limit run inside the one `submit` path",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "41477e484fa3"
+      ],
       "verified_by": [
         "tests/test_ingest_strategies.py:116",
         "tests/test_ingest_strategies.py:142",
@@ -1774,8 +1778,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.35",
       "title": "Ingest tools are declared as data and registered by the SDK",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "41477e484fa3"
+      ],
       "verified_by": [
         "tests/test_ingest_strategies.py:199",
         "tests/test_ingest_strategies.py:277"
