@@ -1,7 +1,7 @@
 """Connector conformance checks, derived from the declared connector.
 
 Each check takes the :class:`~agent_connector_sdk.connector.ResolvedConnector`
-and raises ``AssertionError`` on a violation. The pytest plugin
+and raises ``ConformanceFailure`` (an ``AssertionError``) on a violation. The pytest plugin
 (:mod:`agent_connector_sdk.testing.plugin`) runs them for any repository whose
 ``pyproject.toml`` declares an ``agent_connector_sdk.connector`` entry point, so
 a connector repository copies no conformance test (SDK-QUALITY-RELEASE-R005.1).
@@ -27,7 +27,13 @@ from agent_connector_sdk.connector_identity import (
 )
 from agent_connector_sdk.testing.ontology_rollup import orphan_classes
 
-__all__ = ["CHECKS", "REMOVED_PROVIDER_GROUPS", "Check", "run_check"]
+__all__ = [
+    "CHECKS",
+    "REMOVED_PROVIDER_GROUPS",
+    "Check",
+    "ConformanceFailure",
+    "run_check",
+]
 
 #: Entry-point groups the convention replaces; a connector declares none.
 REMOVED_PROVIDER_GROUPS = (
@@ -36,6 +42,15 @@ REMOVED_PROVIDER_GROUPS = (
     "agent_connector_sdk.source_connector_providers",
 )
 _ROW = "SDK-QUALITY-RELEASE-R005.1"
+
+
+class ConformanceFailure(AssertionError):
+    """A connector violates a conformance property."""
+
+
+def _require(condition: object, message: str) -> None:
+    if not condition:
+        raise ConformanceFailure(message)
 
 
 @dataclass(frozen=True)
@@ -82,7 +97,10 @@ def _listings(resolved: ResolvedConnector) -> tuple[set[str], dict[str, str]]:
 
 def check_fleet_name(resolved: ResolvedConnector) -> None:
     """The fleet name is declared once and every literal in the package matches it."""
-    assert connector_name(resolved.package) == resolved.name
+    _require(
+        connector_name(resolved.package) == resolved.name,
+        "identity differs from the declaration",
+    )
     group = (
         _pyproject(resolved)
         .get("project", {})
@@ -90,7 +108,7 @@ def check_fleet_name(resolved: ResolvedConnector) -> None:
         .get(CONNECTOR_ENTRY_POINT_GROUP)
     )
     if group is not None:
-        assert list(group) == [resolved.name], f"declares {list(group)}"
+        _require(list(group) == [resolved.name], f"declares {list(group)}")
     for path, tree in _trees(resolved):
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call):
@@ -102,14 +120,18 @@ def check_fleet_name(resolved: ResolvedConnector) -> None:
                 if keyword.arg == "connector" and isinstance(
                     keyword.value, ast.Constant
                 ):
-                    assert keyword.value.value == resolved.name, (
-                        f"{path.name} spells connector {keyword.value.value!r}"
+                    _require(
+                        keyword.value.value == resolved.name,
+                        f"{path.name} spells connector {keyword.value.value!r}",
                     )
 
 
 def check_version_from_metadata(resolved: ResolvedConnector) -> None:
     """The version comes from package metadata and no module spells its own."""
-    assert resolved.version == distribution_version(resolved.distribution)
+    _require(
+        resolved.version == distribution_version(resolved.distribution),
+        "version differs from metadata",
+    )
     for path, tree in _trees(resolved):
         for node in ast.walk(tree):
             targets = (
@@ -125,10 +147,12 @@ def check_version_from_metadata(resolved: ResolvedConnector) -> None:
                 and isinstance(value, ast.Constant)
                 and isinstance(value.value, str)
             ):
-                raise AssertionError(f"{path.name} spells __version__; read metadata")
+                raise ConformanceFailure(
+                    f"{path.name} spells __version__; read metadata"
+                )
     module = importlib.import_module(resolved.package)
     declared = getattr(module, "__version__", None)
-    assert declared in (None, resolved.version), f"__version__ {declared!r} differs"
+    _require(declared in (None, resolved.version), f"__version__ {declared!r} differs")
 
 
 def check_startup(resolved: ResolvedConnector) -> None:
@@ -136,22 +160,25 @@ def check_startup(resolved: ResolvedConnector) -> None:
     try:
         _server(resolved, "--help")
     except SystemExit as exit_:
-        assert exit_.code in (0, None)
+        _require(exit_.code in (0, None), "--help exited non-zero")
     else:  # pragma: no cover - --help always exits
-        raise AssertionError("--help did not exit")
+        raise ConformanceFailure("--help did not exit")
     mcp = _server(resolved, "--transport", "stdio")
-    assert str(getattr(mcp, "version", resolved.version)) == resolved.version
-    assert mcp.name == resolved.name
+    _require(
+        str(getattr(mcp, "version", resolved.version)) == resolved.version,
+        "server version differs from metadata",
+    )
+    _require(mcp.name == resolved.name, "server name differs from the fleet name")
     routes = {
         getattr(r, "path", "")
         for r in getattr(
             mcp, "_additional_http_routes", getattr(mcp, "_custom_routes", [])
         )
     }
-    assert "/health" in routes or not routes, f"no /health route in {routes}"
+    _require("/health" in routes or not routes, f"no /health route in {routes}")
     if (resolved.dirs.root / "__main__.py").is_file():
         spec = importlib.util.find_spec(f"{resolved.package}.__main__")
-        assert spec is not None
+        _require(spec is not None, "module has no spec")
 
 
 def check_content_surfaces(resolved: ResolvedConnector) -> None:
@@ -159,11 +186,11 @@ def check_content_surfaces(resolved: ResolvedConnector) -> None:
     resources, _ = _listings(resolved)
     dirs = resolved.dirs
     if list(dirs.skills.glob("*/SKILL.md")):
-        assert any(u.startswith("skill://") for u in resources), "skills not served"
+        _require(any(u.startswith("skill://") for u in resources), "skills not served")
     for path in dirs.ontology.glob("*.ttl"):
-        assert f"ontology://{resolved.name}/{path.name}" in resources, path.name
+        _require(f"ontology://{resolved.name}/{path.name}" in resources, path.name)
     for path in (dirs.ontology / "shapes").glob("*.ttl"):
-        assert f"shapes://{resolved.name}/{path.name}" in resources, path.name
+        _require(f"shapes://{resolved.name}/{path.name}" in resources, path.name)
 
 
 def check_prompts_served(resolved: ResolvedConnector) -> None:
@@ -171,7 +198,7 @@ def check_prompts_served(resolved: ResolvedConnector) -> None:
     _, prompts = _listings(resolved)
     for path in resolved.dirs.prompts.glob("*.json"):
         if not path.name.startswith("_"):
-            assert path.stem in prompts, f"prompt {path.stem} not served"
+            _require(path.stem in prompts, f"prompt {path.stem} not served")
 
 
 def check_connector_sources(resolved: ResolvedConnector) -> None:
@@ -186,7 +213,9 @@ def check_connector_sources(resolved: ResolvedConnector) -> None:
     from agent_connector_sdk.mcp.tool_surface import registered_tools
 
     declaration = load_declaration(resolved.package)
-    assert declaration.connector == resolved.name
+    _require(
+        declaration.connector == resolved.name, "declaration names another connector"
+    )
     mcp = _server(resolved)
     build_declaration(
         resolved.name,
@@ -196,14 +225,14 @@ def check_connector_sources(resolved: ResolvedConnector) -> None:
     for item in _trees(resolved):
         names = {n.name for n in ast.walk(item[1]) if isinstance(n, ast.FunctionDef)}
         if item[0].name == "connector_sources.py":
-            assert "declaration" not in names, "declaration() belongs to the SDK"
+            _require("declaration" not in names, "declaration() belongs to the SDK")
 
 
 def check_ontology_rollup(resolved: ResolvedConnector) -> None:
     """Every ontology class reaches the epistemic-graph core namespace."""
     for path in sorted(resolved.dirs.ontology.glob("*.ttl")):
         orphans = orphan_classes(path)
-        assert not orphans, f"{path.name}: orphan classes {sorted(orphans)}"
+        _require(not orphans, f"{path.name}: orphan classes {sorted(orphans)}")
 
 
 def check_kg_ingest(resolved: ResolvedConnector) -> None:
@@ -215,15 +244,16 @@ def check_kg_ingest(resolved: ResolvedConnector) -> None:
     module = importlib.import_module(f"{resolved.package}.kg_ingest")
     for value in vars(module).values():
         if isinstance(value, IngestBinding):
-            assert value.connector == resolved.name, value.connector
+            _require(value.connector == resolved.name, value.connector)
 
 
 def check_one_entry_point(resolved: ResolvedConnector) -> None:
     """Content is found by convention: no provider entry points are declared."""
     declared = _pyproject(resolved).get("project", {}).get("entry-points", {})
     stale = [g for g in REMOVED_PROVIDER_GROUPS if g in declared]
-    assert not stale, (
-        f"remove entry-point groups {stale}; the SDK finds content by convention"
+    _require(
+        not stale,
+        f"remove entry-point groups {stale}; the SDK finds content by convention",
     )
 
 
