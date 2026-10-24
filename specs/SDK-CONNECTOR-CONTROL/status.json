@@ -26,6 +26,8 @@
     "SDK-CONNECTOR-CONTROL-R018",
     "SDK-CONNECTOR-CONTROL-R019",
     "SDK-CONNECTOR-CONTROL-R019.1",
+    "SDK-CONNECTOR-CONTROL-R019.2",
+    "SDK-CONNECTOR-CONTROL-R019.3",
     "SDK-CONNECTOR-CONTROL-R020",
     "SDK-CONNECTOR-CONTROL-R021",
     "SDK-CONNECTOR-CONTROL-R022",
@@ -588,20 +590,22 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "045ba48df230",
+        "04f03cdc6f0e",
         "077a14c9f3d3",
         "3ddd773fb6dc",
-        "8f36880f39a7",
-        "aa58c5dd6858"
+        "73235dd1b25f"
       ],
       "verified_by": [
-        "tests/test_connector_run.py:104",
-        "tests/test_connector_run.py:113",
-        "tests/test_connector_run.py:126",
-        "tests/test_connector_run.py:132",
-        "tests/test_connector_run.py:189"
+        "tests/test_connector_hooks.py:108",
+        "tests/test_connector_hooks.py:121",
+        "tests/test_connector_hooks.py:133",
+        "tests/test_connector_hooks.py:139",
+        "tests/test_connector_hooks.py:160"
       ],
       "rollup_of": [
-        "SDK-CONNECTOR-CONTROL-R019.1"
+        "SDK-CONNECTOR-CONTROL-R019.1",
+        "SDK-CONNECTOR-CONTROL-R019.2",
+        "SDK-CONNECTOR-CONTROL-R019.3"
       ]
     },
     {
@@ -618,6 +622,37 @@
         "tests/test_connector_run.py:126",
         "tests/test_connector_run.py:132",
         "tests/test_connector_run.py:189"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R019.2",
+      "title": "A connector declares its bootstrap extras as typed hooks",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "04f03cdc6f0e",
+        "73235dd1b25f"
+      ],
+      "verified_by": [
+        "tests/test_connector_hooks.py:108",
+        "tests/test_connector_hooks.py:121",
+        "tests/test_connector_hooks.py:133",
+        "tests/test_connector_hooks.py:139",
+        "tests/test_connector_hooks.py:160"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R019.3",
+      "title": "Container config mounts are declared once with an SDK schema",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "04f03cdc6f0e",
+        "73235dd1b25f"
+      ],
+      "verified_by": [
+        "tests/test_connector_hooks.py:310",
+        "tests/test_connector_hooks.py:327",
+        "tests/test_connector_hooks.py:348",
+        "tests/test_connector_hooks.py:357"
       ]
     },
     {
