@@ -60,28 +60,44 @@ from agent_connector_sdk.ingest.model import (
     Relationship,
     Withdrawal,
 )
+from agent_connector_sdk.ingest.paging import (
+    CursorStrategy,
+    HighWaterCursor,
+    KeysetCursor,
+    OffsetCursor,
+    TimeWindowCursor,
+)
+from agent_connector_sdk.ingest.privacy import Pseudonymizer
 from agent_connector_sdk.ingest.service import KnowledgeIngest
 from agent_connector_sdk.ingest.stream import FetchPage, SourceStream, open_client
+from agent_connector_sdk.ingest.tools import IngestTool, ingest_registration
 
 __all__ = [
     "ChangeSet",
+    "CursorStrategy",
     "DeclarationError",
     "Document",
     "EdgeMap",
     "Entity",
     "EntityRef",
     "FetchPage",
+    "HighWaterCursor",
     "IngestBinding",
     "IngestConflictError",
     "IngestError",
+    "IngestTool",
     "IngestUnavailableError",
+    "KeysetCursor",
     "KnowledgeIngest",
     "Mapped",
     "Mapper",
     "MediaAsset",
+    "OffsetCursor",
+    "Pseudonymizer",
     "RecordMap",
     "Relationship",
     "SourceStream",
+    "TimeWindowCursor",
     "Withdrawal",
     "aingest_changes",
     "current_ingest",
@@ -89,6 +105,7 @@ __all__ = [
     "entity_from_record",
     "ext_id",
     "ingest_changes",
+    "ingest_registration",
     "install_ingest",
     "load_declaration",
     "open_client",
