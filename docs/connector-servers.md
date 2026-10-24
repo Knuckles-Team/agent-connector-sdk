@@ -16,6 +16,34 @@ and returns `(args, mcp, middlewares)`. The caller adds the middlewares.
 Every server gets a `GET /health` route, per-caller rate limiting, and error
 handling that never returns tracebacks.
 
+## Declared connectors
+
+A connector package declares a `Connector` value and calls
+`agent_connector_sdk.run()`; the SDK builds the server above from it. Anything
+the server does beyond the plain bootstrap is a typed `Connector` field, applied
+through fastmcp's own API:
+
+| Field | Applied as |
+|---|---|
+| `tool_registry` | `(tag, toggle_setting, registrar)` entries, used instead of `tools` |
+| `action_tools`, `action_prefixes` | registrars whose action-routed tools are served one typed tool per action, named `<prefix>_<action>` |
+| `inline_tools` | functions or fastmcp `Tool` values, added with `FastMCP.add_tool` |
+| `routes` | `Route(path, handler, methods, name)`, added with `FastMCP.custom_route`; never `/health` or `/ready` |
+| `readiness` | an async probe returning `Readiness(ready, detail)`, served at `GET /ready` (200 or 503) |
+| `extra_registrations` | callables that receive a `RegistrationContext(server, name, version, settings, client_factory, auth)` |
+| `content_root` | a package-relative directory holding `skills/`, `prompts/`, `ontology/` and `connectors/` |
+
+A container that reads a reference-only configuration directory declares it in
+`pyproject.toml`. The shared container renderer adds a read-only bind mount. The
+conformance plugin checks the table against `CONFIG_MOUNTS_SCHEMA` from
+`agent_connector_sdk.config_mounts`:
+
+```toml
+[[tool.pipelines.container.config_mounts]]
+source = "${CONNECTOR_CONFIG_DIR:?set-CONNECTOR_CONFIG_DIR}"
+target = "/etc/connector"
+```
+
 ## Change subscriptions
 
 Every server built by `create_mcp_server` serves `subscriptions/listen`, so
@@ -103,8 +131,11 @@ lazy `find` and load. The SDK tags every tool `gated`, and the gateway reveals i
 
 Registrars (`tools_module`, `tool_registry` or `registrars`) add the tools that
 are not client-method wrappers, such as ingest tools; each honours a
-`<TAG>TOOL` setting. The SDK drops a registrar tool that routes an `action`
-string to client methods. `action_dispatch=True` keeps it for compatibility. No environment mode selects the surface. A destructive
+`<TAG>TOOL` setting. With a client, the SDK splits a registrar tool that routes
+an `action` string into one typed tool per action. An action that an operation
+tool serves stays with that tool. `register_action_tools(mcp, entries, prefixes=...)`
+splits action tools with or without a client. `action_dispatch=True` keeps them
+whole for compatibility. No environment mode selects the surface. A destructive
 operation asks the connected user to confirm and is cancelled when it cannot.
 
 ## Visibility

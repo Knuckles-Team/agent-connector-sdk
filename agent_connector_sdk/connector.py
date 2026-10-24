@@ -23,7 +23,11 @@ no ``__version__`` and no ``__main__`` logic.
 Content is found by convention under the package named by the entry point:
 ``skills/``, ``prompts/``, ``ontology/``, ``connectors/`` and
 ``connector_sources`` (SDK-CONNECTOR-CONTROL-R071.1). No provider entry points
-are needed.
+are needed; ``content_root`` names a package-relative directory instead.
+
+A server that did more than the plain bootstrap declares it on ``Connector``
+with the typed hooks of :mod:`agent_connector_sdk.connector_hooks`
+(SDK-CONNECTOR-CONTROL-R019.2).
 """
 
 from __future__ import annotations
@@ -31,19 +35,33 @@ from __future__ import annotations
 import importlib
 import importlib.util
 import sys
-from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass, field
 from importlib.metadata import entry_points
 from pathlib import Path
 from types import ModuleType
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
+from agent_connector_sdk.connector_hooks import (
+    InlineTool,
+    ReadinessProbe,
+    Registration,
+    RegistrationContext,
+    Route,
+    ToolRegistryEntry,
+    content_subdir,
+    serve_readiness,
+    serve_routes,
+)
 from agent_connector_sdk.connector_identity import (
     CONNECTOR_ENTRY_POINT_GROUP,
     ConnectorIdentityError,
     connector_point,
     connector_version,
 )
+
+if TYPE_CHECKING:
+    from fastmcp import FastMCP
 
 __all__ = [
     "Connector",
@@ -68,8 +86,10 @@ class Connector:
         tools: The module (or dotted name) holding the connector's own
             ``register_<tag>_tools`` functions. Defaults to ``<package>.tools``
             when that module exists.
-        extra_registrations: Callables run with the FastMCP server after the
-            tool surface registers, for registrations the SDK does not own.
+        extra_registrations: Callables run with a
+            :class:`~agent_connector_sdk.connector_hooks.RegistrationContext`
+            after the tool surface registers, for registrations the SDK does
+            not own.
         transports: Offered transports; defaults to every SDK transport.
         tool_prefix: Operation-tool name prefix; defaults to one derived from
             the fleet name.
@@ -78,30 +98,63 @@ class Connector:
         verbose_register: Callable run last to register further tools.
         result_coercer: Coerces each operation result.
         action_dispatch: Keep action-routed tools whole instead of splitting.
+        tool_registry: Explicit ``(tag, toggle_setting, registrar)`` entries,
+            used instead of ``tools`` when a tag or toggle is not derived from
+            the ``register_<tag>_tools`` name.
+        action_tools: ``(tag, toggle_setting, registrar)`` entries whose
+            action-routed tools are always served one typed tool per action.
+        action_prefixes: Per-action tool prefix by routed tool name; the
+            prefix defaults to the routed tool's name.
+        inline_tools: Tool functions or fastmcp ``Tool`` values added with
+            ``FastMCP.add_tool`` before the tool surface registers.
+        routes: Extra HTTP routes added with ``FastMCP.custom_route``.
+        readiness: An async backend probe served at ``/ready``; ``/health``
+            stays liveness-only.
+        content_root: Package-relative directory holding ``skills/``,
+            ``prompts/``, ``ontology/`` and ``connectors/``; defaults to the
+            package root.
     """
 
     instructions: str = ""
     api: type | None = None
     get_client: Callable[..., Any] | None = None
     tools: ModuleType | str | None = None
-    extra_registrations: tuple[Callable[[Any], None], ...] = ()
+    extra_registrations: tuple[Registration, ...] = ()
     transports: Sequence[str] | None = None
     tool_prefix: str | None = None
     verbose_targets: tuple[dict[str, Any], ...] = ()
     verbose_register: Callable[[Any], None] | None = None
     result_coercer: Callable[[Any], Any] | None = None
     action_dispatch: bool = False
+    tool_registry: tuple[ToolRegistryEntry, ...] = ()
+    action_tools: tuple[ToolRegistryEntry, ...] = ()
+    action_prefixes: Mapping[str, str] = field(default_factory=dict)
+    inline_tools: tuple[InlineTool, ...] = ()
+    routes: tuple[Route, ...] = ()
+    readiness: ReadinessProbe | None = None
+    content_root: str | None = None
 
     def __post_init__(self) -> None:
         if (self.api is None) != (self.get_client is None):
             raise ValueError("api and get_client are declared together or not at all")
+        if self.tool_registry and self.tools is not None:
+            raise ValueError("declare tools or tool_registry, not both")
+        if self.action_prefixes and not self.action_tools:
+            raise ValueError("action_prefixes name tools of action_tools")
+        if self.content_root is not None:
+            content_subdir(self.content_root)
 
 
 @dataclass(frozen=True)
 class ConnectorContentDirs:
-    """Where a connector's content lives, by convention under its package."""
+    """Where a connector's content lives, by convention under its package.
+
+    ``root`` is the package directory; ``content`` is the directory holding the
+    content kinds (the package root unless ``content_root`` names another).
+    """
 
     root: Path
+    content: Path
     skills: Path
     prompts: Path
     ontology: Path
@@ -120,19 +173,21 @@ class ResolvedConnector:
     dirs: ConnectorContentDirs
 
 
-def content_dirs(package: str) -> ConnectorContentDirs:
-    """The conventional content directories of ``package``."""
+def content_dirs(package: str, content_root: str | None = None) -> ConnectorContentDirs:
+    """The content directories of ``package``, under ``content_root`` when given."""
     spec = importlib.util.find_spec(package.split(".", 1)[0])
     locations = list(spec.submodule_search_locations or []) if spec else []
     if not locations:
         raise ConnectorIdentityError(f"{package!r} is not an importable package")
     root = Path(locations[0])
+    base = root if content_root is None else root / content_subdir(content_root)
     return ConnectorContentDirs(
         root=root,
-        skills=root / "skills",
-        prompts=root / "prompts",
-        ontology=root / "ontology",
-        connectors=root / "connectors",
+        content=base,
+        skills=base / "skills",
+        prompts=base / "prompts",
+        ontology=base / "ontology",
+        connectors=base / "connectors",
     )
 
 
@@ -162,7 +217,7 @@ def resolve_connector(package: str) -> ResolvedConnector:
         distribution=point.distribution,
         version=connector_version(point.package),
         connector=value,
-        dirs=content_dirs(point.package),
+        dirs=content_dirs(point.package, value.content_root),
     )
 
 
@@ -178,6 +233,8 @@ def installed_connectors() -> list[ResolvedConnector]:
 
 
 def _tools_module(resolved: ResolvedConnector) -> ModuleType | None:
+    if resolved.connector.tool_registry:
+        return None
     tools = resolved.connector.tools
     if isinstance(tools, ModuleType):
         return tools
@@ -202,7 +259,10 @@ def build_server(
     from agent_connector_sdk.mcp.content import ConnectorContent
     from agent_connector_sdk.mcp.parser import TRANSPORTS
     from agent_connector_sdk.mcp.server import create_mcp_server
-    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
+    from agent_connector_sdk.mcp.tool_surface import (
+        register_action_tools,
+        register_tool_surface,
+    )
 
     resolved = resolve_connector(package)
     connector = resolved.connector
@@ -214,15 +274,18 @@ def build_server(
         transport_choices=tuple(connector.transports or TRANSPORTS),
         content=ConnectorContent(
             connector=resolved.name,
-            package_root=resolved.dirs.root,
+            package_root=resolved.dirs.content,
             package_version=resolved.version,
         ),
     )
+    for tool in connector.inline_tools:
+        mcp.add_tool(tool)
     register_tool_surface(
         mcp,
         service=resolved.name,
         client_cls=connector.api,
         get_client=connector.get_client,
+        tool_registry=list(connector.tool_registry) or None,
         tools_module=_tools_module(resolved),
         package_root=resolved.dirs.root,
         tool_prefix=connector.tool_prefix,
@@ -231,11 +294,31 @@ def build_server(
         result_coercer=connector.result_coercer,
         action_dispatch=connector.action_dispatch,
     )
-    for register in connector.extra_registrations:
-        register(mcp)
+    if connector.action_tools:
+        register_action_tools(
+            mcp, connector.action_tools, prefixes=connector.action_prefixes
+        )
+    _serve_hooks(mcp, args, resolved)
     for middleware in middlewares:
         mcp.add_middleware(middleware)
     return args, mcp
+
+
+def _serve_hooks(mcp: FastMCP[Any], args: Any, resolved: ResolvedConnector) -> None:
+    connector = resolved.connector
+    context = RegistrationContext(
+        server=mcp,
+        name=resolved.name,
+        version=resolved.version,
+        settings=args,
+        client_factory=connector.get_client,
+        auth=mcp.auth,
+    )
+    for register in connector.extra_registrations:
+        register(context)
+    serve_routes(mcp, connector.routes)
+    if connector.readiness is not None:
+        serve_readiness(mcp, connector.readiness)
 
 
 def _calling_package() -> str:

@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from agent_connector_sdk.config_mounts import ConfigMountError, config_mounts
 from agent_connector_sdk.connector import ResolvedConnector, build_server
 from agent_connector_sdk.connector_identity import (
     CONNECTOR_ENTRY_POINT_GROUP,
@@ -259,6 +260,14 @@ def check_one_entry_point(resolved: ResolvedConnector) -> None:
     )
 
 
+def check_config_mounts(resolved: ResolvedConnector) -> None:
+    """Declared container config mounts follow the SDK schema."""
+    try:
+        config_mounts(_pyproject(resolved))
+    except ConfigMountError as exc:
+        raise ConformanceFailure(f"config_mounts: {exc}") from exc
+
+
 CHECKS: tuple[Check, ...] = (
     Check("fleet_name", _ROW, check_fleet_name),
     Check("version_from_metadata", _ROW, check_version_from_metadata),
@@ -269,6 +278,7 @@ CHECKS: tuple[Check, ...] = (
     Check("ontology_rollup", _ROW, check_ontology_rollup),
     Check("kg_ingest", _ROW, check_kg_ingest),
     Check("one_entry_point", _ROW, check_one_entry_point),
+    Check("config_mounts", "SDK-CONNECTOR-CONTROL-R019.3", check_config_mounts),
 )
 
 

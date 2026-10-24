@@ -106,7 +106,7 @@ These integration tests have not run. Helper tests and spec checks do not establ
 
 Extend the existing named served credential/PKCE tests through actual REST/MCP ingress, connector dispatch and controlled provider exchanges.
 Grant connector A and prove its authorized call succeeds. Keep tenant, principal/client, provider, audience and scopes unchanged, then target connector B.
-Caller-forged connector A metadata on B and a genuine B identity with only A's grant both refuse before secret resolution or exchange.
+The SDK refuses caller-forged connector A metadata on B before secret resolution or exchange. It also refuses a genuine B identity that holds only A's grant.
 An explicit B grant permits B without changing A's authority. Assert challenge, vault receipt and transport evidence contain the admitted connector.
 Use an OIDC provider returning a signed ID token plus opaque access and refresh tokens; the declared mixed profile must succeed.
 Separately prove the JWT access-token profile succeeds with valid signatures, audiences, expiry and resource bindings.
@@ -345,6 +345,14 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_
 ## SDK-CONNECTOR-CONTROL-R019.1
 
 `tests/test_connector_run.py` builds a fixture connector distribution (installed metadata, package, content) and starts it through `build_server` and `run`. It checks the served tools, skills, prompts, ontology and `connector://resources`, the metadata version, each transport and the unknown-transport refusal.
+
+## SDK-CONNECTOR-CONTROL-R019.2
+
+`tests/test_connector_hooks.py` declares each bootstrap hook on the fixture connector and builds it with `build_server`. It lists the tools for `tool_registry` with its declared tag and toggle. It lists the per-action tools of `action_tools` with a declared prefix, a default prefix and the toggle off. It lists a decorated and a plain inline tool. It requests the declared route and `/ready` for a ready, a down and a raising probe. The raising probe's message never appears in the response. It reads every `RegistrationContext` field and serves content from `content_root`. The SDK refuses reserved, relative and repeated routes and escaping content roots. It also refuses `tools` with `tool_registry` and `action_prefixes` without `action_tools`. `tests/test_ingest_strategies.py` runs `ingest_registration` with a `RegistrationContext`.
+
+## SDK-CONNECTOR-CONTROL-R019.3
+
+`tests/test_connector_hooks.py` parses interpolated and absolute config mount sources from a `pyproject.toml` table. It refuses a non-list field, relative or escaping paths, a target outside `/etc`, an extra key, a non-string value and a repeated target. It reads the schema's required keys. The `config_mounts` conformance check passes for the fixture and fails for a mount on `/`.
 
 ## SDK-CONNECTOR-CONTROL-R071.1
 
