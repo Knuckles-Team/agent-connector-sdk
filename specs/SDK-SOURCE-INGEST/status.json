@@ -142,6 +142,7 @@
     "SDK-SOURCE-INGEST-R004.29",
     "SDK-SOURCE-INGEST-R004.30",
     "SDK-SOURCE-INGEST-R004.31",
+    "SDK-SOURCE-INGEST-R004.32",
     "SDK-SOURCE-INGEST-R013",
     "SDK-SOURCE-INGEST-R013.1",
     "SDK-SOURCE-INGEST-R013.2",
@@ -319,7 +320,8 @@
         "SDK-SOURCE-INGEST-R004.28",
         "SDK-SOURCE-INGEST-R004.29",
         "SDK-SOURCE-INGEST-R004.30",
-        "SDK-SOURCE-INGEST-R004.31"
+        "SDK-SOURCE-INGEST-R004.31",
+        "SDK-SOURCE-INGEST-R004.32"
       ]
     },
     {
@@ -1721,10 +1723,23 @@
         "077db8362deb"
       ],
       "verified_by": [
-        "tests/test_ingest_stream.py:106",
-        "tests/test_ingest_stream.py:137",
-        "tests/test_ingest_stream.py:68",
-        "tests/test_ingest_stream.py:91"
+        "tests/test_ingest_stream.py:110",
+        "tests/test_ingest_stream.py:141",
+        "tests/test_ingest_stream.py:72",
+        "tests/test_ingest_stream.py:95"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.32",
+      "title": "`SourceStream` covers best-effort, split-stream, media and mixed submissions",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "bd1ca2ff134e"
+      ],
+      "verified_by": [
+        "tests/test_ingest_stream.py:178",
+        "tests/test_ingest_stream.py:210",
+        "tests/test_ingest_stream.py:227"
       ]
     },
     {
