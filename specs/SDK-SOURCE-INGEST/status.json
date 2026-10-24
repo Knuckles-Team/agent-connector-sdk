@@ -1796,11 +1796,12 @@
       "title": "Declared sources carry edges to the records their reference fields name",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "5ee9b166ecbe",
         "99f0126f91b9"
       ],
       "verified_by": [
-        "tests/test_source_sync_edges.py:122",
-        "tests/test_source_sync_edges.py:173",
+        "tests/test_source_sync_edges.py:125",
+        "tests/test_source_sync_edges.py:176",
         "tests/test_source_sync_edges.py:73",
         "tests/test_source_sync_edges.py:93"
       ]
