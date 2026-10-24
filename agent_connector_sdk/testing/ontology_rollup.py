@@ -37,28 +37,28 @@ def parse_triples(text: str) -> list[tuple[str, str, str]]:
     }
     body = re.sub(r"\[[^\[\]]*\]", " _:b ", _PREFIX.sub("", body))
 
-    def expand(token: str) -> str:
-        if token.startswith("\x00"):
-            return iris[int(token[1:]) - 1]
-        prefix, sep, local = token.partition(":")
+    def expand(term: str) -> str:
+        if term.startswith("\x00"):
+            return iris[int(term[1:]) - 1]
+        prefix, sep, local = term.partition(":")
         if sep and prefix in prefixes:
             return prefixes[prefix] + local
-        return _RDF_TYPE if token == "a" else token
+        return _RDF_TYPE if term == "a" else term
 
     triples: list[tuple[str, str, str]] = []
     for statement in _END.split(body):
-        tokens = statement.replace(";", " ; ").replace(",", " , ").split()
+        terms = statement.replace(";", " ; ").replace(",", " , ").split()
         subject, predicate, fresh = "", "", True
-        for index, token in enumerate(tokens):
+        for index, term in enumerate(terms):
             if index == 0:
-                subject = expand(token)
-            elif token == ";":
+                subject = expand(term)
+            elif term == ";":
                 fresh = True
-            elif token != ",":
+            elif term != ",":
                 if fresh:
-                    predicate, fresh = expand(token), False
+                    predicate, fresh = expand(term), False
                 else:
-                    triples.append((subject, predicate, expand(token)))
+                    triples.append((subject, predicate, expand(term)))
     return triples
 
 
