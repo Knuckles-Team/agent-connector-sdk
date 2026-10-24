@@ -26,7 +26,7 @@ INCIDENTS = [
         "sys_id": "inc-2",
         "short_description": "unassigned",
         "assignment_group": "",
-        "assigned_to": None,
+        "assigned_to": "usr-cat",
         "watch_list": [],
         "sys_updated_on": "2026-10-02",
     },
@@ -103,12 +103,15 @@ async def test_runner_emits_reference_targets_and_relationships() -> None:
     assert by_id["AssignmentGroup:grp-db"].properties == {"name": "Database Ops"}
     assert by_id["Person:usr-ann"].properties == {"name": "Ann"}
     assert by_id["Person:usr-bob"].properties == {}
+    # A scalar reference (sysparm_exclude_reference_link) is the id itself.
+    assert by_id["Person:usr-cat"].properties == {}
     edges = {(r.source.id, r.relationship, r.target) for r in changes.relationships}
     assert edges == {
         ("inc-1", "assignedToGroup", "AssignmentGroup:grp-db"),
         ("inc-1", "assignedTo", "Person:usr-ann"),
         ("inc-1", "watchedBy", "Person:usr-bob"),
         ("inc-1", "watchedBy", "Person:usr-ann"),
+        ("inc-2", "assignedTo", "Person:usr-cat"),
     }
     assert all(
         isinstance(r.source, EntityRef) and r.source.node_type == "Incident"
