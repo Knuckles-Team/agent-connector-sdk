@@ -3141,9 +3141,9 @@
       "title": "The connector's MCP server is the only place its metadata is read from (rollup)",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "077db8362deb",
         "0d150cf96fd8",
         "2078ee0208c5",
+        "2487b614c171",
         "647f3de98067",
         "95f251043be1"
       ],
@@ -3206,7 +3206,7 @@
       "title": "Prompts serve their own directive and carry their metadata over native MCP",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "077db8362deb",
+        "2487b614c171",
         "f0b9e7f4f535"
       ],
       "verified_by": [

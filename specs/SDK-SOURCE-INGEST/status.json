@@ -1711,7 +1711,7 @@
       "title": "A connector declares its record mappers; the SDK owns the rest",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "077db8362deb"
+        "2487b614c171"
       ],
       "verified_by": [
         "tests/test_ingest_mapping.py:102",
@@ -1726,7 +1726,7 @@
       "title": "One `SourceStream` is the ingest entry",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "077db8362deb"
+        "2487b614c171"
       ],
       "verified_by": [
         "tests/test_ingest_stream.py:110",
@@ -1740,7 +1740,7 @@
       "title": "`SourceStream` covers best-effort, split-stream, media and mixed submissions",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "bd1ca2ff134e"
+        "07aa2957dd25"
       ],
       "verified_by": [
         "tests/test_ingest_stream.py:178",
@@ -1753,7 +1753,7 @@
       "title": "`sync` takes a cursor strategy; `mapped` takes a batch size",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "41477e484fa3"
+        "840277a9b0a4"
       ],
       "verified_by": [
         "tests/test_ingest_strategies.py:185",
@@ -1767,7 +1767,7 @@
       "title": "A projection, a guard and a size limit run inside the one `submit` path",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "41477e484fa3"
+        "840277a9b0a4"
       ],
       "verified_by": [
         "tests/test_ingest_strategies.py:116",
@@ -1780,8 +1780,8 @@
       "title": "Ingest tools are declared as data and registered by the SDK",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "41477e484fa3",
-        "8c9f69cb0c87"
+        "840277a9b0a4",
+        "d0b3de5b772d"
       ],
       "verified_by": [
         "tests/test_ingest_strategies.py:199",
