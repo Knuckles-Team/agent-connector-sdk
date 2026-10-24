@@ -590,10 +590,10 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "045ba48df230",
-        "04f03cdc6f0e",
         "077a14c9f3d3",
         "3ddd773fb6dc",
-        "73235dd1b25f"
+        "434185d3a820",
+        "8f36880f39a7"
       ],
       "verified_by": [
         "tests/test_connector_hooks.py:108",
@@ -629,8 +629,8 @@
       "title": "A connector declares its bootstrap extras as typed hooks",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "04f03cdc6f0e",
-        "73235dd1b25f"
+        "434185d3a820",
+        "f5707824fa51"
       ],
       "verified_by": [
         "tests/test_connector_hooks.py:108",
@@ -645,8 +645,8 @@
       "title": "Container config mounts are declared once with an SDK schema",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "04f03cdc6f0e",
-        "73235dd1b25f"
+        "434185d3a820",
+        "f5707824fa51"
       ],
       "verified_by": [
         "tests/test_connector_hooks.py:310",
