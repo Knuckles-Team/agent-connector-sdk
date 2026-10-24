@@ -205,3 +205,4 @@
 - [x] `SDK-SOURCE-INGEST-R004.29`: load declarations as typed data with shared field sets.
 - [x] `SDK-SOURCE-INGEST-R004.30`: declared record mappers (`RecordMap`, `Mapped`) and shared field validation.
 - [x] `SDK-SOURCE-INGEST-R004.31`: `SourceStream` entry with paging and cursor checkpointing.
+- [x] `SDK-SOURCE-INGEST-R004.32`: best-effort, split-stream, media and mixed submissions.
