@@ -16,6 +16,7 @@ docs = "public GitHub Pages sources and generated shared-theme assets"
 [files]
 "AGENTS.md" = "agent-facing repository guide"
 "CONTRIBUTING.md" = "contributor setup, gates, and the branch and pull-request flow"
+"CHANGELOG.md" = "release notes, one section per published version"
 "CLAUDE.md" = "Claude Code instructions (imports AGENTS.md)"
 "LICENSE" = "license text"
 "README.md" = "project readme; carries the version marker bump2version updates"
