@@ -206,6 +206,7 @@ The modules are `tests/test_source_sync.py` and `tests/test_source_sync_served.p
 | `SDK-SOURCE-INGEST-R004.33` | Cursor strategies and batching | `tests/test_ingest_strategies.py`. |
 | `SDK-SOURCE-INGEST-R004.34` | Projection, guard and limits in submit | `tests/test_ingest_strategies.py`. |
 | `SDK-SOURCE-INGEST-R004.35` | Declared ingest tools | `tests/test_ingest_strategies.py`. |
+| `SDK-SOURCE-INGEST-R004.36` | Declared source edges | `tests/test_source_sync_edges.py`. |
 | `SDK-SOURCE-INGEST-R004.28` | Per-parent fan-out | `tests/test_for_each.py::test_child_runs_once_per_parent_record`, `::test_missing_parent_and_cycle_are_typed_refusals`, `::test_fan_out_is_capped`, `::test_for_each_is_in_the_served_schema`, `::test_preset_adapter_fans_out_and_pages_each_parent` and `::test_preset_adapter_refuses_unknown_parent`. |
 
 <!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->

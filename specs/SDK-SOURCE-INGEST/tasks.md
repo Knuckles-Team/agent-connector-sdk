@@ -209,3 +209,4 @@
 - [x] `SDK-SOURCE-INGEST-R004.33`: cursor strategies on `sync` and batched commits.
 - [x] `SDK-SOURCE-INGEST-R004.34`: projection, guard and size limit inside `submit`.
 - [x] `SDK-SOURCE-INGEST-R004.35`: ingest tools declared as data.
+- [x] `SDK-SOURCE-INGEST-R004.36`: declared source edges (owner, steward, assignment references).
