@@ -43,6 +43,7 @@
     "SDK-CONNECTOR-CONTROL-R028.1",
     "SDK-CONNECTOR-CONTROL-R028.2",
     "SDK-CONNECTOR-CONTROL-R028.3",
+    "SDK-CONNECTOR-CONTROL-R028.4",
     "SDK-CONNECTOR-CONTROL-R029",
     "SDK-CONNECTOR-CONTROL-R030",
     "SDK-CONNECTOR-CONTROL-R030.1",
@@ -586,11 +587,11 @@
       "title": "Host servers register ontology resources without duplicate skills or prompts",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "00b15b0558ec",
         "045ba48df230",
         "077a14c9f3d3",
         "3ddd773fb6dc",
-        "b62b1bc73ba1"
+        "8f36880f39a7",
+        "aa58c5dd6858"
       ],
       "verified_by": [
         "tests/test_connector_run.py:104",
@@ -608,8 +609,8 @@
       "title": "The SDK runs the connector server from its declared identity",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "00b15b0558ec",
-        "b62b1bc73ba1"
+        "8f36880f39a7",
+        "aa58c5dd6858"
       ],
       "verified_by": [
         "tests/test_connector_run.py:104",
@@ -818,7 +819,8 @@
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R028.1",
         "SDK-CONNECTOR-CONTROL-R028.2",
-        "SDK-CONNECTOR-CONTROL-R028.3"
+        "SDK-CONNECTOR-CONTROL-R028.3",
+        "SDK-CONNECTOR-CONTROL-R028.4"
       ]
     },
     {
@@ -859,6 +861,21 @@
         "tests/test_http_client.py:373",
         "tests/test_http_client.py:395",
         "tests/test_http_client.py:426"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R028.4",
+      "title": "A connector declares its outbound auth in one line and the SDK builds the governed client",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "76f43b75949f"
+      ],
+      "verified_by": [
+        "tests/test_auth_declarations.py:106",
+        "tests/test_auth_declarations.py:114",
+        "tests/test_auth_declarations.py:145",
+        "tests/test_auth_declarations.py:165",
+        "tests/test_auth_declarations.py:192"
       ]
     },
     {
@@ -2985,7 +3002,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "8ec791033514",
-        "b62b1bc73ba1",
+        "aa58c5dd6858",
         "e94990c8a480"
       ],
       "verified_by": [
@@ -3005,7 +3022,7 @@
       "title": "Content is found by convention",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "b62b1bc73ba1"
+        "aa58c5dd6858"
       ],
       "verified_by": [
         "tests/test_connector_run.py:140",
@@ -3018,7 +3035,7 @@
       "title": "The version is read from package metadata only",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "b62b1bc73ba1"
+        "aa58c5dd6858"
       ],
       "verified_by": [
         "tests/test_connector_run.py:161"
@@ -3041,9 +3058,9 @@
       "title": "The server factory serves all five connector surfaces and keeps the parent link",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "00b15b0558ec",
         "268d030fffad",
         "57d0997107dd",
+        "8f36880f39a7",
         "cf3d6e92c008"
       ],
       "verified_by": [
