@@ -74,9 +74,9 @@
       "landed_in": [
         "096f27ee29e5",
         "0c1f49ced769",
+        "3f88b43de7a5",
         "42b930057c3e",
-        "6856dbff0136",
-        "851969957034"
+        "6856dbff0136"
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:132",
@@ -94,6 +94,7 @@
       "title": "The SDK ships connector conformance as a test plugin",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "3f88b43de7a5",
         "b62b1bc73ba1"
       ],
       "verified_by": [
