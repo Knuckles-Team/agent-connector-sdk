@@ -40,7 +40,7 @@
 
 ## Quick Start
 
-Scion SDK is distributed as `agent-connector-sdk` and imported as
+Install Scion SDK as `agent-connector-sdk` and import it as
 `agent_connector_sdk`. Repository, package, CLI and API identifiers remain
 unchanged.
 
