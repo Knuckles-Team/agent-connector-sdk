@@ -253,8 +253,7 @@
         "SDK-SOURCE-INGEST-R001.4",
         "SDK-SOURCE-INGEST-R001.5",
         "SDK-SOURCE-INGEST-R001.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R002",
@@ -331,8 +330,7 @@
         "SDK-SOURCE-INGEST-R004.34",
         "SDK-SOURCE-INGEST-R004.35",
         "SDK-SOURCE-INGEST-R004.36"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R005",
@@ -389,56 +387,49 @@
         "SDK-SOURCE-INGEST-R005.38",
         "SDK-SOURCE-INGEST-R005.39",
         "SDK-SOURCE-INGEST-R005.40"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R006",
@@ -486,8 +477,7 @@
         "SDK-SOURCE-INGEST-R006.35",
         "SDK-SOURCE-INGEST-R006.36",
         "SDK-SOURCE-INGEST-R006.37"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.1",
@@ -988,16 +978,14 @@
       "title": "SDK ships the ingest worker runner `run_ingest_worker` (unblocks `EG-INGEST-WORKER-R001.14`)",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R011",
       "title": "SDK ships the `ingest-worker` command (unblocks `EG-INGEST-WORKER-R001.15`)",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R012",
@@ -1012,392 +1000,343 @@
         "SDK-SOURCE-INGEST-R012.4",
         "SDK-SOURCE-INGEST-R012.5",
         "SDK-SOURCE-INGEST-R012.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R012.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R012.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R012.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R012.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R012.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R012.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R001.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R001.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R001.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R001.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R001.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R001.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.7",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.8",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.9",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.10",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.11",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.12",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.13",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.14",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.15",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.16",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.17",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.18",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.19",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.20",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.21",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.22",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.23",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.24",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.25",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.26",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.27",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.28",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.29",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.30",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.31",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.32",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.33",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.34",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.35",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.36",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.37",
@@ -1448,8 +1387,7 @@
         "SDK-SOURCE-INGEST-R005.40.4",
         "SDK-SOURCE-INGEST-R005.40.5",
         "SDK-SOURCE-INGEST-R005.40.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.40.1",
@@ -1483,176 +1421,154 @@
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.40.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.40.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.40.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.32",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.33",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.34",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.35",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.36",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.37",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.7",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.8",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.9",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.10",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.11",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.12",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.13",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.14",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.15",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.16",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.17",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.18",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.19",
@@ -1903,56 +1819,49 @@
         "SDK-SOURCE-INGEST-R013.4",
         "SDK-SOURCE-INGEST-R013.5",
         "SDK-SOURCE-INGEST-R013.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R013.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R013.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R013.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R013.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R013.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R013.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R014",
@@ -1967,56 +1876,49 @@
         "SDK-SOURCE-INGEST-R014.4",
         "SDK-SOURCE-INGEST-R014.5",
         "SDK-SOURCE-INGEST-R014.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R014.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R014.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R014.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R014.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R014.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R014.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R015",
@@ -2031,56 +1933,49 @@
         "SDK-SOURCE-INGEST-R015.4",
         "SDK-SOURCE-INGEST-R015.5",
         "SDK-SOURCE-INGEST-R015.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R015.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R015.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R015.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R015.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R015.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R015.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R016",
@@ -2095,56 +1990,49 @@
         "SDK-SOURCE-INGEST-R016.4",
         "SDK-SOURCE-INGEST-R016.5",
         "SDK-SOURCE-INGEST-R016.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R016.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R016.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R016.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R016.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R016.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R016.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R600",
@@ -2163,32 +2051,28 @@
         "SDK-SOURCE-INGEST-R600.4",
         "SDK-SOURCE-INGEST-R600.5",
         "SDK-SOURCE-INGEST-R600.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R600.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R600.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R600.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R600.4",
@@ -2206,16 +2090,14 @@
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R600.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R800",
@@ -2234,16 +2116,14 @@
         "SDK-SOURCE-INGEST-R800.4",
         "SDK-SOURCE-INGEST-R800.5",
         "SDK-SOURCE-INGEST-R800.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R800.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R800.2",
@@ -2262,8 +2142,7 @@
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R800.4",
@@ -2282,8 +2161,7 @@
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R800.6",
@@ -2315,56 +2193,49 @@
         "SDK-SOURCE-INGEST-R803.4",
         "SDK-SOURCE-INGEST-R803.5",
         "SDK-SOURCE-INGEST-R803.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R803.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R803.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R803.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R803.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R803.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R803.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R804",
@@ -2383,16 +2254,14 @@
         "SDK-SOURCE-INGEST-R804.4",
         "SDK-SOURCE-INGEST-R804.5",
         "SDK-SOURCE-INGEST-R804.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R804.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R804.2",
@@ -2410,8 +2279,7 @@
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R804.4",
@@ -2429,16 +2297,14 @@
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R804.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R900",
@@ -2453,32 +2319,28 @@
         "SDK-SOURCE-INGEST-R900.4",
         "SDK-SOURCE-INGEST-R900.5",
         "SDK-SOURCE-INGEST-R900.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R900.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R900.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R900.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R900.4",
@@ -2496,8 +2358,7 @@
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R900.6",
@@ -2523,16 +2384,14 @@
         "SDK-SOURCE-INGEST-R901.4",
         "SDK-SOURCE-INGEST-R901.5",
         "SDK-SOURCE-INGEST-R901.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R901.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R901.2",
@@ -2550,8 +2409,7 @@
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R901.4",
@@ -2569,8 +2427,7 @@
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R901.6",
@@ -2596,16 +2453,14 @@
         "SDK-SOURCE-INGEST-R902.4",
         "SDK-SOURCE-INGEST-R902.5",
         "SDK-SOURCE-INGEST-R902.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R902.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R902.2",
@@ -2623,24 +2478,21 @@
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R902.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R902.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R902.6",
@@ -2666,56 +2518,49 @@
         "SDK-SOURCE-INGEST-R017.4",
         "SDK-SOURCE-INGEST-R017.5",
         "SDK-SOURCE-INGEST-R017.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R017.1",
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R017.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R017.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R017.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R017.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R017.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R805",
@@ -2730,346 +2575,49 @@
         "SDK-SOURCE-INGEST-R805.4",
         "SDK-SOURCE-INGEST-R805.5",
         "SDK-SOURCE-INGEST-R805.6"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R805.1",
       "title": "Permission and group sync",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R805.2",
       "title": "Identifier enumeration",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R805.3",
       "title": "Container hierarchy",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R805.4",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R805.5",
       "title": "Read-time access lookup port",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R805.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
-      "priority": 0
+      "verified_by": []
     }
-  ],
-  "frontier": [
-    "SDK-SOURCE-INGEST-R005.1",
-    "SDK-SOURCE-INGEST-R005.2",
-    "SDK-SOURCE-INGEST-R005.3",
-    "SDK-SOURCE-INGEST-R005.4",
-    "SDK-SOURCE-INGEST-R005.5",
-    "SDK-SOURCE-INGEST-R005.6",
-    "SDK-SOURCE-INGEST-R010",
-    "SDK-SOURCE-INGEST-R011",
-    "SDK-SOURCE-INGEST-R012.1",
-    "SDK-SOURCE-INGEST-R012.2",
-    "SDK-SOURCE-INGEST-R012.3",
-    "SDK-SOURCE-INGEST-R012.4",
-    "SDK-SOURCE-INGEST-R012.5",
-    "SDK-SOURCE-INGEST-R012.6",
-    "SDK-SOURCE-INGEST-R001.1",
-    "SDK-SOURCE-INGEST-R001.2",
-    "SDK-SOURCE-INGEST-R001.3",
-    "SDK-SOURCE-INGEST-R001.4",
-    "SDK-SOURCE-INGEST-R001.5",
-    "SDK-SOURCE-INGEST-R001.6",
-    "SDK-SOURCE-INGEST-R004.1",
-    "SDK-SOURCE-INGEST-R004.2",
-    "SDK-SOURCE-INGEST-R004.3",
-    "SDK-SOURCE-INGEST-R004.4",
-    "SDK-SOURCE-INGEST-R004.5",
-    "SDK-SOURCE-INGEST-R004.6",
-    "SDK-SOURCE-INGEST-R005.7",
-    "SDK-SOURCE-INGEST-R005.8",
-    "SDK-SOURCE-INGEST-R005.9",
-    "SDK-SOURCE-INGEST-R005.10",
-    "SDK-SOURCE-INGEST-R005.11",
-    "SDK-SOURCE-INGEST-R005.12",
-    "SDK-SOURCE-INGEST-R005.13",
-    "SDK-SOURCE-INGEST-R005.14",
-    "SDK-SOURCE-INGEST-R005.15",
-    "SDK-SOURCE-INGEST-R005.16",
-    "SDK-SOURCE-INGEST-R005.17",
-    "SDK-SOURCE-INGEST-R005.18",
-    "SDK-SOURCE-INGEST-R005.19",
-    "SDK-SOURCE-INGEST-R005.20",
-    "SDK-SOURCE-INGEST-R005.21",
-    "SDK-SOURCE-INGEST-R005.22",
-    "SDK-SOURCE-INGEST-R005.23",
-    "SDK-SOURCE-INGEST-R005.24",
-    "SDK-SOURCE-INGEST-R005.25",
-    "SDK-SOURCE-INGEST-R005.26",
-    "SDK-SOURCE-INGEST-R005.27",
-    "SDK-SOURCE-INGEST-R005.28",
-    "SDK-SOURCE-INGEST-R005.29",
-    "SDK-SOURCE-INGEST-R005.30",
-    "SDK-SOURCE-INGEST-R005.31",
-    "SDK-SOURCE-INGEST-R005.32",
-    "SDK-SOURCE-INGEST-R005.33",
-    "SDK-SOURCE-INGEST-R005.34",
-    "SDK-SOURCE-INGEST-R005.35",
-    "SDK-SOURCE-INGEST-R005.36",
-    "SDK-SOURCE-INGEST-R005.40.3",
-    "SDK-SOURCE-INGEST-R005.40.4",
-    "SDK-SOURCE-INGEST-R005.40.5",
-    "SDK-SOURCE-INGEST-R005.40.6",
-    "SDK-SOURCE-INGEST-R006.32",
-    "SDK-SOURCE-INGEST-R006.33",
-    "SDK-SOURCE-INGEST-R006.34",
-    "SDK-SOURCE-INGEST-R006.35",
-    "SDK-SOURCE-INGEST-R006.36",
-    "SDK-SOURCE-INGEST-R006.37",
-    "SDK-SOURCE-INGEST-R004.7",
-    "SDK-SOURCE-INGEST-R004.8",
-    "SDK-SOURCE-INGEST-R004.9",
-    "SDK-SOURCE-INGEST-R004.10",
-    "SDK-SOURCE-INGEST-R004.11",
-    "SDK-SOURCE-INGEST-R004.12",
-    "SDK-SOURCE-INGEST-R004.13",
-    "SDK-SOURCE-INGEST-R004.14",
-    "SDK-SOURCE-INGEST-R004.15",
-    "SDK-SOURCE-INGEST-R004.16",
-    "SDK-SOURCE-INGEST-R004.17",
-    "SDK-SOURCE-INGEST-R004.18",
-    "SDK-SOURCE-INGEST-R013.1",
-    "SDK-SOURCE-INGEST-R013.2",
-    "SDK-SOURCE-INGEST-R013.3",
-    "SDK-SOURCE-INGEST-R013.4",
-    "SDK-SOURCE-INGEST-R013.5",
-    "SDK-SOURCE-INGEST-R013.6",
-    "SDK-SOURCE-INGEST-R014.1",
-    "SDK-SOURCE-INGEST-R014.2",
-    "SDK-SOURCE-INGEST-R014.3",
-    "SDK-SOURCE-INGEST-R014.4",
-    "SDK-SOURCE-INGEST-R014.5",
-    "SDK-SOURCE-INGEST-R014.6",
-    "SDK-SOURCE-INGEST-R015.1",
-    "SDK-SOURCE-INGEST-R015.2",
-    "SDK-SOURCE-INGEST-R015.3",
-    "SDK-SOURCE-INGEST-R015.4",
-    "SDK-SOURCE-INGEST-R015.5",
-    "SDK-SOURCE-INGEST-R015.6",
-    "SDK-SOURCE-INGEST-R016.1",
-    "SDK-SOURCE-INGEST-R016.2",
-    "SDK-SOURCE-INGEST-R016.3",
-    "SDK-SOURCE-INGEST-R016.4",
-    "SDK-SOURCE-INGEST-R016.5",
-    "SDK-SOURCE-INGEST-R016.6",
-    "SDK-SOURCE-INGEST-R600.1",
-    "SDK-SOURCE-INGEST-R600.2",
-    "SDK-SOURCE-INGEST-R600.3",
-    "SDK-SOURCE-INGEST-R600.5",
-    "SDK-SOURCE-INGEST-R600.6",
-    "SDK-SOURCE-INGEST-R800.1",
-    "SDK-SOURCE-INGEST-R800.3",
-    "SDK-SOURCE-INGEST-R800.5",
-    "SDK-SOURCE-INGEST-R803.1",
-    "SDK-SOURCE-INGEST-R803.2",
-    "SDK-SOURCE-INGEST-R803.3",
-    "SDK-SOURCE-INGEST-R803.4",
-    "SDK-SOURCE-INGEST-R803.5",
-    "SDK-SOURCE-INGEST-R803.6",
-    "SDK-SOURCE-INGEST-R804.1",
-    "SDK-SOURCE-INGEST-R804.3",
-    "SDK-SOURCE-INGEST-R804.5",
-    "SDK-SOURCE-INGEST-R804.6",
-    "SDK-SOURCE-INGEST-R900.1",
-    "SDK-SOURCE-INGEST-R900.2",
-    "SDK-SOURCE-INGEST-R900.3",
-    "SDK-SOURCE-INGEST-R900.5",
-    "SDK-SOURCE-INGEST-R901.1",
-    "SDK-SOURCE-INGEST-R901.3",
-    "SDK-SOURCE-INGEST-R901.5",
-    "SDK-SOURCE-INGEST-R902.1",
-    "SDK-SOURCE-INGEST-R902.3",
-    "SDK-SOURCE-INGEST-R902.4",
-    "SDK-SOURCE-INGEST-R902.5",
-    "SDK-SOURCE-INGEST-R017.1",
-    "SDK-SOURCE-INGEST-R017.2",
-    "SDK-SOURCE-INGEST-R017.3",
-    "SDK-SOURCE-INGEST-R017.4",
-    "SDK-SOURCE-INGEST-R017.5",
-    "SDK-SOURCE-INGEST-R017.6",
-    "SDK-SOURCE-INGEST-R805.1",
-    "SDK-SOURCE-INGEST-R805.2",
-    "SDK-SOURCE-INGEST-R805.3",
-    "SDK-SOURCE-INGEST-R805.4",
-    "SDK-SOURCE-INGEST-R805.5",
-    "SDK-SOURCE-INGEST-R805.6"
-  ],
-  "unserved": [
-    "SDK-SOURCE-INGEST-R005.1",
-    "SDK-SOURCE-INGEST-R005.2",
-    "SDK-SOURCE-INGEST-R005.3",
-    "SDK-SOURCE-INGEST-R005.4",
-    "SDK-SOURCE-INGEST-R005.5",
-    "SDK-SOURCE-INGEST-R005.6",
-    "SDK-SOURCE-INGEST-R010",
-    "SDK-SOURCE-INGEST-R011",
-    "SDK-SOURCE-INGEST-R012.1",
-    "SDK-SOURCE-INGEST-R012.2",
-    "SDK-SOURCE-INGEST-R012.3",
-    "SDK-SOURCE-INGEST-R012.4",
-    "SDK-SOURCE-INGEST-R012.5",
-    "SDK-SOURCE-INGEST-R012.6",
-    "SDK-SOURCE-INGEST-R001.1",
-    "SDK-SOURCE-INGEST-R001.2",
-    "SDK-SOURCE-INGEST-R001.3",
-    "SDK-SOURCE-INGEST-R001.4",
-    "SDK-SOURCE-INGEST-R001.5",
-    "SDK-SOURCE-INGEST-R001.6",
-    "SDK-SOURCE-INGEST-R004.1",
-    "SDK-SOURCE-INGEST-R004.2",
-    "SDK-SOURCE-INGEST-R004.3",
-    "SDK-SOURCE-INGEST-R004.4",
-    "SDK-SOURCE-INGEST-R004.5",
-    "SDK-SOURCE-INGEST-R004.6",
-    "SDK-SOURCE-INGEST-R005.7",
-    "SDK-SOURCE-INGEST-R005.8",
-    "SDK-SOURCE-INGEST-R005.9",
-    "SDK-SOURCE-INGEST-R005.10",
-    "SDK-SOURCE-INGEST-R005.11",
-    "SDK-SOURCE-INGEST-R005.12",
-    "SDK-SOURCE-INGEST-R005.13",
-    "SDK-SOURCE-INGEST-R005.14",
-    "SDK-SOURCE-INGEST-R005.15",
-    "SDK-SOURCE-INGEST-R005.16",
-    "SDK-SOURCE-INGEST-R005.17",
-    "SDK-SOURCE-INGEST-R005.18",
-    "SDK-SOURCE-INGEST-R005.19",
-    "SDK-SOURCE-INGEST-R005.20",
-    "SDK-SOURCE-INGEST-R005.21",
-    "SDK-SOURCE-INGEST-R005.22",
-    "SDK-SOURCE-INGEST-R005.23",
-    "SDK-SOURCE-INGEST-R005.24",
-    "SDK-SOURCE-INGEST-R005.25",
-    "SDK-SOURCE-INGEST-R005.26",
-    "SDK-SOURCE-INGEST-R005.27",
-    "SDK-SOURCE-INGEST-R005.28",
-    "SDK-SOURCE-INGEST-R005.29",
-    "SDK-SOURCE-INGEST-R005.30",
-    "SDK-SOURCE-INGEST-R005.31",
-    "SDK-SOURCE-INGEST-R005.32",
-    "SDK-SOURCE-INGEST-R005.33",
-    "SDK-SOURCE-INGEST-R005.34",
-    "SDK-SOURCE-INGEST-R005.35",
-    "SDK-SOURCE-INGEST-R005.36",
-    "SDK-SOURCE-INGEST-R005.40.3",
-    "SDK-SOURCE-INGEST-R005.40.4",
-    "SDK-SOURCE-INGEST-R005.40.5",
-    "SDK-SOURCE-INGEST-R005.40.6",
-    "SDK-SOURCE-INGEST-R006.32",
-    "SDK-SOURCE-INGEST-R006.33",
-    "SDK-SOURCE-INGEST-R006.34",
-    "SDK-SOURCE-INGEST-R006.35",
-    "SDK-SOURCE-INGEST-R006.36",
-    "SDK-SOURCE-INGEST-R006.37",
-    "SDK-SOURCE-INGEST-R004.7",
-    "SDK-SOURCE-INGEST-R004.8",
-    "SDK-SOURCE-INGEST-R004.9",
-    "SDK-SOURCE-INGEST-R004.10",
-    "SDK-SOURCE-INGEST-R004.11",
-    "SDK-SOURCE-INGEST-R004.12",
-    "SDK-SOURCE-INGEST-R004.13",
-    "SDK-SOURCE-INGEST-R004.14",
-    "SDK-SOURCE-INGEST-R004.15",
-    "SDK-SOURCE-INGEST-R004.16",
-    "SDK-SOURCE-INGEST-R004.17",
-    "SDK-SOURCE-INGEST-R004.18",
-    "SDK-SOURCE-INGEST-R013.1",
-    "SDK-SOURCE-INGEST-R013.2",
-    "SDK-SOURCE-INGEST-R013.3",
-    "SDK-SOURCE-INGEST-R013.4",
-    "SDK-SOURCE-INGEST-R013.5",
-    "SDK-SOURCE-INGEST-R013.6",
-    "SDK-SOURCE-INGEST-R014.1",
-    "SDK-SOURCE-INGEST-R014.2",
-    "SDK-SOURCE-INGEST-R014.3",
-    "SDK-SOURCE-INGEST-R014.4",
-    "SDK-SOURCE-INGEST-R014.5",
-    "SDK-SOURCE-INGEST-R014.6",
-    "SDK-SOURCE-INGEST-R015.1",
-    "SDK-SOURCE-INGEST-R015.2",
-    "SDK-SOURCE-INGEST-R015.3",
-    "SDK-SOURCE-INGEST-R015.4",
-    "SDK-SOURCE-INGEST-R015.5",
-    "SDK-SOURCE-INGEST-R015.6",
-    "SDK-SOURCE-INGEST-R016.1",
-    "SDK-SOURCE-INGEST-R016.2",
-    "SDK-SOURCE-INGEST-R016.3",
-    "SDK-SOURCE-INGEST-R016.4",
-    "SDK-SOURCE-INGEST-R016.5",
-    "SDK-SOURCE-INGEST-R016.6",
-    "SDK-SOURCE-INGEST-R600.1",
-    "SDK-SOURCE-INGEST-R600.2",
-    "SDK-SOURCE-INGEST-R600.3",
-    "SDK-SOURCE-INGEST-R600.5",
-    "SDK-SOURCE-INGEST-R600.6",
-    "SDK-SOURCE-INGEST-R800.1",
-    "SDK-SOURCE-INGEST-R800.3",
-    "SDK-SOURCE-INGEST-R800.5",
-    "SDK-SOURCE-INGEST-R803.1",
-    "SDK-SOURCE-INGEST-R803.2",
-    "SDK-SOURCE-INGEST-R803.3",
-    "SDK-SOURCE-INGEST-R803.4",
-    "SDK-SOURCE-INGEST-R803.5",
-    "SDK-SOURCE-INGEST-R803.6",
-    "SDK-SOURCE-INGEST-R804.1",
-    "SDK-SOURCE-INGEST-R804.3",
-    "SDK-SOURCE-INGEST-R804.5",
-    "SDK-SOURCE-INGEST-R804.6",
-    "SDK-SOURCE-INGEST-R900.1",
-    "SDK-SOURCE-INGEST-R900.2",
-    "SDK-SOURCE-INGEST-R900.3",
-    "SDK-SOURCE-INGEST-R900.5",
-    "SDK-SOURCE-INGEST-R901.1",
-    "SDK-SOURCE-INGEST-R901.3",
-    "SDK-SOURCE-INGEST-R901.5",
-    "SDK-SOURCE-INGEST-R902.1",
-    "SDK-SOURCE-INGEST-R902.3",
-    "SDK-SOURCE-INGEST-R902.4",
-    "SDK-SOURCE-INGEST-R902.5",
-    "SDK-SOURCE-INGEST-R017.1",
-    "SDK-SOURCE-INGEST-R017.2",
-    "SDK-SOURCE-INGEST-R017.3",
-    "SDK-SOURCE-INGEST-R017.4",
-    "SDK-SOURCE-INGEST-R017.5",
-    "SDK-SOURCE-INGEST-R017.6",
-    "SDK-SOURCE-INGEST-R805.1",
-    "SDK-SOURCE-INGEST-R805.2",
-    "SDK-SOURCE-INGEST-R805.3",
-    "SDK-SOURCE-INGEST-R805.4",
-    "SDK-SOURCE-INGEST-R805.5",
-    "SDK-SOURCE-INGEST-R805.6"
   ]
 }
