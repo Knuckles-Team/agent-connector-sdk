@@ -10,30 +10,30 @@
 </p>
 
 [![PyPI - Version](https://img.shields.io/pypi/v/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
-[![Build](https://github.com/Knuckles-Team/agent-connector-sdk/actions/workflows/release.yml/badge.svg)](https://github.com/Knuckles-Team/agent-connector-sdk/actions/workflows/release.yml)
-[![Documentation](https://github.com/Knuckles-Team/agent-connector-sdk/actions/workflows/pages.yml/badge.svg)](https://knuckles-team.github.io/agent-connector-sdk/)
-[![GitHub Repo stars](https://img.shields.io/github/stars/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/forks)
-[![GitHub contributors](https://img.shields.io/github/contributors/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/graphs/contributors)
-[![GitHub license](https://img.shields.io/github/license/Knuckles-Team/agent-connector-sdk)](LICENSE)
-[![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/commits/main)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/pulls)
-[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/pulls?q=is%3Apr+is%3Aclosed)
-[![GitHub issues](https://img.shields.io/github/issues/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk/issues)
-[![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk)
-[![GitHub language count](https://img.shields.io/github/languages/count/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk)
-[![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk)
-[![GitHub repo file count (file type)](https://img.shields.io/github/directory-file-count/Knuckles-Team/agent-connector-sdk)](https://github.com/Knuckles-Team/agent-connector-sdk)
+[![Build](https://github.com/Knuckles-Team/scion-sdk/actions/workflows/release.yml/badge.svg)](https://github.com/Knuckles-Team/scion-sdk/actions/workflows/release.yml)
+[![Documentation](https://github.com/Knuckles-Team/scion-sdk/actions/workflows/pages.yml/badge.svg)](https://knuckles-team.github.io/scion-sdk/)
+[![GitHub Repo stars](https://img.shields.io/github/stars/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk/forks)
+[![GitHub contributors](https://img.shields.io/github/contributors/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk/graphs/contributors)
+[![GitHub license](https://img.shields.io/github/license/Knuckles-Team/scion-sdk)](LICENSE)
+[![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk/commits/main)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk/pulls)
+[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk/pulls?q=is%3Apr+is%3Aclosed)
+[![GitHub issues](https://img.shields.io/github/issues/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk/issues)
+[![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk)
+[![GitHub language count](https://img.shields.io/github/languages/count/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk)
+[![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk)
+[![GitHub repo file count (file type)](https://img.shields.io/github/directory-file-count/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk)
 [![PyPI - Downloads](https://img.shields.io/pypi/dd/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
 [![PyPI - License](https://img.shields.io/pypi/l/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
 [![PyPI - Wheel](https://img.shields.io/pypi/wheel/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
 [![PyPI - Implementation](https://img.shields.io/pypi/implementation/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
 
 <p align="center">
-  <a href="https://knuckles-team.github.io/agent-connector-sdk/">Documentation</a> ·
-  <a href="https://knuckles-team.github.io/agent-connector-sdk/capabilities/">Capabilities</a> ·
-  <a href="https://knuckles-team.github.io/agent-connector-sdk/extension-ports/">Interfaces</a> ·
-  <a href="https://knuckles-team.github.io/agent-connector-sdk/status/">Status</a>
+  <a href="https://knuckles-team.github.io/scion-sdk/">Documentation</a> ·
+  <a href="https://knuckles-team.github.io/scion-sdk/capabilities/">Capabilities</a> ·
+  <a href="https://knuckles-team.github.io/scion-sdk/extension-ports/">Interfaces</a> ·
+  <a href="https://knuckles-team.github.io/scion-sdk/status/">Status</a>
 </p>
 
 ---
@@ -41,8 +41,8 @@
 ## Quick Start
 
 Install Scion SDK as `agent-connector-sdk` and import it as
-`agent_connector_sdk`. Repository, package, CLI and API identifiers remain
-unchanged.
+`agent_connector_sdk`. The repository is `scion-sdk`; package, CLI and API
+identifiers remain unchanged.
 
 Create a project and install the SDK:
 
@@ -56,7 +56,7 @@ uv run connector-sync --help
 
 The command prints the supervised synchronization options without opening a
 source session. Continue with the
-[connector tutorial](https://knuckles-team.github.io/agent-connector-sdk/tutorial/)
+[connector tutorial](https://knuckles-team.github.io/scion-sdk/tutorial/)
 to build and run a one-file MCP connector, observe its health response, add
 declarative content, certify the live schema, and join source synchronization.
 
@@ -90,26 +90,26 @@ durable graph records, checkpoints, content identity, and receipts.
 
 ## Documentation
 
-Start with [Build the operator's first connector](https://knuckles-team.github.io/agent-connector-sdk/tutorial/),
+Start with [Build the operator's first connector](https://knuckles-team.github.io/scion-sdk/tutorial/),
 then choose the reference that matches the work:
 
-- [Documentation home](https://knuckles-team.github.io/agent-connector-sdk/)
-- [Capabilities](https://knuckles-team.github.io/agent-connector-sdk/capabilities/)
-- [Architecture](https://knuckles-team.github.io/agent-connector-sdk/architecture/)
-- [Connector servers](https://knuckles-team.github.io/agent-connector-sdk/connector-servers/)
-- [Schema disclosure](https://knuckles-team.github.io/agent-connector-sdk/schema-disclosure/)
-- [Source synchronization](https://knuckles-team.github.io/agent-connector-sdk/connector-sync/)
-- [Repository ingestion](https://knuckles-team.github.io/agent-connector-sdk/repository-ingestion/)
-- [Extension interfaces](https://knuckles-team.github.io/agent-connector-sdk/extension-ports/)
-- [Current status](https://knuckles-team.github.io/agent-connector-sdk/status/)
+- [Documentation home](https://knuckles-team.github.io/scion-sdk/)
+- [Capabilities](https://knuckles-team.github.io/scion-sdk/capabilities/)
+- [Architecture](https://knuckles-team.github.io/scion-sdk/architecture/)
+- [Connector servers](https://knuckles-team.github.io/scion-sdk/connector-servers/)
+- [Schema disclosure](https://knuckles-team.github.io/scion-sdk/schema-disclosure/)
+- [Source synchronization](https://knuckles-team.github.io/scion-sdk/connector-sync/)
+- [Repository ingestion](https://knuckles-team.github.io/scion-sdk/repository-ingestion/)
+- [Extension interfaces](https://knuckles-team.github.io/scion-sdk/extension-ports/)
+- [Current status](https://knuckles-team.github.io/scion-sdk/status/)
 
-Sibling authorities: [Medulla](https://knuckles-team.github.io/epistemic-graph/)
+Sibling authorities: [Medulla](https://knuckles-team.github.io/medulla/)
 owns durable graph state and generated contracts; [Arbora](https://knuckles-team.github.io/arbora/)
 owns authenticated runtime composition.
 
 ## Architecture
 
-[![Runtime architecture: people and clients enter through Arbora. Source systems flow through Scion SDK into Medulla.](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
+[![Runtime architecture: people and clients enter through Arbora. Source systems flow through Scion SDK into Medulla.](https://raw.githubusercontent.com/Knuckles-Team/medulla/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
 
 [Explore the live architecture](https://knuckles-team.github.io/.github/architecture/#sdk)
 
