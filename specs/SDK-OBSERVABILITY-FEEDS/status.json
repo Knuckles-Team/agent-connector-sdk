@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "spec_id": "SDK-OBSERVABILITY-FEEDS",
-  "owner_repo": "agent-connector-sdk",
+  "owner_repo": "scion-sdk",
   "delivery_state": "VERIFIED",
   "requirement_ids": [
     "SDK-OBSERVABILITY-FEEDS-R001"

@@ -2,8 +2,8 @@ INHERIT: .pipeline-theme/templates/mkdocs-theme/base.mkdocs.yml
 
 site_name: Scion SDK
 site_description: Scion SDK for secure MCP connectors, source synchronization, and governed write-back
-site_url: https://knuckles-team.github.io/agent-connector-sdk/
-repo_url: https://github.com/Knuckles-Team/agent-connector-sdk
+site_url: https://knuckles-team.github.io/scion-sdk/
+repo_url: https://github.com/Knuckles-Team/scion-sdk
 docs_dir: docs
 strict: true
 
