@@ -109,7 +109,7 @@ def test_r014_21_app_factory_names_the_a2a_extra(monkeypatch) -> None:
     monkeypatch.setattr(builtins, "__import__", blocked)
     from agent_connector_sdk.a2a.app import require_a2a_extra
 
-    with pytest.raises(ImportError, match=r"agent-connector-sdk\[a2a\]"):
+    with pytest.raises(ImportError, match=r"scion-sdk\[a2a\]"):
         require_a2a_extra("create_a2a_app")
 
 

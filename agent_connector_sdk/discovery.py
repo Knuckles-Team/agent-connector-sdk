@@ -55,7 +55,7 @@ EXTENSION_GROUPS = (
     SINK_GROUP,
 )
 
-_SDK_DISTRIBUTION = "agent-connector-sdk"
+_SDK_DISTRIBUTION = "scion-sdk"
 
 
 class ExtensionDiscoveryError(RuntimeError):

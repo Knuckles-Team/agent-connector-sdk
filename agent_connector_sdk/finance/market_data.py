@@ -16,9 +16,7 @@ from typing import Protocol, runtime_checkable
 try:
     import pandas as pd
 except ImportError as e:
-    raise ImportError(
-        'market data needs pandas; install "agent-connector-sdk[market]"'
-    ) from e
+    raise ImportError('market data needs pandas; install "scion-sdk[market]"') from e
 
 logger = logging.getLogger(__name__)
 
@@ -83,9 +81,7 @@ class YFinanceProvider:
         try:
             import yfinance as yf
         except ImportError as e:
-            raise ImportError(
-                "yfinance is required. install agent-connector-sdk[market]"
-            ) from e
+            raise ImportError("yfinance is required. install scion-sdk[market]") from e
 
         ticker = yf.Ticker(symbol)
         df = ticker.history(period=period, interval=interval)
@@ -120,7 +116,7 @@ class AKShareProvider:
             import akshare as ak
         except ImportError as e:
             raise ImportError(
-                "akshare is required for Chinese markets. install agent-connector-sdk[market]"
+                "akshare is required for Chinese markets. install scion-sdk[market]"
             ) from e
 
         try:

@@ -12,7 +12,7 @@ and whose :meth:`GraphQLExecutionError.payload` matches
 :func:`agent_connector_sdk.mcp.graphql.graphql_failure_payload` (class and
 correlation id; the cause is logged server-side under that id).
 
-Install the ``graphql`` extra: ``agent-connector-sdk[graphql]``.
+Install the ``graphql`` extra: ``scion-sdk[graphql]``.
 """
 
 from __future__ import annotations

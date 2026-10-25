@@ -114,7 +114,7 @@ def test_release_publishes_only_for_a_tag_or_dispatch() -> None:
     assert release["if"] == "startsWith(github.ref, 'refs/tags/v')"
     assert release["permissions"] == {"contents": "write"}
     notes = release["steps"][0]["run"]
-    assert "https://pypi.org/project/agent-connector-sdk/$version/" in notes
+    assert "https://pypi.org/project/scion-sdk/$version/" in notes
     assert "--latest" in notes
     assert workflow["jobs"]["build"]["uses"] == "./.github/workflows/build.yml"
     assert "[skip ci]" not in RELEASE.read_text(encoding="utf-8")

@@ -29,7 +29,7 @@ def require_a2a_extra(feature: str) -> None:
     if missing:
         raise ImportError(
             f"{feature} needs {' and '.join(missing)}, which the base install of "
-            'agent-connector-sdk leaves out; install "agent-connector-sdk[a2a]"'
+            'scion-sdk leaves out; install "scion-sdk[a2a]"'
         )
 
 

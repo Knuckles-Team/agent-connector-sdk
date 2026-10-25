@@ -67,7 +67,7 @@ jobs:
       - name: Upload the publish candidate
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: agent-connector-sdk-wheel
+          name: scion-sdk-wheel
           path: |
             dist/*.whl
             dist/*.tar.gz

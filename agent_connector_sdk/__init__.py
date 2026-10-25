@@ -1,4 +1,4 @@
-"""agent-connector-sdk: the connector-facing SDK for the agent-packages fleet.
+"""Scion SDK: the connector-facing SDK for the agent-packages fleet.
 
 Public modules are imported by their own path (``agent_connector_sdk.mcp.server``,
 ``agent_connector_sdk.ports`` and so on). The package root exports the version

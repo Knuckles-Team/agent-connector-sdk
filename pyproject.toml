@@ -3,7 +3,7 @@ requires = ["setuptools>=84.0.0", "wheel>=0.48.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "agent-connector-sdk"
+name = "scion-sdk"
 version = "0.5.5"
 description = "Scion SDK for the Arbora ecosystem: MCP server scaffolding, connector manifests, and typed source/content extension ports"
 readme = "README.md"
@@ -136,7 +136,7 @@ agent_connector_sdk = ["py.typed", "skills/**/*", "ontology/*.ttl"]
 
 [dependency-groups]
 test = [
-    "agent-connector-sdk[mcp,feeds,dataprep,integrity,graphql]",
+    "scion-sdk[mcp,feeds,dataprep,integrity,graphql]",
     "pandas>=2.2.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
@@ -146,7 +146,7 @@ docs = [
     "mkdocs-material==9.7.7",
 ]
 typecheck = [
-    "agent-connector-sdk[mcp,feeds,dataprep,integrity,graphql]",
+    "scion-sdk[mcp,feeds,dataprep,integrity,graphql]",
     "mypy==2.4.0",
     "types-PyYAML==6.0.12.20260906",
 ]
@@ -493,7 +493,7 @@ served_paths = ["agent_connector_sdk"]
 
 [tool.pipelines_hooks.public_surface]
 repository = "Knuckles-Team/agent-connector-sdk"
-distribution = "agent-connector-sdk"
+distribution = "scion-sdk"
 pages_url = "https://knuckles-team.github.io/agent-connector-sdk/"
 mcp_server = false
 
