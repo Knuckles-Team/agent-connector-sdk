@@ -1,7 +1,7 @@
-# Agent Connector SDK
+# Scion SDK
 
 <p align="center">
-  <img src="docs/assets/brands/agent-connector-sdk-logo-v1.png" alt="Agent Connector SDK logo" width="180">
+  <img src="docs/assets/brands/agent-connector-sdk-logo-v1.png" alt="Scion SDK logo" width="180">
 </p>
 
 <p align="center">
@@ -40,6 +40,10 @@
 
 ## Quick Start
 
+Scion SDK is distributed as `agent-connector-sdk` and imported as
+`agent_connector_sdk`. Repository, package, CLI and API identifiers remain
+unchanged.
+
 Create a project and install the SDK:
 
 ```bash
@@ -58,7 +62,7 @@ declarative content, certify the live schema, and join source synchronization.
 
 ## Overview
 
-Agent Connector SDK is the ecosystem's source-integration boundary. It turns
+Scion SDK is the ecosystem's source-integration boundary. It turns
 vendor APIs and domain tools into secure MCP connectors, transports bounded
 source evidence into Epistemic Graph, indexes immutable repository snapshots,
 and applies authorized changes back to source systems.
@@ -105,7 +109,7 @@ owns authenticated runtime composition.
 
 ## Architecture
 
-[![Runtime architecture: people and clients enter through Arbora. Source systems flow through Agent Connector SDK into Epistemic Graph.](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
+[![Runtime architecture: people and clients enter through Arbora. Source systems flow through Scion SDK into Epistemic Graph.](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
 
 [Explore the live architecture](https://knuckles-team.github.io/.github/architecture/#sdk)
 
@@ -129,4 +133,4 @@ gates before submitting a change.
 
 ## License
 
-Agent Connector SDK is released under the [MIT License](LICENSE).
+Scion SDK is released under the [MIT License](LICENSE).
