@@ -1,9 +1,9 @@
 <section class="site-hero" aria-labelledby="connector-sdk-title">
-  <div class="site-hero__eyebrow">Connector runtime</div>
+  <div class="site-hero__eyebrow">Scion SDK · Connector runtime</div>
   <h1 class="site-hero__title" id="connector-sdk-title">Build one connector. Run it everywhere.</h1>
   <p class="site-hero__summary">
-    A secure MCP runtime, source synchronization contract, and governed
-    write-back boundary for the agent ecosystem.
+    Scion SDK provides secure MCP connectors for the Arbora ecosystem.
+    It defines source synchronization and governed write-back contracts.
   </p>
   <div class="site-hero__actions">
     <a class="md-button md-button--primary" href="tutorial/">Build the operator's first connector</a>
