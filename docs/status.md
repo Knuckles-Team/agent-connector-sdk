@@ -1,7 +1,7 @@
 # Status
 
 This page summarizes the current repository and package surface. The implementation,
-generated Epistemic Graph contracts, and repository quality gates remain the
+generated Medulla contracts, and repository quality gates remain the
 authoritative detail.
 
 | Area | Availability | Current contract |
@@ -9,8 +9,8 @@ authoritative detail.
 | Python package | Available | Python 3.12–3.14 |
 | Connector MCP server | Available | `agent_connector_sdk.run()` serves a declared `Connector` with the shared security, health, content, and tool-surface policies |
 | Connector certification | Available | `connector-certify` checks declared sync tools against live MCP schemas without invoking vendor actions |
-| Source synchronization | Available | `connector-sync` supervises certified adapters and advances only from matching Epistemic Graph receipts |
-| Epistemic Graph sink | Available through checked composition | Requires an injected generated client and live ConnectorPack authority resolver |
+| Source synchronization | Available | `connector-sync` supervises certified adapters and advances only from matching Medulla receipts |
+| Medulla sink | Available through checked composition | Requires an injected generated client and live ConnectorPack authority resolver |
 | Repository ingestion | Available | Immutable snapshot paging into the generated `IndexRepository` operation with bounded transfer and typed outcomes |
 | Governed write-back | Available | Generated change sets and authorization decisions drive preview, apply, and reconciliation |
 | Extension conformance | Available | Reusable suites cover source adapters, artifact kinds, transports, sinks, and write-back ports |
@@ -18,7 +18,7 @@ authoritative detail.
 ## Runtime authority
 
 Graph-bound operation is composed by Arbora. It injects checked identity,
-the generated Epistemic Graph client, and current catalog authority. The SDK
+the generated Medulla client, and current catalog authority. The SDK
 fails closed when a required dependency, source receipt, authorization decision,
 or extension certification is absent or does not match.
 

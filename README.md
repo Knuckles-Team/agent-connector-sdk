@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>Build secure connectors once. Serve, synchronize, and write back through one governed contract.</b><br>
-  <sub>The typed source-integration boundary for MCP services and Epistemic Graph.</sub>
+  <sub>The typed source-integration boundary for MCP services and Medulla.</sub>
 </p>
 
 [![PyPI - Version](https://img.shields.io/pypi/v/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
@@ -64,11 +64,11 @@ declarative content, certify the live schema, and join source synchronization.
 
 Scion SDK is the ecosystem's source-integration boundary. It turns
 vendor APIs and domain tools into secure MCP connectors, transports bounded
-source evidence into Epistemic Graph, indexes immutable repository snapshots,
+source evidence into Medulla, indexes immutable repository snapshots,
 and applies authorized changes back to source systems.
 
 Connector packages retain vendor behavior. The SDK owns transport, lifecycle,
-certification, and effect execution. Generated Epistemic Graph contracts own
+certification, and effect execution. Generated Medulla contracts own
 durable graph records, checkpoints, content identity, and receipts.
 
 ## Key Capabilities
@@ -78,7 +78,7 @@ durable graph records, checkpoints, content identity, and receipts.
 - Publish skills, prompts, ontologies, SHACL shapes, and connector manifests as
   typed MCP content.
 - Extract bounded source pages and advance checkpoints only from matching
-  durable Epistemic Graph receipts.
+  durable Medulla receipts.
 - Import deterministic ConnectorPack archives without copying graph DTOs or
   digest algorithms into connector packages.
 - Stream authenticated immutable repository snapshots into the generated
@@ -103,22 +103,22 @@ then choose the reference that matches the work:
 - [Extension interfaces](https://knuckles-team.github.io/agent-connector-sdk/extension-ports/)
 - [Current status](https://knuckles-team.github.io/agent-connector-sdk/status/)
 
-Sibling authorities: [Epistemic Graph](https://knuckles-team.github.io/epistemic-graph/)
+Sibling authorities: [Medulla](https://knuckles-team.github.io/epistemic-graph/)
 owns durable graph state and generated contracts; [Arbora](https://knuckles-team.github.io/arbora/)
 owns authenticated runtime composition.
 
 ## Architecture
 
-[![Runtime architecture: people and clients enter through Arbora. Source systems flow through Scion SDK into Epistemic Graph.](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
+[![Runtime architecture: people and clients enter through Arbora. Source systems flow through Scion SDK into Medulla.](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
 
 [Explore the live architecture](https://knuckles-team.github.io/.github/architecture/#sdk)
 
 | Boundary | Owned here | Owned elsewhere |
 |---|---|---|
 | Connector service | MCP lifecycle, exposure policy, content capture, certification | Vendor models and business semantics stay in the connector package. |
-| Source ingest | Discovery, bounded extraction, transport, receipt verification | Epistemic Graph owns mapping, checkpoints, provenance, and commit receipts. |
-| Repository ingest | Authenticated snapshots, stable manifests, bounded object transport | Epistemic Graph owns indexing, graph projection, and semantic interpretation. |
-| Write-back | Preview, source-version checks, apply, and reconciliation | Epistemic Graph owns change sets, authorization decisions, and durable outcomes. |
+| Source ingest | Discovery, bounded extraction, transport, receipt verification | Medulla owns mapping, checkpoints, provenance, and commit receipts. |
+| Repository ingest | Authenticated snapshots, stable manifests, bounded object transport | Medulla owns indexing, graph projection, and semantic interpretation. |
+| Write-back | Preview, source-version checks, apply, and reconciliation | Medulla owns change sets, authorization decisions, and durable outcomes. |
 | Runtime composition | Typed ports and checked dependency requirements | Arbora supplies authenticated identity, clients, and live authority. |
 
 The SDK depends directly on `epistemic-graph>=2.27.6`. Generated SourceIngest,
