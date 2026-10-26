@@ -120,6 +120,44 @@ def test_release_publishes_only_for_a_tag_or_dispatch() -> None:
     assert "[skip ci]" not in RELEASE.read_text(encoding="utf-8")
 
 
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
+def test_release_builds_and_downloads_the_old_name_forwarder() -> None:
+    build = _yaml(BUILD)["jobs"]["build-compat"]
+    assert any(
+        "check_compatibility_distribution.py" in command for command in _runs(build)
+    )
+    upload = next(
+        step
+        for step in build["steps"]
+        if step.get("name") == "Upload the compatibility publish candidate"
+    )
+    assert upload["with"]["name"] == "agent-connector-sdk-compat"
+    assert "dist-compat/*.whl" in upload["with"]["path"]
+    assert "dist-compat/*.tar.gz" in upload["with"]["path"]
+
+    publish = _yaml(RELEASE)["jobs"]["publish-pypi"]
+    downloads = [
+        step.get("with", {}).get("name")
+        for step in publish["steps"]
+        if "actions/download-artifact@" in str(step.get("uses", ""))
+    ]
+    assert downloads == ["scion-sdk-wheel", "agent-connector-sdk-compat"]
+    publish_commands = _runs(publish)
+    scion_publish = next(
+        command for command in publish_commands if "dist/scion_sdk-" in command
+    )
+    alias_publish = next(
+        command
+        for command in publish_commands
+        if "dist/agent_connector_sdk-" in command
+    )
+    assert "dist/scion_sdk-*.whl" in scion_publish
+    assert "dist/scion_sdk-*.tar.gz" in scion_publish
+    assert "dist/agent_connector_sdk-*.whl" in alias_publish
+    assert "dist/agent_connector_sdk-*.tar.gz" in alias_publish
+    assert publish_commands.index(scion_publish) < publish_commands.index(alias_publish)
+
+
 def test_ci_setup_bootstraps_the_contract_and_identity_catalog() -> None:
     script = CI_SETUP.read_text(encoding="utf-8")
 
@@ -295,6 +333,11 @@ def test_no_gate_depends_on_an_external_audit_service() -> None:
 def test_publish_requires_the_dependency_floor_on_the_public_index() -> None:
     commands = _runs(_yaml(RELEASE)["jobs"]["publish-pypi"])
 
-    publish = "uv publish --check-url https://pypi.org/simple/ dist/*.whl dist/*.tar.gz"
-    # The release publishes the wheel and the sdist, after the lock check.
-    assert commands.index("uv lock --check") < commands.index(publish)
+    publishes = [
+        (index, command)
+        for index, command in enumerate(commands)
+        if "uv publish --check-url https://pypi.org/simple/" in command
+    ]
+    # Both package pairs publish only after the dependency lock check.
+    assert len(publishes) == 2
+    assert commands.index("uv lock --check") < min(index for index, _ in publishes)
