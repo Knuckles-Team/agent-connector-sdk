@@ -45,6 +45,7 @@ __all__ = [
     "ForeignReadOpenRequest",
     "ForeignReadOpenResult",
     "ForeignReadRow",
+    "ForeignReadSourceIdentity",
     "NativeRequestResponseAdapter",
     "OpenRequest",
     "OpenResult",
@@ -138,6 +139,21 @@ class ForeignReadExecutionRef(_Strict):
     query_digest: Digest256
 
 
+class ForeignReadSourceIdentity(_Strict):
+    """Server-derived identity pinned to an admitted connector-pack source."""
+
+    source_ref: str = Field(min_length=1, max_length=_MAX_ID_BYTES)
+    source_revision: int = _bounded_u64()
+    schema_digest: Digest256
+    snapshot_ref: Digest256
+
+    @model_validator(mode="after")
+    def _bounded_source_ref(self) -> ForeignReadSourceIdentity:
+        if len(self.source_ref.encode()) > _MAX_ID_BYTES:
+            raise ValueError("foreign-read source reference is too large")
+        return self
+
+
 class ForeignReadRow(_Strict):
     """One mapped row in EG's existing ``ForeignRows`` value currency."""
 
@@ -201,11 +217,13 @@ class ForeignReadOpenResult(_Strict):
     execution: ForeignReadExecutionRef
     expires_at_ms: int = _bounded_u64()
     next_sequence: int = _bounded_u64()
+    source_identity: ForeignReadSourceIdentity
 
 
 class ForeignReadChunkRequest(_Strict):
     execution: ForeignReadExecutionRef
     sequence: int = _bounded_u64()
+    source_identity: ForeignReadSourceIdentity
     rows: list[ForeignReadRow] = Field(min_length=1, max_length=16_384)
 
     @model_validator(mode="after")
@@ -335,6 +353,7 @@ class NativeRequestResponseAdapter:
 class _Execution:
     request: OpenRequest
     opened: OpenResult
+    source_identity: ForeignReadSourceIdentity
     deadline_at: float
     expected_sequence: int
     lock: asyncio.Lock
@@ -454,6 +473,7 @@ class ForeignReadClient:
             execution = _Execution(
                 request=request,
                 opened=result,
+                source_identity=result.source_identity,
                 deadline_at=deadline_at,
                 expected_sequence=result.next_sequence,
                 lock=asyncio.Lock(),
@@ -494,6 +514,8 @@ class ForeignReadClient:
         execution = self._find(request.execution)
         async with execution.lock:
             self._check_open(execution, request.execution, "chunk")
+            if request.source_identity != execution.source_identity:
+                raise ForeignReadError("digest", "chunk")
             if request.sequence != execution.expected_sequence:
                 raise ForeignReadError("sequence", "chunk")
             if len(request.rows) > execution.request.limits.chunk_rows:
