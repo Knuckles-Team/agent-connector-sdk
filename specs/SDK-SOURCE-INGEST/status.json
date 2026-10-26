@@ -2127,7 +2127,11 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:45"
+        "tests/source_connectors/test_source_connectors.py:125",
+        "tests/source_connectors/test_source_connectors.py:148",
+        "tests/source_connectors/test_source_connectors.py:45",
+        "tests/source_connectors/test_source_connectors.py:51",
+        "tests/source_connectors/test_source_connectors.py:52"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R800.1",
@@ -2379,7 +2383,13 @@
         "7aa27bbd799e",
         "8c6dcfdd27e8"
       ],
-      "verified_by": [],
+      "verified_by": [
+        "tests/source_connectors/test_database.py:46",
+        "tests/source_connectors/test_database.py:47",
+        "tests/source_connectors/test_database.py:56",
+        "tests/source_connectors/test_database.py:83",
+        "tests/source_connectors/test_universal.py:40"
+      ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R900.1",
         "SDK-SOURCE-INGEST-R900.2",
@@ -2464,7 +2474,13 @@
         "8c6dcfdd27e8",
         "be6035bc97e5"
       ],
-      "verified_by": [],
+      "verified_by": [
+        "tests/source_connectors/test_graphql_document.py:271",
+        "tests/source_connectors/test_graphql_document.py:393",
+        "tests/source_connectors/test_graphql_document.py:434",
+        "tests/source_connectors/test_graphql_document.py:435",
+        "tests/source_connectors/test_graphql_document.py:466"
+      ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R901.1",
         "SDK-SOURCE-INGEST-R901.2",
@@ -2549,7 +2565,13 @@
         "7aa27bbd799e",
         "8c6dcfdd27e8"
       ],
-      "verified_by": [],
+      "verified_by": [
+        "tests/source_connectors/test_mcp_package.py:106",
+        "tests/source_connectors/test_mcp_package.py:118",
+        "tests/source_connectors/test_mcp_package.py:138",
+        "tests/source_connectors/test_mcp_package.py:156",
+        "tests/source_connectors/test_mcp_package.py:29"
+      ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R902.1",
         "SDK-SOURCE-INGEST-R902.2",
