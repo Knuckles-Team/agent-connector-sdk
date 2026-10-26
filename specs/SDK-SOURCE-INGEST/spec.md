@@ -90,7 +90,7 @@ The receiving methods return bounded pages and explicit terminal outcomes throug
 These definitions preserve all original R004 obligations; producer and receiver implementation remain required.
 
 The generic pack receiver is the separate `ForeignReadClient` slice
-(`SDK-SOURCE-INGEST-R004.7.1` through `.7.3`). Its typed port matches EG's four
+(`SDK-SOURCE-INGEST-R004.37` through `.39`). Its typed port matches EG's four
 foreign-read phase DTOs. The generated wire adapter uses published EG models;
 the SDK does not guess an unpublished import. It uses the existing authenticated
 request/response transport. The SDK validates the handle, digest, sequence and

@@ -376,7 +376,7 @@ EG-FEDERATED-QUERY-R085.1 through R085.8 owns the producer records, authorizatio
 The SDK imports those generated records rather than declaring parallel wire models.
 The producer and receiver implementations remain absent; definition agreement does not establish runtime delivery.
 
-### Generic pack foreign-read receiver amendment (SDK-SOURCE-INGEST-R004.7.1 through R004.7.3)
+### Generic pack foreign-read receiver amendment (SDK-SOURCE-INGEST-R004.37 through R004.39)
 
 The SQL receiver above remains SQL-specific. The generic connector path uses the
 same SDK owner boundary but a separate `ForeignReadClient` in
