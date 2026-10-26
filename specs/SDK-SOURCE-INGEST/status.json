@@ -1537,8 +1537,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.37",
       "title": "Generic pack receiver model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15be5eb9d130"
+      ],
       "verified_by": [
         "tests/test_foreign_read.py:146",
         "tests/test_foreign_read.py:554"
@@ -1547,8 +1549,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.38",
       "title": "Generic pack receiver behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15be5eb9d130"
+      ],
       "verified_by": [
         "tests/test_foreign_read.py:147",
         "tests/test_foreign_read.py:207",
@@ -1560,8 +1564,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.39",
       "title": "Generic pack receiver refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15be5eb9d130"
+      ],
       "verified_by": [
         "tests/test_foreign_read.py:208",
         "tests/test_foreign_read.py:280",
