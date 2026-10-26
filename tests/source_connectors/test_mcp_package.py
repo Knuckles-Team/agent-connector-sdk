@@ -135,6 +135,24 @@ def test_unconfigured_server_names_the_offline_option(
         list(build_connector("mcp", {"server": "s", "tool": "t"}).load())
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R902.3")
+def test_mcp_catalog_falls_back_to_the_platform_config_file(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    config = tmp_path / "mcp_config.json"
+    config.write_text(json.dumps({"mcpServers": {"docs": {"command": "run"}}}))
+    seen: list[str] = []
+
+    def platform_config_file(name: str):
+        seen.append(name)
+        return config
+
+    monkeypatch.delenv("MCP_CONFIG", raising=False)
+    monkeypatch.setattr(mcp_package, "platform_config_file", platform_config_file)
+    assert mcp_package.load_mcp_servers() == {"docs": {"command": "run"}}
+    assert seen == ["mcp_config.json"]
+
+
 # spec: SDK-SOURCE-INGEST-R902.6
 async def test_run_sync_works_inside_a_running_loop() -> None:
     async def answer() -> int:

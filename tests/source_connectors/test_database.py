@@ -2,9 +2,16 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import pytest
 
-from agent_connector_sdk.source_connectors import ConnectorCheckpoint, build_connector
+from agent_connector_sdk.source_connectors import (
+    ConnectorCheckpoint,
+    build_connector,
+    universal,
+)
+from agent_connector_sdk.source_connectors.connectors import database
 from agent_connector_sdk.source_connectors.connectors.database import (
     DatabaseConnector,
     RowVersionEvidenceUnavailable,
@@ -71,6 +78,50 @@ def test_literal_connection_values_are_refused() -> None:
         build_connector(
             "database", {"query": QUERY, "connection_profile_ref": "sqlite:///x"}
         )
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R900.3")
+def test_database_profile_resolution_reaches_the_tls_governed_connection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    credential_calls: dict[str, object] = {}
+    tls_calls: dict[str, object] = {}
+    resolver = object()
+    profile = (
+        '{"dsn":"postgresql://u@db.example.test/app","tls_profile_ref":"env://DB_TLS"}'
+    )
+
+    def resolve_secret(reference: str, passed_resolver: object) -> str:
+        credential_calls.update(reference=reference, resolver=passed_resolver)
+        return profile
+
+    def resolve_tls(service: str, **kwargs: object) -> SimpleNamespace:
+        tls_calls.update(service=service, **kwargs)
+        return SimpleNamespace(
+            psycopg_kwargs=lambda: {"sslmode": "verify-full"},
+            cleanup=lambda: tls_calls.update(cleaned=True),
+        )
+
+    driver = SimpleNamespace(connect=lambda dsn, **kwargs: (dsn, kwargs))
+    monkeypatch.setattr(database, "default_credential_resolver", lambda: resolver)
+    monkeypatch.setattr(database, "resolve_secret_reference", resolve_secret)
+    monkeypatch.setattr(universal, "resolve_tls_profile", resolve_tls)
+
+    source = build_connector(
+        "database",
+        {"query": "SELECT 1", "connection_profile_ref": "env://DB_PROFILE"},
+    )
+    connection = source._connection()
+    monkeypatch.setattr(connection, "_driver", lambda: driver)
+    assert connection._connect() == (
+        "postgresql://u@db.example.test/app",
+        {"sslmode": "verify-full"},
+    )
+    assert credential_calls == {"reference": "env://DB_PROFILE", "resolver": resolver}
+    assert tls_calls["service"] == "postgres"
+    assert tls_calls["profile_ref"] == "env://DB_TLS"
+    assert tls_calls["resolver"] is resolver
+    assert tls_calls["cleaned"] is True
 
 
 def test_row_cap_overflow_fails_closed(sqlite_dsn: str) -> None:
