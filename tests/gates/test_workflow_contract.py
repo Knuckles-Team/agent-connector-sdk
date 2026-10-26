@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 GATES = ROOT / ".github" / "workflows" / "gates.yml"
 BUILD = ROOT / ".github" / "workflows" / "build.yml"
+SETUP_UV_ACTION = ROOT / ".github" / "actions" / "setup-uv" / "action.yml"
 CI_SETUP = ROOT / "scripts" / "ci_setup.sh"
 PAGES = ROOT / ".github" / "workflows" / "pages.yml"
 PRE_COMMIT = ROOT / ".config" / "pre-commit.yaml"
@@ -227,25 +228,29 @@ def test_every_pre_commit_invocation_uses_the_relocated_config() -> None:
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
 def test_build_job_pins_the_managed_python_not_the_system_one() -> None:
-    """The `build` job produces the released wheel, so -- like `gates` -- it
-    must declare `python-version` on its setup-uv step rather than letting
-    `uv build` fall back to whatever interpreter the hosting runner ships."""
+    """Both build jobs share one pinned checkout/toolchain action."""
     workflow = _yaml(BUILD)
     pinned_version = (ROOT / ".python-version").read_text(encoding="utf-8").strip()
     assert pinned_version == "3.14"
 
-    for job_name in ("build",):
+    action = _yaml(SETUP_UV_ACTION)
+    assert action["runs"]["using"] == "composite"
+    uv_setup_steps = [
+        step
+        for step in action["runs"]["steps"]
+        if str(step.get("uses", "")).startswith(UV_ACTION)
+    ]
+    assert len(uv_setup_steps) == 1
+    assert uv_setup_steps[0]["with"]["python-version"] == pinned_version
+
+    for job_name in ("build", "build-compat"):
         job = workflow["jobs"][job_name]
-        uv_setup_steps = [
+        setup_steps = [
             step
             for step in job["steps"]
-            if str(step.get("uses", "")).startswith(UV_ACTION)
+            if step.get("uses") == "./.github/actions/setup-uv"
         ]
-        pinned = [
-            step for step in uv_setup_steps if "python-version" in step.get("with", {})
-        ]
-        assert pinned, f"{job_name} job's setup-uv step must pin python-version"
-        assert pinned[0]["with"]["python-version"] == pinned_version
+        assert len(setup_steps) == 1, f"{job_name} must use the shared toolchain action"
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R001")

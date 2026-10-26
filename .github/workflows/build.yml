@@ -16,26 +16,20 @@ on:
 permissions:
   contents: read
 
+env:
+  SOURCE_DATE_EPOCH: "0"
+
 jobs:
   build:
     name: build
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "homelab"]') || 'ubuntu-latest' }}
     timeout-minutes: 60
-    env:
-      SOURCE_DATE_EPOCH: "0"
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Checkout and set up the pinned Python toolchain
+        uses: ./.github/actions/setup-uv
+        id: wheel_toolchain
         with:
           ref: ${{ inputs.ref }}
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
-        with:
-          version: '0.11.7'
-          # SDK-QUALITY-RELEASE-R003: pin the managed interpreter here too --
-          # this job builds the released wheel, so it must never fall back to
-          # the hosting runner's system Python the way the gates job's own
-          # explicit pin already prevents.
-          python-version: '3.14'
       - name: Build the wheel twice
         run: |
           uv build --wheel --out-dir dist-primary
@@ -78,17 +72,11 @@ jobs:
     name: build-compat
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      SOURCE_DATE_EPOCH: "0"
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Checkout and set up the pinned Python toolchain
+        uses: ./.github/actions/setup-uv
         with:
           ref: ${{ inputs.ref }}
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
-        with:
-          version: '0.11.7'
-          python-version: '3.14'
       - name: Build the metadata-only old-name compatibility distribution
         run: |
           set -euo pipefail
