@@ -245,7 +245,7 @@
   "requirements": [
     {
       "id": "SDK-SOURCE-INGEST-R001",
-      "title": "SDK runner completes on generated ConnectorPack and SourceIngest contracts",
+      "title": "SDK runner completes generated contracts",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": [],
@@ -260,7 +260,7 @@
     },
     {
       "id": "SDK-SOURCE-INGEST-R002",
-      "title": "SDK drift classifier quarantines incompatible schema changes",
+      "title": "SDK drift classifier handles incompatible schema changes",
       "delivery_state": "VERIFIED",
       "landed_in": [
         "ffb9260d7602"
@@ -1494,7 +1494,8 @@
       "title": "Model",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "697b45610bbb"
+        "697b45610bbb",
+        "bcd3c7d92aa8"
       ],
       "verified_by": [
         "tests/test_approved_sql_source.py:136",
@@ -1551,7 +1552,8 @@
       "title": "Generic pack receiver model",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "697b45610bbb"
+        "697b45610bbb",
+        "bcd3c7d92aa8"
       ],
       "verified_by": [
         "tests/test_foreign_read.py:386",
@@ -1563,7 +1565,8 @@
       "title": "Generic pack receiver behavior",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "697b45610bbb"
+        "697b45610bbb",
+        "bcd3c7d92aa8"
       ],
       "verified_by": [
         "tests/test_foreign_read.py:148",
@@ -1578,7 +1581,8 @@
       "title": "Generic pack receiver refusal",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "697b45610bbb"
+        "697b45610bbb",
+        "bcd3c7d92aa8"
       ],
       "verified_by": [
         "tests/test_foreign_read.py:149",
