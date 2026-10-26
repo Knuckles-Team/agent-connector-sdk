@@ -81,16 +81,16 @@
       "landed_in": [
         "096f27ee29e5",
         "0c1f49ced769",
+        "30346724d434",
         "42b930057c3e",
-        "6856dbff0136",
-        "851969957034"
+        "6856dbff0136"
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:171",
-        "tests/test_conformance_plugin.py:102",
-        "tests/test_conformance_plugin.py:109",
-        "tests/test_conformance_plugin.py:119",
-        "tests/test_conformance_plugin.py:134"
+        "tests/test_compatibility_upgrade.py:12",
+        "tests/test_compatibility_upgrade.py:23",
+        "tests/test_compatibility_upgrade.py:36",
+        "tests/test_conformance_plugin.py:102"
       ],
       "rollup_of": [
         "SDK-QUALITY-RELEASE-R005.1"
