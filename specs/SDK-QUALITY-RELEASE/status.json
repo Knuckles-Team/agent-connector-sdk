@@ -22,7 +22,7 @@
         "5b53e943e468"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:251",
+        "tests/gates/test_workflow_contract.py:256",
         "tests/test_release_quality_r001_r005.py:46",
         "tests/test_release_quality_r001_r005.py:53",
         "tests/test_release_quality_r001_r005.py:59",
@@ -46,15 +46,16 @@
       "title": "Release workflow builds with the pinned managed Python, not the system one",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "02f3ae702c80",
         "0b9d4eb5b8fd",
         "0c891e1d9805",
         "42b930057c3e",
         "aebcf586e6d0"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:123",
-        "tests/gates/test_workflow_contract.py:193",
-        "tests/gates/test_workflow_contract.py:228",
+        "tests/gates/test_workflow_contract.py:124",
+        "tests/gates/test_workflow_contract.py:194",
+        "tests/gates/test_workflow_contract.py:229",
         "tests/test_compatibility_distribution.py:21",
         "tests/test_compatibility_distribution.py:37"
       ]
@@ -85,7 +86,7 @@
         "851969957034"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:170",
+        "tests/gates/test_workflow_contract.py:171",
         "tests/test_conformance_plugin.py:102",
         "tests/test_conformance_plugin.py:109",
         "tests/test_conformance_plugin.py:119",
