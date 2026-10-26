@@ -2063,9 +2063,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R600.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/test_writeback_sinks.py:114"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R600.3",
@@ -2082,7 +2086,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:125"
+        "tests/test_writeback_sinks.py:126"
       ]
     },
     {
@@ -2102,12 +2106,18 @@
     {
       "id": "SDK-SOURCE-INGEST-R800",
       "title": "Document-source connector framework (rollup)",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "11366ce437d5"
+        "11366ce437d5",
+        "4b003b24ce55",
+        "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:45"
+        "tests/source_connectors/test_source_connectors.py:125",
+        "tests/source_connectors/test_source_connectors.py:148",
+        "tests/source_connectors/test_source_connectors.py:45",
+        "tests/source_connectors/test_source_connectors.py:51",
+        "tests/source_connectors/test_source_connectors.py:52"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R800.1",
@@ -2121,9 +2131,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R800.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:52"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R800.2",
@@ -2133,16 +2147,20 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:122",
-        "tests/source_connectors/test_source_connectors.py:145"
+        "tests/source_connectors/test_source_connectors.py:125",
+        "tests/source_connectors/test_source_connectors.py:148"
       ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R800.3",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:77"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R800.4",
@@ -2153,15 +2171,19 @@
       ],
       "verified_by": [
         "tests/source_connectors/test_source_connectors.py:51",
-        "tests/source_connectors/test_source_connectors.py:58"
+        "tests/source_connectors/test_source_connectors.py:59"
       ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R800.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:67"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R800.6",
@@ -2171,7 +2193,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:145"
+        "tests/source_connectors/test_source_connectors.py:148"
       ]
     },
     {
@@ -2182,7 +2204,7 @@
         "11366ce437d5"
       ],
       "verified_by": [
-        "tests/data_prep/certification/test_job.py:28",
+        "tests/data_prep/certification/test_job.py:31",
         "tests/data_prep/test_kernel.py:23",
         "tests/data_prep/test_profiling.py:29"
       ],
@@ -2198,37 +2220,57 @@
     {
       "id": "SDK-SOURCE-INGEST-R803.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/data_prep/test_kernel.py:61"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R803.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/data_prep/test_kernel.py:386"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R803.3",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/data_prep/certification/test_job.py:180"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R803.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/data_prep/test_kernel.py:132"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R803.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/data_prep/test_profiling.py:91"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R803.6",
@@ -2259,9 +2301,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R804.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/voice_supply_chain/test_voice_supply_chain.py:62"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R804.2",
@@ -2271,15 +2317,19 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/voice_supply_chain/test_voice_supply_chain.py:69"
+        "tests/voice_supply_chain/test_voice_supply_chain.py:70"
       ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R804.3",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/voice_supply_chain/test_voice_supply_chain.py:115"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R804.4",
@@ -2295,9 +2345,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R804.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/voice_supply_chain/test_voice_supply_chain.py:102"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R804.6",
@@ -2324,16 +2378,24 @@
     {
       "id": "SDK-SOURCE-INGEST-R900.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_universal.py:40"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R900.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_database.py:40"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R900.3",
@@ -2350,15 +2412,19 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_database.py:48"
+        "tests/source_connectors/test_database.py:49"
       ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R900.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_universal.py:83"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R900.6",
@@ -2389,9 +2455,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R901.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_graphql_document.py:325"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R901.2",
@@ -2401,7 +2471,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_graphql_document.py:355"
+        "tests/source_connectors/test_graphql_document.py:356"
       ]
     },
     {
@@ -2425,9 +2495,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R901.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_graphql_document.py:388"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R901.6",
@@ -2458,9 +2532,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R902.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_mcp_package.py:29"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R902.2",
@@ -2470,7 +2548,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_mcp_package.py:63"
+        "tests/source_connectors/test_mcp_package.py:64"
       ]
     },
     {
@@ -2483,16 +2561,24 @@
     {
       "id": "SDK-SOURCE-INGEST-R902.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_mcp_package.py:118"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R902.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_mcp_package.py:106"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R902.6",
@@ -2502,7 +2588,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_mcp_package.py:135"
+        "tests/source_connectors/test_mcp_package.py:138"
       ]
     },
     {
