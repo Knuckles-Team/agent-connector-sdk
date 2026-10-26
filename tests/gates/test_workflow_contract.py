@@ -228,7 +228,7 @@ def test_every_pre_commit_invocation_uses_the_relocated_config() -> None:
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
 def test_build_job_pins_the_managed_python_not_the_system_one() -> None:
-    """Both build jobs share one pinned checkout/toolchain action."""
+    """Both build jobs share one pinned setup action after checkout."""
     workflow = _yaml(BUILD)
     pinned_version = (ROOT / ".python-version").read_text(encoding="utf-8").strip()
     assert pinned_version == "3.14"
@@ -245,6 +245,19 @@ def test_build_job_pins_the_managed_python_not_the_system_one() -> None:
 
     for job_name in ("build", "build-compat"):
         job = workflow["jobs"][job_name]
+        checkout_steps = [
+            step
+            for step in job["steps"]
+            if str(step.get("uses", "")).startswith("actions/checkout@")
+        ]
+        assert len(checkout_steps) == 1, (
+            f"{job_name} must check out before local actions"
+        )
+        assert job["steps"].index(checkout_steps[0]) < next(
+            index
+            for index, step in enumerate(job["steps"])
+            if step.get("uses") == "./.github/actions/setup-uv"
+        )
         setup_steps = [
             step
             for step in job["steps"]
