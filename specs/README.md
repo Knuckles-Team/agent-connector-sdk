@@ -1,4 +1,4 @@
-# agent-connector-sdk specifications
+# Connector SDK specifications
 
 These specs follow the ecosystem [spec standard](https://github.com/Knuckles-Team/pipelines/blob/main/reference/spec-standard.md): one owning spec per capability, extend an existing spec before creating one, audits and reviews land in the owning spec, one ID and title form, one file set. The `spec-standard` gate enforces it.
 
@@ -36,7 +36,7 @@ States are `SPECIFIED`, `LANDED`, and `VERIFIED`. The generator sets them. See t
 | Prefix | Repository specs | Responsibility |
 |---|---|---|
 | `EG` | [epistemic-graph](https://github.com/Knuckles-Team/epistemic-graph/tree/main/specs) | Rust database, graph compute, ontology, governed ingestion, durable records and clients |
-| `SDK` | [agent-connector-sdk](https://github.com/Knuckles-Team/agent-connector-sdk/tree/main/specs) | connector control, transport, manifests, certification, governed effects |
+| `SDK` | [connector SDK](https://github.com/Knuckles-Team/scion-sdk/tree/main/specs) | connector control, transport, manifests, certification, governed effects |
 | `AU` | [agent-utilities](https://github.com/Knuckles-Team/agent-utilities/tree/main/specs) | agent orchestration and control workflows |
 | `ARBORA` | [arbora](https://github.com/Knuckles-Team/arbora/tree/main/specs) | serving composition, fleet, gateway, A2A, deployment operations |
 | `WEBUI` | [agent-webui](https://github.com/Knuckles-Team/agent-webui/tree/main/specs) | browser presentation and interaction |

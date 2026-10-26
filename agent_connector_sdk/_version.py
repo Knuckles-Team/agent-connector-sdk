@@ -5,4 +5,4 @@
 
 from agent_connector_sdk.connector_identity import distribution_version
 
-__version__ = distribution_version("agent-connector-sdk")
+__version__ = distribution_version("scion-sdk")

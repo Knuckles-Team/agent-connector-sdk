@@ -7,8 +7,8 @@ setup and the change flow.
 ## Setup
 
 ```bash
-git clone https://github.com/Knuckles-Team/agent-connector-sdk.git
-cd agent-connector-sdk
+git clone https://github.com/Knuckles-Team/scion-sdk.git
+cd scion-sdk
 scripts/bootstrap.sh
 ```
 

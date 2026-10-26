@@ -64,7 +64,7 @@ def test_mcp_surface_names_the_extra_when_missing() -> None:
             try:
                 importlib.import_module(name)
             except ImportError as exc:
-                assert "agent-connector-sdk[mcp]" in str(exc), exc
+                assert "scion-sdk[mcp]" in str(exc), exc
             else:
                 raise SystemExit(name + " imported without the extra")
         """

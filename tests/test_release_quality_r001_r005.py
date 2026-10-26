@@ -59,7 +59,7 @@ def test_pinned_graph_client_requirement_fails_closed_without_a_dependency() -> 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R001")
 def test_isolated_install_plan_never_installs_from_the_source_overlay() -> None:
     plan = isolated_install_plan(
-        Path("dist/agent_connector_sdk-1.0.0-py3-none-any.whl"),
+        Path("dist/scion_sdk-1.0.0-py3-none-any.whl"),
         "epistemic-graph>=2.27.0,<3",
         Path("dist-consumer-venv"),
     )
@@ -69,7 +69,7 @@ def test_isolated_install_plan_never_installs_from_the_source_overlay() -> None:
     assert install_commands, "plan must install the built wheel into the isolated venv"
     for command in install_commands:
         assert "-e ." not in command
-        assert "agent_connector_sdk-1.0.0-py3-none-any.whl" in command
+        assert "scion_sdk-1.0.0-py3-none-any.whl" in command
         assert "epistemic-graph>=2.27.0,<3" in command
         assert "--python dist-consumer-venv" in command
 

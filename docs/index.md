@@ -101,7 +101,7 @@ checkpoints, provenance, and receipts stay authoritative in epistemic-graph.
 
 ## Specification delivery
 
-[Open the specification dashboard](https://knuckles-team.github.io/agent-connector-sdk/spec-delivery/)
+[Open the specification dashboard](https://knuckles-team.github.io/scion-sdk/spec-delivery/)
 for documented specifications, separate requirement status, delivery evidence,
 and open pull request and issue snapshots. It refreshes on pushes to `main`.
 Completion requires recorded delivery and acceptance; a merged requirement does

@@ -11,7 +11,7 @@ Python 3.12 or newer and [uv](https://docs.astral.sh/uv/) are required.
 ```bash
 uv init --bare demo-connector
 cd demo-connector
-uv add agent-connector-sdk
+uv add scion-sdk
 ```
 
 ## 2. Add the connector

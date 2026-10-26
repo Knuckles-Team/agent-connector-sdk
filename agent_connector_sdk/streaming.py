@@ -230,7 +230,7 @@ class WebSocketStreamAdapter:
             try:
                 import websockets
             except ImportError:
-                logger.error("WebSocket streaming needs agent-connector-sdk[stream]")
+                logger.error("WebSocket streaming needs scion-sdk[stream]")
                 return False
             opener = websockets.connect
         try:

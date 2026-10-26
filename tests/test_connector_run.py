@@ -162,9 +162,7 @@ def test_attribute_must_be_a_connector(tmp_path, monkeypatch) -> None:
 def test_versions_come_from_package_metadata(democonn) -> None:
     assert connector_version("democonn") == "1.2.3"
     assert connector_distribution("democonn") == "democonn"
-    assert (
-        distribution_version("agent-connector-sdk") == agent_connector_sdk.__version__
-    )
+    assert distribution_version("scion-sdk") == agent_connector_sdk.__version__
     with pytest.raises(ConnectorIdentityError, match="not installed"):
         distribution_version("no-such-distribution-xyz")
 

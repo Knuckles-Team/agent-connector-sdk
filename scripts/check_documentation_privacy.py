@@ -2,7 +2,7 @@
 """Scan this repo's public docs for private-IP / host-alias / environment-TLD literals.
 
 Every published page under ``docs/`` is read by anyone who can reach
-https://knuckles-team.github.io/agent-connector-sdk/ -- a literal private IPv4
+https://knuckles-team.github.io/scion-sdk/ -- a literal private IPv4
 address, a homelab-only DNS suffix (``.arpa``/``.local``), or a short internal
 host alias (``r510``, ``gr1080``, ``host42``, ...) checked into one of those
 pages leaks environment topology that has no business being public.

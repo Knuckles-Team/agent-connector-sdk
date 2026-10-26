@@ -47,7 +47,7 @@ from agent_connector_sdk.utilities import (
 def test_version_matches_installed_distribution() -> None:
     from importlib.metadata import version
 
-    assert version("agent-connector-sdk") == __version__
+    assert version("scion-sdk") == __version__
 
 
 @pytest.mark.parametrize(
