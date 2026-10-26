@@ -2173,7 +2173,11 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:45"
+        "tests/source_connectors/test_source_connectors.py:125",
+        "tests/source_connectors/test_source_connectors.py:148",
+        "tests/source_connectors/test_source_connectors.py:45",
+        "tests/source_connectors/test_source_connectors.py:51",
+        "tests/source_connectors/test_source_connectors.py:52"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R800.1",
