@@ -102,13 +102,7 @@
         "8c6dcfdd27e8",
         "be6035bc97e5"
       ],
-      "verified_by": [
-        "tests/test_finance_crypto.py:49",
-        "tests/test_finance_crypto.py:58",
-        "tests/test_finance_crypto.py:69",
-        "tests/test_finance_feeds.py:45",
-        "tests/test_finance_market_data.py:51"
-      ],
+      "verified_by": [],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R900.1",
         "SDK-FINANCE-SOURCES-R900.2",

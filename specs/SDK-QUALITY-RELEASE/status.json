@@ -90,7 +90,7 @@
         "tests/test_compatibility_upgrade.py:12",
         "tests/test_compatibility_upgrade.py:23",
         "tests/test_compatibility_upgrade.py:36",
-        "tests/test_conformance_plugin.py:102"
+        "tests/test_release_quality_r001_r005.py:102"
       ],
       "rollup_of": [
         "SDK-QUALITY-RELEASE-R005.1"

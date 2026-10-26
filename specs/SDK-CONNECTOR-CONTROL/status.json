@@ -523,13 +523,7 @@
         "9cec9cea7d37",
         "fad5328aee62"
       ],
-      "verified_by": [
-        "tests/test_duplicate_symbol_scan.py:21",
-        "tests/test_duplicate_symbol_scan.py:29",
-        "tests/test_duplicate_symbol_scan.py:43",
-        "tests/test_duplicate_symbol_scan.py:56",
-        "tests/test_duplicate_symbol_scan.py:69"
-      ],
+      "verified_by": [],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R015.1"
       ]
@@ -596,11 +590,10 @@
         "8f36880f39a7"
       ],
       "verified_by": [
-        "tests/test_connector_hooks.py:108",
-        "tests/test_connector_hooks.py:121",
-        "tests/test_connector_hooks.py:133",
-        "tests/test_connector_hooks.py:139",
-        "tests/test_connector_hooks.py:160"
+        "tests/test_registry_visibility_content.py:265",
+        "tests/test_registry_visibility_content.py:282",
+        "tests/test_schema_disclosure_provider.py:142",
+        "tests/test_schema_disclosure_provider.py:63"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R019.1",
@@ -703,11 +696,11 @@
         "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_pack_ontology_imports.py:109",
-        "tests/test_pack_ontology_imports.py:34",
-        "tests/test_pack_ontology_imports.py:49",
-        "tests/test_pack_ontology_imports.py:68",
-        "tests/test_pack_ontology_imports.py:82"
+        "tests/test_pack_ontology_imports.py:110",
+        "tests/test_pack_ontology_imports.py:124",
+        "tests/test_pack_ontology_imports.py:131",
+        "tests/test_pack_ontology_imports.py:137",
+        "tests/test_pack_ontology_imports.py:151"
       ]
     },
     {
@@ -817,11 +810,11 @@
         "d3617301012c"
       ],
       "verified_by": [
-        "tests/test_mcp_confirmation_roundtrip.py:134",
-        "tests/test_mcp_confirmation_roundtrip.py:178",
-        "tests/test_mcp_confirmation_roundtrip.py:198",
-        "tests/test_mcp_confirmation_roundtrip.py:36",
-        "tests/test_method_tools.py:27"
+        "tests/test_method_tools.py:27",
+        "tests/test_method_tools.py:37",
+        "tests/test_method_tools.py:57",
+        "tests/test_method_tools.py:66",
+        "tests/test_method_tools.py:79"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R026.1",
@@ -937,7 +930,6 @@
         "f5de79afc1e0"
       ],
       "verified_by": [
-        "tests/test_graphql_client.py:20",
         "tests/test_mcp_graphql_context.py:67",
         "tests/test_mcp_graphql_context.py:74",
         "tests/test_mcp_graphql_context.py:90"
@@ -2676,13 +2668,7 @@
         "8c6dcfdd27e8",
         "be6035bc97e5"
       ],
-      "verified_by": [
-        "tests/test_credential_sensitivity.py:28",
-        "tests/test_source_credentials.py:104",
-        "tests/test_source_credentials.py:142",
-        "tests/test_source_credentials.py:229",
-        "tests/test_source_credentials.py:73"
-      ],
+      "verified_by": [],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R900.1",
         "SDK-CONNECTOR-CONTROL-R900.2",
@@ -2767,13 +2753,7 @@
         "8c6dcfdd27e8",
         "be6035bc97e5"
       ],
-      "verified_by": [
-        "tests/source_connectors/test_universal.py:98",
-        "tests/test_identifiers.py:27",
-        "tests/test_identifiers.py:45",
-        "tests/test_signing.py:14",
-        "tests/test_signing.py:22"
-      ],
+      "verified_by": [],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R901.1",
         "SDK-CONNECTOR-CONTROL-R901.2",
@@ -3094,11 +3074,7 @@
         "e94990c8a480"
       ],
       "verified_by": [
-        "tests/test_connector_identity.py:20",
-        "tests/test_connector_run.py:140",
-        "tests/test_connector_run.py:152",
-        "tests/test_connector_run.py:161",
-        "tests/test_connector_run.py:170"
+        "tests/test_connector_identity.py:20"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R071.1",
@@ -3241,11 +3217,7 @@
         "95f251043be1"
       ],
       "verified_by": [
-        "tests/test_eg_pack_entry_kinds.py:45",
-        "tests/test_eg_pack_entry_kinds.py:54",
-        "tests/test_eg_pack_entry_kinds.py:68",
-        "tests/test_eg_pack_entry_kinds.py:82",
-        "tests/test_eg_pack_entry_kinds.py:96"
+        "tests/test_single_declaration.py:84"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R075.1",
