@@ -286,6 +286,20 @@ No other `connector://` resource is exempt. Unknown schemes and malformed packag
 The existing generated archive builder remains the sole archive and hash implementation.
 `tests/test_mcp_native_primitives.py` exercises actual factory registration, transport, packaged content capture and unknown-resource refusal.
 
+### 2026-10-26: typed MCP App resource capture (SDK-CONNECTOR-CONTROL-R073)
+
+MCP Apps are an additive extension of the existing `resource` artifact kind.
+`ResourceArtifactKind` captures bounded `ui://` resources without filtering
+them out or opening a generic URI allow-list. The capture accepts the standard
+`text/html;profile=mcp-app` MIME type. It also accepts the existing
+connector-compatible `text/html` form and preserves independent
+`ServerIdentity` provenance. It refuses unknown URI schemes, non-HTML types,
+empty bodies and invalid provenance. The pack builder maps the extension to
+the generic `resource` entry kind. It leaves the declaration schema unset for
+HTML bodies. The test
+captures SearXNG `ui://searxng-mcp/search.html` through the MCP listing and
+content-pack path in `tests/test_mcp_app_resources.py`.
+
 <!-- spec-definition-patch:sdk5-r007-major-version-plan -->
 ## SDK:5 - major-version compatibility gate (R007.1-R007.6)
 

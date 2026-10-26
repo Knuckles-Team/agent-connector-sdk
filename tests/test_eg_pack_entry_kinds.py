@@ -70,6 +70,7 @@ def test_every_mapped_entry_kind_exists_in_the_engine() -> None:
     mapped = {*pack_module._RESOURCE_KINDS.values(), *pack_module._KINDS.values()}
     assert mapped <= set(PackEntryKind)
     assert set(pack_module._RESOURCE_KINDS) == {
+        "ui",
         "ontology",
         "shapes",
         "model-profile",
