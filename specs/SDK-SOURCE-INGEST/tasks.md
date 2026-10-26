@@ -210,3 +210,29 @@
 - [x] `SDK-SOURCE-INGEST-R004.34`: projection, guard and size limit inside `submit`.
 - [x] `SDK-SOURCE-INGEST-R004.35`: ingest tools declared as data.
 - [x] `SDK-SOURCE-INGEST-R004.36`: declared source edges (owner, steward, assignment references).
+
+## Batch D source-contract verification (2026-10-26)
+
+The grouped Batch D suite and independent storage review verify these leaves.
+Each row binds to the cited assertion through `pytest.mark.spec`.
+
+- [x] **SDK-SOURCE-INGEST-R600.2:** Record live write change-set audit and receipt. (`tests/test_writeback_sinks.py::test_live_write_records_change_set_audit_and_receipt`)
+- [x] **SDK-SOURCE-INGEST-R800.1:** List built-in sources and reject unknown registry entries. (`tests/source_connectors/test_source_connectors.py::test_registry_lists_builtin_sources_and_rejects_unknown`)
+- [x] **SDK-SOURCE-INGEST-R800.3:** Crawl a web connector to bounded depth and poll incrementally. (`tests/source_connectors/test_source_connectors.py::test_web_connector_crawls_to_depth_and_polls_incrementally`)
+- [x] **SDK-SOURCE-INGEST-R800.5:** Round-trip checkpoints and reject malformed checkpoint input. (`tests/source_connectors/test_source_connectors.py::test_checkpoint_round_trips_and_bad_input_is_none`)
+- [x] **SDK-SOURCE-INGEST-R803.1:** Enforce the strict data-preparation plan gate. (`tests/data_prep/test_kernel.py::test_plan_gate_is_strict_and_allowlisted`)
+- [x] **SDK-SOURCE-INGEST-R803.2:** Replay deterministically without mutating the plan. (`tests/data_prep/test_kernel.py::test_replay_is_deterministic_and_plan_is_not_mutated`)
+- [x] **SDK-SOURCE-INGEST-R803.3:** Import certification without loading optional provider runtimes. (`tests/data_prep/certification/test_job.py::test_optional_provider_wrappers_are_lazy_and_do_not_run_without_provider`)
+- [x] **SDK-SOURCE-INGEST-R803.4:** Deny lossy casts and allow safe lossless widening. (`tests/data_prep/test_kernel.py::test_lossy_casts_are_denied_and_lossless_widening_uses_safe_cast`)
+- [x] **SDK-SOURCE-INGEST-R803.5:** Keep below-threshold values out of profiles and serialized output. (`tests/data_prep/test_profiling.py::test_below_threshold_values_never_appear_in_top_k_or_serialized_profile`)
+- [x] **SDK-SOURCE-INGEST-R804.1:** Require immutable, digest-pinned voice manifests. (`tests/voice_supply_chain/test_voice_supply_chain.py::test_manifest_normalizes_digest_case_and_defaults_are_fail_closed`)
+- [x] **SDK-SOURCE-INGEST-R804.3:** Persist verification and refuse rejected assets. (`tests/voice_supply_chain/test_voice_supply_chain.py::test_mark_verified_persists_and_refuses_rejected`)
+- [x] **SDK-SOURCE-INGEST-R804.5:** Require approved license and verified asset for promotion. (`tests/voice_supply_chain/test_voice_supply_chain.py::test_promotion_handoff_requires_approved_license_and_verified_asset`)
+- [x] **SDK-SOURCE-INGEST-R900.1:** Expose an irreversible identity reference for source connections. (`tests/source_connectors/test_universal.py::test_identity_is_an_irreversible_reference`)
+- [x] **SDK-SOURCE-INGEST-R900.2:** Advance database polling watermarks idempotently. (`tests/source_connectors/test_database.py::test_poll_advances_the_watermark_and_is_idempotent`)
+- [x] **SDK-SOURCE-INGEST-R900.5:** Emit schema entities without leaking the connection location. (`tests/source_connectors/test_universal.py::test_introspect_emits_schema_entities_without_the_location`)
+- [x] **SDK-SOURCE-INGEST-R901.1:** Emit governed hierarchy entities idempotently. (`tests/source_connectors/test_graphql_document.py::test_hierarchy_poll_emits_governed_entities_and_is_idempotent`)
+- [x] **SDK-SOURCE-INGEST-R901.5:** Report dry-run counts without source details. (`tests/source_connectors/test_graphql_document.py::test_dry_run_plan_reports_counts_only`)
+- [x] **SDK-SOURCE-INGEST-R902.1:** Produce neutral-metadata documents from explicit mappings. (`tests/source_connectors/test_mcp_package.py::test_explicit_mapping_yields_documents_with_neutral_metadata`)
+- [x] **SDK-SOURCE-INGEST-R902.4:** Refuse prohibited stdio transport. (`tests/source_connectors/test_mcp_package.py::test_stdio_is_refused_when_prohibited`)
+- [x] **SDK-SOURCE-INGEST-R902.5:** Resolve servers by declared names only. (`tests/source_connectors/test_mcp_package.py::test_server_resolution_uses_declared_names_only`)

@@ -111,6 +111,7 @@ def test_dry_run_proposes_and_writes_no_ledger(fake_sink, ledger, flag):
     assert not ledger.exists()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R600.2")
 def test_live_write_records_change_set_audit_and_receipt(fake_sink, ledger, flag):
     flag(True)
     sink = fake_sink(FakeSink())

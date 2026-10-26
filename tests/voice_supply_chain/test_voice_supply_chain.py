@@ -59,6 +59,7 @@ def test_manifest_requires_immutable_pin_and_valid_digest(over, match):
         _manifest(**over)
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R804.1")
 def test_manifest_normalizes_digest_case_and_defaults_are_fail_closed():
     assert _manifest(sha256="B" * 64).sha256 == SHA
     assert VoiceLicenseDecision(asset_manifest_id=SHA).counsel_decision == "pending"
@@ -98,6 +99,7 @@ def test_manifest_normalizes_digest_case_and_defaults_are_fail_closed():
         ),
     ],
 )
+@pytest.mark.spec("SDK-SOURCE-INGEST-R804.5")
 def test_promotion_handoff_requires_approved_license_and_verified_asset(
     decision, status, ready, reason
 ):
@@ -110,6 +112,7 @@ def test_promotion_handoff_requires_approved_license_and_verified_asset(
     assert reason in got_reason
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R804.3")
 def test_mark_verified_persists_and_refuses_rejected():
     quarantined = _manifest(status=VoiceManifestStatus.QUARANTINED)
     (store.manifest_index_dir() / f"{SHA}.json").write_text(

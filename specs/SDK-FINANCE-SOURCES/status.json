@@ -111,16 +111,24 @@
     {
       "id": "SDK-FINANCE-SOURCES-R900.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/test_finance_strategy_export.py:71"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R900.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/test_finance_market_data.py:51"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R900.3",
@@ -144,9 +152,13 @@
     {
       "id": "SDK-FINANCE-SOURCES-R900.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/test_finance_crypto.py:57"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R900.6",

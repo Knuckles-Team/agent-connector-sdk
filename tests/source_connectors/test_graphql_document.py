@@ -322,6 +322,7 @@ def test_unsafe_profiles_and_upstream_errors_are_refused(
 
 
 # spec: SDK-SOURCE-INGEST-R901.6
+@pytest.mark.spec("SDK-SOURCE-INGEST-R901.1")
 def test_hierarchy_poll_emits_governed_entities_and_is_idempotent() -> None:
     transport = _Transport(*_pages())
     connector = _connector(HIERARCHY_PROFILE, transport)
@@ -384,6 +385,7 @@ def test_authoritative_empty_snapshot_needs_explicit_approval() -> None:
         connector.poll_envelopes(initial.checkpoint)
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R901.5")
 def test_dry_run_plan_reports_counts_only() -> None:
     connector = _connector(HIERARCHY_PROFILE, _Transport(*_pages()), dry_run=True)
     plan = connector.plan()
