@@ -21,7 +21,7 @@ Set `VERSION` to the target release. For an environment that still has the old
 payload, remove that owner before installing the target and its forwarder:
 
 ```bash
-VERSION=0.5.6
+VERSION=0.5.7
 python -m pip uninstall -y agent-connector-sdk
 python -m pip install "scion-sdk==$VERSION" "agent-connector-sdk==$VERSION"
 ```
@@ -30,7 +30,7 @@ If the alias upgrade already removed the package, repair the environment.
 Install the alias, then force-reinstall the target payload:
 
 ```bash
-VERSION=0.5.6
+VERSION=0.5.7
 python -m pip install --upgrade "agent-connector-sdk==$VERSION"
 python -m pip install --force-reinstall --no-deps "scion-sdk==$VERSION"
 ```
