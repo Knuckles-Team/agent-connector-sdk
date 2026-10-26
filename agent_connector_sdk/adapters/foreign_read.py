@@ -2,15 +2,17 @@
 
 The engine owns approval, tenant/actor authority, source registration and the
 opaque execution handle. This module owns a typed port matching the EG DTO
-source and short-lived client-side sequence/deadline checks. A generated wire
-adapter remains external; this module never guesses its import path. It sends
-each phase through an authenticated request/response adapter, never creating
-authority or opening a connector itself.
+source and short-lived client-side sequence/deadline checks. The concrete EG
+adapter below resolves the generated sender lazily so an SDK wheel can be
+installed before the matching engine wheel; an unpublished sender fails closed
+at call time. It sends each phase through an authenticated client, never
+creating authority or opening a connector itself.
 """
 
 from __future__ import annotations
 
 import asyncio
+import importlib
 import json
 import time
 from collections import OrderedDict
@@ -42,6 +44,7 @@ __all__ = [
     "ForeignReadOpenRequest",
     "ForeignReadOpenResult",
     "ForeignReadRow",
+    "NativeRequestResponseAdapter",
     "OpenRequest",
     "OpenResult",
     "RequestResponseAdapter",
@@ -273,6 +276,57 @@ class RequestResponseAdapter(Protocol):
     ) -> Any:
         """Send one generated method request without adding authority fields."""
         ...
+
+
+_GENERATED_SENDERS: dict[ForeignReadMethod, str] = {
+    "ForeignReadOpen": "send_foreign_read_open",
+    "ForeignReadChunk": "send_foreign_read_chunk",
+    "ForeignReadComplete": "send_foreign_read_complete",
+    "ForeignReadAbort": "send_foreign_read_abort",
+}
+
+
+def _generated_sender(method: ForeignReadMethod) -> Any:
+    """Resolve one published EG sender without making it an import-time dep."""
+
+    try:
+        module = importlib.import_module("epistemic_graph.generated.query")
+        sender = getattr(module, _GENERATED_SENDERS[method], None)
+    except (ImportError, KeyError):
+        sender = None
+    if sender is None:
+        raise ForeignReadError("schema_mismatch", method)
+    return sender
+
+
+class NativeRequestResponseAdapter:
+    """Bind the generic receiver to EG's generated, authenticated client.
+
+    The generated sender owns request-envelope construction, graph selection and
+    the client's verified authority context. Keeping that binding in the SDK
+    means Arbora's fleet executor only supplies its already-routed EG client;
+    it never reaches into ``client._send`` or manufactures an engine request.
+    """
+
+    def __init__(self, client: Any, *, graph: str | None = None) -> None:
+        self._client = client
+        self._graph = graph
+
+    async def request(
+        self, method: ForeignReadMethod, params: Mapping[str, Any]
+    ) -> Any:
+        sender = _generated_sender(method)
+        try:
+            # ``params`` already contains the typed receiver's single ``request``
+            # member. The generated function validates that shape before sending.
+            return await sender(self._client, dict(params), self._graph)
+        except ForeignReadError:
+            raise
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            # Do not expose transport URLs, engine error bodies or approval data.
+            raise ForeignReadError("transport", method) from None
 
 
 @dataclass

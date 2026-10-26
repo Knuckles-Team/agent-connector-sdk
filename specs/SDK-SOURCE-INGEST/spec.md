@@ -91,14 +91,14 @@ These definitions preserve all original R004 obligations; producer and receiver 
 
 The generic pack receiver is the separate `ForeignReadClient` slice
 (`SDK-SOURCE-INGEST-R004.37` through `.39`). Its typed port matches EG's four
-foreign-read phase DTOs. The generated wire adapter uses published EG models;
-the SDK does not guess an unpublished import. It uses the existing authenticated
-request/response transport. The SDK validates the handle, digest, sequence and
-bounded deadline. It sizes named rows with the existing EG MessagePack client
-codec and checks both page and cumulative bounds before transport. It does not
-duplicate the EG approval record or carry caller authority fields. A served
-cross-owner proof remains pending until EG publishes the generated methods and
-Arbora composes its fleet executor.
+foreign-read phase DTOs. `NativeRequestResponseAdapter` resolves published EG
+generated senders lazily over the existing authenticated client and refuses when
+the matching sender is not published. The SDK validates the handle, digest,
+sequence and bounded deadline. It sizes named rows with the existing EG
+MessagePack client codec and checks both page and cumulative bounds before
+transport. It does not duplicate the EG approval record or carry caller
+authority fields. A served cross-owner proof remains pending until EG publishes
+the generated methods and Arbora composes its fleet executor.
 
 <!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
 ## Supported-harness session sync (SDK-SOURCE-INGEST-R013; WEBUI:3)

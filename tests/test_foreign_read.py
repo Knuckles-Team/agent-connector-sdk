@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import time
 import traceback
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -32,6 +33,7 @@ from agent_connector_sdk.adapters.foreign_read import (
     ForeignReadOpenRequest,
     ForeignReadOpenResult,
     ForeignReadRow,
+    NativeRequestResponseAdapter,
     OpenRequest,
     OpenResult,
     RequestResponseAdapter,
@@ -52,6 +54,124 @@ def test_foreign_read_public_aliases_and_contract_exports() -> None:
     assert OpenResult is ForeignReadOpenResult
     assert ForeignReadMethod
     assert RequestResponseAdapter
+    assert NativeRequestResponseAdapter
+
+
+@pytest.mark.asyncio
+async def test_generated_foreign_read_adapter_uses_the_canonical_sender(monkeypatch):
+    calls: list[tuple[Any, Any, Any]] = []
+
+    async def send_open(client: Any, params: Any, graph: Any) -> Any:
+        calls.append((client, params, graph))
+        return SimpleNamespace(payload={"ok": True})
+
+    monkeypatch.setattr(
+        foreign_read_module,
+        "_generated_sender",
+        lambda method: send_open if method == "ForeignReadOpen" else None,
+    )
+    client = object()
+    adapter = NativeRequestResponseAdapter(client, graph="tenant:g")
+    result = await adapter.request(
+        "ForeignReadOpen", {"request": {"schema_version": 1}}
+    )
+    assert result.payload == {"ok": True}
+    assert calls == [(client, {"request": {"schema_version": 1}}, "tenant:g")]
+
+
+@pytest.mark.asyncio
+async def test_generated_foreign_read_adapter_hides_sender_transport_failure(
+    monkeypatch,
+):
+    async def broken(*_args: Any) -> Any:
+        raise RuntimeError("https://secret.example.invalid response body")
+
+    monkeypatch.setattr(
+        foreign_read_module, "_generated_sender", lambda _method: broken
+    )
+    adapter = NativeRequestResponseAdapter(object())
+    with pytest.raises(ForeignReadError) as caught:
+        await adapter.request("ForeignReadOpen", {"request": {}})
+    assert (caught.value.reason, caught.value.stage) == ("transport", "ForeignReadOpen")
+    assert "secret.example" not in str(caught.value)
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.37")
+@pytest.mark.asyncio
+async def test_generated_foreign_read_adapter_uses_published_eg_client_sender() -> None:
+    """Exercise the generated sender against the canonical client's ``_send`` seam."""
+
+    try:
+        import epistemic_graph.generated.query as generated_query
+    except ImportError:
+        pytest.skip("epistemic-graph generated query module is unavailable")
+    if not hasattr(generated_query, "send_foreign_read_open"):
+        pytest.skip("installed epistemic-graph does not publish foreign-read senders")
+
+    approval = {
+        "batch_id": "batch",
+        "committed_version": 1,
+        "connector": "connector",
+        "contract_digest": _DIGEST,
+        "head": {"binding_revision": 0, "pack_digest": "b" * 64},
+        "registration": {
+            "approval": "approved",
+            "class_iri": "class",
+            "connector": "connector",
+            "contract_iri": "contract",
+            "entity": "entity",
+            "key_field": "id",
+            "operation": "read",
+            "resource_uri": "resource",
+            "source_id": "source",
+            "source_kind": "mcp_tool",
+        },
+        "schema_version": 1,
+        "tenant_id": "tenant",
+    }
+    request = OpenRequest(
+        schema_version=1,
+        source_name="source",
+        approval=approval,
+        plan_digest="c" * 64,
+        query_digest=_DIGEST,
+        limits=_limits(max_rows=1, max_bytes=1_024, chunk_rows=1, chunk_bytes=1_024),
+    )
+
+    class CanonicalClient:
+        def __init__(self) -> None:
+            self.calls: list[tuple[str, Any, Any]] = []
+
+        async def _send(
+            self,
+            method: str,
+            params: Any,
+            graph: Any,
+            *,
+            idempotency_key: Any = None,
+        ) -> Any:
+            assert idempotency_key is None
+            self.calls.append((method, params, graph))
+            return {
+                "schema_version": 1,
+                "execution": {"execution_id": 4, "query_digest": _DIGEST},
+                "expires_at_ms": 4_000_000_000_000,
+                "next_sequence": 0,
+            }
+
+    client = CanonicalClient()
+    result = await NativeRequestResponseAdapter(client, graph="tenant:g").request(
+        "ForeignReadOpen", {"request": request.model_dump(mode="json")}
+    )
+
+    assert result.payload["execution"]["execution_id"] == 4
+    assert client.calls == [
+        (
+            "ForeignReadOpen",
+            {"request": request.model_dump(mode="json")},
+            "tenant:g",
+        )
+    ]
 
 
 def test_foreign_read_rows_use_the_eg_msgpack_golden_fixture() -> None:

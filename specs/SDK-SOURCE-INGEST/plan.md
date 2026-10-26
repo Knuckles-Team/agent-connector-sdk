@@ -383,10 +383,11 @@ same SDK owner boundary but a separate `ForeignReadClient` in
 `agent_connector_sdk/adapters/foreign_read.py`. Its typed port matches the EG
 `ForeignReadOpen`, `ForeignReadChunk`, `ForeignReadComplete` and
 `ForeignReadAbort` request/result shapes. The EG-owned approval record remains
-opaque. A generated wire adapter supplies the published EG models; this module
-does not guess an unpublished import. Each method sends one wrapped request
-through an existing authenticated request/response adapter. The SDK adds no
-tenant, actor, authority, lease or credential fields.
+opaque. `NativeRequestResponseAdapter` resolves the published generated EG
+sender lazily and sends each method through the existing authenticated client.
+If the sender is unpublished, the adapter refuses that call. Each method sends one wrapped
+request through that adapter. The SDK adds no tenant, actor, authority, lease
+or credential fields.
 
 The client keeps the server execution handle and query digest. It keeps the
 expected sequence and cumulative row/byte totals. It uses the smaller
