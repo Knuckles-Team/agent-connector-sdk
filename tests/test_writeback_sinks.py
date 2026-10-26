@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import asyncio
 import json
 from pathlib import Path
 
@@ -31,12 +32,17 @@ class FakeSink:
     domain = DOMAIN
     enable_flag = "GOVERNEDFAKE_ENABLE_WRITE"
 
-    def __init__(self, *, fail: bool = False) -> None:
+    def __init__(
+        self, *, fail: bool = False, failure: BaseException | None = None
+    ) -> None:
         self.calls: list[bool] = []
         self.fail = fail
+        self.failure = failure
 
     def run(self, ctx, ops, *, dry_run: bool) -> core.WritebackResult:
         self.calls.append(dry_run)
+        if self.failure is not None and not dry_run:
+            raise self.failure
         if self.fail and not dry_run:
             raise RuntimeError("sink exploded mid-batch")
         result = core.WritebackResult(target=self.domain)
@@ -242,13 +248,62 @@ def test_live_write_refused_without_flag(fake_sink, ledger, flag):
     assert sink.calls == [] and not ledger.exists()
 
 
-def test_sink_failure_is_recorded_uncertain_and_reported(fake_sink, ledger, flag):
+@pytest.mark.spec("SDK-SOURCE-INGEST-R600.5")
+def test_sink_failure_manifest_binds_uncertain_evidence_after_preflight(
+    fake_sink, ledger, flag
+):
     flag(True)
-    fake_sink(FakeSink(fail=True))
-    out = run_writeback(DOMAIN, dry_run=False, creations=[{"name": "a"}])
+    sink = FakeSink(fail=True)
+    fake_sink(sink)
+    events = []
+
+    def preflight(target, received_sink, ops):
+        events.append((target, received_sink))
+        assert ops["creations"] == [{"name": "a"}]
+        return None
+
+    out = run_writeback(
+        DOMAIN,
+        dry_run=False,
+        creations=[{"name": "a"}],
+        _preflight=preflight,
+    )
+    evidence = out["governed_writeback"]
+    receipt = json.loads((only_dir(ledger) / "receipts.json").read_text())[0]["receipt"]
     assert out["status"] == "error" and "exploded" in out["error"]
+    assert events == [(DOMAIN, sink)]
+    assert sink.calls == [False]
+    assert evidence == {
+        "connector_id": f"agent-utilities.writeback.{DOMAIN}",
+        "change_set_id": receipt["change_set_id"],
+        "change_set_digest": receipt["change_set_digest"],
+        "authorization_mode": "standing_policy",
+        "effect_status": "outcome_uncertain",
+    }
+    assert receipt["idempotency_key"] == f"{DOMAIN}:{evidence['change_set_id']}"
+    assert len(json.loads((only_dir(ledger) / "receipts.json").read_text())) == 1
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [TimeoutError("sink deadline"), asyncio.CancelledError("sink cancelled")],
+    ids=["timeout", "cancel"],
+)
+@pytest.mark.spec("SDK-SOURCE-INGEST-R600.5")
+def test_timeout_and_cancelled_sink_failures_remain_uncertain(
+    fake_sink, ledger, flag, failure
+):
+    flag(True)
+    sink = FakeSink(failure=failure)
+    fake_sink(sink)
+    out = run_writeback(DOMAIN, dry_run=False, creations=[{"name": "a"}])
+    assert out["status"] == "error"
+    assert out["error"] in {"sink deadline", "sink cancelled", "CancelledError"}
+    assert out["governed_writeback"]["effect_status"] == "outcome_uncertain"
+    assert sink.calls == [False]
     receipts = json.loads((only_dir(ledger) / "receipts.json").read_text())
-    assert [r["receipt"]["effect_status"] for r in receipts] == ["outcome_uncertain"]
+    assert len(receipts) == 1
+    assert receipts[0]["receipt"]["effect_status"] == "outcome_uncertain"
 
 
 @pytest.mark.parametrize(

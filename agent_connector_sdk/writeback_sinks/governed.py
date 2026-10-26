@@ -262,6 +262,9 @@ class SinkWriteBackTransport:
         """Run the sink live; any sink error is an uncertain outcome."""
         try:
             self.result = await self._run(dry_run=False)
+        except asyncio.CancelledError as exc:
+            self.failure = exc
+            raise OutcomeUncertainError("sink call cancelled") from exc
         except Exception as exc:  # a partial batch may have applied
             self.failure = exc
             raise OutcomeUncertainError(str(exc)) from exc
@@ -346,6 +349,7 @@ class GovernedOutcome:
     result: WritebackResult
     change_set: SourceChangeSet
     attempt: WriteBackAttempt | None = None
+    failure: BaseException | None = None
 
     def evidence(self) -> dict[str, Any]:
         """Return the JSON evidence a write-back manifest carries."""
@@ -409,6 +413,7 @@ def execute_governed(
     grant: SinkGrant,
     dry_run: bool,
     root: Path | None = None,
+    _capture_failure: bool = False,
 ) -> GovernedOutcome:
     """Run one sink invocation through the SDK governed write-back contract.
 
@@ -427,6 +432,11 @@ def execute_governed(
         lambda: asyncio.run(_apply(transport, change_set, directory))
     )
     if transport.failure is not None:
+        outcome = GovernedOutcome(
+            _result(transport, grant), change_set, attempt, transport.failure
+        )
+        if _capture_failure:
+            return outcome
         raise transport.failure
     return GovernedOutcome(_result(transport, grant), change_set, attempt)
 
