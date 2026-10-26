@@ -2042,7 +2042,7 @@
         "ec8d36a076f4"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:27"
+        "tests/test_writeback_sinks.py:28"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R600.1",
@@ -2061,7 +2061,7 @@
         "7f1902255745"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:104"
+        "tests/test_writeback_sinks.py:110"
       ]
     },
     {
@@ -2072,7 +2072,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:224"
+        "tests/test_writeback_sinks.py:230"
       ]
     },
     {
@@ -2083,8 +2083,8 @@
         "7f1902255745"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:145",
-        "tests/test_writeback_sinks.py:179"
+        "tests/test_writeback_sinks.py:151",
+        "tests/test_writeback_sinks.py:185"
       ]
     },
     {
@@ -2095,15 +2095,20 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:236"
+        "tests/test_writeback_sinks.py:242"
       ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R600.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2ebd61c4c0b5"
+      ],
+      "verified_by": [
+        "tests/test_writeback_sinks.py:251",
+        "tests/test_writeback_sinks.py:292"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R600.6",

@@ -1,6 +1,6 @@
 # Tasks: source sync
 
-- [x] Finish generated-client checkpoint and receipt path; remove parallel cursor assumptions (SDK-SOURCE-INGEST-R001, SDK-SOURCE-INGEST-R004).
+- [x] Finish the generated-client checkpoint and receipt path. Remove parallel cursor assumptions (SDK-SOURCE-INGEST-R001, SDK-SOURCE-INGEST-R004).
 - [x] Implement pure normalized drift classifier, quarantine report, and declared evolution policy (SDK-SOURCE-INGEST-R002, SDK-SOURCE-INGEST-R007).
 - [x] Implement proposal-only repair handoff and graph-owned activation proof (SDK-SOURCE-INGEST-R003).
 - [x] Port enterprise, document/session/feed, and enrichment adapters through SDK ports (SDK-SOURCE-INGEST-R004–SDK-SOURCE-INGEST-R006).
@@ -257,8 +257,10 @@ reviewed, landed and regenerated into canonical status.
 ## SDK writeback contract follow-up (2026-10-26)
 
 These focused tests exercise the existing governed writeback boundary and
-close the identifier and engine-operand proof gaps. `R600.5` remains held
-because the uncertain-error manifest still lacks `governed_writeback` evidence.
+close the identifier and engine-operand proof gaps. The R600.5 follow-up keeps
+uncertain sink failures bound to the durable attempt identity. It exposes the
+same `governed_writeback` evidence on timeout and cancellation manifests.
 
 - [ ] **SDK-SOURCE-INGEST-R600.1:** Validate governed writeback identifiers and expose the typed invocation contract. (`tests/test_writeback_sinks.py::test_writeback_contract_validates_ids_and_exposes_typed_invocation`)
 - [ ] **SDK-SOURCE-INGEST-R600.3:** Route graph-engine preflight and approval-queue operands through the single SDK entry point without harness imports or duplicate callers. (`tests/test_writeback_sinks.py::test_writeback_wiring_uses_preflight_and_approval_queue`; `tests/test_writeback_sinks.py::test_writeback_package_has_no_harness_import_or_duplicate_entrypoint`)
+- [ ] **SDK-SOURCE-INGEST-R600.5:** Carry change-set, authorization and uncertain effect evidence on sink failure manifests while preserving the durable no-replay identity. (`tests/test_writeback_sinks.py::test_sink_failure_manifest_binds_uncertain_evidence_after_preflight`; `tests/test_writeback_sinks.py::test_timeout_and_cancelled_sink_failures_remain_uncertain`)

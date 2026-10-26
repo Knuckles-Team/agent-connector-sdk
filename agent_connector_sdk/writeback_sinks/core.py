@@ -441,7 +441,14 @@ def _governed_call(
     from .governed import execute_governed
 
     try:
-        return execute_governed(sink, ctx, ops, grant=grant, dry_run=dry_run)
+        return execute_governed(
+            sink,
+            ctx,
+            ops,
+            grant=grant,
+            dry_run=dry_run,
+            _capture_failure=True,
+        )
     except WriteBackError as e:
         logger.debug("governed write-back refused for %s", target, exc_info=True)
         return {
@@ -452,6 +459,11 @@ def _governed_call(
     except Exception as e:  # never let one sink crash the surface
         logger.debug("writeback sink %s failed", target, exc_info=True)
         return {"status": "error", "target": target, "error": str(e)}
+
+
+def _failure_message(error: BaseException) -> str:
+    """Return a stable manifest message even for empty timeout/cancel errors."""
+    return str(error) or type(error).__name__
 
 
 def _queue_high_stakes(
@@ -508,6 +520,20 @@ def _governed_manifest(
     result = outcome.result
     result.proposals = _stamp_proposals_as_of(result.proposals, ctx.as_of)
     out = result.as_dict()
+    if outcome.failure is not None:
+        out.update(
+            {
+                "status": "error",
+                "target": target,
+                "dry_run": dry_run,
+                "write_enabled": grant.write_enabled,
+                "risk_tier": grant.risk_tier,
+                "as_of": ctx.as_of,
+                "error": _failure_message(outcome.failure),
+                "governed_writeback": outcome.evidence(),
+            }
+        )
+        return out
     out["status"] = "completed"
     out["target"] = target
     out["dry_run"] = dry_run
