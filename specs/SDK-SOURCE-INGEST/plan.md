@@ -372,6 +372,27 @@ EG-FEDERATED-QUERY-R085.1 through R085.8 owns the producer records, authorizatio
 The SDK imports those generated records rather than declaring parallel wire models.
 The producer and receiver implementations remain absent; definition agreement does not establish runtime delivery.
 
+### Generic pack foreign-read receiver amendment (SDK-SOURCE-INGEST-R004.7.1 through R004.7.3)
+
+The SQL receiver above remains SQL-specific. The generic connector path uses the
+same SDK owner boundary but a separate `ForeignReadClient` in
+`agent_connector_sdk/adapters/foreign_read.py`. It imports the exact EG
+`ForeignReadOpen`, `ForeignReadChunk`, `ForeignReadComplete` and
+`ForeignReadAbort` request/result shapes, while the EG-owned approval record
+remains opaque. Each method sends one wrapped request through an existing
+authenticated request/response adapter. The SDK adds no tenant, actor,
+authority, lease or credential fields.
+
+The client keeps the server execution handle and query digest. It keeps the
+expected sequence and cumulative row/byte totals. It uses the smaller
+local/server deadline.
+Chunks and exactly one terminal complete/abort are accepted only for the
+opened handle. An explicit cancellation is an abort with the typed
+`cancelled` reason. Transport loss, malformed responses, digest/sequence
+mismatches, expiry and replay refuse closed before another phase is sent.
+This is a typed receiver slice; served EG generation and the Arbora fleet
+adapter remain cross-owner acceptance work.
+
 ### Exact receiving methods
 
 The planned class is `SqlQuerySourceClient` in `agent_connector_sdk/adapters/sql_source.py`.

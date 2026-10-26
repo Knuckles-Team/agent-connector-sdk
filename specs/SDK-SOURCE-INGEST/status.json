@@ -123,6 +123,9 @@
     "SDK-SOURCE-INGEST-R004.10",
     "SDK-SOURCE-INGEST-R004.11",
     "SDK-SOURCE-INGEST-R004.12",
+    "SDK-SOURCE-INGEST-R004.7.1",
+    "SDK-SOURCE-INGEST-R004.7.2",
+    "SDK-SOURCE-INGEST-R004.7.3",
     "SDK-SOURCE-INGEST-R004.13",
     "SDK-SOURCE-INGEST-R004.14",
     "SDK-SOURCE-INGEST-R004.15",
@@ -1491,14 +1494,23 @@
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_approved_sql_source.py:136"
+      ],
+      "rollup_of": [
+        "SDK-SOURCE-INGEST-R004.7.1",
+        "SDK-SOURCE-INGEST-R004.7.2",
+        "SDK-SOURCE-INGEST-R004.7.3"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.8",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_approved_sql_source.py:165"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.9",
@@ -1527,6 +1539,39 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.7.1",
+      "title": "Generic pack receiver model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_foreign_read.py:280",
+        "tests/test_foreign_read.py:86"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.7.2",
+      "title": "Generic pack receiver behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_foreign_read.py:147",
+        "tests/test_foreign_read.py:236",
+        "tests/test_foreign_read.py:87"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.7.3",
+      "title": "Generic pack receiver refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_foreign_read.py:148",
+        "tests/test_foreign_read.py:217",
+        "tests/test_foreign_read.py:237",
+        "tests/test_foreign_read.py:281"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.13",

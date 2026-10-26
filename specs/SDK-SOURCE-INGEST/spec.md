@@ -89,6 +89,14 @@ The SDK receives generated approvals and checks authority before driver executio
 The receiving methods return bounded pages and explicit terminal outcomes through the existing connector dispatcher.
 These definitions preserve all original R004 obligations; producer and receiver implementation remain required.
 
+The generic pack receiver is the separate `ForeignReadClient` slice
+(`SDK-SOURCE-INGEST-R004.7.1` through `.7.3`). It uses EG's four typed
+foreign-read phase DTOs over the existing authenticated request/response
+transport. The SDK validates the handle, digest, sequence and bounded
+deadline. It does not duplicate the EG approval record. It carries no caller
+authority fields. A served cross-owner proof remains pending until EG publishes
+the generated methods and Arbora composes its fleet executor.
+
 <!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
 ## Supported-harness session sync (SDK-SOURCE-INGEST-R013; WEBUI:3)
 

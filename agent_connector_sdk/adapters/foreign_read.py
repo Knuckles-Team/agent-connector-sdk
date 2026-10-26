@@ -1,0 +1,533 @@
+"""Typed, bounded receiver for EG's generic foreign-read lifecycle.
+
+The engine owns approval, tenant/actor authority, source registration and the
+opaque execution handle.  This module owns only the generated DTO boundary and
+the short-lived client-side sequence/deadline checks.  It sends each phase
+through an authenticated request/response adapter; it never creates authority
+or opens a connector itself.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import time
+from collections.abc import Mapping
+from dataclasses import dataclass
+from typing import Annotated, Any, Literal, Protocol, cast, runtime_checkable
+
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
+
+__all__ = [
+    "FOREIGN_READ_SCHEMA_VERSION",
+    "AbortRequest",
+    "AbortResult",
+    "ChunkRequest",
+    "ChunkResult",
+    "CompleteRequest",
+    "CompleteResult",
+    "ForeignReadAbortRequest",
+    "ForeignReadAbortResult",
+    "ForeignReadChunkRequest",
+    "ForeignReadChunkResult",
+    "ForeignReadClient",
+    "ForeignReadCompleteRequest",
+    "ForeignReadCompleteResult",
+    "ForeignReadError",
+    "ForeignReadExecutionRef",
+    "ForeignReadLimits",
+    "ForeignReadMethod",
+    "ForeignReadOpenRequest",
+    "ForeignReadOpenResult",
+    "ForeignReadRow",
+    "OpenRequest",
+    "OpenResult",
+    "RequestResponseAdapter",
+]
+
+FOREIGN_READ_SCHEMA_VERSION = 1
+_MAX_ID_BYTES = 64 * 1024
+_MAX_COLUMNS = 128
+_MAX_COLUMN_NAME_BYTES = 256
+_MAX_COLUMN_VALUE_BYTES = 64 * 1024
+_MAX_PROVENANCE_ITEMS = 32
+_MAX_PROVENANCE_BYTES = 4 * 1024
+_MAX_EXECUTIONS = 1024
+_U64_MAX = 2**64 - 1
+
+ForeignReadMethod = Literal[
+    "ForeignReadOpen",
+    "ForeignReadChunk",
+    "ForeignReadComplete",
+    "ForeignReadAbort",
+]
+Digest256 = Annotated[
+    str,
+    StringConstraints(
+        strict=True,
+        pattern=r"^[0-9a-f]{64}$",
+        min_length=64,
+        max_length=64,
+    ),
+]
+
+
+class ForeignReadError(RuntimeError):
+    """A refusal at the typed foreign-read boundary.
+
+    The error intentionally carries only a closed reason and stage.  Request
+    values, approval contents and transport details never enter diagnostics.
+    """
+
+    _REASONS = frozenset(
+        {
+            "invalid_request",
+            "invalid_response",
+            "schema_mismatch",
+            "transport",
+            "deadline",
+            "expired",
+            "sequence",
+            "digest",
+            "limit_exceeded",
+            "unknown_execution",
+            "terminal",
+            "cancelled",
+        }
+    )
+
+    def __init__(self, reason: str, stage: str = "client") -> None:
+        if reason not in self._REASONS:
+            reason = "transport"
+        self.reason = reason
+        self.stage = stage
+        super().__init__(reason)
+
+
+class _Strict(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid", frozen=True, strict=True, revalidate_instances="always"
+    )
+
+
+def _bounded_u64() -> Any:
+    return Field(ge=0, le=_U64_MAX)
+
+
+class ForeignReadLimits(_Strict):
+    """The exact finite limits accepted by EG ``ForeignReadLimits``."""
+
+    max_rows: int = Field(gt=0, le=250_000)
+    max_bytes: int = Field(gt=0, le=64 * 1024 * 1024)
+    chunk_rows: int = Field(gt=0, le=16_384)
+    chunk_bytes: int = Field(gt=0, le=4 * 1024 * 1024)
+    deadline_ms: int = Field(gt=0, le=60_000)
+
+
+class ForeignReadExecutionRef(_Strict):
+    """Server-owned opaque execution identity bound to one query digest."""
+
+    execution_id: int = _bounded_u64()
+    query_digest: Digest256
+
+
+class ForeignReadRow(_Strict):
+    """One mapped row in EG's existing ``ForeignRows`` value currency."""
+
+    id: str = Field(min_length=1, max_length=_MAX_ID_BYTES)
+    score: float | None = Field(default=None, allow_inf_nan=False)
+    columns: dict[str, Any] = Field(default_factory=dict)
+    provenance: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _bounded_cells(self) -> ForeignReadRow:
+        if len(self.id.encode()) > _MAX_ID_BYTES:
+            raise ValueError("foreign-read row id is too large")
+        if len(self.columns) > _MAX_COLUMNS:
+            raise ValueError("foreign-read row has too many columns")
+        for name, value in self.columns.items():
+            if not name or len(name.encode()) > _MAX_COLUMN_NAME_BYTES:
+                raise ValueError("foreign-read column name is too large")
+            try:
+                encoded = json.dumps(
+                    value, ensure_ascii=False, separators=(",", ":"), allow_nan=False
+                ).encode()
+            except (TypeError, ValueError) as exc:
+                raise ValueError("foreign-read column value is not JSON") from exc
+            if len(encoded) > _MAX_COLUMN_VALUE_BYTES:
+                raise ValueError("foreign-read column value is too large")
+        if len(self.provenance) > _MAX_PROVENANCE_ITEMS or any(
+            not item or len(item.encode()) > _MAX_PROVENANCE_BYTES
+            for item in self.provenance
+        ):
+            raise ValueError("foreign-read provenance is invalid")
+        return self
+
+
+class ForeignReadOpenRequest(_Strict):
+    """Exact EG ``ForeignReadOpenRequest``; approval remains an EG-owned DTO."""
+
+    schema_version: int = Field(ge=0, le=65_535)
+    source_name: str = Field(min_length=1, max_length=_MAX_ID_BYTES)
+    approval: Any
+    plan_digest: Digest256
+    query_digest: Digest256
+    limits: ForeignReadLimits
+
+    @model_validator(mode="after")
+    def _approval_is_opaque_dto(self) -> ForeignReadOpenRequest:
+        # Do not copy or reinterpret ConnectorPackSourceApprovalResult here;
+        # generated Pydantic models and mapping-shaped generated DTOs are both
+        # accepted, while a scalar cannot be a producer approval record.
+        if self.approval is None or (
+            not isinstance(self.approval, Mapping)
+            and not hasattr(self.approval, "model_dump")
+        ):
+            raise ValueError("foreign-read approval must be a generated DTO")
+        if len(self.source_name.encode()) > _MAX_ID_BYTES:
+            raise ValueError("foreign-read source name is too large")
+        return self
+
+
+class ForeignReadOpenResult(_Strict):
+    schema_version: int = Field(ge=0, le=65_535)
+    execution: ForeignReadExecutionRef
+    expires_at_ms: int = _bounded_u64()
+    next_sequence: int = _bounded_u64()
+
+
+class ForeignReadChunkRequest(_Strict):
+    execution: ForeignReadExecutionRef
+    sequence: int = _bounded_u64()
+    rows: list[ForeignReadRow] = Field(min_length=1)
+
+
+class ForeignReadChunkResult(_Strict):
+    execution: ForeignReadExecutionRef
+    sequence: int = _bounded_u64()
+    accepted_rows: int = Field(ge=0, le=2**32 - 1)
+    total_rows: int = _bounded_u64()
+    total_bytes: int = _bounded_u64()
+    next_sequence: int = _bounded_u64()
+
+
+class ForeignReadCompleteRequest(_Strict):
+    execution: ForeignReadExecutionRef
+    sequence: int = _bounded_u64()
+
+
+class ForeignReadCompleteResult(_Strict):
+    execution: ForeignReadExecutionRef
+    sequence: int = _bounded_u64()
+    total_rows: int = _bounded_u64()
+    total_bytes: int = _bounded_u64()
+
+
+class ForeignReadAbortRequest(_Strict):
+    execution: ForeignReadExecutionRef
+    sequence: int = _bounded_u64()
+    reason: str = Field(min_length=1, max_length=_MAX_ID_BYTES)
+
+    @model_validator(mode="after")
+    def _reason_bytes(self) -> ForeignReadAbortRequest:
+        if len(self.reason.encode()) > _MAX_ID_BYTES:
+            raise ValueError("foreign-read abort reason is too large")
+        return self
+
+
+class ForeignReadAbortResult(_Strict):
+    execution: ForeignReadExecutionRef
+    sequence: int = _bounded_u64()
+    reason: str = Field(min_length=1, max_length=_MAX_ID_BYTES)
+
+
+# Short names mirror the four method signatures in the cross-owner contract.
+OpenRequest = ForeignReadOpenRequest
+OpenResult = ForeignReadOpenResult
+ChunkRequest = ForeignReadChunkRequest
+ChunkResult = ForeignReadChunkResult
+CompleteRequest = ForeignReadCompleteRequest
+CompleteResult = ForeignReadCompleteResult
+AbortRequest = ForeignReadAbortRequest
+AbortResult = ForeignReadAbortResult
+
+
+@runtime_checkable
+class RequestResponseAdapter(Protocol):
+    """The already-authenticated, one-request/one-response engine seam."""
+
+    async def request(
+        self, method: ForeignReadMethod, params: Mapping[str, Any]
+    ) -> Any:
+        """Send one generated method request without adding authority fields."""
+        ...
+
+
+@dataclass
+class _Execution:
+    request: OpenRequest
+    opened: OpenResult
+    deadline_at: float
+    expected_sequence: int
+    lock: asyncio.Lock
+    total_rows: int = 0
+    total_bytes: int = 0
+    terminal: bool = False
+
+
+def _payload(value: Any) -> Any:
+    payload = getattr(value, "payload", value)
+    return payload
+
+
+def _wire(value: BaseModel) -> dict[str, Any]:
+    return value.model_dump(mode="json")
+
+
+def _execution_matches(expected: ForeignReadExecutionRef, actual: Any) -> bool:
+    return bool(actual == expected)
+
+
+class ForeignReadClient:
+    """Bounded generic receiver over an authenticated request/response adapter."""
+
+    def __init__(self, transport: RequestResponseAdapter) -> None:
+        self._transport = transport
+        self._executions: dict[int, _Execution] = {}
+
+    async def open(self, request: OpenRequest) -> OpenResult:
+        """Open one approved source execution and record its server handle."""
+        if request.schema_version != FOREIGN_READ_SCHEMA_VERSION:
+            raise ForeignReadError("schema_mismatch", "open")
+        if len(self._executions) >= _MAX_EXECUTIONS:
+            raise ForeignReadError("limit_exceeded", "open")
+        started = time.monotonic()
+        result = await self._call(
+            "ForeignReadOpen",
+            request,
+            timeout=request.limits.deadline_ms / 1000,
+        )
+        if result.schema_version != FOREIGN_READ_SCHEMA_VERSION:
+            raise ForeignReadError("schema_mismatch", "open")
+        if result.execution.query_digest != request.query_digest:
+            raise ForeignReadError("digest", "open")
+        if result.next_sequence != 0:
+            raise ForeignReadError("sequence", "open")
+        deadline_at = started + request.limits.deadline_ms / 1000
+        if result.expires_at_ms <= int(time.time() * 1000):
+            raise ForeignReadError("expired", "open")
+        execution = _Execution(
+            request=request,
+            opened=result,
+            deadline_at=deadline_at,
+            expected_sequence=result.next_sequence,
+            lock=asyncio.Lock(),
+        )
+        if result.execution.execution_id in self._executions:
+            raise ForeignReadError("invalid_response", "open")
+        self._executions[result.execution.execution_id] = execution
+        return cast(ForeignReadOpenResult, result)
+
+    async def chunk(self, request: ChunkRequest) -> ChunkResult:
+        """Append one bounded page, enforcing the local monotone sequence."""
+        execution = self._find(request.execution)
+        async with execution.lock:
+            self._check_open(execution, request.execution, "chunk")
+            if request.sequence != execution.expected_sequence:
+                raise ForeignReadError("sequence", "chunk")
+            if len(request.rows) > execution.request.limits.chunk_rows:
+                raise ForeignReadError("limit_exceeded", "chunk")
+            try:
+                result = await self._call(
+                    "ForeignReadChunk",
+                    request,
+                    timeout=self._remaining(execution, "chunk"),
+                )
+            except ForeignReadError:
+                execution.terminal = True
+                raise
+            try:
+                if not _execution_matches(request.execution, result.execution):
+                    raise ForeignReadError("digest", "chunk")
+                if result.sequence != request.sequence:
+                    raise ForeignReadError("sequence", "chunk")
+                if result.accepted_rows != len(request.rows):
+                    raise ForeignReadError("invalid_response", "chunk")
+                self._check_totals(
+                    execution,
+                    result.total_rows,
+                    result.total_bytes,
+                    len(request.rows),
+                    "chunk",
+                )
+                if result.next_sequence != request.sequence + 1:
+                    raise ForeignReadError("sequence", "chunk")
+            except ForeignReadError:
+                # A response mismatch makes the server handle unsafe to reuse;
+                # never retry a phase after accepting a malformed response.
+                execution.terminal = True
+                raise
+            execution.expected_sequence = result.next_sequence
+            execution.total_rows = result.total_rows
+            execution.total_bytes = result.total_bytes
+            return cast(ForeignReadChunkResult, result)
+
+    async def complete(self, request: CompleteRequest) -> CompleteResult:
+        """Close one open execution successfully, exactly once."""
+        execution = self._find(request.execution)
+        async with execution.lock:
+            self._check_open(execution, request.execution, "complete")
+            if request.sequence != execution.expected_sequence:
+                raise ForeignReadError("sequence", "complete")
+            try:
+                result = await self._call(
+                    "ForeignReadComplete",
+                    request,
+                    timeout=self._remaining(execution, "complete"),
+                )
+                self._check_terminal_result(
+                    execution,
+                    result.execution,
+                    result.sequence,
+                    request.sequence,
+                    "complete",
+                )
+                if (result.total_rows, result.total_bytes) != (
+                    execution.total_rows,
+                    execution.total_bytes,
+                ):
+                    raise ForeignReadError("invalid_response", "complete")
+            except ForeignReadError:
+                execution.terminal = True
+                raise
+            execution.terminal = True
+            return cast(ForeignReadCompleteResult, result)
+
+    async def abort(self, request: AbortRequest) -> AbortResult:
+        """Close one open execution as failed/cancelled, exactly once."""
+        execution = self._find(request.execution)
+        async with execution.lock:
+            self._check_open(execution, request.execution, "abort")
+            if request.sequence != execution.expected_sequence:
+                raise ForeignReadError("sequence", "abort")
+            try:
+                result = await self._call(
+                    "ForeignReadAbort",
+                    request,
+                    timeout=self._remaining(execution, "abort"),
+                )
+                self._check_terminal_result(
+                    execution,
+                    result.execution,
+                    result.sequence,
+                    request.sequence,
+                    "abort",
+                )
+                if result.reason != request.reason:
+                    raise ForeignReadError("invalid_response", "abort")
+            except ForeignReadError:
+                execution.terminal = True
+                raise
+            execution.terminal = True
+            return cast(ForeignReadAbortResult, result)
+
+    async def cancel(self, execution: ForeignReadExecutionRef) -> AbortResult:
+        """Use the canonical abort phase for an explicit cancellation."""
+        state = self._find(execution)
+        return await self.abort(
+            AbortRequest(
+                execution=execution,
+                sequence=state.expected_sequence,
+                reason="cancelled",
+            )
+        )
+
+    async def _call(
+        self, method: ForeignReadMethod, request: BaseModel, *, timeout: float
+    ) -> Any:
+        if timeout <= 0:
+            raise ForeignReadError("deadline", method)
+        try:
+            async with asyncio.timeout(timeout):
+                raw = await self._transport.request(method, {"request": _wire(request)})
+        except ForeignReadError:
+            raise
+        except TimeoutError as exc:
+            raise ForeignReadError("deadline", method) from exc
+        except asyncio.CancelledError:
+            raise
+        except Exception as exc:
+            raise ForeignReadError("transport", method) from exc
+        try:
+            return self._model_for(method, _payload(raw))
+        except ForeignReadError:
+            raise
+        except Exception as exc:
+            raise ForeignReadError("invalid_response", method) from exc
+
+    @staticmethod
+    def _model_for(method: ForeignReadMethod, value: Any) -> Any:
+        models: dict[ForeignReadMethod, type[BaseModel]] = {
+            "ForeignReadOpen": ForeignReadOpenResult,
+            "ForeignReadChunk": ForeignReadChunkResult,
+            "ForeignReadComplete": ForeignReadCompleteResult,
+            "ForeignReadAbort": ForeignReadAbortResult,
+        }
+        return models[method].model_validate(value)
+
+    def _find(self, execution: ForeignReadExecutionRef) -> _Execution:
+        found = self._executions.get(execution.execution_id)
+        if found is None:
+            raise ForeignReadError("unknown_execution", "client")
+        return found
+
+    def _check_open(
+        self, state: _Execution, execution: ForeignReadExecutionRef, stage: str
+    ) -> None:
+        if state.terminal:
+            raise ForeignReadError("terminal", stage)
+        if not _execution_matches(state.opened.execution, execution):
+            raise ForeignReadError("digest", stage)
+        self._remaining(state, stage)
+
+    def _remaining(self, state: _Execution, stage: str) -> float:
+        local = state.deadline_at - time.monotonic()
+        server = (state.opened.expires_at_ms - int(time.time() * 1000)) / 1000
+        remaining = min(local, server)
+        if remaining <= 0:
+            state.terminal = True
+            raise ForeignReadError("expired", stage)
+        return remaining
+
+    def _check_totals(
+        self,
+        state: _Execution,
+        total_rows: int,
+        total_bytes: int,
+        added_rows: int,
+        stage: str,
+    ) -> None:
+        if total_rows != state.total_rows + added_rows:
+            raise ForeignReadError("invalid_response", stage)
+        if (
+            total_bytes < state.total_bytes
+            or total_rows > state.request.limits.max_rows
+        ):
+            raise ForeignReadError("limit_exceeded", stage)
+        if total_bytes - state.total_bytes > state.request.limits.chunk_bytes:
+            raise ForeignReadError("limit_exceeded", stage)
+        if total_bytes > state.request.limits.max_bytes:
+            raise ForeignReadError("limit_exceeded", stage)
+
+    @staticmethod
+    def _check_terminal_result(
+        state: _Execution,
+        execution: ForeignReadExecutionRef,
+        sequence: int,
+        expected_sequence: int,
+        stage: str,
+    ) -> None:
+        if not _execution_matches(state.opened.execution, execution):
+            raise ForeignReadError("digest", stage)
+        if sequence != expected_sequence:
+            raise ForeignReadError("sequence", stage)
