@@ -1556,11 +1556,11 @@
       "title": "Generic pack receiver behavior",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "0188207716cb",
         "60ddd91e17c3",
         "bd353eecdfb2",
         "c51f6ff4a2db",
-        "dc9a1b0bb61a"
+        "dc9a1b0bb61a",
+        "ee03ae46d563"
       ],
       "verified_by": [
         "tests/test_foreign_read.py:274",
