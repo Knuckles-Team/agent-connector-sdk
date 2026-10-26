@@ -48,14 +48,15 @@
       "landed_in": [
         "0b9d4eb5b8fd",
         "0c891e1d9805",
-        "42b930057c3e"
+        "42b930057c3e",
+        "aebcf586e6d0"
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:123",
         "tests/gates/test_workflow_contract.py:193",
         "tests/gates/test_workflow_contract.py:228",
-        "tests/test_compatibility_distribution.py:20",
-        "tests/test_compatibility_distribution.py:36"
+        "tests/test_compatibility_distribution.py:21",
+        "tests/test_compatibility_distribution.py:37"
       ]
     },
     {
