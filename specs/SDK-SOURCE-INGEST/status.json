@@ -1546,9 +1546,10 @@
         "f351d70272b2"
       ],
       "verified_by": [
-        "tests/test_foreign_read.py:273",
-        "tests/test_foreign_read.py:738",
-        "tests/test_foreign_read.py:99"
+        "tests/test_foreign_read.py:111",
+        "tests/test_foreign_read.py:190",
+        "tests/test_foreign_read.py:343",
+        "tests/test_foreign_read.py:875"
       ]
     },
     {
@@ -1557,17 +1558,17 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "60ddd91e17c3",
+        "80e0a94c0bea",
         "bd353eecdfb2",
         "c51f6ff4a2db",
-        "dc9a1b0bb61a",
-        "ee03ae46d563"
+        "dc9a1b0bb61a"
       ],
       "verified_by": [
-        "tests/test_foreign_read.py:274",
-        "tests/test_foreign_read.py:334",
-        "tests/test_foreign_read.py:406",
-        "tests/test_foreign_read.py:475",
-        "tests/test_foreign_read.py:509"
+        "tests/test_foreign_read.py:344",
+        "tests/test_foreign_read.py:408",
+        "tests/test_foreign_read.py:439",
+        "tests/test_foreign_read.py:513",
+        "tests/test_foreign_read.py:584"
       ]
     },
     {
@@ -1581,11 +1582,11 @@
         "dc9a1b0bb61a"
       ],
       "verified_by": [
-        "tests/test_foreign_read.py:335",
-        "tests/test_foreign_read.py:407",
-        "tests/test_foreign_read.py:547",
-        "tests/test_foreign_read.py:567",
-        "tests/test_foreign_read.py:615"
+        "tests/test_foreign_read.py:440",
+        "tests/test_foreign_read.py:514",
+        "tests/test_foreign_read.py:659",
+        "tests/test_foreign_read.py:679",
+        "tests/test_foreign_read.py:729"
       ]
     },
     {
