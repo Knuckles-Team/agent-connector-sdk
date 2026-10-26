@@ -88,6 +88,7 @@ def test_cardinality_is_bounded_and_high_cardinality_is_observable() -> None:
         )
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.5")
 def test_below_threshold_values_never_appear_in_top_k_or_serialized_profile() -> None:
     table = pa.table({"secret": ["glpat-a", "glpat-b", "glpat-a", "glpat-b"]})
     result = profile_table(

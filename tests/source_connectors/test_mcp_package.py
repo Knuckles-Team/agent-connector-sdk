@@ -26,6 +26,7 @@ def _caller(*pages: Any) -> tuple[list[tuple[str, dict[str, Any]]], CallToolFn]:
     return calls, call_tool
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R902.1")
 def test_explicit_mapping_yields_documents_with_neutral_metadata() -> None:
     calls, call_tool = _caller(
         {
@@ -102,6 +103,7 @@ def test_tool_is_required() -> None:
         ("github-agent", "github-mcp"),
     ],
 )
+@pytest.mark.spec("SDK-SOURCE-INGEST-R902.5")
 def test_server_resolution_uses_declared_names_only(
     requested: str, configured: str
 ) -> None:
@@ -113,6 +115,7 @@ def test_server_resolution_uses_declared_names_only(
     assert mcp_package.configured_mcp_server({}, requested) is None
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R902.4")
 def test_stdio_is_refused_when_prohibited(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MCP_STDIO_PROHIBITED", "true")
     source = build_connector("mcp", {"server": "s", "tool": "t"})

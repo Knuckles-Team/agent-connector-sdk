@@ -54,6 +54,7 @@ def test_parses_dex_volume_tvl_and_funding_rate() -> None:
         lambda g: CryptoDerivatives(g).get_funding_rate("BTC/USDT"),
     ],
 )
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.5")
 def test_malformed_answers_raise_provider_request_error(call: Any) -> None:
     with pytest.raises(ProviderRequestError):
         call(_serve({"unexpected": True})[1])

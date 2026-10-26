@@ -283,3 +283,15 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R019.3:** Declare container config mounts once with an SDK schema.
 - [x] **SDK-CONNECTOR-CONTROL-R071.1:** Find connector content by convention.
 - [x] **SDK-CONNECTOR-CONTROL-R071.2:** Read the version from package metadata only.
+
+## Batch D source-contract verification (2026-10-26)
+
+The grouped Batch D suite and independent storage review verify these leaves.
+Each row binds to the cited assertion through `pytest.mark.spec`.
+
+- [x] **SDK-CONNECTOR-CONTROL-R900.1:** Materialize connector authentication descriptors. (`tests/test_source_credentials.py::test_descriptor_materializes_request_auth`)
+- [x] **SDK-CONNECTOR-CONTROL-R900.2:** Refresh OAuth credentials within the configured expiry skew. (`tests/test_source_credentials.py::test_oauth2_refreshes_inside_the_expiry_skew_with_an_injected_clock`)
+- [x] **SDK-CONNECTOR-CONTROL-R900.5:** Classify sensitive credential metadata without exposing values. (`tests/test_credential_sensitivity.py::test_key_sensitivity`)
+- [x] **SDK-CONNECTOR-CONTROL-R901.1:** Quote SQL identifiers safely. (`tests/test_identifiers.py::test_quote_sql_identifier_returns_a_quoted_name`)
+- [x] **SDK-CONNECTOR-CONTROL-R901.2:** Round-trip signatures over canonical JSON. (`tests/test_signing.py::test_signature_round_trips_over_canonical_json`)
+- [x] **SDK-CONNECTOR-CONTROL-R901.5:** Fail closed on signature mismatches. (`tests/test_signing.py::test_any_mismatch_fails_closed`)

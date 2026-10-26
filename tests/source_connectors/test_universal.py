@@ -37,6 +37,7 @@ def test_unknown_or_missing_scheme_is_refused(dsn: str) -> None:
         UniversalConnector(dsn)
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R900.1")
 def test_identity_is_an_irreversible_reference(sqlite_dsn: str) -> None:
     conn = UniversalConnector(sqlite_dsn)
     assert conn.kind == "sqlite" and conn.source_ref.startswith("pref_datasource_")
@@ -79,6 +80,7 @@ def test_health_check(sqlite_dsn: str, tmp_path) -> None:
     )
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R900.5")
 def test_introspect_emits_schema_entities_without_the_location(sqlite_dsn: str) -> None:
     changes = UniversalConnector(sqlite_dsn).introspect()
     types = {entity.node_type for entity in changes.entities}

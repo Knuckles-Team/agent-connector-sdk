@@ -67,6 +67,7 @@ class _Resolver:
         ),
     ],
 )
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R900.1")
 def test_descriptor_materializes_request_auth(
     descriptor: dict[str, Any], headers: dict[str, str], params: dict[str, str]
 ) -> None:
@@ -97,6 +98,7 @@ def test_unknown_type_is_a_key_error_naming_the_kinds() -> None:
         build_credential({"type": "kerberos"})
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R900.2")
 def test_oauth2_refreshes_inside_the_expiry_skew_with_an_injected_clock() -> None:
     now = [0.0]
     posts: list[dict[str, str]] = []

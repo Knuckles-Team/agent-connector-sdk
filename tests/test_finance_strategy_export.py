@@ -68,6 +68,7 @@ def test_each_platform_renders_its_own_syntax(
         assert fragment in result.code
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.1")
 def test_exporter_dispatches_by_platform_and_exports_all() -> None:
     exporter = StrategyExporter()
     assert set(exporter.supported_platforms) == {

@@ -49,6 +49,7 @@ pytestmark = [
 
 
 # spec: SDK-SOURCE-INGEST-R800.4
+@pytest.mark.spec("SDK-SOURCE-INGEST-R800.1")
 def test_registry_lists_builtin_sources_and_rejects_unknown():
     assert {"web", "rest", "rss", "arxiv"} <= set(list_sources())
     with pytest.raises(KeyError, match="Available"):
@@ -63,6 +64,7 @@ def test_activation_is_refused_without_a_certifying_gate(gate):
         build_connector("rss", {"feed_urls": "http://f/"})
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R800.5")
 def test_checkpoint_round_trips_and_bad_input_is_none():
     cp = ConnectorCheckpoint(
         has_more=True, cursor="c", watermark="w", seen_ids=["a"], state={"k": 1}
@@ -72,6 +74,7 @@ def test_checkpoint_round_trips_and_bad_input_is_none():
     assert ConnectorCheckpoint.from_json("not-json") is None
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R800.3")
 def test_web_connector_crawls_to_depth_and_polls_incrementally():
     pages = {
         "http://x/": "<title>Home</title><a href='/a'>a</a>",

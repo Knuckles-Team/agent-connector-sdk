@@ -58,6 +58,7 @@ def _registry(row_model: type) -> RowModelRegistry:
     return RowModelRegistry({"model:test:v1": row_model})
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.1")
 def test_plan_gate_is_strict_and_allowlisted() -> None:
     with pytest.raises(ValidationError):
         CleanPipeline(
@@ -128,6 +129,7 @@ def test_profile_limits_are_enforced_before_execution(
         ).run(table)
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.4")
 def test_lossy_casts_are_denied_and_lossless_widening_uses_safe_cast() -> None:
     narrowing = _plan(
         {
@@ -381,6 +383,7 @@ def test_dedupe_treats_null_keys_deterministically() -> None:
     }
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.2")
 def test_replay_is_deterministic_and_plan_is_not_mutated() -> None:
     plan = _plan(
         {"verb": "canonical_names"},

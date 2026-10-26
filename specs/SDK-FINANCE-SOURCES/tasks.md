@@ -11,3 +11,12 @@
   - [x] ETF fund-flow panel: net flow and AUM per fund per trading day (`agent_connector_sdk.finance.etf_flows`) (SDK-FINANCE-SOURCES-R005).
   - [x] Versioned liquidity composite and heat-strip panel, sentiment data, and on-chain position data (SDK-FINANCE-SOURCES-R005).
 - [ ] Attach exact merged commits, offline CI and opt-in licensed source receipts before acceptance.
+
+## Batch D source-contract verification (2026-10-26)
+
+The grouped Batch D suite and independent storage review verify these leaves.
+Each row binds to the cited assertion through `pytest.mark.spec`.
+
+- [x] **SDK-FINANCE-SOURCES-R900.1:** Dispatch strategy exports by platform and emit all records. (`tests/test_finance_strategy_export.py::test_exporter_dispatches_by_platform_and_exports_all`)
+- [x] **SDK-FINANCE-SOURCES-R900.2:** Use the first non-empty market-data provider and retain failures as warnings. (`tests/test_finance_market_data.py::test_first_non_empty_provider_wins_and_failures_become_warnings`)
+- [x] **SDK-FINANCE-SOURCES-R900.5:** Refuse malformed crypto-provider responses with a typed error. (`tests/test_finance_crypto.py::test_malformed_answers_raise_provider_request_error`)

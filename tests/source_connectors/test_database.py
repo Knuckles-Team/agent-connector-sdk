@@ -37,6 +37,7 @@ def test_rows_become_private_documents(sqlite_dsn: str) -> None:
 
 
 # spec: SDK-SOURCE-INGEST-R900.6
+@pytest.mark.spec("SDK-SOURCE-INGEST-R900.2")
 def test_poll_advances_the_watermark_and_is_idempotent(sqlite_dsn: str) -> None:
     source = _source(sqlite_dsn)
     first = source.poll(ConnectorCheckpoint(watermark="1"))

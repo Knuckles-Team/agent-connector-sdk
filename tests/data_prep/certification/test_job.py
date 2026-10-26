@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import subprocess
+import sys
+
 import pytest
 from pydantic import ValidationError
 
@@ -174,7 +177,26 @@ def test_expired_authorization_and_unsafe_references_fail_closed() -> None:
         _policy(tenant_ref="https://provider.example/query?token=secret")
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.3")
 def test_optional_provider_wrappers_are_lazy_and_do_not_run_without_provider() -> None:
+    # A clean interpreter proves the certification package itself does not pull
+    # optional provider runtimes into the base import path.
+    probe = (
+        "import sys; "
+        "import agent_connector_sdk.data_prep.certification; "
+        "roots = {name.split('.', 1)[0] for name in sys.modules}; "
+        "forbidden = {'great_expectations', 'pandera', 'pandas', 'numpy', 'pyarrow'}; "
+        "assert not roots & forbidden, sorted(roots & forbidden)"
+    )
+    result = subprocess.run(
+        [sys.executable, "-I", "-c", probe],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stderr
+
     # Construction itself must not import either optional provider.  The runner
     # is deliberately never reached in this fixture.
     adapter = GreatExpectationsAdapter(lambda _table, _authorization: {})
