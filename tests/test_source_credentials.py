@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import base64
+import importlib
+import ssl
 from typing import Any
 
 import pytest
 
+from agent_connector_sdk.credentials import source as source_module
 from agent_connector_sdk.credentials.references import SecretReference
 from agent_connector_sdk.credentials.source import (
     CREDENTIAL_TYPES,
@@ -134,6 +137,93 @@ def test_oauth2_failed_refresh_sends_no_header() -> None:
     )
     assert credential.materialize().headers == {}
     assert credential.is_present()
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R900.3")
+def test_source_registry_wires_secret_and_tls_resolvers_for_refresh(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    secret_calls: list[tuple[str, object]] = []
+    real_resolve_secret = source_module.resolve_secret_reference
+
+    def resolve_secret(reference: str, resolver: object = None) -> str:
+        secret_calls.append((reference, resolver))
+        return real_resolve_secret(reference, resolver)
+
+    monkeypatch.setattr(source_module, "resolve_secret_reference", resolve_secret)
+
+    tls_module = importlib.import_module("agent_connector_sdk.tls.resolve")
+    tls_calls: list[str] = []
+    real_resolve_tls = tls_module.resolve_tls_profile
+
+    def resolve_tls(service: str, **kwargs: object) -> object:
+        tls_calls.append(service)
+        return real_resolve_tls(service, **kwargs)
+
+    monkeypatch.setattr(tls_module, "resolve_tls_profile", resolve_tls)
+
+    client_calls: list[dict[str, object]] = []
+
+    class _Response:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, object]:
+            return {"access_token": "at-refreshed", "expires_in": 60}
+
+    class _Client:
+        def __init__(self, **kwargs: object) -> None:
+            client_calls.append({"client": kwargs})
+
+        def __enter__(self) -> _Client:
+            return self
+
+        def __exit__(self, *_: object) -> None:
+            return None
+
+        def post(self, url: str, **kwargs: object) -> _Response:
+            client_calls.append({"url": url, **kwargs})
+            return _Response()
+
+    monkeypatch.setattr(source_module.httpx, "Client", _Client)
+
+    class _ExpiringResolver:
+        def resolve(self, reference: SecretReference) -> str:
+            return {
+                "TOKEN": '{"access_token": "at-1", "refresh_token": "rt-1", "expires_in": 1}',
+                "CLIENT": "cs",
+            }[reference.target]
+
+    registry = SourceCredentials(
+        descriptors={
+            "oauth": {
+                "type": "oauth2",
+                "secret": "env://TOKEN",
+                "token_url": "https://idp.example.test/token",
+                "client_id": "client",
+                "client_secret_secret": "env://CLIENT",
+                "tls_service": "OAUTH2_TOKEN",
+            }
+        },
+        resolver=_ExpiringResolver(),
+    )
+
+    material = registry.get("oauth").materialize()
+
+    assert material.headers == {"Authorization": "Bearer at-refreshed"}
+    assert [reference for reference, _ in secret_calls] == [
+        "env://TOKEN",
+        "env://CLIENT",
+    ]
+    assert tls_calls == ["OAUTH2_TOKEN"]
+    assert isinstance(client_calls[0]["client"]["verify"], ssl.SSLContext)
+    assert client_calls[1]["url"] == "https://idp.example.test/token"
+    assert client_calls[1]["data"] == {
+        "grant_type": "refresh_token",
+        "refresh_token": "rt-1",
+        "client_id": "client",
+    }
+    assert client_calls[1]["auth"] == ("client", "cs")
 
 
 # spec: SDK-CONNECTOR-CONTROL-R900.6
