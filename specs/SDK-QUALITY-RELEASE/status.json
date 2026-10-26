@@ -46,6 +46,7 @@
       "title": "Release workflow builds with the pinned managed Python, not the system one",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "0b9d4eb5b8fd",
         "42b930057c3e"
       ],
       "verified_by": [

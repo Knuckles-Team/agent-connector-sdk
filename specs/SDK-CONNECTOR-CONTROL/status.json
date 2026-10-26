@@ -621,7 +621,7 @@
         "tests/test_connector_run.py:113",
         "tests/test_connector_run.py:126",
         "tests/test_connector_run.py:132",
-        "tests/test_connector_run.py:189"
+        "tests/test_connector_run.py:187"
       ]
     },
     {
@@ -3069,7 +3069,7 @@
         "tests/test_connector_run.py:140",
         "tests/test_connector_run.py:152",
         "tests/test_connector_run.py:161",
-        "tests/test_connector_run.py:172"
+        "tests/test_connector_run.py:170"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R071.1",
@@ -3086,7 +3086,7 @@
       "verified_by": [
         "tests/test_connector_run.py:140",
         "tests/test_connector_run.py:152",
-        "tests/test_connector_run.py:172"
+        "tests/test_connector_run.py:170"
       ]
     },
     {
