@@ -32,6 +32,9 @@ __all__ = [
 ]
 
 _RESOURCE_KINDS = {
+    # MCP Apps are an extension of the generic resource entry, not a new
+    # generated pack enum member.
+    "ui": PackEntryKind.RESOURCE,
     "ontology": PackEntryKind.ONTOLOGY,
     "shapes": PackEntryKind.SHAPES,
     "model-profile": PackEntryKind.MODEL_PROFILE,
@@ -89,7 +92,7 @@ def _entry_content(entry: CapturedArtifact) -> ConnectorPackEntryContent:
         input_schema = _canonical_json_bytes(document["input_schema"])
         if document.get("output_schema") is not None:
             output_schema = _canonical_json_bytes(document["output_schema"])
-    elif pack_kind is PackEntryKind.RESOURCE:
+    elif pack_kind is PackEntryKind.RESOURCE and uri == RESOURCES_URI:
         output_schema = declaration_content_schema()
     return ConnectorPackEntryContent(
         kind=pack_kind,

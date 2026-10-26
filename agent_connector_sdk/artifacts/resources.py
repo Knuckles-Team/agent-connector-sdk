@@ -1,10 +1,12 @@
-"""The ``resource`` artifact kind: ontologies, shapes, profiles, A2A cards.
+"""The ``resource`` artifact kind: ontologies, shapes, profiles, A2A cards and MCP Apps.
 
-Only generated ConnectorPack resource schemes are accepted; an unknown scheme
-is rejected, never guessed.
+Only known generated ConnectorPack resource schemes and the standard MCP Apps
+``ui://`` extension are accepted; an unknown scheme is rejected, never guessed.
 """
 
 from __future__ import annotations
+
+import re
 
 from agent_connector_sdk.artifacts.annotations import _annotations_from_mcp
 from agent_connector_sdk.artifacts.common import json_object, mime_type, require_kind
@@ -16,6 +18,8 @@ from agent_connector_sdk.ports.session import McpSession
 __all__ = ["ResourceArtifactKind"]
 
 _RESOURCE_SCHEMES = frozenset({"ontology", "shapes", "model-profile", "a2a-card"})
+_MCP_APP_URI = re.compile(r"^ui://[A-Za-z0-9][A-Za-z0-9._/-]{0,255}$")
+_MCP_APP_MEDIA_TYPES = frozenset({"text/html", "text/html;profile=mcp-app"})
 
 
 def _scheme(uri: str) -> str:
@@ -28,6 +32,37 @@ def _validate_body(entry: CapturedArtifact, scheme: str) -> None:
         json_object(entry)
     if scheme in {"a2a-card", "model-profile"}:
         json_object(entry)
+
+
+def _validate_mcp_app(entry: CapturedArtifact) -> None:
+    """Validate the standard MCP Apps resource extension.
+
+    ``ui://`` is a typed extension of the MCP resource primitive, rather than
+    a new artifact kind.  The URI is bounded to the extension's resource
+    namespace and the body must be HTML served with one of the two wire forms
+    used by the MCP Apps implementations: the standard profile MIME type and
+    the existing connector-compatible ``text/html`` form.  Server identity is
+    retained as independent capture provenance; the URI authority is not
+    treated as a second server-name field.
+    """
+    if not isinstance(entry.uri, str) or not _MCP_APP_URI.fullmatch(entry.uri):
+        raise MalformedArtifactError(f"{entry.uri} has an invalid MCP App URI")
+    if (
+        not isinstance(entry.media_type, str)
+        or entry.media_type.strip().lower() not in _MCP_APP_MEDIA_TYPES
+    ):
+        raise MalformedArtifactError(
+            f"{entry.uri} has an unsupported MCP App media type"
+        )
+    if not isinstance(entry.server, ServerIdentity):
+        raise MalformedArtifactError(f"{entry.uri} has invalid server provenance")
+    if (
+        not isinstance(entry.server.name, str)
+        or not isinstance(entry.server.version, str)
+        or not entry.server.name.strip()
+        or not entry.server.version.strip()
+    ):
+        raise MalformedArtifactError(f"{entry.uri} has incomplete server provenance")
 
 
 class ResourceArtifactKind:
@@ -60,11 +95,22 @@ class ResourceArtifactKind:
     def validate(self, entry: CapturedArtifact) -> None:
         """Known scheme, non-empty body, and a body that parses for its kind."""
         require_kind(entry, self.kind)
+        if not isinstance(entry.uri, str):
+            raise MalformedArtifactError(f"{entry.uri} has an unknown scheme")
         scheme = _scheme(entry.uri)
         if (
-            scheme not in _RESOURCE_SCHEMES and entry.uri != RESOURCES_URI
-        ) or not entry.body.strip():
+            (
+                scheme not in _RESOURCE_SCHEMES
+                and scheme != "ui"
+                and entry.uri != RESOURCES_URI
+            )
+            or not isinstance(entry.body, str)
+            or not entry.body.strip()
+        ):
             raise MalformedArtifactError(
                 f"{entry.uri} has an unknown scheme or empty body"
             )
-        _validate_body(entry, scheme)
+        if scheme == "ui":
+            _validate_mcp_app(entry)
+        else:
+            _validate_body(entry, scheme)
