@@ -8,6 +8,7 @@ from typing import Any
 
 import pytest
 
+import agent_connector_sdk.adapters.foreign_read as foreign_read_module
 from agent_connector_sdk.adapters.foreign_read import (
     FOREIGN_READ_SCHEMA_VERSION,
     AbortRequest,
@@ -173,6 +174,8 @@ async def test_foreign_read_refuses_sequence_digest_and_terminal_replay() -> Non
     assert len(adapter.calls) == 1
 
     await client.complete(CompleteRequest(execution=opened.execution, sequence=0))
+    assert not client._executions
+    assert opened.execution.execution_id in client._tombstones
     with pytest.raises(ForeignReadError, match="terminal"):
         await client.complete(CompleteRequest(execution=opened.execution, sequence=0))
     assert len(adapter.calls) == 2
@@ -212,6 +215,100 @@ async def test_foreign_read_refuses_sequence_digest_and_terminal_replay() -> Non
         "ForeignReadOpen",
         "ForeignReadAbort",
     ]
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.7.2")
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.7.3")
+@pytest.mark.parametrize("phase", ["chunk", "complete", "abort"])
+@pytest.mark.asyncio
+async def test_foreign_read_cancelled_phase_terminalizes_handle(phase: str) -> None:
+    execution = {"execution_id": 12, "query_digest": _DIGEST}
+
+    class _Blocking:
+        def __init__(self) -> None:
+            self.started = asyncio.Event()
+            self.calls: list[str] = []
+
+        async def request(self, method: str, _params: dict[str, Any]) -> Any:
+            self.calls.append(method)
+            if method == "ForeignReadOpen":
+                return {
+                    "schema_version": 1,
+                    "execution": execution,
+                    "expires_at_ms": int(time.time() * 1000) + 10_000,
+                    "next_sequence": 0,
+                }
+            if method == f"ForeignRead{phase.title()}":
+                self.started.set()
+                await asyncio.Event().wait()
+            return {}
+
+    adapter = _Blocking()
+    client = ForeignReadClient(adapter)
+    opened = await client.open(_open())
+    if phase == "chunk":
+        operation = client.chunk(
+            ChunkRequest(
+                execution=opened.execution,
+                sequence=0,
+                rows=[ForeignReadRow(id="row-1")],
+            )
+        )
+    elif phase == "complete":
+        operation = client.complete(
+            CompleteRequest(execution=opened.execution, sequence=0)
+        )
+    else:
+        operation = client.abort(
+            AbortRequest(
+                execution=opened.execution,
+                sequence=0,
+                reason="cancelled",
+            )
+        )
+    task = asyncio.create_task(operation)
+    await adapter.started.wait()
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    with pytest.raises(ForeignReadError, match="terminal"):
+        await client.complete(CompleteRequest(execution=opened.execution, sequence=0))
+    assert not client._executions
+    assert adapter.calls == ["ForeignReadOpen", f"ForeignRead{phase.title()}"]
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.7.2")
+@pytest.mark.asyncio
+async def test_foreign_read_open_reserves_concurrent_capacity(monkeypatch: Any) -> None:
+    monkeypatch.setattr(foreign_read_module, "_MAX_EXECUTIONS", 1)
+    execution = {"execution_id": 13, "query_digest": _DIGEST}
+
+    class _SlowOpen:
+        def __init__(self) -> None:
+            self.started = asyncio.Event()
+            self.release = asyncio.Event()
+            self.calls = 0
+
+        async def request(self, _method: str, _params: dict[str, Any]) -> Any:
+            self.calls += 1
+            self.started.set()
+            await self.release.wait()
+            return {
+                "schema_version": 1,
+                "execution": execution,
+                "expires_at_ms": int(time.time() * 1000) + 10_000,
+                "next_sequence": 0,
+            }
+
+    adapter = _SlowOpen()
+    client = ForeignReadClient(adapter)
+    first = asyncio.create_task(client.open(_open()))
+    await adapter.started.wait()
+    with pytest.raises(ForeignReadError, match="limit_exceeded"):
+        await client.open(_open())
+    assert adapter.calls == 1
+    adapter.release.set()
+    await first
 
 
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.7.3")
@@ -258,6 +355,15 @@ async def test_foreign_read_enforces_per_chunk_bytes() -> None:
     )
     client = ForeignReadClient(adapter)
     opened = await client.open(_open())
+    with pytest.raises(ForeignReadError, match="limit_exceeded"):
+        await client.chunk(
+            ChunkRequest(
+                execution=opened.execution,
+                sequence=0,
+                rows=[ForeignReadRow(id="row-1", columns={"value": "x" * 2_000})],
+            )
+        )
+    assert len(adapter.calls) == 1
     with pytest.raises(ForeignReadError, match="limit_exceeded"):
         await client.chunk(
             ChunkRequest(

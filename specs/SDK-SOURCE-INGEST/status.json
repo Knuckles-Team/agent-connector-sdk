@@ -1498,10 +1498,10 @@
       ],
       "verified_by": [
         "tests/test_approved_sql_source.py:136",
-        "tests/test_foreign_read.py:147",
         "tests/test_foreign_read.py:148",
-        "tests/test_foreign_read.py:217",
-        "tests/test_foreign_read.py:236"
+        "tests/test_foreign_read.py:149",
+        "tests/test_foreign_read.py:220",
+        "tests/test_foreign_read.py:221"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R004.7.1",
@@ -1554,8 +1554,8 @@
         "697b45610bbb"
       ],
       "verified_by": [
-        "tests/test_foreign_read.py:280",
-        "tests/test_foreign_read.py:86"
+        "tests/test_foreign_read.py:386",
+        "tests/test_foreign_read.py:87"
       ]
     },
     {
@@ -1566,9 +1566,11 @@
         "697b45610bbb"
       ],
       "verified_by": [
-        "tests/test_foreign_read.py:147",
-        "tests/test_foreign_read.py:236",
-        "tests/test_foreign_read.py:87"
+        "tests/test_foreign_read.py:148",
+        "tests/test_foreign_read.py:220",
+        "tests/test_foreign_read.py:280",
+        "tests/test_foreign_read.py:333",
+        "tests/test_foreign_read.py:88"
       ]
     },
     {
@@ -1579,10 +1581,11 @@
         "697b45610bbb"
       ],
       "verified_by": [
-        "tests/test_foreign_read.py:148",
-        "tests/test_foreign_read.py:217",
-        "tests/test_foreign_read.py:237",
-        "tests/test_foreign_read.py:281"
+        "tests/test_foreign_read.py:149",
+        "tests/test_foreign_read.py:221",
+        "tests/test_foreign_read.py:314",
+        "tests/test_foreign_read.py:334",
+        "tests/test_foreign_read.py:387"
       ]
     },
     {

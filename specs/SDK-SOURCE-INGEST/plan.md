@@ -376,12 +376,13 @@ The producer and receiver implementations remain absent; definition agreement do
 
 The SQL receiver above remains SQL-specific. The generic connector path uses the
 same SDK owner boundary but a separate `ForeignReadClient` in
-`agent_connector_sdk/adapters/foreign_read.py`. It imports the exact EG
+`agent_connector_sdk/adapters/foreign_read.py`. Its typed port matches the EG
 `ForeignReadOpen`, `ForeignReadChunk`, `ForeignReadComplete` and
-`ForeignReadAbort` request/result shapes, while the EG-owned approval record
-remains opaque. Each method sends one wrapped request through an existing
-authenticated request/response adapter. The SDK adds no tenant, actor,
-authority, lease or credential fields.
+`ForeignReadAbort` request/result shapes. The EG-owned approval record remains
+opaque. A generated wire adapter supplies the published EG models; this module
+does not guess an unpublished import. Each method sends one wrapped request
+through an existing authenticated request/response adapter. The SDK adds no
+tenant, actor, authority, lease or credential fields.
 
 The client keeps the server execution handle and query digest. It keeps the
 expected sequence and cumulative row/byte totals. It uses the smaller

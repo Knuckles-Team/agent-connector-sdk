@@ -90,10 +90,11 @@ The receiving methods return bounded pages and explicit terminal outcomes throug
 These definitions preserve all original R004 obligations; producer and receiver implementation remain required.
 
 The generic pack receiver is the separate `ForeignReadClient` slice
-(`SDK-SOURCE-INGEST-R004.7.1` through `.7.3`). It uses EG's four typed
-foreign-read phase DTOs over the existing authenticated request/response
-transport. The SDK validates the handle, digest, sequence and bounded
-deadline. It does not duplicate the EG approval record. It carries no caller
+(`SDK-SOURCE-INGEST-R004.7.1` through `.7.3`). Its typed port matches EG's four
+foreign-read phase DTOs. The generated wire adapter uses published EG models;
+the SDK does not guess an unpublished import. It uses the existing authenticated
+request/response transport. The SDK validates the handle, digest, sequence and
+bounded deadline. It does not duplicate the EG approval record or carry caller
 authority fields. A served cross-owner proof remains pending until EG publishes
 the generated methods and Arbora composes its fleet executor.
 

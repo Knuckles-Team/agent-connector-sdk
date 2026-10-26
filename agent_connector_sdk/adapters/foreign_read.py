@@ -1,10 +1,11 @@
 """Typed, bounded receiver for EG's generic foreign-read lifecycle.
 
 The engine owns approval, tenant/actor authority, source registration and the
-opaque execution handle.  This module owns only the generated DTO boundary and
-the short-lived client-side sequence/deadline checks.  It sends each phase
-through an authenticated request/response adapter; it never creates authority
-or opens a connector itself.
+opaque execution handle. This module owns a typed port matching the EG DTO
+source and short-lived client-side sequence/deadline checks. A generated wire
+adapter remains external; this module never guesses its import path. It sends
+each phase through an authenticated request/response adapter, never creating
+authority or opening a connector itself.
 """
 
 from __future__ import annotations
@@ -12,11 +13,14 @@ from __future__ import annotations
 import asyncio
 import json
 import time
+from collections import OrderedDict
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Annotated, Any, Literal, Protocol, cast, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
+
+from agent_connector_sdk.artifacts.common import canonical_json
 
 __all__ = [
     "FOREIGN_READ_SCHEMA_VERSION",
@@ -199,7 +203,16 @@ class ForeignReadOpenResult(_Strict):
 class ForeignReadChunkRequest(_Strict):
     execution: ForeignReadExecutionRef
     sequence: int = _bounded_u64()
-    rows: list[ForeignReadRow] = Field(min_length=1)
+    rows: list[ForeignReadRow] = Field(min_length=1, max_length=16_384)
+
+    @model_validator(mode="after")
+    def _bounded_wire_rows(self) -> ForeignReadChunkRequest:
+        encoded = 0
+        for row in self.rows:
+            encoded += _canonical_row_bytes(row)
+            if encoded > 4 * 1024 * 1024:
+                raise ValueError("foreign-read chunk rows exceed the EG byte cap")
+        return self
 
 
 class ForeignReadChunkResult(_Strict):
@@ -284,6 +297,11 @@ def _wire(value: BaseModel) -> dict[str, Any]:
     return value.model_dump(mode="json")
 
 
+def _canonical_row_bytes(row: ForeignReadRow) -> int:
+    """Return the bounded canonical encoding size used for page admission."""
+    return len(canonical_json(_wire(row)).encode("utf-8"))
+
+
 def _execution_matches(expected: ForeignReadExecutionRef, actual: Any) -> bool:
     return bool(actual == expected)
 
@@ -294,39 +312,56 @@ class ForeignReadClient:
     def __init__(self, transport: RequestResponseAdapter) -> None:
         self._transport = transport
         self._executions: dict[int, _Execution] = {}
+        self._tombstones: OrderedDict[int, ForeignReadExecutionRef] = OrderedDict()
+        self._admission_lock = asyncio.Lock()
+        self._pending_opens = 0
 
     async def open(self, request: OpenRequest) -> OpenResult:
         """Open one approved source execution and record its server handle."""
         if request.schema_version != FOREIGN_READ_SCHEMA_VERSION:
             raise ForeignReadError("schema_mismatch", "open")
-        if len(self._executions) >= _MAX_EXECUTIONS:
-            raise ForeignReadError("limit_exceeded", "open")
+        async with self._admission_lock:
+            if len(self._executions) + self._pending_opens >= _MAX_EXECUTIONS:
+                raise ForeignReadError("limit_exceeded", "open")
+            self._pending_opens += 1
+        reserved = True
         started = time.monotonic()
-        result = await self._call(
-            "ForeignReadOpen",
-            request,
-            timeout=request.limits.deadline_ms / 1000,
-        )
-        if result.schema_version != FOREIGN_READ_SCHEMA_VERSION:
-            raise ForeignReadError("schema_mismatch", "open")
-        if result.execution.query_digest != request.query_digest:
-            raise ForeignReadError("digest", "open")
-        if result.next_sequence != 0:
-            raise ForeignReadError("sequence", "open")
-        deadline_at = started + request.limits.deadline_ms / 1000
-        if result.expires_at_ms <= int(time.time() * 1000):
-            raise ForeignReadError("expired", "open")
-        execution = _Execution(
-            request=request,
-            opened=result,
-            deadline_at=deadline_at,
-            expected_sequence=result.next_sequence,
-            lock=asyncio.Lock(),
-        )
-        if result.execution.execution_id in self._executions:
-            raise ForeignReadError("invalid_response", "open")
-        self._executions[result.execution.execution_id] = execution
-        return cast(ForeignReadOpenResult, result)
+        try:
+            result = await self._call(
+                "ForeignReadOpen",
+                request,
+                timeout=request.limits.deadline_ms / 1000,
+            )
+            if result.schema_version != FOREIGN_READ_SCHEMA_VERSION:
+                raise ForeignReadError("schema_mismatch", "open")
+            if result.execution.query_digest != request.query_digest:
+                raise ForeignReadError("digest", "open")
+            if result.next_sequence != 0:
+                raise ForeignReadError("sequence", "open")
+            deadline_at = started + request.limits.deadline_ms / 1000
+            if result.expires_at_ms <= int(time.time() * 1000):
+                raise ForeignReadError("expired", "open")
+            execution = _Execution(
+                request=request,
+                opened=result,
+                deadline_at=deadline_at,
+                expected_sequence=result.next_sequence,
+                lock=asyncio.Lock(),
+            )
+            async with self._admission_lock:
+                self._pending_opens -= 1
+                reserved = False
+                if (
+                    result.execution.execution_id in self._executions
+                    or result.execution.execution_id in self._tombstones
+                ):
+                    raise ForeignReadError("invalid_response", "open")
+                self._executions[result.execution.execution_id] = execution
+            return cast(ForeignReadOpenResult, result)
+        finally:
+            if reserved:
+                async with self._admission_lock:
+                    self._pending_opens -= 1
 
     async def chunk(self, request: ChunkRequest) -> ChunkResult:
         """Append one bounded page, enforcing the local monotone sequence."""
@@ -337,14 +372,22 @@ class ForeignReadClient:
                 raise ForeignReadError("sequence", "chunk")
             if len(request.rows) > execution.request.limits.chunk_rows:
                 raise ForeignReadError("limit_exceeded", "chunk")
+            encoded_rows = 0
+            for row in request.rows:
+                encoded_rows += _canonical_row_bytes(row)
+                if encoded_rows > execution.request.limits.chunk_bytes:
+                    raise ForeignReadError("limit_exceeded", "chunk")
             try:
                 result = await self._call(
                     "ForeignReadChunk",
                     request,
                     timeout=self._remaining(execution, "chunk"),
                 )
+            except asyncio.CancelledError:
+                self._terminalize(execution)
+                raise
             except ForeignReadError:
-                execution.terminal = True
+                self._terminalize(execution)
                 raise
             try:
                 if not _execution_matches(request.execution, result.execution):
@@ -365,7 +408,7 @@ class ForeignReadClient:
             except ForeignReadError:
                 # A response mismatch makes the server handle unsafe to reuse;
                 # never retry a phase after accepting a malformed response.
-                execution.terminal = True
+                self._terminalize(execution)
                 raise
             execution.expected_sequence = result.next_sequence
             execution.total_rows = result.total_rows
@@ -397,10 +440,13 @@ class ForeignReadClient:
                     execution.total_bytes,
                 ):
                     raise ForeignReadError("invalid_response", "complete")
-            except ForeignReadError:
-                execution.terminal = True
+            except asyncio.CancelledError:
+                self._terminalize(execution)
                 raise
-            execution.terminal = True
+            except ForeignReadError:
+                self._terminalize(execution)
+                raise
+            self._terminalize(execution)
             return cast(ForeignReadCompleteResult, result)
 
     async def abort(self, request: AbortRequest) -> AbortResult:
@@ -425,10 +471,13 @@ class ForeignReadClient:
                 )
                 if result.reason != request.reason:
                     raise ForeignReadError("invalid_response", "abort")
-            except ForeignReadError:
-                execution.terminal = True
+            except asyncio.CancelledError:
+                self._terminalize(execution)
                 raise
-            execution.terminal = True
+            except ForeignReadError:
+                self._terminalize(execution)
+                raise
+            self._terminalize(execution)
             return cast(ForeignReadAbortResult, result)
 
     async def cancel(self, execution: ForeignReadExecutionRef) -> AbortResult:
@@ -478,8 +527,20 @@ class ForeignReadClient:
     def _find(self, execution: ForeignReadExecutionRef) -> _Execution:
         found = self._executions.get(execution.execution_id)
         if found is None:
+            if execution.execution_id in self._tombstones:
+                raise ForeignReadError("terminal", "client")
             raise ForeignReadError("unknown_execution", "client")
         return found
+
+    def _terminalize(self, state: _Execution) -> None:
+        """Drop request/response payloads while retaining a bounded replay fence."""
+        state.terminal = True
+        execution_id = state.opened.execution.execution_id
+        self._executions.pop(execution_id, None)
+        self._tombstones[execution_id] = state.opened.execution
+        self._tombstones.move_to_end(execution_id)
+        while len(self._tombstones) > _MAX_EXECUTIONS:
+            self._tombstones.popitem(last=False)
 
     def _check_open(
         self, state: _Execution, execution: ForeignReadExecutionRef, stage: str
@@ -495,7 +556,7 @@ class ForeignReadClient:
         server = (state.opened.expires_at_ms - int(time.time() * 1000)) / 1000
         remaining = min(local, server)
         if remaining <= 0:
-            state.terminal = True
+            self._terminalize(state)
             raise ForeignReadError("expired", stage)
         return remaining
 
