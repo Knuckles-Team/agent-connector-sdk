@@ -2454,9 +2454,19 @@
     {
       "id": "SDK-SOURCE-INGEST-R901",
       "title": "Governed GraphQL document source (rollup)",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55",
+        "8c6dcfdd27e8",
+        "be6035bc97e5"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_graphql_document.py:271",
+        "tests/source_connectors/test_graphql_document.py:393",
+        "tests/source_connectors/test_graphql_document.py:434",
+        "tests/source_connectors/test_graphql_document.py:435",
+        "tests/source_connectors/test_graphql_document.py:466"
+      ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R901.1",
         "SDK-SOURCE-INGEST-R901.2",
@@ -2474,7 +2484,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/source_connectors/test_graphql_document.py:325"
+        "tests/source_connectors/test_graphql_document.py:435"
       ]
     },
     {
@@ -2485,15 +2495,19 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_graphql_document.py:356"
+        "tests/source_connectors/test_graphql_document.py:466"
       ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R901.3",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "be6035bc97e5"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_graphql_document.py:271"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R901.4",
@@ -2503,7 +2517,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_graphql_document.py:283"
+        "tests/source_connectors/test_graphql_document.py:393"
       ]
     },
     {
@@ -2514,7 +2528,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/source_connectors/test_graphql_document.py:388"
+        "tests/source_connectors/test_graphql_document.py:498"
       ]
     },
     {
@@ -2525,7 +2539,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_graphql_document.py:324"
+        "tests/source_connectors/test_graphql_document.py:434"
       ]
     },
     {

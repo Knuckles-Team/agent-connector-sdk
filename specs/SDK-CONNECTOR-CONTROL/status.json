@@ -2670,9 +2670,19 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R900",
       "title": "Source credentials by source name (rollup)",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55",
+        "8c6dcfdd27e8",
+        "be6035bc97e5"
+      ],
+      "verified_by": [
+        "tests/test_credential_sensitivity.py:28",
+        "tests/test_source_credentials.py:104",
+        "tests/test_source_credentials.py:142",
+        "tests/test_source_credentials.py:229",
+        "tests/test_source_credentials.py:73"
+      ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R900.1",
         "SDK-CONNECTOR-CONTROL-R900.2",
@@ -2690,7 +2700,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/test_source_credentials.py:70"
+        "tests/test_source_credentials.py:73"
       ]
     },
     {
@@ -2701,15 +2711,19 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/test_source_credentials.py:101"
+        "tests/test_source_credentials.py:104"
       ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R900.3",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "be6035bc97e5"
+      ],
+      "verified_by": [
+        "tests/test_source_credentials.py:142"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R900.4",
@@ -2719,7 +2733,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/test_source_credentials.py:78"
+        "tests/test_source_credentials.py:81"
       ]
     },
     {
@@ -2741,15 +2755,25 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/test_source_credentials.py:139"
+        "tests/test_source_credentials.py:229"
       ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R901",
       "title": "Identifier gate and datapoint signing (rollup)",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55",
+        "8c6dcfdd27e8",
+        "be6035bc97e5"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_universal.py:98",
+        "tests/test_identifiers.py:27",
+        "tests/test_identifiers.py:45",
+        "tests/test_signing.py:14",
+        "tests/test_signing.py:22"
+      ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R901.1",
         "SDK-CONNECTOR-CONTROL-R901.2",
@@ -2784,9 +2808,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R901.3",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "be6035bc97e5"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_universal.py:98",
+        "tests/test_signing.py:61"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R901.4",
