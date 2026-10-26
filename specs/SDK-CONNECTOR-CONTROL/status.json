@@ -3148,11 +3148,16 @@
       "landed_in": [
         "268d030fffad",
         "57d0997107dd",
+        "8127c9c988fc",
         "8f36880f39a7",
         "cf3d6e92c008"
       ],
       "verified_by": [
-        "tests/test_default_content.py:12"
+        "tests/test_default_content.py:12",
+        "tests/test_mcp_app_resources.py:103",
+        "tests/test_mcp_app_resources.py:37",
+        "tests/test_mcp_app_resources.py:80",
+        "tests/test_mcp_app_resources.py:88"
       ]
     },
     {
@@ -3239,8 +3244,8 @@
         "tests/test_eg_pack_entry_kinds.py:45",
         "tests/test_eg_pack_entry_kinds.py:54",
         "tests/test_eg_pack_entry_kinds.py:68",
-        "tests/test_eg_pack_entry_kinds.py:81",
-        "tests/test_eg_pack_entry_kinds.py:95"
+        "tests/test_eg_pack_entry_kinds.py:82",
+        "tests/test_eg_pack_entry_kinds.py:96"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R075.1",
@@ -3336,8 +3341,8 @@
         "tests/test_eg_pack_entry_kinds.py:45",
         "tests/test_eg_pack_entry_kinds.py:54",
         "tests/test_eg_pack_entry_kinds.py:68",
-        "tests/test_eg_pack_entry_kinds.py:81",
-        "tests/test_eg_pack_entry_kinds.py:95"
+        "tests/test_eg_pack_entry_kinds.py:82",
+        "tests/test_eg_pack_entry_kinds.py:96"
       ]
     }
   ]
