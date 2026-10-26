@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 from pathlib import Path
 
@@ -98,6 +99,115 @@ def test_change_set_is_canonical_and_drops_private_ops():
         PATCH_FIELD: {"creations": [{"name": "a", "type": "CI"}]}
     }
     assert change_set.base_source_version == "unversioned"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R600.1")
+def test_writeback_contract_validates_ids_and_exposes_typed_invocation(fake_sink):
+    sink = fake_sink(FakeSink())
+    assert isinstance(sink, core.WritebackSink)
+    assert core.get_sink(DOMAIN) is sink
+    result = core.WritebackResult(target=DOMAIN)
+    ctx = core.WritebackContext()
+    invocation = core.WritebackInvocation(ctx, {"creations": []}, None, result, True)
+    assert invocation.unpack() == (ctx, {"creations": []}, None, result, True)
+
+    change_set = build_change_set(grant(), {"creations": []}, now_ms=0)
+    assert all(
+        getattr(change_set, field)
+        for field in (
+            "change_set_id",
+            "connector_id",
+            "entity_id",
+            "idempotency_key",
+            "required_capability",
+            "source_instance_id",
+            "tenant_id",
+        )
+    )
+    with pytest.raises(ValueError, match="target"):
+        SinkGrant(target=" ", enable_flag=FakeSink.enable_flag, write_enabled=True)
+    with pytest.raises(ValueError, match="enable_flag"):
+        SinkGrant(target=DOMAIN, enable_flag="", write_enabled=True)
+    with pytest.raises(ValueError, match="target"):
+        core.WritebackResult()
+
+    class InvalidSink:
+        domain = ""
+        enable_flag = FakeSink.enable_flag
+
+        def run(self, ctx, ops, *, dry_run):
+            return core.WritebackResult(target=DOMAIN)
+
+    with pytest.raises(ValueError, match=r"sink\.domain"):
+        core.register_sink(InvalidSink())
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R600.3")
+def test_writeback_wiring_uses_preflight_and_approval_queue(fake_sink, flag):
+    flag(True)
+    sink = FakeSink()
+    sink.risk_tier = "high_stakes"
+    fake_sink(sink)
+    events = []
+    queued = []
+
+    def preflight(target, received_sink, ops):
+        events.append(("preflight", target))
+        assert received_sink is sink
+        assert ops["_enqueue_proposal"] is enqueue
+        return None
+
+    def enqueue(target, ops, proposals):
+        events.append(("enqueue", target))
+        queued.append((target, ops, proposals))
+        return "proposal-1"
+
+    out = run_writeback(
+        DOMAIN,
+        dry_run=False,
+        creations=[{"name": "a"}],
+        _preflight=preflight,
+        _enqueue_proposal=enqueue,
+    )
+    assert out["status"] == "queued"
+    assert out["proposal_id"] == "proposal-1"
+    assert events == [("preflight", DOMAIN), ("enqueue", DOMAIN)]
+    assert queued and queued[0][2] == [{"op": "create", "items": [{"name": "a"}]}]
+    assert sink.calls == [True]
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R600.3")
+def test_writeback_package_has_no_harness_import_or_duplicate_entrypoint():
+    package = Path(__file__).parents[1] / "agent_connector_sdk"
+    imported_harness_modules = []
+    duplicate_entrypoints = []
+    for path in package.rglob("*.py"):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                modules = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                modules = [node.module or ""]
+            else:
+                continue
+            imported_harness_modules.extend(
+                module
+                for module in modules
+                if module == "agent_utilities" or module.startswith("agent_utilities.")
+            )
+        if path.name == "core.py" and path.parent.name == "writeback_sinks":
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and (
+                (isinstance(node.func, ast.Name) and node.func.id == "run_writeback")
+                or (
+                    isinstance(node.func, ast.Attribute)
+                    and node.func.attr == "run_writeback"
+                )
+            ):
+                duplicate_entrypoints.append(str(path))
+    assert imported_harness_modules == []
+    assert duplicate_entrypoints == []
 
 
 def test_dry_run_proposes_and_writes_no_ledger(fake_sink, ledger, flag):

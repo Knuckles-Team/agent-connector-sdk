@@ -37,7 +37,13 @@ from agent_connector_sdk.writeback.errors import OutcomeUncertainError
 from agent_connector_sdk.writeback.models import DryRunObservation, SourceSnapshot
 
 from ._env import run_sync_isolated, runtime_dir
-from .core import PROVENANCE_TAG, WritebackContext, WritebackResult, WritebackSink
+from .core import (
+    PROVENANCE_TAG,
+    WritebackContext,
+    WritebackResult,
+    WritebackSink,
+    _require_identifier,
+)
 
 if TYPE_CHECKING:
     from epistemic_graph.generated.write_back import (
@@ -105,6 +111,17 @@ class SinkGrant:
     write_enabled: bool
     risk_tier: str = "standard"
     approved: bool = False
+
+    def __post_init__(self) -> None:
+        """Reject blank identity fields before constructing a change set.
+
+        The generated graph contract validates the shape of the resulting
+        change set, but its string identifiers intentionally have no minimum
+        length.  Validate the two SDK-owned identifiers at the grant boundary
+        so ``:batch:...`` or ``... .`` connector identities cannot be emitted.
+        """
+        for field_name in ("target", "enable_flag"):
+            _require_identifier(getattr(self, field_name), field_name)
 
     def mode(self) -> WriteBackAuthorizationMode:
         """Approved proposals replay under approval; others under standing policy."""

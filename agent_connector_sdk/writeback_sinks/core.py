@@ -40,6 +40,13 @@ logger = logging.getLogger(__name__)
 PROVENANCE_TAG = "agent-utilities:inferred"
 
 
+def _require_identifier(value: object, field_name: str) -> str:
+    """Return a non-blank SDK identifier or reject it at construction."""
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{field_name} must be a non-empty identifier")
+    return value
+
+
 @dataclass
 class WritebackResult:
     """One result type for every write-back target (counts + dry-run proposals)."""
@@ -52,6 +59,9 @@ class WritebackResult:
     skipped: int = 0
     errors: int = 0
     proposals: list[dict[str, Any]] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        _require_identifier(self.target, "target")
 
     def merge(self, other: WritebackResult) -> WritebackResult:
         self.created += other.created
@@ -291,6 +301,8 @@ _SINKS: dict[str, WritebackSink] = {}
 
 def register_sink(sink: WritebackSink) -> WritebackSink:
     """Register a write-back sink under its ``domain`` (idempotent)."""
+    _require_identifier(sink.domain, "sink.domain")
+    _require_identifier(sink.enable_flag, "sink.enable_flag")
     _SINKS[sink.domain] = sink
     return sink
 
