@@ -212,6 +212,13 @@ def test_foreign_read_rows_use_the_eg_msgpack_golden_fixture() -> None:
     )
 
 
+def test_foreign_read_row_score_uses_the_eg_f32_wire_width() -> None:
+    # ``ForeignReadRow.score`` is Rust ``Option<f32>``.  A Python float packed
+    # as f64 would make the client and engine disagree on chunk_bytes.
+    row = ForeignReadRow(id="row-1", score=0.5)
+    assert foreign_read_module._encoded_rows_bytes([row]) == 43
+
+
 def _limits(
     *,
     deadline_ms: int = 10_000,
@@ -417,6 +424,12 @@ async def test_foreign_read_cancelled_phase_terminalizes_handle(phase: str) -> N
                     "expires_at_ms": int(time.time() * 1000) + 10_000,
                     "next_sequence": 0,
                 }
+            if method == "ForeignReadAbort" and phase != "abort":
+                return {
+                    "execution": execution,
+                    "sequence": 0,
+                    "reason": "cancelled",
+                }
             if method == f"ForeignRead{phase.title()}":
                 self.started.set()
                 await asyncio.Event().wait()
@@ -453,7 +466,10 @@ async def test_foreign_read_cancelled_phase_terminalizes_handle(phase: str) -> N
     with pytest.raises(ForeignReadError, match="terminal"):
         await client.complete(CompleteRequest(execution=opened.execution, sequence=0))
     assert not client._executions
-    assert adapter.calls == ["ForeignReadOpen", f"ForeignRead{phase.title()}"]
+    expected_calls = ["ForeignReadOpen", f"ForeignRead{phase.title()}"]
+    if phase != "abort":
+        expected_calls.append("ForeignReadAbort")
+    assert adapter.calls == expected_calls
 
 
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.38")
@@ -550,6 +566,54 @@ async def test_foreign_read_timeout_and_malformed_response_fail_closed() -> None
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.38")
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.39")
 @pytest.mark.asyncio
+async def test_foreign_read_phase_timeout_aborts_remote_handle() -> None:
+    execution = {"execution_id": 18, "query_digest": _DIGEST}
+
+    class _Timeout:
+        def __init__(self) -> None:
+            self.calls: list[str] = []
+
+        async def request(self, method: str, _params: dict[str, Any]) -> Any:
+            self.calls.append(method)
+            if method == "ForeignReadOpen":
+                return {
+                    "schema_version": 1,
+                    "execution": execution,
+                    "expires_at_ms": int(time.time() * 1000) + 10_000,
+                    "next_sequence": 0,
+                }
+            if method == "ForeignReadChunk":
+                await asyncio.sleep(0.05)
+            if method == "ForeignReadAbort":
+                return {
+                    "execution": execution,
+                    "sequence": 0,
+                    "reason": "deadline",
+                }
+            return {}
+
+    adapter = _Timeout()
+    client = ForeignReadClient(adapter)
+    opened = await client.open(_open(deadline_ms=10))
+    with pytest.raises(ForeignReadError, match="deadline"):
+        await client.chunk(
+            ChunkRequest(
+                execution=opened.execution,
+                sequence=0,
+                rows=[ForeignReadRow(id="row-1")],
+            )
+        )
+    assert adapter.calls == [
+        "ForeignReadOpen",
+        "ForeignReadChunk",
+        "ForeignReadAbort",
+    ]
+    assert not client._executions
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.38")
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.39")
+@pytest.mark.asyncio
 async def test_foreign_read_enforces_per_chunk_bytes() -> None:
     execution = {"execution_id": 11, "query_digest": _DIGEST}
     adapter = _Adapter(
@@ -597,7 +661,7 @@ async def test_foreign_read_enforces_per_chunk_bytes() -> None:
                 rows=[ForeignReadRow(id="row-1")],
             )
         )
-    assert len(adapter.calls) == 2
+    assert len(adapter.calls) == 3
 
 
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.38")

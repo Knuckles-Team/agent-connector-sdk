@@ -12,6 +12,7 @@ creating authority or opening a connector itself.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import importlib
 import json
 import time
@@ -59,6 +60,7 @@ _MAX_PROVENANCE_ITEMS = 32
 _MAX_PROVENANCE_BYTES = 4 * 1024
 _MAX_EXECUTIONS = 1024
 _U64_MAX = 2**64 - 1
+_ABORT_CLEANUP_TIMEOUT_S = 1.0
 
 ForeignReadMethod = Literal[
     "ForeignReadOpen",
@@ -354,22 +356,53 @@ def _encoded_rows_bytes(rows: Sequence[ForeignReadRow]) -> int:
     """Return the EG client codec size for the named Rust row sequence.
 
     The engine's Rust boundary uses ``rmp_serde::to_vec_named(rows)``. The
-    existing EG client owns the matching MessagePack transport codec; using it
-    here keeps float widths, Unicode, map headers and array overhead aligned
-    without maintaining a second serializer in the SDK. Rust's ``BTreeMap``
-    rows are normalized to sorted mapping keys before that codec is called.
+    existing EG client owns the matching MessagePack transport codec.  The
+    client helper is used for nested JSON columns; the row envelope is emitted
+    with the same MessagePack implementation so the Rust DTO's one typed f32
+    score can retain its declared width. Rust's ``BTreeMap`` rows are
+    normalized to sorted mapping keys before that codec is called.
     """
-    payload = []
-    for row in rows:
-        wire = _wire(row)
-        wire["columns"] = dict(sorted(wire["columns"].items()))
-        payload.append(wire)
     try:
         from epistemic_graph.client import _pack_binary_msgpack
 
-        return len(_pack_binary_msgpack(payload))
+        msgpack = cast(Any, importlib.import_module("msgpack"))
+        # ``msgpack.Packer(use_single_float=True)`` is used only for the
+        # typed ``ForeignReadRow.score`` field.  The other row fields, in
+        # particular JSON column values, must retain the ordinary EG client
+        # codec's f64 behaviour.  The map/sequence headers and scalar values
+        # still come from that same MessagePack implementation; this only
+        # preserves the Rust DTO's declared f32 width at the one typed field.
+        normal = msgpack.Packer(use_bin_type=True)
+        score = msgpack.Packer(use_bin_type=True, use_single_float=True)
+        encoded = bytearray(normal.pack_array_header(len(rows)))
+        for row in rows:
+            wire = _wire(row)
+            columns = dict(sorted(wire["columns"].items()))
+            encoded.extend(normal.pack_map_header(4))
+            encoded.extend(normal.pack("id"))
+            encoded.extend(normal.pack(wire["id"]))
+            encoded.extend(normal.pack("score"))
+            encoded.extend(
+                normal.pack(None)
+                if wire["score"] is None
+                else score.pack(wire["score"])
+            )
+            encoded.extend(normal.pack("columns"))
+            encoded.extend(_pack_binary_msgpack(columns))
+            encoded.extend(normal.pack("provenance"))
+            encoded.extend(normal.pack(wire["provenance"]))
+        return len(encoded)
     except Exception:
         raise ValueError("foreign-read MessagePack codec unavailable") from None
+
+
+def _abort_reason(error: ForeignReadError) -> str:
+    """Map a closed client failure to a bounded server abort reason."""
+    if error.reason == "deadline":
+        return "deadline"
+    if error.reason == "expired":
+        return "expired"
+    return "source_failed"
 
 
 def _execution_matches(expected: ForeignReadExecutionRef, actual: Any) -> bool:
@@ -397,6 +430,7 @@ class ForeignReadClient:
             self._pending_opens += 1
         reserved = True
         started = time.monotonic()
+        validated_result: OpenResult | None = None
         try:
             result = await self._call(
                 "ForeignReadOpen",
@@ -412,6 +446,11 @@ class ForeignReadClient:
             deadline_at = started + request.limits.deadline_ms / 1000
             if result.expires_at_ms <= int(time.time() * 1000):
                 raise ForeignReadError("expired", "open")
+            # From this point the server-issued handle is trustworthy enough to
+            # close if the caller is cancelled while the admission fence is
+            # being installed.  A cancellation before this point has no opaque
+            # handle to abort.
+            validated_result = cast(ForeignReadOpenResult, result)
             execution = _Execution(
                 request=request,
                 opened=result,
@@ -429,6 +468,22 @@ class ForeignReadClient:
                     raise ForeignReadError("invalid_response", "open")
                 self._executions[result.execution.execution_id] = execution
             return cast(ForeignReadOpenResult, result)
+        except asyncio.CancelledError:
+            if validated_result is not None:
+                await self._abort_untracked(
+                    validated_result.execution,
+                    validated_result.next_sequence,
+                    reason="cancelled",
+                )
+            raise
+        except ForeignReadError:
+            if validated_result is not None:
+                await self._abort_untracked(
+                    validated_result.execution,
+                    validated_result.next_sequence,
+                    reason="source_failed",
+                )
+            raise
         finally:
             if reserved:
                 async with self._admission_lock:
@@ -463,9 +518,11 @@ class ForeignReadClient:
                     timeout=self._remaining(execution, "chunk"),
                 )
             except asyncio.CancelledError:
+                await self._abort_execution(execution, reason="cancelled")
                 self._terminalize(execution)
                 raise
-            except ForeignReadError:
+            except ForeignReadError as exc:
+                await self._abort_execution(execution, reason=_abort_reason(exc))
                 self._terminalize(execution)
                 raise
             try:
@@ -484,9 +541,10 @@ class ForeignReadClient:
                 )
                 if result.next_sequence != request.sequence + 1:
                     raise ForeignReadError("sequence", "chunk")
-            except ForeignReadError:
+            except ForeignReadError as exc:
                 # A response mismatch makes the server handle unsafe to reuse;
                 # never retry a phase after accepting a malformed response.
+                await self._abort_execution(execution, reason=_abort_reason(exc))
                 self._terminalize(execution)
                 raise
             execution.expected_sequence = result.next_sequence
@@ -520,9 +578,11 @@ class ForeignReadClient:
                 ):
                     raise ForeignReadError("invalid_response", "complete")
             except asyncio.CancelledError:
+                await self._abort_execution(execution, reason="cancelled")
                 self._terminalize(execution)
                 raise
-            except ForeignReadError:
+            except ForeignReadError as exc:
+                await self._abort_execution(execution, reason=_abort_reason(exc))
                 self._terminalize(execution)
                 raise
             self._terminalize(execution)
@@ -600,6 +660,67 @@ class ForeignReadClient:
         if response_failure is not None:
             raise ForeignReadError(response_failure, method)
         raise AssertionError("foreign-read response handling did not return")
+
+    async def _abort_untracked(
+        self,
+        execution: ForeignReadExecutionRef,
+        sequence: int,
+        *,
+        reason: str,
+    ) -> None:
+        """Best-effort abort for a validated handle not yet in ``_executions``."""
+        request = ForeignReadAbortRequest(
+            execution=execution,
+            sequence=sequence,
+            reason=reason,
+        )
+        await self._abort_request(request)
+
+    async def _abort_execution(self, state: _Execution, *, reason: str) -> None:
+        """Close a server handle after a failed in-flight phase.
+
+        The phase lock is held by the caller, so this deliberately sends the
+        abort through the transport rather than calling ``abort`` recursively.
+        Cleanup is bounded and never replaces the original phase failure.
+        """
+        if state.terminal:
+            return
+        await self._abort_untracked(
+            state.opened.execution,
+            state.expected_sequence,
+            reason=reason,
+        )
+
+    async def _abort_request(self, request: AbortRequest) -> None:
+        """Issue one bounded abort without leaking a task on cancellation."""
+        task = asyncio.create_task(
+            self._call(
+                "ForeignReadAbort",
+                request,
+                timeout=_ABORT_CLEANUP_TIMEOUT_S,
+            )
+        )
+        try:
+            async with asyncio.timeout(_ABORT_CLEANUP_TIMEOUT_S):
+                result = await asyncio.shield(task)
+            self._check_abort_result(request, result)
+        except BaseException:
+            # The caller's cancellation or the abort transport failure must not
+            # mask the phase error.  Do cancel and join the shielded task so a
+            # late transport response cannot outlive the client operation.
+            if not task.done():
+                task.cancel()
+            with contextlib.suppress(BaseException):
+                await task
+
+    @staticmethod
+    def _check_abort_result(request: AbortRequest, result: Any) -> None:
+        if not _execution_matches(request.execution, result.execution):
+            raise ForeignReadError("digest", "abort")
+        if result.sequence != request.sequence:
+            raise ForeignReadError("sequence", "abort")
+        if result.reason != request.reason:
+            raise ForeignReadError("invalid_response", "abort")
 
     @staticmethod
     def _model_for(method: ForeignReadMethod, value: Any) -> Any:

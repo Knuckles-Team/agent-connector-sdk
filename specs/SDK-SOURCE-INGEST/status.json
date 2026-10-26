@@ -1546,8 +1546,8 @@
         "f351d70272b2"
       ],
       "verified_by": [
-        "tests/test_foreign_read.py:266",
-        "tests/test_foreign_read.py:674",
+        "tests/test_foreign_read.py:273",
+        "tests/test_foreign_read.py:738",
         "tests/test_foreign_read.py:99"
       ]
     },
@@ -1556,17 +1556,18 @@
       "title": "Generic pack receiver behavior",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "0188207716cb",
         "60ddd91e17c3",
         "bd353eecdfb2",
         "c51f6ff4a2db",
         "dc9a1b0bb61a"
       ],
       "verified_by": [
-        "tests/test_foreign_read.py:267",
-        "tests/test_foreign_read.py:327",
-        "tests/test_foreign_read.py:399",
-        "tests/test_foreign_read.py:459",
-        "tests/test_foreign_read.py:493"
+        "tests/test_foreign_read.py:274",
+        "tests/test_foreign_read.py:334",
+        "tests/test_foreign_read.py:406",
+        "tests/test_foreign_read.py:475",
+        "tests/test_foreign_read.py:509"
       ]
     },
     {
@@ -1580,11 +1581,11 @@
         "dc9a1b0bb61a"
       ],
       "verified_by": [
-        "tests/test_foreign_read.py:328",
-        "tests/test_foreign_read.py:400",
-        "tests/test_foreign_read.py:531",
-        "tests/test_foreign_read.py:551",
-        "tests/test_foreign_read.py:604"
+        "tests/test_foreign_read.py:335",
+        "tests/test_foreign_read.py:407",
+        "tests/test_foreign_read.py:547",
+        "tests/test_foreign_read.py:567",
+        "tests/test_foreign_read.py:615"
       ]
     },
     {
@@ -2172,11 +2173,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:125",
-        "tests/source_connectors/test_source_connectors.py:148",
-        "tests/source_connectors/test_source_connectors.py:45",
-        "tests/source_connectors/test_source_connectors.py:51",
-        "tests/source_connectors/test_source_connectors.py:52"
+        "tests/source_connectors/test_source_connectors.py:45"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R800.1",
