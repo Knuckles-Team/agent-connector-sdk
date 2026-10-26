@@ -65,6 +65,27 @@ def test_comment_import_example_is_not_recorded_as_a_capability() -> None:
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+def test_commented_legal_import_separator_preserves_documentation() -> None:
+    body = (
+        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
+        "<http://knuckles.team/kg/legal-compliance-demo> a owl:Ontology ;\n"
+        "# <name> that owl:imports <http://knuckles.team/kg/legal-compliance>; "
+        "(2) declare one\n"
+        "    owl:imports <http://knuckles.team/kg/legal> .\n"
+    )
+    scoped = scope_ontology_imports(_entry(body), PACK)
+    assert (
+        "# <name> that owl:imports <http://knuckles.team/kg/legal-compliance>; "
+        "(2) declare one\n"
+    ) in scoped.body
+    assert "http://knuckles.team/kg/legal-compliance" not in _requirements(scoped)
+    assert _requirements(scoped) == [
+        f"{IMPORT_REQUIREMENT_PREFIX}http://knuckles.team/kg/legal"
+    ]
+    assert "owl:imports <http://knuckles.team/kg/legal>" not in scoped.body
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
 def test_import_text_in_literals_does_not_change_graph_or_bytes() -> None:
     body = (
         "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
