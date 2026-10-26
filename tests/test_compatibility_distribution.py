@@ -57,3 +57,24 @@ def test_next_bump_updates_the_forwarder_version_with_the_target() -> None:
     assert config["bumpversion"]["current_version"] == _project(ROOT)["version"]
     assert config[section]["search"] == 'version = "{current_version}"'
     assert config[section]["replace"] == 'version = "{new_version}"'
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
+def test_upgrade_guidance_requires_payload_safe_recovery_and_verification() -> None:
+    guidance = (COMPAT / "README.md").read_text(encoding="utf-8")
+    assert "Do not" in guidance
+    assert "python -m pip install --upgrade agent-connector-sdk" in guidance
+    assert "python -m pip uninstall -y agent-connector-sdk" in guidance
+    assert (
+        'python -m pip install "scion-sdk==$VERSION" "agent-connector-sdk==$VERSION"'
+        in guidance
+    )
+    assert 'python -m pip install --upgrade "agent-connector-sdk==$VERSION"' in guidance
+    assert (
+        'python -m pip install --force-reinstall --no-deps "scion-sdk==$VERSION"'
+        in guidance
+    )
+    assert "import agent_connector_sdk" in guidance
+    assert "from importlib import metadata, resources" in guidance
+    assert "scion-sdk" in guidance and "agent-connector-sdk" in guidance
+    assert "python -m pip check" in guidance
