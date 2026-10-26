@@ -49,8 +49,8 @@
         "02f3ae702c80",
         "0b9d4eb5b8fd",
         "0c891e1d9805",
-        "42b930057c3e",
-        "aebcf586e6d0"
+        "22b0a859fcf6",
+        "42b930057c3e"
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:124",
