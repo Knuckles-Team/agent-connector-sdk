@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import pytest
+from rdflib import Graph, URIRef
+from rdflib.namespace import OWL
 
 from agent_connector_sdk.artifacts.ontology_imports import (
     IMPORT_REQUIREMENT_PREFIX,
@@ -47,6 +49,67 @@ def test_external_import_is_removed_and_recorded() -> None:
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+def test_comment_import_example_is_not_recorded_as_a_capability() -> None:
+    body = (
+        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
+        "# Example owl:imports <urn:phantom>; documentation only.\n"
+        "<urn:main> a owl:Ontology ; owl:imports <urn:actual> .\n"
+    )
+    scoped = scope_ontology_imports(_entry(body), PACK)
+    assert (
+        scoped.body == "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
+        "# Example owl:imports <urn:phantom>; documentation only.\n"
+        "<urn:main> a owl:Ontology .\n"
+    )
+    assert _requirements(scoped) == [f"{IMPORT_REQUIREMENT_PREFIX}urn:actual"]
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+def test_commented_legal_import_separator_preserves_documentation() -> None:
+    body = (
+        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
+        "<http://knuckles.team/kg/legal-compliance-demo> a owl:Ontology ;\n"
+        "# <name> that owl:imports <http://knuckles.team/kg/legal-compliance>; "
+        "(2) declare one\n"
+        "    owl:imports <http://knuckles.team/kg/legal> .\n"
+    )
+    scoped = scope_ontology_imports(_entry(body), PACK)
+    assert (
+        "# <name> that owl:imports <http://knuckles.team/kg/legal-compliance>; "
+        "(2) declare one\n"
+    ) in scoped.body
+    assert "http://knuckles.team/kg/legal-compliance" not in _requirements(scoped)
+    assert _requirements(scoped) == [
+        f"{IMPORT_REQUIREMENT_PREFIX}http://knuckles.team/kg/legal"
+    ]
+    assert "owl:imports <http://knuckles.team/kg/legal>" not in scoped.body
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+def test_import_text_in_literals_does_not_change_graph_or_bytes() -> None:
+    body = (
+        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
+        "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
+        "<urn:main#subject> a owl:Ontology ;\n"
+        '    rdfs:comment "docs owl:imports <urn:phantom>; only" ;\n'
+        '    rdfs:label """more docs owl:imports <urn:phantom>;\n'
+        '    with a second line""" ;\n'
+        "    owl:imports <urn:actual> .\n"
+    )
+    scoped = scope_ontology_imports(_entry(body), PACK)
+    assert "owl:imports <urn:phantom>" in scoped.body
+    assert "ontology-import:urn:phantom" not in _requirements(scoped)
+    assert _requirements(scoped) == [f"{IMPORT_REQUIREMENT_PREFIX}urn:actual"]
+
+    before = Graph().parse(data=body, format="turtle")
+    after = Graph().parse(data=scoped.body, format="turtle")
+    assert set(before) - set(after) == {
+        (URIRef("urn:main#subject"), OWL.imports, URIRef("urn:actual"))
+    }
+    assert set(after) - set(before) == set()
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
 def test_trailing_import_and_mixed_list() -> None:
     body = (
         "<http://x/demo> a owl:Ontology ;\n"
@@ -63,6 +126,41 @@ def test_trailing_import_and_mixed_list() -> None:
         f"{IMPORT_REQUIREMENT_PREFIX}{HUB}/enterprise",
         f"{IMPORT_REQUIREMENT_PREFIX}{HUB}/legal-compliance",
     ]
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+def test_adjacent_trailing_drops_keep_first_import_and_comments() -> None:
+    body = (
+        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
+        "<urn:demo> a owl:Ontology ;\n"
+        f"    owl:imports <{SIBLING}>, # keep A\n"
+        "        <urn:drop-b>, # drop B\n"
+        "        <urn:drop-c> .\n"
+    )
+
+    scoped = scope_ontology_imports(_entry(body), PACK)
+
+    assert "# keep A\n" in scoped.body
+    assert "# drop B\n" in scoped.body
+    assert "<urn:drop-b>" not in scoped.body
+    assert "<urn:drop-c>" not in scoped.body
+    assert _requirements(scoped) == [
+        f"{IMPORT_REQUIREMENT_PREFIX}urn:drop-b",
+        f"{IMPORT_REQUIREMENT_PREFIX}urn:drop-c",
+    ]
+
+    before = Graph().parse(data=body, format="turtle")
+    after = Graph().parse(data=scoped.body, format="turtle")
+    assert {
+        value
+        for subject, predicate, value in after
+        if subject == URIRef("urn:demo") and predicate == OWL.imports
+    } == {URIRef(SIBLING)}
+    assert set(before) - set(after) == {
+        (URIRef("urn:demo"), OWL.imports, URIRef("urn:drop-b")),
+        (URIRef("urn:demo"), OWL.imports, URIRef("urn:drop-c")),
+    }
+    assert set(after) - set(before) == set()
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
