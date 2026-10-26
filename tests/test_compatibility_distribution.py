@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import tomllib
+from configparser import ConfigParser
 from pathlib import Path
 from typing import cast
 
@@ -46,3 +47,13 @@ def test_old_distribution_declares_no_payload_or_entry_points() -> None:
     assert {
         path.relative_to(COMPAT) for path in COMPAT.rglob("*") if path.is_file()
     } == {Path("pyproject.toml"), Path("README.md")}
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
+def test_next_bump_updates_the_forwarder_version_with_the_target() -> None:
+    config = ConfigParser()
+    config.read(ROOT / ".bumpversion.cfg")
+    section = "bumpversion:file:compat/agent-connector-sdk/pyproject.toml"
+    assert config["bumpversion"]["current_version"] == _project(ROOT)["version"]
+    assert config[section]["search"] == 'version = "{current_version}"'
+    assert config[section]["replace"] == 'version = "{new_version}"'
