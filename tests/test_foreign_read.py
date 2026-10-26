@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import time
+import traceback
 from typing import Any
 
 import pytest
@@ -53,24 +54,82 @@ def test_foreign_read_public_aliases_and_contract_exports() -> None:
     assert RequestResponseAdapter
 
 
-def _limits(*, deadline_ms: int = 10_000) -> ForeignReadLimits:
+def test_foreign_read_rows_use_the_eg_msgpack_golden_fixture() -> None:
+    from epistemic_graph.client import _pack_binary_msgpack
+
+    rows = [
+        ForeignReadRow(
+            id="東京",
+            columns={
+                "unicode": "café",
+                "float": 0.0,
+                "array": [1, "é", True],
+            },
+            provenance=["source:✓"],
+        )
+    ]
+    expected = _pack_binary_msgpack(
+        [
+            {
+                "id": "東京",
+                "score": None,
+                "columns": {
+                    "array": [1, "é", True],
+                    "float": 0.0,
+                    "unicode": "café",
+                },
+                "provenance": ["source:✓"],
+            }
+        ]
+    )
+    assert foreign_read_module._encoded_rows_bytes(rows) == len(expected)
+    assert expected.hex() == (
+        "9184a26964a6e69db1e4baaca573636f7265c0"
+        "a7636f6c756d6e7383a561727261799301a2c3a9c3a5"
+        "666c6f6174cb0000000000000000a7756e69636f6465"
+        "a5636166c3a9aa70726f76656e616e636591aa736f7572"
+        "63653ae29c93"
+    )
+
+
+def _limits(
+    *,
+    deadline_ms: int = 10_000,
+    max_rows: int = 10,
+    max_bytes: int = 4_096,
+    chunk_rows: int = 2,
+    chunk_bytes: int = 1_024,
+) -> ForeignReadLimits:
     return ForeignReadLimits(
-        max_rows=10,
-        max_bytes=4_096,
-        chunk_rows=2,
-        chunk_bytes=1_024,
+        max_rows=max_rows,
+        max_bytes=max_bytes,
+        chunk_rows=chunk_rows,
+        chunk_bytes=chunk_bytes,
         deadline_ms=deadline_ms,
     )
 
 
-def _open(*, deadline_ms: int = 10_000) -> OpenRequest:
+def _open(
+    *,
+    deadline_ms: int = 10_000,
+    max_rows: int = 10,
+    max_bytes: int = 4_096,
+    chunk_rows: int = 2,
+    chunk_bytes: int = 1_024,
+) -> OpenRequest:
     return OpenRequest(
         schema_version=1,
         source_name="connector/source",
         approval={"opaque": "generated-approval"},
         plan_digest=_DIGEST,
         query_digest=_DIGEST,
-        limits=_limits(deadline_ms=deadline_ms),
+        limits=_limits(
+            deadline_ms=deadline_ms,
+            max_rows=max_rows,
+            max_bytes=max_bytes,
+            chunk_rows=chunk_rows,
+            chunk_bytes=chunk_bytes,
+        ),
     )
 
 
@@ -311,6 +370,44 @@ async def test_foreign_read_open_reserves_concurrent_capacity(monkeypatch: Any) 
     await first
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.7.2")
+@pytest.mark.asyncio
+async def test_foreign_read_reaps_expired_handle_before_capacity(
+    monkeypatch: Any,
+) -> None:
+    monkeypatch.setattr(foreign_read_module, "_MAX_EXECUTIONS", 1)
+    first_execution = {"execution_id": 14, "query_digest": _DIGEST}
+    second_execution = {"execution_id": 15, "query_digest": _DIGEST}
+    adapter = _Adapter(
+        [
+            {
+                "schema_version": 1,
+                "execution": first_execution,
+                "expires_at_ms": int(time.time() * 1000) + 10_000,
+                "next_sequence": 0,
+            },
+            {
+                "schema_version": 1,
+                "execution": second_execution,
+                "expires_at_ms": int(time.time() * 1000) + 10_000,
+                "next_sequence": 0,
+            },
+        ]
+    )
+    client = ForeignReadClient(adapter)
+    first = await client.open(_open(deadline_ms=1))
+    await asyncio.sleep(0.02)
+    second = await client.open(_open())
+
+    assert second.execution.execution_id == 15
+    assert first.execution.execution_id not in client._executions
+    assert first.execution.execution_id in client._tombstones
+    assert [method for method, _ in adapter.calls] == [
+        "ForeignReadOpen",
+        "ForeignReadOpen",
+    ]
+
+
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.7.3")
 @pytest.mark.asyncio
 async def test_foreign_read_timeout_and_malformed_response_fail_closed() -> None:
@@ -381,6 +478,77 @@ async def test_foreign_read_enforces_per_chunk_bytes() -> None:
             )
         )
     assert len(adapter.calls) == 2
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.7.2")
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.7.3")
+@pytest.mark.asyncio
+async def test_foreign_read_checks_cumulative_limits_before_transport() -> None:
+    execution = {"execution_id": 16, "query_digest": _DIGEST}
+    adapter = _Adapter(
+        [
+            {
+                "schema_version": 1,
+                "execution": execution,
+                "expires_at_ms": int(time.time() * 1000) + 10_000,
+                "next_sequence": 0,
+            },
+            {
+                "execution": execution,
+                "sequence": 0,
+                "accepted_rows": 1,
+                "total_rows": 1,
+                "total_bytes": 20,
+                "next_sequence": 1,
+            },
+        ]
+    )
+    client = ForeignReadClient(adapter)
+    opened = await client.open(_open(max_rows=1))
+    row = ForeignReadRow(id="row-1")
+    await client.chunk(ChunkRequest(execution=opened.execution, sequence=0, rows=[row]))
+    calls_after_first_chunk = len(adapter.calls)
+    with pytest.raises(ForeignReadError, match="limit_exceeded"):
+        await client.chunk(
+            ChunkRequest(execution=opened.execution, sequence=1, rows=[row])
+        )
+    assert len(adapter.calls) == calls_after_first_chunk
+
+    byte_adapter = _Adapter(
+        [
+            {
+                "schema_version": 1,
+                "execution": {"execution_id": 17, "query_digest": _DIGEST},
+                "expires_at_ms": int(time.time() * 1000) + 10_000,
+                "next_sequence": 0,
+            }
+        ]
+    )
+    byte_client = ForeignReadClient(byte_adapter)
+    byte_opened = await byte_client.open(_open(max_bytes=1))
+    with pytest.raises(ForeignReadError, match="limit_exceeded"):
+        await byte_client.chunk(
+            ChunkRequest(execution=byte_opened.execution, sequence=0, rows=[row])
+        )
+    assert len(byte_adapter.calls) == 1
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.7.3")
+@pytest.mark.asyncio
+async def test_foreign_read_transport_errors_are_closed_and_unlinked() -> None:
+    class _Leaky:
+        async def request(self, _method: str, _params: dict[str, Any]) -> Any:
+            raise RuntimeError("approval=secret-payload transport body")
+
+    with pytest.raises(ForeignReadError) as caught:
+        await ForeignReadClient(_Leaky()).open(_open())
+
+    error = caught.value
+    assert error.reason == "transport"
+    assert str(error) == "transport"
+    assert error.__cause__ is None
+    assert error.__context__ is None
+    assert "secret-payload" not in "".join(traceback.format_exception(error))
 
 
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.7.1")

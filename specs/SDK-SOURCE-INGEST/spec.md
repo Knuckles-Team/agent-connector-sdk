@@ -94,9 +94,11 @@ The generic pack receiver is the separate `ForeignReadClient` slice
 foreign-read phase DTOs. The generated wire adapter uses published EG models;
 the SDK does not guess an unpublished import. It uses the existing authenticated
 request/response transport. The SDK validates the handle, digest, sequence and
-bounded deadline. It does not duplicate the EG approval record or carry caller
-authority fields. A served cross-owner proof remains pending until EG publishes
-the generated methods and Arbora composes its fleet executor.
+bounded deadline. It sizes named rows with the existing EG MessagePack client
+codec and checks both page and cumulative bounds before transport. It does not
+duplicate the EG approval record or carry caller authority fields. A served
+cross-owner proof remains pending until EG publishes the generated methods and
+Arbora composes its fleet executor.
 
 <!-- spec-definition-patch:webui-3-10-source-definition-20261012 -->
 ## Supported-harness session sync (SDK-SOURCE-INGEST-R013; WEBUI:3)

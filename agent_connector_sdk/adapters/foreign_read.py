@@ -14,13 +14,11 @@ import asyncio
 import json
 import time
 from collections import OrderedDict
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Annotated, Any, Literal, Protocol, cast, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
-
-from agent_connector_sdk.artifacts.common import canonical_json
 
 __all__ = [
     "FOREIGN_READ_SCHEMA_VERSION",
@@ -207,11 +205,12 @@ class ForeignReadChunkRequest(_Strict):
 
     @model_validator(mode="after")
     def _bounded_wire_rows(self) -> ForeignReadChunkRequest:
-        encoded = 0
-        for row in self.rows:
-            encoded += _canonical_row_bytes(row)
-            if encoded > 4 * 1024 * 1024:
-                raise ValueError("foreign-read chunk rows exceed the EG byte cap")
+        try:
+            encoded = _encoded_rows_bytes(self.rows)
+        except ValueError:
+            raise ValueError("foreign-read rows are not encodable") from None
+        if encoded > 4 * 1024 * 1024:
+            raise ValueError("foreign-read chunk rows exceed the EG byte cap")
         return self
 
 
@@ -297,9 +296,26 @@ def _wire(value: BaseModel) -> dict[str, Any]:
     return value.model_dump(mode="json")
 
 
-def _canonical_row_bytes(row: ForeignReadRow) -> int:
-    """Return the bounded canonical encoding size used for page admission."""
-    return len(canonical_json(_wire(row)).encode("utf-8"))
+def _encoded_rows_bytes(rows: Sequence[ForeignReadRow]) -> int:
+    """Return the EG client codec size for the named Rust row sequence.
+
+    The engine's Rust boundary uses ``rmp_serde::to_vec_named(rows)``. The
+    existing EG client owns the matching MessagePack transport codec; using it
+    here keeps float widths, Unicode, map headers and array overhead aligned
+    without maintaining a second serializer in the SDK. Rust's ``BTreeMap``
+    rows are normalized to sorted mapping keys before that codec is called.
+    """
+    payload = []
+    for row in rows:
+        wire = _wire(row)
+        wire["columns"] = dict(sorted(wire["columns"].items()))
+        payload.append(wire)
+    try:
+        from epistemic_graph.client import _pack_binary_msgpack
+
+        return len(_pack_binary_msgpack(payload))
+    except Exception:
+        raise ValueError("foreign-read MessagePack codec unavailable") from None
 
 
 def _execution_matches(expected: ForeignReadExecutionRef, actual: Any) -> bool:
@@ -321,6 +337,7 @@ class ForeignReadClient:
         if request.schema_version != FOREIGN_READ_SCHEMA_VERSION:
             raise ForeignReadError("schema_mismatch", "open")
         async with self._admission_lock:
+            self._reap_expired()
             if len(self._executions) + self._pending_opens >= _MAX_EXECUTIONS:
                 raise ForeignReadError("limit_exceeded", "open")
             self._pending_opens += 1
@@ -372,11 +389,19 @@ class ForeignReadClient:
                 raise ForeignReadError("sequence", "chunk")
             if len(request.rows) > execution.request.limits.chunk_rows:
                 raise ForeignReadError("limit_exceeded", "chunk")
-            encoded_rows = 0
-            for row in request.rows:
-                encoded_rows += _canonical_row_bytes(row)
-                if encoded_rows > execution.request.limits.chunk_bytes:
-                    raise ForeignReadError("limit_exceeded", "chunk")
+            try:
+                encoded_rows = _encoded_rows_bytes(request.rows)
+            except ValueError:
+                raise ForeignReadError("invalid_request", "chunk") from None
+            if encoded_rows > execution.request.limits.chunk_bytes:
+                raise ForeignReadError("limit_exceeded", "chunk")
+            if (
+                execution.total_rows + len(request.rows)
+                > execution.request.limits.max_rows
+                or execution.total_bytes + encoded_rows
+                > execution.request.limits.max_bytes
+            ):
+                raise ForeignReadError("limit_exceeded", "chunk")
             try:
                 result = await self._call(
                     "ForeignReadChunk",
@@ -496,23 +521,31 @@ class ForeignReadClient:
     ) -> Any:
         if timeout <= 0:
             raise ForeignReadError("deadline", method)
+        failure: str | None = None
         try:
             async with asyncio.timeout(timeout):
                 raw = await self._transport.request(method, {"request": _wire(request)})
-        except ForeignReadError:
-            raise
-        except TimeoutError as exc:
-            raise ForeignReadError("deadline", method) from exc
+        except ForeignReadError as exc:
+            failure = exc.reason
+        except TimeoutError:
+            failure = "deadline"
         except asyncio.CancelledError:
             raise
-        except Exception as exc:
-            raise ForeignReadError("transport", method) from exc
+        except Exception:
+            failure = "transport"
+        if failure is not None:
+            raise ForeignReadError(failure, method)
+
+        response_failure: str | None = None
         try:
             return self._model_for(method, _payload(raw))
-        except ForeignReadError:
-            raise
-        except Exception as exc:
-            raise ForeignReadError("invalid_response", method) from exc
+        except ForeignReadError as exc:
+            response_failure = exc.reason
+        except Exception:
+            response_failure = "invalid_response"
+        if response_failure is not None:
+            raise ForeignReadError(response_failure, method)
+        raise AssertionError("foreign-read response handling did not return")
 
     @staticmethod
     def _model_for(method: ForeignReadMethod, value: Any) -> Any:
@@ -541,6 +574,21 @@ class ForeignReadClient:
         self._tombstones.move_to_end(execution_id)
         while len(self._tombstones) > _MAX_EXECUTIONS:
             self._tombstones.popitem(last=False)
+
+    def _reap_expired(self) -> None:
+        """Reap idle local handles before admitting another execution."""
+        now_mono = time.monotonic()
+        now_wall_ms = int(time.time() * 1000)
+        for state in tuple(self._executions.values()):
+            # A phase holding this lock is still resolving an in-flight request;
+            # let its own timeout/cancellation path terminalize it.
+            if state.lock.locked():
+                continue
+            if (
+                state.deadline_at <= now_mono
+                or state.opened.expires_at_ms <= now_wall_ms
+            ):
+                self._terminalize(state)
 
     def _check_open(
         self, state: _Execution, execution: ForeignReadExecutionRef, stage: str

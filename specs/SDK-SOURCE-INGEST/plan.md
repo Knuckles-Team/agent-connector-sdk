@@ -10,7 +10,11 @@ Each change carries focused unit/contract tests. A final opt-in integration job 
 
 ## Ingest worker (SDK-SOURCE-INGEST-R010, R011)
 
-The worker is a thin loop: ask the engine for admission, lane floors and routing, claim, execute with the existing source-effect runners, ack, commit. It owns no scheduling policy, so a change of lane or priority is an engine change only. The command refuses to start when the engine lacks the task-queue methods.
+The worker runs a thin loop. It asks the engine for admission, lane floors and
+routing. It claims and executes with the existing source-effect runners, then
+acks and commits. It owns no scheduling policy, so lane or priority changes
+belong to the engine. The command refuses to start when task-queue methods are
+missing.
 
 
 ## Paper-provider sources (SDK-SOURCE-INGEST-R005)
@@ -386,11 +390,15 @@ tenant, actor, authority, lease or credential fields.
 
 The client keeps the server execution handle and query digest. It keeps the
 expected sequence and cumulative row/byte totals. It uses the smaller
-local/server deadline.
+local/server deadline. Before transport, it asks the existing EG MessagePack
+client codec for the named row-sequence size and enforces both per-page and
+cumulative row/byte limits. It reaps idle expired handles before admitting a
+new execution, while retaining only bounded replay tombstones.
 Chunks and exactly one terminal complete/abort are accepted only for the
 opened handle. An explicit cancellation is an abort with the typed
-`cancelled` reason. Transport loss, malformed responses, digest/sequence
-mismatches, expiry and replay refuse closed before another phase is sent.
+`cancelled` reason. The client refuses transport loss, malformed responses,
+digest or sequence mismatch, expiry, and replay before another phase. It
+reports only a closed reason and stage.
 This is a typed receiver slice; served EG generation and the Arbora fleet
 adapter remain cross-owner acceptance work.
 
