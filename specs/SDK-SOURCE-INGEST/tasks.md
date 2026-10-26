@@ -236,3 +236,12 @@ Each row binds to the cited assertion through `pytest.mark.spec`.
 - [x] **SDK-SOURCE-INGEST-R902.1:** Produce neutral-metadata documents from explicit mappings. (`tests/source_connectors/test_mcp_package.py::test_explicit_mapping_yields_documents_with_neutral_metadata`)
 - [x] **SDK-SOURCE-INGEST-R902.4:** Refuse prohibited stdio transport. (`tests/source_connectors/test_mcp_package.py::test_stdio_is_refused_when_prohibited`)
 - [x] **SDK-SOURCE-INGEST-R902.5:** Resolve servers by declared names only. (`tests/source_connectors/test_mcp_package.py::test_server_resolution_uses_declared_names_only`)
+
+## SDK source-wiring follow-up (2026-10-26)
+
+These focused tests exercise the existing production resolver paths. They do
+not change generated status; owner review and the normal status generator are
+required before promotion.
+
+- [ ] **SDK-SOURCE-INGEST-R900.3:** Prove database profile resolution reaches the TLS-governed network connection. (`tests/source_connectors/test_database.py::test_database_profile_resolution_reaches_the_tls_governed_connection`)
+- [ ] **SDK-SOURCE-INGEST-R902.3:** Prove MCP catalog loading falls back to the platform config path when `MCP_CONFIG` is unset. (`tests/source_connectors/test_mcp_package.py::test_mcp_catalog_falls_back_to_the_platform_config_file`)
