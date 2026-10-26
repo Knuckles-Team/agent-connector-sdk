@@ -310,31 +310,47 @@ def _rewrite_import_match(
             ]
             edits.extend(gap for gap in gaps if gap is not None)
     else:
-        for index, (object_match, keep_object) in enumerate(decisions):
-            if keep_object:
-                continue
-            edits.append((object_match.start(), object_match.end(), ""))
-            comma: tuple[int, int] | None
-            next_object_start: int
-            if index + 1 < len(objects):
+        removed_indices = [
+            index for index, (_, keep_object) in enumerate(decisions) if not keep_object
+        ]
+        run_start = 0
+        while run_start < len(removed_indices):
+            run_end = run_start
+            while (
+                run_end + 1 < len(removed_indices)
+                and removed_indices[run_end + 1] == removed_indices[run_end] + 1
+            ):
+                run_end += 1
+            first = removed_indices[run_start]
+            last = removed_indices[run_end]
+            for index in range(first, last + 1):
+                object_match = objects[index]
+                edits.append((object_match.start(), object_match.end(), ""))
+            for index in range(first, last):
                 comma = _punctuation_span(
-                    masked, ",", object_match.end(), objects[index + 1].start()
+                    masked, ",", objects[index].end(), objects[index + 1].start()
                 )
-                next_object_start = objects[index + 1].start()
+                if comma is not None:
+                    edits.append((*comma, ""))
+            if first > 0:
+                comma = _punctuation_span(
+                    masked, ",", objects[first - 1].end(), objects[first].start()
+                )
+                next_object_start = objects[first].start()
+            elif last + 1 < len(objects):
+                comma = _punctuation_span(
+                    masked, ",", objects[last].end(), objects[last + 1].start()
+                )
+                next_object_start = objects[last + 1].start()
             else:
-                comma = _punctuation_span(
-                    masked,
-                    ",",
-                    objects[index - 1].end(),
-                    object_match.start(),
-                    reverse=True,
-                )
-                next_object_start = object_match.start()
+                comma = None
+                next_object_start = objects[last].start()
             if comma is not None:
                 edits.append((*comma, ""))
                 gap = _plain_gap_edit(original, comma[1], next_object_start)
                 if gap is not None:
                     edits.append(gap)
+            run_start = run_end + 1
     return _apply_edits(original, match, edits)
 
 

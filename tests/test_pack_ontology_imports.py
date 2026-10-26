@@ -129,6 +129,41 @@ def test_trailing_import_and_mixed_list() -> None:
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+def test_adjacent_trailing_drops_keep_first_import_and_comments() -> None:
+    body = (
+        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
+        "<urn:demo> a owl:Ontology ;\n"
+        f"    owl:imports <{SIBLING}>, # keep A\n"
+        "        <urn:drop-b>, # drop B\n"
+        "        <urn:drop-c> .\n"
+    )
+
+    scoped = scope_ontology_imports(_entry(body), PACK)
+
+    assert "# keep A\n" in scoped.body
+    assert "# drop B\n" in scoped.body
+    assert "<urn:drop-b>" not in scoped.body
+    assert "<urn:drop-c>" not in scoped.body
+    assert _requirements(scoped) == [
+        f"{IMPORT_REQUIREMENT_PREFIX}urn:drop-b",
+        f"{IMPORT_REQUIREMENT_PREFIX}urn:drop-c",
+    ]
+
+    before = Graph().parse(data=body, format="turtle")
+    after = Graph().parse(data=scoped.body, format="turtle")
+    assert {
+        value
+        for subject, predicate, value in after
+        if subject == URIRef("urn:demo") and predicate == OWL.imports
+    } == {URIRef(SIBLING)}
+    assert set(before) - set(after) == {
+        (URIRef("urn:demo"), OWL.imports, URIRef("urn:drop-b")),
+        (URIRef("urn:demo"), OWL.imports, URIRef("urn:drop-c")),
+    }
+    assert set(after) - set(before) == set()
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
 def test_lone_statement_and_full_iri_predicate() -> None:
     body = (
         "<http://x/demo> a owl:Ontology .\n"
