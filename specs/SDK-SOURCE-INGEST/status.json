@@ -1492,10 +1492,16 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.7",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "697b45610bbb"
+      ],
       "verified_by": [
-        "tests/test_approved_sql_source.py:136"
+        "tests/test_approved_sql_source.py:136",
+        "tests/test_foreign_read.py:147",
+        "tests/test_foreign_read.py:148",
+        "tests/test_foreign_read.py:217",
+        "tests/test_foreign_read.py:236"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R004.7.1",
@@ -1543,8 +1549,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.7.1",
       "title": "Generic pack receiver model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "697b45610bbb"
+      ],
       "verified_by": [
         "tests/test_foreign_read.py:280",
         "tests/test_foreign_read.py:86"
@@ -1553,8 +1561,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.7.2",
       "title": "Generic pack receiver behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "697b45610bbb"
+      ],
       "verified_by": [
         "tests/test_foreign_read.py:147",
         "tests/test_foreign_read.py:236",
@@ -1564,8 +1574,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.7.3",
       "title": "Generic pack receiver refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "697b45610bbb"
+      ],
       "verified_by": [
         "tests/test_foreign_read.py:148",
         "tests/test_foreign_read.py:217",
