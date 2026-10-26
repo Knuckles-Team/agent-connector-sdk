@@ -94,8 +94,8 @@ name = "Repository Maintainers"
 email = "maintainers@knuckles.team"
 
 [project.urls]
-Homepage = "https://github.com/Knuckles-Team/agent-connector-sdk"
-Documentation = "https://knuckles-team.github.io/agent-connector-sdk/"
+Homepage = "https://github.com/Knuckles-Team/scion-sdk"
+Documentation = "https://knuckles-team.github.io/scion-sdk/"
 
 [project.scripts]
 connector-sync = "agent_connector_sdk.runner.cli:main"
@@ -492,9 +492,9 @@ allow_files = ["agent_connector_sdk/config.py"]
 served_paths = ["agent_connector_sdk"]
 
 [tool.pipelines_hooks.public_surface]
-repository = "Knuckles-Team/agent-connector-sdk"
+repository = "Knuckles-Team/scion-sdk"
 distribution = "scion-sdk"
-pages_url = "https://knuckles-team.github.io/agent-connector-sdk/"
+pages_url = "https://knuckles-team.github.io/scion-sdk/"
 mcp_server = false
 
 [tool.pipelines_hooks.ste]

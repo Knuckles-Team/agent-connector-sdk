@@ -168,7 +168,7 @@ a gate to land a change.
 ## Documentation
 
 [`README.md`](README.md) is the concise project entry point. The
-[GitHub Pages site](https://knuckles-team.github.io/agent-connector-sdk/) contains
+[GitHub Pages site](https://knuckles-team.github.io/scion-sdk/) contains
 the operational and API guides. Keep README, Pages, code, tests, entry points,
 and CLI help synchronized in the same change.
 

@@ -9,7 +9,7 @@
   <sub>The typed source-integration boundary for MCP services and Medulla.</sub>
 </p>
 
-[![PyPI - Version](https://img.shields.io/pypi/v/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
+[![PyPI - Version](https://img.shields.io/pypi/v/scion-sdk)](https://pypi.org/project/scion-sdk/)
 [![Build](https://github.com/Knuckles-Team/scion-sdk/actions/workflows/release.yml/badge.svg)](https://github.com/Knuckles-Team/scion-sdk/actions/workflows/release.yml)
 [![Documentation](https://github.com/Knuckles-Team/scion-sdk/actions/workflows/pages.yml/badge.svg)](https://knuckles-team.github.io/scion-sdk/)
 [![GitHub Repo stars](https://img.shields.io/github/stars/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk/stargazers)
@@ -24,10 +24,10 @@
 [![GitHub language count](https://img.shields.io/github/languages/count/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk)
 [![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk)
 [![GitHub repo file count (file type)](https://img.shields.io/github/directory-file-count/Knuckles-Team/scion-sdk)](https://github.com/Knuckles-Team/scion-sdk)
-[![PyPI - Downloads](https://img.shields.io/pypi/dd/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
-[![PyPI - License](https://img.shields.io/pypi/l/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
-[![PyPI - Wheel](https://img.shields.io/pypi/wheel/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
-[![PyPI - Implementation](https://img.shields.io/pypi/implementation/agent-connector-sdk)](https://pypi.org/project/agent-connector-sdk/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dd/scion-sdk)](https://pypi.org/project/scion-sdk/)
+[![PyPI - License](https://img.shields.io/pypi/l/scion-sdk)](https://pypi.org/project/scion-sdk/)
+[![PyPI - Wheel](https://img.shields.io/pypi/wheel/scion-sdk)](https://pypi.org/project/scion-sdk/)
+[![PyPI - Implementation](https://img.shields.io/pypi/implementation/scion-sdk)](https://pypi.org/project/scion-sdk/)
 
 <p align="center">
   <a href="https://knuckles-team.github.io/scion-sdk/">Documentation</a> ·
@@ -40,7 +40,7 @@
 
 ## Quick Start
 
-Install Scion SDK as `agent-connector-sdk` and import it as
+Install Scion SDK as `scion-sdk` and import it as
 `agent_connector_sdk`. The repository is `scion-sdk`; package, CLI and API
 identifiers remain unchanged.
 
@@ -49,7 +49,7 @@ Create a project and install the SDK:
 ```bash
 uv init --bare demo-connector
 cd demo-connector
-uv add agent-connector-sdk
+uv add scion-sdk
 uv sync
 uv run connector-sync --help
 ```
