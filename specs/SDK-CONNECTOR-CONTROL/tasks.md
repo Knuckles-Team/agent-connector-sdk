@@ -295,3 +295,11 @@ Each row binds to the cited assertion through `pytest.mark.spec`.
 - [x] **SDK-CONNECTOR-CONTROL-R901.1:** Quote SQL identifiers safely. (`tests/test_identifiers.py::test_quote_sql_identifier_returns_a_quoted_name`)
 - [x] **SDK-CONNECTOR-CONTROL-R901.2:** Round-trip signatures over canonical JSON. (`tests/test_signing.py::test_signature_round_trips_over_canonical_json`)
 - [x] **SDK-CONNECTOR-CONTROL-R901.5:** Fail closed on signature mismatches. (`tests/test_signing.py::test_any_mismatch_fails_closed`)
+
+## SDK default connector-control wiring follow-up (2026-10-26)
+
+These focused tests exercise the existing credential/TLS refresh, identifier
+quoting and signing-setting paths without changing production behavior.
+
+- [ ] **SDK-CONNECTOR-CONTROL-R900.3:** Prove source credential refresh resolves references and the configured TLS profile through the SDK modules. (`tests/test_source_credentials.py::test_source_registry_wires_secret_and_tls_resolvers_for_refresh`)
+- [ ] **SDK-CONNECTOR-CONTROL-R901.3:** Prove SQLite schema introspection quotes every table identifier and signing reads its seed through the SDK setting helper. (`tests/source_connectors/test_universal.py::test_sqlite_introspection_quotes_each_table_identifier`; `tests/test_signing.py::test_configured_signing_seed_reads_through_sdk_setting`)

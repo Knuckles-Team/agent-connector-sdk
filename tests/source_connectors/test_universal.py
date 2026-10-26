@@ -95,6 +95,30 @@ def test_introspect_emits_schema_entities_without_the_location(sqlite_dsn: str) 
     assert all(sqlite_dsn not in entity.id for entity in changes.entities)
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R901.3")
+def test_sqlite_introspection_quotes_each_table_identifier(
+    sqlite_dsn: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    calls: list[tuple[str, str]] = []
+    real_quote = universal.quote_sql_identifier
+
+    def quote(name: str, *, kind: str = "identifier") -> str:
+        calls.append((name, kind))
+        return real_quote(name, kind=kind)
+
+    monkeypatch.setattr(universal, "quote_sql_identifier", quote)
+    changes = UniversalConnector(sqlite_dsn).introspect()
+
+    tables = {
+        entity.properties["name"]
+        for entity in changes.entities
+        if entity.node_type == "Table"
+    }
+    assert tables == {"authors", "books"}
+    assert set(calls) == {(table, "table") for table in tables}
+    assert len(calls) == len(tables)
+
+
 @pytest.mark.parametrize(
     ("dsn", "module"),
     [

@@ -6,6 +6,7 @@ from typing import Any
 
 import pytest
 
+from agent_connector_sdk.finance import crypto
 from agent_connector_sdk.finance.crypto import (
     CryptoDerivatives,
     FundingRate,
@@ -63,6 +64,28 @@ def test_malformed_answers_raise_provider_request_error(call: Any) -> None:
 def test_funding_rate_is_a_typed_record() -> None:
     _, get_json = _serve({"lastFundingRate": "0.5", "time": 0})
     assert isinstance(CryptoDerivatives(get_json).get_funding_rate("X/Y"), FundingRate)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.3")
+def test_crypto_default_fetch_uses_governed_http_safety(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, dict[str, object]]] = []
+
+    def safe_get_json(url: str, **kwargs: object) -> dict[str, object]:
+        calls.append((url, kwargs))
+        return {"lastFundingRate": "0.0001", "time": 1_700_000_000_000}
+
+    monkeypatch.setattr(crypto, "safe_get_json", safe_get_json)
+    result = CryptoDerivatives().get_funding_rate("btc/usdt")
+
+    assert result.rate == 0.0001
+    assert calls == [
+        (
+            "https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT",
+            {"timeout": 10.0, "max_bytes": 2 * 1024 * 1024, "max_redirects": 0},
+        )
+    ]
 
 
 @pytest.mark.parametrize(

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from agent_connector_sdk.finance import feeds
 from agent_connector_sdk.finance.feeds import (
     LiveBar,
     MarketFeedBus,
@@ -39,6 +40,29 @@ async def test_ticks_fan_out_by_symbol() -> None:
     await bus.publish_tick(Tick(symbol="MSFT", price=300.0))
     assert [len(v) for v in seen.values()] == [1, 1]
     assert bus.total_ticks == 2
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.3")
+async def test_market_feed_defaults_to_sdk_stream_bus(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    real_stream_bus = feeds.StreamBus
+
+    class _SDKStreamBus(real_stream_bus):
+        pass
+
+    monkeypatch.setattr(feeds, "StreamBus", _SDKStreamBus)
+    bus = MarketFeedBus()
+    received: list[object] = []
+    bus.subscribe_ticks("AAPL", received.append)
+
+    delivered = await bus.publish_tick(Tick(symbol="AAPL", price=150.0))
+
+    assert isinstance(bus.bus, _SDKStreamBus)
+    assert delivered == 1
+    assert len(received) == 1
+    assert received[0].topic == "market.AAPL.ticks"
+    assert bus.bus.get_history("market.AAPL.ticks")[0] is received[0]
 
 
 async def test_bar_subscription_tracks_the_symbol() -> None:

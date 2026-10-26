@@ -56,3 +56,21 @@ def test_configured_seed_is_used_and_malformed_seed_is_refused(
     monkeypatch.setenv(signing.SEED_SETTING, base64.b64encode(b"short").decode())
     with pytest.raises(signing.SigningKeyError):
         signing.sign_datapoint("x")
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R901.3")
+def test_configured_signing_seed_reads_through_sdk_setting(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[str] = []
+    real_setting = signing.setting
+
+    def setting(name: str, *args: object, **kwargs: object) -> object:
+        calls.append(name)
+        return real_setting(name, *args, **kwargs)
+
+    monkeypatch.setattr(signing, "setting", setting)
+    monkeypatch.setenv(signing.SEED_SETTING, base64.b64encode(SEED).decode())
+
+    assert signing.public_key_b64() == signing.public_key_b64(SEED)
+    assert signing.SEED_SETTING in calls

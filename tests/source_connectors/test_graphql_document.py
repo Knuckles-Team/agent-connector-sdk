@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import copy
 import json
+import socket
+import ssl
 from typing import Any
 
 import pytest
@@ -11,7 +13,8 @@ import pytest
 pytest.importorskip("graphql")
 
 from agent_connector_sdk.ingest.model import Entity, Withdrawal
-from agent_connector_sdk.source_connectors import build_connector
+from agent_connector_sdk.source_connectors import build_connector, http_safety
+from agent_connector_sdk.source_connectors.connectors import graphql_document
 from agent_connector_sdk.source_connectors.connectors.graphql_document import (
     GraphQLDocumentConnector,
     GraphQLDocumentError,
@@ -263,6 +266,113 @@ def test_document_is_redacted_and_carries_no_source_details() -> None:
         assert secret not in persisted
     assert transport.calls[0]["headers"]["Authorization"] == "Bearer synthetic-token"
     assert "verify" not in transport.calls[0]
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R901.3")
+def test_default_graphql_wiring_uses_sdk_resolvers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    profile = copy.deepcopy(DOCUMENT_PROFILE)
+    profile["endpoint"] = "https://example.com/graphql"
+    profile["transport_security"] = {"system_trust": True}
+    monkeypatch.setenv("GRAPHQL_DOCUMENT_PROFILE", json.dumps(profile))
+
+    credential_calls: list[tuple[str, object]] = []
+    real_resolve_secret = graphql_document.resolve_secret_reference
+
+    def resolve_secret(reference: str, resolver: object = None) -> str:
+        credential_calls.append((reference, resolver))
+        return real_resolve_secret(reference, resolver)
+
+    monkeypatch.setattr(graphql_document, "resolve_secret_reference", resolve_secret)
+
+    tls_calls: list[tuple[str, dict[str, object]]] = []
+    real_resolve_tls = graphql_document.resolve_tls_profile
+
+    def resolve_tls(service: str, **kwargs: object) -> object:
+        tls_calls.append((service, kwargs))
+        return real_resolve_tls(service, **kwargs)
+
+    monkeypatch.setattr(graphql_document, "resolve_tls_profile", resolve_tls)
+
+    safe_url_calls: list[tuple[str, dict[str, object]]] = []
+    real_require_safe_url = graphql_document.require_safe_source_url
+
+    def require_safe_url(url: str, **kwargs: object) -> str:
+        safe_url_calls.append((url, kwargs))
+        return real_require_safe_url(url, **kwargs)
+
+    monkeypatch.setattr(graphql_document, "require_safe_source_url", require_safe_url)
+
+    def fake_getaddrinfo(*_: object, **__: object) -> list[tuple[object, ...]]:
+        return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 0))]
+
+    monkeypatch.setattr(http_safety.socket, "getaddrinfo", fake_getaddrinfo)
+
+    class _Response:
+        def __init__(self) -> None:
+            self._body = json.dumps(DOCUMENT_PAYLOAD).encode()
+            self.headers = {"content-length": str(len(self._body))}
+
+        def raise_for_status(self) -> None:
+            return None
+
+        def iter_bytes(self) -> Any:
+            return iter((self._body,))
+
+    class _Stream:
+        def __init__(self) -> None:
+            self.response = _Response()
+
+        def __enter__(self) -> _Response:
+            return self.response
+
+        def __exit__(self, *_: object) -> None:
+            return None
+
+    clients: list[object] = []
+
+    class _Client:
+        def __init__(self, **kwargs: object) -> None:
+            self.kwargs = kwargs
+            self.calls: list[dict[str, object]] = []
+            clients.append(self)
+
+        def __enter__(self) -> _Client:
+            return self
+
+        def __exit__(self, *_: object) -> None:
+            return None
+
+        def stream(self, method: str, url: str, **kwargs: object) -> _Stream:
+            self.calls.append({"method": method, "url": url, **kwargs})
+            return _Stream()
+
+    monkeypatch.setattr(graphql_document.httpx, "Client", _Client)
+    connector = build_connector(
+        "graphql_document",
+        {
+            "source_alias": "knowledge-catalog",
+            "operation": "entity_document",
+            "variables": {"slug": "synthetic-lifecycle"},
+            "profile_ref": "env://GRAPHQL_DOCUMENT_PROFILE",
+        },
+    )
+
+    (document,) = connector.load()
+
+    assert document.title == "Synthetic Lifecycle Guide"
+    assert credential_calls == [("env://GRAPHQL_DOCUMENT_PROFILE", None)]
+    assert safe_url_calls[0][0] == profile["endpoint"]
+    assert safe_url_calls[0][1]["resolve_dns"] is True
+    assert tls_calls[0][0] == "GRAPHQL_DOCUMENT"
+    assert tls_calls[0][1]["profile"] == {"system_trust": True}
+    client = clients[0]
+    assert isinstance(client.kwargs["verify"], ssl.SSLContext)
+    assert client.kwargs["follow_redirects"] is False
+    assert client.calls[0]["method"] == "POST"
+    assert client.calls[0]["url"] == profile["endpoint"]
+    assert client.calls[0]["headers"] == profile["headers"]
 
 
 def _with(path: tuple[str, ...], value: Any) -> dict[str, Any]:

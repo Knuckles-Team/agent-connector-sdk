@@ -245,3 +245,11 @@ required before promotion.
 
 - [ ] **SDK-SOURCE-INGEST-R900.3:** Prove database profile resolution reaches the TLS-governed network connection. (`tests/source_connectors/test_database.py::test_database_profile_resolution_reaches_the_tls_governed_connection`)
 - [ ] **SDK-SOURCE-INGEST-R902.3:** Prove MCP catalog loading falls back to the platform config path when `MCP_CONFIG` is unset. (`tests/source_connectors/test_mcp_package.py::test_mcp_catalog_falls_back_to_the_platform_config_file`)
+
+## SDK default source wiring follow-up (2026-10-26)
+
+This focused test exercises the existing secret, egress and TLS resolver paths
+from a secret-backed GraphQL profile. The row remains open until the test is
+reviewed, landed and regenerated into canonical status.
+
+- [ ] **SDK-SOURCE-INGEST-R901.3:** Prove the default GraphQL profile resolver, governed source URL validation and TLS profile are used for a real document load. (`tests/source_connectors/test_graphql_document.py::test_default_graphql_wiring_uses_sdk_resolvers`)

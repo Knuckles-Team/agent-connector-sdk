@@ -20,3 +20,10 @@ Each row binds to the cited assertion through `pytest.mark.spec`.
 - [x] **SDK-FINANCE-SOURCES-R900.1:** Dispatch strategy exports by platform and emit all records. (`tests/test_finance_strategy_export.py::test_exporter_dispatches_by_platform_and_exports_all`)
 - [x] **SDK-FINANCE-SOURCES-R900.2:** Use the first non-empty market-data provider and retain failures as warnings. (`tests/test_finance_market_data.py::test_first_non_empty_provider_wins_and_failures_become_warnings`)
 - [x] **SDK-FINANCE-SOURCES-R900.5:** Refuse malformed crypto-provider responses with a typed error. (`tests/test_finance_crypto.py::test_malformed_answers_raise_provider_request_error`)
+
+## SDK governed finance wiring follow-up (2026-10-26)
+
+These focused tests exercise the existing default crypto egress and finance
+stream-bus imports with deterministic in-memory responses.
+
+- [ ] **SDK-FINANCE-SOURCES-R900.3:** Prove crypto defaults call governed HTTP safety and market feeds default to the SDK stream bus. (`tests/test_finance_crypto.py::test_crypto_default_fetch_uses_governed_http_safety`; `tests/test_finance_feeds.py::test_market_feed_defaults_to_sdk_stream_bus`)
