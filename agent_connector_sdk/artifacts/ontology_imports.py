@@ -17,17 +17,23 @@ from collections.abc import Callable, Collection
 
 from epistemic_graph.generated.connector_pack import PackAnnotations
 
+from agent_connector_sdk._turtle import AccessContractError, parse_graph
 from agent_connector_sdk.contracts import CapturedArtifact
 
 __all__ = ["IMPORT_REQUIREMENT_PREFIX", "scope_ontology_imports"]
 
 IMPORT_REQUIREMENT_PREFIX = "ontology-import:"
 
-_PREDICATE = r"(?:owl:imports|<http://www\.w3\.org/2002/07/owl#imports>)"
+_OWL_IMPORTS_IRI = "http://www.w3.org/2002/07/owl#imports"
+_PREDICATE = rf"(?:owl:imports|<{re.escape(_OWL_IMPORTS_IRI)}>)"
 _OBJECTS = r"<[^<>\s]*>(?:\s*,\s*<[^<>\s]*>)*"
 # One predicate-object list, with the `;` that separates it from a sibling.
 _TURTLE_FOLLOWED = re.compile(rf"{_PREDICATE}\s+(?P<objs>{_OBJECTS})\s*;\s*")
-_TURTLE_PRECEDED = re.compile(rf"\s*;\s*{_PREDICATE}\s+(?P<objs>{_OBJECTS})")
+# Start at the separating semicolon, consuming only horizontal whitespace
+# before it.  A leading ``\s*`` would be able to cross a masked quoted literal
+# (whose bytes are deliberately whitespace in the lexer view) and erase part
+# of the original literal during surgery.
+_TURTLE_PRECEDED = re.compile(rf"[ \t]*;[ \t\r\n]*{_PREDICATE}\s+(?P<objs>{_OBJECTS})")
 _TURTLE_ANY = re.compile(rf"{_PREDICATE}\s+(?P<objs>{_OBJECTS})")
 _IRI = re.compile(r"<([^<>\s]*)>")
 _RDFXML = re.compile(
@@ -35,23 +41,151 @@ _RDFXML = re.compile(
 )
 
 
+def _mask_turtle(text: str) -> str:
+    """Mask comments and quoted literals while preserving every character offset.
+
+    Import matching is deliberately done against this lexed view.  A plain
+    regular expression over the served bytes can mistake documentation in a
+    comment or literal for an RDF predicate/object pair.  IRIs remain visible,
+    including ``#`` fragments, because they are RDF terms rather than comments.
+    """
+    masked = list(text)
+    index = 0
+    length = len(text)
+    while index < length:
+        char = text[index]
+        if char == "#":
+            index += 1
+            while index < length and text[index] != "\n":
+                masked[index] = " "
+                index += 1
+            continue
+        if char == "<":
+            index += 1
+            while index < length:
+                if text[index] == ">":
+                    index += 1
+                    break
+                index += 1
+            continue
+
+        delimiter: str | None = None
+        if text.startswith('"""', index) or text.startswith("'''", index):
+            delimiter = text[index : index + 3]
+        elif char in {'"', "'"}:
+            delimiter = char
+        if delimiter is None:
+            index += 1
+            continue
+
+        for offset in range(len(delimiter)):
+            if text[index + offset] != "\n":
+                masked[index + offset] = "\x00"
+        index += len(delimiter)
+        while index < length:
+            if text.startswith(delimiter, index):
+                for offset in range(len(delimiter)):
+                    if text[index + offset] != "\n":
+                        masked[index + offset] = "\x00"
+                index += len(delimiter)
+                break
+            if text[index] == "\\" and index + 1 < length:
+                masked[index] = "\x00"
+                if text[index + 1] != "\n":
+                    masked[index + 1] = "\x00"
+                index += 2
+                continue
+            if text[index] != "\n":
+                masked[index] = "\x00"
+            index += 1
+    return "".join(masked)
+
+
+def _parsed_imports(text: str) -> frozenset[str] | None:
+    """Return parsed ``owl:imports`` IRIs, or ``None`` outside flat Turtle.
+
+    The SDK's existing flat Turtle parser gives simple documents semantic
+    prefix expansion and comment/string handling.  Rich ontologies (for
+    example, those with triple-quoted literals) use the lexer above as a
+    position-preserving fallback; they must never fall back to raw-text regex
+    matching.
+    """
+    try:
+        graph = parse_graph(text)
+    except AccessContractError:
+        return None
+    return frozenset(
+        value
+        for properties in graph.values()
+        for value in properties.get(_OWL_IMPORTS_IRI, ())
+        if isinstance(value, str)
+    )
+
+
+def _masked_sub(
+    text: str,
+    pattern: re.Pattern[str],
+    replace: Callable[[re.Match[str], str], str],
+) -> str:
+    """Apply substitutions found in the lexed view to the original text."""
+    masked = _mask_turtle(text)
+    matches = tuple(pattern.finditer(masked))
+    if not matches:
+        return text
+    chunks: list[str] = []
+    cursor = 0
+    for match in matches:
+        start, end = match.span()
+        chunks.append(text[cursor:start])
+        chunks.append(replace(match, text))
+        cursor = end
+    chunks.append(text[cursor:])
+    return "".join(chunks)
+
+
+def _keep_iri_text(raw: str, keep: Callable[[str], bool]) -> tuple[str, list[str]]:
+    """Keep angle-IRI objects, retaining surrounding whitespace and formatting."""
+    matches = tuple(_IRI.finditer(raw))
+    kept = [match for match in matches if keep(match.group(1))]
+    dropped = [match.group(1) for match in matches if not keep(match.group(1))]
+    if not kept:
+        return "", dropped
+    if len(kept) == len(matches):
+        return raw, dropped
+    prefix = raw[: matches[0].start()]
+    suffix = raw[matches[-1].end() :]
+    objects = ", ".join(match.group(0) for match in kept)
+    return f"{prefix}{objects}{suffix}", dropped
+
+
+def _match_is_parsed_import(
+    match: re.Match[str], parsed: frozenset[str] | None
+) -> bool:
+    """Reject a masked match absent from the parser's actual import triples."""
+    if parsed is None:
+        return True
+    return set(_IRI.findall(match.group("objs"))).issubset(parsed)
+
+
 def _rewrite_turtle(text: str, keep: Callable[[str], bool], dropped: list[str]) -> str:
-    def replace(match: re.Match[str]) -> str:
-        iris = _IRI.findall(match.group("objs"))
-        kept = [iri for iri in iris if keep(iri)]
-        dropped.extend(iri for iri in iris if not keep(iri))
-        if len(kept) == len(iris):
-            return match.group(0)
-        if kept:
-            objs = ", ".join(f"<{iri}>" for iri in kept)
-            start, end = match.span("objs")
-            whole = match.group(0)
-            offset = match.start()
-            return whole[: start - offset] + objs + whole[end - offset :]
-        return ""
+    parsed = _parsed_imports(text)
+
+    def replace(match: re.Match[str], original: str) -> str:
+        if not _match_is_parsed_import(match, parsed):
+            return original[match.start() : match.end()]
+        start, end = match.span("objs")
+        objects, removed = _keep_iri_text(original[start:end], keep)
+        if not removed:
+            return original[match.start() : match.end()]
+        dropped.extend(removed)
+        if not objects:
+            return ""
+        whole = original[match.start() : match.end()]
+        offset = match.start()
+        return whole[: start - offset] + objects + whole[end - offset :]
 
     for pattern in (_TURTLE_FOLLOWED, _TURTLE_PRECEDED):
-        text = pattern.sub(replace, text)
+        text = _masked_sub(text, pattern, replace)
     return text
 
 
@@ -99,7 +233,7 @@ def scope_ontology_imports(
         body = _rewrite_rdfxml(entry.body, keep, dropped)
     else:
         body = _rewrite_turtle(entry.body, keep, dropped)
-    if _TURTLE_ANY.search(body) and "xml" not in entry.media_type:
+    if _TURTLE_ANY.search(_mask_turtle(body)) and "xml" not in entry.media_type:
         # A lone `<s> owl:imports <x> .` statement has no sibling predicate.
         body = _drop_lone_statements(body, keep, dropped)
     if not dropped:
@@ -118,15 +252,20 @@ _LONE = re.compile(
 def _drop_lone_statements(
     text: str, keep: Callable[[str], bool], dropped: list[str]
 ) -> str:
-    def replace(match: re.Match[str]) -> str:
-        iris = _IRI.findall(match.group("objs"))
-        if all(keep(iri) for iri in iris):
-            return match.group(0)
-        dropped.extend(iri for iri in iris if not keep(iri))
-        kept = [iri for iri in iris if keep(iri)]
-        if not kept:
-            return ""
-        objs = ", ".join(f"<{iri}>" for iri in kept)
-        return match.group(0).replace(match.group("objs"), objs)
+    parsed = _parsed_imports(text)
 
-    return _LONE.sub(replace, text)
+    def replace(match: re.Match[str], original: str) -> str:
+        if not _match_is_parsed_import(match, parsed):
+            return original[match.start() : match.end()]
+        start, end = match.span("objs")
+        objects, removed = _keep_iri_text(original[start:end], keep)
+        if not removed:
+            return original[match.start() : match.end()]
+        dropped.extend(removed)
+        if not objects:
+            return ""
+        whole = original[match.start() : match.end()]
+        offset = match.start()
+        return whole[: start - offset] + objects + whole[end - offset :]
+
+    return _masked_sub(text, _LONE, replace)

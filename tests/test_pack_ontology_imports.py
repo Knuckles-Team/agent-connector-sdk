@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import pytest
+from rdflib import Graph, URIRef
+from rdflib.namespace import OWL
 
 from agent_connector_sdk.artifacts.ontology_imports import (
     IMPORT_REQUIREMENT_PREFIX,
@@ -44,6 +46,46 @@ def test_external_import_is_removed_and_recorded() -> None:
     assert "owl:versionInfo" in scoped.body
     assert "a owl:Ontology" in scoped.body
     assert _requirements(scoped) == [f"{IMPORT_REQUIREMENT_PREFIX}{HUB}"]
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+def test_comment_import_example_is_not_recorded_as_a_capability() -> None:
+    body = (
+        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
+        "# Example owl:imports <urn:phantom>; documentation only.\n"
+        "<urn:main> a owl:Ontology ; owl:imports <urn:actual> .\n"
+    )
+    scoped = scope_ontology_imports(_entry(body), PACK)
+    assert (
+        scoped.body == "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
+        "# Example owl:imports <urn:phantom>; documentation only.\n"
+        "<urn:main> a owl:Ontology .\n"
+    )
+    assert _requirements(scoped) == [f"{IMPORT_REQUIREMENT_PREFIX}urn:actual"]
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+def test_import_text_in_literals_does_not_change_graph_or_bytes() -> None:
+    body = (
+        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
+        "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
+        "<urn:main#subject> a owl:Ontology ;\n"
+        '    rdfs:comment "docs owl:imports <urn:phantom>; only" ;\n'
+        '    rdfs:label """more docs owl:imports <urn:phantom>;\n'
+        '    with a second line""" ;\n'
+        "    owl:imports <urn:actual> .\n"
+    )
+    scoped = scope_ontology_imports(_entry(body), PACK)
+    assert "owl:imports <urn:phantom>" in scoped.body
+    assert "ontology-import:urn:phantom" not in _requirements(scoped)
+    assert _requirements(scoped) == [f"{IMPORT_REQUIREMENT_PREFIX}urn:actual"]
+
+    before = Graph().parse(data=body, format="turtle")
+    after = Graph().parse(data=scoped.body, format="turtle")
+    assert set(before) - set(after) == {
+        (URIRef("urn:main#subject"), OWL.imports, URIRef("urn:actual"))
+    }
+    assert set(after) - set(before) == set()
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
