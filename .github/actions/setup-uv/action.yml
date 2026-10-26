@@ -1,0 +1,20 @@
+name: Checkout and set up pinned Python
+description: Check out the requested source and install the release toolchain.
+inputs:
+  ref:
+    description: Git ref to build; empty uses the triggering ref.
+    required: false
+    default: ''
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        ref: ${{ inputs.ref }}
+        persist-credentials: false
+    - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      with:
+        version: '0.11.7'
+        # SDK-QUALITY-RELEASE-R003: release jobs must use the managed
+        # interpreter instead of the hosting runner's system Python.
+        python-version: '3.14'
