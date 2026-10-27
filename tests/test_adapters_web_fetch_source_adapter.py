@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from types import SimpleNamespace
 from typing import Any
 
 import mcp_types
 import pytest
+from epistemic_graph.generated.source_ingestion import SourceCheckpoint
 
 from agent_connector_sdk.adapters.web_fetch import WebFetchSourceAdapter
 from agent_connector_sdk.contracts import SEAM_SCHEMA_VERSION
+from agent_connector_sdk.ports.errors import SourceContractError
 from agent_connector_sdk.ports.session import McpSession
+from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
 from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 _PAGE_A = b"<html><head><title>Page A</title></head><body>Content A</body></html>"
@@ -109,14 +113,37 @@ async def test_sweeping_two_urls_recovers_from_a_checkpoint() -> None:
 
 
 @pytest.mark.parametrize("bad_status", [500, 404])
-async def test_a_failed_fetch_yields_an_empty_page_not_a_crash(bad_status: int) -> None:
+async def test_a_failed_fetch_refuses_the_page(bad_status: int) -> None:
     with ScriptedHttpServer(
         ScriptedResponse(status=bad_status, body=b"nope")
     ) as server:
         adapter = WebFetchSourceAdapter(
             (server.base_url,), connector="test-connector", mapping_reference="v1"
         )
-        page = await adapter.extract(_SESSION, None)
+        with pytest.raises(SourceContractError, match="web fetch failed"):
+            await adapter.extract(_SESSION, None)
 
-    assert page.records == ()
-    assert page.exhausted
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.41")
+async def test_failed_fetch_preserves_accepted_checkpoint() -> None:
+    checkpoint = SourceCheckpoint(stream="web_fetch", position={"index": 1})
+
+    class Sink:
+        async def source_status(self, connector: str, stream: str) -> Any:
+            return SimpleNamespace(accepted_checkpoint=checkpoint)
+
+        async def submit(self, request: Any) -> Any:
+            raise AssertionError("a failed fetch must not be submitted")
+
+    with ScriptedHttpServer(
+        ScriptedResponse(status=503, body=b"unavailable")
+    ) as server:
+        adapter = WebFetchSourceAdapter(
+            (server.base_url + "/first", server.base_url + "/second"),
+            connector="test-connector",
+            mapping_reference="v1",
+        )
+        target = SyncTarget(connector="test-connector", sink=Sink(), max_pages=2)  # type: ignore[arg-type]
+        with pytest.raises(SourceContractError, match="web fetch failed"):
+            await sync_stream(_SESSION, adapter, target)
+    assert checkpoint.position == {"index": 1}

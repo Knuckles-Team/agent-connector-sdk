@@ -607,6 +607,15 @@ Reuse: `fetch_page` (`agent_connector_sdk/adapters/web_fetch.py:86`) stops issui
 
 Budget: 5 MiB default `max_bytes` and 1 request per second per domain. These are starting defaults. A measurement on this platform replaces them.
 
+### Amendment 2026-10-27: preserve the checkpoint during migration
+
+Until R005.40 routes fetching through the connector, the existing adapter raises
+`SourceContractError` on an unsuccessful or empty fetch. `sync_stream` stops
+before submission and leaves the last accepted checkpoint intact. This guard
+does not deliver the connector-tool or typed-refusal contract. Runner adapter
+composition and the generated engine `WebDocumentProvenance` model remain
+dependencies of the complete web-source path.
+
 ## Declared connector sources (SDK-SOURCE-INGEST-R004.19 through R004.24)
 
 A connector declares each ingestible source with `source_meta` on its read tool. The SDK assembles `IngestSourceDeclaration`. `register_tool_surface` serves it as the resource `connector://resources`. A host reads the declarations through that resource. The host needs no engine listing method.

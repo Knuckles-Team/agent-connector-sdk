@@ -46,6 +46,7 @@ from agent_connector_sdk.contracts import (
 )
 from agent_connector_sdk.http.client import create_async_http_client
 from agent_connector_sdk.http.options import HttpClientOptions
+from agent_connector_sdk.ports.errors import SourceContractError
 from agent_connector_sdk.ports.session import McpSession
 
 __all__ = [
@@ -188,15 +189,16 @@ class WebFetchSourceAdapter:
         records: tuple[SourceRecord, ...] = ()
         if index < len(self._urls):
             page = await fetch_page(self._urls[index])
-            if page is not None:
-                records = (
-                    _record_from_page(
-                        page,
-                        stream=self.stream,
-                        connector=self._connector,
-                        mapping_reference=self._mapping_reference,
-                    ),
-                )
+            if page is None:
+                raise SourceContractError("web fetch failed or returned empty content")
+            records = (
+                _record_from_page(
+                    page,
+                    stream=self.stream,
+                    connector=self._connector,
+                    mapping_reference=self._mapping_reference,
+                ),
+            )
         next_index = index + 1
         return RecordPage(
             records=records,
