@@ -463,6 +463,22 @@ def test_sync_transport_honours_retry_after_and_closes_discarded() -> None:
     assert slept == [2.0]
 
 
+def test_sync_transport_falls_back_for_non_ascii_retry_after() -> None:
+    answers = iter(
+        [httpx.Response(503, headers=[(b"retry-after", b"\xb2")]), httpx.Response(200)]
+    )
+    slept: list[float] = []
+    transport = GovernedTransport(
+        httpx.MockTransport(lambda request: next(answers)),
+        policy=RetryPolicy(jitter=False),
+        logger=logging.getLogger("test.transport"),
+        sleep=slept.append,
+    )
+    with httpx.Client(transport=transport) as client:
+        assert client.get("https://api.example.invalid/x").status_code == 200
+    assert slept == [0.5]
+
+
 async def test_async_transport_retries_errors() -> None:
     calls: list[str] = []
 

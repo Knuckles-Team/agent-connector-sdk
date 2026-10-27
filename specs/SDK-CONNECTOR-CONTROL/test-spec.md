@@ -430,3 +430,10 @@ non-ASCII text against the named divisor.
   agreement, declared rotation, canonical signature encoding and rejection of
   environment-backed publication keys. The removed manifest tests do not
   establish this proof.
+
+## Malformed Retry-After (SDK-CONNECTOR-CONTROL-R780.3)
+
+`tests/test_http_units.py::test_retry_policy_decisions` checks malformed
+non-ASCII digits and oversized ASCII values.
+`tests/test_http_client.py::test_sync_transport_falls_back_for_non_ascii_retry_after`
+checks bounded fallback through the governed transport.
