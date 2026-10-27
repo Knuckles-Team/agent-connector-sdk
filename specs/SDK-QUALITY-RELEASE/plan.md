@@ -13,3 +13,9 @@ environment with `uv sync --frozen`. Graph inspection requires SDK-consumed
 Python modules from the installed wheel package. The release record names one
 locked wheel. Record graph and provenance fixtures only from this prepared
 environment. Never synthesize installation evidence.
+
+## Amendments
+
+2026-10-27: Run CI and the manual fleet gates on the project interpreter in
+`.python-version`. Remove the separate Python 3.12 PR job. Package metadata
+continues to declare the existing Python support floor.
