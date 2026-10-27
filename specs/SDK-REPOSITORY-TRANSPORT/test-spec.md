@@ -11,5 +11,6 @@
 | RT-07 | Compare batched and unbatched tree walk on public fixtures | Byte-identical manifest/outcomes; report cold/warm timings and object-read counts. |
 | RT-08 | Submit to contributor-owned graph service | Durable receipt binds tenant/repository/revision/tree and all file dispositions; restart is idempotent. |
 | RT-09 | Receive a page above the requested bound | Refuse the page. Earlier graph submissions remain applied (SDK-REPOSITORY-TRANSPORT-R006). |
+| RT-10 | Read a listed blob. Request an unrelated blob or tree. | Only a listed blob is read. Other identities refuse before blob read (SDK-REPOSITORY-TRANSPORT-R007). |
 
 Offline PR gate: focused pytest plus repository hooks (Ruff, mypy, CCCC, Dupehound, KISS). RT-08 is environment-backed acceptance and must show **NOT RUN** until provisioned.
