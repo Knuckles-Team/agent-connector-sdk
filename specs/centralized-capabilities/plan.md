@@ -95,3 +95,9 @@ The first and followed URLs must have an HTTP(S) origin without userinfo.
 Malformed origins and URLs with userinfo raise `PaginationOriginError` before
 fetching. Explicit port zero remains distinct from the default port. The
 problem detail is static and does not echo any URL.
+
+## Amendment 2026-10-27: bind Link pagination
+
+Link mode requires an absolute endpoint or `base_url`, so it can bind the
+first origin before making a request. Resolve each next link against the
+current URL. Apply the same origin, userinfo and loop guards as `next_url`.
