@@ -26,3 +26,4 @@
 - [ ] Implement and prove independent revision readback (SDK-GOVERNED-WRITEBACK-R004.10); preserve the original parent acceptance.
 - [ ] Implement and prove repository restart reconciliation (SDK-GOVERNED-WRITEBACK-R004.11); preserve the original parent acceptance.
 - [ ] Implement and prove served repository producer composition (SDK-GOVERNED-WRITEBACK-R004.12); preserve the original parent acceptance.
+- [ ] Refuse invalid reservation IDs and mismatched file-backed reservations (SDK-GOVERNED-WRITEBACK-R004.13).

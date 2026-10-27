@@ -26,6 +26,7 @@
     "SDK-GOVERNED-WRITEBACK-R004.10",
     "SDK-GOVERNED-WRITEBACK-R004.11",
     "SDK-GOVERNED-WRITEBACK-R004.12",
+    "SDK-GOVERNED-WRITEBACK-R004.13",
     "SDK-GOVERNED-WRITEBACK-R005"
   ],
   "requirements": [
@@ -124,8 +125,8 @@
         "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_writeback_audit_reservation.py:13",
-        "tests/test_writeback_audit_reservation.py:27"
+        "tests/test_writeback_audit_reservation.py:22",
+        "tests/test_writeback_audit_reservation.py:36"
       ],
       "rollup_of": [
         "SDK-GOVERNED-WRITEBACK-R004.1",
@@ -139,7 +140,8 @@
         "SDK-GOVERNED-WRITEBACK-R004.9",
         "SDK-GOVERNED-WRITEBACK-R004.10",
         "SDK-GOVERNED-WRITEBACK-R004.11",
-        "SDK-GOVERNED-WRITEBACK-R004.12"
+        "SDK-GOVERNED-WRITEBACK-R004.12",
+        "SDK-GOVERNED-WRITEBACK-R004.13"
       ]
     },
     {
@@ -225,6 +227,18 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.13",
+      "title": "Reject invalid audit reservation identifiers",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "767c2d8e4da0"
+      ],
+      "verified_by": [
+        "tests/test_writeback_audit_reservation.py:59",
+        "tests/test_writeback_audit_reservation.py:77"
+      ]
     },
     {
       "id": "SDK-GOVERNED-WRITEBACK-R005",

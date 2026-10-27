@@ -177,4 +177,11 @@ After a possible mutation, readback failure, lost response or failed ledger appe
 
 Keep R004.1–R004.4 as independent generic residual units. Then implement request validation (R004.5), path resolution (R004.6), approved composition (R004.7), provider compare-and-apply (R004.8), receipt binding (R004.9), readback (R004.10), reconciliation (R004.11), and served composition (R004.12). Each unit has one proposed acceptance function in test-spec.md. No generic helper test alone proves a production provider effect.
 
+### Amendment 2026-10-27: reservation identifier guard
+
+`GovernedWriteBack.apply` must refuse a missing or blank reservation ID before
+calling the transport. The file-backed sink reservation compares an existing
+ID to the exact expected key and digest. The generic port still returns an
+opaque string; R004.3 retains the separate durable binding and served proof.
+
 Arbora consumes these exact request/receipt contracts under ARBORA-FLEET-R003, using ARBORA-OPS-R009's existing invoke authority. Its producer-composition definition must wait for the SDK definition to merge. EG-TYPED-PACKS-R094.7 can name both after their definitions merge. EG-TYPED-PACKS-R002.10 still requires a separately coordinated AU model-dispatch consumer; source write-back does not meet that requirement. No candidate accounting change or runtime completion follows from these definitions.
