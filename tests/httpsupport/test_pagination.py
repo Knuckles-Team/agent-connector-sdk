@@ -116,7 +116,9 @@ def test_link_pagination_follows_rel_next_absolute_urls():
             return [_record(1)], headers
         return [_record(2)], {"Link": '<https://api.test/x>; rel="self"'}
 
-    iterator = PaginationIterator(fetch, "/users", mode="link")
+    iterator = PaginationIterator(
+        fetch, "/users", mode="link", base_url="https://api.test"
+    )
     assert [r["id"] for r in iterator] == [1, 2]
     assert urls_fetched == ["/users", "https://api.test/users?after=a2"]
     assert iterator.next_cursor is None

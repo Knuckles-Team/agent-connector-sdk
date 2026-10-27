@@ -9,6 +9,7 @@
     "SDK-CENTRALIZED-CAPABILITIES-R003",
     "SDK-CENTRALIZED-CAPABILITIES-R004",
     "SDK-CENTRALIZED-CAPABILITIES-R004.1",
+    "SDK-CENTRALIZED-CAPABILITIES-R004.2",
     "SDK-CENTRALIZED-CAPABILITIES-R005",
     "SDK-CENTRALIZED-CAPABILITIES-R006",
     "SDK-CENTRALIZED-CAPABILITIES-R007",
@@ -71,20 +72,17 @@
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R004",
       "title": "Pagination helpers",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "c842d089626d",
         "e26eb224bc48"
       ],
       "verified_by": [
-        "tests/httpsupport/test_pagination_next_url.py:101",
-        "tests/httpsupport/test_pagination_next_url.py:121",
-        "tests/httpsupport/test_pagination_next_url.py:135",
-        "tests/httpsupport/test_pagination_next_url.py:15",
-        "tests/httpsupport/test_pagination_next_url.py:161"
+        "tests/httpsupport/test_pagination_next_url.py:15"
       ],
       "rollup_of": [
-        "SDK-CENTRALIZED-CAPABILITIES-R004.1"
+        "SDK-CENTRALIZED-CAPABILITIES-R004.1",
+        "SDK-CENTRALIZED-CAPABILITIES-R004.2"
       ]
     },
     {
@@ -100,6 +98,13 @@
         "tests/httpsupport/test_pagination_next_url.py:135",
         "tests/httpsupport/test_pagination_next_url.py:161"
       ]
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.2",
+      "title": "Link pagination stays on the admitted origin",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R005",
