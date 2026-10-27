@@ -33,6 +33,7 @@ jobs:
       test-scope: tests
       src-root: agent_connector_sdk
       setup-command: bash scripts/ci_setup.sh
+      uv-cache-local-path: .ci/uv-cache-${{ github.run_id }}-${{ github.run_attempt }}
       # fast-tests duplicates the shared affected-test step; a fork cannot read the identity catalog.
       skip-hooks: ${{ github.event.pull_request.head.repo.fork && 'fast-tests,tracked-privacy' || 'fast-tests' }}
       extra-manual-hooks: ${{ github.event_name == 'push' && 'tracked-privacy wheel-build mkdocs-build' || 'tracked-privacy' }}
