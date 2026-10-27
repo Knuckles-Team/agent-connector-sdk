@@ -1456,8 +1456,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R005.41",
       "title": "Failed legacy web fetch preserves the checkpoint",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "cb75b1d7a164"
+      ],
       "verified_by": [
         "tests/test_adapters_web_fetch_source_adapter.py:127"
       ]
