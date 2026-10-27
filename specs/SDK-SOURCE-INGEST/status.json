@@ -784,8 +784,8 @@
         "e626b457bb1d"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_archer_infra_a2a.py:30",
-        "tests/test_vendor_extractors_archer_infra_a2a.py:52"
+        "tests/test_vendor_extractors_archer_infra_a2a.py:33",
+        "tests/test_vendor_extractors_archer_infra_a2a.py:55"
       ]
     },
     {
@@ -797,8 +797,8 @@
         "e626b457bb1d"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_archer_infra_a2a.py:60",
-        "tests/test_vendor_extractors_archer_infra_a2a.py:84"
+        "tests/test_vendor_extractors_archer_infra_a2a.py:63",
+        "tests/test_vendor_extractors_archer_infra_a2a.py:87"
       ]
     },
     {
@@ -810,8 +810,8 @@
         "e626b457bb1d"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_archer_infra_a2a.py:118",
-        "tests/test_vendor_extractors_archer_infra_a2a.py:92"
+        "tests/test_vendor_extractors_archer_infra_a2a.py:121",
+        "tests/test_vendor_extractors_archer_infra_a2a.py:95"
       ]
     },
     {
