@@ -1673,9 +1673,9 @@
       "title": "Refusal",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "bca16a8da0a9",
         "ce0f7eaf04e2",
-        "e877477e46b8",
-        "f148e59d05e8"
+        "e877477e46b8"
       ],
       "verified_by": [
         "tests/test_source_sync.py:184",
