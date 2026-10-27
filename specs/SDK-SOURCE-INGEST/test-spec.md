@@ -305,3 +305,9 @@ registry, then reads each decision back. Each lookup must read one decision file
 R001.1 validates stage identity, limits and the dependency graph at SyncTarget
 construction. The sequential sync path refuses stage-bearing targets before it
 discovers or extracts from a source.
+# Web certification and runner admission dependency
+
+R005.40.3 and R005.40.4 require a host-admitted receipt tied to the tested
+connector revision and live tool schemas. A schema-only match is not web
+conformance. Tests must refuse missing, stale and mismatched evidence before
+the tool call and leave the checkpoint unchanged.
