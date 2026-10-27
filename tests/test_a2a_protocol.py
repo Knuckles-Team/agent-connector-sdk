@@ -215,3 +215,70 @@ async def test_compressed_response_is_refused_without_reading() -> None:
     result = await client.send("https://peer.example", "hello")
     assert result.error == "A2A communication failed (ValueError)"
     assert not stream.read and stream.closed
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.21.2")
+def test_a2a_app_serves_tasks_using_caller_broker_and_storage() -> None:
+    import time
+
+    from fasta2a.broker import InMemoryBroker
+    from fasta2a.storage import InMemoryStorage
+    from pydantic_ai import Agent
+    from pydantic_ai.models.test import TestModel
+    from starlette.testclient import TestClient
+
+    from agent_connector_sdk.a2a import create_a2a_app
+
+    storage = InMemoryStorage()
+    broker = InMemoryBroker()
+    agent = Agent(TestModel(custom_output_text="finished"))
+    app = create_a2a_app(
+        agent,
+        name="fixture",
+        url="http://testserver",
+        version="1",
+        storage=storage,
+        broker=broker,
+    )
+    assert app.task_manager.storage is storage
+    assert app.task_manager.broker is broker
+    with TestClient(app) as client:
+        card = client.get("/.well-known/agent-card.json")
+        assert card.status_code == 200
+        assert card.json()["name"] == "fixture"
+        response = client.post(
+            "/",
+            json={
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "message/send",
+                "params": {
+                    "message": {
+                        "kind": "message",
+                        "messageId": "m1",
+                        "role": "user",
+                        "parts": [{"kind": "text", "text": "hello"}],
+                    }
+                },
+            },
+        )
+        assert response.status_code == 200
+        task_id = response.json()["result"]["id"]
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            response = client.post(
+                "/",
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 2,
+                    "method": "tasks/get",
+                    "params": {"id": task_id},
+                },
+            )
+            task = response.json()["result"]
+            if task["status"]["state"] in {"completed", "failed"}:
+                break
+            time.sleep(0.01)
+        assert task["status"]["state"] == "completed"
+        assert task["history"][-1]["parts"][0]["text"] == "finished"
+        assert task_id in storage.tasks
