@@ -784,7 +784,7 @@
       "title": "A router tool is split, never dropped",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "b03915d455e0"
+        "735b2bf8a84d"
       ],
       "verified_by": [
         "tests/test_action_split.py:38"
