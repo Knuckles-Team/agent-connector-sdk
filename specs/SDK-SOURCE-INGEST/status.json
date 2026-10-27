@@ -1665,7 +1665,7 @@
       ],
       "verified_by": [
         "tests/test_source_sync.py:159",
-        "tests/test_source_sync.py:241"
+        "tests/test_source_sync.py:300"
       ]
     },
     {
@@ -1674,10 +1674,14 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "ce0f7eaf04e2",
-        "e877477e46b8"
+        "e877477e46b8",
+        "f148e59d05e8"
       ],
       "verified_by": [
-        "tests/test_source_sync.py:184"
+        "tests/test_source_sync.py:184",
+        "tests/test_source_sync.py:209",
+        "tests/test_source_sync.py:242",
+        "tests/test_source_sync.py:250"
       ]
     },
     {
@@ -1689,7 +1693,7 @@
         "e877477e46b8"
       ],
       "verified_by": [
-        "tests/test_source_sync.py:209"
+        "tests/test_source_sync.py:268"
       ]
     },
     {
@@ -1711,7 +1715,7 @@
         "6519a20529e9"
       ],
       "verified_by": [
-        "tests/test_source_sync.py:265"
+        "tests/test_source_sync.py:324"
       ]
     },
     {
