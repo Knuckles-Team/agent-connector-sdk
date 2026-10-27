@@ -4,28 +4,28 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-connector-sdk"
-version = "0.5.7"
+version = "0.5.8"
 description = "Metadata-only compatibility release forwarding agent-connector-sdk users to Scion SDK"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
 dependencies = [
-    "scion-sdk==0.5.7",
+    "scion-sdk==0.5.8",
 ]
 
 [project.optional-dependencies]
-integrity = ["scion-sdk[integrity]==0.5.7"]
-mcp = ["scion-sdk[mcp]==0.5.7"]
-a2a = ["scion-sdk[a2a]==0.5.7"]
-feeds = ["scion-sdk[feeds]==0.5.7"]
-dataprep = ["scion-sdk[dataprep]==0.5.7"]
-db = ["scion-sdk[db]==0.5.7"]
-mssql = ["scion-sdk[mssql]==0.5.7"]
-graphql = ["scion-sdk[graphql]==0.5.7"]
-market = ["scion-sdk[market]==0.5.7"]
-stream = ["scion-sdk[stream]==0.5.7"]
-vector = ["scion-sdk[vector]==0.5.7"]
-vector-chroma = ["scion-sdk[vector-chroma]==0.5.7"]
+integrity = ["scion-sdk[integrity]==0.5.8"]
+mcp = ["scion-sdk[mcp]==0.5.8"]
+a2a = ["scion-sdk[a2a]==0.5.8"]
+feeds = ["scion-sdk[feeds]==0.5.8"]
+dataprep = ["scion-sdk[dataprep]==0.5.8"]
+db = ["scion-sdk[db]==0.5.8"]
+mssql = ["scion-sdk[mssql]==0.5.8"]
+graphql = ["scion-sdk[graphql]==0.5.8"]
+market = ["scion-sdk[market]==0.5.8"]
+stream = ["scion-sdk[stream]==0.5.8"]
+vector = ["scion-sdk[vector]==0.5.8"]
+vector-chroma = ["scion-sdk[vector-chroma]==0.5.8"]
 
 [project.urls]
 Homepage = "https://github.com/Knuckles-Team/scion-sdk"

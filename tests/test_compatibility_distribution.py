@@ -25,7 +25,7 @@ def test_old_distribution_is_a_version_matched_metadata_forwarder() -> None:
     version = target["version"]
     assert alias["name"] == "agent-connector-sdk"
     assert target["name"] == "scion-sdk"
-    assert alias["version"] == version == "0.5.7"
+    assert alias["version"] == version == "0.5.8"
     assert alias["dependencies"] == [f"scion-sdk=={version}"]
     assert set(alias["optional-dependencies"]) == set(target["optional-dependencies"])
     for extra in target["optional-dependencies"]:
