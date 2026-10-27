@@ -109,6 +109,8 @@ async def index_repository_snapshot(
         pages += 1
         if page.revision != revision:
             raise RepositoryTransportError("provider page changed immutable revision")
+        if len(page.files) + len(page.tombstones) > bounds.provider_page_size:
+            raise RepositoryTransportError("provider page exceeds requested size")
         next_cursor = page.next_cursor
         if next_cursor is not None and next_cursor in seen_cursors:
             raise RepositoryTransportError("provider pagination cursor repeated")

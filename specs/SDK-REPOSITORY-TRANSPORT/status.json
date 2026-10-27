@@ -8,7 +8,8 @@
     "SDK-REPOSITORY-TRANSPORT-R002",
     "SDK-REPOSITORY-TRANSPORT-R003",
     "SDK-REPOSITORY-TRANSPORT-R004",
-    "SDK-REPOSITORY-TRANSPORT-R005"
+    "SDK-REPOSITORY-TRANSPORT-R005",
+    "SDK-REPOSITORY-TRANSPORT-R006"
   ],
   "requirements": [
     {
@@ -53,7 +54,7 @@
       "verified_by": [
         "tests/test_repository_transport.py:179",
         "tests/test_repository_transport.py:200",
-        "tests/test_repository_transport.py:257"
+        "tests/test_repository_transport.py:285"
       ]
     },
     {
@@ -65,6 +66,18 @@
       ],
       "verified_by": [
         "tests/test_repository_transport.py:180"
+      ]
+    },
+    {
+      "id": "SDK-REPOSITORY-TRANSPORT-R006",
+      "title": "Provider pages respect their requested bound",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8dada56817e1"
+      ],
+      "verified_by": [
+        "tests/test_repository_refs.py:110",
+        "tests/test_repository_transport.py:219"
       ]
     }
   ]

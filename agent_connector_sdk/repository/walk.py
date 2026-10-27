@@ -60,6 +60,8 @@ async def _walk_tree(
         pages += 1
         if page.revision != revision:
             raise RepositoryTransportError("provider page changed immutable revision")
+        if len(page.entries) > page_size:
+            raise RepositoryTransportError("provider tree page exceeds requested size")
         for entry in page.entries:
             if entry.path in entries:
                 raise RepositoryTransportError("provider repeated a repository path")

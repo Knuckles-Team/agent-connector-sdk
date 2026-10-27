@@ -38,5 +38,5 @@ class RepositoryRefWalkProvider(Protocol):
         cursor: str | None,
         page_size: int,
     ) -> RepositoryTreePage:
-        """Return one bounded page of ``revision``'s tree, without blob content."""
+        """Return up to ``page_size`` tree entries, without blob content."""
         ...
