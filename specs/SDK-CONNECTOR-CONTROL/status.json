@@ -1392,7 +1392,7 @@
         "54aaac362dcd"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_archer_infra_a2a.py:140"
+        "tests/test_vendor_extractors_archer_infra_a2a.py:142"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R047.1",
@@ -1406,8 +1406,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R047.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3f69e2f9f627"
+      ],
       "verified_by": [
         "tests/test_a2a_discovery.py:28"
       ]
@@ -1424,8 +1426,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R047.3",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3f69e2f9f627"
+      ],
       "verified_by": [
         "tests/test_vendor_extractors_archer_infra_a2a.py:126"
       ]
@@ -1433,8 +1437,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R047.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3f69e2f9f627"
+      ],
       "verified_by": [
         "tests/test_a2a_discovery.py:65"
       ]
@@ -1442,8 +1448,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R047.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3f69e2f9f627"
+      ],
       "verified_by": [
         "tests/test_a2a_discovery.py:92"
       ]
@@ -1451,10 +1459,12 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R047.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3f69e2f9f627"
+      ],
       "verified_by": [
-        "tests/test_vendor_extractors_archer_infra_a2a.py:141"
+        "tests/test_vendor_extractors_archer_infra_a2a.py:143"
       ]
     },
     {
