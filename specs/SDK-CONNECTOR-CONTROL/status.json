@@ -1158,7 +1158,7 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R039",
-      "title": "container-manager deployed-workload operation contract is declared (unblocks `EG-CQ-XSRC-R003.5`)",
+      "title": "container-manager deployed-workload operation contract",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
