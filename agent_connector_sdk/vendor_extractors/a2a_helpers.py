@@ -98,12 +98,15 @@ def _collect_cards(config: Any) -> list[dict[str, Any]]:
         if isinstance(raw, str | dict):
             raw = [raw]
 
+    allow_loopback = _get(config, "allow_loopback", False) is True
     cards: list[dict[str, Any]] = []
     for item in raw:
         if isinstance(item, dict):
             base_url = item.get("base_url")
             if isinstance(base_url, str):
-                discovered = discover_agent_card(base_url)
+                discovered = discover_agent_card(
+                    base_url, allow_loopback=allow_loopback
+                )
                 if isinstance(discovered, DiscoveredAgentCard):
                     card = dict(discovered.card)
                     card[_DISCOVERY_KEY] = discovered
@@ -112,7 +115,7 @@ def _collect_cards(config: Any) -> list[dict[str, Any]]:
                 cards.append(item)
         elif isinstance(item, str):
             if "://" in item:
-                discovered = discover_agent_card(item)
+                discovered = discover_agent_card(item, allow_loopback=allow_loopback)
                 if isinstance(discovered, DiscoveredAgentCard):
                     card = dict(discovered.card)
                     card[_DISCOVERY_KEY] = discovered

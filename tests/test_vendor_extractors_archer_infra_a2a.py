@@ -129,7 +129,9 @@ def test_base_url_entry_is_fetched_into_cards() -> None:
     with ScriptedHttpServer(
         ScriptedResponse(body=body, headers={"Content-Type": "application/json"})
     ) as server:
-        result = a2a_extract({"cards": [{"base_url": server.base_url}]})
+        result = a2a_extract(
+            {"cards": [{"base_url": server.base_url}], "allow_loopback": True}
+        )
 
     assert {entity.id for entity in result.entities} >= {
         "a2a:remote-agent",
@@ -142,7 +144,7 @@ def test_base_url_entry_is_fetched_into_cards() -> None:
 def test_extract_discovers_card_from_base_url() -> None:
     body = json.dumps({"name": "Hosted Agent", "skills": [{"id": "delegate"}]}).encode()
     with ScriptedHttpServer(ScriptedResponse(body=body)) as server:
-        result = a2a_extract({"cards": [server.base_url]})
+        result = a2a_extract({"cards": [server.base_url], "allow_loopback": True})
 
     assert any(entity.id == "a2a:hosted-agent" for entity in result.entities)
     assert any(

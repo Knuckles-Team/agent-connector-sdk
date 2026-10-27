@@ -50,8 +50,8 @@ def test_fetch_uses_well_known_path_and_etag() -> None:
         ),
         ScriptedResponse(status=304, headers={"ETag": '"v1"'}),
     ) as server:
-        first = discover_agent_card(server.base_url)
-        second = discover_agent_card(server.base_url)
+        first = discover_agent_card(server.base_url, allow_loopback=True)
+        second = discover_agent_card(server.base_url, allow_loopback=True)
 
     assert isinstance(first, DiscoveredAgentCard)
     assert second is first
@@ -74,7 +74,7 @@ def test_refusals_write_nothing() -> None:
     )
     for response, reason in cases:
         with ScriptedHttpServer(response) as server:
-            result = discover_agent_card(server.base_url)
+            result = discover_agent_card(server.base_url, allow_loopback=True)
         assert isinstance(result, AgentCardRefused)
         assert result.reason == reason
 
@@ -97,7 +97,7 @@ def test_entity_carries_fetch_provenance() -> None:
             headers={"Content-Type": "application/json", "ETag": '"v2"'},
         )
     ) as server:
-        result = extract({"cards": [server.base_url]})
+        result = extract({"cards": [server.base_url], "allow_loopback": True})
 
     entity = next(
         entity for entity in result.entities if entity.node_type == "A2AAgentCard"
@@ -105,3 +105,21 @@ def test_entity_carries_fetch_provenance() -> None:
     assert entity.properties["source_url"] == f"{server.base_url}{AGENT_CARD_PATH}"
     assert entity.properties["etag"] == '"v2"'
     assert entity.properties["fetched_at"]
+
+
+def test_loopback_requires_explicit_opt_in() -> None:
+    with ScriptedHttpServer(ScriptedResponse(body=_body())) as server:
+        assert discover_agent_card(server.base_url) == AgentCardRefused(
+            "egress_blocked"
+        )
+        assert extract({"cards": [server.base_url]}).entities == ()
+        assert not server.requests
+
+
+def test_compressed_card_is_refused_before_decoding() -> None:
+    with ScriptedHttpServer(
+        ScriptedResponse(body=b"not gzip", headers={"Content-Encoding": "gzip"})
+    ) as server:
+        result = discover_agent_card(server.base_url, allow_loopback=True)
+    assert result == AgentCardRefused("not_json")
+    assert server.requests[0].headers["accept-encoding"] == "identity"

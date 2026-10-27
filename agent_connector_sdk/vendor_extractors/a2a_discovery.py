@@ -7,13 +7,11 @@ making a second transport or egress implementation for A2A cards.
 
 from __future__ import annotations
 
-import ipaddress
 import json
 import threading
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, Literal
-from urllib.parse import urlsplit
 
 from agent_connector_sdk.http.bodies import read_bounded
 from agent_connector_sdk.http.client import create_http_client
@@ -66,25 +64,13 @@ def _cache_key(base_url: str) -> str:
     return base_url.rstrip("/")
 
 
-def _is_loopback(host: str | None) -> bool:
-    if not host:
-        return False
-    if host.lower() == "localhost":
-        return True
-    try:
-        return ipaddress.ip_address(host).is_loopback
-    except ValueError:
-        return False
-
-
-def _client_options(base_url: str) -> HttpClientOptions:
+def _client_options(base_url: str, *, allow_loopback: bool) -> HttpClientOptions:
     """Build the named discovery limits on the governed client boundary."""
-    host = urlsplit(base_url).hostname
     return HttpClientOptions(
         base_url=base_url,
         timeout=DEFAULT_DISCOVERY_TIMEOUT_SECONDS,
         pin_egress=True,
-        allow_loopback=_is_loopback(host),
+        allow_loopback=allow_loopback,
     )
 
 
@@ -123,7 +109,10 @@ def _refused(reason: _RefusalReason) -> AgentCardRefused:
 
 
 def discover_agent_card(
-    base_url: str, *, previous: DiscoveredAgentCard | None = None
+    base_url: str,
+    *,
+    previous: DiscoveredAgentCard | None = None,
+    allow_loopback: bool = False,
 ) -> DiscoveredAgentCard | AgentCardRefused:
     """Fetch one A2A card through the governed HTTP client.
 
@@ -134,10 +123,12 @@ def discover_agent_card(
     """
     key = _cache_key(base_url)
     cached = _cached(base_url, previous)
-    headers = {"If-None-Match": cached.etag} if cached and cached.etag else {}
+    headers = {"Accept-Encoding": "identity"}
+    if cached and cached.etag:
+        headers["If-None-Match"] = cached.etag
 
     try:
-        options = _client_options(base_url)
+        options = _client_options(base_url, allow_loopback=allow_loopback)
         with (
             create_http_client(options) as client,
             client.stream("GET", AGENT_CARD_PATH, headers=headers) as response,
@@ -151,6 +142,11 @@ def discover_agent_card(
                 return _refused("not_found")
             if response.status_code != 200:
                 return _refused("not_found")
+            if (
+                response.headers.get("content-encoding", "identity").lower()
+                != "identity"
+            ):
+                return _refused("not_json")
             body = read_bounded(response, DEFAULT_MAX_AGENT_CARD_BYTES)
             try:
                 value = json.loads(body)
