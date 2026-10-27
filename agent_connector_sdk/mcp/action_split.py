@@ -53,8 +53,6 @@ __all__ = [
 SPLIT_ACTION_TAG = "split-action"
 #: Server attribute holding the registration report (``list[SplitDecision]``).
 _SPLIT_REPORT_ATTRIBUTE = "_action_split_report"
-#: Server attribute holding the names of parents declared read-only (``set[str]``).
-_READ_ONLY_PARENTS_ATTRIBUTE = "_action_split_read_only_parents"
 #: Calls that adapt how an operation runs or is returned, never what it computes.
 _ADAPTERS = frozenset(
     {
@@ -117,6 +115,13 @@ _READ_ONLY = re.compile(
 _DESTRUCTIVE = re.compile(
     r"(^|_)(delete|remove|destroy|drop|purge|wipe|erase|truncate|kill|terminate|"
     r"cancel|revoke|rotate|reset|uninstall|prune|halt|clear)(_|$)"
+)
+_MUTATING = re.compile(
+    r"(^|_)(add|apply|assign|attach|authorize|cancel|change|clear|commit|create|"
+    r"delete|deploy|destroy|detach|disable|drop|edit|enable|erase|execute|halt|"
+    r"insert|install|invoke|kill|modify|move|patch|post|prune|purge|put|remove|"
+    r"rename|reset|restart|revoke|rotate|run|send|set|start|stop|submit|terminate|"
+    r"truncate|uninstall|update|upsert|wipe|write)(_|$)"
 )
 _COMPARE = re.compile(r"""\baction\s*==\s*["']([a-z][a-z0-9_]*)["']""")
 _QUOTED = re.compile(r"'([a-z][a-z0-9_]*)'")
@@ -209,7 +214,7 @@ def _names(node: ast.AST) -> set[str]:
 
 def _annotations(action: str, declared: Any) -> dict[str, Any]:
     destructive = bool(_DESTRUCTIVE.search(action))
-    read_only = bool(_READ_ONLY.search(action)) and not destructive
+    read_only = bool(_READ_ONLY.match(action)) and not _MUTATING.search(action)
     return {
         "title": action.replace("_", " ").title(),
         "readOnlyHint": read_only,
@@ -659,13 +664,6 @@ def split_action_tool(
         _action_tables(tool.fn, actions),
         _literal_tables(tool.fn),
     )
-    declared = tool.annotations
-    if getattr(declared, "readOnlyHint", None) is True and not getattr(
-        declared, "destructiveHint", None
-    ):
-        parents: set[str] = getattr(mcp, _READ_ONLY_PARENTS_ATTRIBUTE, set())
-        parents.add(name)
-        setattr(mcp, _READ_ONLY_PARENTS_ATTRIBUTE, parents)
     mcp.local_provider.remove_tool(name)
     added: list[str] = []
     for action in actions:
@@ -690,14 +688,12 @@ def split_tool_classes(
     ``declared`` maps a tool name to its class (one string for the whole tool)
     or to a per-action mapping. A split tool takes its own action's declared
     class first, then its parent's single class. A parent class listed in
-    ``read_classes`` is inherited only by an action whose verb reads, or by any
-    action of a parent that declared ``readOnlyHint`` itself: a
-    mutating or unrecognised action of any other parent is left out, so it stays unclassified and
-    can never become read-only by inheritance. A split tool with no declared
-    parent is left out too.
+    ``read_classes`` is inherited only by an action whose first verb reads and
+    contains no recognized mutation verb. A mutating or unrecognized action is
+    left unclassified; a parent read-only hint does not override this check.
+    A split tool with no declared parent is left out too.
     """
     reads = frozenset(read_classes)
-    read_parents: set[str] = getattr(mcp, _READ_ONLY_PARENTS_ATTRIBUTE, set())
     classes: dict[str, str] = {}
     for item in getattr(mcp, _SPLIT_REPORT_ATTRIBUTE, []):
         if item.outcome != "split" or item.tool not in declared:
@@ -707,10 +703,10 @@ def split_tool_classes(
             if item.action in parent:
                 classes[item.split] = parent[item.action]
             continue
-        verb_reads = bool(_READ_ONLY.search(item.action)) and not _DESTRUCTIVE.search(
+        verb_reads = bool(_READ_ONLY.match(item.action)) and not _MUTATING.search(
             item.action
         )
-        if parent in reads and not (verb_reads or item.tool in read_parents):
+        if parent in reads and not verb_reads:
             continue
         classes[item.split] = parent
     return classes

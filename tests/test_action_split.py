@@ -162,7 +162,7 @@ def test_unknown_and_undeclared_tools_stay_unclassified() -> None:
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.5")
-def test_parent_declared_read_only_passes_its_read_class_to_every_action() -> None:
+def test_parent_read_only_hint_does_not_classify_unknown_actions() -> None:
     from agent_connector_sdk.mcp.action_split import split_tool_classes
 
     mcp: FastMCP[Any] = FastMCP("ro")
@@ -178,4 +178,23 @@ def test_parent_declared_read_only_passes_its_read_class_to_every_action() -> No
 
     split_action_tool(mcp, "health", _tools(mcp)["health"], operations={})
     got = split_tool_classes(mcp, {"health": "read"}, read_classes={"read"})
-    assert got == {f"health_{a}": "read" for a in ("report", "faults", "raid")}
+    assert got == {}
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.5")
+def test_mixed_read_and_mutation_verbs_never_inherit_read() -> None:
+    from agent_connector_sdk.mcp.action_split import split_tool_classes
+
+    mcp: FastMCP[Any] = FastMCP("mixed")
+
+    @mcp.tool(annotations={"readOnlyHint": True})
+    def mixed(action: Literal["get_status", "get_and_update", "update_status"]) -> str:
+        return action
+
+    split_action_tool(mcp, "mixed", _tools(mcp)["mixed"], operations={})
+    assert split_tool_classes(mcp, {"mixed": "read"}, read_classes={"read"}) == {
+        "mixed_get_status": "read"
+    }
+    tools = _tools(mcp)
+    assert not tools["mixed_get_and_update"].annotations.readOnlyHint
+    assert not tools["mixed_update_status"].annotations.readOnlyHint
