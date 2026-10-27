@@ -84,8 +84,10 @@
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R007",
       "title": "Local Git blob reads stay within the selected revision",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "f7525bd6a8a9"
+      ],
       "verified_by": [
         "tests/test_repository_refwalk_fastpath.py:159"
       ]
