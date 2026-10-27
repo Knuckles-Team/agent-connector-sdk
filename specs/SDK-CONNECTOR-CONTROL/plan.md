@@ -715,3 +715,9 @@ name must also contain no known mutation verb. Mixed names such as
 `get_and_update` remain unclassified. Unknown actions also remain unclassified
 unless the connector declares an explicit per-action class. Split tool hints follow the
 same conservative rule; the complete successor parity requirement remains open.
+
+## Session origin and cookie scope (R028.5)
+
+The session-login auth instance binds its first request origin. It refuses a
+different scheme, host or port before login or dispatch. It stores login
+cookies in a cookie jar and lets the jar apply domain, path and secure rules.

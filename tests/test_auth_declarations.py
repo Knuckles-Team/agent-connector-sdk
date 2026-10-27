@@ -233,6 +233,30 @@ def test_session_login_reuses_cookie_and_relogs_once(
     assert seen[5].headers["cookie"] == "SID=two"
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.5")
+def test_session_cookies_respect_path_and_auth_is_bound_to_origin() -> None:
+    from agent_connector_sdk.auth.rotating import SessionLoginAuth
+
+    requests: list[httpx.Request] = []
+
+    def serve(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path == "/login":
+            return httpx.Response(200, headers={"Set-Cookie": "SID=secret; Path=/api"})
+        return httpx.Response(200)
+
+    auth = SessionLoginAuth(login_path="/login", username="user", password=lambda: "pw")
+    with httpx.Client(auth=auth, transport=httpx.MockTransport(serve)) as client:
+        client.get("https://one.example.test/api/resource")
+        client.get("https://one.example.test/other")
+        with pytest.raises(TokenRequestError, match="origin"):
+            client.get("https://two.example.test/api/resource")
+
+    assert requests[1].headers["Cookie"] == "SID=secret"
+    assert "Cookie" not in requests[2].headers
+    assert len(requests) == 3
+
+
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
 def test_ca_bundle_comes_from_the_declared_tls_name(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path

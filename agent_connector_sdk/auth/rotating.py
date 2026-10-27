@@ -77,7 +77,8 @@ class SessionLoginAuth(httpx.Auth):
         self._username = header_safe(username, what="username")
         self._password = password
         self._fields = (username_field, password_field)
-        self._cookie = ""
+        self._cookies = httpx.Cookies()
+        self._origin: tuple[str, str, int | None] | None = None
         self._lock = threading.Lock()
 
     def __repr__(self) -> str:
@@ -95,23 +96,34 @@ class SessionLoginAuth(httpx.Auth):
         response = yield self._login_request(request)
         jar = httpx.Cookies()
         jar.extract_cookies(response)
-        pairs = [f"{c.name}={c.value}" for c in jar.jar]
-        if response.status_code >= 400 or not pairs:
+        if response.status_code >= 400 or not list(jar.jar):
             raise TokenRequestError("session login was rejected")
         with self._lock:
-            self._cookie = "; ".join(pairs)
+            self._cookies = jar
+
+    def _attach_cookies(self, request: httpx.Request) -> None:
+        with self._lock:
+            request.headers.pop("Cookie", None)
+            self._cookies.set_cookie_header(request)
 
     def auth_flow(
         self, request: httpx.Request
     ) -> Generator[httpx.Request, httpx.Response]:
         """Log in when there is no session, attach it, re-login once on 401/403."""
-        if not self._cookie:
+        origin = (request.url.scheme, request.url.host, request.url.port)
+        with self._lock:
+            if self._origin is None:
+                self._origin = origin
+            elif self._origin != origin:
+                raise TokenRequestError("session authentication origin does not match")
+            has_cookies = bool(list(self._cookies.jar))
+        if not has_cookies:
             yield from self._login(request)
-        request.headers["Cookie"] = self._cookie
+        self._attach_cookies(request)
         response = yield request
         if response.status_code in (401, 403):
             with self._lock:
-                self._cookie = ""
+                self._cookies = httpx.Cookies()
             yield from self._login(request)
-            request.headers["Cookie"] = self._cookie
+            self._attach_cookies(request)
             yield request
