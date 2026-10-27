@@ -20,7 +20,9 @@ from typing import Any
 
 from agent_connector_sdk.ingest import ChangeSet, Entity, Relationship
 from agent_connector_sdk.vendor_extractors._records import _get
+from agent_connector_sdk.vendor_extractors.a2a_discovery import DiscoveredAgentCard
 from agent_connector_sdk.vendor_extractors.a2a_helpers import (
+    _DISCOVERY_KEY,
     _collect_cards,
     _scalar,
     _slug,
@@ -33,6 +35,14 @@ CATEGORY = "a2a"
 
 def _card_entity(card: dict[str, Any], name: str, card_id: str) -> Entity:
     url = _scalar(_get(card, "url")) or _scalar(_get(card, "endpoint"))
+    discovered = card.get(_DISCOVERY_KEY)
+    provenance: tuple[tuple[str, Any], ...] = ()
+    if isinstance(discovered, DiscoveredAgentCard):
+        provenance = (
+            ("source_url", discovered.source_url),
+            ("fetched_at", discovered.fetched_at),
+            ("etag", discovered.etag or ""),
+        )
     return Entity(
         id=card_id,
         node_type="A2AAgentCard",
@@ -44,6 +54,7 @@ def _card_entity(card: dict[str, Any], name: str, card_id: str) -> Entity:
                 ("url", url),
                 ("version", _scalar(_get(card, "version"))),
                 ("provider", _scalar(_get(card, "provider"))),
+                *provenance,
             )
             if value is not None
         },

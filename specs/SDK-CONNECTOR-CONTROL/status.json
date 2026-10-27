@@ -1315,8 +1315,13 @@
       "id": "SDK-CONNECTOR-CONTROL-R047",
       "title": "Agent-card discovery from the standard well-known path",
       "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": [],
+      "landed_in": [
+        "09f02b24aed0",
+        "877b055616c3"
+      ],
+      "verified_by": [
+        "tests/test_vendor_extractors_archer_infra_a2a.py:140"
+      ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R047.1",
         "SDK-CONNECTOR-CONTROL-R047.2",
@@ -1331,42 +1336,54 @@
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_a2a_discovery.py:28"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R047.2",
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_a2a_discovery.py:44"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R047.3",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_archer_infra_a2a.py:126"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R047.4",
       "title": "Refusal",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_a2a_discovery.py:65"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R047.5",
       "title": "Evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_a2a_discovery.py:92"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R047.6",
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_vendor_extractors_archer_infra_a2a.py:141"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R048",
