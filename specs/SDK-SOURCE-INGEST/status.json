@@ -2446,8 +2446,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R804.7",
       "title": "Bound manifest paths and decisions",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "739c341c2595"
+      ],
       "verified_by": [
         "tests/voice_supply_chain/test_voice_supply_chain.py:171",
         "tests/voice_supply_chain/test_voice_supply_chain.py:191"
