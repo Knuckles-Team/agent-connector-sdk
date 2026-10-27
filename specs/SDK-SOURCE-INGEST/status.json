@@ -2395,18 +2395,18 @@
       "title": "Voice-model provenance manifest and license gate (rollup)",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "09cb7fb3989e",
         "11366ce437d5",
         "34f19683dc5a",
         "4b003b24ce55",
-        "739c341c2595",
-        "8c6dcfdd27e8"
+        "739c341c2595"
       ],
       "verified_by": [
         "tests/voice_supply_chain/test_voice_supply_chain.py:100",
-        "tests/voice_supply_chain/test_voice_supply_chain.py:132",
-        "tests/voice_supply_chain/test_voice_supply_chain.py:145",
-        "tests/voice_supply_chain/test_voice_supply_chain.py:201",
-        "tests/voice_supply_chain/test_voice_supply_chain.py:221"
+        "tests/voice_supply_chain/test_voice_supply_chain.py:138",
+        "tests/voice_supply_chain/test_voice_supply_chain.py:151",
+        "tests/voice_supply_chain/test_voice_supply_chain.py:207",
+        "tests/voice_supply_chain/test_voice_supply_chain.py:227"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R804.1",
@@ -2434,6 +2434,7 @@
       "title": "Behavior",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "09cb7fb3989e",
         "8c6dcfdd27e8"
       ],
       "verified_by": [
@@ -2448,7 +2449,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/voice_supply_chain/test_voice_supply_chain.py:145"
+        "tests/voice_supply_chain/test_voice_supply_chain.py:151"
       ]
     },
     {
@@ -2470,7 +2471,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/voice_supply_chain/test_voice_supply_chain.py:132"
+        "tests/voice_supply_chain/test_voice_supply_chain.py:138"
       ]
     },
     {
@@ -2492,8 +2493,8 @@
         "739c341c2595"
       ],
       "verified_by": [
-        "tests/voice_supply_chain/test_voice_supply_chain.py:201",
-        "tests/voice_supply_chain/test_voice_supply_chain.py:221"
+        "tests/voice_supply_chain/test_voice_supply_chain.py:207",
+        "tests/voice_supply_chain/test_voice_supply_chain.py:227"
       ]
     },
     {

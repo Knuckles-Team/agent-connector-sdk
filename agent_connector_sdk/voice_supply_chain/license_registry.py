@@ -82,7 +82,7 @@ def is_ready_for_promotion_handoff(manifest: VoiceModelManifest) -> tuple[bool, 
             False,
             f"license decision is {decision.counsel_decision!r}, not 'approved'",
         )
-    if not decision.reviewer:
+    if not decision.reviewer.strip():
         return False, "license decision has no recorded reviewer"
     return True, ""
 

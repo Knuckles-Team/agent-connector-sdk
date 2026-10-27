@@ -110,6 +110,12 @@ def test_manifest_normalizes_digest_case_and_defaults_are_fail_closed():
             "reviewer",
         ),
         (
+            {"counsel_decision": "approved", "reviewer": " \t\n"},
+            VoiceManifestStatus.VERIFIED,
+            False,
+            "reviewer",
+        ),
+        (
             {"counsel_decision": "approved", "reviewer": OK},
             VoiceManifestStatus.QUARANTINED,
             False,
