@@ -69,18 +69,18 @@
   - [ ] **R046.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R046.5).
   - [ ] **R046.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R046.6).
 - [ ] **R047:** Agent-card discovery from the standard well-known path. (SDK-CONNECTOR-CONTROL-R047).
-  - [ ] **R047.1:** Model row. (SDK-CONNECTOR-CONTROL-R047.1).
+  - [x] **R047.1:** Model row. (SDK-CONNECTOR-CONTROL-R047.1).
   - [ ] **R047.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R047.2).
-  - [ ] **R047.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R047.3).
-  - [ ] **R047.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R047.4).
-  - [ ] **R047.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R047.5).
+  - [x] **R047.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R047.3).
+  - [x] **R047.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R047.4).
+  - [x] **R047.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R047.5).
 - [ ] **R055:** Arbora producer-consumer handoff for AU disclosure-set gate. Bind Arbora find, EG ToolRelevance, and AU DisclosureSet gate.
 - [ ] **R056:** EG and SDK tool producer compatibility decisions and receipts. Bind at schema-fingerprint/FleetOnboarding.onboard.
 - [ ] **R057:** Replaceable search-grounding provider independent of reasoning model. Test provider/model independence.
 - [ ] **R058:** Request durability boundary correction. Separate transport selection from durability class.
 - [ ] **R059:** EG capability-to-existing-method bindings. Map five capabilities to existing EG methods.
 - [ ] **R060:** Native desktop operation port and no-cursor/no-focus invariant. Served tests with grant-bound refusal.
-  - [ ] **R047.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R047.6).
+  - [x] **R047.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R047.6).
 - [ ] **R048:** Agent-readable text form in tool contracts. (SDK-CONNECTOR-CONTROL-R048).
   - [ ] **R048.1:** Model row. (SDK-CONNECTOR-CONTROL-R048.1).
   - [ ] **R048.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R048.2).
@@ -309,3 +309,9 @@ quoting and signing-setting paths without changing production behavior.
 
 - [ ] Prevent ambient proxy and redirect forwarding of the OpenBao token (SDK-CONNECTOR-CONTROL-R035.7).
 - [ ] **SDK-CONNECTOR-CONTROL-R014.27:** Record current fleet-wide migration census and owner receipt before closing the toolkit replacement rollup.
+
+## Agent-card discovery safety
+
+Loopback discovery is denied unless the host explicitly opts in. Compressed
+responses are refused before decoding to preserve the response size bound.
+The total response deadline remains open under R047.2.

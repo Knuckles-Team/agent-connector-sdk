@@ -13,15 +13,15 @@ def test_refused_discovery_is_excluded_from_extractor_changeset(monkeypatch) -> 
     outcomes = []
     discover = a2a_helpers.discover_agent_card
 
-    def record_outcome(base_url: str):
-        outcome = discover(base_url)
+    def record_outcome(base_url: str, **kwargs):
+        outcome = discover(base_url, **kwargs)
         outcomes.append(outcome)
         return outcome
 
     monkeypatch.setattr(a2a_helpers, "discover_agent_card", record_outcome)
 
     with ScriptedHttpServer(ScriptedResponse(status=404)) as server:
-        result = extract({"cards": [server.base_url]})
+        result = extract({"cards": [server.base_url], "allow_loopback": True})
 
     assert len(outcomes) == 1
     assert outcomes[0] == AgentCardRefused(reason="not_found")

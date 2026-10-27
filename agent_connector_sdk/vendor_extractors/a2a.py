@@ -11,7 +11,8 @@ agent-card dicts) or referenced as a path / list of paths to JSON card files,
 read tolerantly with ``json.load``. Standard card keys handled (all
 optional): ``name``, ``description``, ``url``/``endpoint``, ``version``,
 ``provider``, ``skills`` (list of ``{id|name, description, tags}``). This
-module performs no network calls itself.
+module may fetch remote cards through the governed discovery client. Loopback
+access requires an explicit ``allow_loopback`` setting.
 """
 
 from __future__ import annotations
