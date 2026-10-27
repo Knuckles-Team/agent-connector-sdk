@@ -73,7 +73,7 @@
       "title": "Provider pages respect their requested bound",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "814bdecabbf2"
+        "8dada56817e1"
       ],
       "verified_by": [
         "tests/test_repository_refs.py:110",
