@@ -1111,8 +1111,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R035.7",
       "title": "Keep the OpenBao token on the configured transport",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d94cf2ada6f6"
+      ],
       "verified_by": [
         "tests/test_credentials.py:112",
         "tests/test_credentials.py:134"
