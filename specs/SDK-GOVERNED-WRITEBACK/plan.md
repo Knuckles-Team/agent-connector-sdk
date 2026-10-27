@@ -181,8 +181,8 @@ Keep R004.1–R004.4 as independent generic residual units. Then implement reque
 
 `GovernedWriteBack.apply` must refuse a missing or blank reservation ID before
 calling the transport. The file-backed sink reservation compares an existing
-ID to the exact expected key and digest. The generic port still returns an
-opaque string; R004.3 retains the separate durable binding and served proof.
+ID to the exact expected key and digest. R004.3 adds the typed binding and
+the separate durable reservation proof.
 
 ### Amendment 2026-10-27: uncertain reconciliation
 
@@ -202,3 +202,10 @@ Reject a contradictory no-effect observation to prevent another mutation.
 For SDK-GOVERNED-WRITEBACK-R004.2, a receipt page with a continuation must
 contain at least one receipt. Its continuation equals the last receipt's
 sequence. Replay rejects a cursor that can skip unseen durable records.
+# Bound audit reservations
+
+R004.3 uses a typed reservation carrying its ID, effect key and change-set
+digest. The governed apply path verifies all three before a source mutation.
+The file adapter serializes reservations and synchronizes the stored record.
+Existing file records are accepted only when their ID binds the same key and
+digest. External audit adapters must return the same typed binding.

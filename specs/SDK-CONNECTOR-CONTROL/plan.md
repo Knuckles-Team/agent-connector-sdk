@@ -646,3 +646,17 @@ check against an authenticated predecessor release. R020.4 remains open.
 R045.3 counts UTF-8 bytes in the canonical tool body and rounds up by the named
 divisor. The helper does not publish pack annotations. The generated annotation
 fields and capture wiring remain under R045.6 and R045.8.
+
+## 2026-10-27: deployed-workload contract evidence
+
+R039 remains unverified by this repository's local evidence. The
+container-manager contract selects `k8s_list_services`, which returns
+deployment summaries. Its status is the source's `Available` condition; its
+image field is the first container image reference. The fixture is generated
+from a synthetic provider through the served MCP tool. It is not a recording
+from a live cluster. The connector change landed in merge commit
+`db08ad5123a1b12ef715d237d2d3aa6e49aac330` with green PR checks.
+
+EG-CQ-XSRC-R003.5 separately requires an approved virtual mapping to `:Service`
+and `:ContainerImage`, shape validation and equal query rows. A connector
+contract for `:Deployment` does not prove that engine acceptance.

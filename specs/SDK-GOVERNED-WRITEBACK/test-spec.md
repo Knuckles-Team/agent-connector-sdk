@@ -85,3 +85,7 @@ The served journey previews without mutation, records approval of that exact dig
 Crash before provider mutation and after mutation before response. Also crash after independent readback before durable append, and after append before client response. Restart in a new process against the same ledger and provider. If no durable receipt exists, force provider causal lookup before any apply retry. Prove the original revision and receipt, or authoritative no-effect followed by at most one conditional effect. Otherwise require a typed unresolved result with zero reapply. Test an unrelated actor writing identical bytes, a moved target, unavailable provider history and a lost audit binding. None proves this request caused an effect.
 
 Read-only ingestion and hydration must still work without any write capability. Attempting to use their output as approval refuses. Missing real transport composition or consumer wiring is evidence of an unexercised scenario, never an applied-success result. All new acceptance remains future implementation work until actual served evidence exists.
+# Bound audit reservation proof
+
+R004.3 checks reservation-before-effect ordering, missing and wrong bindings,
+and durable reservation reuse on a proven-no-effect retry.

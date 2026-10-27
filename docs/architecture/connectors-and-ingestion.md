@@ -447,6 +447,13 @@ adapt it once the sibling domain-pack contract publishes (see
 
 ## 8. Typed connector prepare → validate → map boundary
 
+`CleanPipeline.run` keeps its existing single-evidence limit. For larger
+tables, `run_paged` runs the complete plan before returning a result.
+Its `iter_evidence_pages()` yields every row outcome in ordinal order, with
+each page bounded by the plan's `max_outcome_rows`. Consume every page and
+check the expected row count before treating evidence delivery as complete.
+The content eligibility flag does not attest that a consumer read the evidence.
+
 Connectors that ingest bounded Arrow pages can opt into the shared
 `agent_utilities.data_prep.connector_contract` boundary without adding a
 provider-specific commit path:

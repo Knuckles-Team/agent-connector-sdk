@@ -148,6 +148,12 @@ implements a parallel digest. EG alone creates and persists `WriteBackReceipt`
 and `ReconciliationReceipt`. No live vendor write-back is enabled by the
 reference in-memory transport.
 
+`AuditReservationPort.reserve` returns an `AuditReservation` with its ID, effect
+key and canonical change-set digest. An adapter must persist that binding before
+returning it and reuse it for a proven-no-effect retry. Existing adapters that
+return a string must migrate to the typed receipt; a string now refuses before
+the source mutation. The file adapter reads matching existing reservation IDs.
+
 ## Activation
 
 `load_extension(group, name, policy=...)` loads an extension only when the

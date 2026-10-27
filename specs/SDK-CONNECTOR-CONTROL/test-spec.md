@@ -412,3 +412,9 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R902`: `tests/test_actor_forwarding_se
 
 R045.3 uses a captured tool's canonical body and checks byte boundaries and
 non-ASCII text against the named divisor.
+
+- **R039 external evidence:** The container-manager test
+  `tests/test_access_contracts.py::test_served_deployment_access_contract_matches_fixture`
+  uses a synthetic Kubernetes provider and a real MCP tool call. Its owner
+  repository merged commit `db08ad5123a1b12ef715d237d2d3aa6e49aac330` after
+  green checks. This is not a local test binding or engine mapping proof.

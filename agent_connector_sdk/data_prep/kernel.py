@@ -13,7 +13,7 @@ import json
 import math
 import re
 import time
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Any, Literal
@@ -83,6 +83,64 @@ class PrepResult:
 
     table: Any
     evidence: PrepEvidence
+
+
+@dataclass(frozen=True, slots=True)
+class PagedPrepResult:
+    """Whole-plan result with lazily materialized, bounded row evidence pages.
+
+    The summary is not a statement that a consumer has read every page.
+    ``outcomes_digest`` hashes one byte per input ordinal: 1 for accepted,
+    2 for deduplicated, 3 for null rejection and 4 for model rejection.
+    """
+
+    table: Any = field(repr=False)
+    rows_in: int
+    rows_out: int
+    dropped_rows: int
+    quarantined_rows: int
+    model_rejected_rows: int
+    content_checkpoint_eligible: bool
+    plan_digest: str
+    input_schema_digest: str
+    output_schema_digest: str
+    model_digest: str
+    plan_ref: str
+    policy_ref: str
+    model_ref: str
+    source_ref: str | None
+    artifact_ref: str | None
+    steps: tuple[StepEvidence, ...]
+    quarantine: tuple[QuarantineOutcome, ...]
+    page_size: int
+    outcomes_digest: str
+    _codes: bytes = field(repr=False)
+
+    def iter_evidence_pages(self) -> Iterator[tuple[RowOutcome, ...]]:
+        """Yield every ordinal in order, at most ``page_size`` rows at a time."""
+        values: dict[
+            int,
+            tuple[
+                Literal["accepted", "dropped", "quarantined"],
+                Literal["accepted", "deduplicated", "null_rejected", "model_rejected"],
+            ],
+        ] = {
+            1: ("accepted", "accepted"),
+            2: ("dropped", "deduplicated"),
+            3: ("quarantined", "null_rejected"),
+            4: ("quarantined", "model_rejected"),
+        }
+        for offset in range(0, self.rows_in, self.page_size):
+            yield tuple(
+                RowOutcome(
+                    row_index=offset + index,
+                    status=values[code][0],
+                    reason_code=values[code][1],
+                )
+                for index, code in enumerate(
+                    self._codes[offset : offset + self.page_size]
+                )
+            )
 
 
 _CANONICAL_NAME = re.compile(r"[^a-z0-9]+")
@@ -964,6 +1022,7 @@ def _validate_rows(
     row_ids: Sequence[int],
     disposition: str,
     profile: LocalProfile,
+    outcome_codes: bytearray | None = None,
 ) -> tuple[Any, list[RowOutcome], int]:
     """Validate bounded Arrow rows and return only redacted dispositions."""
 
@@ -971,7 +1030,7 @@ def _validate_rows(
     _validate_row_model_schema(table, row_model)
     if len(row_ids) != table.num_rows:
         raise PlanExecutionError("row identity accounting does not match the table")
-    if table.num_rows > profile.max_outcome_rows:
+    if outcome_codes is None and table.num_rows > profile.max_outcome_rows:
         raise ProfileLimitError("row outcomes exceed the local profile limit")
     valid_flags: list[bool] = []
     outcomes: list[RowOutcome] = []
@@ -984,28 +1043,34 @@ def _validate_rows(
             except ValidationError:
                 rejected += 1
                 valid_flags.append(False)
-                outcomes.append(
-                    RowOutcome(
-                        row_index=row_ids[row_index],
-                        status="quarantined",
-                        reason_code="model_rejected",
+                if outcome_codes is not None:
+                    outcome_codes[row_ids[row_index]] = 4
+                else:
+                    outcomes.append(
+                        RowOutcome(
+                            row_index=row_ids[row_index],
+                            status="quarantined",
+                            reason_code="model_rejected",
+                        )
                     )
-                )
             else:
                 valid_flags.append(True)
-                outcomes.append(
-                    RowOutcome(
-                        row_index=row_ids[row_index],
-                        status="accepted",
-                        reason_code="accepted",
+                if outcome_codes is not None:
+                    outcome_codes[row_ids[row_index]] = 1
+                else:
+                    outcomes.append(
+                        RowOutcome(
+                            row_index=row_ids[row_index],
+                            status="accepted",
+                            reason_code="accepted",
+                        )
                     )
-                )
             row_index += 1
     if rejected and disposition == "fail":
         raise InvalidRowsError(rejected, reason="strict row-model validation")
     if rejected > min(
         profile.max_quarantine_rows,
-        profile.max_outcome_rows,
+        profile.max_outcome_rows if outcome_codes is None else profile.max_rows,
         profile.max_rows,
     ):
         raise ProfileLimitError("model quarantine rows exceed the local profile limit")
@@ -1060,6 +1125,7 @@ class _RunState:
     quarantine: list[QuarantineOutcome] = field(default_factory=list)
     row_outcomes: list[RowOutcome] = field(default_factory=list)
     step_evidence: list[StepEvidence] = field(default_factory=list)
+    outcome_codes: bytearray | None = None
 
 
 def _apply_null_quarantine(
@@ -1077,14 +1143,18 @@ def _apply_null_quarantine(
     state.quarantine.append(
         QuarantineOutcome(reason_code="null_rejected", row_count=count)
     )
-    state.row_outcomes.extend(
-        RowOutcome(
-            row_index=before_row_ids[index],
-            status="quarantined",
-            reason_code="null_rejected",
+    if state.outcome_codes is not None:
+        for index in quarantine_indexes:
+            state.outcome_codes[before_row_ids[index]] = 3
+    else:
+        state.row_outcomes.extend(
+            RowOutcome(
+                row_index=before_row_ids[index],
+                status="quarantined",
+                reason_code="null_rejected",
+            )
+            for index in quarantine_indexes
         )
-        for index in quarantine_indexes
-    )
     if len(state.row_outcomes) > plan.profile.max_outcome_rows:
         raise ProfileLimitError("row outcomes exceed the local profile limit")
     invalid_positions = set(quarantine_indexes)
@@ -1109,14 +1179,18 @@ def _apply_dedupe_drop(
     if not dropped_indexes:
         return
     state.dropped_rows += len(dropped_indexes)
-    state.row_outcomes.extend(
-        RowOutcome(
-            row_index=before_row_ids[index],
-            status="dropped",
-            reason_code="deduplicated",
+    if state.outcome_codes is not None:
+        for index in dropped_indexes:
+            state.outcome_codes[before_row_ids[index]] = 2
+    else:
+        state.row_outcomes.extend(
+            RowOutcome(
+                row_index=before_row_ids[index],
+                status="dropped",
+                reason_code="deduplicated",
+            )
+            for index in sorted(dropped_indexes)
         )
-        for index in sorted(dropped_indexes)
-    )
     if len(state.row_outcomes) > plan.profile.max_outcome_rows:
         raise ProfileLimitError("row outcomes exceed the local profile limit")
 
@@ -1159,6 +1233,7 @@ def _finalize_model_validation(
         row_ids=state.row_ids,
         disposition=plan.invalid_row_disposition,
         profile=plan.profile,
+        outcome_codes=state.outcome_codes,
     )
     state.row_outcomes.extend(model_outcomes)
     if len(state.row_outcomes) > plan.profile.max_outcome_rows:
@@ -1208,6 +1283,57 @@ class CleanPipeline:
             target_ref=(
                 self._plan.artifact_ref or self._plan.source_ref or self._plan.plan_ref
             ),
+        )
+
+    def run_paged(self, table: Any) -> PagedPrepResult:
+        """Execute the whole plan and expose outcomes through bounded pages."""
+        ArrowAdapter.as_table(table, profile=self._plan.profile)
+        if self._registry is None:
+            raise PlanExecutionError("an approved row-model registry is required")
+        model_entry = self._registry.resolve(
+            self._plan.model_ref, self._plan.model_digest
+        )
+        input_schema = schema_digest(table)
+        state = _RunState(
+            current=table,
+            row_ids=list(range(table.num_rows)),
+            outcome_codes=bytearray(table.num_rows),
+        )
+        for step in self._plan.steps:
+            _run_one_step(state, step, self._plan)
+        rejected = _finalize_model_validation(state, model_entry, self._plan)
+        _check_profile(state.current, self._plan.profile)
+        codes = bytes(state.outcome_codes or b"")
+        if (
+            len(codes) != table.num_rows
+            or 0 in codes
+            or codes.count(1) != state.current.num_rows
+            or codes.count(2) != state.dropped_rows
+            or codes.count(3) + codes.count(4) != state.quarantined_rows
+        ):
+            raise PlanExecutionError("row outcome accounting is incomplete")
+        return PagedPrepResult(
+            table=state.current,
+            rows_in=table.num_rows,
+            rows_out=state.current.num_rows,
+            dropped_rows=state.dropped_rows,
+            quarantined_rows=state.quarantined_rows,
+            model_rejected_rows=rejected,
+            content_checkpoint_eligible=not state.quarantined_rows,
+            plan_digest=plan_digest(self._plan),
+            input_schema_digest=input_schema,
+            output_schema_digest=schema_digest(state.current),
+            model_digest=model_entry.digest,
+            plan_ref=self._plan.plan_ref,
+            policy_ref=self._plan.policy_ref,
+            model_ref=self._plan.model_ref,
+            source_ref=self._plan.source_ref,
+            artifact_ref=self._plan.artifact_ref,
+            steps=tuple(state.step_evidence),
+            quarantine=tuple(state.quarantine),
+            page_size=self._plan.profile.max_outcome_rows,
+            outcomes_digest=_digest(codes),
+            _codes=codes,
         )
 
     def run(self, table: Any) -> PrepResult:
@@ -1271,6 +1397,7 @@ __all__ = [
     "DataPrepDependencyError",
     "DataPrepError",
     "InvalidRowsError",
+    "PagedPrepResult",
     "PlanExecutionError",
     "PrepResult",
     "ProfileDeadlineError",

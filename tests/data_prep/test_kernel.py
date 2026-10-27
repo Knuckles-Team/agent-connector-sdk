@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import resource
+import time
 
 import pyarrow as pa
 import pytest
@@ -12,6 +14,7 @@ from agent_connector_sdk.data_prep import (
     CleanPipeline,
     CleanPlan,
     InvalidRowsError,
+    PagedPrepResult,
     PlanExecutionError,
     PrepEvidence,
     ProfileLimitError,
@@ -362,6 +365,79 @@ def test_dedupe_requires_explicit_keys_and_preserves_first_input_row() -> None:
         "deduplicated",
         "deduplicated",
     ]
+
+
+def test_paged_evidence_preserves_global_dedupe_and_refuses_partial_failure() -> None:
+    profile = {"max_rows": 10, "max_columns": 4, "max_steps": 4, "max_outcome_rows": 2}
+    plan = _plan({"verb": "dedupe", "keys": ["key"]}, profile=profile)
+    pipeline = CleanPipeline(
+        plan, model_registry=_registry(_row_model("PagedRow", key=int))
+    )
+    table = pa.table({"key": [1, 2, 1, 3, 2]})
+    result = pipeline.run_paged(table)
+    assert isinstance(result, PagedPrepResult)
+    assert "pyarrow.Table" not in repr(result)
+    pages = list(result.iter_evidence_pages())
+    assert [len(page) for page in pages] == [2, 2, 1]
+    outcomes = [item for page in pages for item in page]
+    assert [item.row_index for item in outcomes] == [0, 1, 2, 3, 4]
+    assert [item.status for item in outcomes] == [
+        "accepted",
+        "accepted",
+        "dropped",
+        "accepted",
+        "dropped",
+    ]
+    assert result.table.to_pydict() == {"key": [1, 2, 3]}
+    with pytest.raises(ProfileLimitError):
+        pipeline.run(table)
+    with pytest.raises(InvalidRowsError):
+        pipeline.run_paged(pa.table({"key": [1, None, 2]}))
+
+
+def test_paged_quarantine_evidence_matches_existing_result() -> None:
+    plan = _plan(
+        {"verb": "null_policy", "columns": ["key"], "action": "reject"},
+        invalid_row_disposition="quarantine",
+    )
+    pipeline = CleanPipeline(
+        plan, model_registry=_registry(_row_model("QuarantineRow", key=int))
+    )
+    table = pa.table({"key": [1, None, 2]})
+    ordinary = pipeline.run(table)
+    paged = pipeline.run_paged(table)
+    assert [
+        item for page in paged.iter_evidence_pages() for item in page
+    ] == ordinary.evidence.row_outcomes
+    assert paged.quarantined_rows == ordinary.evidence.quarantined_rows == 1
+    assert paged.content_checkpoint_eligible is False
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.6")
+def test_million_row_plan_produces_bounded_paged_evidence(record_property) -> None:
+    plan = _plan(
+        {"verb": "dedupe", "keys": ["key"]},
+        profile={
+            "max_rows": 1_000_000,
+            "max_columns": 2,
+            "max_steps": 1,
+            "max_outcome_rows": 200_000,
+        },
+    )
+    pipeline = CleanPipeline(
+        plan, model_registry=_registry(_row_model("MillionRow", key=int))
+    )
+    table = pa.table({"key": pa.array(range(1_000_000), type=pa.int64())})
+    started = time.perf_counter()
+    result = pipeline.run_paged(table)
+    count = 0
+    for page in result.iter_evidence_pages():
+        assert len(page) <= 200_000
+        assert page[0].row_index == count
+        count += len(page)
+    record_property("elapsed_seconds", time.perf_counter() - started)
+    record_property("peak_rss_kib", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+    assert count == result.rows_in == result.rows_out == 1_000_000
 
 
 def test_dedupe_treats_null_keys_deterministically() -> None:

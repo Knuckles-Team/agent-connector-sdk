@@ -163,9 +163,16 @@
     {
       "id": "SDK-GOVERNED-WRITEBACK-R004.3",
       "title": "Generic audit reservation residual",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4ecb8b144b42"
+      ],
+      "verified_by": [
+        "tests/test_writeback_audit_reservation.py:121",
+        "tests/test_writeback_audit_reservation.py:158",
+        "tests/test_writeback_audit_reservation.py:181",
+        "tests/test_writeback_audit_reservation.py:95"
+      ]
     },
     {
       "id": "SDK-GOVERNED-WRITEBACK-R004.4",
