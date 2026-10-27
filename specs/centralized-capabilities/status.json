@@ -71,12 +71,17 @@
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R004",
       "title": "Pagination helpers",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "c842d089626d"
+        "c842d089626d",
+        "e26eb224bc48"
       ],
       "verified_by": [
-        "tests/httpsupport/test_pagination_next_url.py:15"
+        "tests/httpsupport/test_pagination_next_url.py:101",
+        "tests/httpsupport/test_pagination_next_url.py:121",
+        "tests/httpsupport/test_pagination_next_url.py:135",
+        "tests/httpsupport/test_pagination_next_url.py:15",
+        "tests/httpsupport/test_pagination_next_url.py:161"
       ],
       "rollup_of": [
         "SDK-CENTRALIZED-CAPABILITIES-R004.1"
@@ -85,8 +90,10 @@
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R004.1",
       "title": "Refuse unsafe next-page URLs without exposing credentials",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e26eb224bc48"
+      ],
       "verified_by": [
         "tests/httpsupport/test_pagination_next_url.py:101",
         "tests/httpsupport/test_pagination_next_url.py:121",
