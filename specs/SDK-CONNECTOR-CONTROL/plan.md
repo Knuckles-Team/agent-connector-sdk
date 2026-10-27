@@ -603,3 +603,11 @@ The fleet inventory found nine hand-written auth shapes across 63 `auth.py` file
 Static, client-credentials and delegation auth already refresh and redact. This amendment adds a rotated-secret retry for static credentials, the refresh-token grant and a cookie-session login. It adds one declaration surface over the TLS profile resolver.
 
 R028.3 requires a separate explicit contract for cookie-session login, and `SessionLogin` is that contract. API-key clients keep cookie isolation.
+
+## Amendment: TLS identity for pinned addresses (R028.1)
+
+The standalone pinned transport must retain the logical HTTPS hostname for TLS
+server-name indication and certificate validation after replacing the dial
+address. A caller-provided SNI override cannot change that identity. Preserve
+the original Host header, including a nondefault port. The served TLS test
+uses a trusted test CA and rejects a certificate for a different hostname.

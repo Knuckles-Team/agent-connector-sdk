@@ -119,9 +119,15 @@ class PinnedAddressTransport(httpx.BaseTransport):
 
     def handle_request(self, request: httpx.Request) -> httpx.Response:
         """Rewrite ``request`` to the pinned address and delegate to ``inner``."""
+        logical_url = request.url
         if "host" not in request.headers:
-            request.headers["host"] = request.url.host
-        request.url = request.url.copy_with(host=self._host, port=self._port)
+            request.headers["host"] = logical_url.netloc.decode("ascii")
+        request.url = logical_url.copy_with(host=self._host, port=self._port)
+        if logical_url.scheme == "https":
+            request.extensions = {
+                **request.extensions,
+                "sni_hostname": logical_url.host,
+            }
         return self._inner.handle_request(request)
 
     def close(self) -> None:

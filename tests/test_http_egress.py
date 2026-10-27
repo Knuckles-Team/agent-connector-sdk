@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import ssl
+from pathlib import Path
+
 import httpx
 import pytest
 
@@ -12,6 +15,8 @@ from agent_connector_sdk.http.egress import (
     check_egress_destination,
     pinned_egress_transport,
 )
+from agent_connector_sdk.testing.certificates import issue_test_certificates
+from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.1")
@@ -66,3 +71,30 @@ def test_pinned_transport_reuses_the_resolved_address_not_dns() -> None:
     assert second.status_code == 200
     # Every request dialed the pinned address, never the request's own host.
     assert seen_hosts == ["203.0.113.9", "203.0.113.9"]
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.1")
+def test_pinned_transport_verifies_original_tls_hostname(tmp_path: Path) -> None:
+    certificates = issue_test_certificates()
+    server_context = certificates.server_context(tmp_path)
+    observed_sni: list[str | None] = []
+    server_context.set_servername_callback(
+        lambda _socket, name, _context: observed_sni.append(name)
+    )
+    client_context = ssl.create_default_context(cadata=certificates.ca_pem)
+    with ScriptedHttpServer(ScriptedResponse(), ssl_context=server_context) as server:
+        port = int(server.base_url.rsplit(":", 1)[1])
+        transport = pinned_egress_transport(
+            host="127.0.0.1",
+            port=port,
+            inner=httpx.HTTPTransport(verify=client_context),
+        )
+        with httpx.Client(transport=transport, trust_env=False) as client:
+            with pytest.raises(httpx.ConnectError):
+                client.get(
+                    "https://invalid.example/", extensions={"sni_hostname": "localhost"}
+                )
+            response = client.get("https://localhost/")
+    assert response.status_code == 200
+    assert observed_sni == ["invalid.example", "localhost"]
+    assert server.requests[0].headers["host"] == "localhost"
