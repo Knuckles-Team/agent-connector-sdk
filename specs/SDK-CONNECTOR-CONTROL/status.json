@@ -865,9 +865,9 @@
       "title": "A standalone, typed SSRF egress-destination check and pinned-address transport",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "0481308202ca",
         "284fb12a19ed",
-        "54744d32428a",
-        "92b0024f3758"
+        "54744d32428a"
       ],
       "verified_by": [
         "tests/test_http_egress.py:22",
