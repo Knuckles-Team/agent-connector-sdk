@@ -66,8 +66,8 @@ async def _receipt_recovery_state(
         )
         if page.next_sequence is None:
             return state
-        if after_sequence is not None and page.next_sequence <= after_sequence:
-            raise WriteBackPersistenceError("EG receipt pagination did not advance")
+        if not page.receipts or page.next_sequence != last_sequence:
+            raise WriteBackPersistenceError("EG receipt continuation is not page-bound")
         after_sequence = page.next_sequence
 
 

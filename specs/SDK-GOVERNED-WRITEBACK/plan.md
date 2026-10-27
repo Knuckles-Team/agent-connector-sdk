@@ -196,3 +196,9 @@ Arbora consumes these exact request/receipt contracts under ARBORA-FLEET-R003, u
 For SDK-GOVERNED-WRITEBACK-R004.2, receipt replay must reject a later
 non-applied state after an applied receipt, including across receipt pages.
 Reject a contradictory no-effect observation to prevent another mutation.
+
+# Amendment: receipt continuation must not skip records
+
+For SDK-GOVERNED-WRITEBACK-R004.2, a receipt page with a continuation must
+contain at least one receipt. Its continuation equals the last receipt's
+sequence. Replay rejects a cursor that can skip unseen durable records.
