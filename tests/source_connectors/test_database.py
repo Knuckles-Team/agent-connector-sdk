@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -70,6 +71,39 @@ def test_poll_refuses_a_watermark_type_change(sqlite_dsn: str) -> None:
     source = _source(sqlite_dsn)
     with pytest.raises(ValueError, match="watermark types"):
         source.poll(ConnectorCheckpoint(watermark="2026-01-01"))
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R900.7")
+def test_poll_orders_offset_timestamps_by_instant(tmp_path: Path) -> None:
+    path = tmp_path / "timestamps.db"
+    with sqlite3.connect(path) as connection:
+        connection.execute("CREATE TABLE events (id INTEGER, text TEXT, updated TEXT)")
+        connection.executemany(
+            "INSERT INTO events VALUES (?, ?, ?)",
+            [
+                (1, "Earlier", "2026-01-01T10:00:00+00:00"),
+                (2, "Later", "2026-01-01T06:00:00-05:00"),
+            ],
+        )
+    source = build_connector(
+        "database",
+        {
+            "query": "SELECT id, text, updated FROM events",
+            "updated_field": "updated",
+            "conn": UniversalConnector(f"sqlite:///{path}"),
+        },
+    )
+    result = source.poll(ConnectorCheckpoint(watermark="2026-01-01T10:00:00+00:00"))
+    assert [doc.text for doc in result.documents] == ["Later"]
+    assert result.checkpoint.watermark == "2026-01-01T06:00:00-05:00"
+    assert source.poll(result.checkpoint).documents == []
+
+
+def test_poll_refuses_incomparable_timestamps() -> None:
+    with pytest.raises(ValueError, match="incomparable"):
+        database._watermark_after("2026-01-01T10:00:00", "2026-01-01T09:00:00Z")
+    with pytest.raises(ValueError, match="incomparable"):
+        database._watermark_after("2026-01-99T10:00:00Z", "2026-01-01T09:00:00Z")
 
 
 # spec: SDK-SOURCE-INGEST-R900.4

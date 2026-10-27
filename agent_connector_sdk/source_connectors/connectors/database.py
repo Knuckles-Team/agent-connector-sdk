@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Iterator
+from datetime import datetime
 from typing import Any, cast
 
 from agent_connector_sdk.credentials.resolution import (
@@ -39,13 +40,14 @@ _SECRET_REF_RE = re.compile(r"^(?:env|openbao)://[A-Za-z0-9_./#-]+$")
 _FIELD_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.-]{0,254}$")
 _SOURCE_ALIAS_RE = re.compile(r"^[a-z][a-z0-9-]{1,62}$")
 _INTEGER_WATERMARK_RE = re.compile(r"[+-]?[0-9]+\Z")
+_TIMESTAMP_WATERMARK_RE = re.compile(r"\d{4}-\d{2}-\d{2}[Tt ]")
 _DATABASE_PROFILE_FIELDS = frozenset(
     {"dsn", "kind", "tls_service", "tls_profile", "tls_profile_ref"}
 )
 
 
 def _watermark_after(candidate: str, previous: str) -> bool:
-    """Compare integer watermarks numerically and other watermarks as text."""
+    """Compare integer and timestamp watermarks by value, and other text lexically."""
     candidate_integer = _INTEGER_WATERMARK_RE.fullmatch(candidate) is not None
     previous_integer = _INTEGER_WATERMARK_RE.fullmatch(previous) is not None
     if candidate_integer and previous_integer:
@@ -54,6 +56,21 @@ def _watermark_after(candidate: str, previous: str) -> bool:
         return int(candidate) > int(previous)
     if candidate_integer != previous_integer:
         raise ValueError("database watermark types do not match")
+    candidate_time = _TIMESTAMP_WATERMARK_RE.match(candidate) is not None
+    previous_time = _TIMESTAMP_WATERMARK_RE.match(previous) is not None
+    if candidate_time != previous_time:
+        raise ValueError("database watermark types do not match")
+    if candidate_time:
+        if len(candidate) > 256 or len(previous) > 256:
+            raise ValueError("database timestamp watermark is too large")
+        try:
+            candidate_datetime = datetime.fromisoformat(
+                candidate.replace("Z", "+00:00")
+            )
+            previous_datetime = datetime.fromisoformat(previous.replace("Z", "+00:00"))
+            return candidate_datetime > previous_datetime
+        except (TypeError, ValueError) as exc:
+            raise ValueError("database timestamp watermarks are incomparable") from exc
     return candidate > previous
 
 
