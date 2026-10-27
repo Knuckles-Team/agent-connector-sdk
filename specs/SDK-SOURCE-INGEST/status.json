@@ -123,6 +123,9 @@
     "SDK-SOURCE-INGEST-R004.10",
     "SDK-SOURCE-INGEST-R004.11",
     "SDK-SOURCE-INGEST-R004.12",
+    "SDK-SOURCE-INGEST-R004.37",
+    "SDK-SOURCE-INGEST-R004.38",
+    "SDK-SOURCE-INGEST-R004.39",
     "SDK-SOURCE-INGEST-R004.13",
     "SDK-SOURCE-INGEST-R004.14",
     "SDK-SOURCE-INGEST-R004.15",
@@ -242,7 +245,7 @@
   "requirements": [
     {
       "id": "SDK-SOURCE-INGEST-R001",
-      "title": "SDK runner completes on generated ConnectorPack and SourceIngest contracts",
+      "title": "SDK runner completes generated contracts",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": [],
@@ -257,7 +260,7 @@
     },
     {
       "id": "SDK-SOURCE-INGEST-R002",
-      "title": "SDK drift classifier quarantines incompatible schema changes",
+      "title": "SDK drift classifier handles incompatible schema changes",
       "delivery_state": "VERIFIED",
       "landed_in": [
         "ffb9260d7602"
@@ -306,6 +309,9 @@
         "SDK-SOURCE-INGEST-R004.10",
         "SDK-SOURCE-INGEST-R004.11",
         "SDK-SOURCE-INGEST-R004.12",
+        "SDK-SOURCE-INGEST-R004.37",
+        "SDK-SOURCE-INGEST-R004.38",
+        "SDK-SOURCE-INGEST-R004.39",
         "SDK-SOURCE-INGEST-R004.13",
         "SDK-SOURCE-INGEST-R004.14",
         "SDK-SOURCE-INGEST-R004.15",
@@ -1527,6 +1533,60 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.37",
+      "title": "Generic pack receiver model",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "60ddd91e17c3",
+        "bd353eecdfb2",
+        "c51f6ff4a2db",
+        "dc9a1b0bb61a",
+        "f351d70272b2"
+      ],
+      "verified_by": [
+        "tests/test_foreign_read.py:273",
+        "tests/test_foreign_read.py:738",
+        "tests/test_foreign_read.py:99"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.38",
+      "title": "Generic pack receiver behavior",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "60ddd91e17c3",
+        "bd353eecdfb2",
+        "c51f6ff4a2db",
+        "dc9a1b0bb61a",
+        "ee03ae46d563"
+      ],
+      "verified_by": [
+        "tests/test_foreign_read.py:274",
+        "tests/test_foreign_read.py:334",
+        "tests/test_foreign_read.py:406",
+        "tests/test_foreign_read.py:475",
+        "tests/test_foreign_read.py:509"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.39",
+      "title": "Generic pack receiver refusal",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "60ddd91e17c3",
+        "bd353eecdfb2",
+        "c51f6ff4a2db",
+        "dc9a1b0bb61a"
+      ],
+      "verified_by": [
+        "tests/test_foreign_read.py:335",
+        "tests/test_foreign_read.py:407",
+        "tests/test_foreign_read.py:547",
+        "tests/test_foreign_read.py:567",
+        "tests/test_foreign_read.py:615"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.13",

@@ -185,6 +185,9 @@ All tests in this section are planned and unexecuted.
 | `SDK-SOURCE-INGEST-R004.10` | Refusal | `tests/test_approved_sql_source_served.py::test_revocation_and_failure_after_chunks` proves explicit terminal failure after three chunks and zero unauthorized effects. |
 | `SDK-SOURCE-INGEST-R004.11` | Evidence | `tests/test_approved_sql_source.py::test_page_provenance_and_redaction` compares immutable bindings, verification receipts, terminal totals and redacted failures. |
 | `SDK-SOURCE-INGEST-R004.12` | Hot-path proof | Use real authenticated dispatch on both sides. Mocks of approval, driver, dispatcher or durable ingestion cannot close acceptance. |
+| `SDK-SOURCE-INGEST-R004.37` | Generic model | `tests/test_foreign_read.py::test_foreign_read_lifecycle_uses_exact_methods_and_binds_digest` checks the exact EG phase tags, wrapped DTOs and opaque approval boundary. |
+| `SDK-SOURCE-INGEST-R004.38` | Generic behavior | `tests/test_foreign_read.py::test_foreign_read_refuses_sequence_digest_and_terminal_replay` checks monotone sequence, digest binding, terminal replay and explicit cancellation. |
+| `SDK-SOURCE-INGEST-R004.39` | Generic refusal | `tests/test_foreign_read.py::test_foreign_read_timeout_and_malformed_response_fail_closed` checks deadline and malformed response refusal; the DTO test checks row and cell limits. |
 
 ## Declared connector sources
 
