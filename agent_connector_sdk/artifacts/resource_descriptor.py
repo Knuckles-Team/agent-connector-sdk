@@ -156,6 +156,15 @@ def _validate(
     return None
 
 
+def _check_captured_descriptor(
+    entry: Mapping[str, Any], classes: frozenset[str]
+) -> None:
+    """Reject an incomplete or unsafe data descriptor before pack creation."""
+    refusal = _validate(entry, classes)
+    if refusal is not None:
+        raise refusal
+
+
 def check_declarations(
     entries: list[dict[str, Any]], classes: frozenset[str] | None
 ) -> None:

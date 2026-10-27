@@ -654,3 +654,11 @@ from a live cluster. The connector change landed in merge commit
 EG-CQ-XSRC-R003.5 separately requires an approved virtual mapping to `:Service`
 and `:ContainerImage`, shape validation and equal query rows. A connector
 contract for `:Deployment` does not prove that engine acceptance.
+
+### Resource descriptor admission
+
+Pack capture validates each served data descriptor against the captured
+connector ontology. It refuses unknown classes, access kinds, pagination
+forms and literal credential values before building an archive. Derived
+descriptors retain their proposed mapping status; validation does not approve
+them.
