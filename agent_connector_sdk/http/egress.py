@@ -64,7 +64,7 @@ class EgressOptions:
         pin_egress: When ``False``, the policy is not enforced at all (an
             explicit, named escape hatch; the default enforces it).
         allowed_private_hosts: Private-network hosts this policy allows,
-            compared exactly against ``host``.
+            compared after hostname case and trailing-dot normalization.
         allow_loopback: Permit a loopback destination (``127.0.0.1``,
             ``::1``, ``localhost``).
     """
@@ -92,8 +92,9 @@ def check_egress_destination(
     """
     if not options.pin_egress:
         return
+    host = host.lower().rstrip(".")
     allow_loopback = options.allow_loopback
-    allowed_private_hosts = options.allowed_private_hosts
+    allowed_private_hosts = normalize_private_hosts(options.allowed_private_hosts)
     if _is_loopback(host):
         if not allow_loopback and host not in allowed_private_hosts:
             raise EgressPolicyError(f"loopback destination is not permitted: {host}")

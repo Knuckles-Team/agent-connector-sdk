@@ -39,6 +39,17 @@ def test_explicitly_allowed_loopback_passes() -> None:
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.1")
+@pytest.mark.parametrize("host", ["LOCALHOST", "localhost.", "LoCaLhOsT."])
+def test_loopback_hostname_canonicalization(host: str) -> None:
+    with pytest.raises(EgressPolicyError):
+        check_egress_destination(host)
+    check_egress_destination(host, EgressOptions(allow_loopback=True))
+    check_egress_destination(host, EgressOptions(allowed_private_hosts={"LOCALHOST."}))
+    with pytest.raises(EgressPolicyError):
+        check_egress_destination(host, EgressOptions(allowed_private_hosts={"other"}))
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.1")
 def test_public_destination_always_passes() -> None:
     check_egress_destination("api.example.com")
 

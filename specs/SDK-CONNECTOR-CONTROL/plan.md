@@ -618,3 +618,10 @@ When registration cannot list a router's actions, keep the router on the
 served surface and record `actions_unenumerable` in its split decision. The
 caller can inspect why the tool stayed whole. Served acceptance invokes each
 split action and the retained router through MCP.
+
+## Amendment: canonical loopback host names (R028.1)
+
+The standalone egress check compares host names without case or trailing dots.
+Normalize the configured allowlist by the same rule before checking it. A
+`localhost` spelling is still loopback when its case or trailing dot varies.
+The check remains syntactic; the governed transport checks resolved addresses.

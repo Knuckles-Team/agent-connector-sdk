@@ -885,14 +885,15 @@
       "landed_in": [
         "0481308202ca",
         "284fb12a19ed",
-        "54744d32428a"
+        "54744d32428a",
+        "f53d74df879a"
       ],
       "verified_by": [
         "tests/test_http_egress.py:22",
         "tests/test_http_egress.py:29",
         "tests/test_http_egress.py:36",
         "tests/test_http_egress.py:41",
-        "tests/test_http_egress.py:46"
+        "tests/test_http_egress.py:52"
       ]
     },
     {
