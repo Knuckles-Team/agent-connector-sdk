@@ -622,6 +622,33 @@ Until that migration, the legacy fetcher pins each outbound destination. A
 private host needs an explicit caller allowlist. A plaintext non-loopback
 destination also needs the separate plaintext option.
 
+### Certification producer and admission dependency
+
+`certify_connector` returns a report with the declared connector and server,
+live tool fingerprints and preset verdicts. It does not persist a report or
+prove the web conformance obligations. The web conformance kit returns a local
+fixture report. ArchiveBox runs that kit against its served fixture. The report
+does not bind a deployed revision or a host admission decision.
+
+`load_sync_adapters` reads `connector://resources` and instantiates only
+`McpToolSourceAdapter` instances. The runner verifies live tool schemas; it does
+not consume a web conformance receipt. Extension activation certifies SDK
+extension distributions, not remote connector behavior.
+
+The missing producer must bind the passed web conformance results to the kit
+revision and connector identity. The evidence must also bind the immutable
+package revision and both live tool schema fingerprints. A host authority must
+admit the evidence. It must make
+its current decision available to the runner. The runner must compare the
+admitted identity and fingerprints with the active session before dispatch.
+Missing, stale or mismatched authority refuses with `contract_uncertified`.
+Schema equality alone does not prove robots, rate or content obligations.
+This contract creates no SDK-local approval store or certification authority.
+
+The SDK also needs a declared source-job binding that instantiates the web adapter
+in the runner. The engine supplies the WebPage job and its provenance model.
+Until those producers and bindings exist, R005.40.3 through R005.40.6 stay open.
+
 ## Declared connector sources (SDK-SOURCE-INGEST-R004.19 through R004.24)
 
 A connector declares each ingestible source with `source_meta` on its read tool. The SDK assembles `IngestSourceDeclaration`. `register_tool_surface` serves it as the resource `connector://resources`. A host reads the declarations through that resource. The host needs no engine listing method.
