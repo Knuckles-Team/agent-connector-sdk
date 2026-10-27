@@ -4,12 +4,14 @@ CONCEPT:SDK-CONNECTOR-CONTROL-R014.21
 
 ``message/send`` then ``tasks/get`` polling until the task leaves a pending
 state or the deadline passes. Failures come back as an :class:`A2AResult` with
-a fixed message; remote error bodies are never echoed.
+a fixed message; remote error bodies are never echoed. Card and RPC responses
+use identity encoding and are read incrementally under a 4 MiB limit.
 """
 
 from __future__ import annotations
 
 import asyncio
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -59,19 +61,43 @@ class A2AClient:
         )
 
     @staticmethod
-    def _json(response: httpx.Response) -> Any:
+    async def _json(response: httpx.Response) -> Any:
         response.raise_for_status()
-        if len(response.content) > _MAX_RESPONSE_BYTES:
-            raise ValueError("A2A response exceeds its bound")
-        return response.json()
+        encoding = response.headers.get("content-encoding", "identity").strip().lower()
+        if encoding != "identity":
+            raise ValueError("A2A response encoding is unsupported")
+        if response.is_stream_consumed:
+            if len(response.content) > _MAX_RESPONSE_BYTES:
+                raise ValueError("A2A response exceeds its bound")
+            return json.loads(response.content)
+        body = bytearray()
+        async for chunk in response.aiter_raw():
+            if len(chunk) > _MAX_RESPONSE_BYTES - len(body):
+                raise ValueError("A2A response exceeds its bound")
+            body.extend(chunk)
+        return json.loads(body)
 
     async def fetch_card(self, base_url: str) -> AgentCard | None:
         """Fetch and validate a peer's agent card; ``None`` when unusable."""
         try:
-            async with self._client() as client:
-                data = self._json(await client.get(base_url.rstrip("/") + CARD_PATH))
+            async with (
+                asyncio.timeout(self.timeout),
+                self._client() as client,
+                client.stream(
+                    "GET",
+                    base_url.rstrip("/") + CARD_PATH,
+                    headers={"Accept-Encoding": "identity"},
+                ) as response,
+            ):
+                data = await self._json(response)
             return AgentCard.model_validate(data)
-        except (httpx.HTTPError, ValueError, ValidationError):
+        except (
+            httpx.HTTPError,
+            httpx.StreamError,
+            ValueError,
+            ValidationError,
+            TimeoutError,
+        ):
             return None
 
     async def _rpc(
@@ -83,7 +109,10 @@ class A2AClient:
         rid: int,
     ) -> dict[str, Any]:
         payload = {"jsonrpc": "2.0", "method": method, "params": params, "id": rid}
-        data = self._json(await client.post(url, json=payload))
+        async with client.stream(
+            "POST", url, json=payload, headers={"Accept-Encoding": "identity"}
+        ) as response:
+            data = await self._json(response)
         if not isinstance(data, dict):
             raise ValueError("A2A response root must be an object")
         return data
@@ -109,7 +138,7 @@ class A2AClient:
                     task = A2ATask.model_validate(polled.get("result"))
         except TimeoutError:
             return A2AResult(error="A2A execution deadline exceeded")
-        except (httpx.HTTPError, ValueError, ValidationError) as exc:
+        except (httpx.HTTPError, httpx.StreamError, ValueError, ValidationError) as exc:
             return A2AResult(error=f"A2A communication failed ({type(exc).__name__})")
         reply = task.last_agent_message()
         if task.status.state != "completed" or reply is None:
