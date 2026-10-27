@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sqlite3
 from types import SimpleNamespace
 
 import pytest
@@ -51,6 +52,24 @@ def test_poll_advances_the_watermark_and_is_idempotent(sqlite_dsn: str) -> None:
     assert [d.text for d in first.documents] == ["Grace"]
     assert first.checkpoint.watermark == "2"
     assert source.poll(first.checkpoint).documents == []
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R900.2")
+def test_poll_orders_integer_watermarks_numerically(sqlite_dsn: str) -> None:
+    with sqlite3.connect(sqlite_dsn.removeprefix("sqlite:///")) as connection:
+        connection.execute("INSERT INTO authors(id, name) VALUES (10, 'Ten')")
+        connection.execute("INSERT INTO authors(id, name) VALUES (100, 'Hundred')")
+    source = _source(sqlite_dsn)
+    first = source.poll(ConnectorCheckpoint(watermark="2"))
+    assert [doc.text for doc in first.documents] == ["Ten", "Hundred"]
+    assert first.checkpoint.watermark == "100"
+    assert source.poll(first.checkpoint).documents == []
+
+
+def test_poll_refuses_a_watermark_type_change(sqlite_dsn: str) -> None:
+    source = _source(sqlite_dsn)
+    with pytest.raises(ValueError, match="watermark types"):
+        source.poll(ConnectorCheckpoint(watermark="2026-01-01"))
 
 
 # spec: SDK-SOURCE-INGEST-R900.4

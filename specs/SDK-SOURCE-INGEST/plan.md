@@ -689,6 +689,12 @@ for a stronger cross-asset guarantee.
 An approved decision authorizes handoff only with a named reviewer. A reviewer
 containing only whitespace is not a name and must refuse handoff (R804.2).
 
+## Database integer watermarks (R900.2)
+
+Incrementing integer watermarks compare numerically, so a later value such as
+10 is never skipped after 2. Textual watermarks keep their existing ordering.
+An integer and noninteger watermark are incomparable and refuse the poll.
+
 ## 2026-10-27: bounded evidence for large preparation plans
 
 R803.6 requires a single plan over one million rows. Keep `run` and its
