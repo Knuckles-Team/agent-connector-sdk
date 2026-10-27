@@ -854,9 +854,21 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R028",
       "title": "SDK's governed HTTP client controls egress with named escape hatches, not ad hoc trust",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0481308202ca",
+        "19ca24046d12",
+        "284fb12a19ed",
+        "459897c19da8",
+        "54744d32428a"
+      ],
+      "verified_by": [
+        "tests/test_auth_declarations.py:106",
+        "tests/test_auth_declarations.py:114",
+        "tests/test_auth_declarations.py:145",
+        "tests/test_auth_declarations.py:165",
+        "tests/test_auth_declarations.py:192"
+      ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R028.1",
         "SDK-CONNECTOR-CONTROL-R028.2",
@@ -884,9 +896,15 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R028.2",
       "title": "`create_http_client` wires the SSRF egress policy into construction",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "459897c19da8"
+      ],
+      "verified_by": [
+        "tests/test_http_egress_construction.py:16",
+        "tests/test_http_egress_construction.py:31",
+        "tests/test_http_egress_construction.py:45"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R028.3",

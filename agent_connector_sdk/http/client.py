@@ -34,6 +34,8 @@ from agent_connector_sdk.auth.static import ApiKeyAuth
 from agent_connector_sdk.http.egress import (
     AsyncDnsPinnedEgressTransport,
     DnsPinnedEgressTransport,
+    EgressOptions,
+    _check_pinned_base_host,
 )
 from agent_connector_sdk.http.options import HttpClientOptions
 from agent_connector_sdk.http.redaction import redact_url
@@ -96,6 +98,17 @@ def _client_kwargs(options: HttpClientOptions) -> dict[str, Any]:
     }
 
 
+def _check_base_host(options: HttpClientOptions) -> None:
+    if options.pin_egress:
+        _check_pinned_base_host(
+            urlsplit(options.base_url).hostname or "",
+            EgressOptions(
+                allowed_private_hosts=options.allowed_private_hosts,
+                allow_loopback=options.allow_loopback,
+            ),
+        )
+
+
 def create_http_client(
     options: HttpClientOptions, *, transport: httpx.BaseTransport | None = None
 ) -> httpx.Client:
@@ -104,6 +117,7 @@ def create_http_client(
     ``transport`` replaces the network transport (tests); it is still wrapped
     by the retrying, logging transport, and the TLS profile does not apply to it.
     """
+    _check_base_host(options)
     inner = transport or httpx.HTTPTransport(**_transport_kwargs(options))
     governed: httpx.BaseTransport = GovernedTransport(
         inner,
@@ -125,6 +139,7 @@ def create_async_http_client(
     options: HttpClientOptions, *, transport: httpx.AsyncBaseTransport | None = None
 ) -> httpx.AsyncClient:
     """An asynchronous governed client; see :func:`create_http_client`."""
+    _check_base_host(options)
     inner = transport or httpx.AsyncHTTPTransport(**_transport_kwargs(options))
     governed: httpx.AsyncBaseTransport = AsyncGovernedTransport(
         inner,
