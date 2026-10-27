@@ -71,8 +71,10 @@
     {
       "id": "SDK-REPOSITORY-TRANSPORT-R006",
       "title": "Provider pages respect their requested bound",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "814bdecabbf2"
+      ],
       "verified_by": [
         "tests/test_repository_refs.py:110",
         "tests/test_repository_transport.py:219"
