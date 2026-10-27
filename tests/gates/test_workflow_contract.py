@@ -84,6 +84,23 @@ def test_gates_job_is_the_shared_diff_scoped_workflow() -> None:
     assert "steps" not in gates
     assert gates["with"]["setup-command"] == "bash scripts/ci_setup.sh"
     assert gates["with"]["all-files"] == "${{ github.event_name == 'push' }}"
+    assert gates["with"]["timeout-minutes"] == (
+        "${{ github.event_name == 'push' && 60 || 45 }}"
+    )
+
+
+@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+def test_gates_uv_cache_is_workspace_local_and_job_scoped() -> None:
+    gates = _yaml(GATES)["jobs"]["gates"]
+    assert gates["with"]["uv-cache-local-path"] == (
+        ".ci/uv-cache-${{ github.run_id }}-${{ github.run_attempt }}"
+    )
+    ignored = subprocess.run(
+        ["git", "check-ignore", "-q", ".ci/uv-cache-123-1"],
+        cwd=ROOT,
+        check=False,
+    )
+    assert ignored.returncode == 0
 
 
 def test_gates_trigger_standard_and_cancel_superseded_runs() -> None:

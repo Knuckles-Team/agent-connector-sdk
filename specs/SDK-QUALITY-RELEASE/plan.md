@@ -19,3 +19,13 @@ environment. Never synthesize installation evidence.
 2026-10-27: Run CI and the manual fleet gates on the project interpreter in
 `.python-version`. Remove the separate Python 3.12 PR job. Package metadata
 continues to declare the existing Python support floor.
+
+## Amendment: job-scoped uv cache placement (R005)
+
+The shared gates caller selects an ignored workspace-local uv cache directory
+for each run and attempt. This keeps the cache alongside the project environment
+when the runner uses one filesystem. The shared workflow restores the same
+lock-keyed cache; dependency and security checks remain unchanged. Measure cache and environment device IDs and hardlink support on the runner.
+Compare setup times for serial and concurrent jobs before claiming a speedup.
+Allow 45 minutes for the PR gate. This gives quality checks time to finish
+during storage stalls.

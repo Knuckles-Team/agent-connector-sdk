@@ -22,7 +22,7 @@
         "5b53e943e468"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:269",
+        "tests/gates/test_workflow_contract.py:286",
         "tests/test_release_quality_r001_r005.py:46",
         "tests/test_release_quality_r001_r005.py:53",
         "tests/test_release_quality_r001_r005.py:59",
@@ -53,9 +53,9 @@
         "2ef23bf79925"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:124",
-        "tests/gates/test_workflow_contract.py:194",
-        "tests/gates/test_workflow_contract.py:229",
+        "tests/gates/test_workflow_contract.py:141",
+        "tests/gates/test_workflow_contract.py:211",
+        "tests/gates/test_workflow_contract.py:246",
         "tests/test_compatibility_distribution.py:21",
         "tests/test_compatibility_distribution.py:37"
       ]
@@ -86,11 +86,11 @@
         "42b930057c3e"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:171",
+        "tests/gates/test_workflow_contract.py:188",
+        "tests/gates/test_workflow_contract.py:92",
         "tests/test_compatibility_upgrade.py:12",
         "tests/test_compatibility_upgrade.py:23",
-        "tests/test_compatibility_upgrade.py:36",
-        "tests/test_conformance_plugin.py:102"
+        "tests/test_compatibility_upgrade.py:36"
       ],
       "rollup_of": [
         "SDK-QUALITY-RELEASE-R005.1"
