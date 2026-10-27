@@ -106,6 +106,25 @@ def test_poll_refuses_incomparable_timestamps() -> None:
         database._watermark_after("2026-01-99T10:00:00Z", "2026-01-01T09:00:00Z")
 
 
+def test_poll_refuses_invalid_initial_timestamp(tmp_path: Path) -> None:
+    path = tmp_path / "invalid.db"
+    with sqlite3.connect(path) as connection:
+        connection.execute("CREATE TABLE events (id INTEGER, text TEXT, updated TEXT)")
+        connection.execute(
+            "INSERT INTO events VALUES (1, 'Test', '2026-01-99T10:00:00Z')"
+        )
+    source = build_connector(
+        "database",
+        {
+            "query": "SELECT id, text, updated FROM events",
+            "updated_field": "updated",
+            "conn": UniversalConnector(f"sqlite:///{path}"),
+        },
+    )
+    with pytest.raises(ValueError, match="incomparable"):
+        source.poll()
+
+
 # spec: SDK-SOURCE-INGEST-R900.4
 @pytest.mark.parametrize(
     ("config", "error"),

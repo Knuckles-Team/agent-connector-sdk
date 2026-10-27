@@ -371,10 +371,12 @@ class DatabaseConnector(LoadConnector, PollConnector):
             ):
                 continue
             docs.append(doc)
-            if doc.updated_at is not None and (
-                max_wm is None or _watermark_after(doc.updated_at, max_wm)
-            ):
-                max_wm = doc.updated_at
+            if doc.updated_at is not None:
+                if max_wm is None:
+                    _watermark_after(doc.updated_at, doc.updated_at)
+                    max_wm = doc.updated_at
+                elif _watermark_after(doc.updated_at, max_wm):
+                    max_wm = doc.updated_at
         return CheckpointedBatch(
             documents=docs,
             checkpoint=ConnectorCheckpoint(has_more=False, watermark=max_wm),
