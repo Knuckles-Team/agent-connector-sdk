@@ -81,9 +81,9 @@
       "landed_in": [
         "096f27ee29e5",
         "0c1f49ced769",
+        "0dcb2c8582b9",
         "30346724d434",
-        "42b930057c3e",
-        "6856dbff0136"
+        "42b930057c3e"
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:171",

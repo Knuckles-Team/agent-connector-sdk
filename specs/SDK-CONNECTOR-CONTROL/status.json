@@ -1316,8 +1316,7 @@
       "title": "Agent-card discovery from the standard well-known path",
       "delivery_state": "SPECIFIED",
       "landed_in": [
-        "09f02b24aed0",
-        "877b055616c3"
+        "54aaac362dcd"
       ],
       "verified_by": [
         "tests/test_vendor_extractors_archer_infra_a2a.py:140"
