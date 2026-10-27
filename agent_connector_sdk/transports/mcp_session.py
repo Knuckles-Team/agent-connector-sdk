@@ -14,6 +14,7 @@ from fastmcp import Client
 from mcp.shared.exceptions import MCPError
 
 from agent_connector_sdk.contracts import ServerIdentity
+from agent_connector_sdk.httpsupport.rate_limit import RateLimiter
 from agent_connector_sdk.ports.change_source import ChangeEvent
 from agent_connector_sdk.ports.errors import McpPromptRejectedError, McpTransportError
 from agent_connector_sdk.transports.mcp_changes import (
@@ -54,12 +55,19 @@ class McpClientSession:
         feed: Collects the change notifications the client receives.
         tasks: The task group that runs listen streams for this session;
             without one :meth:`watch` cannot subscribe.
+        request_limiter: Optional minimum-interval pacing for MCP requests.
     """
 
     client: Client[Any] = field(repr=False)
     feed: ChangeFeed = field(kw_only=True, repr=False)
     tasks: TaskGroup | None = field(default=None, kw_only=True, repr=False)
+    request_limiter: RateLimiter | None = field(default=None, kw_only=True, repr=False)
     _listen: anyio.CancelScope | None = field(default=None, init=False, repr=False)
+
+    async def _pace_request(self) -> None:
+        """Honor the endpoint's optional MCP request interval."""
+        if self.request_limiter is not None:
+            await self.request_limiter.wait()
 
     async def watch(self, resource_uris: Sequence[str]) -> bool:
         """Open a ``subscriptions/listen`` stream, replacing an earlier one.
@@ -94,10 +102,12 @@ class McpClientSession:
 
     async def list_tools(self) -> Sequence[Any]:
         """``tools/list``."""
+        await self._pace_request()
         return await self.client.list_tools()
 
     async def call_tool(self, name: str, arguments: Mapping[str, Any]) -> Any:
         """``tools/call``; a tool error is raised as :class:`McpTransportError`."""
+        await self._pace_request()
         try:
             result = await self.client.call_tool(name, dict(arguments))
         except Exception as exc:
@@ -106,6 +116,7 @@ class McpClientSession:
 
     async def list_prompts(self) -> Sequence[Any]:
         """``prompts/list``."""
+        await self._pace_request()
         return await self.client.list_prompts()
 
     async def get_prompt(
@@ -117,6 +128,7 @@ class McpClientSession:
         so a caller can tell "the server rejected this call" apart from any
         other failure, which stays a plain :class:`McpTransportError`.
         """
+        await self._pace_request()
         try:
             result = await self.client.get_prompt(name, dict(arguments))
             return mcp_types.GetPromptResult.model_validate(result)
@@ -129,10 +141,12 @@ class McpClientSession:
 
     async def list_resources(self) -> Sequence[Any]:
         """``resources/list``."""
+        await self._pace_request()
         return await self.client.list_resources()
 
     async def read_resource(self, uri: str) -> str:
         """``resources/read``; raises when the resource has no text content."""
+        await self._pace_request()
         contents = await self.client.read_resource(uri)
         texts = [getattr(block, "text", None) for block in contents]
         if not texts or not all(isinstance(text, str) for text in texts):

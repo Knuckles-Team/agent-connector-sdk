@@ -83,10 +83,12 @@
       "title": "Rate-limit telemetry and concurrency",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "b836f579fd6d",
         "fb85cad4b0ba"
       ],
       "verified_by": [
-        "tests/httpsupport/test_rate_limiter.py:13"
+        "tests/httpsupport/test_rate_limiter.py:13",
+        "tests/test_mcp_request_pacing.py:19"
       ]
     },
     {
