@@ -608,6 +608,6 @@ R028.3 requires a separate explicit contract for cookie-session login, and `Sess
 
 The standalone pinned transport must retain the logical HTTPS hostname for TLS
 server-name indication and certificate validation after replacing the dial
-address. A caller-provided SNI override cannot change that identity. Preserve
+address. A caller SNI override cannot change that identity. Preserve
 the original Host header, including a nondefault port. The served TLS test
 uses a trusted test CA and rejects a certificate for a different hostname.
