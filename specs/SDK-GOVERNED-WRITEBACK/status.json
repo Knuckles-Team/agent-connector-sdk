@@ -233,7 +233,7 @@
       "title": "Reject invalid audit reservation identifiers",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "af58e30fce9f"
+        "767c2d8e4da0"
       ],
       "verified_by": [
         "tests/test_writeback_audit_reservation.py:59",
