@@ -192,6 +192,7 @@
 - [ ] **SDK-SOURCE-INGEST-R005.40.4:** Refusal. Return typed refusals and keep the checkpoint.
 - [ ] **SDK-SOURCE-INGEST-R005.40.5:** Evidence. Map the record provenance onto the engine model.
 - [ ] **SDK-SOURCE-INGEST-R005.40.6:** Hot-path proof. Add the served two-connector test.
+- [ ] **SDK-SOURCE-INGEST-R005.41:** Refuse failed legacy fetches before the runner advances the checkpoint.
 - [x] `SDK-SOURCE-INGEST-R004.26` — Citable public URL fields kept by the persistence guard.
 - [x] `SDK-SOURCE-INGEST-R004.27` — Pass the operator's mass-withdrawal decision through the sink.
 

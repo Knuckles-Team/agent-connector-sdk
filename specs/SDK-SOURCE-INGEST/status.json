@@ -111,6 +111,7 @@
     "SDK-SOURCE-INGEST-R005.40.4",
     "SDK-SOURCE-INGEST-R005.40.5",
     "SDK-SOURCE-INGEST-R005.40.6",
+    "SDK-SOURCE-INGEST-R005.41",
     "SDK-SOURCE-INGEST-R006.32",
     "SDK-SOURCE-INGEST-R006.33",
     "SDK-SOURCE-INGEST-R006.34",
@@ -349,8 +350,8 @@
         "db3659c92a3b"
       ],
       "verified_by": [
-        "tests/test_adapters_web_fetch_source_adapter.py:54",
-        "tests/test_adapters_web_fetch_source_adapter.py:66"
+        "tests/test_adapters_web_fetch_source_adapter.py:58",
+        "tests/test_adapters_web_fetch_source_adapter.py:70"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R005.1",
@@ -392,7 +393,8 @@
         "SDK-SOURCE-INGEST-R005.37",
         "SDK-SOURCE-INGEST-R005.38",
         "SDK-SOURCE-INGEST-R005.39",
-        "SDK-SOURCE-INGEST-R005.40"
+        "SDK-SOURCE-INGEST-R005.40",
+        "SDK-SOURCE-INGEST-R005.41"
       ]
     },
     {
@@ -1450,6 +1452,17 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.41",
+      "title": "Failed legacy web fetch preserves the checkpoint",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "cb75b1d7a164"
+      ],
+      "verified_by": [
+        "tests/test_adapters_web_fetch_source_adapter.py:127"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.32",
