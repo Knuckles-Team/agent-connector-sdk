@@ -52,6 +52,7 @@ exactly what the tool returns.
 | Plaintext | `http://` only to loopback, or with `allow_plaintext=True` and a logged warning |
 | Proxies | never from the ambient environment; the TLS profile names one |
 | Redirects | not followed |
+| Pinned egress | `pin_egress=True` rejects an unapproved private literal base when building the client. Each request resolves and pins its destination. Use `allowed_private_hosts` or `allow_loopback` to admit intended private targets. |
 | Retries | `RetryPolicy`: 3 attempts, exponential backoff with jitter, idempotent methods only; a connection never established is retried for any method; certificate failures are never retried |
 | Rate limits | `Retry-After` (seconds or HTTP date) is honoured up to `max_retry_after`; beyond that, or for a non-idempotent request, the caller gets `HttpRateLimitedError.retry_after` |
 | Bodies | `request_json`, `read_bounded` and `iter_bounded` bound the size (16 MiB by default) |

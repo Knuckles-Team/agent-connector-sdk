@@ -286,6 +286,36 @@ def _is_allowed_private_address(
     )
 
 
+def _check_pinned_base_host(host: str, options: EgressOptions) -> None:
+    """Reject a known unsafe base host without performing DNS resolution."""
+    normalized = host.lower().rstrip(".")
+    allowed = normalize_private_hosts(options.allowed_private_hosts)
+    try:
+        check_egress_destination(
+            normalized,
+            EgressOptions(
+                pin_egress=options.pin_egress,
+                allowed_private_hosts=allowed,
+                allow_loopback=options.allow_loopback,
+            ),
+        )
+    except EgressPolicyError as exc:
+        raise PinnedEgressViolation("outbound destination was rejected") from exc
+    try:
+        address = ipaddress.ip_address(normalized)
+    except ValueError:
+        return
+    if normalized in allowed:
+        rejected = not _is_allowed_private_address(address)
+    else:
+        rejected = egress_ip_is_blocked(
+            normalized, allow_loopback=options.allow_loopback
+        )
+        rejected |= address in _SHARED_ADDRESS_SPACE
+    if rejected:
+        raise PinnedEgressViolation("outbound destination was rejected")
+
+
 def _label_is_valid(label: str) -> bool:
     return (
         bool(label)
