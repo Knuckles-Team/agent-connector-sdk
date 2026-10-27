@@ -700,3 +700,9 @@ release-integrity behavior.
 Only ASCII decimal digits are valid delta-seconds. The client uses bounded
 backoff for a non-ASCII digit. It does not raise while classifying the response.
 The configured retry-after ceiling bounds oversized valid values.
+
+## Exact tool coverage (SDK-CONNECTOR-CONTROL-R004.1)
+
+The conformance kit compares the live tool names with the captured entries
+before checking pins. Empty or non-unique collections and unequal membership
+fail instead of reporting a vacuous pin match.

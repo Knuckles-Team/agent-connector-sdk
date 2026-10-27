@@ -8,6 +8,7 @@
     "SDK-CONNECTOR-CONTROL-R002",
     "SDK-CONNECTOR-CONTROL-R003",
     "SDK-CONNECTOR-CONTROL-R004",
+    "SDK-CONNECTOR-CONTROL-R004.1",
     "SDK-CONNECTOR-CONTROL-R005",
     "SDK-CONNECTOR-CONTROL-R006",
     "SDK-CONNECTOR-CONTROL-R007",
@@ -349,12 +350,25 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R004",
       "title": "Contract-pin verification owned by the SDK's own test kit",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "dcc7d285ccc9"
       ],
       "verified_by": [
         "tests/test_artifacts_discovery.py:111"
+      ],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R004.1"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R004.1",
+      "title": "Pin conformance covers the exact live tool set",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_artifacts_discovery.py:143",
+        "tests/test_artifacts_discovery.py:179"
       ]
     },
     {
@@ -414,9 +428,9 @@
         "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_artifacts_discovery.py:350",
-        "tests/test_artifacts_discovery.py:367",
-        "tests/test_artifacts_discovery.py:383"
+        "tests/test_artifacts_discovery.py:425",
+        "tests/test_artifacts_discovery.py:442",
+        "tests/test_artifacts_discovery.py:458"
       ]
     },
     {

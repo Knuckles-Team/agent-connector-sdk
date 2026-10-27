@@ -437,3 +437,10 @@ non-ASCII text against the named divisor.
 non-ASCII digits and oversized ASCII values.
 `tests/test_http_client.py::test_sync_transport_falls_back_for_non_ascii_retry_after`
 checks bounded fallback through the governed transport.
+
+## Tool pin coverage (SDK-CONNECTOR-CONTROL-R004.1)
+
+`tests/test_artifacts_discovery.py::test_contract_pin_normalization_rejects_incomplete_tool_sets`
+checks empty, missing, extra and duplicate captures against served MCP tools.
+`tests/test_artifacts_discovery.py::test_contract_pin_normalization_rejects_duplicate_live_names`
+checks duplicate names in the live response.

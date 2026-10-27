@@ -140,6 +140,81 @@ async def test_contract_pin_normalization_catches_a_drifted_pin(
     assert "recomputed D18 fingerprint" in result.detail
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R004.1")
+@pytest.mark.parametrize("case", ["empty", "missing", "extra", "duplicate"])
+async def test_contract_pin_normalization_rejects_incomplete_tool_sets(
+    sessions: SessionFactory, case: str
+) -> None:
+    async with sessions() as session:
+        entries = await ToolArtifactKind().list_entries(
+            session, await session.server_identity()
+        )
+    if case == "empty":
+        altered = ()
+    elif case == "missing":
+        altered = entries[1:]
+    elif case == "extra":
+        altered = (*entries, entries[0].model_copy(update={"name": "not-served"}))
+    else:
+        altered = (*entries, entries[0])
+
+    class _IncompleteToolKind:
+        kind = "tool"
+
+        async def list_entries(
+            self, session: object, server: object
+        ) -> tuple[CapturedArtifact, ...]:
+            return altered
+
+        def validate(self, entry: CapturedArtifact) -> None:
+            return None
+
+    result = await check_tool_contract_pin_normalization(
+        _IncompleteToolKind(), sessions
+    )
+    assert not result.passed
+    assert "no tool pins" in result.detail or "expected one live tool" in result.detail
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R004.1")
+async def test_contract_pin_normalization_rejects_duplicate_live_names(
+    sessions: SessionFactory,
+) -> None:
+    async with sessions() as session:
+        tools = await session.list_tools()
+        entries = await ToolArtifactKind().list_entries(
+            session, await session.server_identity()
+        )
+
+    class _DuplicateSession:
+        async def list_tools(self) -> list[Any]:
+            return [*tools, tools[0]]
+
+        async def server_identity(self) -> ServerIdentity:
+            return SERVER
+
+    class _CapturedToolKind:
+        kind = "tool"
+
+        async def list_entries(
+            self, session: object, server: object
+        ) -> tuple[CapturedArtifact, ...]:
+            return entries
+
+        def validate(self, entry: CapturedArtifact) -> None:
+            return None
+
+    @asynccontextmanager
+    async def duplicate_sessions() -> AsyncIterator[_DuplicateSession]:
+        yield _DuplicateSession()
+
+    result = await check_tool_contract_pin_normalization(
+        _CapturedToolKind(), duplicate_sessions
+    )
+    assert not result.passed
+    assert "expected one live tool" in result.detail
+
+
 async def test_contract_pin_normalization_reports_an_empty_client_schema(
     sessions: SessionFactory,
 ) -> None:
