@@ -709,3 +709,11 @@ redacted outcomes in pages within the admitted outcome limit. A failed plan retu
 no successful result or evidence pages. The summary identifies paged evidence
 and must not imply that a partial page traversal is complete. The hot-path
 proof records elapsed time and peak memory with its declared profile limits.
+
+## Partial arXiv sweep checkpoint (R800.7)
+
+A category fetch or parse failure leaves the shared watermark at its prior value.
+The poll still returns successful categories and records their IDs. On recovery,
+the previously unavailable category can be read without losing older records.
+The bounded seen-ID history can evict healthy entries during a prolonged outage,
+so a later sweep may redeliver those entries.

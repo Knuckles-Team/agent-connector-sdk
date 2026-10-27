@@ -184,7 +184,7 @@ class ArxivConnector(LoadConnector, PollConnector):
             ) from exc
         return feedparser.parse(content)
 
-    def _category_entries(self, category: str) -> list[SourceDocument]:
+    def _category_entries(self, category: str) -> tuple[list[SourceDocument], bool]:
         """Fetch + parse one category's most recent entries (a dead category → [])."""
         params = {
             "search_query": f"cat:{category}",
@@ -207,8 +207,11 @@ class ArxivConnector(LoadConnector, PollConnector):
                 exc,
                 exc_info=exc,
             )
-            return []
+            return [], False
         parsed = self._parse(content)
+        if parsed.bozo:
+            logger.warning("arXiv category %s returned a malformed feed", category)
+            return [], False
         out: list[SourceDocument] = []
         for entry in parsed.entries or []:
             raw_id = str(entry.get("id") or "")
@@ -246,24 +249,28 @@ class ArxivConnector(LoadConnector, PollConnector):
                     external_access=self.external_access.model_copy(deep=True),
                 )
             )
-        return out
+        return out, True
 
-    def _all_documents(self) -> list[SourceDocument]:
+    def _all_documents(self) -> tuple[list[SourceDocument], bool]:
         """Fetch every configured category, deduping papers cross-listed in >1."""
         seen: set[str] = set()
         docs: list[SourceDocument] = []
+        complete = True
         for category in self.categories:
-            for doc in self._category_entries(category):
+            entries, succeeded = self._category_entries(category)
+            complete = complete and succeeded
+            for doc in entries:
                 if doc.id in seen:
                     continue
                 seen.add(doc.id)
                 docs.append(doc)
-        return docs
+        return docs, complete
 
     # -- LoadConnector -------------------------------------------------------
 
     def load(self) -> Iterator[SourceDocument]:
-        yield from self._all_documents()
+        documents, _complete = self._all_documents()
+        yield from documents
 
     # -- PollConnector ---------------------------------------------------------
 
@@ -278,7 +285,7 @@ class ArxivConnector(LoadConnector, PollConnector):
         """
         prior_ids = set(checkpoint.seen_ids) if checkpoint else set()
         wm = checkpoint.watermark if checkpoint else None
-        all_docs = self._all_documents()
+        all_docs, complete = self._all_documents()
         fresh = [
             d
             for d in all_docs
@@ -288,7 +295,7 @@ class ArxivConnector(LoadConnector, PollConnector):
         dates = [d.updated_at for d in all_docs if d.updated_at]
         if wm:
             dates.append(wm)
-        new_wm = max(dates) if dates else wm
+        new_wm = (max(dates) if dates else wm) if complete else wm
         new_ids = sorted(prior_ids | {d.id for d in fresh})[-_SEEN_CAP:]
         cp = ConnectorCheckpoint(has_more=False, watermark=new_wm, seen_ids=new_ids)
         return CheckpointedBatch(documents=fresh, checkpoint=cp)
