@@ -667,8 +667,8 @@
         "d3617301012c"
       ],
       "verified_by": [
-        "tests/test_action_split.py:39",
-        "tests/test_action_split.py:44",
+        "tests/test_action_split.py:90",
+        "tests/test_action_split.py:95",
         "tests/test_operation_tools.py:100",
         "tests/test_operation_tools.py:130",
         "tests/test_operation_tools.py:141"
@@ -782,9 +782,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R020.3",
       "title": "A router tool is split, never dropped",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "c1d24e199adb"
+      ],
+      "verified_by": [
+        "tests/test_action_split.py:38"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R020.5",
@@ -794,10 +798,10 @@
         "d0d04813b42e"
       ],
       "verified_by": [
-        "tests/test_action_split.py:113",
-        "tests/test_action_split.py:63",
-        "tests/test_action_split.py:79",
-        "tests/test_action_split.py:93"
+        "tests/test_action_split.py:114",
+        "tests/test_action_split.py:130",
+        "tests/test_action_split.py:144",
+        "tests/test_action_split.py:164"
       ]
     },
     {

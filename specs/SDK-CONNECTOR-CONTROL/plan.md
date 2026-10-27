@@ -611,3 +611,10 @@ server-name indication and certificate validation after replacing the dial
 address. A caller SNI override cannot change that identity. Preserve
 the original Host header, including a nondefault port. The served TLS test
 uses a trusted test CA and rejects a certificate for a different hostname.
+
+## Amendment: retain unenumerable action routers (R020.3)
+
+When registration cannot list a router's actions, keep the router on the
+served surface and record `actions_unenumerable` in its split decision. The
+caller can inspect why the tool stayed whole. Served acceptance invokes each
+split action and the retained router through MCP.
