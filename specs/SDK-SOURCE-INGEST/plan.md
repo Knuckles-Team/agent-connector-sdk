@@ -686,6 +686,9 @@ handoff. Identifier equality does not prove the manifest's content or status.
 The trusted manifest authority and content-bound approval remain dependencies
 for a stronger cross-asset guarantee.
 
+An approved decision authorizes handoff only with a named reviewer. A reviewer
+containing only whitespace is not a name and must refuse handoff (R804.2).
+
 ## 2026-10-27: bounded evidence for large preparation plans
 
 R803.6 requires a single plan over one million rows. Keep `run` and its
