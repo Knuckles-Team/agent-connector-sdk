@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Sequence
 from typing import Any
 
@@ -104,6 +105,16 @@ def _pin_problems(
 ) -> list[str]:
     by_name = {tool_name(tool): tool for tool in tools}
     problems: list[str] = []
+    live_counts = Counter(tool_name(tool) for tool in tools)
+    entry_counts = Counter(entry.name for entry in entries)
+    if not tools or not entries:
+        problems.append("no tool pins available for comparison")
+    for name in sorted(live_counts.keys() | entry_counts.keys()):
+        if live_counts[name] != 1 or entry_counts[name] != 1:
+            problems.append(
+                f"{name!r}: expected one live tool and one captured entry; "
+                f"found {live_counts[name]} and {entry_counts[name]}"
+            )
     for entry in entries:
         tool = by_name.get(entry.name)
         if tool is None:
