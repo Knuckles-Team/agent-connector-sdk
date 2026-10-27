@@ -317,3 +317,9 @@ the tool call and leave the checkpoint unchanged.
 Inject network failure and malformed input in concurrent feeds. A healthy feed
 returns newer records while the prior watermark remains fixed. Recover the
 failed feed and assert its older records arrive once and the watermark moves.
+
+## Timestamp watermark ordering
+
+R900.7 checks a SQLite source compares offset-bearing timestamps by instant
+and replays idempotently. Invalid timestamps and mixing
+timezone-aware and naive timestamps fail closed.
