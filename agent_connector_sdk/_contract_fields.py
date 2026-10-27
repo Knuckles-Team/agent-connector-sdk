@@ -6,7 +6,9 @@ from ._turtle import AccessContractError, Term
 from .credentials.references import SecretReferenceError, parse_secret_reference
 
 AC = "https://knuckles-team.github.io/agent-connector-sdk/access#"
-ACCESS_KINDS = frozenset({"mcp_tool", "http_endpoint", "graphql_query", "a2a_skill"})
+ACCESS_KINDS = frozenset(
+    {"mcp_tool", "http_endpoint", "graphql_query", "a2a_skill", "virtual_graph"}
+)
 PAGINATION_MODES = frozenset({"none", "cursor", "offset", "page"})
 PUSHDOWN_OPS = frozenset({"filter", "sort", "limit", "project"})
 COST_HINTS = frozenset({"low", "medium", "high"})

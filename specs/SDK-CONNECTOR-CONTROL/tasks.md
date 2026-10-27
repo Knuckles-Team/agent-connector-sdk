@@ -49,6 +49,7 @@
 - [x] Bind required prompt arguments to `{{name}}` placeholders and capture a template instead of refusing (SDK-CONNECTOR-CONTROL-R023).
 - [x] Fall back to a synthesized template when the server rejects a bound placeholder for a typed required argument, without masking a genuine transport failure (SDK-CONNECTOR-CONTROL-R024).
 - [ ] Type the cross-source connector operation contracts and declare MCP, A2A, API, GraphQL and virtual-graph access kinds (SDK-CONNECTOR-CONTROL-R037 to SDK-CONNECTOR-CONTROL-R044).
+- [x] Parse all five access kinds through the typed contract and reject invalid kinds and literal credentials (SDK-CONNECTOR-CONTROL-R040 to SDK-CONNECTOR-CONTROL-R044).
 - [ ] **R045.1:** Add the frozen `ToolContractFacts` model with its five fields in `agent_connector_sdk/artifacts/tool_facts.py`. (SDK-CONNECTOR-CONTROL-R045.1).
 - [ ] **R045.2:** Add the closed `SideEffect` enum and the read-only consistency refusal. (SDK-CONNECTOR-CONTROL-R045.2).
 - [ ] **R045.3:** Add `schema_tokens` over the canonical body already built in `_tool_entry`. (SDK-CONNECTOR-CONTROL-R045.3).

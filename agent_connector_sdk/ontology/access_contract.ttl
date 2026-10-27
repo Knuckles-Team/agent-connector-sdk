@@ -28,7 +28,7 @@ ac:keyField a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range 
     rdfs:comment "The source field holding the entity key (VirtualMapping.key_field)." .
 
 ac:accessKind a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
-    rdfs:comment "One of mcp_tool, http_endpoint, graphql_query, a2a_skill." .
+    rdfs:comment "One of mcp_tool, http_endpoint, graphql_query, a2a_skill, virtual_graph." .
 ac:operation a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
     rdfs:comment "The MCP tool name, endpoint path, GraphQL query name or A2A skill id." .
 ac:parameter a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
