@@ -813,6 +813,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "3735e4434463",
+        "54aaac362dcd",
         "e626b457bb1d"
       ],
       "verified_by": [
@@ -1539,11 +1540,7 @@
       "title": "Generic pack receiver model",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "60ddd91e17c3",
-        "bd353eecdfb2",
-        "c51f6ff4a2db",
-        "dc9a1b0bb61a",
-        "f351d70272b2"
+        "f039d975032d"
       ],
       "verified_by": [
         "tests/test_foreign_read.py:273",
@@ -1556,11 +1553,7 @@
       "title": "Generic pack receiver behavior",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "60ddd91e17c3",
-        "bd353eecdfb2",
-        "c51f6ff4a2db",
-        "dc9a1b0bb61a",
-        "ee03ae46d563"
+        "f039d975032d"
       ],
       "verified_by": [
         "tests/test_foreign_read.py:274",
@@ -1575,10 +1568,7 @@
       "title": "Generic pack receiver refusal",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "60ddd91e17c3",
-        "bd353eecdfb2",
-        "c51f6ff4a2db",
-        "dc9a1b0bb61a"
+        "f039d975032d"
       ],
       "verified_by": [
         "tests/test_foreign_read.py:335",
