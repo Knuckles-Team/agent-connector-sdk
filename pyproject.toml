@@ -235,6 +235,7 @@ public_modules = [
     "agent_connector_sdk.adapters.web_fetch",
      "agent_connector_sdk.adapters.foreign_read",
     "agent_connector_sdk.artifacts.pack",
+    "agent_connector_sdk.artifacts.tool_facts",
     "agent_connector_sdk.auth.browser",
     "agent_connector_sdk.auth.client_credentials",
     "agent_connector_sdk.auth.delegation",
