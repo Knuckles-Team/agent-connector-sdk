@@ -668,3 +668,13 @@ connector ontology. It refuses unknown classes, access kinds, pagination
 forms and literal credential values before building an archive. Derived
 descriptors retain their proposed mapping status; validation does not approve
 them.
+
+## 2026-10-27: uptime monitor health evidence
+
+The uptime-kuma-agent serves `uptime_kuma_service_health` and declares a
+contract for `:UptimeMonitor` with name, latest status and last check. Its
+fixture is generated through the served MCP tool using a synthetic provider,
+not recorded from a live service. The owner change merged as
+`1915fce3ef886c82ce17edbf9cb0d92bdfe50dfb` after green PR checks.
+R038 remains open pending SDK-local evidence; EG-CQ-XSRC-R003.4 separately
+requires an approved mapping to `:Service` and engine query acceptance.

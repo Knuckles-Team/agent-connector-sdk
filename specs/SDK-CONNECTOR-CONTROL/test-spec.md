@@ -418,3 +418,9 @@ non-ASCII text against the named divisor.
   uses a synthetic Kubernetes provider and a real MCP tool call. Its owner
   repository merged commit `db08ad5123a1b12ef715d237d2d3aa6e49aac330` after
   green checks. This is not a local test binding or engine mapping proof.
+
+- **R038 external evidence:** The uptime-kuma-agent test
+  `tests/test_service_health.py::test_served_health_contract` calls the served
+  MCP tool with a synthetic provider and checks its response and access
+  contract. Owner merge `1915fce3ef886c82ce17edbf9cb0d92bdfe50dfb` passed
+  its PR checks. This is not SDK-local evidence or engine mapping proof.
