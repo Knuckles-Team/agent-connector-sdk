@@ -408,6 +408,11 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R902`: `tests/test_actor_forwarding_se
 - **R028.1 canonical loopback:** `tests/test_http_egress.py::test_loopback_hostname_canonicalization` refuses mixed-case and dotted localhost names unless the policy admits loopback or names that host. A different host is not covered by the exception.
 
 - `SDK-CONNECTOR-CONTROL-R035.7`: `tests/test_credentials.py::test_openbao_ignores_ambient_proxy` and `tests/test_credentials.py::test_openbao_never_follows_redirects`.
+# Tool schema estimate
+
+R045.3 uses a captured tool's canonical body and checks byte boundaries and
+non-ASCII text against the named divisor.
+
 - **R039 external evidence:** The container-manager test
   `tests/test_access_contracts.py::test_served_deployment_access_contract_matches_fixture`
   uses a synthetic Kubernetes provider and a real MCP tool call. Its owner

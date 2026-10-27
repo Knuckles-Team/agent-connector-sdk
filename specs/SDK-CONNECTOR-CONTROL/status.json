@@ -1263,9 +1263,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R045.3",
       "title": "Compute `schema_tokens` from the existing canonical tool body",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2907b584635e"
+      ],
+      "verified_by": [
+        "tests/test_tool_facts.py:15"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R045.4",

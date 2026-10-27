@@ -641,6 +641,12 @@ identity and exact predecessor tool names. It rejects missing or duplicate
 names and retained action-dispatch tools. Split and equivalent operations need
 trusted operation identities. The connector release owner must enforce the
 check against an authenticated predecessor release. R020.4 remains open.
+# Canonical tool schema estimate
+
+R045.3 counts UTF-8 bytes in the canonical tool body and rounds up by the named
+divisor. The helper does not publish pack annotations. The generated annotation
+fields and capture wiring remain under R045.6 and R045.8.
+
 ## 2026-10-27: deployed-workload contract evidence
 
 R039 remains unverified by this repository's local evidence. The
