@@ -705,3 +705,9 @@ redacted outcomes in pages within the admitted outcome limit. A failed plan retu
 no successful result or evidence pages. The summary identifies paged evidence
 and must not imply that a partial page traversal is complete. The hot-path
 proof records elapsed time and peak memory with its declared profile limits.
+
+## REST source page validation (R800.9)
+
+The legacy REST source validates the complete records list before returning
+any documents or continuation checkpoint. Invalid pages raise without advancing
+the caller-owned checkpoint; valid empty lists remain legitimate empty pages.

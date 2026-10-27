@@ -311,3 +311,9 @@ R005.40.3 and R005.40.4 require a host-admitted receipt tied to the tested
 connector revision and live tool schemas. A schema-only match is not web
 conformance. Tests must refuse missing, stale and mismatched evidence before
 the tool call and leave the checkpoint unchanged.
+
+## REST source malformed pages (R800.9)
+
+Poll through the registered REST source with a prior cursor and next cursor.
+Refuse missing or non-list records, non-object records, blank IDs and empty text.
+The caller checkpoint stays unchanged, and no next cursor is returned.

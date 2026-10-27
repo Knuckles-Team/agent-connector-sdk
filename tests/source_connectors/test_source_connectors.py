@@ -122,6 +122,36 @@ def test_rest_connector_follows_cursor_and_refuses_cross_host_next_url():
         list(hostile.load())
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R800.9")
+@pytest.mark.parametrize(
+    "items",
+    [
+        None,
+        {},
+        ["bad"],
+        [{"id": "", "body": "ok"}],
+        [{"id": "x", "body": ""}],
+        [{"id": "valid", "body": "ok"}, "bad"],
+    ],
+)
+def test_rest_malformed_page_cannot_advance_checkpoint(items):
+    prior = ConnectorCheckpoint(has_more=True, cursor="old")
+    conn = build_connector(
+        "rest",
+        {
+            "url": "http://api/",
+            "records_field": "items",
+            "text_field": "body",
+            "cursor_field": "next",
+            "cursor_param": "cursor",
+            "fetch_fn": lambda *_: {"items": items, "next": "new"},
+        },
+    )
+    with pytest.raises(ValueError, match="REST source"):
+        conn.poll(prior)
+    assert prior.cursor == "old"
+
+
 # spec: SDK-SOURCE-INGEST-R800.2
 def test_rss_connector_parses_rss_and_atom_and_polls_by_watermark():
     feeds = {"http://f/rss": RSS, "http://f/atom": ATOM.replace("2601.00090v1", "x")}
