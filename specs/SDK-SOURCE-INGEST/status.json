@@ -190,6 +190,7 @@
     "SDK-SOURCE-INGEST-R800",
     "SDK-SOURCE-INGEST-R800.1",
     "SDK-SOURCE-INGEST-R800.2",
+    "SDK-SOURCE-INGEST-R800.7",
     "SDK-SOURCE-INGEST-R800.3",
     "SDK-SOURCE-INGEST-R800.4",
     "SDK-SOURCE-INGEST-R800.5",
@@ -2209,22 +2210,19 @@
     {
       "id": "SDK-SOURCE-INGEST-R800",
       "title": "Document-source connector framework (rollup)",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "11366ce437d5",
         "4b003b24ce55",
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:125",
-        "tests/source_connectors/test_source_connectors.py:148",
-        "tests/source_connectors/test_source_connectors.py:45",
-        "tests/source_connectors/test_source_connectors.py:51",
-        "tests/source_connectors/test_source_connectors.py:52"
+        "tests/source_connectors/test_source_connectors.py:45"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R800.1",
         "SDK-SOURCE-INGEST-R800.2",
+        "SDK-SOURCE-INGEST-R800.7",
         "SDK-SOURCE-INGEST-R800.3",
         "SDK-SOURCE-INGEST-R800.4",
         "SDK-SOURCE-INGEST-R800.5",
@@ -2252,6 +2250,15 @@
       "verified_by": [
         "tests/source_connectors/test_source_connectors.py:125",
         "tests/source_connectors/test_source_connectors.py:148"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R800.7",
+      "title": "Partial arXiv sweep checkpoint",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:174"
       ]
     },
     {

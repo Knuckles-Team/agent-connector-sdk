@@ -311,3 +311,9 @@ R005.40.3 and R005.40.4 require a host-admitted receipt tied to the tested
 connector revision and live tool schemas. A schema-only match is not web
 conformance. Tests must refuse missing, stale and mismatched evidence before
 the tool call and leave the checkpoint unchanged.
+
+## Partial arXiv sweep (R800.7)
+
+Inject both a network failure and malformed category feed. A healthy category
+returns a newer record while the prior watermark remains fixed. Recover the
+failed category and assert its older record arrives once and the watermark moves.
