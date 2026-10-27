@@ -91,7 +91,8 @@ class SplitDecision:
     same call; ``split`` is the name that was not registered) or ``kept`` (the
     whole tool stays because its actions cannot be enumerated). ``reason``
     says why an action is covered: ``name``, ``operation``, ``table`` or
-    ``dispatch`` (a generic router over one served client).
+    ``dispatch`` (a generic router over one served client). A kept router
+    records ``actions_unenumerable``.
     """
 
     tool: str
@@ -645,7 +646,9 @@ def split_action_tool(
             "action-routed tool %r kept unsplit: its actions could not be enumerated",
             name,
         )
-        _record(mcp, SplitDecision(name, "", name, "kept", name))
+        _record(
+            mcp, SplitDecision(name, "", name, "kept", name, "actions_unenumerable")
+        )
         return [name]
     ctx = _Context(
         name,

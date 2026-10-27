@@ -6,13 +6,64 @@ import asyncio
 from typing import Any, Literal
 
 import pytest
-from fastmcp import FastMCP
+from fastmcp import Client, FastMCP
 
 from agent_connector_sdk.mcp.action_split import (
     SPLIT_ACTION_TAG,
+    action_split_report,
     split_action_tool,
     tool_actions,
 )
+from agent_connector_sdk.mcp.tool_surface import register_tool_surface
+
+
+class _RouterProofClient:
+    def ping(self) -> str:
+        """Ping the provider."""
+        return "pong"
+
+
+def _register_router_proof(mcp: FastMCP[Any]) -> None:
+    @mcp.tool()
+    def listed(action: Literal["alpha", "beta", "gamma"]) -> str:
+        """A router with three actions."""
+        return action
+
+    @mcp.tool()
+    def unlisted(action: str) -> str:
+        """A router whose action list is supplied at runtime."""
+        return action
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.3")
+async def test_router_actions_remain_served() -> None:
+    mcp: FastMCP[Any] = FastMCP("router-proof")
+    register_tool_surface(
+        mcp,
+        service="router-proof",
+        client_cls=_RouterProofClient,
+        get_client=_RouterProofClient,
+        registrars=[_register_router_proof],
+    )
+    report = action_split_report(mcp)
+    async with Client(mcp) as client:
+        tools = {tool.name for tool in await client.list_tools()}
+        assert {"listed_alpha", "listed_beta", "listed_gamma", "unlisted"} <= tools
+        assert "listed" not in tools
+        for action in ("alpha", "beta", "gamma"):
+            result = await client.call_tool(f"listed_{action}", {})
+            assert result.content[0].text == action
+        result = await client.call_tool("unlisted", {"action": "runtime-action"})
+        assert result.content[0].text == "runtime-action"
+
+    assert {entry["action"] for entry in report if entry["outcome"] == "split"} == {
+        "alpha",
+        "beta",
+        "gamma",
+    }
+    kept = next(entry for entry in report if entry["outcome"] == "kept")
+    assert kept["served_by"] == "unlisted"
+    assert kept["reason"] == "actions_unenumerable"
 
 
 def _server() -> FastMCP[Any]:

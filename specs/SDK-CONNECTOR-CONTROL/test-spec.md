@@ -368,7 +368,7 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_
 
 ## Never-drop splitter, successor parity and actor forwarding (R020.3, R020.4, R902)
 
-- `SDK-CONNECTOR-CONTROL-R020.3`: `tests/test_action_split.py` registers a router with three actions and a router with unlistable actions. It asserts three split tools, one kept router and no lost tool.
+- `SDK-CONNECTOR-CONTROL-R020.3`: `tests/test_action_split.py::test_router_actions_remain_served` registers a router with three actions and a router with unlistable actions. It calls all four tools over MCP and asserts the split report records the retained router and its reason.
 - `SDK-CONNECTOR-CONTROL-R020.5`: `tests/test_action_split.py` splits a router and asserts parent and per-action inheritance. A purge action never inherits a read class and still raises. A stray tool is unclassified.
 - `SDK-CONNECTOR-CONTROL-R020.4`: `tests/test_successor_tool_parity.py` compares a predecessor and a successor tool list. It asserts kept, split and covered outcomes, and a refusal for one lost tool.
 - `SDK-CONNECTOR-CONTROL-R902`: The rollup holds when its six children hold.
