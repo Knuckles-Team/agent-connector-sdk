@@ -406,3 +406,5 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R902`: `tests/test_actor_forwarding_se
 - **R028.2 construction and pinning:** Run `tests/test_http_egress_construction.py`. Both factories refuse unsafe literal hosts before creating a transport. An allowed private host completes a real pinned request. DNS lookup occurs at request time.
 
 - **R028.1 canonical loopback:** `tests/test_http_egress.py::test_loopback_hostname_canonicalization` refuses mixed-case and dotted localhost names unless the policy admits loopback or names that host. A different host is not covered by the exception.
+
+- `SDK-CONNECTOR-CONTROL-R035.7`: `tests/test_credentials.py::test_openbao_ignores_ambient_proxy` and `tests/test_credentials.py::test_openbao_never_follows_redirects`.

@@ -24,6 +24,7 @@ from agent_connector_sdk.credentials.resolver import (
     CredentialUnavailableError,
     EnvironmentCredentialResolver,
 )
+from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 def _openbao_client(requests: list[httpx.Request], status: int = 200) -> httpx.Client:
@@ -106,6 +107,49 @@ def test_openbao_fails_closed() -> None:
         OpenBaoCredentialResolver("http://bao.example.invalid", "token")
     with pytest.raises(ValueError):
         OpenBaoCredentialResolver("https://bao.example.invalid", "")
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R035.7")
+def test_openbao_ignores_ambient_proxy(monkeypatch: pytest.MonkeyPatch) -> None:
+    with (
+        ScriptedHttpServer(
+            ScriptedResponse(body=b'{"data":{"data":{"TOKEN":"value"}}}')
+        ) as target,
+        ScriptedHttpServer(ScriptedResponse(status=502)) as proxy,
+    ):
+        monkeypatch.setenv("HTTP_PROXY", proxy.base_url)
+        monkeypatch.setenv("http_proxy", proxy.base_url)
+        monkeypatch.setenv("NO_PROXY", "")
+        monkeypatch.setenv("no_proxy", "")
+        resolver = OpenBaoCredentialResolver(target.base_url, "fixture-token")
+        assert (
+            resolver.resolve(parse_secret_reference("openbao://apps/x#TOKEN"))
+            == "value"
+        )
+        assert len(target.requests) == 1
+        assert target.requests[0].headers["x-vault-token"] == "fixture-token"
+        assert proxy.requests == []
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R035.7")
+@pytest.mark.parametrize("status", [301, 302, 303, 307, 308])
+def test_openbao_never_follows_redirects(status: int) -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(status, headers={"Location": "https://other.invalid/"})
+
+    with httpx.Client(
+        transport=httpx.MockTransport(handler), follow_redirects=True
+    ) as client:
+        resolver = OpenBaoCredentialResolver(
+            "https://bao.example.invalid", "fixture-token", http_client=client
+        )
+        with pytest.raises(CredentialUnavailableError):
+            resolver.resolve(parse_secret_reference("openbao://apps/x#TOKEN"))
+    assert len(requests) == 1
+    assert requests[0].headers["x-vault-token"] == "fixture-token"
 
 
 def test_openbao_from_settings(monkeypatch: pytest.MonkeyPatch) -> None:

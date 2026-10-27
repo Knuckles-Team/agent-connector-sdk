@@ -625,3 +625,10 @@ The standalone egress check compares host names without case or trailing dots.
 Normalize the configured allowlist by the same rule before checking it. A
 `localhost` spelling is still loopback when its case or trailing dot varies.
 The check remains syntactic; the governed transport checks resolved addresses.
+
+## Amendment 2026-10-27: OpenBao outbound transport
+
+The resolver creates its own client without ambient proxy settings. It disables
+redirects on every credential read, even when the caller injects a client. A
+caller-supplied transport remains part of trusted configuration. This does not
+deliver the host grant and authority binding in R035.1 through R035.6.
