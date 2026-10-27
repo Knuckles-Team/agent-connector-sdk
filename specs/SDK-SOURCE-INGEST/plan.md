@@ -616,6 +616,10 @@ does not deliver the connector-tool or typed-refusal contract. Runner adapter
 composition and the generated engine `WebDocumentProvenance` model remain
 dependencies of the complete web-source path.
 
+Until that migration, the legacy fetcher pins each outbound destination. A
+private host needs an explicit caller allowlist. A plaintext non-loopback
+destination also needs the separate plaintext option.
+
 ## Declared connector sources (SDK-SOURCE-INGEST-R004.19 through R004.24)
 
 A connector declares each ingestible source with `source_meta` on its read tool. The SDK assembles `IngestSourceDeclaration`. `register_tool_surface` serves it as the resource `connector://resources`. A host reads the declarations through that resource. The host needs no engine listing method.

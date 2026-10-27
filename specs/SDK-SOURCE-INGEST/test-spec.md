@@ -274,6 +274,7 @@ Current dictation routes are single-shot. These tests require a registered meeti
 - `SDK-SOURCE-INGEST-R005.40.5`: `tests/test_adapters_web_fetch_source_adapter.py::test_record_provenance_matches_engine_model`.
 - `SDK-SOURCE-INGEST-R005.40.6`: `tests/test_web_source_served.py::test_two_backends_produce_equal_records`.
 - `SDK-SOURCE-INGEST-R005.41`: `tests/test_adapters_web_fetch_source_adapter.py::test_failed_fetch_preserves_accepted_checkpoint`.
+- `SDK-SOURCE-INGEST-R005.42`: `tests/test_adapters_web_fetch.py` checks pinned egress and explicit private-host admission.
 - `SDK-SOURCE-INGEST-R004.26`: `tests/test_ingest_citable_fields.py::test_citable_fields_keep_public_urls_and_nothing_else`.
 - `SDK-SOURCE-INGEST-R004.27`: `tests/test_contracts_and_sink.py::test_sink_passes_the_mass_withdrawal_decision_to_the_engine`.
 

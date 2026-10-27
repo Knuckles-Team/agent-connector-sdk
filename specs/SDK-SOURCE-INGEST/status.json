@@ -112,6 +112,7 @@
     "SDK-SOURCE-INGEST-R005.40.5",
     "SDK-SOURCE-INGEST-R005.40.6",
     "SDK-SOURCE-INGEST-R005.41",
+    "SDK-SOURCE-INGEST-R005.42",
     "SDK-SOURCE-INGEST-R006.32",
     "SDK-SOURCE-INGEST-R006.33",
     "SDK-SOURCE-INGEST-R006.34",
@@ -395,7 +396,8 @@
         "SDK-SOURCE-INGEST-R005.38",
         "SDK-SOURCE-INGEST-R005.39",
         "SDK-SOURCE-INGEST-R005.40",
-        "SDK-SOURCE-INGEST-R005.41"
+        "SDK-SOURCE-INGEST-R005.41",
+        "SDK-SOURCE-INGEST-R005.42"
       ]
     },
     {
@@ -1462,7 +1464,21 @@
         "cb75b1d7a164"
       ],
       "verified_by": [
-        "tests/test_adapters_web_fetch_source_adapter.py:127"
+        "tests/test_adapters_web_fetch_source_adapter.py:131"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.42",
+      "title": "Pin legacy web-fetch egress during migration",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "62c3a3fc9e74"
+      ],
+      "verified_by": [
+        "tests/test_adapters_web_fetch.py:123",
+        "tests/test_adapters_web_fetch.py:86",
+        "tests/test_adapters_web_fetch.py:98",
+        "tests/test_adapters_web_fetch_source_adapter.py:157"
       ]
     },
     {
