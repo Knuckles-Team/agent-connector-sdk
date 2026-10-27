@@ -276,6 +276,41 @@ async def test_applied_receipt_cannot_be_reversed_across_pages() -> None:
     assert fixture.transport.attempts == 1
 
 
+@pytest.mark.parametrize("empty_page", [False, True])
+async def test_bad_receipt_cursor_cannot_skip_uncertainty(
+    monkeypatch: pytest.MonkeyPatch, empty_page: bool
+) -> None:
+    state = await _registered_with_uncertainty(FixtureUncertainty.BEFORE_EFFECT)
+    fixture = state.fixture
+    await state.connector.apply(fixture.change_set)
+    await state.connector.reconcile(fixture.change_set)
+    fixture.transport.inject_uncertainty(
+        fixture.change_set.idempotency_key, FixtureUncertainty.BEFORE_EFFECT
+    )
+    await state.connector.apply(fixture.change_set)
+    original_receipts = state.ledger.receipts
+
+    async def skip_receipt(
+        tenant_id: str,
+        change_set_id: str,
+        *,
+        after_sequence: int | None = None,
+        limit: int = 256,
+    ) -> WriteBackReceiptPage:
+        if after_sequence is None:
+            visible = [] if empty_page else state.ledger.records[:2]
+            return WriteBackReceiptPage(receipts=visible, next_sequence=3)
+        return await original_receipts(
+            tenant_id, change_set_id, after_sequence=after_sequence, limit=limit
+        )
+
+    monkeypatch.setattr(state.ledger, "receipts", skip_receipt)
+    restarted = _reference_connector(fixture, state.ledger, state.audit)
+    with pytest.raises(WriteBackPersistenceError, match="not page-bound"):
+        await restarted.apply(fixture.change_set)
+    assert fixture.transport.attempts == 2
+
+
 @pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R003")
 async def test_durable_authorization_resolver_fails_closed() -> None:
     fixture = make_writeback_fixture()

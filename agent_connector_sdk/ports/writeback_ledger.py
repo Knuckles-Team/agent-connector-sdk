@@ -46,5 +46,5 @@ class WriteBackLedger(Protocol):
         after_sequence: int | None = None,
         limit: int = 256,
     ) -> WriteBackReceiptPage:
-        """Read an ordered page of append-only receipts."""
+        """Read ordered receipts after the cursor, continuing at the last sequence."""
         ...
