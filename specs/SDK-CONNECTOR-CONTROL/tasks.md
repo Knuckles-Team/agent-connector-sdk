@@ -316,3 +316,5 @@ Loopback discovery is denied unless the host explicitly opts in. Compressed
 responses are refused before decoding to preserve the response size bound.
 The total response deadline remains open under R047.2.
 - [x] Compute the named byte-based tool schema estimate (SDK-CONNECTOR-CONTROL-R045.3).
+
+- [ ] **SDK-CONNECTOR-CONTROL-R650.1:** Restore release integrity for the current declaration path and prove signer-lock and rotation behavior.

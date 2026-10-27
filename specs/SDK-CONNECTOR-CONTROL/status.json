@@ -132,6 +132,7 @@
     "SDK-CONNECTOR-CONTROL-R059",
     "SDK-CONNECTOR-CONTROL-R060",
     "SDK-CONNECTOR-CONTROL-R650",
+    "SDK-CONNECTOR-CONTROL-R650.1",
     "SDK-CONNECTOR-CONTROL-R051",
     "SDK-CONNECTOR-CONTROL-R051.1",
     "SDK-CONNECTOR-CONTROL-R051.2",
@@ -1743,10 +1744,20 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R650",
       "title": "Connector manifest release integrity",
-      "delivery_state": "LANDED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "ad6af590e63c"
       ],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R650.1"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R650.1",
+      "title": "Current declaration integrity",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
       "verified_by": []
     },
     {
