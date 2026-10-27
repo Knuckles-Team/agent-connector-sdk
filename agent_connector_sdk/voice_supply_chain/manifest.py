@@ -43,6 +43,20 @@ from pydantic import BaseModel, Field, field_validator
 HF_COMMIT_SHA_LEN = 40
 
 
+def _manifest_identifier(value: str) -> str:
+    """Validate one identifier before it can be used as a registry file name."""
+    if (
+        not isinstance(value, str)
+        or not value
+        or len(value) > 128
+        or not value.isascii()
+        or not value[0].isalnum()
+        or any(not (char.isalnum() or char in "._-") for char in value)
+    ):
+        raise ValueError("invalid manifest identifier")
+    return value
+
+
 class VoiceModelProvider(enum.StrEnum):
     """The only acquisition provider this lane supports (DEF-017 scope guard)."""
 
@@ -100,6 +114,11 @@ class VoiceModelManifest(BaseModel):
     status: VoiceManifestStatus = VoiceManifestStatus.QUARANTINED
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     notes: str = ""
+
+    @field_validator("manifest_id")
+    @classmethod
+    def _validate_manifest_id(cls, value: str) -> str:
+        return _manifest_identifier(value)
 
     @field_validator("sha256", "config_sha256")
     @classmethod
@@ -166,6 +185,11 @@ class VoiceLicenseDecision(BaseModel):
     reviewer: str = ""
     decided_at: datetime | None = None
     rationale: str = ""
+
+    @field_validator("asset_manifest_id")
+    @classmethod
+    def _validate_asset_manifest_id(cls, value: str) -> str:
+        return _manifest_identifier(value)
 
 
 __all__ = [

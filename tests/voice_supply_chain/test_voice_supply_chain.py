@@ -166,3 +166,37 @@ def test_provider_is_piper_only_and_config_manifest_pins_its_digest():
             byte_length=2,
             sample_rate=0,
         )
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R804.7")
+@pytest.mark.parametrize(
+    "bad_id",
+    ("../escape", "/tmp/escape", "a/b", "a\\b", ".", "..", "", "x\x00y", "x" * 129),
+)
+def test_manifest_identifiers_refuse_path_escape_before_file_access(bad_id, tmp_path):
+    with pytest.raises(ValidationError):
+        _manifest(manifest_id=bad_id)
+    with pytest.raises(ValidationError):
+        VoiceLicenseDecision(asset_manifest_id=bad_id)
+    with pytest.raises(ValueError, match="invalid manifest identifier"):
+        lr.get_license_decision(bad_id)
+    with pytest.raises(ValueError, match="invalid manifest identifier"):
+        lr.mark_verified(_manifest().model_copy(update={"manifest_id": bad_id}))
+    forged = VoiceLicenseDecision.model_construct(asset_manifest_id=bad_id)
+    with pytest.raises(ValueError, match="invalid manifest identifier"):
+        lr.record_license_decision(forged)
+    assert not (tmp_path / "voice-models").exists()
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R804.7")
+def test_foreign_license_approval_cannot_authorize_handoff(tmp_path):
+    index = store.manifest_index_dir()
+    decision = VoiceLicenseDecision(
+        asset_manifest_id="another-manifest", counsel_decision="approved", reviewer=OK
+    )
+    (index / f"{SHA}.license.json").write_text(decision.model_dump_json())
+
+    assert lr.get_license_decision(SHA) is None
+    ready, reason = lr.is_ready_for_promotion_handoff(_manifest())
+    assert not ready
+    assert "no license decision" in reason

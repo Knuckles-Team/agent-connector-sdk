@@ -207,6 +207,7 @@
     "SDK-SOURCE-INGEST-R804.4",
     "SDK-SOURCE-INGEST-R804.5",
     "SDK-SOURCE-INGEST-R804.6",
+    "SDK-SOURCE-INGEST-R804.7",
     "SDK-SOURCE-INGEST-R900",
     "SDK-SOURCE-INGEST-R900.1",
     "SDK-SOURCE-INGEST-R900.2",
@@ -2376,7 +2377,8 @@
         "SDK-SOURCE-INGEST-R804.3",
         "SDK-SOURCE-INGEST-R804.4",
         "SDK-SOURCE-INGEST-R804.5",
-        "SDK-SOURCE-INGEST-R804.6"
+        "SDK-SOURCE-INGEST-R804.6",
+        "SDK-SOURCE-INGEST-R804.7"
       ]
     },
     {
@@ -2440,6 +2442,16 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R804.7",
+      "title": "Bound manifest paths and decisions",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/voice_supply_chain/test_voice_supply_chain.py:171",
+        "tests/voice_supply_chain/test_voice_supply_chain.py:191"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R900",

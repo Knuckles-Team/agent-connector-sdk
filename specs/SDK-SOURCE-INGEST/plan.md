@@ -643,3 +643,12 @@ page. Validate the whole page before submitting any of its records. A null or
 missing list, a non-object record, or a record without a usable declared ID
 fails the run as `malformed_result`. The failed page cannot advance the cursor
 or add record digests. The runner may still store its failed-run report.
+
+## Voice registry identity binding (R804.7)
+
+The voice registry uses manifest identifiers as file names. It validates each
+identifier before it forms a path. A loaded decision must name
+the requested asset. This prevents a mismatched decision from approving a
+handoff. Identifier equality does not prove the manifest's content or status.
+The trusted manifest authority and content-bound approval remain dependencies
+for a stronger cross-asset guarantee.
