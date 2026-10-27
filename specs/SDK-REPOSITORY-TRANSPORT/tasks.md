@@ -6,3 +6,4 @@
 - [ ] Attach exact merged commit, CI run, benchmark data, and graph receipt before acceptance.
 - [x] Verify bounded, outcome-complete batch submission and that `IndexRepository` call count scales with batch count, not file count (SDK-REPOSITORY-TRANSPORT-R004, SDK-REPOSITORY-TRANSPORT-R005).
 - [ ] Reject provider pages that exceed the requested size (SDK-REPOSITORY-TRANSPORT-R006).
+- [ ] Bind local Git tree and blob reads to the selected commit (SDK-REPOSITORY-TRANSPORT-R007).

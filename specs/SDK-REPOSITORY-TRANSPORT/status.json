@@ -9,7 +9,8 @@
     "SDK-REPOSITORY-TRANSPORT-R003",
     "SDK-REPOSITORY-TRANSPORT-R004",
     "SDK-REPOSITORY-TRANSPORT-R005",
-    "SDK-REPOSITORY-TRANSPORT-R006"
+    "SDK-REPOSITORY-TRANSPORT-R006",
+    "SDK-REPOSITORY-TRANSPORT-R007"
   ],
   "requirements": [
     {
@@ -40,8 +41,8 @@
         "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_repository_refwalk_fastpath.py:39",
-        "tests/test_repository_refwalk_fastpath.py:78"
+        "tests/test_repository_refwalk_fastpath.py:40",
+        "tests/test_repository_refwalk_fastpath.py:79"
       ]
     },
     {
@@ -78,6 +79,15 @@
       "verified_by": [
         "tests/test_repository_refs.py:110",
         "tests/test_repository_transport.py:219"
+      ]
+    },
+    {
+      "id": "SDK-REPOSITORY-TRANSPORT-R007",
+      "title": "Local Git blob reads stay within the selected revision",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_repository_refwalk_fastpath.py:159"
       ]
     }
   ]

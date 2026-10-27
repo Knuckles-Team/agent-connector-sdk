@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from agent_connector_sdk.repository.errors import RepositoryTransportError
 from agent_connector_sdk.repository.local_git import LocalGitRepositoryProvider
 from agent_connector_sdk.repository.walk import RefTree, walk_refs
 
@@ -153,3 +154,68 @@ async def test_provider_ignores_inherited_repository_selectors(
     assert await batched.list_tree(revision, cursor=None, page_size=10) == expected
     assert await batched._git("config", "--get", "fixture.retained") == b"retained\n"
     assert {name: os.environ[name] for name in selectors} == selectors
+
+
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R007")
+async def test_local_blob_read_is_bound_to_selected_commit(tmp_path: Path) -> None:
+    root = tmp_path / "repo"
+    _init_repo(root)
+    (root / "file.txt").write_text("old private content")
+    _git(root, "add", "--", "file.txt")
+    _git(root, "-c", "commit.gpgsign=false", "commit", "-qm", "old")
+    old_tree = _git(root, "rev-parse", "HEAD^{tree}")
+    old_blob = _git(root, "rev-parse", "HEAD:file.txt")
+    (root / "file.txt").write_text("current content")
+    (root / "other.txt").write_text("other content")
+    _git(root, "add", "--", "file.txt", "other.txt")
+    _git(root, "-c", "commit.gpgsign=false", "commit", "-qm", "current")
+
+    class RecordingProvider(LocalGitRepositoryProvider):
+        def __init__(self) -> None:
+            super().__init__(root, repository_id="fixture")
+            self.calls: list[tuple[str, ...]] = []
+            self.tree_reads = 0
+
+        async def _git(self, *args: str) -> bytes:
+            self.calls.append(args)
+            return await super()._git(*args)
+
+        async def _tree(self, revision):
+            self.tree_reads += 1
+            return await super()._tree(revision)
+
+    provider = RecordingProvider()
+    (ref,) = await provider.list_refs()
+    revision = ref.revision
+    page = await provider.list_tree(revision, cursor=None, page_size=10)
+    assert (
+        await provider.fetch_blob(revision, page.entries[1].blob_id) == b"other content"
+    )
+    assert (
+        await provider.fetch_blob(revision, page.entries[0].blob_id)
+        == b"current content"
+    )
+    assert provider.tree_reads == 2  # One listing and one membership-set build.
+    provider.calls.clear()
+
+    with pytest.raises(RepositoryTransportError, match="not in the requested tree"):
+        await provider.fetch_blob(revision, old_blob)
+    with pytest.raises(
+        RepositoryTransportError, match="revision and tree do not match"
+    ):
+        await provider.fetch_blob(
+            revision.model_copy(update={"tree_id": old_tree}), old_blob
+        )
+    with pytest.raises(
+        RepositoryTransportError, match="revision and tree do not match"
+    ):
+        await provider.list_tree(
+            revision.model_copy(update={"tree_id": old_tree}), cursor=None, page_size=10
+        )
+    with pytest.raises(RepositoryTransportError, match="another repository"):
+        await provider.fetch_blob(
+            revision.model_copy(update={"repository_id": "other"}), old_blob
+        )
+    with pytest.raises(RepositoryTransportError, match="not immutable"):
+        await provider.fetch_blob(revision, "--batch")
+    assert not any(call[:2] == ("cat-file", "blob") for call in provider.calls)

@@ -14,6 +14,7 @@ from pathlib import Path
 
 from agent_connector_sdk.config import _repository_git_environment
 from agent_connector_sdk.repository.errors import RepositoryTransportError
+from agent_connector_sdk.repository.identity import _immutable_git_id
 from agent_connector_sdk.repository.models import (
     RepositoryAuthentication,
     RepositoryRevision,
@@ -59,6 +60,30 @@ class LocalGitRepositoryProvider:
             ).hexdigest(),
         )
         self._trees: dict[str, tuple[RepositoryTreeEntry, ...]] = {}
+        self._tree_blobs: dict[str, frozenset[str]] = {}
+        self._verified_revisions: set[tuple[str, str]] = set()
+
+    async def _require_revision(self, revision: RepositoryRevision) -> None:
+        if (
+            revision.provider != self.name
+            or revision.repository_id != self.repository_id
+        ):
+            raise RepositoryTransportError("revision names another repository")
+        try:
+            commit = _immutable_git_id(revision.revision_id, field_name="revision_id")
+            tree = _immutable_git_id(revision.tree_id, field_name="tree_id")
+        except ValueError as exc:
+            raise RepositoryTransportError("revision is not immutable") from exc
+        if (commit, tree) in self._verified_revisions:
+            return
+        resolved = (
+            (await self._git("rev-parse", f"{commit}^{{commit}}", f"{commit}^{{tree}}"))
+            .decode("ascii")
+            .split()
+        )
+        if resolved != [commit, tree]:
+            raise RepositoryTransportError("revision and tree do not match")
+        self._verified_revisions.add((commit, tree))
 
     async def _git(self, *args: str) -> bytes:
         process = await asyncio.create_subprocess_exec(
@@ -86,7 +111,7 @@ class LocalGitRepositoryProvider:
             return ()
         peeled = [f"{name}^{{{kind}}}" for name in names for kind in ("commit", "tree")]
         ids = (await self._git("rev-parse", *peeled)).decode("ascii").split()
-        return tuple(
+        refs = tuple(
             RepositoryRef(
                 name=name,
                 revision=RepositoryRevision(
@@ -98,6 +123,10 @@ class LocalGitRepositoryProvider:
             )
             for index, name in enumerate(names)
         )
+        self._verified_revisions.update(
+            (ref.revision.revision_id, ref.revision.tree_id) for ref in refs
+        )
+        return refs
 
     async def _read_trees_batch(self, roots: tuple[str, ...]) -> TreeObjects:
         """Read every tree reachable from ``roots`` through one batch process."""
@@ -164,6 +193,7 @@ class LocalGitRepositoryProvider:
         page_size: int,
     ) -> RepositoryTreePage:
         """One page of ``revision``'s blob entries; the cursor is an offset."""
+        await self._require_revision(revision)
         entries = await self._tree(revision)
         start = int(cursor) if cursor is not None else 0
         end = start + page_size
@@ -174,5 +204,16 @@ class LocalGitRepositoryProvider:
         )
 
     async def fetch_blob(self, revision: RepositoryRevision, blob_id: str) -> bytes:
-        """The bytes of blob ``blob_id``."""
+        """Return a blob only when it belongs to the verified revision tree."""
+        await self._require_revision(revision)
+        try:
+            blob_id = _immutable_git_id(blob_id, field_name="blob_id")
+        except ValueError as exc:
+            raise RepositoryTransportError("blob ID is not immutable") from exc
+        allowed = self._tree_blobs.get(revision.tree_id)
+        if allowed is None:
+            allowed = frozenset(entry.blob_id for entry in await self._tree(revision))
+            self._tree_blobs[revision.tree_id] = allowed
+        if blob_id not in allowed:
+            raise RepositoryTransportError("blob is not in the requested tree")
         return await self._git("cat-file", "blob", blob_id)
