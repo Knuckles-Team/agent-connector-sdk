@@ -32,7 +32,9 @@ def test_link_rejects_unsafe_next_before_fetch(target: str) -> None:
         fetched.append(url)
         return [1], {"Link": f'<{target}>; rel="next"'}
 
-    iterator = PaginationIterator(fetch, "/users", mode="link", base_url="https://api.test")
+    iterator = PaginationIterator(
+        fetch, "/users", mode="link", base_url="https://api.test"
+    )
     with pytest.raises(PaginationOriginError) as caught:
         list(iterator)
     assert fetched == ["/users"]
@@ -42,7 +44,9 @@ def test_link_rejects_unsafe_next_before_fetch(target: str) -> None:
 
 def test_link_without_base_refuses_before_fetch() -> None:
     fetched: list[str] = []
-    iterator = PaginationIterator(lambda url, params: (fetched.append(url), {}), "/users", mode="link")
+    iterator = PaginationIterator(
+        lambda url, params: (fetched.append(url), {}), "/users", mode="link"
+    )
     with pytest.raises(ValueError, match="absolute endpoint or base_url"):
         list(iterator)
     assert not fetched
@@ -55,7 +59,9 @@ def test_link_resolves_relative_next_and_stops_on_loop() -> None:
         fetched.append(url)
         return [1], {"Link": '<?page=2>; rel="next"'}
 
-    iterator = PaginationIterator(fetch, "/users", mode="link", base_url="https://api.test")
+    iterator = PaginationIterator(
+        fetch, "/users", mode="link", base_url="https://api.test"
+    )
     assert list(iterator) == [1, 1]
     assert fetched == ["/users", "https://api.test/users?page=2"]
     assert iterator.truncated
