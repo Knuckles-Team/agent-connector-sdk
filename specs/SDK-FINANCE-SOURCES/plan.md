@@ -5,3 +5,9 @@
 3. Add macro/vintage, FX, spot/futures, and dated real-estate adapters by extending the same SourceAdapter and manifest presets.
 4. Add account read and CSV mapping-preview/import with stable activity IDs and replay-safe checkpointing.
 5. Run offline conformance first; then opt-in licensed live probes and graph receipt qualification. Release each adapter independently once its own evidence is complete.
+
+## Payment amount validation
+
+For SDK-FINANCE-SOURCES-R900.4, the guard refuses negative or non-finite
+amounts and budget limits. Spend recording rejects invalid or overflowing
+amounts before changing counters. Zero spend remains valid.

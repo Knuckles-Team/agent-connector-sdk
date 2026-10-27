@@ -90,6 +90,35 @@ def test_guard_remaining_budget_and_daily_reset() -> None:
     assert guard.remaining_daily == pytest.approx(100.0)
 
 
+@pytest.mark.parametrize("amount", [float("nan"), float("inf"), -1.0, True])
+def test_guard_refuses_invalid_amounts_without_changing_spend(amount: float) -> None:
+    client = X402PaymentClient()
+    challenge = (
+        client.handle_402({"X-Payment-Amount": str(amount)}, "r")
+        if not isinstance(amount, bool)
+        else PaymentChallenge("r", amount)
+    )
+    assert client.authorize_payment(challenge)[0] is False
+    with pytest.raises(ValueError):
+        client.guard.record_spend(amount)
+    with pytest.raises(ValueError):
+        client.record_payment(challenge, _proof())
+    assert client.get_payment_history() == []
+    assert client.guard.remaining_daily == 100.0
+    assert client.guard.remaining_monthly == 1000.0
+
+
+def test_guard_refuses_invalid_limits_and_accounting_overflow() -> None:
+    guard = PaymentGuard(BudgetLimits(max_daily_spend=float("nan")))
+    assert guard.validate(PaymentChallenge("r", 1.0))[0] is False
+    guard = PaymentGuard()
+    guard.record_spend(1e308)
+    with pytest.raises(ValueError, match="accounting range"):
+        guard.record_spend(1e308)
+    assert guard._daily_spend == 1e308
+    assert guard._monthly_spend == 1e308
+
+
 # spec: SDK-FINANCE-SOURCES-R900.6
 def test_client_parses_402_proves_and_records_spend() -> None:
     client = X402PaymentClient(

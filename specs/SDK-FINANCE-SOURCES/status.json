@@ -98,6 +98,7 @@
       "title": "Venue and API connector helpers (rollup)",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "341a4a3478e7",
         "4b003b24ce55",
         "8c6dcfdd27e8",
         "be6035bc97e5"
@@ -157,6 +158,7 @@
       "title": "Refusal",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "341a4a3478e7",
         "8c6dcfdd27e8"
       ],
       "verified_by": [
@@ -183,7 +185,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/test_payments.py:93"
+        "tests/test_payments.py:122"
       ]
     }
   ]

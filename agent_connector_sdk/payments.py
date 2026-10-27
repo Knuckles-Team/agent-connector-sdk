@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import sys
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -17,6 +18,14 @@ from enum import StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+
+def _valid_amount(value: object) -> bool:
+    return (
+        isinstance(value, int | float)
+        and not isinstance(value, bool)
+        and 0 <= value <= sys.float_info.max
+    )
 
 
 class PaymentStatus(StrEnum):
@@ -125,6 +134,21 @@ class PaymentGuard:
         Returns:
             (approved, reason) tuple.
         """
+        limits = self.limits
+        if not _valid_amount(challenge.amount) or not all(
+            _valid_amount(value)
+            for value in (
+                limits.max_single_payment,
+                limits.max_daily_spend,
+                limits.max_monthly_spend,
+                limits.require_approval_above,
+            )
+        ):
+            return (
+                False,
+                "Payment amount and budget limits must be finite and non-negative",
+            )
+
         # Currency check
         if challenge.currency not in self.limits.allowed_currencies:
             return False, f"Currency {challenge.currency} not in allowed list"
@@ -162,8 +186,14 @@ class PaymentGuard:
 
     def record_spend(self, amount: float) -> None:
         """Record a completed payment for budget tracking."""
-        self._daily_spend += amount
-        self._monthly_spend += amount
+        if not _valid_amount(amount):
+            raise ValueError("payment amount must be finite and non-negative")
+        daily = self._daily_spend + amount
+        monthly = self._monthly_spend + amount
+        if not _valid_amount(daily) or not _valid_amount(monthly):
+            raise ValueError("payment spend exceeds finite accounting range")
+        self._daily_spend = daily
+        self._monthly_spend = monthly
         self._payment_count += 1
 
     def reset_daily(self) -> None:
@@ -257,6 +287,8 @@ class X402PaymentClient:
         error: str = "",
     ) -> PaymentRecord:
         """Record a payment for audit trail and KG persistence."""
+        if status == PaymentStatus.CONFIRMED and proof:
+            self.guard.record_spend(challenge.amount)
         self._payment_counter += 1
         record = PaymentRecord(
             payment_id=f"pay:{self._payment_counter:06d}",
@@ -265,9 +297,6 @@ class X402PaymentClient:
             proof=proof,
             error_message=error,
         )
-
-        if status == PaymentStatus.CONFIRMED and proof:
-            self.guard.record_spend(challenge.amount)
 
         self._records.append(record)
         logger.info(
