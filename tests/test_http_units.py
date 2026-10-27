@@ -70,6 +70,7 @@ def test_parse_retry_after_forms() -> None:
     assert parse_retry_after("Thu, 01 Jan 2026 12:00:30 GMT", now=now) == 30.0
     assert parse_retry_after("Thu, 01 Jan 2026 11:00:00 GMT", now=now) == 0.0
     assert parse_retry_after("soon") is None
+    assert parse_retry_after("²") is None
     assert parse_retry_after(None) is None
 
 
@@ -97,6 +98,10 @@ def test_retry_policy_decisions() -> None:
     too_long = httpx.Response(503, headers={"Retry-After": "60"})
     assert policy.delay_after_response(get, too_long, 1) is None
     assert policy.delay_after_response(get, httpx.Response(503), 1) == 0.5
+    malformed = httpx.Response(503, headers=[(b"retry-after", b"\xb2")])
+    assert policy.delay_after_response(get, malformed, 1) == 0.5
+    oversized = httpx.Response(503, headers={"Retry-After": "9" * 400})
+    assert policy.delay_after_response(get, oversized, 1) is None
     assert policy.delay_after_response(get, httpx.Response(404), 1) is None
     assert policy.delay_after_error(post, httpx.ConnectError("refused"), 1) == 0.5
     assert policy.delay_after_error(post, httpx.ReadTimeout("slow"), 1) is None

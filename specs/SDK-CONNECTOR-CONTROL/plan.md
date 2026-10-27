@@ -694,3 +694,9 @@ cutover. Historical commit `ad6af590e63c` remains a valid past landing, but it
 does not prove current signing or rotation behavior. R650.1 holds that work open
 until the current live declaration and ontology have equivalent tested
 release-integrity behavior.
+
+## Retry-After malformed header handling (SDK-CONNECTOR-CONTROL-R780.3)
+
+Only ASCII decimal digits are valid delta-seconds. The client uses bounded
+backoff for a non-ASCII digit. It does not raise while classifying the response.
+The configured retry-after ceiling bounds oversized valid values.

@@ -42,7 +42,7 @@ def parse_retry_after(
     Returns ``None`` for a missing or malformed value; a date in the past is ``0``.
     """
     rendered = (value or "").strip()
-    if rendered.isdigit():
+    if rendered.isascii() and rendered.isdecimal():
         return float(rendered)
     try:
         when = parsedate_to_datetime(rendered)
