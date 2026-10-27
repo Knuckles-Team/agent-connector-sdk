@@ -38,9 +38,23 @@ from ..universal import UniversalConnector
 _SECRET_REF_RE = re.compile(r"^(?:env|openbao)://[A-Za-z0-9_./#-]+$")
 _FIELD_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.-]{0,254}$")
 _SOURCE_ALIAS_RE = re.compile(r"^[a-z][a-z0-9-]{1,62}$")
+_INTEGER_WATERMARK_RE = re.compile(r"[+-]?[0-9]+\Z")
 _DATABASE_PROFILE_FIELDS = frozenset(
     {"dsn", "kind", "tls_service", "tls_profile", "tls_profile_ref"}
 )
+
+
+def _watermark_after(candidate: str, previous: str) -> bool:
+    """Compare integer watermarks numerically and other watermarks as text."""
+    candidate_integer = _INTEGER_WATERMARK_RE.fullmatch(candidate) is not None
+    previous_integer = _INTEGER_WATERMARK_RE.fullmatch(previous) is not None
+    if candidate_integer and previous_integer:
+        if len(candidate) > 256 or len(previous) > 256:
+            raise ValueError("database integer watermark is too large")
+        return int(candidate) > int(previous)
+    if candidate_integer != previous_integer:
+        raise ValueError("database watermark types do not match")
+    return candidate > previous
 
 
 def _render_connection_profile(raw: object) -> str:
@@ -336,12 +350,12 @@ class DatabaseConnector(LoadConnector, PollConnector):
                 self.updated_field
                 and prior is not None
                 and doc.updated_at is not None
-                and str(doc.updated_at) <= str(prior)
+                and not _watermark_after(doc.updated_at, prior)
             ):
                 continue
             docs.append(doc)
             if doc.updated_at is not None and (
-                max_wm is None or str(doc.updated_at) > str(max_wm)
+                max_wm is None or _watermark_after(doc.updated_at, max_wm)
             ):
                 max_wm = doc.updated_at
         return CheckpointedBatch(
