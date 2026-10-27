@@ -12,3 +12,6 @@
 | FS-08 | Contributor-owned licensed provider and graph service | Redacted receipt binds source digest, entitlement, instrument, interval, completeness and checkpoint. |
 
 Offline source PRs run fixture pytest and repository quality hooks (Ruff, mypy, CCCC, Dupehound, KISS). FS-08 is an opt-in acceptance probe and reports **NOT RUN** without licensed provider access.
+
+R900.7 runs the production market bus with a controlled clock. Two bar
+intervals for one symbol each receive their own completed bars.

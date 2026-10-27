@@ -11,3 +11,9 @@
 For SDK-FINANCE-SOURCES-R900.4, the guard refuses negative or non-finite
 amounts and budget limits. Spend recording rejects invalid or overflowing
 amounts before changing counters. Zero spend remains valid.
+
+## Independent bar intervals
+
+For R900.7, market feed subscriptions use one aggregator per symbol and bar
+interval. Each tick updates every interval for its symbol. Subscribers to the
+same interval share the same aggregator.
