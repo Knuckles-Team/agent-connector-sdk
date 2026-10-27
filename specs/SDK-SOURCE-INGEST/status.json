@@ -2383,8 +2383,8 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "11366ce437d5",
+        "34f19683dc5a",
         "4b003b24ce55",
-        "5b185eb5eea7",
         "739c341c2595",
         "8c6dcfdd27e8"
       ],
@@ -2465,7 +2465,7 @@
       "title": "Hot-path proof",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "5b185eb5eea7"
+        "34f19683dc5a"
       ],
       "verified_by": [
         "tests/voice_supply_chain/test_voice_supply_chain.py:48"
