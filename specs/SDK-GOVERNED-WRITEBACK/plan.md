@@ -209,3 +209,7 @@ digest. The governed apply path verifies all three before a source mutation.
 The file adapter serializes reservations and synchronizes the stored record.
 Existing file records are accepted only when their ID binds the same key and
 digest. External audit adapters must return the same typed binding.
+
+## Exact dry-run display
+
+SDK-GOVERNED-WRITEBACK-R004.15 binds each displayed preview to the validated current snapshot and approved patch. Compare JSON values by their serialized type and value, not Python equality that equates booleans and integers. This remains independent of repository provider composition.

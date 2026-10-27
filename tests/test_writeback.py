@@ -76,6 +76,55 @@ async def test_public_writeback_contracts_are_live() -> None:
     require_reconciliation(fixture.change_set, reconciled)
 
 
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.15")
+@pytest.mark.parametrize(
+    "alteration",
+    [
+        {"source_version": "v2"},
+        {"before": {"status": "wrong"}},
+        {"after": {"status": "wrong"}},
+        {"after": {"status": "approved", "extra": "hidden"}},
+        {"changed_fields": ()},
+        {"changed_fields": ("status", "status")},
+        {"before": {"status": True}},
+    ],
+)
+async def test_dry_run_rejects_mismatched_preview(
+    monkeypatch: pytest.MonkeyPatch, alteration: dict[str, object]
+) -> None:
+    fixture = make_writeback_fixture()
+    fixture.transport.seed(fixture.change_set.entity_id, "v1", {"status": 1})
+    valid = await fixture.port.dry_run(fixture.change_set)
+    assert valid.before == {"status": 1}
+    assert valid.after == {"status": "approved"}
+    preview = fixture.transport.preview
+
+    async def forged_preview(change_set, current):
+        return (await preview(change_set, current)).model_copy(update=alteration)
+
+    monkeypatch.setattr(fixture.transport, "preview", forged_preview)
+    with pytest.raises(ChangeSetValidationError, match="dry-run"):
+        await fixture.port.dry_run(fixture.change_set)
+    assert fixture.transport.attempts == 0
+
+
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.15")
+async def test_dry_run_rejects_snapshot_mutation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fixture = make_writeback_fixture()
+    preview = fixture.transport.preview
+
+    async def forged_preview(change_set, current):
+        current.fields["status"] = "forged"
+        return await preview(change_set, current)
+
+    monkeypatch.setattr(fixture.transport, "preview", forged_preview)
+    with pytest.raises(ChangeSetValidationError, match="dry-run"):
+        await fixture.port.dry_run(fixture.change_set)
+    assert fixture.transport.attempts == 0
+
+
 @pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.14")
 async def test_uncertain_reconciliation_cannot_allow_retry(
     monkeypatch: pytest.MonkeyPatch,
