@@ -181,6 +181,52 @@ def test_certify_reads_the_declaration_and_checks_tools_live() -> None:
     anyio.run(run)
 
 
+def test_certify_exact_predecessor_names_over_live_mcp() -> None:
+    async def run() -> None:
+        successor = _server()
+        predecessor = _server()
+        endpoint = TransportEndpoint(in_process=successor)
+        prior = TransportEndpoint(in_process=predecessor)
+        report = await certify_connector(
+            McpTransport(), endpoint, timeout_seconds=10, predecessor=prior
+        )
+        assert report.passed
+        assert report.exact_name_check is True
+        assert "not checked" in report.exact_name_reason
+
+        other = TransportEndpoint(in_process=_server("other-connector"))
+        mismatched = await certify_connector(
+            McpTransport(), endpoint, timeout_seconds=10, predecessor=other
+        )
+        assert not mismatched.passed
+        assert "identity differs" in mismatched.exact_name_reason
+
+        @predecessor.tool
+        def lost_tool() -> str:
+            return "old"
+
+        missing = await certify_connector(
+            McpTransport(), endpoint, timeout_seconds=10, predecessor=prior
+        )
+        assert not missing.passed
+        assert "missing" in missing.exact_name_reason
+
+        @successor.tool
+        def dispatcher(action: str) -> str:
+            return action
+
+        dispatch = await certify_connector(
+            McpTransport(),
+            endpoint,
+            timeout_seconds=10,
+            predecessor=TransportEndpoint(in_process=_server()),
+        )
+        assert not dispatch.passed
+        assert "action-dispatch" in dispatch.exact_name_reason
+
+    anyio.run(run)
+
+
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R072")
 def test_checkout_names_exactly_one_server() -> None:
     declaration = build_declaration("demo-mcp", registered_tools(_server()).values())

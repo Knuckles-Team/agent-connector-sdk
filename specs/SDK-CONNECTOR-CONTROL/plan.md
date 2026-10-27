@@ -632,3 +632,12 @@ The resolver creates its own client without ambient proxy settings. It disables
 redirects on every credential read, even when the caller injects a client. A
 caller-supplied transport remains part of trusted configuration. This does not
 deliver the host grant and authority binding in R035.1 through R035.6.
+
+# Amendment: successor tool identity evidence
+
+For SDK-CONNECTOR-CONTROL-R020.4, certification may compare two live connector
+listings supplied by the operator. The check requires the same connector
+identity and exact predecessor tool names. It rejects missing or duplicate
+names and retained action-dispatch tools. Split and equivalent operations need
+trusted operation identities. The connector release owner must enforce the
+check against an authenticated predecessor release. R020.4 remains open.

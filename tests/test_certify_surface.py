@@ -8,7 +8,7 @@ import anyio
 import pytest
 from fastmcp import FastMCP
 
-from agent_connector_sdk.certify.certification import CertificationReport
+from agent_connector_sdk.certify.certification import CertificationReport, _exact_names
 from agent_connector_sdk.certify.checkout import ConnectorCheckout
 from agent_connector_sdk.certify.cli import (
     PLACEHOLDER_VALUE,
@@ -121,6 +121,13 @@ def test_report_and_verdict_documents() -> None:
     assert report.document()["tools"][0]["status"] == "certified"
     checkout = ConnectorCheckout(connector="c", server="s", presets={})
     assert checkout.tools == ()
+
+
+def test_exact_name_check_refuses_ambiguous_listings() -> None:
+    old = (TOOL,)
+    assert _exact_names("c", (TOOL, TOOL), "c", old)[0] is False
+    assert _exact_names("c", (TOOL,), "c", ())[0] is False
+    assert _exact_names("c", (TOOL,), "other", old)[0] is False
 
 
 def test_resource_relation_and_canonical_json() -> None:

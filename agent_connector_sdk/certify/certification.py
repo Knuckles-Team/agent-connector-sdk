@@ -7,9 +7,14 @@ from dataclasses import dataclass
 from typing import Any
 
 from agent_connector_sdk.certify.checkout import checkout_from_resources
+from agent_connector_sdk.certify.fingerprints import tool_name
 from agent_connector_sdk.certify.listing import ToolListingError, list_server_tools
 from agent_connector_sdk.certify.verdicts import ToolStatus, ToolVerdict, tool_verdicts
 from agent_connector_sdk.manifest.declaration import ContractError
+from agent_connector_sdk.manifest.tool_schema import (
+    ToolSchemaContractError,
+    canonical_input_schema,
+)
 from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.ports.transport import Transport
 
@@ -38,12 +43,15 @@ class CertificationReport:
     server_name: str = ""
     server_version: str = ""
     verdicts: tuple[ToolVerdict, ...] = ()
+    exact_name_check: bool | None = None
+    exact_name_reason: str = ""
 
     @property
     def passed(self) -> bool:
         """Whether every declared preset tool is listed and valid."""
         return (
             self.listed
+            and self.exact_name_check is not False
             and bool(self.verdicts)
             and all(verdict.status is ToolStatus.CERTIFIED for verdict in self.verdicts)
         )
@@ -58,6 +66,8 @@ class CertificationReport:
             "server_name": self.server_name,
             "server_version": self.server_version,
             "passed": self.passed,
+            "exact_name_check": self.exact_name_check,
+            "exact_name_reason": self.exact_name_reason,
             "tools": [
                 {
                     "tool": verdict.tool,
@@ -77,6 +87,7 @@ async def certify_connector(
     endpoint: TransportEndpoint,
     *,
     timeout_seconds: float,
+    predecessor: TransportEndpoint | None = None,
 ) -> CertificationReport:
     """List the server's tools and declaration; check every preset tool live."""
     try:
@@ -84,6 +95,15 @@ async def certify_connector(
             transport, endpoint, timeout_seconds=timeout_seconds
         )
         checkout = checkout_from_resources(listing.resources)
+        exact_check, exact_reason = None, ""
+        if predecessor is not None:
+            old = await list_server_tools(
+                transport, predecessor, timeout_seconds=timeout_seconds
+            )
+            old_checkout = checkout_from_resources(old.resources)
+            exact_check, exact_reason = _exact_names(
+                checkout.connector, listing.tools, old_checkout.connector, old.tools
+            )
     except (ToolListingError, ContractError) as exc:
         _logger.warning("connector certification failed: %s", exc)
         return CertificationReport(
@@ -99,4 +119,35 @@ async def certify_connector(
         server_name=listing.server_name,
         server_version=listing.server_version,
         verdicts=tool_verdicts(checkout, listing.tools),
+        exact_name_check=exact_check,
+        exact_name_reason=exact_reason,
     )
+
+
+def _exact_names(
+    connector: str,
+    tools: tuple[Any, ...],
+    old_connector: str,
+    old_tools: tuple[Any, ...],
+) -> tuple[bool, str]:
+    if connector != old_connector:
+        return False, "predecessor connector identity differs"
+    current = [tool_name(tool) for tool in tools]
+    previous = [tool_name(tool) for tool in old_tools]
+    if not previous or not all(previous) or not all(current):
+        return False, "tool listing has no names"
+    if len(set(previous)) != len(previous) or len(set(current)) != len(current):
+        return False, "tool listing contains duplicate names"
+    if not set(previous) <= set(current):
+        return False, "predecessor tool name is missing"
+    for tool in tools:
+        try:
+            schema = canonical_input_schema(tool, include_presentation=False)
+        except ToolSchemaContractError:
+            return False, "successor tool schema is invalid"
+        properties = schema.get("properties", {})
+        if not isinstance(properties, dict):
+            return False, "successor tool schema is invalid"
+        if "action" in properties:
+            return False, "successor contains an action-dispatch tool"
+    return True, "exact names only; split and operation equivalence are not checked"
