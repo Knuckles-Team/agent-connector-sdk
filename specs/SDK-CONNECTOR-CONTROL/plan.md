@@ -685,3 +685,12 @@ checked merge commit `406ffa4d92cbd2c83087547e12662eacae9f359a`. Its fresh
 checkout passed strict mypy, the strict documentation build, and the full
 test suite (1,921 passed and four skipped). The workflow contract test keeps
 the main-branch all-files, type-check and documentation wiring visible.
+
+## Release-integrity evidence gap (SDK-CONNECTOR-CONTROL-R650.1)
+
+Commit `f0b9e7f4f535d37517c8efd188b480ac29eae5bf` removed the former
+`manifest/integrity.py` and `tests/test_manifest_integrity.py` during the R075
+cutover. Historical commit `ad6af590e63c` remains a valid past landing, but it
+does not prove current signing or rotation behavior. R650.1 holds that work open
+until the current live declaration and ontology have equivalent tested
+release-integrity behavior.

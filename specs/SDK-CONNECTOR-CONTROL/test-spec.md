@@ -424,3 +424,9 @@ non-ASCII text against the named divisor.
   MCP tool with a synthetic provider and checks its response and access
   contract. Owner merge `1915fce3ef886c82ce17edbf9cb0d92bdfe50dfb` passed
   its PR checks. This is not SDK-local evidence or engine mapping proof.
+
+- **SDK-CONNECTOR-CONTROL-R650.1:** Future acceptance must bind the current
+  live declaration and ontology to the signed release. Confirm signer-lock
+  agreement, declared rotation, canonical signature encoding and rejection of
+  environment-backed publication keys. The removed manifest tests do not
+  establish this proof.
