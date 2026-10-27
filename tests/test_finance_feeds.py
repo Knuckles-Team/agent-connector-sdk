@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 import pytest
 
 from agent_connector_sdk.finance import feeds
@@ -69,6 +71,39 @@ async def test_bar_subscription_tracks_the_symbol() -> None:
     bus = MarketFeedBus()
     bus.subscribe_bars("AAPL", 60, lambda _bar: None)
     await bus.publish_tick(Tick(symbol="AAPL", price=1.0))
+    assert bus.active_symbols == ["AAPL"]
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.7")
+async def test_bar_subscriptions_use_independent_intervals(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class Clock:
+        second = 0
+
+        @classmethod
+        def now(cls, tz: object = None) -> datetime:
+            del tz
+            return datetime.fromtimestamp(cls.second, UTC)
+
+    monkeypatch.setattr(feeds, "datetime", Clock)
+    bus = MarketFeedBus()
+    short: list[object] = []
+    short_second: list[object] = []
+    long: list[object] = []
+    bus.subscribe_bars("AAPL", 60, short.append)
+    bus.subscribe_bars("AAPL", 60, short_second.append)
+    bus.subscribe_bars("AAPL", 300, long.append)
+    await bus.publish_tick(Tick(symbol="AAPL", price=1.0))
+    Clock.second = 61
+    await bus.publish_tick(Tick(symbol="AAPL", price=2.0))
+    assert len(short) == 1
+    assert long == []
+    Clock.second = 301
+    await bus.publish_tick(Tick(symbol="AAPL", price=3.0))
+    assert len(short) == 2
+    assert short_second == short
+    assert len(long) == 1
     assert bus.active_symbols == ["AAPL"]
 
 
