@@ -86,7 +86,7 @@
       "title": "Local Git blob reads stay within the selected revision",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "f7525bd6a8a9"
+        "d71d46857e30"
       ],
       "verified_by": [
         "tests/test_repository_refwalk_fastpath.py:159"
