@@ -30,12 +30,14 @@ from agent_connector_sdk.voice_supply_chain.manifest import (
     VoiceLicenseDecision,
     VoiceManifestStatus,
     VoiceModelManifest,
+    _manifest_identifier,
 )
 from agent_connector_sdk.voice_supply_chain.store import manifest_index_dir
 
 
 def _decision_path(asset_manifest_id: str) -> Path:
-    return manifest_index_dir() / f"{asset_manifest_id}.license.json"
+    safe_id = _manifest_identifier(asset_manifest_id)
+    return manifest_index_dir() / f"{safe_id}.license.json"
 
 
 def record_license_decision(decision: VoiceLicenseDecision) -> VoiceLicenseDecision:
@@ -56,7 +58,8 @@ def get_license_decision(asset_manifest_id: str) -> VoiceLicenseDecision | None:
     path = _decision_path(asset_manifest_id)
     if not path.exists():
         return None
-    return VoiceLicenseDecision.model_validate_json(path.read_text())
+    decision = VoiceLicenseDecision.model_validate_json(path.read_text())
+    return decision if decision.asset_manifest_id == asset_manifest_id else None
 
 
 def is_ready_for_promotion_handoff(manifest: VoiceModelManifest) -> tuple[bool, str]:
@@ -95,6 +98,7 @@ def mark_verified(manifest: VoiceModelManifest) -> VoiceModelManifest:
         raise ValueError(
             f"manifest {manifest.manifest_id} is REJECTED (terminal); cannot verify"
         )
+    _manifest_identifier(manifest.manifest_id)
     updated = manifest.model_copy(update={"status": VoiceManifestStatus.VERIFIED})
     (manifest_index_dir() / f"{updated.manifest_id}.json").write_text(
         updated.model_dump_json(indent=2)
