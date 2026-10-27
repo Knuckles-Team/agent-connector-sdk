@@ -233,6 +233,8 @@ sync_stream at `agent_connector_sdk/runner/syncing.py:200` already reads the acc
 Reachable today: no. Concurrent connector cycles exist; independently resumable concurrent stages within a source remain missing.
 
 StageDescriptor fields are stage_id, tenant, connector, source, stream, manifest_digest, dependencies and admitted_limits.
+The existing SyncTarget validates the complete stage graph at construction.
+Until the stage runner exists, sync_stream refuses a stage-bearing target before discovery.
 Dependencies name stage identities and required receipt identities; a validated acyclic graph fixes their order.
 Limits contain positive maximum active stages, page rows, page bytes, queued pages and a deadline.
 Missing limits refuse before scheduling. Tests use two active stages and a single queued page per stream.
