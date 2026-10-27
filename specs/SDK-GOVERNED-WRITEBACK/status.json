@@ -245,8 +245,10 @@
     {
       "id": "SDK-GOVERNED-WRITEBACK-R004.14",
       "title": "Uncertain reconciliation cannot authorize retry",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a61dee41bf63"
+      ],
       "verified_by": [
         "tests/test_writeback.py:79"
       ]
