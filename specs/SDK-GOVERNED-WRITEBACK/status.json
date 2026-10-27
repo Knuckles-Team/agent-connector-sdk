@@ -231,8 +231,10 @@
     {
       "id": "SDK-GOVERNED-WRITEBACK-R004.13",
       "title": "Reject invalid audit reservation identifiers",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "af58e30fce9f"
+      ],
       "verified_by": [
         "tests/test_writeback_audit_reservation.py:59",
         "tests/test_writeback_audit_reservation.py:77"
