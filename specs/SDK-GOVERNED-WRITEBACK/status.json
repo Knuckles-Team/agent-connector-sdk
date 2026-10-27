@@ -27,6 +27,7 @@
     "SDK-GOVERNED-WRITEBACK-R004.11",
     "SDK-GOVERNED-WRITEBACK-R004.12",
     "SDK-GOVERNED-WRITEBACK-R004.13",
+    "SDK-GOVERNED-WRITEBACK-R004.14",
     "SDK-GOVERNED-WRITEBACK-R005"
   ],
   "requirements": [
@@ -141,7 +142,8 @@
         "SDK-GOVERNED-WRITEBACK-R004.10",
         "SDK-GOVERNED-WRITEBACK-R004.11",
         "SDK-GOVERNED-WRITEBACK-R004.12",
-        "SDK-GOVERNED-WRITEBACK-R004.13"
+        "SDK-GOVERNED-WRITEBACK-R004.13",
+        "SDK-GOVERNED-WRITEBACK-R004.14"
       ]
     },
     {
@@ -238,6 +240,15 @@
       "verified_by": [
         "tests/test_writeback_audit_reservation.py:59",
         "tests/test_writeback_audit_reservation.py:77"
+      ]
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.14",
+      "title": "Uncertain reconciliation cannot authorize retry",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_writeback.py:79"
       ]
     },
     {

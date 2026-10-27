@@ -76,6 +76,30 @@ async def test_public_writeback_contracts_are_live() -> None:
     require_reconciliation(fixture.change_set, reconciled)
 
 
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.14")
+async def test_uncertain_reconciliation_cannot_allow_retry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fixture = make_writeback_fixture()
+    fixture.transport.inject_uncertainty(
+        fixture.change_set.idempotency_key, FixtureUncertainty.UNRESOLVED
+    )
+    attempt = await fixture.port.apply(fixture.change_set)
+    assert attempt.effect_status is WriteBackEffectStatus.OUTCOME_UNCERTAIN
+    reconcile = fixture.transport.reconcile
+
+    async def invalid_reconcile(change_set):
+        result = await reconcile(change_set)
+        return result.model_copy(update={"retry_allowed": True})
+
+    monkeypatch.setattr(fixture.transport, "reconcile", invalid_reconcile)
+    with pytest.raises(ChangeSetValidationError, match="uncertain effect"):
+        await fixture.port.reconcile(fixture.change_set)
+    with pytest.raises(ReconciliationRequiredError):
+        await fixture.port.apply(fixture.change_set)
+    assert fixture.transport.attempts == 1
+
+
 def test_public_writeback_errors_and_fixture_modes_are_typed() -> None:
     assert FixtureUncertainty.BEFORE_EFFECT.value == "before_effect"
     for error in (

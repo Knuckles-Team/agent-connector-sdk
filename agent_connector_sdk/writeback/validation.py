@@ -91,6 +91,11 @@ def require_reconciliation(
     if result.effect_status is WriteBackEffectStatus.APPLIED and result.retry_allowed:
         raise ChangeSetValidationError("an applied effect cannot be retryable")
     if (
+        result.effect_status is WriteBackEffectStatus.OUTCOME_UNCERTAIN
+        and result.retry_allowed
+    ):
+        raise ChangeSetValidationError("an uncertain effect cannot be retryable")
+    if (
         result.effect_status is WriteBackEffectStatus.NO_EFFECT
         and not result.retry_allowed
     ):
