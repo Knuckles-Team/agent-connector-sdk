@@ -24,7 +24,8 @@ manager="$(dirname "$canonical")/agents/repository-manager"
 command -v uv >/dev/null 2>&1 || cannot_run "uv is not installed; run scripts/bootstrap.sh"
 
 # --no-cache: uv otherwise reuses a stale build of the local repository-manager.
-run=(uv run --no-cache --no-project --python 3.12 --prerelease=allow --with "$manager")
+python_version=$(tr -d '[:space:]' < "$(dirname "${BASH_SOURCE[0]}")/../.python-version")
+run=(uv run --no-cache --no-project --python "$python_version" --prerelease=allow --with "$manager")
 
 case "$gate" in
   dependency-readiness)
