@@ -317,3 +317,9 @@ the tool call and leave the checkpoint unchanged.
 Poll through the registered REST source with a prior cursor and next cursor.
 Refuse missing or non-list records, non-object records, blank IDs and empty text.
 The caller checkpoint stays unchanged, and no next cursor is returned.
+
+## Timestamp watermark ordering
+
+R900.7 checks a SQLite source compares offset-bearing timestamps by instant
+and replays idempotently. Invalid timestamps and mixing
+timezone-aware and naive timestamps fail closed.
