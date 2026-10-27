@@ -137,6 +137,7 @@ def test_base_url_entry_is_fetched_into_cards() -> None:
     }
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047")
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.6")
 def test_extract_discovers_card_from_base_url() -> None:
     body = json.dumps({"name": "Hosted Agent", "skills": [{"id": "delegate"}]}).encode()
