@@ -46,3 +46,5 @@ Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requireme
 - [ ] Check the module and owner row for domain record models in the index test (SDK-CENTRALIZED-CAPABILITIES-R039).
 - [ ] Check the module and owner row for optional dependencies come from sdk extras in the index test (SDK-CENTRALIZED-CAPABILITIES-R040).
 - [x] Check that every extra is named in the extras row (SDK-CENTRALIZED-CAPABILITIES-R040).
+
+- [ ] Refuse credential-bearing and malformed next URLs without exposing them (SDK-CENTRALIZED-CAPABILITIES-R004.1).

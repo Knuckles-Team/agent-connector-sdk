@@ -78,8 +78,15 @@ def test_custom_body_key():
         "//evil.test/api/v2/hosts/?page=2",
         "http://tower.test/api/v2/hosts/?page=2",
         "https://tower.test:8443/api/v2/hosts/?page=2",
+        "https://tower.test:0/api/v2/hosts/?page=2",
     ],
-    ids=["cross-host", "scheme-relative-host", "cross-scheme", "port-change"],
+    ids=[
+        "cross-host",
+        "scheme-relative-host",
+        "cross-scheme",
+        "port-change",
+        "zero-port",
+    ],
 )
 def test_rejects_cross_origin_next(next_url: str):
     fetched: list[str] = []
@@ -89,6 +96,83 @@ def test_rejects_cross_origin_next(next_url: str):
     assert isinstance(caught.value, HttpProblemError)
     assert caught.value.problem.type.endswith("cross-origin-next-url")
     assert fetched == ["hosts/"]
+
+
+@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.1")
+@pytest.mark.parametrize(
+    "next_url",
+    [
+        "https://reader:secret@tower.test/api/v2/hosts/",
+        "https://reader:secret@evil.test/api/v2/hosts/",
+        "https://tower.test:secret/api/v2/hosts/",
+        "https://[secret/api/v2/hosts/",
+    ],
+)
+def test_rejects_unsafe_next_without_exposing_credentials(next_url: str):
+    fetched: list[str] = []
+    pages = {"hosts/": {"results": [1], "next": next_url}}
+    with pytest.raises(PaginationOriginError) as caught:
+        list(_iterator(pages, fetched))
+    assert fetched == ["hosts/"]
+    assert "secret" not in str(caught.value)
+    assert "secret" not in caught.value.problem.model_dump_json()
+
+
+@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.1")
+@pytest.mark.parametrize(
+    "endpoint", ["https://reader:secret@tower.test/", "https://tower.test:secret/"]
+)
+def test_rejects_unsafe_initial_url_before_fetch(endpoint: str):
+    fetched: list[str] = []
+    iterator = PaginationIterator(_pages({}, fetched), endpoint, mode="next_url")
+    with pytest.raises(PaginationOriginError) as caught:
+        list(iterator)
+    assert not fetched
+    assert "secret" not in str(caught.value)
+    assert "secret" not in caught.value.problem.model_dump_json()
+
+
+@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.1")
+@pytest.mark.parametrize(
+    "next_url",
+    [
+        "https://reader:secret@tower.test/",
+        "https://reader:secret@evil.test/",
+        "https://tower.test:secret/",
+    ],
+)
+async def test_async_rejects_unsafe_next_before_fetch(next_url: str):
+    fetched: list[str] = []
+
+    async def fetch(url, params):
+        fetched.append(url)
+        return {"results": [1], "next": next_url}, {}
+
+    iterator = AsyncPaginationIterator(
+        fetch, "hosts/", mode="next_url", base_url=BASE, items_path="results"
+    )
+    with pytest.raises(PaginationOriginError) as caught:
+        _ = [item async for item in iterator]
+    assert fetched == ["hosts/"]
+    assert "secret" not in str(caught.value)
+    assert "secret" not in caught.value.problem.model_dump_json()
+
+
+@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.1")
+async def test_async_rejects_unsafe_initial_url_before_fetch():
+    fetched: list[str] = []
+
+    async def fetch(url, params):
+        fetched.append(url)
+        return {}, {}
+
+    iterator = AsyncPaginationIterator(
+        fetch, "https://reader:secret@tower.test/", mode="next_url"
+    )
+    with pytest.raises(PaginationOriginError) as caught:
+        _ = [item async for item in iterator]
+    assert not fetched
+    assert "secret" not in str(caught.value)
 
 
 def test_loop_guard_stops_on_a_repeated_url():
