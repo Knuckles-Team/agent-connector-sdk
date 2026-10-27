@@ -859,8 +859,8 @@
         "0481308202ca",
         "19ca24046d12",
         "284fb12a19ed",
-        "459897c19da8",
-        "54744d32428a"
+        "2bb0ef7a1252",
+        "459897c19da8"
       ],
       "verified_by": [
         "tests/test_auth_declarations.py:106",
@@ -883,6 +883,7 @@
       "landed_in": [
         "0481308202ca",
         "284fb12a19ed",
+        "2bb0ef7a1252",
         "54744d32428a"
       ],
       "verified_by": [
@@ -890,7 +891,7 @@
         "tests/test_http_egress.py:29",
         "tests/test_http_egress.py:36",
         "tests/test_http_egress.py:41",
-        "tests/test_http_egress.py:46"
+        "tests/test_http_egress.py:52"
       ]
     },
     {
