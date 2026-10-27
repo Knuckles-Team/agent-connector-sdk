@@ -2215,6 +2215,7 @@
         "11366ce437d5",
         "2d68f7c80246",
         "4b003b24ce55",
+        "75776d596894",
         "8c6dcfdd27e8"
       ],
       "verified_by": [
@@ -2262,7 +2263,8 @@
       "title": "REST source page validity",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "2d68f7c80246"
+        "2d68f7c80246",
+        "75776d596894"
       ],
       "verified_by": [
         "tests/source_connectors/test_source_connectors.py:125",
