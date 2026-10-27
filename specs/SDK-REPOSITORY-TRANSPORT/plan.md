@@ -15,6 +15,6 @@ remain applied if a later page fails; this check does not provide rollback.
 
 ## Amendment 2026-10-27: bind local blob reads
 
-The local Git provider verifies that its requested commit is a commit object
+The local Git provider validates that its requested commit is a commit object
 and resolves to the declared tree. A blob read must name a blob in that tree.
 The provider refuses another repository identity or an unrelated object.
