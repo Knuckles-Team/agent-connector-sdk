@@ -3240,7 +3240,7 @@
         "92d09c57796b"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:184"
+        "tests/test_single_declaration.py:230"
       ]
     },
     {
@@ -3405,8 +3405,8 @@
         "f0b9e7f4f535"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:192",
-        "tests/test_single_declaration.py:230"
+        "tests/test_single_declaration.py:238",
+        "tests/test_single_declaration.py:276"
       ]
     },
     {
@@ -3417,7 +3417,7 @@
         "f0b9e7f4f535"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:294"
+        "tests/test_single_declaration.py:340"
       ]
     },
     {

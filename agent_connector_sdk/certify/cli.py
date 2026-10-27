@@ -9,6 +9,11 @@ The stdio child receives only the MCP client's minimal environment plus
 ``--placeholder NAME`` (a fixed non-secret value) and ``--env NAME=REFERENCE``
 (a resolved ``env://`` or ``openbao://`` reference).
 
+``--predecessor-url`` adds a conservative exact-name check against a separately
+supplied live endpoint. The operator must authenticate that endpoint as the
+actual predecessor. This does not establish release parity for split tools or
+equivalent operations; no connector release gate is implied.
+
 Exit ``0``: every declared preset tool is valid. ``1``: a tool is missing or
 invalid. ``2``: the server could not list its tools or declaration.
 """
@@ -70,6 +75,14 @@ def build_parser() -> argparse.ArgumentParser:
         description="Certify a connector's declared sync tools from tools/list.",
     )
     parser.add_argument("--url", default="", help="streamable HTTP endpoint")
+    parser.add_argument(
+        "--predecessor-url",
+        default="",
+        help="predecessor endpoint for exact-name check",
+    )
+    parser.add_argument(
+        "--predecessor-bearer-token", default="", help="predecessor token reference"
+    )
     parser.add_argument("--bearer-token", default="", help="reference for --url")
     _add_oidc_arguments(parser)
     parser.add_argument("--env", action="append", default=[], metavar="NAME=REFERENCE")
@@ -98,6 +111,8 @@ def build_endpoint(args: argparse.Namespace) -> TransportEndpoint:
         ValueError: the endpoint or an ``--env`` item is malformed.
         CredentialUnavailableError: a reference does not resolve.
     """
+    if args.predecessor_bearer_token and not args.predecessor_url:
+        raise ValueError("predecessor token requires a predecessor URL")
     command = list(args.command)
     env = dict.fromkeys(args.placeholder, PLACEHOLDER_VALUE)
     for item in args.env:
@@ -129,6 +144,8 @@ def _configure_logging() -> None:
 def _log_report(report: CertificationReport) -> None:
     if not report.listed:
         _logger.error("connector %s: %s", report.connector, report.reason)
+    if report.exact_name_check is not None:
+        _logger.info("predecessor exact-name check: %s", report.exact_name_reason)
     for verdict in report.verdicts:
         _logger.info(
             "connector %s tool %s: %s (live %s) %s",
@@ -155,10 +172,23 @@ async def _run_certification(args: argparse.Namespace) -> CertificationReport:
             )
             from agent_connector_sdk.transports.mcp import McpTransport
 
+            predecessor = None
+            if args.predecessor_url:
+                token = (
+                    resolve_secret_reference(args.predecessor_bearer_token)
+                    if args.predecessor_bearer_token
+                    else ""
+                )
+                predecessor = TransportEndpoint(
+                    url=args.predecessor_url,
+                    bearer_token=token,
+                    timeout_seconds=args.timeout,
+                )
             return await certify_connector(
                 McpTransport(),
                 endpoint,
                 timeout_seconds=args.timeout,
+                predecessor=predecessor,
             )
     except TimeoutError:
         return CertificationReport(
