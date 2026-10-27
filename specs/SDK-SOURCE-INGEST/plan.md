@@ -635,3 +635,11 @@ The runner sends `access`, `groups`, `enumeration` and `containers` batches to t
 `SourceIngest` method. The engine admits them under EG-INGEST-WORKER-R902 to R904. The access
 lookup port answers EG-FEDERATED-QUERY-R703 for sources that decide access at read time. The
 SDK holds the contract and the transport only. The engine holds the records and the decisions.
+
+## Amendment: refuse malformed source pages (R004.22)
+
+A declared records path must resolve to a list. An empty list is a valid empty
+page. Validate the whole page before submitting any of its records. A null or
+missing list, a non-object record, or a record without a usable declared ID
+fails the run as `malformed_result`. The failed page cannot advance the cursor
+or add record digests. The runner may still store its failed-run report.

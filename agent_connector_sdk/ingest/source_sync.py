@@ -230,13 +230,27 @@ def _path(value: Any, path: str) -> Any:
 
 def _records(result: Any, spec: IngestSourceSpec) -> list[Mapping[str, Any]]:
     found = _path(result, spec.records_path) if spec.records_path else result
-    if found is None:
-        return []
     if not isinstance(found, Sequence) or isinstance(found, str | bytes):
         raise SourceSyncError(
             "malformed_result", f"{spec.records_path or 'result'} is not a record list"
         )
-    return [item for item in found if isinstance(item, Mapping)]
+    records: list[Mapping[str, Any]] = []
+    for item in found:
+        if not isinstance(item, Mapping):
+            raise SourceSyncError(
+                "malformed_result", "page contains a non-object record"
+            )
+        identifier = item.get(spec.id_field)
+        if (
+            identifier is None
+            or isinstance(identifier, Mapping | list)
+            or not str(identifier).strip()
+        ):
+            raise SourceSyncError(
+                "malformed_result", "record has no usable declared ID"
+            )
+        records.append(item)
+    return records
 
 
 def _properties(record: Mapping[str, Any], spec: IngestSourceSpec) -> dict[str, Any]:

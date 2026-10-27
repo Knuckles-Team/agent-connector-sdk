@@ -206,6 +206,65 @@ async def test_runner_refusals_and_budgets() -> None:
         await _runner(_Session(ITEMS), _Ingest(), conflicted).sync(_spec())
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.22")
+@pytest.mark.parametrize(
+    "result",
+    [
+        {},
+        {"data": None},
+        {"data": [ITEMS[0], "not-an-object"]},
+        {"data": [ITEMS[0], {"name": "missing-id"}]},
+        {"data": [ITEMS[0], {"id": " "}]},
+        {"data": [ITEMS[0], {"id": {"nested": "id"}}]},
+    ],
+)
+async def test_malformed_pages_do_not_advance(result: Any) -> None:
+    class Session(_Session):
+        async def call_tool(self, name: str, arguments: Mapping[str, Any]) -> Any:
+            return result
+
+    ingest, checkpoints = _Ingest(), _Checkpoints()
+    before = SourceCheckpointState(
+        connector="fixture-mcp",
+        source_id="items",
+        cursor="2025-01-01",
+        digests={"old": "digest"},
+    )
+    checkpoints.stored[("fixture-mcp", "items")] = (before, 1)
+    report = await _runner(Session([]), ingest, checkpoints).sync(_spec())
+    after, _ = checkpoints.stored[("fixture-mcp", "items")]
+    assert report.state == "failed" and report.reason == "malformed_result"
+    assert report.cursor_after == before.cursor
+    assert after.cursor == before.cursor and after.digests == before.digests
+    assert ingest.batches == []
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.22")
+async def test_empty_list_is_a_valid_source_page() -> None:
+    ingest, checkpoints = _Ingest(), _Checkpoints()
+    report = await _runner(_Session([]), ingest, checkpoints).sync(_spec())
+    assert report.state == "completed" and report.submitted == 0
+    assert ingest.batches == []
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.22")
+async def test_failed_page_keeps_the_last_accepted_checkpoint() -> None:
+    class Session(_Session):
+        async def call_tool(self, name: str, arguments: Mapping[str, Any]) -> Any:
+            if arguments["page"] == 1:
+                return {"data": ITEMS[:2]}
+            return {"data": [ITEMS[2], None]}
+
+    ingest, checkpoints = _Ingest(), _Checkpoints()
+    runner = _runner(Session([]), ingest, checkpoints, budget=SyncBudget(batch_size=2))
+    report = await runner.sync(_spec())
+    state, _ = checkpoints.stored[("fixture-mcp", "items")]
+    assert report.state == "failed" and report.reason == "malformed_result"
+    assert len(ingest.batches) == 1
+    assert report.cursor_after == state.cursor == "2026-01-02"
+    assert set(state.digests) == {"1", "2"}
+
+
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.23")
 async def test_report_binds_receipts() -> None:
     ingest = _Ingest()
