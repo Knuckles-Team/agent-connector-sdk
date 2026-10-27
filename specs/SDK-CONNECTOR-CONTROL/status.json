@@ -1139,7 +1139,7 @@
       "title": "SDK declares an MCP source's access contract (unblocks `EG-CQ-CONN-R067.1`)",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "6faa359c2480"
+        "4fa8af8beb3f"
       ],
       "verified_by": [
         "tests/test_access_contract.py:88"
@@ -1150,7 +1150,7 @@
       "title": "SDK declares an A2A source's access contract (unblocks `EG-CQ-CONN-R067.2`)",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "6faa359c2480"
+        "4fa8af8beb3f"
       ],
       "verified_by": [
         "tests/test_access_contract.py:89"
@@ -1161,7 +1161,7 @@
       "title": "SDK declares an API (REST) source's access contract (unblocks `EG-CQ-CONN-R067.3`)",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "6faa359c2480"
+        "4fa8af8beb3f"
       ],
       "verified_by": [
         "tests/test_access_contract.py:90"
@@ -1172,7 +1172,7 @@
       "title": "SDK declares a GraphQL source's access contract (unblocks `EG-CQ-CONN-R067.4`)",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "6faa359c2480"
+        "4fa8af8beb3f"
       ],
       "verified_by": [
         "tests/test_access_contract.py:91"
@@ -1183,7 +1183,7 @@
       "title": "SDK declares a virtual-graph access contract",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "6faa359c2480"
+        "4fa8af8beb3f"
       ],
       "verified_by": [
         "tests/test_access_contract.py:106",
