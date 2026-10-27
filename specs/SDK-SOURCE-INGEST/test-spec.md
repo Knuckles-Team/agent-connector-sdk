@@ -317,3 +317,9 @@ the tool call and leave the checkpoint unchanged.
 Inject both a network failure and malformed category feed. A healthy category
 returns a newer record while the prior watermark remains fixed. Recover the
 failed category and assert its older record arrives once and the watermark moves.
+
+## Timestamp watermark ordering
+
+R900.7 checks a SQLite source compares offset-bearing timestamps by instant
+and replays idempotently. Invalid timestamps and mixing
+timezone-aware and naive timestamps fail closed.

@@ -692,8 +692,12 @@ containing only whitespace is not a name and must refuse handoff (R804.2).
 ## Database integer watermarks (R900.2)
 
 Incrementing integer watermarks compare numerically, so a later value such as
-10 is never skipped after 2. Textual watermarks keep their existing ordering.
-An integer and noninteger watermark are incomparable and refuse the poll.
+10 is never skipped after 2. An integer and noninteger watermark are
+incomparable and refuse the poll. For in-memory filtering, ISO timestamp
+watermarks compare by instant, not their offset-bearing string representation
+(R900.7). Malformed timestamps and mixed aware/naive timestamps refuse. Other
+textual watermarks keep their existing ordering. A query that filters with a
+bound watermark remains responsible for using the database's timestamp semantics.
 
 ## 2026-10-27: bounded evidence for large preparation plans
 
