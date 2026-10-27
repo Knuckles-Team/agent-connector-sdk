@@ -101,3 +101,8 @@ problem detail is static and does not echo any URL.
 Link mode requires an absolute endpoint or `base_url`, so it can bind the
 first origin before making a request. Resolve each next link against the
 current URL. Apply the same origin, userinfo and loop guards as `next_url`.
+# Amendment: token endpoint redirects
+
+For SDK-CENTRALIZED-CAPABILITIES-R011, token requests must not follow redirects.
+Reject a redirect response even when it contains a token. This prevents a
+redirect target from receiving credentials or a delegated subject token.

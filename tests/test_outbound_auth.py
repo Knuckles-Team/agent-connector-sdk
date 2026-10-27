@@ -145,6 +145,34 @@ def test_request_access_token_failure_keeps_cause(
     assert isinstance(raised.value.__cause__, HttpProblemError)
 
 
+@pytest.mark.parametrize("status", [301, 302, 303, 307, 308])
+def test_token_request_never_follows_redirect(status: int) -> None:
+    seen: list[httpx.Request] = []
+
+    def redirect(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(
+            status,
+            headers={"location": "https://other.example/token"},
+            json={"access_token": "untrusted"},
+        )
+
+    with (
+        httpx.Client(
+            follow_redirects=True, transport=httpx.MockTransport(redirect)
+        ) as client,
+        pytest.raises(TokenRequestError, match="redirected"),
+    ):
+        request_access_token(
+            client,
+            "https://auth.example/token",
+            form={"subject_token": "sensitive"},
+            client_auth=("client", "secret"),
+        )
+    assert len(seen) == 1
+    assert seen[0].url.host == "auth.example"
+
+
 def test_client_credentials_cache_refresh_and_failure(
     monkeypatch: pytest.MonkeyPatch,
     token_server: ScriptedHttpServer,
