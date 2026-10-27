@@ -28,6 +28,9 @@ For example, `openbao://apps/freshrss-agent#FRESHRSS_TOKEN`.
 HTTPS is required outside loopback. With `OPENBAO_ADDR` set and
 `OPENBAO_TOKEN_REF` unset or blank, `default_credential_resolver()` adds no
 OpenBao resolver and serves `env://` references from the environment.
+The resolver's default HTTP client ignores proxy environment variables. OpenBao
+reads refuse redirects, including when an injected client enables them. An
+injected client remains trusted for its transport configuration.
 
 ## Configuration files
 

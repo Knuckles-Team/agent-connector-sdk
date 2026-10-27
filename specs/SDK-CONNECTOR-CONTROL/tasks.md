@@ -306,3 +306,5 @@ quoting and signing-setting paths without changing production behavior.
 
 - [ ] **SDK-CONNECTOR-CONTROL-R900.3:** Prove source credential refresh resolves references and the configured TLS profile through the SDK modules. (`tests/test_source_credentials.py::test_source_registry_wires_secret_and_tls_resolvers_for_refresh`)
 - [ ] **SDK-CONNECTOR-CONTROL-R901.3:** Prove SQLite schema introspection quotes every table identifier and signing reads its seed through the SDK setting helper. (`tests/source_connectors/test_universal.py::test_sqlite_introspection_quotes_each_table_identifier`; `tests/test_signing.py::test_configured_signing_seed_reads_through_sdk_setting`)
+
+- [ ] Prevent ambient proxy and redirect forwarding of the OpenBao token (SDK-CONNECTOR-CONTROL-R035.7).

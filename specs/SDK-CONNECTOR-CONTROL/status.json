@@ -60,6 +60,7 @@
     "SDK-CONNECTOR-CONTROL-R035.4",
     "SDK-CONNECTOR-CONTROL-R035.5",
     "SDK-CONNECTOR-CONTROL-R035.6",
+    "SDK-CONNECTOR-CONTROL-R035.7",
     "SDK-CONNECTOR-CONTROL-R036",
     "SDK-CONNECTOR-CONTROL-R037",
     "SDK-CONNECTOR-CONTROL-R038",
@@ -1053,7 +1054,7 @@
         "bac65b612ced"
       ],
       "verified_by": [
-        "tests/test_credentials.py:124"
+        "tests/test_credentials.py:168"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R035.1",
@@ -1061,7 +1062,8 @@
         "SDK-CONNECTOR-CONTROL-R035.3",
         "SDK-CONNECTOR-CONTROL-R035.4",
         "SDK-CONNECTOR-CONTROL-R035.5",
-        "SDK-CONNECTOR-CONTROL-R035.6"
+        "SDK-CONNECTOR-CONTROL-R035.6",
+        "SDK-CONNECTOR-CONTROL-R035.7"
       ]
     },
     {
@@ -1105,6 +1107,16 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R035.7",
+      "title": "Keep the OpenBao token on the configured transport",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_credentials.py:112",
+        "tests/test_credentials.py:134"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R036",

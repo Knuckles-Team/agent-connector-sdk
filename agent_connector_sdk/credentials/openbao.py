@@ -78,7 +78,7 @@ class OpenBaoCredentialResolver:
         self._headers = {"X-Vault-Token": token}
         if namespace:
             self._headers["X-Vault-Namespace"] = namespace
-        self._client = http_client or httpx.Client(timeout=10.0)
+        self._client = http_client or httpx.Client(timeout=10.0, trust_env=False)
 
     @classmethod
     def from_settings(
@@ -118,7 +118,9 @@ class OpenBaoCredentialResolver:
         )
         params = {"version": str(reference.version)} if reference.version else None
         try:
-            response = self._client.get(url, headers=self._headers, params=params)
+            response = self._client.get(
+                url, headers=self._headers, params=params, follow_redirects=False
+            )
             document = response.raise_for_status().json()
         except (httpx.HTTPError, ValueError) as exc:
             raise CredentialUnavailableError("secret reference is unavailable") from exc
