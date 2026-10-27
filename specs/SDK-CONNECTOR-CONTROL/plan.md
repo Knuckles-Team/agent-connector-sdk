@@ -715,3 +715,12 @@ name must also contain no known mutation verb. Mixed names such as
 `get_and_update` remain unclassified. Unknown actions also remain unclassified
 unless the connector declares an explicit per-action class. Split tool hints follow the
 same conservative rule; the complete successor parity requirement remains open.
+
+
+## Amendment: air-gap governed transport (R780.7)
+
+Both governed HTTP factories enforce `AIRGAP_MODE` at each request. They
+accept local IP literals and localhost without DNS resolution. They reject
+public destinations and configured proxies before a transport can send.
+Malformed mode values also fail closed. An injected transport remains trusted
+configuration. The other helpers in R780.6 remain open.
