@@ -84,7 +84,12 @@ def _consume_page(
                 "EG receipt sequence is not strictly increasing"
             )
         last_sequence = record.receipt.sequence
-        state = _record_state(change_set, record)
+        next_state = _record_state(change_set, record)
+        if state is _ReceiptRecoveryState.APPLIED and next_state is not state:
+            raise WriteBackPersistenceError(
+                "durable applied receipt cannot be reversed"
+            )
+        state = next_state
     return state, last_sequence
 
 

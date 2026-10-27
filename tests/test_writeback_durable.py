@@ -251,6 +251,31 @@ async def test_proven_no_effect_allows_one_restart_retry() -> None:
     assert fixture.transport.attempts == 2
 
 
+async def test_applied_receipt_cannot_be_reversed_across_pages() -> None:
+    state = await _registered_with_uncertainty(FixtureUncertainty.AFTER_EFFECT)
+    fixture = state.fixture
+    await state.connector.apply(fixture.change_set)
+    await state.connector.reconcile(fixture.change_set)
+    applied = state.ledger.records[-1]
+    for sequence in range(3, 257):
+        receipt = applied.receipt.model_copy(update={"sequence": sequence})
+        state.ledger.records.append(applied.model_copy(update={"receipt": receipt}))
+    observation = await fixture.transport.reconcile(fixture.change_set)
+    await state.ledger.record_reconciliation(
+        observation.model_copy(
+            update={
+                "effect_status": WriteBackEffectStatus.NO_EFFECT,
+                "retry_allowed": True,
+            }
+        )
+    )
+
+    restarted = _reference_connector(fixture, state.ledger, state.audit)
+    with pytest.raises(WriteBackPersistenceError, match="cannot be reversed"):
+        await restarted.apply(fixture.change_set)
+    assert fixture.transport.attempts == 1
+
+
 @pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R003")
 async def test_durable_authorization_resolver_fails_closed() -> None:
     fixture = make_writeback_fixture()

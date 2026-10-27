@@ -191,3 +191,8 @@ The guard matches the durable receipt rule and retains the unresolved state.
 R004.2 retains its separate cross-process replay and served proof.
 
 Arbora consumes these exact request/receipt contracts under ARBORA-FLEET-R003, using ARBORA-OPS-R009's existing invoke authority. Its producer-composition definition must wait for the SDK definition to merge. EG-TYPED-PACKS-R094.7 can name both after their definitions merge. EG-TYPED-PACKS-R002.10 still requires a separately coordinated AU model-dispatch consumer; source write-back does not meet that requirement. No candidate accounting change or runtime completion follows from these definitions.
+# Amendment: durable applied receipts are terminal
+
+For SDK-GOVERNED-WRITEBACK-R004.2, receipt replay must reject a later
+non-applied state after an applied receipt, including across receipt pages.
+Reject a contradictory no-effect observation to prevent another mutation.

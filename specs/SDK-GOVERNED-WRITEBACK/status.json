@@ -113,7 +113,7 @@
         "2d39be956d8d"
       ],
       "verified_by": [
-        "tests/test_writeback_durable.py:254",
+        "tests/test_writeback_durable.py:279",
         "tests/test_writeback_process_restart.py:105"
       ]
     },
