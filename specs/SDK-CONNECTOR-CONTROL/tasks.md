@@ -244,7 +244,7 @@ Runtime work and test execution remain outstanding.
 - [x] **SDK-CONNECTOR-CONTROL-R780.5:** Value helpers and configuration projection, bound.
 - [ ] **SDK-CONNECTOR-CONTROL-R780.6:** Add the remainder helpers.
 - [x] **SDK-CONNECTOR-CONTROL-R014.21.1:** Bound streamed A2A card and JSON-RPC responses.
-- [ ] **SDK-CONNECTOR-CONTROL-R014.21.2:** Prove the optional A2A app with a caller-owned broker and storage.
+- [x] **SDK-CONNECTOR-CONTROL-R014.21.2:** Prove the optional A2A app with a caller-owned broker and storage.
 - [ ] **SDK-CONNECTOR-CONTROL-R780:** Rollup of the helper replacements.
 - [ ] **SDK-CONNECTOR-CONTROL-R781:** Training-trajectory recorder helper.
 - [ ] **SDK-CONNECTOR-CONTROL-R782:** Message-stream adapters normalize into change envelopes.
@@ -308,3 +308,4 @@ quoting and signing-setting paths without changing production behavior.
 - [ ] **SDK-CONNECTOR-CONTROL-R901.3:** Prove SQLite schema introspection quotes every table identifier and signing reads its seed through the SDK setting helper. (`tests/source_connectors/test_universal.py::test_sqlite_introspection_quotes_each_table_identifier`; `tests/test_signing.py::test_configured_signing_seed_reads_through_sdk_setting`)
 
 - [ ] Prevent ambient proxy and redirect forwarding of the OpenBao token (SDK-CONNECTOR-CONTROL-R035.7).
+- [ ] **SDK-CONNECTOR-CONTROL-R014.27:** Record current fleet-wide migration census and owner receipt before closing the toolkit replacement rollup.
