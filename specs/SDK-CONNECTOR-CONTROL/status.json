@@ -18,6 +18,7 @@
     "SDK-CONNECTOR-CONTROL-R012",
     "SDK-CONNECTOR-CONTROL-R013",
     "SDK-CONNECTOR-CONTROL-R014",
+    "SDK-CONNECTOR-CONTROL-R014.27",
     "SDK-CONNECTOR-CONTROL-R014.1",
     "SDK-CONNECTOR-CONTROL-R015",
     "SDK-CONNECTOR-CONTROL-R015.1",
@@ -470,10 +471,14 @@
       "title": "SDK fully supersedes the duplicated connector toolkit",
       "delivery_state": "SPECIFIED",
       "landed_in": [
-        "5e1bd9257555"
+        "04a50086718c",
+        "077a14c9f3d3",
+        "15b099abed9d",
+        "16cb53774404"
       ],
       "verified_by": [],
       "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R014.27",
         "SDK-CONNECTOR-CONTROL-R014.1",
         "SDK-CONNECTOR-CONTROL-R014.2",
         "SDK-CONNECTOR-CONTROL-R014.3",
@@ -501,6 +506,13 @@
         "SDK-CONNECTOR-CONTROL-R014.26",
         "SDK-CONNECTOR-CONTROL-R014.21"
       ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.27",
+      "title": "Fleet migration evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.1",
@@ -2724,9 +2736,16 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.21",
       "title": "Reusable A2A protocol module",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "04a50086718c",
+        "0744e3514186"
+      ],
+      "verified_by": [
+        "tests/test_a2a_protocol.py:150",
+        "tests/test_a2a_protocol.py:193",
+        "tests/test_a2a_protocol.py:220"
+      ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R014.21.1",
         "SDK-CONNECTOR-CONTROL-R014.21.2"
@@ -2747,9 +2766,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.21.2",
       "title": "Prove the optional server composition",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0744e3514186"
+      ],
+      "verified_by": [
+        "tests/test_a2a_protocol.py:220"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R700",
