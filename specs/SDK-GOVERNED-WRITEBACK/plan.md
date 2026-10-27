@@ -184,4 +184,10 @@ calling the transport. The file-backed sink reservation compares an existing
 ID to the exact expected key and digest. The generic port still returns an
 opaque string; R004.3 retains the separate durable binding and served proof.
 
+### Amendment 2026-10-27: uncertain reconciliation
+
+`GovernedWriteBack.reconcile` rejects an uncertain result that permits retry.
+The guard matches the durable receipt rule and retains the unresolved state.
+R004.2 retains its separate cross-process replay and served proof.
+
 Arbora consumes these exact request/receipt contracts under ARBORA-FLEET-R003, using ARBORA-OPS-R009's existing invoke authority. Its producer-composition definition must wait for the SDK definition to merge. EG-TYPED-PACKS-R094.7 can name both after their definitions merge. EG-TYPED-PACKS-R002.10 still requires a separately coordinated AU model-dispatch consumer; source write-back does not meet that requirement. No candidate accounting change or runtime completion follows from these definitions.
