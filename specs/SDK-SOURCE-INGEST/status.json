@@ -2504,14 +2504,14 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "120154b4ffd4",
+        "490b74f6bf04",
         "4b003b24ce55",
         "7aa27bbd799e",
-        "8c6dcfdd27e8",
-        "d4fa3ff458e2"
+        "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_database.py:109",
-        "tests/source_connectors/test_database.py:136",
+        "tests/source_connectors/test_database.py:128",
+        "tests/source_connectors/test_database.py:155",
         "tests/source_connectors/test_database.py:48",
         "tests/source_connectors/test_database.py:49",
         "tests/source_connectors/test_database.py:58"
@@ -2558,7 +2558,7 @@
         "7aa27bbd799e"
       ],
       "verified_by": [
-        "tests/source_connectors/test_database.py:136"
+        "tests/source_connectors/test_database.py:155"
       ]
     },
     {
@@ -2569,7 +2569,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_database.py:109"
+        "tests/source_connectors/test_database.py:128"
       ]
     },
     {
@@ -2599,7 +2599,8 @@
       "title": "Compare timestamp watermarks by instant",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "120154b4ffd4"
+        "120154b4ffd4",
+        "490b74f6bf04"
       ],
       "verified_by": [
         "tests/source_connectors/test_database.py:76"
