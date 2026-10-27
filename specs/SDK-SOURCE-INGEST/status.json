@@ -2220,9 +2220,9 @@
       "verified_by": [
         "tests/source_connectors/test_source_connectors.py:125",
         "tests/source_connectors/test_source_connectors.py:155",
-        "tests/source_connectors/test_source_connectors.py:178",
-        "tests/source_connectors/test_source_connectors.py:45",
-        "tests/source_connectors/test_source_connectors.py:51"
+        "tests/source_connectors/test_source_connectors.py:172",
+        "tests/source_connectors/test_source_connectors.py:195",
+        "tests/source_connectors/test_source_connectors.py:45"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R800.1",
@@ -2253,8 +2253,8 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:155",
-        "tests/source_connectors/test_source_connectors.py:178"
+        "tests/source_connectors/test_source_connectors.py:172",
+        "tests/source_connectors/test_source_connectors.py:195"
       ]
     },
     {
@@ -2265,7 +2265,8 @@
         "2d68f7c80246"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:125"
+        "tests/source_connectors/test_source_connectors.py:125",
+        "tests/source_connectors/test_source_connectors.py:155"
       ]
     },
     {
@@ -2310,7 +2311,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:178"
+        "tests/source_connectors/test_source_connectors.py:195"
       ]
     },
     {
