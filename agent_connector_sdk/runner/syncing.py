@@ -19,11 +19,13 @@ from agent_connector_sdk.ports.session import McpSession
 from agent_connector_sdk.ports.sink import Sink
 from agent_connector_sdk.ports.source_adapter import SourceAdapter
 from agent_connector_sdk.runner.errors import (
+    RunnerConfigurationError,
     SchemaDriftQuarantined,
     SinkReceiptError,
     StreamPaused,
 )
 from agent_connector_sdk.runner.logs import structured
+from agent_connector_sdk.runner.stages import StageDescriptor, validate_stage_graph
 from agent_connector_sdk.schema_drift import (
     DriftClassification,
     EvolutionPolicy,
@@ -48,6 +50,10 @@ class SyncTarget:
     evolution_policy: EvolutionPolicy = EvolutionPolicy.REVIEW
     tenant: str | None = None
     repair_proposals: RepairProposalStore | None = None
+    stages: tuple[StageDescriptor, ...] = ()
+
+    def __post_init__(self) -> None:
+        validate_stage_graph(self.stages, self.connector, self.tenant)
 
     @classmethod
     def configured(
@@ -206,6 +212,8 @@ async def sync_stream(
         StreamPaused: ``target.repair_proposals`` names an unresolved repair
             proposal for this stream; no page is extracted or submitted.
     """
+    if target.stages:
+        raise RunnerConfigurationError("concurrent stage execution is unavailable")
     descriptor = await adapter.discover(session)
     stream = descriptor.stream
     target = _discovered_target(target, descriptor)

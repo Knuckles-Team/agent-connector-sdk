@@ -299,3 +299,9 @@ for another manifest must not approve the requested handoff.
 
 R804.6 records one thousand distinct license decisions through the production
 registry, then reads each decision back. Each lookup must read one decision file.
+
+# Concurrent stage model proof
+
+R001.1 validates stage identity, limits and the dependency graph at SyncTarget
+construction. The sequential sync path refuses stage-bearing targets before it
+discovers or extracts from a source.
