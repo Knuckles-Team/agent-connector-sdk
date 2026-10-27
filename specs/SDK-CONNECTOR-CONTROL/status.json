@@ -334,13 +334,16 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R003",
-      "title": "Canonical output-schema digest on every certified tool pin",
-      "delivery_state": "LANDED",
+      "title": "Canonical output-schema digest on every certified tool verdict",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "0f826d4ca6db",
-        "93afc6b075df"
+        "93afc6b075df",
+        "fdd0b01582d5"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_certify_missing_output.py:24"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R004",
