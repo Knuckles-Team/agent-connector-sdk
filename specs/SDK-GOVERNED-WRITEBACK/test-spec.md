@@ -73,6 +73,7 @@ All tests below are proposed in `tests/test_repository_source_effect_served.py`;
 | WB-25 | SDK-GOVERNED-WRITEBACK-R004.11 | `test_restart_reconcile` | WB-25 crashes before effect, after provider commit, after readback and after durable receipt. Restart resolves or remains uncertain without duplication. |
 | WB-26 | SDK-GOVERNED-WRITEBACK-R004.12 | `test_served_journey` | WB-26 traces one real served effect and zero-effect negatives at the provider boundary. After restart it reads the identical durable result. |
 | WB-27 | SDK-GOVERNED-WRITEBACK-R004.13 | `test_invalid_reservation_never_applies`, `test_file_reservation_refuses_a_different_change_set` | Missing IDs and mismatched file reservations refuse before the effect. |
+| WB-29 | SDK-GOVERNED-WRITEBACK-R004.15 | `test_dry_run_rejects_mismatched_preview` | Mismatched source version, values, scope, changed fields and JSON types refuse without mutation. |
 | WB-28 | SDK-GOVERNED-WRITEBACK-R004.14 | `test_uncertain_reconciliation_cannot_allow_retry` | An uncertain effect cannot permit a retry or trigger another apply. |
 
 

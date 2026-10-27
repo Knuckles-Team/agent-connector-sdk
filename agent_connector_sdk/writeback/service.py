@@ -67,10 +67,40 @@ class GovernedWriteBack:
         self._validate(change_set)
         current = await self._transport.read_current(change_set)
         require_base(change_set, current)
+        before = {name: current.fields.get(name) for name in change_set.field_scope}
+        after = dict(change_set.desired_patch)
+        try:
+
+            def encode(value: object) -> str:
+                return json.dumps(
+                    value, sort_keys=True, separators=(",", ":"), allow_nan=False
+                )
+
+            changed = {
+                name
+                for name in change_set.field_scope
+                if encode(before[name]) != encode(after[name])
+            }
+            expected_before, expected_after = encode(before), encode(after)
+        except (TypeError, ValueError):
+            raise ChangeSetValidationError("invalid dry-run preview values") from None
+        version = current.source_version
         result = await self._transport.preview(change_set, current)
+        try:
+            matches = (
+                encode(result.before) == expected_before
+                and encode(result.after) == expected_after
+            )
+        except (TypeError, ValueError):
+            raise ChangeSetValidationError("invalid dry-run preview values") from None
         if (
             result.change_set_digest != change_set.change_set_digest
             or result.desired_patch_digest != change_set.patch_digest()
+            or change_set.change_set_digest != change_set.canonical_digest()
+            or result.source_version != version
+            or not matches
+            or len(result.changed_fields) != len(changed)
+            or set(result.changed_fields) != changed
         ):
             raise ChangeSetValidationError("dry-run observation binding mismatch")
         return result

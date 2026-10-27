@@ -245,12 +245,11 @@ class SinkWriteBackTransport:
     ) -> DryRunObservation:
         """Run the sink in dry-run mode and bind its proposals to the change set."""
         self.result = await self._run(dry_run=True)
-        changed = (PATCH_FIELD,) if self.result.proposals else ()
         return DryRunObservation(
             change_set_digest=change_set.change_set_digest,
             source_version=current.source_version,
             desired_patch_digest=change_set.patch_digest(),
-            changed_fields=changed,
+            changed_fields=(PATCH_FIELD,),
             before={PATCH_FIELD: None},
             after=dict(change_set.desired_patch),
         )

@@ -28,6 +28,7 @@
     "SDK-GOVERNED-WRITEBACK-R004.12",
     "SDK-GOVERNED-WRITEBACK-R004.13",
     "SDK-GOVERNED-WRITEBACK-R004.14",
+    "SDK-GOVERNED-WRITEBACK-R004.15",
     "SDK-GOVERNED-WRITEBACK-R005"
   ],
   "requirements": [
@@ -143,7 +144,8 @@
         "SDK-GOVERNED-WRITEBACK-R004.11",
         "SDK-GOVERNED-WRITEBACK-R004.12",
         "SDK-GOVERNED-WRITEBACK-R004.13",
-        "SDK-GOVERNED-WRITEBACK-R004.14"
+        "SDK-GOVERNED-WRITEBACK-R004.14",
+        "SDK-GOVERNED-WRITEBACK-R004.15"
       ]
     },
     {
@@ -257,6 +259,18 @@
         "a61dee41bf63"
       ],
       "verified_by": [
+        "tests/test_writeback.py:128"
+      ]
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.15",
+      "title": "Exact dry-run display",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "32884e321cac"
+      ],
+      "verified_by": [
+        "tests/test_writeback.py:111",
         "tests/test_writeback.py:79"
       ]
     },
