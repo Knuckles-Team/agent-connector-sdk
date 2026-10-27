@@ -1137,37 +1137,58 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R040",
       "title": "SDK declares an MCP source's access contract (unblocks `EG-CQ-CONN-R067.1`)",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a183c2021ba3"
+      ],
+      "verified_by": [
+        "tests/test_access_contract.py:88"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R041",
       "title": "SDK declares an A2A source's access contract (unblocks `EG-CQ-CONN-R067.2`)",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a183c2021ba3"
+      ],
+      "verified_by": [
+        "tests/test_access_contract.py:89"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R042",
       "title": "SDK declares an API (REST) source's access contract (unblocks `EG-CQ-CONN-R067.3`)",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a183c2021ba3"
+      ],
+      "verified_by": [
+        "tests/test_access_contract.py:90"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R043",
       "title": "SDK declares a GraphQL source's access contract (unblocks `EG-CQ-CONN-R067.4`)",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a183c2021ba3"
+      ],
+      "verified_by": [
+        "tests/test_access_contract.py:91"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R044",
       "title": "SDK declares a virtual-graph access contract",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a183c2021ba3"
+      ],
+      "verified_by": [
+        "tests/test_access_contract.py:106",
+        "tests/test_access_contract.py:92"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R045",

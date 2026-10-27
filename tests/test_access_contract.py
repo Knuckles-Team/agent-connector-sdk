@@ -85,6 +85,36 @@ def test_optional_hints_default_to_unknown() -> None:
     assert contract.rate_limit_per_minute is None
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R040")
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R041")
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R042")
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R043")
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R044")
+@pytest.mark.parametrize(
+    "kind", ("mcp_tool", "a2a_skill", "http_endpoint", "graphql_query", "virtual_graph")
+)
+def test_access_kinds_parse_with_source_mapping(kind: str) -> None:
+    (contract,) = parse_access_contracts(_variant('"mcp_tool"', f'"{kind}"'))
+    assert contract.access_kind == kind
+    assert contract.entity == "ticket"
+    assert contract.key_field == "id"
+    assert contract.operation == "fake_ticket_query"
+    assert contract.pushdown == frozenset({"filter", "limit"})
+    assert contract.predicates == (("https://example.invalid/fake#title", "summary"),)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R044")
+def test_virtual_graph_refuses_unknown_kind_and_literal_credential() -> None:
+    virtual = _variant('"mcp_tool"', '"virtual_graph"')
+    with pytest.raises(AccessContractError, match="unknown ac:accessKind"):
+        parse_access_contracts(virtual.replace('"virtual_graph"', '"unknown"'))
+    with pytest.raises(AccessContractError, match="not a secret") as info:
+        parse_access_contracts(
+            virtual.replace('"env://FAKE_TRACKER_TOKEN"', '"secret"')
+        )
+    assert '"secret"' not in str(info.value)
+
+
 @pytest.mark.parametrize(
     ("old", "new", "message"),
     [
@@ -122,4 +152,5 @@ def test_packaged_vocabulary_parses_and_declares_terms() -> None:
     assert parse_access_contracts(vocabulary) == ()
     for term in ("AccessContract", "pushdown", "authRef", "keyField"):
         assert f"ac:{term} a owl:" in vocabulary
+    assert "virtual_graph" in vocabulary
     assert AC.endswith("access#")
