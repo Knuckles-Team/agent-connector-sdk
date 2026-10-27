@@ -16,7 +16,10 @@ from epistemic_graph.generated.connector_pack import PackEntryKind
 
 from agent_connector_sdk.artifacts.common import json_object
 from agent_connector_sdk.artifacts.ontology_imports import scope_ontology_imports
-from agent_connector_sdk.artifacts.resource_descriptor import RESOURCES_URI
+from agent_connector_sdk.artifacts.resource_descriptor import (
+    RESOURCES_URI,
+    _check_captured_descriptor,
+)
 from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
 from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
@@ -117,6 +120,39 @@ async def _capture_entries(
     return tuple(entries)
 
 
+def _validate_resource_descriptors(entries: Sequence[CapturedArtifact]) -> None:
+    """Validate the served declaration before it enters a content pack."""
+    from rdflib import RDF, RDFS, Graph, URIRef
+    from rdflib.namespace import OWL
+
+    resources = next((entry for entry in entries if entry.uri == RESOURCES_URI), None)
+    if resources is None:
+        return
+    descriptors = json_object(resources).get("descriptors", [])
+    if not isinstance(descriptors, list) or any(
+        not isinstance(d, dict) for d in descriptors
+    ):
+        raise MalformedArtifactError("resource descriptors must be a list of objects")
+    if not descriptors:
+        return
+    graph = Graph()
+    try:
+        for entry in entries:
+            if entry.kind == "resource" and entry.uri.startswith("ontology://"):
+                graph.parse(data=entry.body, format="turtle")
+    except Exception as exc:
+        raise MalformedArtifactError("connector ontology is malformed") from exc
+    classes = frozenset(
+        str(subject)
+        for kind in (OWL.Class, RDFS.Class)
+        for subject in graph.subjects(RDF.type, kind)
+        if isinstance(subject, URIRef)
+    )
+    for descriptor in descriptors:
+        if descriptor.get("kind", "data") == "data":
+            _check_captured_descriptor(descriptor, classes)
+
+
 def _scope_imports(
     entries: Sequence[CapturedArtifact],
 ) -> tuple[CapturedArtifact, ...]:
@@ -148,6 +184,7 @@ async def build_content_pack(
     server = await session.server_identity()
     entries = await _capture_entries(session, kinds, server)
     _require_unique_uris(entries)
+    _validate_resource_descriptors(entries)
     entries = _scope_imports(entries)
     server_entry = ConnectorPackEntryContent(
         kind=PackEntryKind.MCP_SERVER,

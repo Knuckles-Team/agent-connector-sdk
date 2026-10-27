@@ -270,7 +270,7 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R074.2:** Prompt role.
 - [ ] **SDK-CONNECTOR-CONTROL-R074.3:** Behavior.
 - [ ] **SDK-CONNECTOR-CONTROL-R074.4:** Wiring.
-- [ ] **SDK-CONNECTOR-CONTROL-R074.5:** Refusal.
+- [x] **SDK-CONNECTOR-CONTROL-R074.5:** Refusal.
 - [ ] **SDK-CONNECTOR-CONTROL-R074.6:** Hot-path proof.
 - [x] **SDK-CONNECTOR-CONTROL-R074.7:** Default declarations.
 - [ ] **SDK-CONNECTOR-CONTROL-R075:** The connector's MCP server is the only place its metadata is read from (rollup).
