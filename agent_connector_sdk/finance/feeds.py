@@ -148,7 +148,7 @@ class MarketFeedBus:
 
     def __init__(self, bus: StreamBus | None = None):
         self.bus = bus or StreamBus()
-        self._aggregators: dict[str, TickAggregator] = {}
+        self._aggregators: dict[str, dict[int, TickAggregator]] = {}
         self._alerts: list[dict[str, Any]] = []
         self._tick_count = 0
 
@@ -166,8 +166,9 @@ class MarketFeedBus:
         sub = CallbackSubscriber(on_message_fn=callback)
         self.bus.subscribe(topic, sub)
 
-        if symbol not in self._aggregators:
-            self._aggregators[symbol] = TickAggregator(symbol, bar_size)
+        aggregators = self._aggregators.setdefault(symbol, {})
+        if bar_size not in aggregators:
+            aggregators[bar_size] = TickAggregator(symbol, bar_size)
 
     def add_price_alert(
         self,
@@ -207,8 +208,7 @@ class MarketFeedBus:
         delivered = await self.bus.publish(msg)
 
         # Process aggregation
-        if tick.symbol in self._aggregators:
-            agg = self._aggregators[tick.symbol]
+        for agg in self._aggregators.get(tick.symbol, {}).values():
             completed = agg.on_tick(tick)
             if completed:
                 bar_msg = StreamMessage(

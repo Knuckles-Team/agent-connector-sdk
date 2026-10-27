@@ -16,7 +16,8 @@
     "SDK-FINANCE-SOURCES-R900.4",
     "SDK-FINANCE-SOURCES-R900.5",
     "SDK-FINANCE-SOURCES-R900.6",
-    "SDK-FINANCE-SOURCES-R900.8"
+    "SDK-FINANCE-SOURCES-R900.8",
+    "SDK-FINANCE-SOURCES-R900.7"
   ],
   "requirements": [
     {
@@ -109,8 +110,8 @@
         "tests/test_finance_crypto.py:49",
         "tests/test_finance_crypto.py:58",
         "tests/test_finance_crypto.py:69",
-        "tests/test_finance_feeds.py:45",
-        "tests/test_finance_market_data.py:51"
+        "tests/test_finance_feeds.py:47",
+        "tests/test_finance_feeds.py:77"
       ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R900.1",
@@ -119,7 +120,8 @@
         "SDK-FINANCE-SOURCES-R900.4",
         "SDK-FINANCE-SOURCES-R900.5",
         "SDK-FINANCE-SOURCES-R900.6",
-        "SDK-FINANCE-SOURCES-R900.8"
+        "SDK-FINANCE-SOURCES-R900.8",
+        "SDK-FINANCE-SOURCES-R900.7"
       ]
     },
     {
@@ -153,7 +155,7 @@
       ],
       "verified_by": [
         "tests/test_finance_crypto.py:69",
-        "tests/test_finance_feeds.py:45"
+        "tests/test_finance_feeds.py:47"
       ]
     },
     {
@@ -200,6 +202,17 @@
       ],
       "verified_by": [
         "tests/test_payments.py:151"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900.7",
+      "title": "Independent market bar intervals",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d51f8dfcef72"
+      ],
+      "verified_by": [
+        "tests/test_finance_feeds.py:77"
       ]
     }
   ]

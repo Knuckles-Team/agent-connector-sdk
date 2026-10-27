@@ -17,3 +17,8 @@ amounts before changing counters. Zero spend remains valid.
 The payment client records a confirmed payment only when the supplied proof
 matches the challenge and the configured wallet. A mismatch changes no spend
 counter or history. This comparison does not establish the transaction on chain.
+## Independent bar intervals
+
+For R900.7, market feed subscriptions use one aggregator per symbol and bar
+interval. Each tick updates every interval for its symbol. Subscribers to the
+same interval share the same aggregator.
