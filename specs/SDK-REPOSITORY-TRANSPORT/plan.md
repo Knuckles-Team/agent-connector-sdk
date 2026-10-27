@@ -8,7 +8,7 @@
 
 ## Amendment 2026-10-27: bound provider pages
 
-Reject a snapshot page whose combined files and tombstones exceed the
-requested page size before adding paths or submitting that page. Reject an
+Count files and tombstones together. Reject a page above the requested size
+before adding paths or submitting the page. Reject an
 oversized tree page before collecting its entries. Earlier graph submissions
 remain applied if a later page fails; this check does not provide rollback.
