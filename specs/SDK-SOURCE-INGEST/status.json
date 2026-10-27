@@ -1059,8 +1059,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R001.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a59fffaff95e"
+      ],
       "verified_by": [
         "tests/test_source_stage_model.py:54",
         "tests/test_source_stage_model.py:99"
