@@ -84,20 +84,33 @@ class FetchedPage(BaseModel):
     site_name: str = ""
 
 
-async def fetch_page(url: str, *, timeout: float = 30.0) -> FetchedPage | None:
+async def fetch_page(
+    url: str,
+    *,
+    timeout: float = 30.0,
+    allowed_private_hosts: Sequence[str] = (),
+    allow_plaintext: bool = False,
+) -> FetchedPage | None:
     """Fetch ``url`` as markdown through the governed HTTP client.
 
     Returns ``None`` on a non-2xx response or empty content; a caller treats
     that as an unreachable source rather than a fabricated empty page.
+    Private hosts need an explicit allowlist. Plaintext to a non-loopback host
+    also needs ``allow_plaintext``; it is not implied by the allowlist.
     """
     options = HttpClientOptions(
-        base_url=url, timeout=timeout, headers={"User-Agent": _USER_AGENT}
+        base_url=url,
+        timeout=timeout,
+        headers={"User-Agent": _USER_AGENT},
+        pin_egress=True,
+        allowed_private_hosts=tuple(allowed_private_hosts),
+        allow_plaintext=allow_plaintext,
     )
-    async with create_async_http_client(options) as client:
-        try:
+    try:
+        async with create_async_http_client(options) as client:
             response = await client.get("")
-        except httpx.HTTPError:
-            return None
+    except httpx.HTTPError:
+        return None
     if response.status_code >= 400:
         return None
     raw = response.text
@@ -150,16 +163,25 @@ class WebFetchSourceAdapter:
     declared at construction, so ``discover`` verifies nothing live and
     ``extract``/``reconcile`` never call ``session``. The parameter is kept
     to conform to :class:`~agent_connector_sdk.ports.source_adapter.SourceAdapter`.
+    Private-host and plaintext exceptions must be provided by the caller.
     """
 
     kind = "web_fetch"
 
     def __init__(
-        self, urls: Sequence[str], *, connector: str, mapping_reference: str
+        self,
+        urls: Sequence[str],
+        *,
+        connector: str,
+        mapping_reference: str,
+        allowed_private_hosts: Sequence[str] = (),
+        allow_plaintext: bool = False,
     ) -> None:
         self._urls = tuple(urls)
         self._connector = connector
         self._mapping_reference = mapping_reference
+        self._allowed_private_hosts = tuple(allowed_private_hosts)
+        self._allow_plaintext = allow_plaintext
 
     @property
     def stream(self) -> str:
@@ -188,7 +210,11 @@ class WebFetchSourceAdapter:
         index = _page_index(checkpoint)
         records: tuple[SourceRecord, ...] = ()
         if index < len(self._urls):
-            page = await fetch_page(self._urls[index])
+            page = await fetch_page(
+                self._urls[index],
+                allowed_private_hosts=self._allowed_private_hosts,
+                allow_plaintext=self._allow_plaintext,
+            )
             if page is None:
                 raise SourceContractError("web fetch failed or returned empty content")
             records = (
