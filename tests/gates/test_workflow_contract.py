@@ -376,3 +376,18 @@ def test_publish_requires_the_dependency_floor_on_the_public_index() -> None:
     # Both package pairs publish only after the dependency lock check.
     assert len(publishes) == 2
     assert commands.index("uv lock --check") < min(index for index, _ in publishes)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R018")
+def test_main_gate_runs_full_suite_types_and_docs() -> None:
+    gates = _yaml(GATES)["jobs"]["gates"]
+    assert gates["with"]["all-files"] == "${{ github.event_name == 'push' }}"
+    assert gates["with"]["test-scope"] == "tests"
+    assert "mkdocs-build" in gates["with"]["extra-manual-hooks"]
+    hooks = _yaml(PRE_COMMIT)["repos"]
+    local_hooks = [
+        hook for repo in hooks if repo.get("repo") == "local" for hook in repo["hooks"]
+    ]
+    mypy = next(hook for hook in local_hooks if hook["id"] == "mypy")
+    assert "pre-push" in mypy["stages"]
+    assert "mypy agent_connector_sdk" in mypy["entry"]

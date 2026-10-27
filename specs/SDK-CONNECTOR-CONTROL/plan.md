@@ -678,3 +678,10 @@ not recorded from a live service. The owner change merged as
 `1915fce3ef886c82ce17edbf9cb0d92bdfe50dfb` after green PR checks.
 R038 remains open pending SDK-local evidence; EG-CQ-XSRC-R003.4 separately
 requires an approved mapping to `:Service` and engine query acceptance.
+## Fresh-checkout CI evidence (SDK-CONNECTOR-CONTROL-R018)
+
+The main-branch gate [run 40565896254](https://github.com/Knuckles-Team/scion-sdk/actions/runs/40565896254)
+checked merge commit `406ffa4d92cbd2c83087547e12662eacae9f359a`. Its fresh
+checkout passed strict mypy, the strict documentation build, and the full
+test suite (1,921 passed and four skipped). The workflow contract test keeps
+the main-branch all-files, type-check and documentation wiring visible.
