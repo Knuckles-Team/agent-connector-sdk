@@ -60,14 +60,33 @@ class PaginationOriginError(HttpProblemError):
 
     @classmethod
     def for_url(cls, url: str) -> PaginationOriginError:
-        parts = urlsplit(url)
+        del url
         return cls(
             ProblemDetails.sdk(
                 "cross-origin-next-url",
-                "Next-page URL leaves the API origin",
-                detail=f"refused {parts.scheme}://{parts.netloc}",
+                "Pagination URL is outside the permitted origin",
+                detail="Pagination URL is invalid or not permitted",
             )
         )
+
+
+def _safe_origin(url: str) -> tuple[str, str, int | None]:
+    """Validate an HTTP(S) origin without copying credentials into errors."""
+    try:
+        parts = urlsplit(url)
+        if (
+            parts.scheme not in {"http", "https"}
+            or not parts.hostname
+            or parts.username is not None
+            or parts.password is not None
+        ):
+            raise ValueError("invalid pagination origin")
+        port = parts.port
+        if port is None:
+            port = 443 if parts.scheme == "https" else 80
+        return parts.scheme, parts.hostname.casefold(), port
+    except ValueError:
+        raise PaginationOriginError.for_url("") from None
 
 
 _LINK_NEXT_RE = re.compile(r'<(?P<url>[^>]+)>\s*;[^,]*\brel="?next"?')
@@ -133,10 +152,19 @@ class _PageWalk:
             raise ValueError(f"mode must be one of {PAGINATION_MODES}, got {mode!r}")
         self.mode = mode
         self.next_path = next_path
-        self._current_url = urljoin(base_url or "", endpoint)
+        try:
+            self._current_url = urljoin(base_url or "", endpoint)
+        except ValueError:
+            if mode != "next_url":
+                raise
+            raise PaginationOriginError.for_url("") from None
         if mode == "next_url" and not urlsplit(self._current_url).scheme:
             raise ValueError("next_url mode needs an absolute endpoint or base_url")
-        self._first_origin = _origin(self._current_url)
+        self._first_origin = (
+            _safe_origin(self._current_url)
+            if mode == "next_url"
+            else _origin(self._current_url)
+        )
         self._seen_urls = {self._current_url}
         #: Set when a repeated next URL ended the sweep (``next_url`` mode).
         self.loop_detected = False
@@ -222,8 +250,11 @@ class _PageWalk:
         if not raw or not isinstance(raw, str):
             self.next_cursor = None
             return None
-        absolute = urljoin(self._current_url, raw)
-        if _origin(absolute) != self._first_origin:
+        try:
+            absolute = urljoin(self._current_url, raw)
+        except ValueError:
+            raise PaginationOriginError.for_url("") from None
+        if _safe_origin(absolute) != self._first_origin:
             raise PaginationOriginError.for_url(absolute)
         if absolute in self._seen_urls:
             self.loop_detected = True

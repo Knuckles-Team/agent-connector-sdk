@@ -59,4 +59,6 @@ A negative or zero interval clamps to zero and never sleeps (`test_interval_is_c
 
 ## Quality and release proof
 
+| CC-49 | `SDK-CENTRALIZED-CAPABILITIES-R004.1` | Unit | Feed unsafe first and next URLs to both iterators. | Refuse before fetching the unsafe URL. Errors contain no supplied credentials. |
+
 Run `uv run pytest tests/test_centralized_capability_index.py tests/test_centralized_extras.py tests/httpsupport/test_rate_limiter.py tests/httpsupport/test_pagination_next_url.py`. Run the `spec-standard` and `spec-status` hooks on the directory. A fleet-wide scan of connectors is outside this spec.

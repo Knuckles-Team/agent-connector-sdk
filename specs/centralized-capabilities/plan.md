@@ -88,3 +88,10 @@ Decision: the next-URL mode extends the existing iterator, not a new helper. Its
 Decision: the shared `RateLimiter` lives in `httpsupport/rate_limit.py`, next to the rate-limit telemetry. Two connectors carried identical copies. The SDK keeps their constructor argument and `wait()` coroutine, so their switch is an import change. The connectors' `build_async_client` wrappers stay in the connectors. Each one builds `create_async_http_client` options from the connector's own user agent and endpoint type.
 
 Risk: the index drifts from the modules. The index test closes this risk once it lands.
+
+## Amendment 2026-10-27: credential-bearing URLs
+
+The first and followed URLs must have an HTTP(S) origin without userinfo.
+Malformed origins and URLs with userinfo raise `PaginationOriginError` before
+fetching. Explicit port zero remains distinct from the default port. The
+problem detail is static and does not echo any URL.
