@@ -216,6 +216,7 @@
     "SDK-SOURCE-INGEST-R900.4",
     "SDK-SOURCE-INGEST-R900.5",
     "SDK-SOURCE-INGEST-R900.6",
+    "SDK-SOURCE-INGEST-R900.7",
     "SDK-SOURCE-INGEST-R901",
     "SDK-SOURCE-INGEST-R901.1",
     "SDK-SOURCE-INGEST-R901.2",
@@ -2502,17 +2503,18 @@
       "title": "Read-only database source (rollup)",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "120154b4ffd4",
         "4b003b24ce55",
         "7aa27bbd799e",
         "8c6dcfdd27e8",
         "d4fa3ff458e2"
       ],
       "verified_by": [
-        "tests/source_connectors/test_database.py:102",
-        "tests/source_connectors/test_database.py:47",
+        "tests/source_connectors/test_database.py:109",
+        "tests/source_connectors/test_database.py:136",
         "tests/source_connectors/test_database.py:48",
-        "tests/source_connectors/test_database.py:57",
-        "tests/source_connectors/test_database.py:75"
+        "tests/source_connectors/test_database.py:49",
+        "tests/source_connectors/test_database.py:58"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R900.1",
@@ -2520,7 +2522,8 @@
         "SDK-SOURCE-INGEST-R900.3",
         "SDK-SOURCE-INGEST-R900.4",
         "SDK-SOURCE-INGEST-R900.5",
-        "SDK-SOURCE-INGEST-R900.6"
+        "SDK-SOURCE-INGEST-R900.6",
+        "SDK-SOURCE-INGEST-R900.7"
       ]
     },
     {
@@ -2543,8 +2546,8 @@
         "d4fa3ff458e2"
       ],
       "verified_by": [
-        "tests/source_connectors/test_database.py:48",
-        "tests/source_connectors/test_database.py:57"
+        "tests/source_connectors/test_database.py:49",
+        "tests/source_connectors/test_database.py:58"
       ]
     },
     {
@@ -2555,7 +2558,7 @@
         "7aa27bbd799e"
       ],
       "verified_by": [
-        "tests/source_connectors/test_database.py:102"
+        "tests/source_connectors/test_database.py:136"
       ]
     },
     {
@@ -2566,7 +2569,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_database.py:75"
+        "tests/source_connectors/test_database.py:109"
       ]
     },
     {
@@ -2588,7 +2591,18 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_database.py:47"
+        "tests/source_connectors/test_database.py:48"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R900.7",
+      "title": "Compare timestamp watermarks by instant",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "120154b4ffd4"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_database.py:76"
       ]
     },
     {
