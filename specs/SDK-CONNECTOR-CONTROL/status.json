@@ -241,6 +241,8 @@
     "SDK-CONNECTOR-CONTROL-R069.5",
     "SDK-CONNECTOR-CONTROL-R069.6",
     "SDK-CONNECTOR-CONTROL-R014.21",
+    "SDK-CONNECTOR-CONTROL-R014.21.1",
+    "SDK-CONNECTOR-CONTROL-R014.21.2",
     "SDK-CONNECTOR-CONTROL-R700",
     "SDK-CONNECTOR-CONTROL-R701",
     "SDK-CONNECTOR-CONTROL-R900",
@@ -2686,6 +2688,27 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.21",
       "title": "Reusable A2A protocol module",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R014.21.1",
+        "SDK-CONNECTOR-CONTROL-R014.21.2"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.21.1",
+      "title": "Bound response reads",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_a2a_protocol.py:150",
+        "tests/test_a2a_protocol.py:193"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.21.2",
+      "title": "Prove the optional server composition",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []

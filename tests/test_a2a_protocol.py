@@ -145,3 +145,73 @@ def test_r014_21_app_factory_builds_with_the_extra() -> None:
     from agent_connector_sdk.a2a import create_a2a_app
 
     assert callable(create_a2a_app)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.21.1")
+@pytest.mark.parametrize("path", ("card", "send", "poll"))
+async def test_streaming_response_stops_at_bound(path: str) -> None:
+    from agent_connector_sdk.a2a.client import _MAX_RESPONSE_BYTES
+
+    class Oversized(httpx.AsyncByteStream):
+        def __init__(self) -> None:
+            self.chunks = 0
+            self.closed = False
+
+        async def __aiter__(self):
+            for _ in range(6):
+                self.chunks += 1
+                yield b"x" * (_MAX_RESPONSE_BYTES // 4)
+
+        async def aclose(self) -> None:
+            self.closed = True
+
+    stream = Oversized()
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.headers["accept-encoding"] == "identity"
+        if path == "poll" and json.loads(request.content)["method"] == "message/send":
+            return httpx.Response(
+                200,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "result": {"id": "t", "status": {"state": "submitted"}},
+                },
+            )
+        return httpx.Response(200, stream=stream)
+
+    client = A2AClient(poll_interval=0.01, transport=_transport(handler))
+    if path == "card":
+        assert await client.fetch_card("https://peer.example") is None
+    else:
+        result = await client.send("https://peer.example", "hello")
+        assert result.error == "A2A communication failed (ValueError)"
+    assert stream.chunks == 5
+    assert stream.closed
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.21.1")
+async def test_compressed_response_is_refused_without_reading() -> None:
+    class Compressed(httpx.AsyncByteStream):
+        def __init__(self) -> None:
+            self.read = False
+            self.closed = False
+
+        async def __aiter__(self):
+            self.read = True
+            yield b"secret"
+
+        async def aclose(self) -> None:
+            self.closed = True
+
+    stream = Compressed()
+    client = A2AClient(
+        transport=_transport(
+            lambda request: httpx.Response(
+                200, headers={"Content-Encoding": "gzip"}, stream=stream
+            )
+        )
+    )
+    result = await client.send("https://peer.example", "hello")
+    assert result.error == "A2A communication failed (ValueError)"
+    assert not stream.read and stream.closed

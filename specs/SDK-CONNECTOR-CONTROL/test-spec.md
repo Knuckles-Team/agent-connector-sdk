@@ -332,6 +332,8 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R068`: `tests/test_seed_graph_served.p
 Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_served.py::test_declared_transports_serve_virtual_reads`.
 - `SDK-CONNECTOR-CONTROL-R780.1` to `SDK-CONNECTOR-CONTROL-R780.5`: `tests/test_au_helper_parity.py` (5 tests).
 - `SDK-CONNECTOR-CONTROL-R781`: `tests/test_trajectory_recorder.py`.
+- `SDK-CONNECTOR-CONTROL-R014.21.1`: `tests/test_a2a_protocol.py` streams oversized card, send and poll replies, and refuses compressed replies before reading.
+- `SDK-CONNECTOR-CONTROL-R014.21.2`: A future served test exercises the optional A2A app with the caller's broker and storage.
 - `SDK-CONNECTOR-CONTROL-R782`: `tests/test_stream_adapter.py`.
 
 ## SDK-CONNECTOR-CONTROL-R070

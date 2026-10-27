@@ -242,6 +242,8 @@ Runtime work and test execution remain outstanding.
 - [x] **SDK-CONNECTOR-CONTROL-R780.4:** TLS profile resolution, bound.
 - [x] **SDK-CONNECTOR-CONTROL-R780.5:** Value helpers and configuration projection, bound.
 - [ ] **SDK-CONNECTOR-CONTROL-R780.6:** Add the remainder helpers.
+- [x] **SDK-CONNECTOR-CONTROL-R014.21.1:** Bound streamed A2A card and JSON-RPC responses.
+- [ ] **SDK-CONNECTOR-CONTROL-R014.21.2:** Prove the optional A2A app with a caller-owned broker and storage.
 - [ ] **SDK-CONNECTOR-CONTROL-R780:** Rollup of the helper replacements.
 - [ ] **SDK-CONNECTOR-CONTROL-R781:** Training-trajectory recorder helper.
 - [ ] **SDK-CONNECTOR-CONTROL-R782:** Message-stream adapters normalize into change envelopes.
