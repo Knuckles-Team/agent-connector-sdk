@@ -318,6 +318,12 @@ Poll through the registered REST source with a prior cursor and next cursor.
 Refuse missing or non-list records, non-object records, blank IDs and empty text.
 The caller checkpoint stays unchanged, and no next cursor is returned.
 
+## Partial arXiv sweep (R800.7)
+
+Inject both a network failure and malformed category feed. A healthy category
+returns a newer record while the prior watermark remains fixed. Recover the
+failed category and assert its older record arrives once and the watermark moves.
+
 ## Timestamp watermark ordering
 
 R900.7 checks a SQLite source compares offset-bearing timestamps by instant

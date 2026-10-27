@@ -218,6 +218,34 @@ def test_arxiv_connector_shapes_records_dedups_categories_and_polls():
         build_connector("arxiv", {"fetch_fn": lambda *_: ATOM})
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R800.7")
+@pytest.mark.parametrize("failure", ["network", "malformed"])
+def test_arxiv_partial_sweep_does_not_advance_watermark(failure):
+    prior = ConnectorCheckpoint(watermark="2026-01-01T00:00:00Z")
+    healthy = ATOM.replace("2601.00090", "2601.00091").replace(
+        "2026-01-02T09:00:00Z", "2026-01-03T09:00:00Z"
+    )
+    unavailable = True
+
+    def fetch(_url, params):
+        if params["search_query"] == "cat:cs.LG" and unavailable:
+            if failure == "network":
+                raise RuntimeError("network down")
+            return "<feed><broken>"
+        return healthy if params["search_query"] == "cat:cs.AI" else ATOM
+
+    conn = build_connector(
+        "arxiv", {"categories": ["cs.AI", "cs.LG"], "fetch_fn": fetch}
+    )
+    partial = conn.poll(prior)
+    assert [doc.id for doc in partial.documents] == ["arxiv:2601.00091"]
+    assert partial.checkpoint.watermark == prior.watermark
+    unavailable = False
+    recovered = conn.poll(partial.checkpoint)
+    assert [doc.id for doc in recovered.documents] == ["arxiv:2601.00090"]
+    assert recovered.checkpoint.watermark == "2026-01-03T09:00:00Z"
+
+
 @pytest.mark.parametrize(
     ("location", "match"),
     [
