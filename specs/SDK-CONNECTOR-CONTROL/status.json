@@ -3342,9 +3342,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R074.5",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e57b0b8d7896"
+      ],
+      "verified_by": [
+        "tests/test_resource_descriptor_pack_refusal.py:17"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R074.6",
