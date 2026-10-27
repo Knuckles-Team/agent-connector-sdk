@@ -27,9 +27,9 @@ def test_public_upgrade_probe_reserves_no_deps_for_payload_repair() -> None:
         "install",
         "--force-reinstall",
         "--no-deps",
-        "scion-sdk==0.5.7",
+        "scion-sdk==0.5.8",
     )
-    assert command[-3:] == ["--force-reinstall", "--no-deps", "scion-sdk==0.5.7"]
+    assert command[-3:] == ["--force-reinstall", "--no-deps", "scion-sdk==0.5.8"]
     assert "--no-deps" in command
 
 
