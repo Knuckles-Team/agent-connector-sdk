@@ -295,3 +295,7 @@ Current dictation routes are single-shot. These tests require a registered meeti
 `SDK-SOURCE-INGEST-R804.7` uses the real manifest and license registry APIs.
 Invalid identifiers must not access a file outside the registry. A decision
 for another manifest must not approve the requested handoff.
+# Voice decision registry scale proof
+
+R804.6 records one thousand distinct license decisions through the production
+registry, then reads each decision back. Each lookup must read one decision file.

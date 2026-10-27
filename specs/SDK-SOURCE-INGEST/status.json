@@ -2405,7 +2405,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/voice_supply_chain/test_voice_supply_chain.py:62"
+        "tests/voice_supply_chain/test_voice_supply_chain.py:92"
       ]
     },
     {
@@ -2416,7 +2416,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/voice_supply_chain/test_voice_supply_chain.py:70"
+        "tests/voice_supply_chain/test_voice_supply_chain.py:100"
       ]
     },
     {
@@ -2427,7 +2427,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/voice_supply_chain/test_voice_supply_chain.py:115"
+        "tests/voice_supply_chain/test_voice_supply_chain.py:145"
       ]
     },
     {
@@ -2438,7 +2438,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/voice_supply_chain/test_voice_supply_chain.py:48"
+        "tests/voice_supply_chain/test_voice_supply_chain.py:78"
       ]
     },
     {
@@ -2449,7 +2449,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/voice_supply_chain/test_voice_supply_chain.py:102"
+        "tests/voice_supply_chain/test_voice_supply_chain.py:132"
       ]
     },
     {
@@ -2457,7 +2457,9 @@
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/voice_supply_chain/test_voice_supply_chain.py:48"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R804.7",
@@ -2467,8 +2469,8 @@
         "739c341c2595"
       ],
       "verified_by": [
-        "tests/voice_supply_chain/test_voice_supply_chain.py:171",
-        "tests/voice_supply_chain/test_voice_supply_chain.py:191"
+        "tests/voice_supply_chain/test_voice_supply_chain.py:201",
+        "tests/voice_supply_chain/test_voice_supply_chain.py:221"
       ]
     },
     {
