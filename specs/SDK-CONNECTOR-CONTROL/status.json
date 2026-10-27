@@ -593,11 +593,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R018",
       "title": "SDK source and test suite build cleanly from a fresh checkout",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "136f9b4e353f",
         "b0c376748245"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/gates/test_workflow_contract.py:381"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R019",
