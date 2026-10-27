@@ -105,3 +105,35 @@ async def test_ref_walk_rejects_repeated_path_across_pages(
         await walk_refs(provider, page_size=1)
 
     assert cursors == [None, "1"]
+
+
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R006")
+async def test_ref_walk_rejects_oversized_tree_page(tmp_path: Path) -> None:
+    revision = _revision().model_copy(
+        update={"provider": "local-git", "repository_id": "fixture"}
+    )
+
+    class OversizedProvider(LocalGitRepositoryProvider):
+        async def list_refs(self) -> tuple[RepositoryRef, ...]:
+            return (RepositoryRef(name="refs/heads/main", revision=revision),)
+
+        async def prime_trees(self, tree_ids: tuple[str, ...]) -> None:
+            assert tree_ids == (revision.tree_id,)
+
+        async def list_tree(
+            self, revision: RepositoryRevision, *, cursor: str | None, page_size: int
+        ) -> RepositoryTreePage:
+            return RepositoryTreePage(
+                revision=revision,
+                entries=(
+                    RepositoryTreeEntry(path="a.py", blob_id="e" * 40),
+                    RepositoryTreeEntry(path="b.py", blob_id="f" * 40),
+                ),
+            )
+
+    with pytest.raises(
+        RepositoryTransportError, match="tree page exceeds requested size"
+    ):
+        await walk_refs(
+            OversizedProvider(tmp_path, repository_id="fixture"), page_size=1
+        )

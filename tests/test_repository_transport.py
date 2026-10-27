@@ -216,6 +216,34 @@ async def test_oversized_file_fails_before_engine_call() -> None:
     assert graph.calls == []
 
 
+@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R006")
+async def test_oversized_provider_page_refuses_before_page_submission() -> None:
+    revision = _revision()
+    tombstone = RepositoryTombstone(path="removed.py", prior_blob_digest=_digest(b"x"))
+    provider = _Provider(
+        [
+            RepositoryPage(
+                revision=revision, files=(_file("a.py", b"a"),), next_cursor="1"
+            ),
+            RepositoryPage(
+                revision=revision, files=(_file("b.py", b"b"),), next_cursor="2"
+            ),
+            RepositoryPage(
+                revision=revision, files=(_file("c.py", b"c"),), tombstones=(tombstone,)
+            ),
+        ]
+    )
+    graph = _Graph()
+    limits = RepositoryBatchLimits(max_files=1, provider_page_size=1)
+
+    with pytest.raises(RepositoryTransportError, match="page exceeds requested size"):
+        await index_repository_snapshot(
+            provider, _client(graph), revision, limits=limits
+        )
+
+    assert graph.calls == [[("a.py", b"a")]]
+
+
 @pytest.mark.asyncio
 async def test_revision_drift_fails_before_engine_call() -> None:
     requested = _revision()

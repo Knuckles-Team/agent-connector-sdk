@@ -33,5 +33,5 @@ class RepositorySnapshotProvider(Protocol):
         cursor: str | None,
         page_size: int,
     ) -> RepositoryPage:
-        """Return one bounded page for exactly ``revision``."""
+        """Return up to ``page_size`` files and tombstones for ``revision``."""
         ...

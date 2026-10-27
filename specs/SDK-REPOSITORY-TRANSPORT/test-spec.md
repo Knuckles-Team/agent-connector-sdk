@@ -10,5 +10,6 @@
 | RT-06 | Return failed/unsupported parse for a blob | Result retains explicit disposition; later retry submits it again. |
 | RT-07 | Compare batched and unbatched tree walk on public fixtures | Byte-identical manifest/outcomes; report cold/warm timings and object-read counts. |
 | RT-08 | Submit to contributor-owned graph service | Durable receipt binds tenant/repository/revision/tree and all file dispositions; restart is idempotent. |
+| RT-09 | Request a bounded snapshot or tree page and receive too many entries | Refuse the page before processing it; prior graph submissions are not rolled back (SDK-REPOSITORY-TRANSPORT-R006). |
 
 Offline PR gate: focused pytest plus repository hooks (Ruff, mypy, CCCC, Dupehound, KISS). RT-08 is environment-backed acceptance and must show **NOT RUN** until provisioned.
