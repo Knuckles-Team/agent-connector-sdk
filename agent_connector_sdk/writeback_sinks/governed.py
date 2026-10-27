@@ -33,7 +33,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-from agent_connector_sdk.writeback.errors import OutcomeUncertainError
+from agent_connector_sdk.writeback.errors import (
+    AuditReservationUnavailableError,
+    OutcomeUncertainError,
+)
 from agent_connector_sdk.writeback.models import DryRunObservation, SourceSnapshot
 
 from ._env import run_sync_isolated, runtime_dir
@@ -331,11 +334,16 @@ class FileAuditReservation:
         return await asyncio.to_thread(self._reserve, change_set)
 
     def _reserve(self, change_set: SourceChangeSet) -> str:
-        if self._path.exists():
-            return str(json.loads(self._path.read_text())["reservation_id"])
         reservation_id = (
             f"audit:{change_set.idempotency_key}:{change_set.change_set_digest}"
         )
+        if self._path.exists():
+            stored = json.loads(self._path.read_text())["reservation_id"]
+            if stored != reservation_id:
+                raise AuditReservationUnavailableError(
+                    "audit reservation binding mismatch"
+                )
+            return reservation_id
         tmp = self._path.with_suffix(".json.tmp")
         tmp.write_text(json.dumps({"reservation_id": reservation_id}))
         os.replace(tmp, self._path)
