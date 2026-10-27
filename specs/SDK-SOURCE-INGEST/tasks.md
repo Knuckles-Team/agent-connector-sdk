@@ -231,6 +231,7 @@ Each row binds to the cited assertion through `pytest.mark.spec`.
 - [x] **SDK-SOURCE-INGEST-R804.3:** Persist verification and refuse rejected assets. (`tests/voice_supply_chain/test_voice_supply_chain.py::test_mark_verified_persists_and_refuses_rejected`)
 - [x] **SDK-SOURCE-INGEST-R804.5:** Require approved license and verified asset for promotion. (`tests/voice_supply_chain/test_voice_supply_chain.py::test_promotion_handoff_requires_approved_license_and_verified_asset`)
 - [x] **SDK-SOURCE-INGEST-R804.7:** Bind stored decisions to safe manifest identifiers and refuse traversal before file access.
+- [x] **SDK-SOURCE-INGEST-R804.6:** Round-trip one thousand license decisions and count reads for each lookup.
 - [x] **SDK-SOURCE-INGEST-R900.1:** Expose an irreversible identity reference for source connections. (`tests/source_connectors/test_universal.py::test_identity_is_an_irreversible_reference`)
 - [x] **SDK-SOURCE-INGEST-R900.2:** Advance database polling watermarks idempotently. (`tests/source_connectors/test_database.py::test_poll_advances_the_watermark_and_is_idempotent`)
 - [x] **SDK-SOURCE-INGEST-R900.5:** Emit schema entities without leaking the connection location. (`tests/source_connectors/test_universal.py::test_introspect_emits_schema_entities_without_the_location`)

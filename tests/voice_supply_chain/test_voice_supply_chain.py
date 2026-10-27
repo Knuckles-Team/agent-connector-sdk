@@ -45,6 +45,36 @@ def _manifest(**over: object) -> VoiceModelManifest:
     return VoiceModelManifest(**fields)
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R804.6")
+def test_thousand_license_decisions_use_one_read_per_lookup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    decisions = [
+        VoiceLicenseDecision(
+            asset_manifest_id=f"{index:064x}",
+            counsel_decision="approved" if index % 2 else "pending",
+            reviewer=f"reviewer-{index}",
+        )
+        for index in range(1000)
+    ]
+    for decision in decisions:
+        lr.record_license_decision(decision)
+
+    original_read_text = Path.read_text
+    reads: list[Path] = []
+
+    def counted_read_text(path: Path, *args: object, **kwargs: object) -> str:
+        reads.append(path)
+        return original_read_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", counted_read_text)
+    for decision in decisions:
+        reads.clear()
+        assert lr.get_license_decision(decision.asset_manifest_id) == decision
+        assert len(reads) == 1
+        assert reads[0].name == f"{decision.asset_manifest_id}.license.json"
+
+
 # spec: SDK-SOURCE-INGEST-R804.4
 @pytest.mark.parametrize(
     ("over", "match"),
