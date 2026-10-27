@@ -685,3 +685,14 @@ the requested asset. This prevents a mismatched decision from approving a
 handoff. Identifier equality does not prove the manifest's content or status.
 The trusted manifest authority and content-bound approval remain dependencies
 for a stronger cross-asset guarantee.
+
+## 2026-10-27: bounded evidence for large preparation plans
+
+R803.6 requires a single plan over one million rows. Keep `run` and its
+200,000-row outcome limit unchanged. Add an explicit paged-evidence path that
+executes the whole plan before exposing results. The path must preserve
+global row ordinals and deduplicate across page boundaries. It must yield all
+redacted outcomes in pages within the admitted outcome limit. A failed plan returns
+no successful result or evidence pages. The summary identifies paged evidence
+and must not imply that a partial page traversal is complete. The hot-path
+proof records elapsed time and peak memory with its declared profile limits.

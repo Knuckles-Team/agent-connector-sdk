@@ -2308,7 +2308,7 @@
       ],
       "verified_by": [
         "tests/data_prep/certification/test_job.py:31",
-        "tests/data_prep/test_kernel.py:23",
+        "tests/data_prep/test_kernel.py:26",
         "tests/data_prep/test_profiling.py:29"
       ],
       "rollup_of": [
@@ -2328,7 +2328,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/data_prep/test_kernel.py:61"
+        "tests/data_prep/test_kernel.py:64"
       ]
     },
     {
@@ -2339,7 +2339,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/data_prep/test_kernel.py:386"
+        "tests/data_prep/test_kernel.py:462"
       ]
     },
     {
@@ -2361,7 +2361,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/data_prep/test_kernel.py:132"
+        "tests/data_prep/test_kernel.py:135"
       ]
     },
     {
@@ -2380,7 +2380,9 @@
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/data_prep/test_kernel.py:416"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R804",

@@ -227,6 +227,7 @@ Each row binds to the cited assertion through `pytest.mark.spec`.
 - [x] **SDK-SOURCE-INGEST-R803.3:** Import certification without loading optional provider runtimes. (`tests/data_prep/certification/test_job.py::test_optional_provider_wrappers_are_lazy_and_do_not_run_without_provider`)
 - [x] **SDK-SOURCE-INGEST-R803.4:** Deny lossy casts and allow safe lossless widening. (`tests/data_prep/test_kernel.py::test_lossy_casts_are_denied_and_lossless_widening_uses_safe_cast`)
 - [x] **SDK-SOURCE-INGEST-R803.5:** Keep below-threshold values out of profiles and serialized output. (`tests/data_prep/test_profiling.py::test_below_threshold_values_never_appear_in_top_k_or_serialized_profile`)
+- [x] **SDK-SOURCE-INGEST-R803.6:** Run the million-row plan and record elapsed time and peak memory. (`tests/data_prep/test_kernel.py::test_million_row_plan_produces_bounded_paged_evidence`)
 - [x] **SDK-SOURCE-INGEST-R804.1:** Require immutable, digest-pinned voice manifests. (`tests/voice_supply_chain/test_voice_supply_chain.py::test_manifest_normalizes_digest_case_and_defaults_are_fail_closed`)
 - [x] **SDK-SOURCE-INGEST-R804.3:** Persist verification and refuse rejected assets. (`tests/voice_supply_chain/test_voice_supply_chain.py::test_mark_verified_persists_and_refuses_rejected`)
 - [x] **SDK-SOURCE-INGEST-R804.5:** Require approved license and verified asset for promotion. (`tests/voice_supply_chain/test_voice_supply_chain.py::test_promotion_handoff_requires_approved_license_and_verified_asset`)
