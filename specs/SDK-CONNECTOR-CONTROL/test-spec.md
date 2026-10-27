@@ -402,3 +402,5 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R902`: `tests/test_actor_forwarding_se
 
 - **R028.1 pinned TLS identity:** Run `tests/test_http_egress.py::test_pinned_transport_verifies_original_tls_hostname`. A local TLS server presents a certificate for localhost. A request to a different logical hostname fails even when the caller supplies localhost as SNI. A request to localhost succeeds through the pinned address and retains its Host header.
 - **R028.2 construction and pinning:** Run `tests/test_http_egress_construction.py`. Both factories refuse unsafe literal hosts before creating a transport. An allowed private host completes a real pinned request. DNS lookup occurs at request time.
+
+- **R028.1 canonical loopback:** `tests/test_http_egress.py::test_loopback_hostname_canonicalization` refuses mixed-case and dotted localhost names unless the policy admits loopback or names that host. A different host is not covered by the exception.
