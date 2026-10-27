@@ -311,3 +311,9 @@ R005.40.3 and R005.40.4 require a host-admitted receipt tied to the tested
 connector revision and live tool schemas. A schema-only match is not web
 conformance. Tests must refuse missing, stale and mismatched evidence before
 the tool call and leave the checkpoint unchanged.
+
+## Partial RSS sweep (R800.8)
+
+Inject network failure and malformed input in concurrent feeds. A healthy feed
+returns newer records while the prior watermark remains fixed. Recover the
+failed feed and assert its older records arrive once and the watermark moves.
