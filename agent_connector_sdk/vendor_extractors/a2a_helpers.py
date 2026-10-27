@@ -10,6 +10,12 @@ from typing import Any
 from agent_connector_sdk.vendor_extractors._records import (
     _get,
 )
+from agent_connector_sdk.vendor_extractors.a2a_discovery import (
+    DiscoveredAgentCard,
+    discover_agent_card,
+)
+
+_DISCOVERY_KEY = "__sdk_discovered_agent_card__"
 
 
 def _slug(text: str) -> str:
@@ -95,7 +101,22 @@ def _collect_cards(config: Any) -> list[dict[str, Any]]:
     cards: list[dict[str, Any]] = []
     for item in raw:
         if isinstance(item, dict):
-            cards.append(item)
-        elif isinstance(item, str) and os.path.exists(item):
-            cards.extend(_load_json(item))
+            base_url = item.get("base_url")
+            if isinstance(base_url, str):
+                discovered = discover_agent_card(base_url)
+                if isinstance(discovered, DiscoveredAgentCard):
+                    card = dict(discovered.card)
+                    card[_DISCOVERY_KEY] = discovered
+                    cards.append(card)
+            else:
+                cards.append(item)
+        elif isinstance(item, str):
+            if "://" in item:
+                discovered = discover_agent_card(item)
+                if isinstance(discovered, DiscoveredAgentCard):
+                    card = dict(discovered.card)
+                    card[_DISCOVERY_KEY] = discovered
+                    cards.append(card)
+            elif os.path.exists(item):
+                cards.extend(_load_json(item))
     return cards

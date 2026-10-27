@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from agent_connector_sdk.ingest import ChangeSet
+from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 from agent_connector_sdk.vendor_extractors.a2a import CATEGORY as A2A_CATEGORY
 from agent_connector_sdk.vendor_extractors.a2a import extract as a2a_extract
 from agent_connector_sdk.vendor_extractors.archer import CATEGORY as ARCHER_CATEGORY
@@ -118,3 +121,29 @@ def test_a2a_extract_maps_cards_and_skills() -> None:
 @pytest.mark.spec("SDK-SOURCE-INGEST-R006.22")
 def test_a2a_extract_returns_an_empty_change_set_for_no_cards() -> None:
     assert a2a_extract({}) == ChangeSet()
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.3")
+def test_base_url_entry_is_fetched_into_cards() -> None:
+    body = json.dumps({"name": "Remote Agent", "skills": [{"id": "search"}]}).encode()
+    with ScriptedHttpServer(
+        ScriptedResponse(body=body, headers={"Content-Type": "application/json"})
+    ) as server:
+        result = a2a_extract({"cards": [{"base_url": server.base_url}]})
+
+    assert {entity.id for entity in result.entities} >= {
+        "a2a:remote-agent",
+        "skill:a2a:remote-agent:search",
+    }
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.6")
+def test_extract_discovers_card_from_base_url() -> None:
+    body = json.dumps({"name": "Hosted Agent", "skills": [{"id": "delegate"}]}).encode()
+    with ScriptedHttpServer(ScriptedResponse(body=body)) as server:
+        result = a2a_extract({"cards": [server.base_url]})
+
+    assert any(entity.id == "a2a:hosted-agent" for entity in result.entities)
+    assert any(
+        entity.id == "skill:a2a:hosted-agent:delegate" for entity in result.entities
+    )
