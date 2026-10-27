@@ -88,7 +88,11 @@ def request_access_token(
             invalid token; the underlying error is the ``__cause__``.
     """
     try:
-        with client.stream("POST", url, data=dict(form), auth=client_auth) as response:
+        with client.stream(
+            "POST", url, data=dict(form), auth=client_auth, follow_redirects=False
+        ) as response:
+            if 300 <= response.status_code < 400:
+                raise TokenRequestError("token endpoint redirected")
             ensure_success(response)
             body = read_bounded(response, _MAX_TOKEN_RESPONSE_BYTES)
     except (HttpProblemError, httpx.HTTPError) as exc:
