@@ -2380,12 +2380,20 @@
     {
       "id": "SDK-SOURCE-INGEST-R804",
       "title": "Voice-model provenance manifest and license gate (rollup)",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "11366ce437d5"
+        "11366ce437d5",
+        "4b003b24ce55",
+        "5b185eb5eea7",
+        "739c341c2595",
+        "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/voice_supply_chain/test_voice_supply_chain.py:23"
+        "tests/voice_supply_chain/test_voice_supply_chain.py:100",
+        "tests/voice_supply_chain/test_voice_supply_chain.py:132",
+        "tests/voice_supply_chain/test_voice_supply_chain.py:145",
+        "tests/voice_supply_chain/test_voice_supply_chain.py:201",
+        "tests/voice_supply_chain/test_voice_supply_chain.py:221"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R804.1",
@@ -2455,8 +2463,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R804.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5b185eb5eea7"
+      ],
       "verified_by": [
         "tests/voice_supply_chain/test_voice_supply_chain.py:48"
       ]
