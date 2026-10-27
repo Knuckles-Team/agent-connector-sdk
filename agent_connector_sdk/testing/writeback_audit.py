@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from epistemic_graph.generated.write_back import SourceChangeSet
 
+from agent_connector_sdk.ports.audit_reservation import AuditReservation
 from agent_connector_sdk.writeback.errors import AuditReservationUnavailableError
 
 __all__ = ["InMemoryAuditReservation"]
@@ -18,14 +19,14 @@ class InMemoryAuditReservation:
     """
 
     def __init__(self) -> None:
-        self._reservations: dict[str, str] = {}
+        self._reservations: dict[str, AuditReservation] = {}
         self._deny: set[str] = set()
 
     def deny_next(self, idempotency_key: str) -> None:
         """Make the next reservation for this idempotency key unavailable."""
         self._deny.add(idempotency_key)
 
-    async def reserve(self, change_set: SourceChangeSet) -> str:
+    async def reserve(self, change_set: SourceChangeSet) -> AuditReservation:
         """Return the existing reservation for this key, or take a new one."""
         key = change_set.idempotency_key
         if key in self._deny:
@@ -35,7 +36,14 @@ class InMemoryAuditReservation:
             )
         existing = self._reservations.get(key)
         if existing is not None:
+            if existing.change_set_digest != change_set.change_set_digest:
+                raise AuditReservationUnavailableError(
+                    "audit reservation binding mismatch"
+                )
             return existing
         reservation_id = f"audit:{key}:{change_set.change_set_digest}"
-        self._reservations[key] = reservation_id
-        return reservation_id
+        reservation = AuditReservation(
+            reservation_id, key, change_set.change_set_digest
+        )
+        self._reservations[key] = reservation
+        return reservation

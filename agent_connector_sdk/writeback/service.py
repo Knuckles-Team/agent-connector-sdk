@@ -16,7 +16,10 @@ from epistemic_graph.generated.write_back import (
     WriteBackOutcome,
 )
 
-from agent_connector_sdk.ports.audit_reservation import AuditReservationPort
+from agent_connector_sdk.ports.audit_reservation import (
+    AuditReservation,
+    AuditReservationPort,
+)
 from agent_connector_sdk.ports.authorization_verifier import AuthorizationVerifier
 from agent_connector_sdk.ports.writeback_transport import WriteBackTransport
 from agent_connector_sdk.writeback.errors import (
@@ -84,9 +87,17 @@ class GovernedWriteBack:
         require_base(change_set, current)
         decision = await self._verifier.verify(change_set)
         require_authorized(change_set, decision)
-        reservation_id = await self._audit.reserve(change_set)
-        if not isinstance(reservation_id, str) or not reservation_id.strip():
-            raise AuditReservationUnavailableError("audit reservation ID is missing")
+        reservation = await self._audit.reserve(change_set)
+        if (
+            not isinstance(reservation, AuditReservation)
+            or not isinstance(reservation.reservation_id, str)
+            or not reservation.reservation_id.strip()
+            or reservation.effect_key != change_set.idempotency_key
+            or reservation.change_set_digest != change_set.change_set_digest
+        ):
+            raise AuditReservationUnavailableError(
+                "audit reservation binding mismatch or missing ID"
+            )
         try:
             result = await self._transport.apply(change_set, current.source_version)
             require_effect(change_set, result)

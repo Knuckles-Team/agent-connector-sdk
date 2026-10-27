@@ -90,3 +90,105 @@ async def test_file_reservation_refuses_a_different_change_set(tmp_path: Path) -
     with pytest.raises(AuditReservationUnavailableError, match="binding mismatch"):
         await port.apply(fixture.change_set)
     assert fixture.transport.attempts == 0
+
+
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.3")
+@pytest.mark.parametrize("binding", ["key", "digest", "blank", "unavailable"])
+async def test_bound_reservation_refuses_before_mutation(binding: str) -> None:
+    from agent_connector_sdk.ports.audit_reservation import AuditReservation
+
+    fixture = make_writeback_fixture()
+    verifier = DeterministicAuthorizationVerifier()
+    verifier.grant(fixture.change_set)
+
+    class WrongReservation:
+        async def reserve(self, change_set: Any) -> AuditReservation:
+            assert fixture.transport.attempts == 0
+            if binding == "unavailable":
+                raise AuditReservationUnavailableError("unavailable")
+            return AuditReservation(
+                "" if binding == "blank" else "reservation",
+                "other" if binding == "key" else change_set.idempotency_key,
+                "other" if binding == "digest" else change_set.change_set_digest,
+            )
+
+    port = GovernedWriteBack(fixture.transport, verifier, WrongReservation())
+    with pytest.raises(AuditReservationUnavailableError):
+        await port.apply(fixture.change_set)
+    assert fixture.transport.attempts == 0
+
+
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.3")
+async def test_file_reservation_is_reused_after_no_effect_retry(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from agent_connector_sdk.writeback.memory import FixtureUncertainty
+
+    fixture = make_writeback_fixture()
+    verifier = DeterministicAuthorizationVerifier()
+    verifier.grant(fixture.change_set)
+    audit = FileAuditReservation(tmp_path)
+    port = GovernedWriteBack(fixture.transport, verifier, audit)
+    original_apply = fixture.transport.apply
+
+    async def check_reservation(*args: Any) -> Any:
+        assert (tmp_path / "audit_reservation.json").is_file()
+        return await original_apply(*args)
+
+    monkeypatch.setattr(fixture.transport, "apply", check_reservation)
+    fixture.transport.inject_uncertainty(
+        fixture.change_set.idempotency_key, FixtureUncertainty.BEFORE_EFFECT
+    )
+    first_attempt = await port.apply(fixture.change_set)
+    assert first_attempt.effect_status is WriteBackEffectStatus.OUTCOME_UNCERTAIN
+    initial = await audit.reserve(fixture.change_set)
+    assert (tmp_path / "audit_reservation.json").is_file()
+    assert (
+        await port.reconcile(fixture.change_set)
+    ).effect_status is WriteBackEffectStatus.NO_EFFECT
+    restarted = FileAuditReservation(tmp_path)
+    assert await restarted.reserve(fixture.change_set) == initial
+    result = await GovernedWriteBack(fixture.transport, verifier, restarted).apply(
+        fixture.change_set
+    )
+    assert result.effect_status is WriteBackEffectStatus.APPLIED
+    assert await restarted.reserve(fixture.change_set) == initial
+
+
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.3")
+async def test_file_sync_failure_prevents_source_effect(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import agent_connector_sdk.writeback_sinks.governed as governed
+
+    fixture = make_writeback_fixture()
+    verifier = DeterministicAuthorizationVerifier()
+    verifier.grant(fixture.change_set)
+
+    def fail_sync(_fd: int) -> None:
+        raise OSError("sync unavailable")
+
+    monkeypatch.setattr(governed.os, "fsync", fail_sync)
+    port = GovernedWriteBack(
+        fixture.transport, verifier, FileAuditReservation(tmp_path)
+    )
+    with pytest.raises(AuditReservationUnavailableError):
+        await port.apply(fixture.change_set)
+    assert fixture.transport.attempts == 0
+    assert not (tmp_path / "audit_reservation.json").exists()
+
+
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.3")
+async def test_concurrent_file_reservations_share_one_binding(tmp_path: Path) -> None:
+    import asyncio
+
+    fixture = make_writeback_fixture()
+    reservations = await asyncio.gather(
+        *(FileAuditReservation(tmp_path).reserve(fixture.change_set) for _ in range(8))
+    )
+    assert all(item == reservations[0] for item in reservations)
+    assert reservations[0].effect_key == fixture.change_set.idempotency_key
+    assert reservations[0].change_set_digest == fixture.change_set.change_set_digest
+    assert json.loads((tmp_path / "audit_reservation.json").read_text()) == {
+        "reservation_id": reservations[0].reservation_id
+    }

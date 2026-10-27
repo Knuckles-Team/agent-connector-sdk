@@ -16,7 +16,7 @@
 
 - [ ] Implement and prove generic approval residual (SDK-GOVERNED-WRITEBACK-R004.1); preserve the original parent acceptance.
 - [ ] Implement and prove generic deterministic replay residual (SDK-GOVERNED-WRITEBACK-R004.2); preserve the original parent acceptance.
-- [ ] Implement and prove generic audit reservation residual (SDK-GOVERNED-WRITEBACK-R004.3); preserve the original parent acceptance.
+- [x] Implement and prove generic audit reservation residual (SDK-GOVERNED-WRITEBACK-R004.3); preserve the original parent acceptance.
 - [ ] Implement and prove business-rule api residual (SDK-GOVERNED-WRITEBACK-R004.4); preserve the original parent acceptance.
 - [ ] Implement and prove typed repository effect request (SDK-GOVERNED-WRITEBACK-R004.5); preserve the original parent acceptance.
 - [ ] Implement and prove repository path and scope resolution (SDK-GOVERNED-WRITEBACK-R004.6); preserve the original parent acceptance.
