@@ -48,6 +48,7 @@
     "SDK-CONNECTOR-CONTROL-R028.2",
     "SDK-CONNECTOR-CONTROL-R028.3",
     "SDK-CONNECTOR-CONTROL-R028.4",
+    "SDK-CONNECTOR-CONTROL-R028.5",
     "SDK-CONNECTOR-CONTROL-R029",
     "SDK-CONNECTOR-CONTROL-R030",
     "SDK-CONNECTOR-CONTROL-R030.1",
@@ -916,7 +917,8 @@
         "SDK-CONNECTOR-CONTROL-R028.1",
         "SDK-CONNECTOR-CONTROL-R028.2",
         "SDK-CONNECTOR-CONTROL-R028.3",
-        "SDK-CONNECTOR-CONTROL-R028.4"
+        "SDK-CONNECTOR-CONTROL-R028.4",
+        "SDK-CONNECTOR-CONTROL-R028.5"
       ]
     },
     {
@@ -980,6 +982,17 @@
         "tests/test_auth_declarations.py:145",
         "tests/test_auth_declarations.py:165",
         "tests/test_auth_declarations.py:192"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R028.5",
+      "title": "Bind session cookies to their origin",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "fb1f1684168c"
+      ],
+      "verified_by": [
+        "tests/test_auth_declarations.py:236"
       ]
     },
     {
