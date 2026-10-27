@@ -29,7 +29,7 @@ jobs:
     with:
       runner: ${{ (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && '["self-hosted", "homelab"]' || '"ubuntu-latest"' }}
       all-files: ${{ github.event_name == 'push' }}
-      timeout-minutes: ${{ github.event_name == 'push' && 60 || 15 }}
+      timeout-minutes: ${{ github.event_name == 'push' && 60 || 45 }}
       test-scope: tests
       src-root: agent_connector_sdk
       setup-command: bash scripts/ci_setup.sh

@@ -84,6 +84,9 @@ def test_gates_job_is_the_shared_diff_scoped_workflow() -> None:
     assert "steps" not in gates
     assert gates["with"]["setup-command"] == "bash scripts/ci_setup.sh"
     assert gates["with"]["all-files"] == "${{ github.event_name == 'push' }}"
+    assert gates["with"]["timeout-minutes"] == (
+        "${{ github.event_name == 'push' && 60 || 45 }}"
+    )
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")

@@ -27,3 +27,5 @@ for each run and attempt. This keeps the cache alongside the project environment
 when the runner uses one filesystem. The shared workflow restores the same
 lock-keyed cache; dependency and security checks remain unchanged. Measure cache and environment device IDs and hardlink support on the runner.
 Compare setup times for serial and concurrent jobs before claiming a speedup.
+Allow 45 minutes for the PR gate. This gives quality checks time to finish
+during storage stalls.
