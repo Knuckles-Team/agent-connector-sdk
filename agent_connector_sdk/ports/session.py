@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
@@ -60,7 +61,9 @@ class TransportEndpoint:
     built, and neither value appears in the endpoint's ``repr``. ``auth``
     authenticates a URL endpoint per request instead of a static bearer token,
     for example :func:`agent_connector_sdk.auth.oidc.client_credentials_auth`
-    (FastMCP's HTTP transport takes ``httpx2`` auth).
+    (FastMCP's HTTP transport takes ``httpx2`` auth). ``mcp_min_interval_seconds``
+    optionally paces requests on this session; zero preserves the unpaced
+    default.
     """
 
     url: str = ""
@@ -71,6 +74,7 @@ class TransportEndpoint:
     timeout_seconds: float = 60.0
     bearer_token: str = field(default="", repr=False)
     auth: httpx2.Auth | None = field(default=None, repr=False)
+    mcp_min_interval_seconds: float = 0.0
 
     def __post_init__(self) -> None:
         problems = _endpoint_problems(self)
@@ -87,6 +91,11 @@ def _endpoint_problems(endpoint: TransportEndpoint) -> list[str]:
     checks = (
         (sum(chosen) != 1, "exactly one of url, command or in_process must be set"),
         (endpoint.timeout_seconds <= 0, "timeout_seconds must be positive"),
+        (
+            not math.isfinite(endpoint.mcp_min_interval_seconds)
+            or endpoint.mcp_min_interval_seconds < 0,
+            "mcp_min_interval_seconds must be finite and non-negative",
+        ),
         (
             bool(endpoint.bearer_token) and not endpoint.url,
             "bearer_token applies only to a url endpoint",

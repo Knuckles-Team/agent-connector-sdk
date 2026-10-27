@@ -20,6 +20,7 @@ from typing import Any
 import anyio
 from fastmcp import Client
 
+from agent_connector_sdk.httpsupport.rate_limit import RateLimiter
 from agent_connector_sdk.ports.session import McpSession, TransportEndpoint
 from agent_connector_sdk.transports.mcp_changes import ChangeFeed
 from agent_connector_sdk.transports.mcp_session import McpClientSession
@@ -57,8 +58,13 @@ class McpTransport:
 async def _open(endpoint: TransportEndpoint) -> AsyncIterator[McpSession]:
     feed = ChangeFeed()
     client = _client(endpoint, feed)
+    limiter = (
+        RateLimiter(endpoint.mcp_min_interval_seconds)
+        if endpoint.mcp_min_interval_seconds > 0
+        else None
+    )
     async with client, _single_failures(), anyio.create_task_group() as tasks:
-        yield McpClientSession(client, feed=feed, tasks=tasks)
+        yield McpClientSession(client, feed=feed, tasks=tasks, request_limiter=limiter)
         tasks.cancel_scope.cancel()
 
 
