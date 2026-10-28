@@ -94,8 +94,10 @@
     {
       "id": "SDK-FINANCE-SOURCES-R001.5",
       "title": "Canonical FRED identity dates",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e8c4bbcddb3e"
+      ],
       "verified_by": [
         "tests/test_finance_fred_series.py:125"
       ]
