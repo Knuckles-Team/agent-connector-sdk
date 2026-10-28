@@ -14,6 +14,12 @@
 R001.3 rejects two different announcement instants that share a legacy page identity.
 Equivalent timestamps for the same instant remain valid.
 
+R001.2 exercises each cross-provider source kind through MCP and the sink,
+including two distinct FRED vintages. The adapter binds connector and stream,
+refuses malformed records, and rejects full/reconciliation claims from bounded
+sources. Emerald exchange history and Bellwether finance sources have separate
+served-source evidence. Licensed live probes are outside this offline result.
+
 R001.9 refuses missing or malformed event arrays, invalid event identities,
 noncanonical vintage dates and ambiguous announcement times. Offset timestamps
 are normalized to UTC. An explicit empty array remains valid.

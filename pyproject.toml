@@ -309,6 +309,7 @@ public_modules = [
     "agent_connector_sdk.finance.market_data",
     "agent_connector_sdk.finance.multi_asset",
     "agent_connector_sdk.finance.multi_asset_source",
+    "agent_connector_sdk.finance.market_source",
     "agent_connector_sdk.finance.stock_source",
     "agent_connector_sdk.finance.records",
     "agent_connector_sdk.finance.strategy_export",
