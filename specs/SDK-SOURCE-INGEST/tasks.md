@@ -45,6 +45,8 @@
 - [ ] `SDK-SOURCE-INGEST-R004.5`: implement and prove evidence for native sql source execution.
 - [ ] `SDK-SOURCE-INGEST-R004.6`: implement and prove hot-path proof for native sql source execution.
 
+- [x] `SDK-SOURCE-INGEST-R004.53`: bound declared-source calls and records.
+
 ## Offline bookmark import
 
 - [x] `SDK-SOURCE-INGEST-R005.7`: implement and prove model for offline bookmark import.
