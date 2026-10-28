@@ -5,8 +5,8 @@ iNaturalist occurrence records as ``OrganismObservation``, NOAA GHCN/ISD and
 Open-Meteo data as ``WeatherObservation``, and NOAA storm events as
 ``WeatherEvent`` occurring in a ``WeatherSystem``, with weather stations
 represented as ``Place`` located in a ``Region``. This module normalizes
-those shapes; the vendor-specific GBIF, iNaturalist and NOAA/Open-Meteo
-source adapters that produce them are a follow-up slice.
+those shapes; host-admitted GBIF and iNaturalist occurrence sources live
+in this package. NOAA and Open-Meteo source adapters remain open.
 """
 
 from __future__ import annotations
@@ -90,7 +90,7 @@ class OrganismObservation(EarthObservationRecordBase):
     place_id: str = Field(min_length=1)
     latitude: float = Field(ge=-90.0, le=90.0)
     longitude: float = Field(ge=-180.0, le=180.0)
-    individual_count: int = Field(ge=0, default=1)
+    individual_count: int | None = Field(ge=0, default=None)
     basis_of_record: str = Field(min_length=1)
 
 
