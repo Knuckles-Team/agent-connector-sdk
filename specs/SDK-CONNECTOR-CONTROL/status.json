@@ -110,6 +110,7 @@
     "SDK-CONNECTOR-CONTROL-R048.5",
     "SDK-CONNECTOR-CONTROL-R048.6",
     "SDK-CONNECTOR-CONTROL-R048.7",
+    "SDK-CONNECTOR-CONTROL-R048.8",
     "SDK-CONNECTOR-CONTROL-R049",
     "SDK-CONNECTOR-CONTROL-R049.1",
     "SDK-CONNECTOR-CONTROL-R049.2",
@@ -1605,7 +1606,8 @@
         "SDK-CONNECTOR-CONTROL-R048.4",
         "SDK-CONNECTOR-CONTROL-R048.5",
         "SDK-CONNECTOR-CONTROL-R048.6",
-        "SDK-CONNECTOR-CONTROL-R048.7"
+        "SDK-CONNECTOR-CONTROL-R048.7",
+        "SDK-CONNECTOR-CONTROL-R048.8"
       ]
     },
     {
@@ -1669,6 +1671,18 @@
       "verified_by": [
         "tests/test_readable_form.py:54",
         "tests/test_readable_form.py:73"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R048.8",
+      "title": "Count-based readable score",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "de34f54ab763"
+      ],
+      "verified_by": [
+        "tests/test_readable_count_score.py:19",
+        "tests/test_readable_count_score.py:8"
       ]
     },
     {
