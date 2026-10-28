@@ -17,11 +17,11 @@
       "title": "SDK release builds against a published compatible graph-client wheel",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "27dc83bdd762",
+        "090e32ceb671",
+        "3d9f268c4a6b",
         "3edcf05bc64a",
         "42b930057c3e",
-        "5b53e943e468",
-        "d6a391195481"
+        "5b53e943e468"
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:286",
