@@ -860,6 +860,13 @@ The digest covers the validated live source declaration and the canonical RDF
 graph. It does not establish a signer, admission decision, lock or rotation.
 The served signing and verification obligations of R650.1 remain open.
 
+## Explicit release key lock (R650.4)
+
+A caller supplies a trusted lock path. Each artifact entry names its signer and
+canonical public key. The reader refuses missing, duplicate or conflicting pins
+and returns an immutable map for the release signer and verifier. It does not
+write locks, approve rotation or establish served admission.
+
 ## Amendment: explicit release signatures (R650.3)
 
 The signer resolves a versioned OpenBao key through a scoped credential provider.
