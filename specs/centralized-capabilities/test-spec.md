@@ -70,6 +70,8 @@ Run `uv run pytest tests/test_centralized_capability_index.py tests/test_central
 Compare generated and edge-case headers with the prior expression. Feed large
 malformed headers through the iterator and confirm it ends after one fetch.
 
+- `SDK-CENTRALIZED-CAPABILITIES-R004.4`: `tests/test_http_client.py` covers invalid page sizes and served tool refusal.
+
 ## Partial-page cursor safety (R004.5)
 
 Run sync and async iterators with a page larger than the remaining budget.

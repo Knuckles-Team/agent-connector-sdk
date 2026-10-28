@@ -10,6 +10,7 @@
     "SDK-CENTRALIZED-CAPABILITIES-R004",
     "SDK-CENTRALIZED-CAPABILITIES-R004.1",
     "SDK-CENTRALIZED-CAPABILITIES-R004.2",
+    "SDK-CENTRALIZED-CAPABILITIES-R004.4",
     "SDK-CENTRALIZED-CAPABILITIES-R005",
     "SDK-CENTRALIZED-CAPABILITIES-R006",
     "SDK-CENTRALIZED-CAPABILITIES-R007",
@@ -95,6 +96,7 @@
       "rollup_of": [
         "SDK-CENTRALIZED-CAPABILITIES-R004.1",
         "SDK-CENTRALIZED-CAPABILITIES-R004.2",
+        "SDK-CENTRALIZED-CAPABILITIES-R004.4",
         "SDK-CENTRALIZED-CAPABILITIES-R004.3",
         "SDK-CENTRALIZED-CAPABILITIES-R004.5",
         "SDK-CENTRALIZED-CAPABILITIES-R004.8",
@@ -125,6 +127,18 @@
       ],
       "verified_by": [
         "tests/httpsupport/test_pagination_link_origin.py:13"
+      ]
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.4",
+      "title": "Valid window sizes",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ccec3daa1661"
+      ],
+      "verified_by": [
+        "tests/test_http_client.py:571",
+        "tests/test_http_client.py:583"
       ]
     },
     {
