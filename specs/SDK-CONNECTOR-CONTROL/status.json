@@ -295,6 +295,7 @@
     "SDK-CONNECTOR-CONTROL-R780.8",
     "SDK-CONNECTOR-CONTROL-R780.10",
     "SDK-CONNECTOR-CONTROL-R780.9",
+    "SDK-CONNECTOR-CONTROL-R780.13",
     "SDK-CONNECTOR-CONTROL-R780.11",
     "SDK-CONNECTOR-CONTROL-R780.12",
     "SDK-CONNECTOR-CONTROL-R781",
@@ -3259,6 +3260,7 @@
         "SDK-CONNECTOR-CONTROL-R780.8",
         "SDK-CONNECTOR-CONTROL-R780.10",
         "SDK-CONNECTOR-CONTROL-R780.9",
+        "SDK-CONNECTOR-CONTROL-R780.13",
         "SDK-CONNECTOR-CONTROL-R780.11",
         "SDK-CONNECTOR-CONTROL-R780.12"
       ]
@@ -3376,6 +3378,21 @@
       "verified_by": [
         "tests/test_http_requests.py:34",
         "tests/test_http_requests.py:56"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R780.13",
+      "title": "Explicit TLS selector settings",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "17e99e5e3ed9",
+        "8b8ba3ab9cb9"
+      ],
+      "verified_by": [
+        "tests/test_tls_explicit_settings.py:14",
+        "tests/test_tls_explicit_settings.py:28",
+        "tests/test_tls_explicit_settings.py:42",
+        "tests/test_tls_explicit_settings.py:48"
       ]
     },
     {

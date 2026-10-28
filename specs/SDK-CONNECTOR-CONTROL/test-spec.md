@@ -475,4 +475,9 @@ HTTPX use refuses before login.
 A controlled peer returns the wrong RPC ID, version, task ID or both result
 and error. Each call fails without exposing peer content. Boolean IDs refuse.
 
+## Explicit TLS settings (R780.13)
+
+Resolve a service-specific profile from an injected mapping. Conflicting
+process settings do not alter the result, and an unknown profile refuses.
+
 - `SDK-CONNECTOR-CONTROL-R035.8`: `tests/test_reference_invariants.py` refuses forged references before resolution.
