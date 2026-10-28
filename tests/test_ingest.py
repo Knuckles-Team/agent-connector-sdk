@@ -10,6 +10,7 @@ from typing import Any
 
 import pytest
 from epistemic_graph.generated.source_ingestion import (
+    SourceCheckpoint,
     SourceIngestionMode,
     SourceIngestionReceipt,
     SourceIngestionRequest,
@@ -389,3 +390,34 @@ async def test_epistemic_graph_transport_stores_media_via_the_client_blob_api() 
     assert receipt.affected_count == 1
     (record,) = client.sink.batches[next(iter(client.sink.batches))].records
     assert record.record_id == f"blob:{digest}"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.42")
+async def test_invalid_durable_sequence_refuses_before_submit() -> None:
+    class Transport(_Transport):
+        def __init__(self, position):
+            super().__init__()
+            self.position = position
+
+        async def source_status(self, connector, stream):
+            return SourceIngestStatus(
+                connector=connector,
+                stream=stream,
+                accepted_checkpoint=SourceCheckpoint(
+                    stream=stream, position=self.position
+                ),
+            )
+
+    for invalid in (True, False, -1, "7", None, 1.5):
+        transport = Transport({"sequence": invalid})
+        with pytest.raises(IngestError, match="sequence"):
+            await KnowledgeIngest(transport).submit(BINDING, _changes())
+        assert transport.requests == []
+
+    for position, expected in (({}, 1), ({"sequence": 0}, 1), ({"sequence": 4}, 5)):
+        request = build_request(
+            BINDING,
+            _changes(),
+            previous=SourceCheckpoint(stream="demo", position=position),
+        )
+        assert request.provider_checkpoint.position["sequence"] == expected
