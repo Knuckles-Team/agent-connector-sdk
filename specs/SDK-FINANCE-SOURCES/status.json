@@ -41,7 +41,8 @@
     "SDK-FINANCE-SOURCES-R900.7",
     "SDK-FINANCE-SOURCES-R900.9",
     "SDK-FINANCE-SOURCES-R900.10",
-    "SDK-FINANCE-SOURCES-R900.11"
+    "SDK-FINANCE-SOURCES-R900.11",
+    "SDK-FINANCE-SOURCES-R001.7"
   ],
   "requirements": [
     {
@@ -58,7 +59,8 @@
         "SDK-FINANCE-SOURCES-R001.3",
         "SDK-FINANCE-SOURCES-R001.4",
         "SDK-FINANCE-SOURCES-R001.5",
-        "SDK-FINANCE-SOURCES-R001.6"
+        "SDK-FINANCE-SOURCES-R001.6",
+        "SDK-FINANCE-SOURCES-R001.7"
       ]
     },
     {
@@ -522,6 +524,19 @@
       ],
       "verified_by": [
         "tests/test_finance_crypto.py:105"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R001.7",
+      "title": "Bounded exchange history windows",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "80dde9bd6f91"
+      ],
+      "verified_by": [
+        "tests/test_exchange_history_window.py:46",
+        "tests/test_exchange_history_window.py:62",
+        "tests/test_exchange_history_window.py:77"
       ]
     }
   ]
