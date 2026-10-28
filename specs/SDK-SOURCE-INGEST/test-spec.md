@@ -360,6 +360,12 @@ trailing dots, IDNA and equivalent IPv6 forms. Another host has its own budget.
 R005.44 checks a valid IPv6 robots URL, denial of a private path and cache
 reuse for equivalent IPv6 and IDNA spellings.
 
+R005.52 compares quoted metadata precedence and entities with the previous
+parser, then exercises large unclosed and nested metadata spans.
+
+R005.51 compares tag stripping against the previous behavior and exercises a
+large unclosed span within a bounded test timeout.
+
 R005.50 resumes a bound checkpoint against the same and changed URL lists.
 A mismatch refuses before fetching. Legacy unbound checkpoints stay usable.
 

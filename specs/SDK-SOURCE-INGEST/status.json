@@ -121,6 +121,8 @@
     "SDK-SOURCE-INGEST-R005.48",
     "SDK-SOURCE-INGEST-R005.49",
     "SDK-SOURCE-INGEST-R005.50",
+    "SDK-SOURCE-INGEST-R005.51",
+    "SDK-SOURCE-INGEST-R005.52",
     "SDK-SOURCE-INGEST-R006.32",
     "SDK-SOURCE-INGEST-R006.33",
     "SDK-SOURCE-INGEST-R006.34",
@@ -420,7 +422,9 @@
         "SDK-SOURCE-INGEST-R005.47",
         "SDK-SOURCE-INGEST-R005.48",
         "SDK-SOURCE-INGEST-R005.49",
-        "SDK-SOURCE-INGEST-R005.50"
+        "SDK-SOURCE-INGEST-R005.50",
+        "SDK-SOURCE-INGEST-R005.51",
+        "SDK-SOURCE-INGEST-R005.52"
       ]
     },
     {
@@ -1597,6 +1601,28 @@
       ],
       "verified_by": [
         "tests/test_adapters_web_fetch_source_adapter.py:216"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.51",
+      "title": "Linear legacy tag stripping",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "76677f762c1f"
+      ],
+      "verified_by": [
+        "tests/test_adapters_web_fetch.py:197"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.52",
+      "title": "Linear legacy metadata scanning",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5d6da54581fd"
+      ],
+      "verified_by": [
+        "tests/test_adapters_web_fetch.py:213"
       ]
     },
     {

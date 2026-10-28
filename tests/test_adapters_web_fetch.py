@@ -191,3 +191,77 @@ async def test_legacy_fetch_stops_on_oversized_or_compressed_response(
     with pytest.raises(SourceContractError, match="web fetch failed"):
         await adapter.extract(None, None)
     assert streams[-1].reads == 0 and streams[-1].closed
+
+
+@pytest.mark.timeout(10)
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.51")
+def test_legacy_tag_strip_handles_unclosed_input() -> None:
+    import random
+    import re
+
+    from agent_connector_sdk.adapters.web_fetch_helpers import _markdown_from_html
+
+    rng = random.Random(21)
+    for _ in range(1000):
+        text = "".join(rng.choice("<>abc ") for _ in range(rng.randrange(80)))
+        assert _markdown_from_html(text) == re.sub(r"<[^>]+>", " ", text)
+    unclosed = "<" * 400_000
+    assert _markdown_from_html(unclosed) == unclosed
+
+
+@pytest.mark.timeout(30)
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.52")
+def test_metadata_scanning_is_linear_on_unclosed_tags() -> None:
+    import random
+    import re
+
+    from agent_connector_sdk.adapters.web_fetch_helpers import _decode_entities
+
+    def old_title(html: str) -> str:
+        for key in ("og:title", "twitter:title"):
+            for attr in ("property", "name"):
+                patterns = (
+                    rf"""<meta[^>]+{attr}=["']{key}["'][^>]+content=["']([^"']+)["'][^>]*>""",
+                    rf"""<meta[^>]+content=["']([^"']+)["'][^>]+{attr}=["']{key}["'][^>]*>""",
+                )
+                for pattern in patterns:
+                    match = re.search(pattern, html, re.IGNORECASE)
+                    if match and match.group(1).strip():
+                        return _decode_entities(match.group(1).strip())
+        return ""
+
+    rng = random.Random(52)
+    choices = (
+        'property="og:title"',
+        'name="og:title"',
+        'property="twitter:title"',
+        'content="one"',
+        'content="Rock &amp; Roll"',
+        'content="two"',
+        'content="  "',
+        'name="unused"',
+        'content="a>b"',
+        'data="a>b"',
+        "PROPERTY='OG:TITLE'",
+        "NAME='TWITTER:TITLE'",
+        "CONTENT='single quote'",
+    )
+    for _ in range(1000):
+        tags = [
+            "<meta "
+            + " ".join(rng.choice(choices) for _ in range(rng.randrange(1, 7)))
+            + ">"
+            for _ in range(rng.randrange(1, 5))
+        ]
+        html = "".join(tags)
+        assert extract_og_metadata(html)["title"] == old_title(html)
+    assert (
+        extract_og_metadata('<meta property="og:title" content="A &amp; B">')["title"]
+        == "A & B"
+    )
+    assert extract_og_metadata("<meta " * 100_000)["title"] == ""
+    assert extract_og_metadata("<meta " * 100_000 + ">")["title"] == ""
+    assert (
+        extract_og_metadata("<meta " + 'property="og:title" ' * 20_000 + ">")["title"]
+        == ""
+    )

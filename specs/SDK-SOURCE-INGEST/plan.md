@@ -705,6 +705,16 @@ The database source validates each row before it yields any document or
 returns a checkpoint. Missing required fields refuse the full page. A caller
 can repair the row and retry from the accepted checkpoint.
 
+## Linear legacy metadata scanning (R005.52)
+
+Metadata scanning visits each tag and attribute without retrying an unclosed
+match. Title-tag parsing remains separate from this slice.
+
+## Linear legacy tag stripping (R005.51)
+
+The normalizer scans each angle-bracket span once instead of retrying an
+unclosed match. Metadata and title parsers are not covered by this slice.
+
 ## Legacy web checkpoint validation (R005.49)
 
 The fixed-list adapter validates stream identity and index bounds before dispatch.
