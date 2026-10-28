@@ -244,6 +244,7 @@ Runtime work and test execution remain outstanding.
 - [x] **SDK-CONNECTOR-CONTROL-R780.5:** Value helpers and configuration projection, bound.
 - [ ] **SDK-CONNECTOR-CONTROL-R780.6:** Add the remainder helpers.
 - [x] **SDK-CONNECTOR-CONTROL-R780.7:** Gate governed transports in air-gap mode.
+- [x] **SDK-CONNECTOR-CONTROL-R780.8:** Expose standard headers with case-insensitive overrides.
 - [x] **SDK-CONNECTOR-CONTROL-R014.21.1:** Bound streamed A2A card and JSON-RPC responses.
 - [x] **SDK-CONNECTOR-CONTROL-R014.21.2:** Prove the optional A2A app with a caller-owned broker and storage.
 - [ ] **SDK-CONNECTOR-CONTROL-R780:** Rollup of the helper replacements.
