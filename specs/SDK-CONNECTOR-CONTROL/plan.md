@@ -112,7 +112,8 @@ refused. Brokered asynchronous input and served persistence remain open.
 ## Agent-card discovery (SDK-CONNECTOR-CONTROL-R047)
 
 The in-process card cache uses a named entry limit and least-recently-used
-eviction. The absolute discovery deadline remains open under R047.2.
+eviction. Cache hits and insertions detach their nested JSON from callers. The
+absolute discovery deadline remains open under R047.2.
 
 Data flow: `extract` (`agent_connector_sdk/vendor_extractors/a2a.py:98`) -> `_collect_cards` (`agent_connector_sdk/vendor_extractors/a2a_helpers.py:79`) -> `discover_agent_card` (new) -> governed HTTP client -> `A2AAgentCard` entity with provenance.
 
@@ -866,6 +867,13 @@ The digest covers the validated live source declaration and the canonical RDF
 graph. It does not establish a signer, admission decision, lock or rotation.
 The served signing and verification obligations of R650.1 remain open.
 
+## Explicit release key lock (R650.4)
+
+A caller supplies a trusted lock path. Each artifact entry names its signer and
+canonical public key. The reader refuses missing, duplicate or conflicting pins
+and returns an immutable map for the release signer and verifier. It does not
+write locks, approve rotation or establish served admission.
+
 ## Amendment: explicit release signatures (R650.3)
 
 The signer resolves a versioned OpenBao key through a scoped credential provider.
@@ -911,3 +919,7 @@ runs or proof of generated engine ingestion. R009 remains open.
 | `egeria-mcp` | `d6c0e954f2c21fcde036a5b5e98535927cf3f3d8` | incomplete | incomplete |
 | `emerald-exchange` | `189fa9ad9eac34275ebfa6e364063d916668c586` | complete | incomplete |
 | `erpnext-agent` | `9109962deb50c72b0315e022d3b4dbccf5a7c4d0` | incomplete | incomplete |
+
+## Legacy token-key isolation (R046.9)
+
+The file store hashes the complete key for its filename. Prior sanitized filenames cannot prove which key wrote them, so the store does not read them. Users of that legacy store must sign in again. Broker persistence remains open.

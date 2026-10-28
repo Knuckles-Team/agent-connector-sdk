@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import threading
 from collections import OrderedDict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import Any, Literal
 
@@ -106,7 +106,8 @@ def _touch_cached(key: str) -> DiscoveredAgentCard | None:
     result = _CACHE.get(key)
     if result is not None:
         _CACHE.move_to_end(key)
-    return result
+        return replace(result, card=json.loads(json.dumps(result.card)))
+    return None
 
 
 def _evict_oldest() -> None:
@@ -117,7 +118,7 @@ def _evict_oldest() -> None:
 def _remember(card: DiscoveredAgentCard) -> None:
     with _CACHE_LOCK:
         key = _cache_key(card.base_url)
-        _CACHE[key] = card
+        _CACHE[key] = replace(card, card=json.loads(json.dumps(card.card)))
         _CACHE.move_to_end(key)
         _evict_oldest()
 

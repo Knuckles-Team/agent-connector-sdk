@@ -97,6 +97,7 @@
     "SDK-CONNECTOR-CONTROL-R046.6",
     "SDK-CONNECTOR-CONTROL-R046.7",
     "SDK-CONNECTOR-CONTROL-R046.8",
+    "SDK-CONNECTOR-CONTROL-R046.9",
     "SDK-CONNECTOR-CONTROL-R046.10",
     "SDK-CONNECTOR-CONTROL-R047",
     "SDK-CONNECTOR-CONTROL-R047.1",
@@ -106,6 +107,7 @@
     "SDK-CONNECTOR-CONTROL-R047.5",
     "SDK-CONNECTOR-CONTROL-R047.6",
     "SDK-CONNECTOR-CONTROL-R047.7",
+    "SDK-CONNECTOR-CONTROL-R047.8",
     "SDK-CONNECTOR-CONTROL-R048",
     "SDK-CONNECTOR-CONTROL-R048.1",
     "SDK-CONNECTOR-CONTROL-R048.2",
@@ -149,6 +151,7 @@
     "SDK-CONNECTOR-CONTROL-R650.1",
     "SDK-CONNECTOR-CONTROL-R650.2",
     "SDK-CONNECTOR-CONTROL-R650.3",
+    "SDK-CONNECTOR-CONTROL-R650.4",
     "SDK-CONNECTOR-CONTROL-R051",
     "SDK-CONNECTOR-CONTROL-R051.1",
     "SDK-CONNECTOR-CONTROL-R051.2",
@@ -1473,6 +1476,7 @@
         "SDK-CONNECTOR-CONTROL-R046.6",
         "SDK-CONNECTOR-CONTROL-R046.7",
         "SDK-CONNECTOR-CONTROL-R046.8",
+        "SDK-CONNECTOR-CONTROL-R046.9",
         "SDK-CONNECTOR-CONTROL-R046.10"
       ]
     },
@@ -1543,6 +1547,18 @@
       ]
     },
     {
+      "id": "SDK-CONNECTOR-CONTROL-R046.9",
+      "title": "Legacy token-key isolation",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "fe5180b4b5ca"
+      ],
+      "verified_by": [
+        "tests/test_oauth_token_key_identity.py:18",
+        "tests/test_oauth_token_key_identity.py:8"
+      ]
+    },
+    {
       "id": "SDK-CONNECTOR-CONTROL-R046.10",
       "title": "Legacy manual callback binding",
       "delivery_state": "VERIFIED",
@@ -1571,7 +1587,8 @@
         "SDK-CONNECTOR-CONTROL-R047.4",
         "SDK-CONNECTOR-CONTROL-R047.5",
         "SDK-CONNECTOR-CONTROL-R047.6",
-        "SDK-CONNECTOR-CONTROL-R047.7"
+        "SDK-CONNECTOR-CONTROL-R047.7",
+        "SDK-CONNECTOR-CONTROL-R047.8"
       ]
     },
     {
@@ -1647,6 +1664,17 @@
       ],
       "verified_by": [
         "tests/test_a2a_discovery.py:128"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R047.8",
+      "title": "Isolate cached observations",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6c1d3630854f"
+      ],
+      "verified_by": [
+        "tests/test_a2a_discovery.py:158"
       ]
     },
     {
@@ -2004,7 +2032,8 @@
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R650.1",
         "SDK-CONNECTOR-CONTROL-R650.2",
-        "SDK-CONNECTOR-CONTROL-R650.3"
+        "SDK-CONNECTOR-CONTROL-R650.3",
+        "SDK-CONNECTOR-CONTROL-R650.4"
       ]
     },
     {
@@ -2037,6 +2066,19 @@
       "verified_by": [
         "tests/test_release_signature.py:50",
         "tests/test_release_signature.py:91"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R650.4",
+      "title": "Explicit release key lock",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1098588e7e23",
+        "851287a63d7a"
+      ],
+      "verified_by": [
+        "tests/test_release_lock.py:35",
+        "tests/test_release_lock.py:59"
       ]
     },
     {

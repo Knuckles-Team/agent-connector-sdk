@@ -11,6 +11,9 @@
 | FS-07 | 429, timeout, partial page, missing license or credential | Bounded retry or typed refusal. No checkpoint advance, secret leak or fabricated complete record. |
 | FS-08 | Contributor-owned licensed provider and graph service | Redacted receipt binds source digest, entitlement, instrument, interval, completeness and checkpoint. |
 
+R001.3 rejects two different announcement instants that share a legacy page identity.
+Equivalent timestamps for the same instant remain valid.
+
 Offline source PRs run fixture pytest and repository quality hooks (Ruff, mypy, CCCC, Dupehound, KISS). FS-08 is an opt-in acceptance probe and reports **NOT RUN** without licensed provider access.
 
 R900.8 rejects a missing proof and each field mismatch before recording spend.
@@ -25,3 +28,5 @@ R005.1 remains open: current FRED and ETF normalization tests do not prove the r
 R001.1 tests non-finite FRED values through source normalization and direct model construction, while ordinary finite observations remain accepted.
 
 R003.1 remains open: existing FX, commodity and real-estate model tests do not exercise source adapters.
+
+R004.1 remains open: synthetic mapping and stable identifiers do not prove real source reads or durable re-import.
