@@ -10,10 +10,12 @@ import hashlib
 import json
 from typing import TYPE_CHECKING, Any
 
+from pydantic import ValidationError
+
+from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
+
 if TYPE_CHECKING:
     from rdflib import Graph
-
-    from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
 
 __all__ = ["release_identity_digest"]
 
@@ -29,6 +31,13 @@ def _require_string_keys(value: Any) -> None:
             _require_string_keys(item)
 
 
+def _validated_snapshot(payload: dict[str, Any]) -> dict[str, Any]:
+    try:
+        return IngestSourceDeclaration.model_validate(payload).model_dump(mode="python")
+    except ValidationError:
+        raise ValueError("release declaration is invalid") from None
+
+
 def release_identity_digest(declaration: IngestSourceDeclaration, graph: Graph) -> str:
     """Hash a validated declaration and RDF graph as a domain-separated pair.
 
@@ -37,8 +46,11 @@ def release_identity_digest(declaration: IngestSourceDeclaration, graph: Graph) 
     """
     from rdflib.compare import to_canonical_graph
 
-    payload = declaration.model_dump(mode="python")
+    payload = declaration.model_dump(mode="python", warnings=False)
     _require_string_keys(payload)
+    # Nested declaration values remain mutable after Pydantic construction.
+    # Hash only a newly validated snapshot of the current complete declaration.
+    payload = _validated_snapshot(payload)
     document = json.dumps(
         payload,
         sort_keys=True,
