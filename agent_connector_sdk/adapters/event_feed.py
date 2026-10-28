@@ -40,6 +40,7 @@ from agent_connector_sdk.adapters.event_feed_validation import (
 )
 from agent_connector_sdk.adapters.event_identity import EventIdentityTracker
 from agent_connector_sdk.adapters.event_pending import _EventPageIdentity
+from agent_connector_sdk.adapters.evm_chain import EvmLogDescriptor
 from agent_connector_sdk.adapters.mcp_tool_paging import (
     checkpoint_after_page,
     next_position,
@@ -81,7 +82,12 @@ class EventFeedSourceAdapter:
         connector: str,
         tool_schema_sha256: str,
         mapping_reference: str,
+        chain_descriptor: EvmLogDescriptor | None = None,
     ) -> None:
+        if chain_descriptor is not None and not isinstance(
+            chain_descriptor, EvmLogDescriptor
+        ):
+            raise TypeError("chain_descriptor must be an EvmLogDescriptor")
         _require_identity(connector, tool_schema_sha256, mapping_reference)
         _reject_unsupported_preset_fields(preset)
         self.kind = f"event_feed:{feed_kind.value}"
@@ -90,6 +96,7 @@ class EventFeedSourceAdapter:
         self._connector = connector
         self._pinned = tool_schema_sha256
         self._mapping_reference = mapping_reference
+        self.chain_descriptor = chain_descriptor
         self._verified_sha256 = ""
         self._identity = _EventPageIdentity()
 
@@ -104,6 +111,8 @@ class EventFeedSourceAdapter:
 
     async def discover(self, session: McpSession) -> StreamDescriptor:
         """Verify the live tool against its pinned compatibility fingerprint."""
+        if self.chain_descriptor is not None:
+            raise SourceContractError("chain-log decoding is not available")
         self._verified_sha256, descriptor = await discover_tool_backed_stream(
             session, self._preset, pinned_schema_sha256=self._pinned
         )
@@ -118,6 +127,8 @@ class EventFeedSourceAdapter:
             FeedBackpressureError: the provider is rate limited or down.
             FeedRetentionExpiredError: the checkpoint fell outside retention.
         """
+        if self.chain_descriptor is not None:
+            raise SourceContractError("chain-log decoding is not available")
         candidate = self._identity.begin()
         try:
             return await self._extract_staged(session, checkpoint, candidate)

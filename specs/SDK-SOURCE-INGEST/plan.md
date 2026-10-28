@@ -722,7 +722,7 @@ cache entry. Invalid URL origins refuse before the loader runs.
 A robots denial retains its typed reason. Its detail contains no requested
 URL, path or query, which may contain private material.
 
-## Concurrent robots lookups (R005.46)
+## Concurrent robots lookups (R005.47)
 
 Robots lookups serialize cache refreshes per origin and read the cache after
 acquiring the lock. A load for one origin does not serialize another origin.
@@ -770,3 +770,11 @@ frontier exceeding its bound fails the poll rather than dropping links.
 The REST source retains numeric zero from a response or last record as the
 continuation string `0`. The next poll supplies it in the declared cursor
 parameter. Null and empty cursor values still indicate no continuation.
+
+## Amendment: EVM log models (R005.47)
+
+The EVM descriptor pins chain, contract, signature, decoder and block range.
+Trade models retain integer quantities and block provenance without floats.
+The adapter refuses a chain descriptor before discovery or extraction until
+the decoder and durable checkpoint behavior are implemented. R005.13 through
+R005.18 remain open.

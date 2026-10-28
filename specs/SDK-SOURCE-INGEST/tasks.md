@@ -272,3 +272,5 @@ same `governed_writeback` evidence on timeout and cancellation manifests.
 # Concurrent stage model
 
 - [x] Validate stage identities, limits and dependencies at target construction (SDK-SOURCE-INGEST-R001.1). Refuse stage execution until the concurrent runner is wired.
+
+- [x] Validate EVM log descriptors and exact trade values (SDK-SOURCE-INGEST-R005.47).

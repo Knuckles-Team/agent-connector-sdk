@@ -140,6 +140,7 @@
 | `SDK-SOURCE-INGEST-R005.44` | **Preserve valid robots origins.** Robots rules use a valid origin for IPv6 and IDNA hosts. Equivalent host spellings share the origin cache. Invalid schemes, missing hosts and invalid ports refuse. | `tests/test_web_source_contract.py::test_robots_loads_canonical_ipv6_origin` exercises robots loading, denial and cache reuse for IPv6 and IDNA origins. |
 | `SDK-SOURCE-INGEST-R005.45` | **Redact robots refusal details.** A denial from `RobotsRules` carries the closed refusal reason without echoing the requested path or query. | `tests/test_web_source_contract.py::test_served_robots_refusal_omits_requested_url_and_query` checks the served MCP response for a signed URL. |
 | `SDK-SOURCE-INGEST-R005.46` | **Share concurrent robots loads.** Concurrent checks for one uncached or expired origin share one robots load. A slow load does not block another origin. Failed loads keep the existing fail-closed policy. | `tests/test_web_source_contract.py::test_robots_concurrent_checks_share_one_origin_fetch` checks same-origin sharing and independent origins. |
+| `SDK-SOURCE-INGEST-R005.47` | **EVM log model.** Validate EVM chain, contract, signature, decoder revision and block range. Trade records retain exact integer amounts, scales and block provenance. The event-feed adapter refuses discovery and extraction until decoding exists. | `tests/test_evm_chain_models.py` covers validation, exact values and refusal before a tool call. |
 
 ## Interchangeable enterprise operations
 
