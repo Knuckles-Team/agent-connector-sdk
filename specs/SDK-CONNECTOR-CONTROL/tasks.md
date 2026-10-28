@@ -59,8 +59,8 @@
 - [ ] **R045.6:** Bump the graph-client wheel lock after the `EG-TYPED-PACKS` annotation fields land; read `side_effects` from `eg.annotations`. (SDK-CONNECTOR-CONTROL-R045.6).
 - [ ] **R045.7:** Call `is_destructive_action` from the facts builder to force `read_only = false`. (SDK-CONNECTOR-CONTROL-R045.7).
 - [ ] **R045.8:** Build `ToolContractFacts` inside `_tool_entry` and pass them in the entry annotations. (SDK-CONNECTOR-CONTROL-R045.8).
-- [ ] **R045.9:** Add `ToolFixture` and `check_read_only`, then call it from `tool_verdicts` for each `read_only` tool. (SDK-CONNECTOR-CONTROL-R045.9).
-- [ ] **R045.10:** Return the `unproven` verdict and exclude the tool from `_certified`. (SDK-CONNECTOR-CONTROL-R045.10).
+- [x] **R045.9:** Add `ToolFixture` and `check_read_only`, then call it from `tool_verdicts` for each `read_only` tool. (SDK-CONNECTOR-CONTROL-R045.9).
+- [x] **R045.10:** Return the `unproven` verdict and exclude the tool from `_certified`. (SDK-CONNECTOR-CONTROL-R045.10).
 - [ ] **R045.11:** Extend `write_certified_pins` to render the facts; add the certification-to-pack end-to-end test. (SDK-CONNECTOR-CONTROL-R045.11).
 - [ ] **R046:** Browser authorization-code flow with PKCE as a reusable auth manager. (SDK-CONNECTOR-CONTROL-R046).
   - [ ] **R046.1:** Model row. (SDK-CONNECTOR-CONTROL-R046.1).
