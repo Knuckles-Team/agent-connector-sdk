@@ -27,3 +27,4 @@ R001.1 tests non-finite FRED values through source normalization and direct mode
 R003.1 remains open: existing FX, commodity and real-estate model tests do not exercise source adapters.
 
 R004.1 remains open: synthetic mapping and stable identifiers do not prove real source reads or durable re-import.
+- `SDK-FINANCE-SOURCES-R003.2`: `tests/test_finance_records.py` checks non-finite FX and commodity prices and overflow on FX inversion.

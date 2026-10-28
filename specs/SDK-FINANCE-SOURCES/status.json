@@ -11,6 +11,7 @@
     "SDK-FINANCE-SOURCES-R002.1",
     "SDK-FINANCE-SOURCES-R003",
     "SDK-FINANCE-SOURCES-R003.1",
+    "SDK-FINANCE-SOURCES-R003.2",
     "SDK-FINANCE-SOURCES-R004",
     "SDK-FINANCE-SOURCES-R004.1",
     "SDK-FINANCE-SOURCES-R005",
@@ -98,7 +99,8 @@
         "tests/test_finance_records.py:142"
       ],
       "rollup_of": [
-        "SDK-FINANCE-SOURCES-R003.1"
+        "SDK-FINANCE-SOURCES-R003.1",
+        "SDK-FINANCE-SOURCES-R003.2"
       ]
     },
     {
@@ -107,6 +109,16 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R003.2",
+      "title": "Finite multi-asset prices",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_finance_records.py:223",
+        "tests/test_finance_records.py:237"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R004",
