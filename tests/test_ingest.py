@@ -538,3 +538,27 @@ async def test_custom_transport_status_identity_is_checked_before_submission() -
         with pytest.raises(IngestError):
             await KnowledgeIngest(transport).submit(BINDING, _changes())
         assert transport.requests == []
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.44")
+async def test_cursor_conflict_refuses_without_replaying_old_page() -> None:
+    class Racing(_Transport):
+        async def submit(self, request):
+            self.requests.append(request)
+            if len(self.requests) == 1:
+                competing = build_request(
+                    BINDING,
+                    ChangeSet(entities=(Entity("new", "Item"),), cursor="newer"),
+                    previous=request.expected_previous_checkpoint,
+                )
+                await self.sink.submit(competing)
+                raise IngestConflictError("fixture concurrent writer")
+            return await self.sink.submit(request)
+
+    transport = Racing()
+    changes = ChangeSet(entities=(Entity("a", "Item"),), cursor="source-page-2")
+    with pytest.raises(IngestConflictError):
+        await KnowledgeIngest(transport).submit(BINDING, changes)
+    assert len(transport.requests) == 1
+    status = await transport.source_status(BINDING.connector, BINDING.stream)
+    assert status.accepted_checkpoint.position["cursor"] == "newer"
