@@ -37,3 +37,5 @@ R004.1 remains open: synthetic mapping and stable identifiers do not prove real 
 
 
 R002.2 rejects non-finite values across all bar, quote and corporate action fields.
+
+R004.6 refuses invalid currency cells without placing their values in errors.

@@ -114,15 +114,8 @@ def _require_resolved_currencies(
     )
     if currency_header is None:
         return
-    bad = sorted(
-        {
-            row[currency_header]
-            for row in rows
-            if not _is_currency_code(row.get(currency_header, ""))
-        }
-    )
-    if bad:
-        raise AmbiguousCurrencyError(f"unrecognized currency codes: {bad}")
+    if any(not _is_currency_code(row.get(currency_header, "")) for row in rows):
+        raise AmbiguousCurrencyError("CSV currency code is invalid")
 
 
 def preview_csv_mapping(content: bytes, mapping: ColumnMapping) -> CsvImportPreview:
