@@ -1749,8 +1749,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R006.32",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "35871f3b2b8e"
+      ],
       "verified_by": [
         "tests/test_enterprise_contract.py:107",
         "tests/test_enterprise_contract.py:173",
