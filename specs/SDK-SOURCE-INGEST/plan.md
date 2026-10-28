@@ -885,10 +885,11 @@ those authorities. The controlled served tests exercise the composition, but
 fleet adoption and the delegated-actor producer of SDK-CONNECTOR-CONTROL-R902
 remain separate evidence requirements.
 
-Record validation runs in a worker thread within the attempt deadline. The
-SDK abandons the wait on timeout; it cannot stop a validator already running.
-A certified provider must use pure validators without external calls. Cancellation proof
-for that remaining computation is still open under R012.2 and R012.4.
+Schema and record validation run in a cancellable worker process. Startup
+counts against the same deadline. The SDK stops that worker on timeout or
+caller cancellation. A certified provider uses an importable model and pure
+validators without external calls or subprocesses. The host must still supply
+the delegated actor and continuation authorities before R012 can be verified.
 
 ## Paper provider model and deterministic merge
 
