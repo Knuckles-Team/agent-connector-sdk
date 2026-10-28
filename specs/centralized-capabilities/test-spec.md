@@ -85,3 +85,8 @@ no next cursor.
 Interleave two consumers of one sync or async iterator. The second refuses
 without resetting the first. Close or exhaust the first, then reuse it.
 Also exercise claim release when a fetch fails.
+## Malformed page refusal (R004.6)
+
+Exercise missing and non-list values in sync and async iterators. The error
+contains no response data. The async test keeps the prior cursor. An empty
+list remains valid.
