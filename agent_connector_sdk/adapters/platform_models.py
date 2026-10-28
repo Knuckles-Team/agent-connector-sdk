@@ -42,7 +42,7 @@ class _ClosedModel(BaseModel):
 
 class EquivalenceContract(_ClosedModel):
     platform_id: Text
-    resource_visibility: Text
+    resource_visibility: Literal["public", "private"]
     account_scope: Text
     query_semantics: Text
     output_schema_digest: Digest
@@ -69,6 +69,11 @@ class BackendPolicy(_ClosedModel):
             raise ValueError("credential reference must match auth mode")
         if self.output_schema_digest != self.equivalence_contract.output_schema_digest:
             raise ValueError("backend output schema differs from equivalence contract")
+        if (
+            self.equivalence_contract.resource_visibility == "private"
+            and self.auth_mode == "public"
+        ):
+            raise ValueError("public access cannot cover private resources")
         return self
 
 

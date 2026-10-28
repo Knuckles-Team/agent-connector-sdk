@@ -109,6 +109,10 @@ def test_inventory_is_closed_bounded_and_equivalent() -> None:
         PlatformCapability.model_validate(data)
     with pytest.raises(ValidationError):
         BackendPolicy.model_validate({**_policy().model_dump(), "max_attempts": 3})
+    with pytest.raises(ValidationError, match="private resources"):
+        BackendPolicy.model_validate(
+            {**_policy().model_dump(), "auth_mode": "public", "credential_ref": None}
+        )
 
 
 def test_request_and_continuation_bindings_are_checked() -> None:
