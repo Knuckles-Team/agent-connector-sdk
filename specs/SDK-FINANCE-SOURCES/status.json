@@ -10,6 +10,7 @@
     "SDK-FINANCE-SOURCES-R003",
     "SDK-FINANCE-SOURCES-R004",
     "SDK-FINANCE-SOURCES-R005",
+    "SDK-FINANCE-SOURCES-R005.1",
     "SDK-FINANCE-SOURCES-R900",
     "SDK-FINANCE-SOURCES-R900.1",
     "SDK-FINANCE-SOURCES-R900.2",
@@ -91,7 +92,7 @@
     {
       "id": "SDK-FINANCE-SOURCES-R005",
       "title": "Macro and liquidity panels: FRED series, ETF flows, sentiment, on-chain",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "077a14c9f3d3",
         "36f3c76a370c",
@@ -104,7 +105,17 @@
         "tests/test_finance_etf_flows.py:57",
         "tests/test_finance_etf_flows.py:66",
         "tests/test_finance_fred_series.py:40"
+      ],
+      "rollup_of": [
+        "SDK-FINANCE-SOURCES-R005.1"
       ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R005.1",
+      "title": "Complete macro panel sources",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-FINANCE-SOURCES-R900",
