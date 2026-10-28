@@ -1007,5 +1007,25 @@ The host admits a tenant, station or point, source interval, quota and license.
 The SDK requests Open-Meteo hourly temperatures in UTC and NOAA global-hourly
 station temperatures. It validates source identity, units, quality and row bounds.
 A missing value or unadmitted quality is an explicit failure. NOAA daily
-summaries remain open because a calendar-day aggregate does not establish an
-exact observation time. A host-supplied place is not a graph region assertion.
+summaries need explicit observed time. A host-authorized station time resolver
+may convert the source `TOBS_ATTRIBUTES` time to UTC. Daily extrema remain
+open because their calendar-day aggregates do not establish an exact time. A host-supplied place is not a graph region assertion.
+
+## NOAA storm archive admission
+
+NOAA storm detail CSV records contain event IDs and optional episode IDs.
+An NWS episode may contain multiple events. The host must approve each episode
+as a graph weather system and supply its display name, place and severity.
+The host also supplies offsets for the source timezone codes it admits. A
+missing episode, timezone or admitted mapping refuses the affected page.
+The reader binds the authorized archive digest and bounds compressed and
+expanded bytes before parsing. Raw local paths do not enter graph records.
+
+## Weather station place and region admission
+
+A host may bind a weather stream to a declared Place and Region. The Place ID
+must match the request, and its region must match the declared Region ID. The
+source coordinates must match the admitted Place before the page is returned.
+The stream emits typed weather, Place and Region records and the declared
+`occurredAt` and `locatedIn` relationships. It never infers a region from
+coordinates. The graph must approve both entity mappings and relation entries.

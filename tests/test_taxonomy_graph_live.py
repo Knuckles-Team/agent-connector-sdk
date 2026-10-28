@@ -1,28 +1,25 @@
-import asyncio
 import json
 from contextlib import asynccontextmanager
 
 import pytest
+import source_graph_helpers as graph_helpers
 from fastmcp import FastMCP
-from live_engine import PRINCIPAL, TENANT, live_ingest, scoped_client  # noqa: F401
-from source_graph_helpers import import_source_mapping, sync_failure_cycle
+from live_engine import live_ingest, scoped_client  # noqa: F401
 from test_contracts_and_sink import _catalog
 from test_event_feeds import CONNECTOR
 
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from agent_connector_sdk.http.options import HttpClientOptions
 from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
 from agent_connector_sdk.taxonomy.provider import TaxonomyProvider
 from agent_connector_sdk.taxonomy.stream import register_taxonomy_stream
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 async def exercise(url, provider_name):
     engine = await scoped_client(["*"])
     try:
-        context = await import_source_mapping(
+        context = await graph_helpers.import_source_mapping(
             engine,
             CONNECTOR,
             {
@@ -70,20 +67,7 @@ async def exercise(url, provider_name):
             name="taxa",
             connector=CONNECTOR,
         )
-        preset = ToolPreset(
-            name="taxa",
-            server=CONNECTOR,
-            tool="taxa",
-            id_field="id",
-            records_path="records",
-            params_style="args",
-            params={"mode": "delta"},
-            pagination="cursor",
-            cursor_param="cursor",
-            cursor_path="next",
-            updated_since_param="state",
-            checkpoint_path="checkpoint",
-        )
+        preset = graph_helpers.paged_preset(CONNECTOR, "taxa")
 
         def adapter():
             return McpToolSourceAdapter(
@@ -93,11 +77,9 @@ async def exercise(url, provider_name):
             )
 
         sink = EpistemicGraphSink(engine, authority)
-        first, before, failed, second, third = await sync_failure_cycle(
-            server, sink, CONNECTOR, "taxa", "taxa", adapter, repeat=True
+        return await graph_helpers.collect_source_cycle(
+            engine, server, sink, CONNECTOR, "taxa", adapter
         )
-        rows = await engine.query.cypher_read("MATCH (n) RETURN n LIMIT 100")
-        return first, before, failed, second, third, rows
     finally:
         await engine.close()
 
@@ -128,23 +110,11 @@ def test_taxonomy_source_graph_checkpoint_restart(live_ingest, provider_name):  
             }
         return json.dumps(data).encode()
 
-    with ScriptedHttpServer(
-        ScriptedResponse(body=body(1)),
-        ScriptedResponse(status=503),
-        ScriptedResponse(body=body(2)),
-        ScriptedResponse(body=body(1)),
-    ) as server:
-        first, before, failed, second, third, rows = asyncio.run_coroutine_threadsafe(
-            exercise(server.base_url, provider_name), live_ingest._loop
-        ).result(30)
-        assert first.accepted == 1
-        assert before.accepted_checkpoint == failed.accepted_checkpoint
-        assert second.accepted == 1
-        assert third.accepted == 1
-        nodes = [row["n"] for row in rows if row["n"].get("source_stream") == "taxa"]
-        assert len(nodes) == 2, nodes
-        prefix = "GBIF" if provider_name == "gbif" else "NCBITaxon"
-        assert {node["termCurie"] for node in nodes} == {f"{prefix}:1", f"{prefix}:2"}
-        assert {node["scientificName"] for node in nodes} == {"Taxon 1", "Taxon 2"}
-        assert {node["parentTermCurie"] for node in nodes} == {f"{prefix}:9"}
-        assert {node["rankLabel"] for node in nodes} == {"SPECIES"}
+    nodes = graph_helpers.scripted_page_cycle(
+        exercise, body, provider_name, live_ingest._loop
+    )
+    prefix = "GBIF" if provider_name == "gbif" else "NCBITaxon"
+    assert {node["termCurie"] for node in nodes} == {f"{prefix}:1", f"{prefix}:2"}
+    assert {node["scientificName"] for node in nodes} == {"Taxon 1", "Taxon 2"}
+    assert {node["parentTermCurie"] for node in nodes} == {f"{prefix}:9"}
+    assert {node["rankLabel"] for node in nodes} == {"SPECIES"}

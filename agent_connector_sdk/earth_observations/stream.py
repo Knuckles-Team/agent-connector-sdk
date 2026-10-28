@@ -9,9 +9,11 @@ from collections.abc import Awaitable, Callable, Sequence
 from typing import Any
 
 from agent_connector_sdk._extras import require_mcp_extra
+from agent_connector_sdk.earth_observations._stream_policy import (
+    _validate_stream_policy,
+)
 from agent_connector_sdk.earth_observations.occurrence import OccurrenceProvider
 from agent_connector_sdk.ingest.live_declaration import source_meta
-from agent_connector_sdk.taxonomy.provider import _valid_id
 
 require_mcp_extra("agent_connector_sdk.earth_observations.stream")
 
@@ -33,18 +35,14 @@ def register_occurrence_stream(
 ) -> None:
     """Publish only a host-admitted tenant, provider and bounded ID set."""
     identifiers = tuple(identifiers)
-    if (
-        not tenant
-        or not name
-        or not connector
-        or not policy_revision
-        or not identifiers
-        or not 1 <= batch_size <= 1000
-        or len(identifiers) > 10000
-        or len(set(identifiers)) != len(identifiers)
-        or any(not _valid_id(item) for item in identifiers)
-    ):
-        raise ValueError("invalid occurrence stream policy")
+    _validate_stream_policy(
+        tenant,
+        name,
+        connector,
+        revision=policy_revision,
+        identifiers=identifiers,
+        batch_size=batch_size,
+    )
     digest = hashlib.sha256(
         json.dumps(
             [
@@ -60,45 +58,50 @@ def register_occurrence_stream(
         ).encode()
     ).hexdigest()
 
+    async def _serve(
+        ctx: Context, mode: str, state: dict[str, Any] | None
+    ) -> dict[str, Any]:
+        if mode != "delta" or not await authorize(tenant, ctx):
+            raise ValueError("access refused")
+        offset = 0
+        if state is not None:
+            if (
+                set(state) != {"digest", "offset", "generation"}
+                or state["digest"] != digest
+                or not isinstance(state["generation"], str)
+                or type(state["offset"]) is not int
+                or not 0 <= state["offset"] < len(identifiers)
+            ):
+                raise ValueError("invalid occurrence checkpoint")
+            offset = state["offset"]
+        page_ids = identifiers[offset : offset + batch_size]
+        rows = await provider.read(
+            page_ids, tenant=tenant, source=name, max_records=batch_size
+        )
+        next_offset = offset + len(page_ids)
+        more = next_offset < len(identifiers)
+        return {
+            "records": [
+                dict(
+                    row.model_dump(mode="json", exclude_none=True),
+                    id=f"{provider.provider}:{row.source_event_id}",
+                )
+                for row in rows
+            ],
+            "next": str(next_offset) if more else None,
+            "checkpoint": {
+                "digest": digest,
+                "offset": next_offset if more else 0,
+                "generation": uuid.uuid4().hex,
+            },
+        }
+
     async def occurrence_stream(
         ctx: Context, mode: str = "delta", state: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Read the next admitted provider page."""
         try:
-            if mode != "delta" or not await authorize(tenant, ctx):
-                raise ValueError("access refused")
-            offset = 0
-            if state is not None:
-                if (
-                    set(state) != {"digest", "offset", "generation"}
-                    or state["digest"] != digest
-                    or not isinstance(state["generation"], str)
-                    or type(state["offset"]) is not int
-                    or not 0 <= state["offset"] < len(identifiers)
-                ):
-                    raise ValueError("invalid occurrence checkpoint")
-                offset = state["offset"]
-            page_ids = identifiers[offset : offset + batch_size]
-            rows = await provider.read(
-                page_ids, tenant=tenant, source=name, max_records=batch_size
-            )
-            next_offset = offset + len(page_ids)
-            more = next_offset < len(identifiers)
-            return {
-                "records": [
-                    dict(
-                        row.model_dump(mode="json", exclude_none=True),
-                        id=f"{provider.provider}:{row.source_event_id}",
-                    )
-                    for row in rows
-                ],
-                "next": str(next_offset) if more else None,
-                "checkpoint": {
-                    "digest": digest,
-                    "offset": next_offset if more else 0,
-                    "generation": uuid.uuid4().hex,
-                },
-            }
+            return await _serve(ctx, mode, state)
         except Exception:
             raise ToolError("occurrence source page refused") from None
 

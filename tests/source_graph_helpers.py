@@ -130,3 +130,54 @@ def source_adapter(preset, connector, mapping_reference):
         connector=connector,
         mapping_reference=mapping_reference,
     )
+
+
+async def collect_source_cycle(engine, server, sink, connector, stream, adapter):
+    cycle = await sync_failure_cycle(
+        server, sink, connector, stream, stream, adapter, repeat=True
+    )
+    rows = await engine.query.cypher_read("MATCH (n) RETURN n LIMIT 100")
+    return (*cycle, rows)
+
+
+def paged_preset(connector, name):
+    from agent_connector_sdk.manifest.presets import ToolPreset
+
+    return ToolPreset(
+        name=name,
+        server=connector,
+        tool=name,
+        id_field="id",
+        records_path="records",
+        params_style="args",
+        params={"mode": "delta"},
+        pagination="cursor",
+        cursor_param="cursor",
+        cursor_path="next",
+        updated_since_param="state",
+        checkpoint_path="checkpoint",
+    )
+
+
+def scripted_page_cycle(exercise, body, provider, loop):
+    import asyncio
+
+    from agent_connector_sdk.testing.http_server import (
+        ScriptedHttpServer,
+        ScriptedResponse,
+    )
+
+    with ScriptedHttpServer(
+        ScriptedResponse(body=body(1)),
+        ScriptedResponse(status=503),
+        ScriptedResponse(body=body(2)),
+        ScriptedResponse(body=body(1)),
+    ) as server:
+        first, before, failed, second, third, rows = asyncio.run_coroutine_threadsafe(
+            exercise(server.base_url, provider), loop
+        ).result(30)
+    assert first.accepted == second.accepted == third.accepted == 1
+    assert before.accepted_checkpoint == failed.accepted_checkpoint
+    nodes = [row["n"] for row in rows if row["n"].get("source_stream") == "taxa"]
+    assert len(nodes) == 2, nodes
+    return nodes
