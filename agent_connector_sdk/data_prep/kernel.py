@@ -572,6 +572,16 @@ def _column_top_k(
     return top_k, truncated, warnings
 
 
+def _numeric_disclosure_safe(ctx: _ColumnScanContext, non_null: Any) -> bool:
+    """Suppress numeric statistics if an observed value is below threshold."""
+    try:
+        counts = ctx.pc.value_counts(non_null).field("counts")
+        rare = ctx.pc.any(ctx.pc.less(counts, ctx.limits.disclosure_threshold)).as_py()
+        return not bool(rare)
+    except (ctx.pa.ArrowException, NotImplementedError, TypeError, ValueError):
+        return False
+
+
 def _column_profile(
     table: Any,
     ordinal: int,
@@ -605,7 +615,10 @@ def _column_profile(
     mean: float | None = None
     quantiles: list[QuantilePoint] = []
     truncated = False
-    if numeric:
+    if numeric and not _numeric_disclosure_safe(ctx, non_null):
+        warnings.append(_profile_warning("stats_suppressed"))
+        _check_profile_deadline(deadline)
+    elif numeric:
         min_value, max_value, mean, numeric_warnings = _column_numeric_stats(
             ctx, non_null
         )
@@ -1011,6 +1024,8 @@ def _validate_row_model_schema(table: Any, row_model: type[BaseModel]) -> None:
 
     _validate_row_model_class(row_model)
     fields = row_model.model_fields
+    if len(table.column_names) != len(set(table.column_names)):
+        raise PlanExecutionError("Arrow schema field names must be unique")
     if set(fields) != set(table.column_names):
         raise PlanExecutionError("row_model fields must exactly match the Arrow schema")
 

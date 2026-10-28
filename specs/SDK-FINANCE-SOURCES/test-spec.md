@@ -34,3 +34,7 @@ R004.1 remains open: synthetic mapping and stable identifiers do not prove real 
 
 - `SDK-FINANCE-SOURCES-R003.3`: `tests/test_finance_records.py` checks FX currency normalization and refusal of malformed or identical currency codes.
 - `SDK-FINANCE-SOURCES-R900.9`: `tests/test_finance_feeds.py` covers invalid intervals and refusal without a subscription.
+
+
+R002.2 rejects non-finite values across all bar, quote and corporate action fields.
+- `SDK-FINANCE-SOURCES-R001.5`: `tests/test_finance_fred_series.py` covers canonical FRED dates and stable event identity.
