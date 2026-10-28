@@ -3242,8 +3242,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R780.7",
       "title": "Air-gap transport guard",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ec3be6142adf"
+      ],
       "verified_by": [
         "tests/test_http_airgap.py:14",
         "tests/test_http_airgap.py:36",
