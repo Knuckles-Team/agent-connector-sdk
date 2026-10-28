@@ -39,12 +39,27 @@ class PackageScanResult:
 
     @property
     def migrated(self) -> bool:
-        """True when no scanned file imports ``agent_utilities``."""
+        """True when the scan is complete and found no legacy imports."""
         return not self.offending_files and not self.unscanned_files
 
 
-def _imports_agent_utilities(source: str) -> bool:
+def _imports_agent_utilities(source: str) -> bool | None:
     tree = ast.parse(source)
+    import_functions = {"__import__"}
+    module_aliases: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name in {"importlib", "builtins"}:
+                    module_aliases.add(alias.asname or alias.name)
+        if isinstance(node, ast.ImportFrom) and node.module in {
+            "importlib",
+            "builtins",
+        }:
+            for alias in node.names:
+                if alias.name in {"import_module", "__import__"}:
+                    import_functions.add(alias.asname or alias.name)
+    uncertain = False
     for node in ast.walk(tree):
         if isinstance(node, ast.Import) and any(
             alias.name.split(".")[0] == "agent_utilities" for alias in node.names
@@ -56,6 +71,28 @@ def _imports_agent_utilities(source: str) -> bool:
             and node.module.split(".")[0] == "agent_utilities"
         ):
             return True
+        if not isinstance(node, ast.Call):
+            continue
+        function = node.func
+        dynamic = isinstance(function, ast.Name) and function.id in import_functions
+        dynamic |= (
+            isinstance(function, ast.Attribute)
+            and isinstance(function.value, ast.Name)
+            and function.value.id in module_aliases
+            and function.attr in {"import_module", "__import__"}
+        )
+        if not dynamic:
+            continue
+        if not node.args or not isinstance(node.args[0], ast.Constant):
+            uncertain = True
+            continue
+        module = node.args[0].value
+        if not isinstance(module, str) or module.startswith("."):
+            uncertain = True
+        elif module.split(".")[0] == "agent_utilities":
+            return True
+    if uncertain:
+        return None
     return False
 
 
@@ -111,7 +148,9 @@ def scan_for_agent_utilities_imports(
                 unscanned.append(relative)
                 continue
             scanned += 1
-            if legacy:
+            if legacy is None:
+                unscanned.append(relative)
+            elif legacy:
                 offending.append(relative)
     if not scanned and not unscanned:
         unscanned.append(".")
