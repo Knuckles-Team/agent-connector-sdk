@@ -12,10 +12,10 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
-from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
-
 if TYPE_CHECKING:
     from rdflib import Graph
+
+    from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
 
 __all__ = ["release_identity_digest"]
 
@@ -32,6 +32,8 @@ def _require_string_keys(value: Any) -> None:
 
 
 def _validated_snapshot(payload: dict[str, Any]) -> dict[str, Any]:
+    from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
+
     try:
         return IngestSourceDeclaration.model_validate(payload).model_dump(mode="python")
     except ValidationError:
