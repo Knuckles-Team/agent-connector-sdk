@@ -95,8 +95,8 @@
     "SDK-CONNECTOR-CONTROL-R046.4",
     "SDK-CONNECTOR-CONTROL-R046.5",
     "SDK-CONNECTOR-CONTROL-R046.6",
-    "SDK-CONNECTOR-CONTROL-R046.7",
     "SDK-CONNECTOR-CONTROL-R047",
+    "SDK-CONNECTOR-CONTROL-R046.7",
     "SDK-CONNECTOR-CONTROL-R047.1",
     "SDK-CONNECTOR-CONTROL-R047.2",
     "SDK-CONNECTOR-CONTROL-R047.3",
@@ -1513,17 +1513,6 @@
       "verified_by": []
     },
     {
-      "id": "SDK-CONNECTOR-CONTROL-R046.7",
-      "title": "Loopback callback state",
-      "delivery_state": "VERIFIED",
-      "landed_in": [
-        "fed1a1deda64"
-      ],
-      "verified_by": [
-        "tests/test_oauth_loopback_state.py:23"
-      ]
-    },
-    {
       "id": "SDK-CONNECTOR-CONTROL-R047",
       "title": "Agent-card discovery from the standard well-known path",
       "delivery_state": "SPECIFIED",
@@ -1541,6 +1530,17 @@
         "SDK-CONNECTOR-CONTROL-R047.5",
         "SDK-CONNECTOR-CONTROL-R047.6",
         "SDK-CONNECTOR-CONTROL-R047.7"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R046.7",
+      "title": "Loopback callback state",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "896bd69c510c"
+      ],
+      "verified_by": [
+        "tests/test_oauth_loopback_state.py:23"
       ]
     },
     {
