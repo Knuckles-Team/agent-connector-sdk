@@ -1917,7 +1917,7 @@
       "title": "Explicit release signing",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "aa1c7c5c495e"
+        "6f6fc3d5fa57"
       ],
       "verified_by": [
         "tests/test_release_signature.py:50",
