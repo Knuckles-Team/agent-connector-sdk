@@ -140,6 +140,7 @@
     "SDK-SOURCE-INGEST-R004.37",
     "SDK-SOURCE-INGEST-R004.38",
     "SDK-SOURCE-INGEST-R004.39",
+    "SDK-SOURCE-INGEST-R004.46",
     "SDK-SOURCE-INGEST-R004.13",
     "SDK-SOURCE-INGEST-R004.14",
     "SDK-SOURCE-INGEST-R004.15",
@@ -342,6 +343,7 @@
         "SDK-SOURCE-INGEST-R004.37",
         "SDK-SOURCE-INGEST-R004.38",
         "SDK-SOURCE-INGEST-R004.39",
+        "SDK-SOURCE-INGEST-R004.46",
         "SDK-SOURCE-INGEST-R004.13",
         "SDK-SOURCE-INGEST-R004.14",
         "SDK-SOURCE-INGEST-R004.15",
@@ -1787,6 +1789,17 @@
       ]
     },
     {
+      "id": "SDK-SOURCE-INGEST-R004.46",
+      "title": "Refuse split-stream page sync",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "40af61f5d55e"
+      ],
+      "verified_by": [
+        "tests/test_ingest_stream.py:253"
+      ]
+    },
+    {
       "id": "SDK-SOURCE-INGEST-R004.13",
       "title": "Model",
       "delivery_state": "SPECIFIED",
@@ -2548,8 +2561,8 @@
         "05f0db88c98a",
         "075dd1650da3",
         "11366ce437d5",
-        "22044d5f3981",
-        "2c94a2fb2e0c"
+        "1bb27f84e6c3",
+        "22044d5f3981"
       ],
       "verified_by": [
         "tests/data_prep/certification/test_job.py:182",
@@ -2727,7 +2740,7 @@
       "title": "Engine profile boundary validation",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "ccb84e0a998b"
+        "1bb27f84e6c3"
       ],
       "verified_by": [
         "tests/data_prep/test_profiling.py:326"
