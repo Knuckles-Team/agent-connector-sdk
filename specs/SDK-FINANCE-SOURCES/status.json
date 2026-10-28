@@ -213,7 +213,7 @@
       "title": "Finite account values",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "1dd9227c118d"
+        "186eb8fed45f"
       ],
       "verified_by": [
         "tests/test_finance_account_read.py:80",
