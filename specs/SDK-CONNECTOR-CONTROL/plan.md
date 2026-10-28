@@ -136,6 +136,11 @@ Cross-repository rows. The engine's tool-subset decision (`EG-DECISION-ENGINE`) 
 
 The scorer counts already graded boolean answers and derives their ratio. It
 does not evaluate answers or close the certification and pack obligations.
+## Unscored readable forms (R048.4)
+
+Certification refuses every declared readable form until it has graded
+question scores. This includes tools outside the sync presets. A question-set
+reference alone is not a score. Grading and pack wiring remain open.
 
 ## Payment challenge handling (SDK-CONNECTOR-CONTROL-R049)
 
