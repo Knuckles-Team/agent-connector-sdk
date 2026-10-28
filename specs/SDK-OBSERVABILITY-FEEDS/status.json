@@ -111,11 +111,11 @@
         "083be3f609e4"
       ],
       "verified_by": [
-        "tests/test_event_feeds.py:702",
-        "tests/test_event_feeds.py:715",
-        "tests/test_event_feeds.py:725",
-        "tests/test_event_feeds.py:743",
-        "tests/test_event_feeds.py:756"
+        "tests/test_event_feeds.py:685",
+        "tests/test_event_feeds.py:698",
+        "tests/test_event_feeds.py:708",
+        "tests/test_event_feeds.py:726",
+        "tests/test_event_feeds.py:739"
       ]
     }
   ]
