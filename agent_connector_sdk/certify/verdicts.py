@@ -120,7 +120,7 @@ def _gate_read_only(
     outcome = check_read_only(
         facts, fixture, tool=verdict.tool, fingerprint=verdict.live
     )
-    if outcome is ReadOnlyOutcome.PASS:
+    if outcome is ReadOnlyOutcome.PROVEN:
         return verdict
     return replace(
         verdict,

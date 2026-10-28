@@ -18,7 +18,7 @@ __all__ = ["ReadOnlyOutcome", "ToolFixture", "check_read_only"]
 class ReadOnlyOutcome(StrEnum):
     """Result of checking a caller-owned observation."""
 
-    PASS = "pass"
+    PROVEN = "proven"
     UNPROVEN = "unproven"
     READ_ONLY_VIOLATION = "read_only_violation"
 
@@ -45,7 +45,7 @@ def check_read_only(
 ) -> ReadOnlyOutcome:
     """Refuse an absent, stale or write-bearing observation for a read-only claim."""
     if not facts.read_only:
-        return ReadOnlyOutcome.PASS
+        return ReadOnlyOutcome.PROVEN
     if fixture is None or fixture.tool != tool or fixture.fingerprint != fingerprint:
         return ReadOnlyOutcome.UNPROVEN
     if fixture.observed_effects & {
@@ -53,4 +53,4 @@ def check_read_only(
         SideEffect.EXTERNAL_WRITE,
     }:
         return ReadOnlyOutcome.READ_ONLY_VIOLATION
-    return ReadOnlyOutcome.PASS
+    return ReadOnlyOutcome.PROVEN
