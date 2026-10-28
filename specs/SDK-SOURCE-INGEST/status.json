@@ -1126,9 +1126,9 @@
       "title": "Platform contract primitives",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "ce25158042f7",
-        "ea130d670efb",
-        "ea3f58848c83"
+        "1fe7e364b92d",
+        "6a6d6a161fba",
+        "ca35a80554e4"
       ],
       "verified_by": [
         "tests/test_platform_fallback_models.py:24"
