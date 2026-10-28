@@ -39,7 +39,7 @@ class PackageScanResult:
 
     @property
     def migrated(self) -> bool:
-        """True when no scanned file imports ``agent_utilities``."""
+        """True when the scan is complete and found no legacy imports."""
         return not self.offending_files and not self.unscanned_files
 
 
