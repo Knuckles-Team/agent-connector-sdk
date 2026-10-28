@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import hashlib
-from typing import Any
+from typing import Any, cast
 
 
 class _TokenHistory:
@@ -59,4 +59,4 @@ def _advance_numbered(walk: Any, items: list[Any]) -> tuple[str, dict[str, Any]]
         walk._page += 1
     else:
         walk._offset += len(items)
-    return walk.start()
+    return cast(tuple[str, dict[str, Any]], walk.start())
