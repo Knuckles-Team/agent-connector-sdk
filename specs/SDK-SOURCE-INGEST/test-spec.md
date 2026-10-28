@@ -437,3 +437,5 @@ R004.52 submits a non-page write after a paged checkpoint and confirms the prior
 `SDK-SOURCE-INGEST-R005.56`: `tests/test_workspace_reader.py` exercises the read-only MCP tool with local text, transcript, PDF, DOCX and XLSX fixtures, content identity and per-file refusals. It checks bounded overlapping reads and reports timeouts. It does not prove certification or graph ingestion.
 
 `SDK-SOURCE-INGEST-R005.57`: `tests/test_workspace_reader.py` checks that a real active worker process exits after caller cancellation and after a deadline. It also checks overlapping reads and the per-request concurrency bound.
+
+`SDK-SOURCE-INGEST-R004.53`: `tests/test_source_sync_budgets.py` covers invalid limits, stalled page and retry calls, whole-page record budgets and accepted progress. `tests/test_for_each.py` covers immediate fan-out refusal. `tests/test_source_sync_budgets_served.py` checks a real MCP timeout with graph-backed progress.

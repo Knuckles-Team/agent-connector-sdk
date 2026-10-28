@@ -856,3 +856,12 @@ process. A deadline or caller cancellation stops an active worker before
 returning. The reader retains manifest order and per-request task limits.
 The host still authenticates callers. Certified sync and independent graph
 checkpoints remain outside this local reader.
+
+## Declared source time and record budgets
+
+A declared source rejects invalid budget values before a source call. A page
+call and its retries share the remaining source time budget. A timeout reports
+partial progress and preserves accepted batches. The runner refuses a page
+that exceeds the remaining record budget. It keeps the prior checkpoint for
+the next run to retry the whole page. A fan-out stops as soon
+as it exceeds its admitted unique-value bound.

@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 import time
 from collections.abc import Awaitable, Callable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -27,10 +26,10 @@ from typing import Any, Literal, Protocol, runtime_checkable
 import anyio
 from pydantic import BaseModel, ConfigDict, Field
 
+from agent_connector_sdk.ingest import source_budget as _budget
 from agent_connector_sdk.ingest.errors import IngestError
 from agent_connector_sdk.ingest.for_each import MAX_FAN_OUT
 from agent_connector_sdk.ingest.model import (
-    ChangeSet,
     Entity,
     EntityRef,
     IngestBinding,
@@ -55,7 +54,6 @@ __all__ = [
 #: The KV namespace every source checkpoint lives in.
 CHECKPOINT_NAMESPACE = "agent-connector-sdk"
 _MAX_DIGESTS = 50_000
-_ENGINE_CODE = re.compile(r"\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b")
 _SCALARS = (str, int, float, bool)
 
 SyncState = Literal["completed", "partial", "failed"]
@@ -133,17 +131,7 @@ class SyncBudget:
     backoff_max_seconds: float = 8.0
 
     def __post_init__(self) -> None:
-        if (
-            min(
-                self.max_pages,
-                self.max_records,
-                self.batch_size,
-                self.attempts,
-                self.max_fan_out,
-            )
-            < 1
-        ):
-            raise ValueError("every sync budget must be at least 1")
+        _budget._validate_budget(self)
 
 
 def checkpoint_key(connector: str, source_id: str) -> str:
@@ -346,6 +334,7 @@ class _Run:
     unchanged: int = 0
     batches: list[str] = field(default_factory=list)
     pending: list[tuple[Entity, str]] = field(default_factory=list)
+    pending_tool: str | None = None
     pending_edges: list[tuple[Entity | None, Relationship]] = field(
         default_factory=list
     )
@@ -353,7 +342,7 @@ class _Run:
     cursor_before: str | None = None
 
 
-class SourceSyncRunner:
+class SourceSyncRunner(_budget._SourceBudgetMixin):
     """Run declared connector sources into epistemic-graph.
 
     Args:
@@ -366,6 +355,8 @@ class SourceSyncRunner:
         clock: Monotonic seconds (tests).
         sleep: Async sleep (tests).
     """
+
+    _source_error = SourceSyncError
 
     def __init__(
         self,
@@ -437,13 +428,7 @@ class SourceSyncRunner:
         try:
             final = await self._sweep(run, sources)
         except SourceSyncError as exc:
-            if exc.reason == "checkpoint_conflict":
-                raise
-            final, reason = "failed", exc.reason
-            found = _ENGINE_CODE.search(str(exc))
-            engine_code = (
-                found.group(0) if exc.reason == "ingest_refused" and found else None
-            )
+            final, reason, engine_code = await self._handle_sync_error(run, exc)
         report = self._report(run, final, reason).model_copy(
             update={"engine_code": engine_code}
         )
@@ -470,20 +455,8 @@ class SourceSyncRunner:
             ]
         for scope in scopes:
             for tool in spec.tools:
-                page = spec.start_page
-                while True:
-                    if self._exhausted(run):
-                        await self._flush(run)
-                        return "partial"
-                    result = await self._call(tool, self._arguments(spec, page, scope))
-                    records = _records(result, spec)
-                    run.pages += 1
-                    for record in records:
-                        await self._take(run, record, tool)
-                    if spec.pagination != "page" or len(records) < spec.page_size:
-                        break
-                    page += 1
-                await self._flush(run, tool=tool)
+                if not await self._sweep_tool(run, tool, scope, decode=_records):
+                    return "partial"
         return "completed"
 
     async def _parent_values(
@@ -521,30 +494,14 @@ class SourceSyncRunner:
                     raise SourceSyncError(
                         "not_read_only", f"tool {tool!r} is not marked read-only"
                     )
-                page = parent.start_page
-                while True:
-                    if self._exhausted(run):
-                        raise SourceSyncError(
-                            "parent_budget_exhausted",
-                            f"budget ended while reading parent {parent.source_id!r}",
-                        )
-                    result = await self._call(
-                        tool, self._arguments(parent, page, scope)
-                    )
-                    records = _records(result, parent)
-                    run.pages += 1
-                    for record in records:
-                        value = record.get(link.field)
-                        if value is not None and value not in values:
-                            values.append(value)
-                    if parent.pagination != "page" or len(records) < parent.page_size:
-                        break
-                    page += 1
-            if len(values) > self._budget.max_fan_out:
-                raise SourceSyncError(
-                    "fan_out_exceeded",
-                    f"{parent.source_id!r} has more than "
-                    f"{self._budget.max_fan_out} records to fan out over",
+                await self._parent_pages(
+                    run,
+                    parent,
+                    tool,
+                    scope=scope,
+                    field=link.field,
+                    values=values,
+                    decode=_records,
                 )
         return values
 
@@ -609,6 +566,7 @@ class SourceSyncRunner:
             properties=_properties(record, spec),
             updated_at=cursor,
         )
+        run.pending_tool = tool
         run.pending.append((entity, digest))
         run.pending_edges.extend(_edges(record_id, record, spec))
         if cursor is not None and (run.cursor is None or cursor > run.cursor):
@@ -624,30 +582,10 @@ class SourceSyncRunner:
             connector=self._connector,
             stream=spec.source_id,
             server=self._server,
-            tool=tool or spec.tools[0],
+            tool=_budget._binding_tool(run, tool),
         )
-        records = {entity.id: entity for entity, _ in run.pending}
-        for target, _ in run.pending_edges:
-            if target is not None:
-                records.setdefault(target.id, target)
-        relationships = tuple(edge for _, edge in run.pending_edges)
-        try:
-            receipt = await self._ingest.submit(
-                binding,
-                ChangeSet(
-                    entities=tuple(records.values()),
-                    relationships=relationships,
-                    cursor=run.cursor,
-                ),
-            )
-        except SourceSyncError:
-            raise
-        except IngestError as exc:
-            # The engine refused the batch (for example an unmapped record
-            # type); nothing advances and the run reports the refusal.
-            run.pending.clear()
-            run.pending_edges.clear()
-            raise SourceSyncError("ingest_refused", str(exc)) from exc
+        records = _budget._pending_records(run)
+        receipt = await self._submit_pending(run, binding, records)
         run.batches.append(str(receipt.batch_digest))
         digests = dict(run.state.digests)
         digests.update({entity.id: digest for entity, digest in run.pending})
@@ -656,6 +594,7 @@ class SourceSyncRunner:
         run.submitted += len(run.pending)
         run.pending.clear()
         run.pending_edges.clear()
+        run.pending_tool = None
         run.state = run.state.model_copy(
             update={
                 "digests": digests,

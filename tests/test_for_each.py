@@ -268,3 +268,17 @@ def test_check_for_each_and_parent_presets_refuse_by_code() -> None:
     assert mcp_tool_fanout.FAN_KEY == "__fan"
     assert callable(mcp_tool_fanout.parent_values)
     assert callable(mcp_tool_fanout.extract_fanned)
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.53")
+async def test_fan_out_limit_refuses_before_requesting_another_parent_page() -> None:
+    projects = _source(
+        "projects", "list_projects", pagination="page", page_param="page", page_size=2
+    )
+    items = _source("items", "list_items", for_each=LINK)
+    session = _Session([{"id": f"p{i}"} for i in range(6)])
+    report = await _runner(session, _Ingest(), budget=SyncBudget(max_fan_out=5)).sync(
+        items, sources={s.source_id: s for s in (projects, items)}
+    )
+    assert report.state == "failed" and report.reason == "fan_out_exceeded"
+    assert [name for name, _ in session.calls] == ["list_projects"]
