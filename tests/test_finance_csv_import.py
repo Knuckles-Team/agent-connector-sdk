@@ -130,3 +130,13 @@ def test_ragged_rows_are_rejected(replacement: bytes) -> None:
         preview_csv_mapping(malformed, _MAPPING)
     with pytest.raises(AmbiguousColumnMappingError, match="header width"):
         import_activities(malformed, _MAPPING, _CONTEXT)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.5")
+@pytest.mark.parametrize("currency", ["\uff35\uff33\uff24", "ΑΒΓ"])
+def test_non_ascii_currency_is_rejected(currency: str) -> None:
+    invalid = _CSV.replace(b",USD,", b"," + currency.encode("utf-8") + b",", 1)
+    with pytest.raises(AmbiguousCurrencyError):
+        preview_csv_mapping(invalid, _MAPPING)
+    with pytest.raises(AmbiguousCurrencyError):
+        import_activities(invalid, _MAPPING, _CONTEXT)

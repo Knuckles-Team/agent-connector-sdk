@@ -56,3 +56,6 @@ R004.3 checks duplicate CSV header refusal before preview or import produces res
 
 
 R004.4 rejects short and overlong CSV rows before preview or import returns a result.
+
+
+R004.5 refuses non-ASCII currency lookalikes without claiming registry membership.
