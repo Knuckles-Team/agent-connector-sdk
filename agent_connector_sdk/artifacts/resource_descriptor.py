@@ -15,13 +15,13 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping
-from dataclasses import dataclass, field
 from typing import Any
 
-from agent_connector_sdk._contract_fields import ACCESS_KINDS, PAGINATION_MODES
-from agent_connector_sdk.credentials.references import (
-    SecretReferenceError,
-    parse_secret_reference,
+from agent_connector_sdk.artifacts.resource_descriptor_model import (
+    FieldBinding,
+    ResourceDeclarationError,
+    ResourceDescriptor,
+    _validate,
 )
 
 __all__ = [
@@ -40,78 +40,6 @@ RESOURCES_URI = "connector://resources"
 _REQUIRED = ("name", "ontology_class", "operation", "key_field", "pagination")
 
 
-class ResourceDeclarationError(ValueError):
-    """A declared data resource is refused; ``code`` names the reason."""
-
-    def __init__(self, code: str, message: str) -> None:
-        super().__init__(f"{code}: {message}")
-        self.code = code
-
-
-@dataclass(frozen=True)
-class FieldBinding:
-    """One response field and the ontology property it carries."""
-
-    name: str
-    type: str = "string"
-    ontology_property: str | None = None
-    mapping_status: str = "unmapped"
-
-    def to_json(self) -> dict[str, Any]:
-        """The field as a JSON object."""
-        return {
-            "name": self.name,
-            "type": self.type,
-            "ontology_property": self.ontology_property,
-            "mapping_status": self.mapping_status,
-        }
-
-
-@dataclass(frozen=True)
-class ResourceDescriptor:
-    """One data resource of the connector and the contract to read it live."""
-
-    name: str
-    uri: str
-    ontology_class: str | None
-    mapping_status: str
-    operation: str
-    key_field: str
-    pagination: str
-    origin: str
-    fields: tuple[FieldBinding, ...] = ()
-    arguments: Mapping[str, str] = field(default_factory=dict)
-    pagination_param: str | None = None
-    get_operation: str | None = None
-    access_kind: str = "mcp_tool"
-    kind: str = "data"
-    read_only: bool = True
-    owner: str | None = None
-    credential_ref: str | None = None
-
-    def to_json(self) -> dict[str, Any]:
-        """The descriptor as a JSON object."""
-        return {
-            "name": self.name,
-            "uri": self.uri,
-            "kind": self.kind,
-            "origin": self.origin,
-            "ontology_class": self.ontology_class,
-            "mapping_status": self.mapping_status,
-            "fields": [binding.to_json() for binding in self.fields],
-            "access_kind": self.access_kind,
-            "operation": self.operation,
-            "get_operation": self.get_operation,
-            "arguments": dict(self.arguments),
-            "key_field": self.key_field,
-            "pagination": self.pagination,
-            "pagination_param": self.pagination_param,
-            "read_only": self.read_only,
-            "owner": self.owner,
-            "credential_ref": self.credential_ref,
-        }
-
-
 def _binding(item: object) -> FieldBinding:
     if isinstance(item, str):
         return FieldBinding(name=item)
@@ -124,36 +52,6 @@ def _binding(item: object) -> FieldBinding:
         ontology_property=prop if isinstance(prop, str) else None,
         mapping_status="declared" if isinstance(prop, str) else "unmapped",
     )
-
-
-def _validate(
-    entry: Mapping[str, Any], classes: frozenset[str] | None
-) -> ResourceDeclarationError | None:
-    """The refusal for one merged declaration, or ``None`` when it is sound."""
-    name = entry.get("name")
-    if entry.get("access_kind", "mcp_tool") not in ACCESS_KINDS:
-        return ResourceDeclarationError(
-            "ACCESS_KIND_UNKNOWN", f"{name}: unknown access_kind"
-        )
-    if entry.get("pagination") not in PAGINATION_MODES:
-        return ResourceDeclarationError(
-            "PAGINATION_UNDECLARED",
-            f"{name}: pagination must be one of cursor, page, offset or none",
-        )
-    if classes is not None and entry.get("ontology_class") not in classes:
-        return ResourceDeclarationError(
-            "RESOURCE_UNMAPPED",
-            f"{name}: {entry.get('ontology_class')!r} is not declared in the ontology",
-        )
-    ref = entry.get("credential_ref")
-    if ref is not None:
-        try:
-            parse_secret_reference(str(ref))
-        except SecretReferenceError as exc:
-            raise ResourceDeclarationError(
-                "SECRET_IN_CONTRACT", f"{name}: credential_ref must be a reference"
-            ) from exc
-    return None
 
 
 def _check_captured_descriptor(
