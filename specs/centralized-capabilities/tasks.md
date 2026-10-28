@@ -52,3 +52,5 @@ Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requireme
 - [ ] Bind Link-header pagination to the initial origin (SDK-CENTRALIZED-CAPABILITIES-R004.2).
 
 - [x] Bound Link-header parsing work (SDK-CENTRALIZED-CAPABILITIES-R004.3).
+
+- [x] Refuse overlapping pagination consumers (SDK-CENTRALIZED-CAPABILITIES-R004.7).

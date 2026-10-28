@@ -111,3 +111,9 @@ redirect target from receiving credentials or a delegated subject token.
 
 Scan Link targets and next relations once in header order. Preserve the prior
 first-match grammar. The existing origin guard still admits every followed URL.
+
+## Pagination consumer isolation (R004.7)
+
+An iterator owns one mutable walk and budget. It refuses another active
+consumer. Exhaustion, fetch failure or explicit close releases the claim.
+A caller that stops early must close the active generator before reuse.

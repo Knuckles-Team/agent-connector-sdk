@@ -38,12 +38,17 @@ trivially fed by a fake in tests.
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable, Mapping
+from threading import Lock
 from typing import Any
 from urllib.parse import urljoin, urlsplit
 
 from agent_connector_sdk.http.errors import HttpProblemError
 from agent_connector_sdk.http.pagination import _origin
 from agent_connector_sdk.http.problems import ProblemDetails
+from agent_connector_sdk.httpsupport.pagination_iteration import (
+    _iterate,
+    _iterate_async,
+)
 from agent_connector_sdk.httpsupport.pagination_link import next_link
 
 __all__ = [
@@ -295,6 +300,7 @@ class _PaginationConfig:
     ) -> None:
         if mode not in PAGINATION_MODES:
             raise ValueError(f"mode must be one of {PAGINATION_MODES}, got {mode!r}")
+        self._iteration_lock = Lock()
         self._mode = mode
         self._params = params
         self._cursor_param = cursor_param
@@ -415,14 +421,7 @@ class PaginationIterator(_PaginationConfig):
         self._fetch_page = fetch_page
 
     def __iter__(self) -> Any:
-        self._begin(self._new_walk())
-        request: tuple[str, dict[str, Any]] | None = self._walk.start()
-        while request is not None:
-            url, params = request
-            data, headers = self._fetch_page(url, params or None)
-            items = self._extract_items(data)
-            to_yield, request = self._consume_page(items, data, headers)
-            yield from to_yield
+        return _iterate(self)
 
     def collect(self) -> dict[str, Any]:
         """Drain the iterator into an Okta-style collection envelope."""
@@ -444,16 +443,8 @@ class AsyncPaginationIterator(_PaginationConfig):
         super().__init__(endpoint, **options)
         self._fetch_page = fetch_page
 
-    async def __aiter__(self) -> Any:
-        self._begin(self._new_walk())
-        request: tuple[str, dict[str, Any]] | None = self._walk.start()
-        while request is not None:
-            url, params = request
-            data, headers = await self._fetch_page(url, params or None)
-            items = self._extract_items(data)
-            to_yield, request = self._consume_page(items, data, headers)
-            for item in to_yield:
-                yield item
+    def __aiter__(self) -> Any:
+        return _iterate_async(self)
 
     async def collect(self) -> dict[str, Any]:
         """Drain the iterator into an Okta-style collection envelope."""

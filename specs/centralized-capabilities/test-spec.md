@@ -69,3 +69,9 @@ Run `uv run pytest tests/test_centralized_capability_index.py tests/test_central
 
 Compare generated and edge-case headers with the prior expression. Feed large
 malformed headers through the iterator and confirm it ends after one fetch.
+
+## Pagination consumer isolation (R004.7)
+
+Interleave two consumers of one sync or async iterator. The second refuses
+without resetting the first. Close or exhaust the first, then reuse it.
+Also exercise claim release when a fetch fails.

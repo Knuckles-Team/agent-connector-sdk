@@ -46,7 +46,8 @@
     "SDK-CENTRALIZED-CAPABILITIES-R038",
     "SDK-CENTRALIZED-CAPABILITIES-R039",
     "SDK-CENTRALIZED-CAPABILITIES-R040",
-    "SDK-CENTRALIZED-CAPABILITIES-R004.3"
+    "SDK-CENTRALIZED-CAPABILITIES-R004.3",
+    "SDK-CENTRALIZED-CAPABILITIES-R004.7"
   ],
   "requirements": [
     {
@@ -90,7 +91,8 @@
       "rollup_of": [
         "SDK-CENTRALIZED-CAPABILITIES-R004.1",
         "SDK-CENTRALIZED-CAPABILITIES-R004.2",
-        "SDK-CENTRALIZED-CAPABILITIES-R004.3"
+        "SDK-CENTRALIZED-CAPABILITIES-R004.3",
+        "SDK-CENTRALIZED-CAPABILITIES-R004.7"
       ]
     },
     {
@@ -396,6 +398,13 @@
         "tests/httpsupport/test_pagination_link_linear.py:14",
         "tests/httpsupport/test_pagination_link_linear.py:31"
       ]
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.7",
+      "title": "Protect pagination iterator state",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
