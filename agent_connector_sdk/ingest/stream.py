@@ -9,6 +9,7 @@ source resuming from the stream's durable cursor, and returns the standard
 
 from __future__ import annotations
 
+import hashlib
 import inspect
 import logging
 from collections.abc import AsyncIterator, Awaitable, Callable, Mapping, Sequence
@@ -30,6 +31,7 @@ from agent_connector_sdk.ingest.paging import CursorStrategy
 from agent_connector_sdk.ingest.service import KnowledgeIngest
 
 _LOG = logging.getLogger(__name__)
+_MAX_CURSOR_HISTORY = 100_000
 
 __all__ = ["FetchPage", "SourceStream", "open_client"]
 
@@ -400,6 +402,9 @@ class SourceStream:
         if cursor is None and strategy is not None:
             cursor = strategy.first()
         totals = {"nodes": 0, "edges": 0}
+        seen: set[bytes] = set()
+        if cursor is not None:
+            seen.add(hashlib.sha256(cursor.encode("utf-8")).digest())
         pages = 0
         while max_pages is None or pages < max_pages:
             fetched = await fetch_page(cursor)
@@ -409,12 +414,21 @@ class SourceStream:
                 records = fetched
                 next_cursor = strategy.advance(records, cursor)
             pages += 1
+            if next_cursor is not None:
+                if not isinstance(next_cursor, str):
+                    raise IngestError("source continuation must be a string")
+                fingerprint = hashlib.sha256(next_cursor.encode("utf-8")).digest()
+                if fingerprint in seen:
+                    raise IngestError("source continuation repeated")
+                if len(seen) >= _MAX_CURSOR_HISTORY:
+                    raise IngestError("source continuation history limit exceeded")
+                seen.add(fingerprint)
             mapped = self._mapper(kind, records)
             if mapped.entities or mapped.documents:
                 counts = await self.mapped(mapped, cursor=next_cursor, ingest=service)
                 if counts is not None:
                     totals = _add(totals, counts)
-            if next_cursor is None or next_cursor == cursor:
+            if next_cursor is None:
                 break
             cursor = next_cursor
         return totals

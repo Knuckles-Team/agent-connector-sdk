@@ -248,3 +248,70 @@ def test_batch_media_and_raw_submit_share_one_path() -> None:
     other = IngestBinding(connector="demo-mcp", stream="other")
     _run(stream.submit(ChangeSet(), binding=other, ingest=sink))
     assert sink.bindings[-1] is other
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.40")
+def test_sync_rejects_continuation_cycle_before_offending_page(monkeypatch) -> None:
+    import agent_connector_sdk.ingest.stream as module
+
+    sink = _Ingest()
+    calls = []
+    pages = {
+        None: ([{"id": "1"}], "a"),
+        "a": ([{"id": "2"}], "b"),
+        "b": ([{"id": "3"}], "a"),
+    }
+
+    async def fetch(cursor):
+        calls.append(cursor)
+        return pages[cursor]
+
+    with pytest.raises(IngestError, match="continuation repeated"):
+        _run(_stream().sync("item", fetch, ingest=sink))
+    assert calls == [None, "a", "b"]
+    assert [page.cursor for page in sink.submitted] == ["a", "b"]
+    assert sink.cursor == "b"
+
+    monkeypatch.setattr(module, "_MAX_CURSOR_HISTORY", 1)
+    sink = _Ingest()
+    with pytest.raises(IngestError, match="history limit"):
+        _run(_stream().sync("item", fetch, ingest=sink))
+    assert [page.cursor for page in sink.submitted] == ["a"]
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.40")
+def test_sync_rejects_immediate_or_invalid_continuation_before_submission() -> None:
+    sink = _Ingest(cursor="a")
+
+    async def repeat(cursor):
+        return [{"id": "1"}], cursor
+
+    with pytest.raises(IngestError, match="continuation repeated"):
+        _run(_stream().sync("item", repeat, ingest=sink))
+    assert sink.submitted == []
+
+    async def invalid(cursor):
+        return [{"id": "1"}], []
+
+    with pytest.raises(IngestError, match="must be a string"):
+        _run(_stream().sync("item", invalid, ingest=sink))
+    assert sink.submitted == []
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.40")
+def test_strategy_continuation_cycle_refuses_before_submission() -> None:
+    sink = _Ingest()
+
+    class Strategy:
+        def first(self):
+            return "a"
+
+        def advance(self, records, cursor):
+            return {"a": "b", "b": "a"}[cursor]
+
+    async def fetch(cursor):
+        return [{"id": cursor}]
+
+    with pytest.raises(IngestError, match="continuation repeated"):
+        _run(_stream().sync("item", fetch, ingest=sink, strategy=Strategy()))
+    assert [page.cursor for page in sink.submitted] == ["b"]
