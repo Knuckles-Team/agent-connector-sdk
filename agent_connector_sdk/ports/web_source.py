@@ -231,11 +231,21 @@ def register_web_source_tools(
 
 
 def _origin(url: str) -> str:
-    parts = urlsplit(url)
-    if parts.scheme not in {"http", "https"} or not parts.hostname:
-        raise WebSourceRefused("policy_refused", "absolute http(s) URL required")
-    port = f":{parts.port}" if parts.port else ""
-    return f"{parts.scheme}://{parts.hostname.lower()}{port}"
+    try:
+        parts = httpx.URL(url)
+        host = parts.raw_host.decode("ascii").rstrip(".")
+        if parts.scheme not in {"http", "https"} or not host:
+            raise ValueError("absolute URL required")
+        try:
+            address = ipaddress.ip_address(host)
+        except ValueError:
+            authority = host.lower()
+        else:
+            authority = f"[{address}]" if address.version == 6 else str(address)
+        port = f":{parts.port}" if parts.port is not None else ""
+        return f"{parts.scheme}://{authority}{port}"
+    except (httpx.InvalidURL, UnicodeError, ValueError) as exc:
+        raise WebSourceRefused("policy_refused", "invalid web URL") from exc
 
 
 def _rate_limit_domain(url: str) -> str:

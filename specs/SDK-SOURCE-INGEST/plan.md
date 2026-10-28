@@ -711,6 +711,12 @@ The web-source limiter groups requests by normalized host. Scheme and port
 changes do not create independent budgets. Robots rules retain their own
 per-origin cache because their contents can differ by scheme or port.
 
+## Robots origin normalization (R005.44)
+
+Robots lookup uses the HTTP client's normalized host and preserves IPv6
+brackets and non-default ports. Equivalent IP and IDNA spellings share a
+cache entry. Invalid URL origins refuse before the loader runs.
+
 ## 2026-10-27: bounded evidence for large preparation plans
 
 R803.6 requires a single plan over one million rows. Keep `run` and its
