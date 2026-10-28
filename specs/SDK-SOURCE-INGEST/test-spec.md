@@ -312,6 +312,12 @@ connector revision and live tool schemas. A schema-only match is not web
 conformance. Tests must refuse missing, stale and mismatched evidence before
 the tool call and leave the checkpoint unchanged.
 
+## REST source malformed pages (R800.9)
+
+Poll through the registered REST source with a prior cursor and next cursor.
+Refuse missing or non-list records, non-object records, blank IDs and empty text.
+The caller checkpoint stays unchanged, and no next cursor is returned.
+
 ## Partial RSS sweep (R800.8)
 
 Inject network failure and malformed input in concurrent feeds. A healthy feed
