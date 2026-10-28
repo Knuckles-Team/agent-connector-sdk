@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "SDK-OBSERVABILITY-FEEDS",
   "owner_repo": "scion-sdk",
-  "delivery_state": "SPECIFIED",
+  "delivery_state": "VERIFIED",
   "requirement_ids": [
     "SDK-OBSERVABILITY-FEEDS-R001",
     "SDK-OBSERVABILITY-FEEDS-R001.1",
@@ -18,15 +18,20 @@
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001",
       "title": "RUM, security-audit, and CI/CD events join the durable source pipeline",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "077a14c9f3d3",
-        "c44284a671b3"
+        "083be3f609e4",
+        "123c6ecbe31b",
+        "1bb27f84e6c3",
+        "79c2eb26af34"
       ],
       "verified_by": [
+        "tests/test_event_feed_registration.py:17",
         "tests/test_event_feeds.py:267",
         "tests/test_event_feeds.py:285",
-        "tests/test_event_feeds.py:301"
+        "tests/test_event_feeds.py:301",
+        "tests/test_event_feeds.py:393"
       ],
       "rollup_of": [
         "SDK-OBSERVABILITY-FEEDS-R001.1",
@@ -77,9 +82,13 @@
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001.4",
       "title": "Event adapter registration",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "7d4d0fb87b79"
+      ],
+      "verified_by": [
+        "tests/test_event_runner.py:25"
+      ]
     },
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001.5",
@@ -110,7 +119,8 @@
       "title": "Bound the adapter identity index",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "083be3f609e4"
+        "083be3f609e4",
+        "1bb27f84e6c3"
       ],
       "verified_by": [
         "tests/test_event_feeds.py:685",
