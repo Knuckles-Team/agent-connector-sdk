@@ -362,3 +362,6 @@ reuse for equivalent IPv6 and IDNA spellings.
 
 R005.45 calls the served web-fetch tool with a denied URL carrying a query
 secret. The refusal contains its reason but no requested path or query value.
+
+R005.46 blocks one fake robots load while concurrent checks enter. They share
+one load for that origin; a different origin completes independently.

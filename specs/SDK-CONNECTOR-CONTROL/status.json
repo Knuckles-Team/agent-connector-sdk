@@ -125,6 +125,7 @@
     "SDK-CONNECTOR-CONTROL-R050.4",
     "SDK-CONNECTOR-CONTROL-R050.5",
     "SDK-CONNECTOR-CONTROL-R050.6",
+    "SDK-CONNECTOR-CONTROL-R050.8",
     "SDK-CONNECTOR-CONTROL-R050.7",
     "SDK-CONNECTOR-CONTROL-R007.1",
     "SDK-CONNECTOR-CONTROL-R007.2",
@@ -1751,6 +1752,7 @@
         "SDK-CONNECTOR-CONTROL-R050.4",
         "SDK-CONNECTOR-CONTROL-R050.5",
         "SDK-CONNECTOR-CONTROL-R050.6",
+        "SDK-CONNECTOR-CONTROL-R050.8",
         "SDK-CONNECTOR-CONTROL-R050.7"
       ]
     },
@@ -1799,6 +1801,18 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R050.8",
+      "title": "Serialized progress primitive",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "73fb45cafbaa",
+        "d59d8ba3b010"
+      ],
+      "verified_by": [
+        "tests/test_ordered_progress.py:26"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R050.7",

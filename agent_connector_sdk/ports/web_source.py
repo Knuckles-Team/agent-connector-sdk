@@ -308,6 +308,7 @@ class RobotsRules:
     _rules: dict[str, tuple[float, urllib.robotparser.RobotFileParser]] = field(
         default_factory=dict
     )
+    _locks: dict[str, asyncio.Lock] = field(default_factory=dict)
 
     async def check(self, url: str) -> None:
         """Raise ``robots_disallowed`` unless ``url`` may be fetched."""
@@ -320,11 +321,14 @@ class RobotsRules:
         origin = _origin(url)
         cached = self._rules.get(origin)
         if cached is None or cached[0] < self.clock():
-            parser = await self._load(origin)
-            self._rules[origin] = (self.clock() + self.ttl_s, parser)
-        else:
-            parser = cached[1]
-        return parser.can_fetch(self.user_agent, url)
+            lock = self._locks.setdefault(origin, asyncio.Lock())
+            async with lock:
+                cached = self._rules.get(origin)
+                if cached is None or cached[0] < self.clock():
+                    parser = await self._load(origin)
+                    cached = (self.clock() + self.ttl_s, parser)
+                    self._rules[origin] = cached
+        return cached[1].can_fetch(self.user_agent, url)
 
     async def _load(self, origin: str) -> urllib.robotparser.RobotFileParser:
         parser = urllib.robotparser.RobotFileParser()
