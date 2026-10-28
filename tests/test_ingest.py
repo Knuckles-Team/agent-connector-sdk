@@ -624,3 +624,18 @@ async def test_chunked_page_advances_only_after_all_chunks_and_clears_at_end() -
         None,
     ]
     assert await service.accepted_cursor(BINDING) is None
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.47")
+async def test_generated_status_rejects_checkpoint_for_another_stream() -> None:
+    class WrongCheckpoint(_GeneratedClient):
+        async def _send(self, method, params, graph, *, idempotency_key=None):
+            assert method == "SourceIngestStatus"
+            return {
+                "connector": "demo-mcp",
+                "stream": "demo",
+                "accepted_checkpoint": {"stream": "other", "position": {"cursor": "x"}},
+            }
+
+    with pytest.raises(ValueError, match="checkpoint"):
+        await SourceIngestChannel(WrongCheckpoint()).source_status("demo-mcp", "demo")

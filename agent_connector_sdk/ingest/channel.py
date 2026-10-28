@@ -65,4 +65,11 @@ class SourceIngestChannel:
         status = await send_source_ingest_status(self._client, request)
         if status.connector != connector or status.stream != stream:
             raise ValueError("SourceIngest status does not bind the requested stream")
+        if (
+            status.accepted_checkpoint is not None
+            and status.accepted_checkpoint.stream != stream
+        ):
+            raise ValueError(
+                "SourceIngest checkpoint does not bind the requested stream"
+            )
         return status

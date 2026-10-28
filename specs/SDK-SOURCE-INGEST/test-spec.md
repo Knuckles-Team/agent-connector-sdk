@@ -414,3 +414,5 @@ R004.51 refuses a custom transport status for another connector or stream before
 R004.44 conflicts on a cursor-bearing submission and checks that the page is not retried against a changed checkpoint.
 R004.45 interrupts a chunked single-stream page. Earlier chunks keep the old cursor; a completed page advances it.
 R004.46 refuses split document pages before either stream commits. Entity-only sync still runs with the same binding setup.
+
+R004.47 refuses an accepted checkpoint that names another stream through the generated status channel.
