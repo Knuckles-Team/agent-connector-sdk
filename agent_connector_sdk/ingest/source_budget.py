@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable, Mapping
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import anyio
 
@@ -34,7 +34,10 @@ class _SourceBudgetMixin:
             try:
                 await self._flush(run)
             except self._source_error as failure:
-                return await self._handle_sync_error(run, failure)
+                return cast(
+                    tuple[Literal["completed", "partial", "failed"], str, str | None],
+                    await self._handle_sync_error(run, failure),
+                )
             return "partial", exc.reason, None
         found = _ENGINE_CODE.search(str(exc))
         return (
