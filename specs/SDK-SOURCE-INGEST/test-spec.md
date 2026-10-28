@@ -391,3 +391,5 @@ one load for that origin; a different origin completes independently.
 R803.7 mutates the exposed plan view and asserts that both execution paths retain their original plan and evidence.
 
 R803.8 refuses duplicate Arrow names before a row conversion can overwrite a field.
+
+R803.9 suppresses numeric statistics when any value is below the disclosure threshold. Eligible-only data still produces statistics.

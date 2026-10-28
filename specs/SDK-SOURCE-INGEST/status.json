@@ -220,6 +220,7 @@
     "SDK-SOURCE-INGEST-R803.6",
     "SDK-SOURCE-INGEST-R803.7",
     "SDK-SOURCE-INGEST-R803.8",
+    "SDK-SOURCE-INGEST-R803.9",
     "SDK-SOURCE-INGEST-R804",
     "SDK-SOURCE-INGEST-R804.1",
     "SDK-SOURCE-INGEST-R804.2",
@@ -2560,7 +2561,8 @@
         "SDK-SOURCE-INGEST-R803.5",
         "SDK-SOURCE-INGEST-R803.6",
         "SDK-SOURCE-INGEST-R803.7",
-        "SDK-SOURCE-INGEST-R803.8"
+        "SDK-SOURCE-INGEST-R803.8",
+        "SDK-SOURCE-INGEST-R803.9"
       ]
     },
     {
@@ -2650,6 +2652,19 @@
       ],
       "verified_by": [
         "tests/data_prep/test_kernel.py:726"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.9",
+      "title": "Suppress rare numeric values",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "96f0966cce03",
+        "b5bbf6ae6666"
+      ],
+      "verified_by": [
+        "tests/data_prep/test_profiling.py:281",
+        "tests/data_prep/test_profiling.py:301"
       ]
     },
     {
