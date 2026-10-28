@@ -20,6 +20,10 @@ The normalizer preserves legacy event IDs. It refuses a page when one ID maps
 to different announcement instants, instead of returning conflicting records.
 This does not establish cross-page identity or migrate existing graph records.
 
+R001.9 validates the calendar page and its identity fields before returning
+records. It normalizes announcement times to UTC. It does not implement a
+provider-specific API.
+
 ## Payment amount validation
 
 For SDK-FINANCE-SOURCES-R900.4, the guard refuses negative or non-finite

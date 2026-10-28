@@ -14,6 +14,10 @@
 R001.3 rejects two different announcement instants that share a legacy page identity.
 Equivalent timestamps for the same instant remain valid.
 
+R001.9 refuses missing or malformed event arrays, invalid event identities,
+noncanonical vintage dates and ambiguous announcement times. Offset timestamps
+are normalized to UTC. An explicit empty array remains valid.
+
 Offline source PRs run fixture pytest and repository quality hooks (Ruff, mypy, CCCC, Dupehound, KISS). FS-08 is an opt-in acceptance probe and reports **NOT RUN** without licensed provider access.
 
 R900.8 rejects a missing proof and each field mismatch before recording spend.
