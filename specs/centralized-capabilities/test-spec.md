@@ -95,3 +95,5 @@ list remains valid.
 | CC-49 | `SDK-CENTRALIZED-CAPABILITIES-R006.1` | Integration | Sync and async governed clients receive upstream problem documents containing private fields. | Public errors contain status-only details and retain a valid 429 retry delay without echoing body fields. |
 | CC-50 | `SDK-CENTRALIZED-CAPABILITIES-R006.2` | Fleet | Exercise connector error paths. | Errors contain no secrets or upstream bodies. |
 | CC-51 | `SDK-CENTRALIZED-CAPABILITIES-R006.3` | Integration | Exercise governed sync and async clients. | Logs and errors contain the origin but no request path, query value or raw transport exception. |
+| CC-52 | `SDK-CENTRALIZED-CAPABILITIES-R006.4` | Integration | Exercise GraphQL execution and introspection failures. | Logs and errors expose no untrusted exception content. |
+| CC-53 | `SDK-CENTRALIZED-CAPABILITIES-R006.5` | Integration | Trigger GraphQL client close failure. | Logs contain no exception content and TLS cleanup completes. |

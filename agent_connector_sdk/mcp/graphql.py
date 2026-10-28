@@ -67,9 +67,9 @@ def graphql_failure_payload(exc: BaseException) -> dict[str, Any]:
     """The public failure payload: no exception message, one correlation id."""
     correlation_id = uuid.uuid4().hex
     _logger.warning(
-        "GraphQL introspection failed (correlation_id=%s)",
+        "GraphQL introspection failed (correlation_id=%s, error_class=%s)",
         correlation_id,
-        exc_info=exc,
+        type(exc).__name__,
     )
     return {
         "status": "error",

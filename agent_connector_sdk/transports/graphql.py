@@ -10,7 +10,7 @@ A failure never carries the server's error text or the request: it raises
 :class:`GraphQLExecutionError`, whose message names only the exception class,
 and whose :meth:`GraphQLExecutionError.payload` matches
 :func:`agent_connector_sdk.mcp.graphql.graphql_failure_payload` (class and
-correlation id; the cause is logged server-side under that id).
+correlation id). The exception message is not logged.
 
 Install the ``graphql`` extra: ``scion-sdk[graphql]``.
 """
@@ -85,9 +85,9 @@ class GraphQLExecutionError(ParameterError):
         self.correlation_id = uuid.uuid4().hex
         self.retryable = retryable
         _logger.warning(
-            "GraphQL execution failed (correlation_id=%s)",
+            "GraphQL execution failed (correlation_id=%s, error_class=%s)",
             self.correlation_id,
-            exc_info=exc,
+            self.error_class,
         )
         super().__init__(f"Query execution failed: {self.error_class}")
 
@@ -259,7 +259,8 @@ class GraphQLClient:
                     self._sleep(self.backoff * (2**attempt))
                     attempt += 1
                     continue
-                raise GraphQLExecutionError(exc, retryable=retryable) from None
+                failure = GraphQLExecutionError(exc, retryable=retryable)
+            raise failure
 
     async def execute_async(
         self,
