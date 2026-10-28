@@ -1220,7 +1220,7 @@
       "title": "Secret reference object integrity",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "5d2fcbc3905a"
+        "1d4a4d15366e"
       ],
       "verified_by": [
         "tests/test_reference_invariants.py:12"
