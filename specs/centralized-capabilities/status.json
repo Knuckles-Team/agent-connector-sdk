@@ -16,6 +16,8 @@
     "SDK-CENTRALIZED-CAPABILITIES-R006.1",
     "SDK-CENTRALIZED-CAPABILITIES-R006.2",
     "SDK-CENTRALIZED-CAPABILITIES-R006.3",
+    "SDK-CENTRALIZED-CAPABILITIES-R006.4",
+    "SDK-CENTRALIZED-CAPABILITIES-R006.5",
     "SDK-CENTRALIZED-CAPABILITIES-R007",
     "SDK-CENTRALIZED-CAPABILITIES-R008",
     "SDK-CENTRALIZED-CAPABILITIES-R009",
@@ -166,7 +168,9 @@
       "rollup_of": [
         "SDK-CENTRALIZED-CAPABILITIES-R006.1",
         "SDK-CENTRALIZED-CAPABILITIES-R006.2",
-        "SDK-CENTRALIZED-CAPABILITIES-R006.3"
+        "SDK-CENTRALIZED-CAPABILITIES-R006.3",
+        "SDK-CENTRALIZED-CAPABILITIES-R006.4",
+        "SDK-CENTRALIZED-CAPABILITIES-R006.5"
       ]
     },
     {
@@ -200,6 +204,23 @@
         "tests/test_http_diagnostic_origin.py:63",
         "tests/test_http_diagnostic_origin.py:83"
       ]
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R006.4",
+      "title": "Keep GraphQL failures out of logs and errors",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_graphql_failure_redaction.py:35",
+        "tests/test_graphql_failure_redaction.py:49"
+      ]
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R006.5",
+      "title": "Protect GraphQL close diagnostics",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R007",
