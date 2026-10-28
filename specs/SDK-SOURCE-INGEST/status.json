@@ -274,7 +274,8 @@
     "SDK-SOURCE-INGEST-R805.3",
     "SDK-SOURCE-INGEST-R805.4",
     "SDK-SOURCE-INGEST-R805.5",
-    "SDK-SOURCE-INGEST-R805.6"
+    "SDK-SOURCE-INGEST-R805.6",
+    "SDK-SOURCE-INGEST-R004.50"
   ],
   "requirements": [
     {
@@ -373,7 +374,8 @@
         "SDK-SOURCE-INGEST-R004.33",
         "SDK-SOURCE-INGEST-R004.34",
         "SDK-SOURCE-INGEST-R004.35",
-        "SDK-SOURCE-INGEST-R004.36"
+        "SDK-SOURCE-INGEST-R004.36",
+        "SDK-SOURCE-INGEST-R004.50"
       ]
     },
     {
@@ -3307,6 +3309,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R805.6",
       "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.50",
+      "title": "Refuse a stalled MCP cursor",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []

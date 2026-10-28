@@ -9,6 +9,7 @@ from typing import Any
 from epistemic_graph.generated.source_ingestion import SourceCheckpoint, SourceRecord
 from pydantic import JsonValue
 
+from agent_connector_sdk.adapters.mcp_cursor import _require_cursor_progress
 from agent_connector_sdk.manifest.presets import ToolPreset
 
 __all__ = [
@@ -105,11 +106,11 @@ def _next_cursor(
     if preset.more_path and not dig_path(result, preset.more_path):
         return None
     token = dig_path(result, preset.cursor_path) if preset.cursor_path else None
-    if token is None and preset.cursor_record_field:
+    if token is None and preset.cursor_record_field and raw:
         token = dig_path(raw[-1], preset.cursor_record_field)
-    if token is None or token == position.get("cursor"):
+    if token is None:
         return None
-    return {"cursor": token}
+    return {"cursor": _require_cursor_progress(token, position)}
 
 
 def next_position(
@@ -120,10 +121,12 @@ def next_position(
     raw: Sequence[dict[str, Any]],
 ) -> dict[str, Any] | None:
     """The position of the next page, or ``None`` when the sweep is exhausted."""
-    if preset.pagination == "none" or not raw:
+    if preset.pagination == "none":
         return None
     if preset.pagination == "cursor":
         return _next_cursor(preset, position, result=result, raw=raw)
+    if not raw:
+        return None
     return _next_numbered(preset, position, raw)
 
 
