@@ -110,7 +110,8 @@
       "title": "Bound the adapter identity index",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "083be3f609e4"
+        "083be3f609e4",
+        "1bb27f84e6c3"
       ],
       "verified_by": [
         "tests/test_event_feeds.py:685",
