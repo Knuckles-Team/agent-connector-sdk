@@ -77,11 +77,11 @@
       "title": "Pagination helpers",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "a328e462721a",
+        "aa62b25d68af",
         "c842d089626d",
         "cc7da30e1213",
-        "d1ab0ffd561c",
-        "e26eb224bc48",
-        "e8673acfc5b0"
+        "d1ab0ffd561c"
       ],
       "verified_by": [
         "tests/httpsupport/test_pagination.py:54",
@@ -420,6 +420,7 @@
       "title": "Stop repeated continuation tokens",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "a328e462721a",
         "aa62b25d68af"
       ],
       "verified_by": [
