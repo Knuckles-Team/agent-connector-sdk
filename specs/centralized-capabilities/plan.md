@@ -118,3 +118,9 @@ When the item budget cuts a page, its provider cursor points past unseen
 records. Return no cursor for that partial page. Keep `truncated` true. A cap
 on a full page can return the provider cursor. Exact mid-page resume remains
 open work.
+
+## Pagination consumer isolation (R004.7)
+
+An iterator owns one mutable walk and budget. It refuses another active
+consumer. Exhaustion, fetch failure or explicit close releases the claim.
+A caller that stops early must close the active generator before reuse.

@@ -74,3 +74,9 @@ malformed headers through the iterator and confirm it ends after one fetch.
 
 Run sync and async iterators with a page larger than the remaining budget.
 They return no next cursor. A budget that ends on a full page keeps its cursor.
+
+## Pagination consumer isolation (R004.7)
+
+Interleave two consumers of one sync or async iterator. The second refuses
+without resetting the first. Close or exhaust the first, then reuse it.
+Also exercise claim release when a fetch fails.
