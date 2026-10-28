@@ -19,3 +19,5 @@ R900.7 runs the production market bus with a controlled clock. Two bar
 intervals for one symbol each receive their own completed bars.
 
 R002.1 remains open: the existing synthetic bar-page tests exercise normalization and labels, not the complete source-adapter coverage required by R002.
+
+R005.1 remains open: current FRED and ETF normalization tests do not prove the remaining macro and liquidity panels.
