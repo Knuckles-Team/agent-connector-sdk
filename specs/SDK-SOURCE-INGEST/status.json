@@ -118,6 +118,7 @@
     "SDK-SOURCE-INGEST-R005.45",
     "SDK-SOURCE-INGEST-R005.46",
     "SDK-SOURCE-INGEST-R005.47",
+    "SDK-SOURCE-INGEST-R005.48",
     "SDK-SOURCE-INGEST-R006.32",
     "SDK-SOURCE-INGEST-R006.33",
     "SDK-SOURCE-INGEST-R006.34",
@@ -414,7 +415,8 @@
         "SDK-SOURCE-INGEST-R005.44",
         "SDK-SOURCE-INGEST-R005.45",
         "SDK-SOURCE-INGEST-R005.46",
-        "SDK-SOURCE-INGEST-R005.47"
+        "SDK-SOURCE-INGEST-R005.47",
+        "SDK-SOURCE-INGEST-R005.48"
       ]
     },
     {
@@ -1558,6 +1560,17 @@
       "verified_by": [
         "tests/test_evm_chain_models.py:51",
         "tests/test_evm_chain_models.py:84"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.48",
+      "title": "Bound legacy web responses",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4712f4468d5b"
+      ],
+      "verified_by": [
+        "tests/test_adapters_web_fetch.py:131"
       ]
     },
     {
