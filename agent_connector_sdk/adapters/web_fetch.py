@@ -25,6 +25,7 @@ import hashlib
 import json
 from collections.abc import Sequence
 
+import anyio
 import httpx
 from epistemic_graph.generated.source_ingestion import (
     SourceCheckpoint,
@@ -112,8 +113,9 @@ async def fetch_page(
         allow_plaintext=allow_plaintext,
     )
     try:
-        raw = await _read_web_text(options)
-    except (httpx.HTTPError, ResponseTooLargeError):
+        with anyio.fail_after(timeout):
+            raw = await _read_web_text(options)
+    except (httpx.HTTPError, ResponseTooLargeError, TimeoutError):
         return None
     if raw is None:
         return None
