@@ -179,6 +179,9 @@ argument schema. Bind identity from authenticated server state, never tool argum
 The method wrapper must use the same context adapter as condensed handlers.
 The adapter passes context only through a declared typed parameter.
 
+The request-local cache primitive accepts only caller-admitted transient values.
+Its owner binds the authenticated context and enforces the value exclusions below.
+
 `request_cache` keys include tenant, actor, connector, operation, normalized argument
 digest and authorization scope. The cache holds typed transient values only.
 Clear it on terminal completion, cancellation or deadline. Never cache approvals,

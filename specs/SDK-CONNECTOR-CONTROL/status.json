@@ -129,6 +129,7 @@
     "SDK-CONNECTOR-CONTROL-R050.5",
     "SDK-CONNECTOR-CONTROL-R050.6",
     "SDK-CONNECTOR-CONTROL-R050.8",
+    "SDK-CONNECTOR-CONTROL-R050.9",
     "SDK-CONNECTOR-CONTROL-R050.7",
     "SDK-CONNECTOR-CONTROL-R007.1",
     "SDK-CONNECTOR-CONTROL-R007.2",
@@ -1794,6 +1795,7 @@
         "SDK-CONNECTOR-CONTROL-R050.5",
         "SDK-CONNECTOR-CONTROL-R050.6",
         "SDK-CONNECTOR-CONTROL-R050.8",
+        "SDK-CONNECTOR-CONTROL-R050.9",
         "SDK-CONNECTOR-CONTROL-R050.7"
       ]
     },
@@ -1853,6 +1855,18 @@
       ],
       "verified_by": [
         "tests/test_ordered_progress.py:26"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R050.9",
+      "title": "Request-local cache primitive",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "66354c9320c7",
+        "dec26950f9ce"
+      ],
+      "verified_by": [
+        "tests/test_request_cache.py:27"
       ]
     },
     {
