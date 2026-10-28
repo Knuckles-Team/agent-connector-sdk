@@ -30,7 +30,8 @@
     "SDK-FINANCE-SOURCES-R900.6",
     "SDK-FINANCE-SOURCES-R900.8",
     "SDK-FINANCE-SOURCES-R900.7",
-    "SDK-FINANCE-SOURCES-R900.9"
+    "SDK-FINANCE-SOURCES-R900.9",
+    "SDK-FINANCE-SOURCES-R900.10"
   ],
   "requirements": [
     {
@@ -252,17 +253,17 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "0567e6db2c3d",
+        "09fa547e9091",
         "341a4a3478e7",
         "48551e89426a",
-        "4b003b24ce55",
-        "8c6dcfdd27e8"
+        "4b003b24ce55"
       ],
       "verified_by": [
         "tests/test_finance_crypto.py:49",
         "tests/test_finance_crypto.py:58",
         "tests/test_finance_crypto.py:69",
         "tests/test_finance_feeds.py:130",
-        "tests/test_finance_feeds.py:47"
+        "tests/test_finance_feeds.py:142"
       ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R900.1",
@@ -273,7 +274,8 @@
         "SDK-FINANCE-SOURCES-R900.6",
         "SDK-FINANCE-SOURCES-R900.8",
         "SDK-FINANCE-SOURCES-R900.7",
-        "SDK-FINANCE-SOURCES-R900.9"
+        "SDK-FINANCE-SOURCES-R900.9",
+        "SDK-FINANCE-SOURCES-R900.10"
       ]
     },
     {
@@ -376,6 +378,18 @@
       ],
       "verified_by": [
         "tests/test_finance_feeds.py:130"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900.10",
+      "title": "Finite live ticks",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "09fa547e9091"
+      ],
+      "verified_by": [
+        "tests/test_finance_feeds.py:142",
+        "tests/test_finance_feeds.py:170"
       ]
     }
   ]
