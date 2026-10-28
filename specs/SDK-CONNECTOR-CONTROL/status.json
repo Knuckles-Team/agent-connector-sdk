@@ -108,6 +108,7 @@
     "SDK-CONNECTOR-CONTROL-R047.6",
     "SDK-CONNECTOR-CONTROL-R047.7",
     "SDK-CONNECTOR-CONTROL-R047.8",
+    "SDK-CONNECTOR-CONTROL-R047.9",
     "SDK-CONNECTOR-CONTROL-R048",
     "SDK-CONNECTOR-CONTROL-R048.1",
     "SDK-CONNECTOR-CONTROL-R048.2",
@@ -1591,7 +1592,8 @@
         "SDK-CONNECTOR-CONTROL-R047.5",
         "SDK-CONNECTOR-CONTROL-R047.6",
         "SDK-CONNECTOR-CONTROL-R047.7",
-        "SDK-CONNECTOR-CONTROL-R047.8"
+        "SDK-CONNECTOR-CONTROL-R047.8",
+        "SDK-CONNECTOR-CONTROL-R047.9"
       ]
     },
     {
@@ -1678,6 +1680,16 @@
       ],
       "verified_by": [
         "tests/test_a2a_discovery.py:158"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R047.9",
+      "title": "Finite card JSON",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_a2a_discovery.py:181",
+        "tests/test_a2a_discovery.py:194"
       ]
     },
     {

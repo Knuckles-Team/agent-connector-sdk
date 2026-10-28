@@ -12,6 +12,7 @@ import threading
 from collections import OrderedDict
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from math import isfinite
 from typing import Any, Literal
 
 from agent_connector_sdk.http.bodies import read_bounded
@@ -75,6 +76,17 @@ def _client_options(base_url: str, *, allow_loopback: bool) -> HttpClientOptions
         pin_egress=True,
         allow_loopback=allow_loopback,
     )
+
+
+def _finite_json_float(text: str) -> float:
+    value = float(text)
+    if not isfinite(value):
+        raise ValueError("non-finite JSON number")
+    return value
+
+
+def _reject_json_constant(text: str) -> None:
+    raise ValueError("non-finite JSON number")
 
 
 def _skill_ids(card: dict[str, Any]) -> tuple[str, ...]:
@@ -168,7 +180,11 @@ def discover_agent_card(
                 return _refused("not_json")
             body = read_bounded(response, DEFAULT_MAX_AGENT_CARD_BYTES)
             try:
-                value = json.loads(body)
+                value = json.loads(
+                    body,
+                    parse_float=_finite_json_float,
+                    parse_constant=_reject_json_constant,
+                )
             except (TypeError, ValueError):
                 return _refused("not_json")
             if not isinstance(value, dict):
