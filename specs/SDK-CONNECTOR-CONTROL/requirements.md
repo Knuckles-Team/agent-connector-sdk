@@ -153,6 +153,7 @@
 | `SDK-CONNECTOR-CONTROL-R650.3` | **Explicit release signing.** Sign the live declaration and ontology digest with a versioned, scoped OpenBao key. Require the derived key to match a caller-trusted key. Verify both inputs, key ID and canonical Ed25519 signature. | `tests/test_release_signature.py` covers changes, key scope, version and trust refusals. |
 | `SDK-CONNECTOR-CONTROL-R650.4` | **Explicit release key lock.** Read a bounded caller-trusted ontology lock whose artifact entries name a signer and public key. Refuse missing, malformed, duplicate or conflicting pins. The returned key map feeds release signing and verification. | `tests/test_release_lock.py` exercises signing and verification plus lock refusals. |
 | `SDK-CONNECTOR-CONTROL-R650.5` | **Create a release key lock.** Create a new bounded lock with canonical signer pins. Refuse invalid pins and an existing target. Creation does not approve rotation. | `tests/test_release_lock.py` covers round-trip, refusal and preservation of an existing lock. |
+| `SDK-CONNECTOR-CONTROL-R014.30` | **Reject unlisted shared addresses.** Public egress rejects RFC 6598 addresses, including IPv4-mapped IPv6 forms. An explicitly allowed private host can still use its configured private boundary. | `tests/test_http_dns_pinned_egress.py` covers the guard and sync and async governed transports. |
 <!-- /spec-definition-patch -->
 
 <!-- spec-definition-patch:sdk-consolidated-primary-20261012-req -->

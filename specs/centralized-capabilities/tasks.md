@@ -50,3 +50,5 @@ Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requireme
 - [ ] Refuse credential-bearing and malformed next URLs without exposing them (SDK-CENTRALIZED-CAPABILITIES-R004.1).
 
 - [ ] Bind Link-header pagination to the initial origin (SDK-CENTRALIZED-CAPABILITIES-R004.2).
+
+- [x] Bound Link-header parsing work (SDK-CENTRALIZED-CAPABILITIES-R004.3).

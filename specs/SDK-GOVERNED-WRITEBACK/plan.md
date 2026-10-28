@@ -219,3 +219,9 @@ SDK-GOVERNED-WRITEBACK-R004.15 binds each displayed preview to the validated cur
 The generated change set has mutable nested values. After audit reservation,
 the apply path copies the set and verifies its digest and expiry again. The
 transport receives that isolated copy. A changed or expired set has no effect.
+## In-flight effect guard (R004.17)
+
+One connector instance claims a tenant and idempotency key before lookup.
+Concurrent apply or reconcile calls for that key refuse until it releases
+the claim. The claim spans durable receipt recording. It is not a fence
+across instances or processes and does not replace durable recovery.

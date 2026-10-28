@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
 
 from agent_connector_sdk.finance.csv_import import (
     AccountContext,
@@ -67,10 +68,15 @@ def test_preview_rejects_a_mapping_naming_two_headers_for_one_field() -> None:
         preview_csv_mapping(_CSV, duplicated)
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.6")
 def test_preview_rejects_an_unrecognized_currency_code() -> None:
     bad_currency_csv = _CSV.replace(b",USD,", b",us dollars,")
-    with pytest.raises(AmbiguousCurrencyError):
+    with pytest.raises(AmbiguousCurrencyError) as preview_error:
         preview_csv_mapping(bad_currency_csv, _MAPPING)
+    with pytest.raises(AmbiguousCurrencyError) as import_error:
+        import_activities(bad_currency_csv, _MAPPING, _CONTEXT)
+    assert "us dollars" not in str(preview_error.value)
+    assert "us dollars" not in str(import_error.value)
 
 
 @pytest.mark.spec("SDK-FINANCE-SOURCES-R004")
@@ -94,3 +100,48 @@ def test_a_changed_file_is_a_new_version_with_a_different_identity() -> None:
 
     assert first[0].source_file_digest != changed[0].source_file_digest
     assert first[0].source_event_id != changed[0].source_event_id
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.2")
+@pytest.mark.parametrize("value", [b"nan", b"inf", b"-inf", b"1e999"])
+@pytest.mark.parametrize("original", [b"10", b"100.5", b"1.0"])
+def test_nonfinite_csv_amounts_are_rejected(original: bytes, value: bytes) -> None:
+    invalid = _CSV.replace(b"," + original + b",", b"," + value + b",", 1)
+    with pytest.raises(ValidationError):
+        import_activities(invalid, _MAPPING, _CONTEXT)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.3")
+@pytest.mark.parametrize("header", [b"Price", b"Unmapped"])
+def test_duplicate_headers_are_rejected(header: bytes) -> None:
+    duplicated = _CSV.replace(
+        b"Trade Date,Side,Qty,Price,Fee,Ccy,Settle Date",
+        b"Trade Date,Side,Qty,Price,Fee,Ccy,Settle Date," + header + b"," + header,
+        1,
+    )
+    with pytest.raises(AmbiguousColumnMappingError, match="unique"):
+        preview_csv_mapping(duplicated, _MAPPING)
+    with pytest.raises(AmbiguousColumnMappingError, match="unique"):
+        import_activities(duplicated, _MAPPING, _CONTEXT)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.4")
+@pytest.mark.parametrize(
+    "replacement", [b"USD", b"USD,2026-01-04T00:00:00+00:00,EXTRA"]
+)
+def test_ragged_rows_are_rejected(replacement: bytes) -> None:
+    malformed = _CSV.replace(b"USD,2026-01-04T00:00:00+00:00", replacement, 1)
+    with pytest.raises(AmbiguousColumnMappingError, match="header width"):
+        preview_csv_mapping(malformed, _MAPPING)
+    with pytest.raises(AmbiguousColumnMappingError, match="header width"):
+        import_activities(malformed, _MAPPING, _CONTEXT)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.5")
+@pytest.mark.parametrize("currency", ["\uff35\uff33\uff24", "ΑΒΓ"])
+def test_non_ascii_currency_is_rejected(currency: str) -> None:
+    invalid = _CSV.replace(b",USD,", b"," + currency.encode("utf-8") + b",", 1)
+    with pytest.raises(AmbiguousCurrencyError):
+        preview_csv_mapping(invalid, _MAPPING)
+    with pytest.raises(AmbiguousCurrencyError):
+        import_activities(invalid, _MAPPING, _CONTEXT)

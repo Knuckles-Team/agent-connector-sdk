@@ -88,3 +88,32 @@ def test_rereading_the_same_bar_yields_the_same_identity() -> None:
     first = _bars()
     second = _bars()
     assert [b.source_event_id for b in first] == [b.source_event_id for b in second]
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R002.3")
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"bars": None},
+        {"bars": "invalid"},
+        {"bars": {}},
+        {"symbol": "OTHER"},
+        {"symbol": None},
+        {"next_page_token": 1},
+        {"next_page_token": ""},
+    ],
+)
+def test_malformed_page_is_rejected(change: dict[str, object]) -> None:
+    with pytest.raises(ValueError):
+        _bars(payload={**_PAGE, **change})
+    for required in ("bars", "symbol", "next_page_token"):
+        page = {key: value for key, value in _PAGE.items() if key != required}
+        with pytest.raises(ValueError):
+            _bars(payload=page)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R002.3")
+def test_explicit_empty_page_is_valid() -> None:
+    assert _bars(payload={**_PAGE, "bars": []}) == ()
+    with pytest.raises(ValueError, match="continuation"):
+        _bars(payload={**_PAGE, "bars": [], "next_page_token": "cursor"})

@@ -30,6 +30,7 @@
     "SDK-GOVERNED-WRITEBACK-R004.14",
     "SDK-GOVERNED-WRITEBACK-R004.15",
     "SDK-GOVERNED-WRITEBACK-R004.16",
+    "SDK-GOVERNED-WRITEBACK-R004.17",
     "SDK-GOVERNED-WRITEBACK-R005"
   ],
   "requirements": [
@@ -147,7 +148,8 @@
         "SDK-GOVERNED-WRITEBACK-R004.13",
         "SDK-GOVERNED-WRITEBACK-R004.14",
         "SDK-GOVERNED-WRITEBACK-R004.15",
-        "SDK-GOVERNED-WRITEBACK-R004.16"
+        "SDK-GOVERNED-WRITEBACK-R004.16",
+        "SDK-GOVERNED-WRITEBACK-R004.17"
       ]
     },
     {
@@ -287,6 +289,18 @@
         "tests/test_writeback.py:221",
         "tests/test_writeback.py:241",
         "tests/test_writeback.py:259"
+      ]
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.17",
+      "title": "Refuse overlapping effects in one connector",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "020a30bbcd68"
+      ],
+      "verified_by": [
+        "tests/test_writeback_durable.py:356",
+        "tests/test_writeback_durable.py:392"
       ]
     },
     {

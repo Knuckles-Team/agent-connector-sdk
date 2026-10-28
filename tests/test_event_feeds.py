@@ -680,3 +680,73 @@ def test_describe_names_the_feed_specific_kind() -> None:
     descriptor = adapter.describe()
     assert descriptor.kind == adapter.kind == "event_feed:security_audit"
     assert descriptor.pagination == ("cursor",)
+
+
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.8")
+def test_event_identity_capacity_preserves_known_entries():
+    tracker = EventIdentityTracker(max_entries=2, max_bytes=12)
+    assert tracker.classify("one", "d1") is EventIdentityOutcome.NEW
+    assert tracker.classify("two", "d2") is EventIdentityOutcome.NEW
+    assert tracker.classify("one", "d1") is EventIdentityOutcome.DUPLICATE
+    with pytest.raises(EventIdentityConflictError):
+        tracker.classify("one", "changed")
+    with pytest.raises(FeedBackpressureError, match="capacity"):
+        tracker.classify("three", "d3")
+    assert tracker.classify("two", "d2") is EventIdentityOutcome.DUPLICATE
+
+
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.8")
+def test_event_identity_bounds_apply_to_staged_utf8_bytes():
+    tracker = EventIdentityTracker(max_entries=3, max_bytes=6)
+    tracker.classify("é", "d")
+    candidate = tracker.fork()
+    with pytest.raises(FeedBackpressureError, match="capacity"):
+        candidate.classify("éé", "d")
+    assert tracker.classify("é", "d") is EventIdentityOutcome.DUPLICATE
+
+
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.8")
+async def test_identity_capacity_refuses_page_without_advancing_checkpoint():
+    preset = _preset("rum-stream", "rum_events")
+    session = FakeEventSession(
+        descriptor=_tool_descriptor(preset.tool),
+        pages=[_page(_rum_event("one"), _rum_event("two"))],
+    )
+    adapter = _adapter(rum_source_adapter, preset)
+    adapter._identity.tracker = EventIdentityTracker(max_entries=1)
+    sink = InMemorySink()
+    with pytest.raises(FeedBackpressureError, match="capacity"):
+        await sync_stream(session, adapter, SyncTarget(CONNECTOR, sink, max_pages=1))
+    assert not sink.batches
+    assert (
+        await sink.source_status(CONNECTOR, "rum-stream")
+    ).accepted_checkpoint is None
+
+
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.8")
+def test_event_identity_rejects_stale_staged_pages():
+    tracker = EventIdentityTracker(max_entries=2, max_bytes=20)
+    first = tracker.fork()
+    second = tracker.fork()
+    first.classify("first", "d1")
+    second.classify("second", "d2")
+    tracker.merge(first)
+    with pytest.raises(ValueError, match="stale"):
+        tracker.merge(second)
+    assert tracker.classify("first", "d1") is EventIdentityOutcome.DUPLICATE
+
+
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.8")
+@pytest.mark.parametrize(
+    "limits",
+    [
+        {"max_entries": 0},
+        {"max_entries": True},
+        {"max_entries": 100001},
+        {"max_bytes": 0},
+        {"max_bytes": 16 * 1024 * 1024 + 1},
+    ],
+)
+def test_event_identity_refuses_unbounded_limits(limits):
+    with pytest.raises(ValueError, match="positive and bounded"):
+        EventIdentityTracker(**limits)

@@ -164,6 +164,12 @@ class EgressDecision:
     resolved_ips: tuple[str, ...] = ()
 
 
+def _is_shared_address(address: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+    if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped is not None:
+        address = address.ipv4_mapped
+    return address in _SHARED_ADDRESS_SPACE
+
+
 def egress_ip_is_blocked(ip: str, *, allow_loopback: bool) -> bool:
     """Return whether an address is outside the public egress boundary.
 
@@ -178,7 +184,8 @@ def egress_ip_is_blocked(ip: str, *, allow_loopback: bool) -> bool:
         return not allow_loopback
     # Block private, link-local, reserved, multicast, unspecified, and the cloud metadata IP.
     if (
-        addr.is_private
+        _is_shared_address(addr)
+        or addr.is_private
         or addr.is_link_local
         or addr.is_reserved
         or addr.is_multicast
