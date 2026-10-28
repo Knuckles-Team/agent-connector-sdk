@@ -33,6 +33,7 @@ from agent_connector_sdk.adapters.foreign_read import (
     ForeignReadOpenRequest,
     ForeignReadOpenResult,
     ForeignReadRow,
+    ForeignReadSourceIdentity,
     NativeRequestResponseAdapter,
     OpenRequest,
     OpenResult,
@@ -40,6 +41,12 @@ from agent_connector_sdk.adapters.foreign_read import (
 )
 
 _DIGEST = "a" * 64
+_SOURCE_IDENTITY = {
+    "source_ref": "mcp://test",
+    "source_revision": 1,
+    "schema_digest": _DIGEST,
+    "snapshot_ref": _DIGEST,
+}
 
 
 def test_foreign_read_public_aliases_and_contract_exports() -> None:
@@ -52,6 +59,9 @@ def test_foreign_read_public_aliases_and_contract_exports() -> None:
     assert CompleteResult is ForeignReadCompleteResult
     assert OpenRequest is ForeignReadOpenRequest
     assert OpenResult is ForeignReadOpenResult
+    assert (
+        ForeignReadSourceIdentity.model_validate(_SOURCE_IDENTITY).source_revision == 1
+    )
     assert ForeignReadMethod
     assert RequestResponseAdapter
     assert NativeRequestResponseAdapter
@@ -157,6 +167,7 @@ async def test_generated_foreign_read_adapter_uses_published_eg_client_sender() 
                 "execution": {"execution_id": 4, "query_digest": _DIGEST},
                 "expires_at_ms": 4_000_000_000_000,
                 "next_sequence": 0,
+                "source_identity": _SOURCE_IDENTITY,
             }
 
     client = CanonicalClient()
@@ -282,6 +293,7 @@ async def test_foreign_read_lifecycle_uses_exact_methods_and_binds_digest() -> N
                 "execution": execution,
                 "expires_at_ms": int(time.time() * 1000) + 10_000,
                 "next_sequence": 0,
+                "source_identity": _SOURCE_IDENTITY,
             },
             {
                 "execution": execution,
@@ -302,8 +314,19 @@ async def test_foreign_read_lifecycle_uses_exact_methods_and_binds_digest() -> N
     client = ForeignReadClient(adapter)
 
     opened = await client.open(_open())
+    with pytest.raises(ForeignReadError, match="digest"):
+        await client.chunk(
+            ChunkRequest(
+                execution=opened.execution,
+                sequence=0,
+                source_identity={**_SOURCE_IDENTITY, "snapshot_ref": "b" * 64},
+                rows=[ForeignReadRow(id="row-1")],
+            )
+        )
+    assert [name for name, _ in adapter.calls] == ["ForeignReadOpen"]
     await client.chunk(
         ChunkRequest(
+            source_identity=_SOURCE_IDENTITY,
             execution=opened.execution,
             sequence=0,
             rows=[ForeignReadRow(id="row-1", columns={"title": "Example"})],
@@ -343,6 +366,7 @@ async def test_foreign_read_refuses_sequence_digest_and_terminal_replay() -> Non
                 "execution": execution,
                 "expires_at_ms": int(time.time() * 1000) + 10_000,
                 "next_sequence": 0,
+                "source_identity": _SOURCE_IDENTITY,
             },
             {
                 "execution": execution,
@@ -385,6 +409,7 @@ async def test_foreign_read_refuses_sequence_digest_and_terminal_replay() -> Non
                 "execution": cancel_execution,
                 "expires_at_ms": int(time.time() * 1000) + 10_000,
                 "next_sequence": 0,
+                "source_identity": _SOURCE_IDENTITY,
             },
             {
                 "execution": cancel_execution,
@@ -423,6 +448,7 @@ async def test_foreign_read_cancelled_phase_terminalizes_handle(phase: str) -> N
                     "execution": execution,
                     "expires_at_ms": int(time.time() * 1000) + 10_000,
                     "next_sequence": 0,
+                    "source_identity": _SOURCE_IDENTITY,
                 }
             if method == "ForeignReadAbort" and phase != "abort":
                 return {
@@ -441,6 +467,7 @@ async def test_foreign_read_cancelled_phase_terminalizes_handle(phase: str) -> N
     if phase == "chunk":
         operation = client.chunk(
             ChunkRequest(
+                source_identity=_SOURCE_IDENTITY,
                 execution=opened.execution,
                 sequence=0,
                 rows=[ForeignReadRow(id="row-1")],
@@ -493,6 +520,7 @@ async def test_foreign_read_open_reserves_concurrent_capacity(monkeypatch: Any) 
                 "execution": execution,
                 "expires_at_ms": int(time.time() * 1000) + 10_000,
                 "next_sequence": 0,
+                "source_identity": _SOURCE_IDENTITY,
             }
 
     adapter = _SlowOpen()
@@ -521,12 +549,14 @@ async def test_foreign_read_reaps_expired_handle_before_capacity(
                 "execution": first_execution,
                 "expires_at_ms": int(time.time() * 1000) + 10_000,
                 "next_sequence": 0,
+                "source_identity": _SOURCE_IDENTITY,
             },
             {
                 "schema_version": 1,
                 "execution": second_execution,
                 "expires_at_ms": int(time.time() * 1000) + 10_000,
                 "next_sequence": 0,
+                "source_identity": _SOURCE_IDENTITY,
             },
         ]
     )
@@ -581,6 +611,7 @@ async def test_foreign_read_phase_timeout_aborts_remote_handle() -> None:
                     "execution": execution,
                     "expires_at_ms": int(time.time() * 1000) + 10_000,
                     "next_sequence": 0,
+                    "source_identity": _SOURCE_IDENTITY,
                 }
             if method == "ForeignReadChunk":
                 await asyncio.sleep(0.05)
@@ -598,6 +629,7 @@ async def test_foreign_read_phase_timeout_aborts_remote_handle() -> None:
     with pytest.raises(ForeignReadError, match="deadline"):
         await client.chunk(
             ChunkRequest(
+                source_identity=_SOURCE_IDENTITY,
                 execution=opened.execution,
                 sequence=0,
                 rows=[ForeignReadRow(id="row-1")],
@@ -623,6 +655,7 @@ async def test_foreign_read_enforces_per_chunk_bytes() -> None:
                 "execution": execution,
                 "expires_at_ms": int(time.time() * 1000) + 10_000,
                 "next_sequence": 0,
+                "source_identity": _SOURCE_IDENTITY,
             },
             {
                 "execution": execution,
@@ -639,6 +672,7 @@ async def test_foreign_read_enforces_per_chunk_bytes() -> None:
     with pytest.raises(ForeignReadError, match="limit_exceeded"):
         await client.chunk(
             ChunkRequest(
+                source_identity=_SOURCE_IDENTITY,
                 execution=opened.execution,
                 sequence=0,
                 rows=[ForeignReadRow(id="row-1", columns={"value": "x" * 2_000})],
@@ -648,6 +682,7 @@ async def test_foreign_read_enforces_per_chunk_bytes() -> None:
     with pytest.raises(ForeignReadError, match="limit_exceeded"):
         await client.chunk(
             ChunkRequest(
+                source_identity=_SOURCE_IDENTITY,
                 execution=opened.execution,
                 sequence=0,
                 rows=[ForeignReadRow(id="row-1")],
@@ -656,6 +691,7 @@ async def test_foreign_read_enforces_per_chunk_bytes() -> None:
     with pytest.raises(ForeignReadError, match="terminal"):
         await client.chunk(
             ChunkRequest(
+                source_identity=_SOURCE_IDENTITY,
                 execution=opened.execution,
                 sequence=0,
                 rows=[ForeignReadRow(id="row-1")],
@@ -676,6 +712,7 @@ async def test_foreign_read_checks_cumulative_limits_before_transport() -> None:
                 "execution": execution,
                 "expires_at_ms": int(time.time() * 1000) + 10_000,
                 "next_sequence": 0,
+                "source_identity": _SOURCE_IDENTITY,
             },
             {
                 "execution": execution,
@@ -690,11 +727,23 @@ async def test_foreign_read_checks_cumulative_limits_before_transport() -> None:
     client = ForeignReadClient(adapter)
     opened = await client.open(_open(max_rows=1))
     row = ForeignReadRow(id="row-1")
-    await client.chunk(ChunkRequest(execution=opened.execution, sequence=0, rows=[row]))
+    await client.chunk(
+        ChunkRequest(
+            source_identity=_SOURCE_IDENTITY,
+            execution=opened.execution,
+            sequence=0,
+            rows=[row],
+        )
+    )
     calls_after_first_chunk = len(adapter.calls)
     with pytest.raises(ForeignReadError, match="limit_exceeded"):
         await client.chunk(
-            ChunkRequest(execution=opened.execution, sequence=1, rows=[row])
+            ChunkRequest(
+                source_identity=_SOURCE_IDENTITY,
+                execution=opened.execution,
+                sequence=1,
+                rows=[row],
+            )
         )
     assert len(adapter.calls) == calls_after_first_chunk
 
@@ -705,6 +754,7 @@ async def test_foreign_read_checks_cumulative_limits_before_transport() -> None:
                 "execution": {"execution_id": 17, "query_digest": _DIGEST},
                 "expires_at_ms": int(time.time() * 1000) + 10_000,
                 "next_sequence": 0,
+                "source_identity": _SOURCE_IDENTITY,
             }
         ]
     )
@@ -712,7 +762,12 @@ async def test_foreign_read_checks_cumulative_limits_before_transport() -> None:
     byte_opened = await byte_client.open(_open(max_bytes=1))
     with pytest.raises(ForeignReadError, match="limit_exceeded"):
         await byte_client.chunk(
-            ChunkRequest(execution=byte_opened.execution, sequence=0, rows=[row])
+            ChunkRequest(
+                source_identity=_SOURCE_IDENTITY,
+                execution=byte_opened.execution,
+                sequence=0,
+                rows=[row],
+            )
         )
     assert len(byte_adapter.calls) == 1
 
