@@ -513,3 +513,28 @@ async def test_source_ingest_uses_snapshot_when_caller_mutates_checkpoint() -> N
     receipt = await SourceIngestChannel(MutatingClient()).submit(request)
     assert receipt.accepted_checkpoint.position["sequence"] == 1
     assert request.provider_checkpoint.position["sequence"] == 99
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.51")
+async def test_custom_transport_status_identity_is_checked_before_submission() -> None:
+    class WrongStatus(_Transport):
+        def __init__(self, status):
+            super().__init__()
+            self.status = status
+
+        async def source_status(self, connector, stream):
+            return self.status
+
+    for status in (
+        SourceIngestStatus(connector="other", stream="demo"),
+        SourceIngestStatus(connector="demo-mcp", stream="other"),
+        SourceIngestStatus(
+            connector="demo-mcp",
+            stream="demo",
+            accepted_checkpoint=SourceCheckpoint(stream="other", position={}),
+        ),
+    ):
+        transport = WrongStatus(status)
+        with pytest.raises(IngestError):
+            await KnowledgeIngest(transport).submit(BINDING, _changes())
+        assert transport.requests == []

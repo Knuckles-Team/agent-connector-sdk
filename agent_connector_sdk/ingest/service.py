@@ -16,7 +16,10 @@ import concurrent.futures
 from collections.abc import Awaitable
 from typing import TypeVar
 
-from epistemic_graph.generated.source_ingestion import SourceIngestionReceipt
+from epistemic_graph.generated.source_ingestion import (
+    SourceIngestionReceipt,
+    SourceIngestStatus,
+)
 
 from agent_connector_sdk.ingest.errors import (
     IngestConflictError,
@@ -34,6 +37,16 @@ DEFAULT_ATTEMPTS = 3
 DEFAULT_SYNC_TIMEOUT_S = 30.0
 _MESSAGE_LIMIT = 300
 _T = TypeVar("_T")
+
+
+def _validate_status(binding: IngestBinding, status: SourceIngestStatus) -> None:
+    if status.connector != binding.connector or status.stream != binding.stream:
+        raise IngestError("source status does not match the requested stream")
+    if (
+        status.accepted_checkpoint is not None
+        and status.accepted_checkpoint.stream != binding.stream
+    ):
+        raise IngestError("accepted checkpoint does not match the requested stream")
 
 
 def _running_loop() -> asyncio.AbstractEventLoop | None:
@@ -102,14 +115,11 @@ class KnowledgeIngest:
         else:
             future = asyncio.run_coroutine_threadsafe(call, loop)
             status = await asyncio.wrap_future(future)
-        if status.connector != binding.connector or status.stream != binding.stream:
-            raise IngestError("source status does not match the requested stream")
+        _validate_status(binding, status)
         checkpoint = status.accepted_checkpoint
         if checkpoint is None:
             return None
-        if checkpoint.stream != binding.stream or not isinstance(
-            checkpoint.position, dict
-        ):
+        if not isinstance(checkpoint.position, dict):
             raise IngestError("accepted checkpoint does not match the requested stream")
         cursor = checkpoint.position.get("cursor")
         if cursor is not None and not isinstance(cursor, str):
@@ -172,6 +182,7 @@ class KnowledgeIngest:
         status = await self._guard(
             self._transport.source_status(binding.connector, binding.stream)
         )
+        _validate_status(binding, status)
         request = build_request(
             binding,
             changes,

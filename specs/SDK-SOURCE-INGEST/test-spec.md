@@ -409,3 +409,5 @@ R004.41 validates durable status and cursor identity and refuses malformed check
 R004.42 refuses malformed durable sequence values before SourceIngest submission, while retaining legacy absence and valid sequence advancement.
 
 R004.43 mutates the caller checkpoint during dispatch. The receipt still binds the sent snapshot.
+
+R004.51 refuses a custom transport status for another connector or stream before SourceIngest submission.
