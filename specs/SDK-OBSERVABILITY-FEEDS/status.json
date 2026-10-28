@@ -76,6 +76,7 @@
       "title": "Event adapter entry points",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "79c2eb26af34",
         "baeeea046b64"
       ],
       "verified_by": [
