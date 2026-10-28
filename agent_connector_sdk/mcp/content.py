@@ -37,6 +37,7 @@ from agent_connector_sdk.artifacts.resource_derivation import (
     derive_descriptors,
     scan_ontology,
 )
+from agent_connector_sdk.mcp.prompt_pack_meta import ContentError, _prompt_pack_metadata
 
 __all__ = [
     "ConnectorContent",
@@ -46,10 +47,6 @@ __all__ = [
     "register_connector_content",
     "register_ontology_resources",
 ]
-
-
-class ContentError(ValueError):
-    """A connector content file is malformed or missing."""
 
 
 @dataclass(frozen=True)
@@ -210,7 +207,7 @@ def _register_prompt(mcp: Any, path: Path) -> None:
             title=_prompt_title(document),
             description=str(document.get("description") or ""),
             tags=_prompt_tags(document),
-            meta=_prompt_meta(document),
+            meta=_prompt_pack_metadata(document, _prompt_meta(document)),
         )
     )
 

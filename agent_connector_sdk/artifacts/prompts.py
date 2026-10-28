@@ -31,6 +31,17 @@ from agent_connector_sdk.ports.session import McpSession
 __all__ = ["PromptArtifactKind"]
 
 
+def _pack_meta(prompt: mcp_types.Prompt) -> dict[str, object]:
+    meta = prompt.meta or {}
+    pack_meta = meta.get("team.knuckles/prompt-pack", {})
+    if not isinstance(pack_meta, dict):
+        raise MalformedArtifactError("MCP prompt pack metadata must be an object")
+    role = pack_meta.get("role", "task")
+    if role not in ("system", "task", "template"):
+        raise MalformedArtifactError("MCP prompt pack role is invalid")
+    return {"role": role, "serves": pack_meta.get("serves")}
+
+
 def _prompt_entry(
     prompt: mcp_types.Prompt,
     server: ServerIdentity,
@@ -40,6 +51,7 @@ def _prompt_entry(
 ) -> CapturedArtifact:
     body = {
         "name": prompt.name,
+        **_pack_meta(prompt),
         "description": prompt.description or "",
         "arguments": [
             argument.model_dump(mode="json", by_alias=True, exclude_none=True)
