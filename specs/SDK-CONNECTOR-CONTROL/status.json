@@ -560,7 +560,8 @@
       "title": "Inspect common dynamic imports",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "2abe574d835f"
+        "2abe574d835f",
+        "63f08e2ab188"
       ],
       "verified_by": [
         "tests/test_fleet_migration_scan.py:140"
