@@ -213,7 +213,7 @@
       "title": "Reject duplicate CSV headers",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "4e40b7f57558"
+        "1731d966e11c"
       ],
       "verified_by": [
         "tests/test_finance_csv_import.py:99"
