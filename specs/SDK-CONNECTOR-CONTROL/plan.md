@@ -91,6 +91,12 @@ Reuse governed HTTP, endpoint validation and credential references. PkceAuthMana
 For `no_credential`, the host projects `credential_missing`; preserve the shared challenge error names unchanged.
 All new R035 children and the refined R046 children require real local issuer/callback and served connector evidence.
 
+## Amendment: legacy loopback state (R046.7)
+
+The legacy browser login binds its loopback callback to a fresh state.
+It rejects missing, duplicate or mismatched values before storing a code. This does not
+close the broker-bound, headless, persistence or served obligations of R046.
+
 ## Agent-card discovery (SDK-CONNECTOR-CONTROL-R047)
 
 The in-process card cache uses a named entry limit and least-recently-used
