@@ -211,6 +211,26 @@ async def test_domain_rate_limit_shares_host_across_schemes_and_ports() -> None:
         await limiter.acquire("https://example.test:invalid/")
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.44")
+async def test_robots_loads_canonical_ipv6_origin() -> None:
+    loaded: list[str] = []
+
+    async def load(url: str) -> tuple[int, str]:
+        loaded.append(url)
+        return 200, "User-agent: *\nDisallow: /private\n"
+
+    rules = RobotsRules(load, user_agent="test")
+    assert await rules.allowed("http://[2001:db8::1]:8080/public")
+    assert not await rules.allowed("http://[2001:0db8::1]:8080/private")
+    assert loaded == ["http://[2001:db8::1]:8080/robots.txt"]
+    assert await rules.allowed("https://faß.example/public")
+    assert not await rules.allowed("https://xn--fa-hia.example/private")
+    assert loaded[-1] == "https://xn--fa-hia.example/robots.txt"
+    assert len(loaded) == 2
+    with pytest.raises(WebSourceRefused, match="policy_refused"):
+        await rules.allowed("http://example.test:invalid/private")
+
+
 @pytest.mark.spec("SDK-SOURCE-INGEST-R005.40.1")
 async def test_a_refusal_is_a_result_and_a_bad_digest_is_refused() -> None:
     server = FastMCP("fixture-web-source")

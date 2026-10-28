@@ -114,6 +114,7 @@
     "SDK-SOURCE-INGEST-R005.41",
     "SDK-SOURCE-INGEST-R005.42",
     "SDK-SOURCE-INGEST-R005.43",
+    "SDK-SOURCE-INGEST-R005.44",
     "SDK-SOURCE-INGEST-R006.32",
     "SDK-SOURCE-INGEST-R006.33",
     "SDK-SOURCE-INGEST-R006.34",
@@ -406,7 +407,8 @@
         "SDK-SOURCE-INGEST-R005.40",
         "SDK-SOURCE-INGEST-R005.41",
         "SDK-SOURCE-INGEST-R005.42",
-        "SDK-SOURCE-INGEST-R005.43"
+        "SDK-SOURCE-INGEST-R005.43",
+        "SDK-SOURCE-INGEST-R005.44"
       ]
     },
     {
@@ -1425,8 +1427,8 @@
       ],
       "verified_by": [
         "tests/test_web_source_contract.py:125",
-        "tests/test_web_source_contract.py:214",
-        "tests/test_web_source_contract.py:245"
+        "tests/test_web_source_contract.py:234",
+        "tests/test_web_source_contract.py:265"
       ]
     },
     {
@@ -1505,6 +1507,17 @@
       ],
       "verified_by": [
         "tests/test_web_source_contract.py:181"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.44",
+      "title": "Preserve valid robots origins",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "76dafb045320"
+      ],
+      "verified_by": [
+        "tests/test_web_source_contract.py:214"
       ]
     },
     {

@@ -356,3 +356,6 @@ A checkpoint bound to a different source refuses before a fetch.
 
 A controlled clock checks shared pacing across schemes, ports, host case,
 trailing dots, IDNA and equivalent IPv6 forms. Another host has its own budget.
+
+R005.44 checks a valid IPv6 robots URL, denial of a private path and cache
+reuse for equivalent IPv6 and IDNA spellings.
