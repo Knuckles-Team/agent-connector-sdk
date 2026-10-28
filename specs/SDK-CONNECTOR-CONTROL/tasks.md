@@ -83,7 +83,7 @@
   - [x] **R047.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R047.6).
 - [ ] **R048:** Agent-readable text form in tool contracts. (SDK-CONNECTOR-CONTROL-R048).
   - [ ] **R048.1:** Model row. (SDK-CONNECTOR-CONTROL-R048.1).
-  - [ ] **R048.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R048.2).
+  - [x] **R048.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R048.2).
   - [ ] **R048.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R048.3).
   - [ ] **R048.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R048.4).
   - [ ] **R048.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R048.5).
