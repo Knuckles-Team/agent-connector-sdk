@@ -401,3 +401,11 @@ R803.11 refuses any mismatch between certification state and signed summary stat
 R803.12 rejects non-string signer identity, algorithm and signature without reporting a pass.
 R803.13 checks the missing Arrow dependency through the public adapter and names the declared extra.
 R803.14 submits a mutated engine profile with a below-threshold value and requires refusal before it reaches the caller.
+
+R004.40 exercises cyclic and malformed continuation tokens and a bounded history, preserving accepted pages while refusing the offending page.
+
+R004.41 validates durable status and cursor identity and refuses malformed checkpoints before source fetch.
+
+R004.42 refuses malformed durable sequence values before SourceIngest submission, while retaining legacy absence and valid sequence advancement.
+
+R004.43 mutates the caller checkpoint during dispatch. The receipt still binds the sent snapshot.

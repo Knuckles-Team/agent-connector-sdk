@@ -45,7 +45,11 @@ class SourceIngestChannel:
 
     async def submit(self, request: SourceIngestionRequest) -> SourceIngestionReceipt:
         """Commit one exact generated request; the receipt must bind it."""
-        request = SourceIngestionRequest.model_validate(request)
+        # The caller retains the generated model and its nested mutable values.
+        # Bind both the wire body and receipt to one independent validated snapshot.
+        request = SourceIngestionRequest.model_validate(
+            request.model_dump(mode="python")
+        )
         digest = request.canonical_digest()
         receipt = await send_source_ingest(
             self._client,

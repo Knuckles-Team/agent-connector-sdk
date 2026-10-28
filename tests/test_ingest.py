@@ -10,6 +10,7 @@ from typing import Any
 
 import pytest
 from epistemic_graph.generated.source_ingestion import (
+    SourceCheckpoint,
     SourceIngestionMode,
     SourceIngestionReceipt,
     SourceIngestionRequest,
@@ -389,3 +390,126 @@ async def test_epistemic_graph_transport_stores_media_via_the_client_blob_api() 
     assert receipt.affected_count == 1
     (record,) = client.sink.batches[next(iter(client.sink.batches))].records
     assert record.record_id == f"blob:{digest}"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.41")
+async def test_accepted_cursor_refuses_malformed_or_mismatched_checkpoints() -> None:
+    class Transport(_Transport):
+        def __init__(self, status):
+            super().__init__()
+            self.status = status
+
+        async def source_status(self, connector, stream):
+            return self.status
+
+    def status(
+        position, *, connector="demo-mcp", stream="demo", checkpoint_stream="demo"
+    ):
+        return SourceIngestStatus(
+            connector=connector,
+            stream=stream,
+            accepted_checkpoint=SourceCheckpoint(
+                stream=checkpoint_stream, position=position
+            ),
+        )
+
+    assert (
+        await KnowledgeIngest(
+            Transport(SourceIngestStatus(connector="demo-mcp", stream="demo"))
+        ).accepted_cursor(BINDING)
+        is None
+    )
+    assert (
+        await KnowledgeIngest(Transport(status({"sequence": 1}))).accepted_cursor(
+            BINDING
+        )
+        is None
+    )
+    assert (
+        await KnowledgeIngest(Transport(status({"cursor": "next"}))).accepted_cursor(
+            BINDING
+        )
+        == "next"
+    )
+    for bad in (
+        status({"cursor": 123}),
+        status(["bad"]),
+        status({}, connector="other"),
+        status({}, stream="other"),
+        status({}, checkpoint_stream="other"),
+    ):
+        with pytest.raises(IngestError):
+            await KnowledgeIngest(Transport(bad)).accepted_cursor(BINDING)
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.41")
+async def test_stream_never_fetches_after_invalid_accepted_cursor() -> None:
+    from agent_connector_sdk.ingest import RecordMap, SourceStream
+
+    class Transport(_Transport):
+        async def source_status(self, connector, stream):
+            return SourceIngestStatus(
+                connector=connector,
+                stream=stream,
+                accepted_checkpoint=SourceCheckpoint(
+                    stream=stream, position={"cursor": 99}
+                ),
+            )
+
+    calls = []
+
+    async def fetch(cursor):
+        calls.append(cursor)
+        return [], None
+
+    stream = SourceStream(BINDING, {"item": RecordMap("Item", "demo:item:{_id}")})
+    with pytest.raises(IngestError, match="cursor"):
+        await stream.sync("item", fetch, ingest=KnowledgeIngest(Transport()))
+    assert calls == []
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.42")
+async def test_invalid_durable_sequence_refuses_before_submit() -> None:
+    class Transport(_Transport):
+        def __init__(self, position):
+            super().__init__()
+            self.position = position
+
+        async def source_status(self, connector, stream):
+            return SourceIngestStatus(
+                connector=connector,
+                stream=stream,
+                accepted_checkpoint=SourceCheckpoint(
+                    stream=stream, position=self.position
+                ),
+            )
+
+    for invalid in (True, False, -1, "7", None, 1.5):
+        transport = Transport({"sequence": invalid})
+        with pytest.raises(IngestError, match="sequence"):
+            await KnowledgeIngest(transport).submit(BINDING, _changes())
+        assert transport.requests == []
+
+    for position, expected in (({}, 1), ({"sequence": 0}, 1), ({"sequence": 4}, 5)):
+        request = build_request(
+            BINDING,
+            _changes(),
+            previous=SourceCheckpoint(stream="demo", position=position),
+        )
+        assert request.provider_checkpoint.position["sequence"] == expected
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.43")
+async def test_source_ingest_uses_snapshot_when_caller_mutates_checkpoint() -> None:
+    request = build_request(BINDING, _changes(), previous=None)
+
+    class MutatingClient(_GeneratedClient):
+        async def _send(self, method, params, graph, *, idempotency_key=None):
+            request.provider_checkpoint.position["sequence"] = 99
+            return await super()._send(
+                method, params, graph, idempotency_key=idempotency_key
+            )
+
+    receipt = await SourceIngestChannel(MutatingClient()).submit(request)
+    assert receipt.accepted_checkpoint.position["sequence"] == 1
+    assert request.provider_checkpoint.position["sequence"] == 99
