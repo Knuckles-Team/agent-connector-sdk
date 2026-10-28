@@ -3357,7 +3357,8 @@
       "verified_by": [
         "tests/test_tls_explicit_settings.py:14",
         "tests/test_tls_explicit_settings.py:28",
-        "tests/test_tls_explicit_settings.py:42"
+        "tests/test_tls_explicit_settings.py:42",
+        "tests/test_tls_explicit_settings.py:48"
       ]
     },
     {
