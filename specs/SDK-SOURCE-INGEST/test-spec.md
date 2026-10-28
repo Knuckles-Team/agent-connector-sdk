@@ -329,3 +329,8 @@ failed category and assert its older record arrives once and the watermark moves
 R900.7 checks a SQLite source compares offset-bearing timestamps by instant
 and replays idempotently. Invalid timestamps and mixing
 timezone-aware and naive timestamps fail closed.
+
+## Database page completeness
+
+R900.8 exercises missing text and missing watermarks against SQLite. The read
+refuses before a partial load or checkpoint, then succeeds after row repair.
