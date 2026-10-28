@@ -49,7 +49,8 @@
     "SDK-CENTRALIZED-CAPABILITIES-R004.3",
     "SDK-CENTRALIZED-CAPABILITIES-R004.5",
     "SDK-CENTRALIZED-CAPABILITIES-R004.8",
-    "SDK-CENTRALIZED-CAPABILITIES-R004.7"
+    "SDK-CENTRALIZED-CAPABILITIES-R004.7",
+    "SDK-CENTRALIZED-CAPABILITIES-R004.6"
   ],
   "requirements": [
     {
@@ -78,18 +79,18 @@
       "title": "Pagination helpers",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "7b53705c0c45",
         "a0e4fdd71f64",
         "a328e462721a",
         "aa62b25d68af",
-        "c842d089626d",
-        "cc7da30e1213"
+        "c842d089626d"
       ],
       "verified_by": [
-        "tests/httpsupport/test_pagination.py:54",
+        "tests/httpsupport/test_pagination.py:55",
         "tests/httpsupport/test_pagination_consumer.py:13",
         "tests/httpsupport/test_pagination_consumer.py:28",
         "tests/httpsupport/test_pagination_consumer.py:43",
-        "tests/httpsupport/test_pagination_link_linear.py:14"
+        "tests/httpsupport/test_pagination_invalid_page.py:14"
       ],
       "rollup_of": [
         "SDK-CENTRALIZED-CAPABILITIES-R004.1",
@@ -97,7 +98,8 @@
         "SDK-CENTRALIZED-CAPABILITIES-R004.3",
         "SDK-CENTRALIZED-CAPABILITIES-R004.5",
         "SDK-CENTRALIZED-CAPABILITIES-R004.8",
-        "SDK-CENTRALIZED-CAPABILITIES-R004.7"
+        "SDK-CENTRALIZED-CAPABILITIES-R004.7",
+        "SDK-CENTRALIZED-CAPABILITIES-R004.6"
       ]
     },
     {
@@ -412,7 +414,7 @@
         "d1ab0ffd561c"
       ],
       "verified_by": [
-        "tests/httpsupport/test_pagination.py:54",
+        "tests/httpsupport/test_pagination.py:55",
         "tests/httpsupport/test_pagination_partial_cursor.py:16",
         "tests/httpsupport/test_pagination_partial_cursor.py:34"
       ]
@@ -442,6 +444,19 @@
         "tests/httpsupport/test_pagination_consumer.py:13",
         "tests/httpsupport/test_pagination_consumer.py:28",
         "tests/httpsupport/test_pagination_consumer.py:43"
+      ]
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.6",
+      "title": "Refuse malformed pagination pages",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "7b53705c0c45"
+      ],
+      "verified_by": [
+        "tests/httpsupport/test_pagination_invalid_page.py:14",
+        "tests/httpsupport/test_pagination_invalid_page.py:30",
+        "tests/httpsupport/test_pagination_invalid_page.py:53"
       ]
     }
   ]
