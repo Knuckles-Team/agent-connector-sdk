@@ -110,7 +110,7 @@ async def _serve_page(
 
 
 def _record(paper: PaperRecord) -> dict[str, Any]:
-    item = paper.model_dump(mode="json")
+    item = paper.model_dump(mode="json", exclude_none=True)
     identity = json.dumps(
         [paper.canonical_id, paper.revision], ensure_ascii=False, separators=(",", ":")
     ).encode()

@@ -1,11 +1,18 @@
 import asyncio
+import hashlib
+import json
 
 import pytest
+from epistemic_graph.connector_pack import (
+    ConnectorPackArchiveBuilder,
+    ConnectorPackClient,
+    ConnectorPackEntryContent,
+)
+from epistemic_graph.generated.connector_pack import PackEntryKind, PackProducer
 from fastmcp import FastMCP
-from live_engine import live_ingest, scoped_client  # noqa: F401
-from test_contracts_and_sink import _catalog
+from live_engine import PRINCIPAL, TENANT, live_ingest, scoped_client  # noqa: F401
+from test_contracts_and_sink import _catalog, _mutation_context
 from test_event_feeds import CONNECTOR
-from test_event_replay_checkpoint import _import_mapping
 from test_paper_search_served import _HttpProvider
 
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
@@ -28,10 +35,69 @@ from agent_connector_sdk.testing.http_server import ScriptedHttpServer, Scripted
 from agent_connector_sdk.transports.mcp import McpTransport
 
 
+async def _strict_mapping(client):
+    context = _mutation_context().model_copy(update={"tenant_id": TENANT})
+    key = "paper-null-test:bind"
+    await client._send(
+        "ConnectorPack",
+        {
+            "op": {
+                "op": "bind",
+                "request": {
+                    "context": context.model_copy(
+                        update={"idempotency_key": key}
+                    ).model_dump(mode="json"),
+                    "connector": CONNECTOR,
+                    "importer": "principal:sha256:"
+                    + hashlib.sha256(PRINCIPAL.encode()).hexdigest(),
+                },
+            }
+        },
+        None,
+        idempotency_key=key,
+    )
+    server = ConnectorPackEntryContent(
+        kind=PackEntryKind.MCP_SERVER,
+        uri=f"mcp-server://{CONNECTOR}",
+        name=CONNECTOR,
+        media_type="application/json",
+        body=json.dumps({"name": CONNECTOR}).encode(),
+    )
+    resource = ConnectorPackEntryContent(
+        kind=PackEntryKind.RESOURCE,
+        uri="connector://resources",
+        name="connector-resources",
+        media_type="application/json",
+        body=json.dumps(
+            {
+                "connector": CONNECTOR,
+                "sources": [],
+                "schema_mappings": {
+                    "Event": {
+                        "ontology_class": "Document",
+                        "fields": {"abstract": "xsd:string"},
+                    }
+                },
+            }
+        ).encode(),
+        output_schema=b'{"type":"object"}',
+    )
+    result = await ConnectorPackClient(client).import_pack(
+        ConnectorPackArchiveBuilder.build(server, [resource]),
+        connector=CONNECTOR,
+        server_package_version="1.0.0",
+        producer=PackProducer(name="paper-null-test", version="1"),
+        catalog=_catalog(),
+        context=context,
+    )
+    assert result.result == "imported"
+    return context
+
+
 async def exercise(url):
     engine = await scoped_client(["*"])
     try:
-        context = await _import_mapping(engine)
+        context = await _strict_mapping(engine)
 
         async def authority(_connector):
             return _catalog(), context
@@ -109,8 +175,6 @@ async def exercise(url):
 
 
 def test_provider_failure_and_restart(live_ingest):  # noqa: F811
-    import json
-
     def feed(paper):
         return json.dumps(
             {"id": paper, "title": "Graph " + paper, "doi": "10.1234/" + paper}

@@ -896,7 +896,9 @@ credential quota groups, and the tenant storage root. The SDK does not derive
 these authorities from tool arguments. Each configured
 provider stream serves a separately named read-only tool with live source
 metadata and delta lifecycle. Its provider continuation is query-bound. A
-provider refusal raises a tool error before emitting a checkpoint. Each
+stream omits absent optional fields from graph records. It does not invent
+empty strings or send null into a non-null mapped field.
+A provider refusal raises a tool error before emitting a checkpoint. Each
 completed sweep receives a fresh graph checkpoint. The host must import the
 matching connector mapping and certify its live tool. The runner then submits
 the page.
