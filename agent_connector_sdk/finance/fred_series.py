@@ -94,7 +94,11 @@ def macro_series_from_fred(
     observed_at_utc: datetime,
 ) -> tuple[MacroSeriesObservation, ...]:
     """Normalize one FRED/ALFRED ``observations`` page; one record per vintage."""
-    raw_observations: Sequence[Mapping[str, Any]] = payload.get("observations", ())
+    raw_observations = payload.get("observations")
+    if not isinstance(raw_observations, Sequence) or isinstance(
+        raw_observations, (str, bytes)
+    ):
+        raise ValueError("FRED observations must be an array")
     return tuple(
         _macro_observation_from_fred(
             raw,

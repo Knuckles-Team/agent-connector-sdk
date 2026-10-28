@@ -31,3 +31,5 @@ R003.1 remains open: existing FX, commodity and real-estate model tests do not e
 
 R004.1 remains open: synthetic mapping and stable identifiers do not prove real source reads or durable re-import.
 - `SDK-FINANCE-SOURCES-R003.2`: `tests/test_finance_records.py` checks non-finite FX and commodity prices and overflow on FX inversion.
+
+- `SDK-FINANCE-SOURCES-R003.3`: `tests/test_finance_records.py` checks FX currency normalization and refusal of malformed or identical currency codes.

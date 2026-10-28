@@ -16,7 +16,7 @@ from enum import StrEnum
 from math import isfinite
 from typing import Self
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 
 from agent_connector_sdk.finance.records import FinanceRecordBase
 
@@ -34,6 +34,13 @@ class FxRate(FinanceRecordBase):
     base_currency: str = Field(min_length=3, max_length=3)
     quote_currency: str = Field(min_length=3, max_length=3)
     rate: float = Field(gt=0, allow_inf_nan=False)
+
+    @field_validator("base_currency", "quote_currency")
+    @classmethod
+    def _canonical_currency(cls, value: str) -> str:
+        if not value.isascii() or not value.isalpha():
+            raise ValueError("currency must be three ASCII letters")
+        return value.upper()
 
     @model_validator(mode="after")
     def _base_and_quote_differ(self) -> Self:

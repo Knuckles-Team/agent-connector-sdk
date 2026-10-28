@@ -76,3 +76,13 @@ def test_distinct_funds_on_the_same_day_get_distinct_event_ids() -> None:
 
 def test_empty_flows_yields_no_records() -> None:
     assert _flows(payload={"flows": []}) == ()
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R005.3")
+@pytest.mark.parametrize("value", [None, "invalid", {}, 1])
+def test_flow_page_requires_an_array(value: object) -> None:
+    with pytest.raises(ValueError, match="flows must be an array"):
+        _flows(payload={"flows": value})
+    with pytest.raises(ValueError, match="flows must be an array"):
+        _flows(payload={})
+    assert _flows(payload={"flows": []}) == ()
