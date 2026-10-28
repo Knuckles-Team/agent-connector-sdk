@@ -405,7 +405,7 @@ or credential fields.
 The client keeps the server execution handle and query digest. It keeps the
 expected sequence and cumulative row/byte totals. It uses the smaller
 local/server deadline. Before transport, it asks the existing EG MessagePack
-client codec for the named row-sequence size and enforces both per-page and
+client codec for the named row-sequence size. It enforces the per-page and
 cumulative row/byte limits. It reaps idle expired handles before admitting a
 new execution, while retaining only bounded replay tombstones.
 Chunks and exactly one terminal complete/abort are accepted only for the
@@ -946,3 +946,19 @@ A document response over the byte limit returns `size_exceeded`. A provider
 authentication refusal returns `unauthorized`. A governed egress refusal
 returns `egress_denied`. A truncated response returns `integrity_failed`.
 Each refusal removes the incomplete temporary file.
+
+## Enterprise operation dispatch prototype
+
+A connector may attach an enterprise dispatcher to its SDK server. The host
+verifies the caller and the requested company before the connector reads or
+writes. The operation schema pin must match the shared SDK models. The
+connector's read implementation returns the common result and an opaque source
+receipt. The result binds the request digest and the configured connector.
+
+The dispatcher refuses invoice effects without a host-admitted writer. The
+approved patch binds the operation and company. The admitted connector must
+map it to source-native creation and prove atomic idempotency and recovery.
+ERPNext's generic document POST does not supply that proof. The optional
+source guard requires site installation and independent transaction verification.
+This local composition does not complete R006.33 through R006.37 or
+authenticate the host's actor binding.

@@ -13,7 +13,10 @@ from epistemic_graph.generated.source_ingestion import (
 )
 from pydantic import JsonValue, TypeAdapter, ValidationError
 
-from agent_connector_sdk.adapters._platform_validation import _validate_source_binding
+from agent_connector_sdk.adapters._platform_validation import (
+    _bounded_json,
+    _validate_source_binding,
+)
 from agent_connector_sdk.adapters.mcp_tool_lifecycle import raw_relationships
 from agent_connector_sdk.adapters.mcp_tool_paging import dig_path
 from agent_connector_sdk.adapters.platform_models import PlatformResult
@@ -22,6 +25,12 @@ from agent_connector_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
 )
+from agent_connector_sdk.vendor_extractors.enterprise_contract import (
+    CreateInvoice,
+    EnterpriseOperation,
+    EnterpriseResult,
+)
+from agent_connector_sdk.vendor_extractors.enterprise_dispatch import _operation_digest
 
 __all__ = ["raw_records", "raw_relationships", "source_record"]
 
@@ -42,6 +51,20 @@ def _mapping_records(
 async def _validate_platform_binding(
     preset: ToolPreset, arguments: dict[str, Any], result: Any
 ) -> None:
+    if preset.result_contract == "enterprise":
+        try:
+            await anyio.to_thread.run_sync(
+                _validate_enterprise_source,
+                preset,
+                arguments,
+                result,
+                abandon_on_cancel=True,
+            )
+        except (KeyError, TypeError, ValueError):
+            raise SourceContractError(
+                "enterprise result does not match the source request"
+            ) from None
+        return
     if preset.result_contract != "platform":
         return
     binding_failed = False
@@ -53,6 +76,26 @@ async def _validate_platform_binding(
         binding_failed = True
     if binding_failed:
         raise SourceContractError("platform result does not match the source request")
+
+
+def _validate_enterprise_source(
+    preset: ToolPreset, arguments: dict[str, Any], result: Any
+) -> None:
+    request = EnterpriseOperation.model_validate_json(
+        _bounded_json(arguments["request"])
+    )
+    response = EnterpriseResult.model_validate_json(_bounded_json(result))
+    if (
+        isinstance(request.parameters, CreateInvoice)
+        or response.request_id != request.request_id
+        or response.tenant != request.tenant
+        or response.company_id != request.company_id
+        or response.connector != preset.server
+        or response.contract_revision != request.contract_revision
+        or response.operation != request.parameters.operation
+        or response.operation_digest != _operation_digest(request)
+    ):
+        raise ValueError("enterprise binding mismatch")
 
 
 def raw_records(preset: ToolPreset, result: Any) -> list[dict[str, Any]]:
@@ -75,6 +118,15 @@ def raw_records(preset: ToolPreset, result: Any) -> list[dict[str, Any]]:
             raise MalformedSourceDataError(
                 "platform result is missing authority or policy binding"
             )
+    if preset.result_contract == "enterprise":
+        try:
+            enterprise = EnterpriseResult.model_validate_json(_bounded_json(result))
+        except (TypeError, ValueError):
+            raise MalformedSourceDataError("enterprise result is malformed") from None
+        if enterprise.outcome != "ok":
+            raise SourceContractError(f"enterprise result refused: {enterprise.reason}")
+        if not enterprise.operation_digest or not enterprise.backend_receipt:
+            raise MalformedSourceDataError("enterprise result lacks source evidence")
     data = dig_path(result, preset.records_path) if preset.records_path else result
     if isinstance(data, Mapping) and preset.records_is_mapping:
         return _mapping_records(preset, data)

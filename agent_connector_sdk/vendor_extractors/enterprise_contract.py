@@ -155,6 +155,13 @@ class EnterpriseResult(_Model):
     connector: Identity
     contract_revision: Identity
     operation: OperationName
+    operation_digest: Digest | None = None
+    backend_receipt: (
+        Annotated[
+            str, Field(min_length=1, max_length=256, pattern=r"^[A-Za-z0-9._:-]+$")
+        ]
+        | None
+    ) = None
     outcome: Literal["ok", "refused", "failed"]
     reason: Reason | None = None
     accounts: tuple[AccountRecord, ...] = Field(
@@ -180,7 +187,13 @@ class EnterpriseResult(_Model):
         return self
 
     def _validate_failure(self) -> None:
-        if self.reason is None or self.accounts or self.invoice or self.continuation:
+        if (
+            self.reason is None
+            or self.accounts
+            or self.invoice
+            or self.continuation
+            or self.backend_receipt
+        ):
             raise ValueError("failure must have a reason and no data")
         if self.effect_receipt is None:
             return

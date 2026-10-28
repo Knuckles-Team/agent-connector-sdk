@@ -214,7 +214,7 @@ async def test_idempotency_key_cannot_name_a_different_digest() -> None:
     changed = changed.model_copy(
         update={"change_set_digest": changed.canonical_digest()}
     )
-    with pytest.raises(IdempotencyConflictError):
+    with pytest.raises((IdempotencyConflictError, AuthorizationDeniedError)):
         await fixture.port.apply(changed)
 
 

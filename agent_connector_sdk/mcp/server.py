@@ -23,6 +23,9 @@ from starlette.responses import JSONResponse
 
 if TYPE_CHECKING:
     from agent_connector_sdk.adapters.platform_fallback import PlatformFallback
+    from agent_connector_sdk.vendor_extractors.enterprise_dispatch import (
+        EnterpriseDispatcher,
+    )
 
 from agent_connector_sdk.config import setting
 from agent_connector_sdk.credentials.resolver import CredentialResolver
@@ -105,6 +108,7 @@ def create_mcp_server(
     credential_resolver: CredentialResolver | None = None,
     served_security_override: ServedSecurityOverride | None = None,
     platform_fallback: PlatformFallback | None = None,
+    enterprise_dispatcher: EnterpriseDispatcher | None = None,
 ) -> tuple[argparse.Namespace, FastMCP[Any], list[Any]]:
     """Build a connector FastMCP server.
 
@@ -123,6 +127,7 @@ def create_mcp_server(
         served_security_override: Explicit, logged opt-out of the served
             security profile that every network transport otherwise gets.
         platform_fallback: Optional host-authorized read/search fallback to serve.
+        enterprise_dispatcher: Optional host-authorized enterprise operation handler.
 
     Returns:
         ``(args, mcp, middlewares)``; the caller adds the middlewares.
@@ -166,6 +171,10 @@ def create_mcp_server(
         from agent_connector_sdk.mcp.platform_tools import register_platform_tools
 
         register_platform_tools(mcp, platform_fallback)
+    if enterprise_dispatcher is not None:
+        from agent_connector_sdk.mcp.enterprise_tools import register_enterprise_tools
+
+        register_enterprise_tools(mcp, enterprise_dispatcher)
     if content is not None:
         register_connector_content(mcp, content)
     return args, mcp, build_middleware()

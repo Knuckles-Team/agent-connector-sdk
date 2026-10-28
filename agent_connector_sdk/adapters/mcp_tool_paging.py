@@ -56,7 +56,7 @@ def tool_arguments(preset: ToolPreset, params: dict[str, Any]) -> dict[str, Any]
     if preset.params_style == "json":
         arguments[preset.params_arg] = json.dumps(params, sort_keys=True)
         return arguments
-    if preset.result_contract == "platform":
+    if preset.result_contract in {"platform", "enterprise"}:
         _merge_arguments(arguments, params)
     else:
         arguments.update(params)
