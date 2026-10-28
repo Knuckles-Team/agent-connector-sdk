@@ -28,7 +28,8 @@
     "SDK-FINANCE-SOURCES-R900.5",
     "SDK-FINANCE-SOURCES-R900.6",
     "SDK-FINANCE-SOURCES-R900.8",
-    "SDK-FINANCE-SOURCES-R900.7"
+    "SDK-FINANCE-SOURCES-R900.7",
+    "SDK-FINANCE-SOURCES-R900.9"
   ],
   "requirements": [
     {
@@ -238,16 +239,16 @@
       "landed_in": [
         "0567e6db2c3d",
         "341a4a3478e7",
+        "48551e89426a",
         "4b003b24ce55",
-        "8c6dcfdd27e8",
-        "be6035bc97e5"
+        "8c6dcfdd27e8"
       ],
       "verified_by": [
         "tests/test_finance_crypto.py:49",
         "tests/test_finance_crypto.py:58",
         "tests/test_finance_crypto.py:69",
-        "tests/test_finance_feeds.py:47",
-        "tests/test_finance_feeds.py:77"
+        "tests/test_finance_feeds.py:130",
+        "tests/test_finance_feeds.py:47"
       ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R900.1",
@@ -257,7 +258,8 @@
         "SDK-FINANCE-SOURCES-R900.5",
         "SDK-FINANCE-SOURCES-R900.6",
         "SDK-FINANCE-SOURCES-R900.8",
-        "SDK-FINANCE-SOURCES-R900.7"
+        "SDK-FINANCE-SOURCES-R900.7",
+        "SDK-FINANCE-SOURCES-R900.9"
       ]
     },
     {
@@ -349,6 +351,17 @@
       ],
       "verified_by": [
         "tests/test_finance_feeds.py:77"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900.9",
+      "title": "Positive bar intervals",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "48551e89426a"
+      ],
+      "verified_by": [
+        "tests/test_finance_feeds.py:130"
       ]
     }
   ]

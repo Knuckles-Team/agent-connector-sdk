@@ -75,6 +75,11 @@ class LiveBar:
         }
 
 
+def _require_bar_size(bar_size: int) -> None:
+    if isinstance(bar_size, bool) or not isinstance(bar_size, int) or bar_size <= 0:
+        raise ValueError("bar size must be a positive integer")
+
+
 class TickAggregator:
     """
     Aggregates raw ticks into OHLCV bars at configurable intervals.
@@ -86,6 +91,7 @@ class TickAggregator:
     """
 
     def __init__(self, symbol: str, bar_size_seconds: int = 60):
+        _require_bar_size(bar_size_seconds)
         self.symbol = symbol
         self.bar_size = bar_size_seconds
         self._current_bar = LiveBar(symbol=symbol)
@@ -162,6 +168,7 @@ class MarketFeedBus:
         self, symbol: str, bar_size: int, callback: Callable[[Any], Any]
     ) -> None:
         """Subscribe to aggregated bars for a symbol."""
+        _require_bar_size(bar_size)
         topic = f"market.{symbol}.bars.{bar_size}s"
         sub = CallbackSubscriber(on_message_fn=callback)
         self.bus.subscribe(topic, sub)

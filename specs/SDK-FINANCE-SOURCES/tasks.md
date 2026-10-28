@@ -32,3 +32,4 @@ stream-bus imports with deterministic in-memory responses.
 - [x] Refuse non-finite multi-asset prices and inversion overflow (SDK-FINANCE-SOURCES-R003.2).
 
 - [x] Canonicalize FX currency codes before comparing the pair (SDK-FINANCE-SOURCES-R003.3).
+- [x] Refuse invalid bar intervals before subscription (SDK-FINANCE-SOURCES-R900.9).
