@@ -380,8 +380,14 @@ async def test_platform_refusal_never_becomes_an_accepted_empty_page():
 
 
 @pytest.mark.asyncio
-async def test_deadline_preserves_started_attempt_without_retry():
+async def test_deadline_preserves_started_attempt_without_retry(monkeypatch):
     import anyio
+    import anyio.to_process
+
+    async def verify_without_worker_startup(fn, *args, **kwargs):
+        return fn(*args)
+
+    monkeypatch.setattr(anyio.to_process, "run_sync", verify_without_worker_startup)
 
     class SlowBackend:
         def __init__(self, policy):
