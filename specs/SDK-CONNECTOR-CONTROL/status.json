@@ -51,6 +51,7 @@
     "SDK-CONNECTOR-CONTROL-R028.3",
     "SDK-CONNECTOR-CONTROL-R028.4",
     "SDK-CONNECTOR-CONTROL-R028.5",
+    "SDK-CONNECTOR-CONTROL-R028.6",
     "SDK-CONNECTOR-CONTROL-R029",
     "SDK-CONNECTOR-CONTROL-R030",
     "SDK-CONNECTOR-CONTROL-R030.1",
@@ -338,8 +339,7 @@
     "SDK-CONNECTOR-CONTROL-R075.4",
     "SDK-CONNECTOR-CONTROL-R075.5",
     "SDK-CONNECTOR-CONTROL-R075.6",
-    "SDK-CONNECTOR-CONTROL-R075.7",
-    "SDK-CONNECTOR-CONTROL-R028.6"
+    "SDK-CONNECTOR-CONTROL-R075.7"
   ],
   "requirements": [
     {
@@ -1056,6 +1056,20 @@
       ],
       "verified_by": [
         "tests/test_auth_declarations.py:236"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R028.6",
+      "title": "Freeze retry policy controls",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "b808b525caac"
+      ],
+      "verified_by": [
+        "tests/test_retry_policy_inputs.py:14",
+        "tests/test_retry_policy_inputs.py:21",
+        "tests/test_retry_policy_inputs.py:28",
+        "tests/test_retry_policy_inputs.py:50"
       ]
     },
     {
@@ -3987,13 +4001,6 @@
         "tests/test_eg_pack_entry_kinds.py:82",
         "tests/test_eg_pack_entry_kinds.py:96"
       ]
-    },
-    {
-      "id": "SDK-CONNECTOR-CONTROL-R028.6",
-      "title": "Freeze retry policy controls",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
     }
   ]
 }
