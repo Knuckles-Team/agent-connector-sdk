@@ -738,3 +738,12 @@ The SDK exports the standard User-Agent header from its HTTP client module.
 The client merges a caller's headers without regard to header-name case.
 A caller override replaces the standard value. The other missing R780.6
 helpers remain open.
+
+
+## Amendment: async callable retry (R780.10)
+
+The async runner reuses the HTTP retry policy for bounded backoff. Callers
+must affirm retry safety before repeated calls or fallbacks. Timeouts use
+cooperative cancellation and never trigger another attempt. Permission and
+validation failures also propagate without a fallback. Synchronous callable
+timeout handling and the remaining R780.6 helpers stay open.
