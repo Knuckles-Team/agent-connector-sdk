@@ -236,6 +236,8 @@ def test_session_login_reuses_cookie_and_relogs_once(
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.5")
 def test_session_cookies_respect_path_and_auth_is_bound_to_origin() -> None:
     from agent_connector_sdk.auth.rotating import SessionLoginAuth
+    from agent_connector_sdk.http.client import create_http_client
+    from agent_connector_sdk.http.options import HttpClientOptions
 
     requests: list[httpx.Request] = []
 
@@ -246,7 +248,8 @@ def test_session_cookies_respect_path_and_auth_is_bound_to_origin() -> None:
         return httpx.Response(200)
 
     auth = SessionLoginAuth(login_path="/login", username="user", password=lambda: "pw")
-    with httpx.Client(auth=auth, transport=httpx.MockTransport(serve)) as client:
+    options = HttpClientOptions(base_url="https://one.example.test", auth=auth)
+    with create_http_client(options, transport=httpx.MockTransport(serve)) as client:
         client.get("https://one.example.test/api/resource")
         client.get("https://one.example.test/other")
         with pytest.raises(TokenRequestError, match="origin"):
@@ -255,6 +258,65 @@ def test_session_cookies_respect_path_and_auth_is_bound_to_origin() -> None:
     assert requests[1].headers["Cookie"] == "SID=secret"
     assert "Cookie" not in requests[2].headers
     assert len(requests) == 3
+
+
+@pytest.mark.parametrize("asynchronous", [False, True])
+async def test_session_cross_origin_redirect_is_never_dispatched(
+    asynchronous: bool,
+) -> None:
+    from agent_connector_sdk.auth.rotating import SessionLoginAuth
+    from agent_connector_sdk.http.client import (
+        create_async_http_client,
+        create_http_client,
+    )
+    from agent_connector_sdk.http.options import HttpClientOptions
+
+    requests: list[httpx.Request] = []
+
+    def serve(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path == "/login":
+            return httpx.Response(
+                200, headers={"Set-Cookie": "SID=secret; Domain=example.test; Path=/"}
+            )
+        return httpx.Response(302, headers={"Location": "https://two.example.test/api"})
+
+    auth = SessionLoginAuth(login_path="/login", username="user", password=lambda: "pw")
+    options = HttpClientOptions(base_url="https://one.example.test", auth=auth)
+    if asynchronous:
+        async with create_async_http_client(
+            options, transport=httpx.MockTransport(serve)
+        ) as client:
+            with pytest.raises(TokenRequestError, match="origin"):
+                await client.get("/api", follow_redirects=True)
+    else:
+        with (
+            create_http_client(options, transport=httpx.MockTransport(serve)) as client,
+            pytest.raises(TokenRequestError, match="origin"),
+        ):
+            client.get("/api", follow_redirects=True)
+    assert [request.url.host for request in requests] == [
+        "one.example.test",
+        "one.example.test",
+    ]
+
+
+def test_session_auth_refuses_plain_httpx_client() -> None:
+    from agent_connector_sdk.auth.rotating import SessionLoginAuth
+
+    requests: list[httpx.Request] = []
+    auth = SessionLoginAuth(login_path="/login", username="user", password=lambda: "pw")
+    with (
+        httpx.Client(
+            auth=auth,
+            transport=httpx.MockTransport(
+                lambda req: requests.append(req) or httpx.Response(200)
+            ),
+        ) as client,
+        pytest.raises(TokenRequestError, match="governed client"),
+    ):
+        client.get("https://one.example.test/api")
+    assert requests == []
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")

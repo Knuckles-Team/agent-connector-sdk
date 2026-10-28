@@ -79,6 +79,7 @@ class SessionLoginAuth(httpx.Auth):
         self._fields = (username_field, password_field)
         self._cookies = httpx.Cookies()
         self._origin: tuple[str, str, int | None] | None = None
+        self._guard_token = object()
         self._lock = threading.Lock()
 
     def __repr__(self) -> str:
@@ -106,16 +107,25 @@ class SessionLoginAuth(httpx.Auth):
             request.headers.pop("Cookie", None)
             self._cookies.set_cookie_header(request)
 
-    def auth_flow(
-        self, request: httpx.Request
-    ) -> Generator[httpx.Request, httpx.Response]:
-        """Log in when there is no session, attach it, re-login once on 401/403."""
+    def _guard_request(self, request: httpx.Request) -> None:
+        request.extensions["scion_session_guard"] = self._guard_token
+
+    def _check_origin(self, request: httpx.Request) -> None:
         origin = (request.url.scheme, request.url.host, request.url.port)
         with self._lock:
             if self._origin is None:
                 self._origin = origin
             elif self._origin != origin:
                 raise TokenRequestError("session authentication origin does not match")
+
+    def auth_flow(
+        self, request: httpx.Request
+    ) -> Generator[httpx.Request, httpx.Response]:
+        """Log in when there is no session, attach it, re-login once on 401/403."""
+        if request.extensions.get("scion_session_guard") is not self._guard_token:
+            raise TokenRequestError("session authentication requires a governed client")
+        self._check_origin(request)
+        with self._lock:
             has_cookies = bool(list(self._cookies.jar))
         if not has_cookies:
             yield from self._login(request)

@@ -32,6 +32,7 @@ from urllib.parse import urlsplit
 import httpx
 
 from agent_connector_sdk._version import __version__
+from agent_connector_sdk.auth.rotating import SessionLoginAuth
 from agent_connector_sdk.auth.static import ApiKeyAuth
 from agent_connector_sdk.config import setting
 from agent_connector_sdk.http.egress import (
@@ -56,6 +57,52 @@ __all__ = [
 HTTP_LOGGER_NAME = "agent_connector_sdk.http"
 
 _logger = logging.getLogger(HTTP_LOGGER_NAME)
+
+
+class _SessionClient(httpx.Client):
+    def __init__(self, session_auth: SessionLoginAuth, **kwargs: Any) -> None:
+        self._session_auth = session_auth
+        super().__init__(**kwargs)
+
+    def send(self, request: httpx.Request, **kwargs: Any) -> httpx.Response:
+        self._session_auth._guard_request(request)
+        return super().send(request, **kwargs)
+
+
+class _AsyncSessionClient(httpx.AsyncClient):
+    def __init__(self, session_auth: SessionLoginAuth, **kwargs: Any) -> None:
+        self._session_auth = session_auth
+        super().__init__(**kwargs)
+
+    async def send(self, request: httpx.Request, **kwargs: Any) -> httpx.Response:
+        self._session_auth._guard_request(request)
+        return await super().send(request, **kwargs)
+
+
+class _SessionTransport(httpx.BaseTransport):
+    def __init__(self, inner: httpx.BaseTransport, auth: SessionLoginAuth) -> None:
+        self._inner = inner
+        self._auth = auth
+
+    def handle_request(self, request: httpx.Request) -> httpx.Response:
+        self._auth._check_origin(request)
+        return self._inner.handle_request(request)
+
+    def close(self) -> None:
+        self._inner.close()
+
+
+class _AsyncSessionTransport(httpx.AsyncBaseTransport):
+    def __init__(self, inner: httpx.AsyncBaseTransport, auth: SessionLoginAuth) -> None:
+        self._inner = inner
+        self._auth = auth
+
+    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        self._auth._check_origin(request)
+        return await self._inner.handle_async_request(request)
+
+    async def aclose(self) -> None:
+        await self._inner.aclose()
 
 
 def default_ssl_context() -> ssl.SSLContext:
@@ -204,9 +251,13 @@ def create_http_client(
             verify_peer=options.verify_pinned_peer,
         )
     proxy = options.tls.proxy_url if options.tls else None
-    return httpx.Client(
-        transport=_AirgapTransport(governed, proxy), **_client_kwargs(options)
-    )
+    final_transport: httpx.BaseTransport = _AirgapTransport(governed, proxy)
+    if isinstance(options.auth, SessionLoginAuth):
+        final_transport = _SessionTransport(final_transport, options.auth)
+        return _SessionClient(
+            options.auth, transport=final_transport, **_client_kwargs(options)
+        )
+    return httpx.Client(transport=final_transport, **_client_kwargs(options))
 
 
 def create_async_http_client(
@@ -229,6 +280,10 @@ def create_async_http_client(
             verify_peer=options.verify_pinned_peer,
         )
     proxy = options.tls.proxy_url if options.tls else None
-    return httpx.AsyncClient(
-        transport=_AsyncAirgapTransport(governed, proxy), **_client_kwargs(options)
-    )
+    final_transport: httpx.AsyncBaseTransport = _AsyncAirgapTransport(governed, proxy)
+    if isinstance(options.auth, SessionLoginAuth):
+        final_transport = _AsyncSessionTransport(final_transport, options.auth)
+        return _AsyncSessionClient(
+            options.auth, transport=final_transport, **_client_kwargs(options)
+        )
+    return httpx.AsyncClient(transport=final_transport, **_client_kwargs(options))

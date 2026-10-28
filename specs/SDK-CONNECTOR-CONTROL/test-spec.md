@@ -450,3 +450,5 @@ checks duplicate names in the live response.
 
 An HTTPX client logs in once, then calls a matching and nonmatching path. The
 test checks cookie path scope and refuses a second origin without dispatch.
+Sync and async tests also refuse cross-origin redirects. Direct unguarded
+HTTPX use refuses before login.
