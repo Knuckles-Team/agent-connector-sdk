@@ -705,6 +705,11 @@ The database source validates each row before it yields any document or
 returns a checkpoint. Missing required fields refuse the full page. A caller
 can repair the row and retry from the accepted checkpoint.
 
+## Bounded legacy web responses (R005.48)
+
+Until connector-tool migration, the direct fetch streams through the shared
+byte bound and accepts only identity encoding. Refusal returns no page.
+
 ## Web host rate limiting (R005.43)
 
 The web-source limiter groups requests by normalized host. Scheme and port

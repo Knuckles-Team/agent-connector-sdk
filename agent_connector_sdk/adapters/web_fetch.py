@@ -44,7 +44,9 @@ from agent_connector_sdk.contracts import (
     RecordPage,
     StreamDescriptor,
 )
+from agent_connector_sdk.http.bodies import DEFAULT_MAX_RESPONSE_BYTES, aread_bounded
 from agent_connector_sdk.http.client import create_async_http_client
+from agent_connector_sdk.http.errors import ResponseTooLargeError
 from agent_connector_sdk.http.options import HttpClientOptions
 from agent_connector_sdk.ports.errors import SourceContractError
 from agent_connector_sdk.ports.session import McpSession
@@ -101,19 +103,17 @@ async def fetch_page(
     options = HttpClientOptions(
         base_url=url,
         timeout=timeout,
-        headers={"User-Agent": _USER_AGENT},
+        headers={"User-Agent": _USER_AGENT, "Accept-Encoding": "identity"},
         pin_egress=True,
         allowed_private_hosts=tuple(allowed_private_hosts),
         allow_plaintext=allow_plaintext,
     )
     try:
-        async with create_async_http_client(options) as client:
-            response = await client.get("")
-    except httpx.HTTPError:
+        raw = await _read_web_text(options)
+    except (httpx.HTTPError, ResponseTooLargeError):
         return None
-    if response.status_code >= 400:
+    if raw is None:
         return None
-    raw = response.text
     text = _markdown_from_html(raw)
     if not text.strip():
         return None
@@ -128,6 +128,20 @@ async def fetch_page(
         image=og["image"],
         site_name=og["site_name"],
     )
+
+
+async def _read_web_text(options: HttpClientOptions) -> str | None:
+    """Read one identity-encoded response within the shared byte bound."""
+    async with (
+        create_async_http_client(options) as client,
+        client.stream("GET", "") as response,
+    ):
+        if response.status_code >= 400:
+            return None
+        if response.headers.get("content-encoding", "identity").lower() != "identity":
+            return None
+        body = await aread_bounded(response, DEFAULT_MAX_RESPONSE_BYTES)
+        return body.decode(response.encoding or "utf-8", errors="replace")
 
 
 def _page_index(checkpoint: SourceCheckpoint | None) -> int:
