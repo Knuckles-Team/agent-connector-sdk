@@ -170,8 +170,10 @@
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R006.1",
       "title": "Do not expose upstream problem fields in governed response errors",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4924f5edaf7f"
+      ],
       "verified_by": [
         "tests/test_governed_problem_redaction.py:54",
         "tests/test_governed_problem_redaction.py:65"
