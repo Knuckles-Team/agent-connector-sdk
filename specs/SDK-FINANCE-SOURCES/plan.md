@@ -63,4 +63,10 @@ account, positions and CSV through the adapter into a real graph.
 The stock SDK tests cover each source kind and the supported adjustment and
 session labels. Emerald Exchange tests replay served stock provider fixtures
 through the SDK adapter into a real graph. Owner fixtures cover the websocket
-stream and exchange calendar. Live access and logo usage rights remain open.
+stream and exchange calendar. A deterministic generated stock illustration is
+available from the adapter, identified as generated and non-official. It does
+not depend on a third-party logo license. Live provider access remains separate.
+The SVG composition follows the universal-skills
+[canvas-design skill](https://github.com/Knuckles-Team/universal-skills/blob/main/universal_skills/skills/canvas-design/SKILL.md).
+The adapter renders it locally from the validated symbol. Runtime needs no model
+or network. The image is not a company logo or provider fact.
