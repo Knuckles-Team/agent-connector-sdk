@@ -48,6 +48,7 @@ Pull requests run `uv sync`, focused `pytest`, Ruff, mypy, wiring checks, CCCC, 
 | CC-36 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R047.5. (`tests/test_a2a_discovery.py::test_entity_carries_fetch_provenance`) | The evidence row holds as stated. |
 | CC-37 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R047.6. (`tests/test_vendor_extractors_archer_infra_a2a.py::test_extract_discovers_card_from_base_url`) | The hot-path proof row holds as stated. |
 | CC-37A | Fill the card cache, access one card, and insert another. | The least recently used entry is evicted and the cache stays within its bound. (SDK-CONNECTOR-CONTROL-R047.7) |
+| CC-37B | Mutate returned nested card data before a 304 response. | The cached observation retains the original JSON and ETag. (SDK-CONNECTOR-CONTROL-R047.8) |
 | CC-38 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R048.1. (`tests/test_readable_form.py::test_model_is_frozen_and_optional_on_facts`) | The model row holds as stated. |
 | CC-39 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R048.2. (`tests/test_readable_form.py::test_render_is_bounded_plain_text`) | The behavior row holds as stated. |
 | CC-40 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R048.3. (`tests/test_pack.py::test_tool_entry_carries_readable_form`) | The wiring row holds as stated. |
@@ -495,6 +496,7 @@ process settings do not alter the result, and an unknown profile refuses.
 - `SDK-CONNECTOR-CONTROL-R650.2`: `tests/test_release_identity.py::test_release_digest_binds_live_declaration_and_graph` checks order invariance and changes to each input.
 
 - `SDK-CONNECTOR-CONTROL-R650.3`: `tests/test_release_signature.py` covers input tampering, key scope, version, trust and canonical signature refusals.
+- `SDK-CONNECTOR-CONTROL-R650.4`: `tests/test_release_lock.py` uses lock pins in actual release signing and verification and refuses malformed locks.
 - `SDK-CONNECTOR-CONTROL-R048.7`: `tests/test_readable_form.py` covers finite ratios and refuses non-ratios through both constructors.
 
 - `SDK-CONNECTOR-CONTROL-R048.8`: `tests/test_readable_count_score.py` checks the ratio and refuses invalid grades.

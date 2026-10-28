@@ -112,7 +112,8 @@ refused. Brokered asynchronous input and served persistence remain open.
 ## Agent-card discovery (SDK-CONNECTOR-CONTROL-R047)
 
 The in-process card cache uses a named entry limit and least-recently-used
-eviction. The absolute discovery deadline remains open under R047.2.
+eviction. Cache hits and insertions detach their nested JSON from callers. The
+absolute discovery deadline remains open under R047.2.
 
 Data flow: `extract` (`agent_connector_sdk/vendor_extractors/a2a.py:98`) -> `_collect_cards` (`agent_connector_sdk/vendor_extractors/a2a_helpers.py:79`) -> `discover_agent_card` (new) -> governed HTTP client -> `A2AAgentCard` entity with provenance.
 
@@ -865,6 +866,13 @@ isolation and served binding remain the separate R050 obligations.
 The digest covers the validated live source declaration and the canonical RDF
 graph. It does not establish a signer, admission decision, lock or rotation.
 The served signing and verification obligations of R650.1 remain open.
+
+## Explicit release key lock (R650.4)
+
+A caller supplies a trusted lock path. Each artifact entry names its signer and
+canonical public key. The reader refuses missing, duplicate or conflicting pins
+and returns an immutable map for the release signer and verifier. It does not
+write locks, approve rotation or establish served admission.
 
 ## Amendment: explicit release signatures (R650.3)
 
