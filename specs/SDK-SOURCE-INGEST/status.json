@@ -219,6 +219,7 @@
     "SDK-SOURCE-INGEST-R900.5",
     "SDK-SOURCE-INGEST-R900.6",
     "SDK-SOURCE-INGEST-R900.7",
+    "SDK-SOURCE-INGEST-R900.8",
     "SDK-SOURCE-INGEST-R901",
     "SDK-SOURCE-INGEST-R901.1",
     "SDK-SOURCE-INGEST-R901.2",
@@ -2535,14 +2536,14 @@
         "490b74f6bf04",
         "4b003b24ce55",
         "7aa27bbd799e",
-        "8c6dcfdd27e8"
+        "7fe6d4b6b49e"
       ],
       "verified_by": [
         "tests/source_connectors/test_database.py:128",
-        "tests/source_connectors/test_database.py:155",
+        "tests/source_connectors/test_database.py:180",
+        "tests/source_connectors/test_database.py:207",
         "tests/source_connectors/test_database.py:48",
-        "tests/source_connectors/test_database.py:49",
-        "tests/source_connectors/test_database.py:58"
+        "tests/source_connectors/test_database.py:49"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R900.1",
@@ -2551,7 +2552,8 @@
         "SDK-SOURCE-INGEST-R900.4",
         "SDK-SOURCE-INGEST-R900.5",
         "SDK-SOURCE-INGEST-R900.6",
-        "SDK-SOURCE-INGEST-R900.7"
+        "SDK-SOURCE-INGEST-R900.7",
+        "SDK-SOURCE-INGEST-R900.8"
       ]
     },
     {
@@ -2586,7 +2588,7 @@
         "7aa27bbd799e"
       ],
       "verified_by": [
-        "tests/source_connectors/test_database.py:155"
+        "tests/source_connectors/test_database.py:207"
       ]
     },
     {
@@ -2597,7 +2599,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_database.py:128"
+        "tests/source_connectors/test_database.py:180"
       ]
     },
     {
@@ -2632,6 +2634,17 @@
       ],
       "verified_by": [
         "tests/source_connectors/test_database.py:76"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R900.8",
+      "title": "Refuse incomplete database pages",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "7fe6d4b6b49e"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_database.py:128"
       ]
     },
     {
