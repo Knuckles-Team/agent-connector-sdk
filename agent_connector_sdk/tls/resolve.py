@@ -206,6 +206,7 @@ def resolve_tls_profile(
     profile: Mapping[str, Any] | None = None,
     resolver: CredentialResolver | None = None,
     runtime_root: Path | None = None,
+    settings: Mapping[str, str] | None = None,
 ) -> ResolvedTLSProfile:
     """Resolve the TLS profile for ``service`` (see the module docstring).
 
@@ -217,6 +218,7 @@ def resolve_tls_profile(
         profile: An inline profile document; it may not hold credential values.
         resolver: Resolves secret references; the default resolver when omitted.
         runtime_root: Directory for materialized PEM files.
+        settings: Explicit TLS selectors; when given, process settings are not read.
 
     Raises:
         TransportSecurityError: the profile is invalid or its material is
@@ -230,6 +232,7 @@ def resolve_tls_profile(
         profile_ref=profile_ref,
         profile=profile,
         resolve=resolution.secret,
+        settings=settings,
     )
     resolution.document = selected.document
     try:

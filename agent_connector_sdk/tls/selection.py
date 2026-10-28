@@ -99,9 +99,18 @@ def service_prefix(service: str) -> str:
     return normalized
 
 
-def _first_setting(*keys: str) -> str:
+def _setting_value(key: str, settings: Mapping[str, str] | None) -> str:
+    if settings is None:
+        return str(setting(key, "") or "")
+    value = settings.get(key, "")
+    if not isinstance(value, str):
+        raise TransportSecurityError("tls_setting_invalid")
+    return value
+
+
+def _first_setting(*keys: str, settings: Mapping[str, str] | None) -> str:
     for key in keys:
-        value = str(setting(key, "") or "").strip()
+        value = _setting_value(key, settings).strip()
         if value:
             return value
     return ""
@@ -129,18 +138,22 @@ def _named(catalog: Mapping[str, Any], name: str) -> dict[str, Any]:
     return dict(selected)
 
 
-def _from_environment(prefix: str) -> SelectedProfile:
+def _from_environment(
+    prefix: str, settings: Mapping[str, str] | None
+) -> SelectedProfile:
     document: dict[str, Any] = {}
     for key, (suffix, global_key) in _ENVIRONMENT_KEYS.items():
-        value = _first_setting(f"{prefix}_{suffix}", global_key)
+        value = _first_setting(f"{prefix}_{suffix}", global_key, settings=settings)
         if value:
             document[key] = value
     configured = bool(document)
     if not any(
         key in document for key in ("ca_bundle_ref", "ca_bundle_path", "ca_directory")
     ):
-        standard_file = _first_setting("SSL_CERT_FILE", "REQUESTS_CA_BUNDLE")
-        standard_dir = _first_setting("SSL_CERT_DIR")
+        standard_file = _first_setting(
+            "SSL_CERT_FILE", "REQUESTS_CA_BUNDLE", settings=settings
+        )
+        standard_dir = _first_setting("SSL_CERT_DIR", settings=settings)
         if standard_file or standard_dir:
             document["ca_bundle_path" if standard_file else "ca_directory"] = (
                 standard_file or standard_dir
@@ -148,12 +161,20 @@ def _from_environment(prefix: str) -> SelectedProfile:
     return SelectedProfile("default", "environment", configured, document)
 
 
-def _selectors(prefix: str, name: str | None, ref: str | None) -> tuple[str, str]:
+def _selectors(
+    prefix: str,
+    name: str | None,
+    ref: str | None,
+    *,
+    settings: Mapping[str, str] | None,
+) -> tuple[str, str]:
     if name or ref:
         return str(name or "").strip(), str(ref or "").strip()
     return (
-        _first_setting(f"{prefix}_TLS_PROFILE", "TLS_PROFILE"),
-        _first_setting(f"{prefix}_TLS_PROFILE_REF", "TLS_PROFILE_REF"),
+        _first_setting(f"{prefix}_TLS_PROFILE", "TLS_PROFILE", settings=settings),
+        _first_setting(
+            f"{prefix}_TLS_PROFILE_REF", "TLS_PROFILE_REF", settings=settings
+        ),
     )
 
 
@@ -164,6 +185,7 @@ def select_profile(
     profile_ref: str | None,
     profile: Mapping[str, Any] | None,
     resolve: Callable[[str], str],
+    settings: Mapping[str, str] | None = None,
 ) -> SelectedProfile:
     """Choose the profile document.
 
@@ -175,7 +197,7 @@ def select_profile(
         TransportSecurityError: the selection is invalid or unavailable.
     """
     prefix = service_prefix(service)
-    name, ref = _selectors(prefix, profile_name, profile_ref)
+    name, ref = _selectors(prefix, profile_name, profile_ref, settings=settings)
     if profile is not None:
         selected = SelectedProfile(name or "inline", "inline", True, dict(profile))
     elif ref:
@@ -183,9 +205,9 @@ def select_profile(
         chosen = _named(document, name) if name else document
         return SelectedProfile(name or "default", "secret_ref", True, chosen)
     elif name:
-        selected = _from_catalog(name, resolve)
+        selected = _from_catalog(name, resolve, settings)
     else:
-        selected = _from_environment(prefix)
+        selected = _from_environment(prefix, settings)
     secret_backed = selected.source in _SECRET_BACKED_SOURCES
     if not secret_backed and _CREDENTIAL_KEYS.intersection(selected.document):
         raise TransportSecurityError("tls_credential_value_in_configuration")
@@ -195,9 +217,15 @@ def select_profile(
 _SECRET_BACKED_SOURCES = frozenset({"secret_ref", "secret_catalog"})
 
 
-def _from_catalog(name: str, resolve: Callable[[str], str]) -> SelectedProfile:
-    catalog_ref = _first_setting("TLS_PROFILES_REF")
-    raw = resolve(catalog_ref) if catalog_ref else _first_setting("TLS_PROFILES")
+def _from_catalog(
+    name: str, resolve: Callable[[str], str], settings: Mapping[str, str] | None
+) -> SelectedProfile:
+    catalog_ref = _first_setting("TLS_PROFILES_REF", settings=settings)
+    raw = (
+        resolve(catalog_ref)
+        if catalog_ref
+        else _first_setting("TLS_PROFILES", settings=settings)
+    )
     if not raw:
         raise TransportSecurityError("tls_profile_catalog_unavailable")
     chosen = _named(_parse_document(raw), name)
