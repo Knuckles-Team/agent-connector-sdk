@@ -722,7 +722,7 @@ cache entry. Invalid URL origins refuse before the loader runs.
 A robots denial retains its typed reason. Its detail contains no requested
 URL, path or query, which may contain private material.
 
-## Concurrent robots lookups (R005.47)
+## Concurrent robots lookups (R005.46)
 
 Robots lookups serialize cache refreshes per origin and read the cache after
 acquiring the lock. A load for one origin does not serialize another origin.
