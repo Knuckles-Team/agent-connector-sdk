@@ -2076,8 +2076,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.53",
       "title": "Bound declared-source calls and records",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a3c1150da9a0"
+      ],
       "verified_by": [
         "tests/test_for_each.py:273",
         "tests/test_source_sync_budgets.py:118",
