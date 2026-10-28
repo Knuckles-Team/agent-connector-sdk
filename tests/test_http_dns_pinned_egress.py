@@ -221,3 +221,45 @@ def test_userinfo_and_oversize_urls_refused(monkeypatch, seen) -> None:
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.16")
 def test_module_exports() -> None:
     assert "DnsPinnedEgressTransport" in egress.__all__
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.30")
+@pytest.mark.parametrize("ip", ["100.64.0.1", "::ffff:100.64.0.1"])
+def test_shared_addresses_refuse_at_guard_and_sync_transport(monkeypatch, seen, ip):
+    assert egress.egress_ip_is_blocked(ip, allow_loopback=False)
+    assert not egress.validate_base_url(
+        f"https://[{ip}]/" if ":" in ip else f"https://{ip}/"
+    ).allowed
+    monkeypatch.setattr(socket, "getaddrinfo", _answers(ip))
+    with pytest.raises(PinnedEgressViolation):
+        _client(seen).get("/")
+    assert seen == []
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.30")
+async def test_mapped_shared_address_refuses_async_transport(monkeypatch):
+    monkeypatch.setattr(socket, "getaddrinfo", _answers("::ffff:100.64.0.1"))
+    seen = []
+
+    async def handler(request):
+        seen.append(request)
+        return httpx.Response(200)
+
+    options = HttpClientOptions(
+        base_url="https://api.example.com", pin_egress=True, verify_pinned_peer=False
+    )
+    async with create_async_http_client(
+        options, transport=httpx.MockTransport(handler)
+    ) as client:
+        with pytest.raises(PinnedEgressViolation):
+            await client.get("/")
+    assert seen == []
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.30")
+def test_explicit_private_host_still_allows_shared_space(monkeypatch, seen):
+    monkeypatch.setattr(socket, "getaddrinfo", _answers("100.64.0.9"))
+    client = _client(seen, allowed_private_hosts=("api.example.com",))
+    assert client.get("/").status_code == 200
+    assert seen[0].url.host == "100.64.0.9"
+    assert not egress.egress_ip_is_blocked("::ffff:8.8.8.8", allow_loopback=False)

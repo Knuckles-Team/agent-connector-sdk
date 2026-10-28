@@ -10,9 +10,9 @@ returns a placeholder value.
 from __future__ import annotations
 
 import logging
-import time
 from collections.abc import Callable
 from dataclasses import dataclass
+from math import isfinite
 from typing import Any
 
 from agent_connector_sdk.source_connectors.http_safety import (
@@ -79,6 +79,18 @@ class OnChainAnalytics:
             raise ProviderRequestError(f"no TVL for protocol {protocol!r}") from exc
 
 
+def _funding_number(value: Any, field: str) -> float:
+    if isinstance(value, bool):
+        raise ProviderRequestError(f"invalid funding {field}")
+    try:
+        number = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ProviderRequestError(f"invalid funding {field}") from exc
+    if not isfinite(number):
+        raise ProviderRequestError(f"invalid funding {field}")
+    return number
+
+
 class CryptoDerivatives:
     """Keyless perpetual-futures data from the Binance futures API."""
 
@@ -93,7 +105,7 @@ class CryptoDerivatives:
             raise ProviderRequestError(f"no funding rate for symbol {symbol!r}")
         return FundingRate(
             symbol=symbol,
-            rate=float(data["lastFundingRate"]),
-            timestamp=float(data.get("time", time.time() * 1000)) / 1000.0,
+            rate=_funding_number(data["lastFundingRate"], "rate"),
+            timestamp=_funding_number(data.get("time"), "time") / 1000.0,
             exchange="binance",
         )

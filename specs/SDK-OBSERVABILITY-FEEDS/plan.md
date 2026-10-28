@@ -35,6 +35,14 @@ Registration and certified activation remain open work.
 
 The accepted checkpoint binds a digest of the last raw event page and its adapter identity. A fresh adapter suppresses only the same page when the resulting checkpoint is also unchanged. Different pages with the same watermark still commit. This guard has constant size. It does not store all event identities. R001.3 remains open for process restart and general replay evidence.
 
+## Bounded identity index (R001.8)
+
+One adapter retains at most 100,000 identity entries and 16 MiB of UTF-8
+identity and digest bytes, including a candidate page. It refuses new entries
+at either bound. Known duplicates and conflicts still resolve. This limit
+does not bound provider response size. Reaching it stops new events until a
+separate safe reset or durable identity strategy exists.
+
 ## Optional event tenant binding (R001.7)
 
 The host may construct an adapter with an expected tenant. Each envelope must

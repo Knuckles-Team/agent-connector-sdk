@@ -6,6 +6,7 @@ Ticks are published by symbol and aggregated into live OHLCV bars.
 from __future__ import annotations
 
 import logging
+import math
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -28,8 +29,16 @@ class Tick:
     timestamp: str = ""
 
     def __post_init__(self) -> None:
+        _validate_tick(self)
         if not self.timestamp:
             self.timestamp = datetime.now(UTC).isoformat()
+
+
+def _validate_tick(tick: Tick) -> None:
+    if not all(
+        math.isfinite(value) for value in (tick.price, tick.volume, tick.bid, tick.ask)
+    ):
+        raise ValueError("market tick values must be finite")
 
 
 @dataclass
@@ -48,6 +57,7 @@ class LiveBar:
 
     def update(self, tick: Tick) -> None:
         """Update the bar with a new tick."""
+        _validate_tick(tick)
         if self.tick_count == 0:
             self.open = tick.price
             self.bar_start = tick.timestamp
@@ -104,6 +114,7 @@ class TickAggregator:
         Process a tick. Returns a completed bar if the current bar
         has been closed by the time boundary.
         """
+        _validate_tick(tick)
         now = datetime.now(UTC).timestamp()
 
         if self._bar_start_time is None:
@@ -185,6 +196,8 @@ class MarketFeedBus:
         callback: Callable[[Any], Any] | None = None,
     ) -> None:
         """Set a price alert that triggers when price crosses a level."""
+        if not math.isfinite(price):
+            raise ValueError("market alert threshold must be finite")
         self._alerts.append(
             {
                 "symbol": symbol,
@@ -199,6 +212,7 @@ class MarketFeedBus:
         """
         Publish a tick to the bus and process aggregations/alerts.
         """
+        _validate_tick(tick)
         self._tick_count += 1
 
         # Publish raw tick

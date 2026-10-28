@@ -81,16 +81,26 @@ def _file_digest(content: bytes) -> str:
 
 
 def _rows(content: bytes) -> list[dict[str, str]]:
-    return list(csv.DictReader(io.StringIO(content.decode("utf-8"))))
+    rows = list(csv.DictReader(io.StringIO(content.decode("utf-8"))))
+    if any(None in row or any(value is None for value in row.values()) for row in rows):
+        raise AmbiguousColumnMappingError("CSV rows must match the header width")
+    return rows
 
 
 def _is_currency_code(value: str) -> bool:
-    return len(value) == _CURRENCY_CODE_LENGTH and value.isalpha() and value.isupper()
+    return (
+        len(value) == _CURRENCY_CODE_LENGTH
+        and value.isascii()
+        and value.isalpha()
+        and value.isupper()
+    )
 
 
 def _require_unambiguous_mapping(
     headers: tuple[str, ...], mapping: ColumnMapping
 ) -> None:
+    if len(headers) != len(set(headers)):
+        raise AmbiguousColumnMappingError("CSV header names must be unique")
     mapped_fields = list(mapping.header_to_field.values())
     missing = [field for field in _REQUIRED_FIELDS if field not in mapped_fields]
     duplicated = sorted({f for f in mapped_fields if mapped_fields.count(f) > 1})
@@ -114,15 +124,8 @@ def _require_resolved_currencies(
     )
     if currency_header is None:
         return
-    bad = sorted(
-        {
-            row[currency_header]
-            for row in rows
-            if not _is_currency_code(row.get(currency_header, ""))
-        }
-    )
-    if bad:
-        raise AmbiguousCurrencyError(f"unrecognized currency codes: {bad}")
+    if any(not _is_currency_code(row.get(currency_header, "")) for row in rows):
+        raise AmbiguousCurrencyError("CSV currency code is invalid")
 
 
 def preview_csv_mapping(content: bytes, mapping: ColumnMapping) -> CsvImportPreview:

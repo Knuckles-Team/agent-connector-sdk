@@ -37,7 +37,6 @@ trivially fed by a fake in tests.
 
 from __future__ import annotations
 
-import re
 from collections.abc import Awaitable, Callable, Mapping
 from typing import Any
 from urllib.parse import urljoin, urlsplit
@@ -45,6 +44,7 @@ from urllib.parse import urljoin, urlsplit
 from agent_connector_sdk.http.errors import HttpProblemError
 from agent_connector_sdk.http.pagination import _origin
 from agent_connector_sdk.http.problems import ProblemDetails
+from agent_connector_sdk.httpsupport.pagination_link import next_link
 
 __all__ = [
     "AsyncPaginationIterator",
@@ -90,8 +90,6 @@ def _safe_origin(url: str) -> tuple[str, str, int | None]:
         raise PaginationOriginError.for_url("") from None
 
 
-_LINK_NEXT_RE = re.compile(r'<(?P<url>[^>]+)>\s*;[^,]*\brel="?next"?')
-
 #: A page fetch: ``(endpoint_or_url, params) -> (parsed_data, headers)``.
 FetchPage = Callable[[str, dict[str, Any] | None], tuple[Any, Mapping[str, str]]]
 AsyncFetchPage = Callable[
@@ -118,8 +116,7 @@ def _link_next_url(headers: Mapping[str, str]) -> str | None:
             break
     if not raw:
         return None
-    match = _LINK_NEXT_RE.search(raw)
-    return match.group("url") if match else None
+    return next_link(raw)
 
 
 class _PageWalk:

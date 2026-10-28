@@ -11,6 +11,7 @@
     "SDK-OBSERVABILITY-FEEDS-R001.4",
     "SDK-OBSERVABILITY-FEEDS-R001.5",
     "SDK-OBSERVABILITY-FEEDS-R001.6",
+    "SDK-OBSERVABILITY-FEEDS-R001.8",
     "SDK-OBSERVABILITY-FEEDS-R001.7"
   ],
   "requirements": [
@@ -34,6 +35,7 @@
         "SDK-OBSERVABILITY-FEEDS-R001.4",
         "SDK-OBSERVABILITY-FEEDS-R001.5",
         "SDK-OBSERVABILITY-FEEDS-R001.6",
+        "SDK-OBSERVABILITY-FEEDS-R001.8",
         "SDK-OBSERVABILITY-FEEDS-R001.7"
       ]
     },
@@ -97,6 +99,21 @@
       "verified_by": [
         "tests/test_event_replay_checkpoint.py:151",
         "tests/test_event_replay_checkpoint.py:43"
+      ]
+    },
+    {
+      "id": "SDK-OBSERVABILITY-FEEDS-R001.8",
+      "title": "Bound the adapter identity index",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "083be3f609e4"
+      ],
+      "verified_by": [
+        "tests/test_event_feeds.py:702",
+        "tests/test_event_feeds.py:715",
+        "tests/test_event_feeds.py:725",
+        "tests/test_event_feeds.py:743",
+        "tests/test_event_feeds.py:756"
       ]
     },
     {

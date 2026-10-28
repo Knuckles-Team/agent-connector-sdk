@@ -30,3 +30,4 @@
 - [ ] Refuse an uncertain reconciliation that claims retry is safe (SDK-GOVERNED-WRITEBACK-R004.14).
 
 - [x] Recheck and isolate the approved change immediately before apply (SDK-GOVERNED-WRITEBACK-R004.16).
+- [x] Refuse overlapping effects within one durable connector (SDK-GOVERNED-WRITEBACK-R004.17).
