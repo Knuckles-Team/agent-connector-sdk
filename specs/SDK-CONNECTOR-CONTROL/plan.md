@@ -710,7 +710,7 @@ fail instead of reporting a vacuous pin match.
 ## Amendment: split read-class inheritance (R020.5)
 
 A parent read-only hint does not prove that every router action is read-only.
-A split inherits a read class when its first verb names a read. The action
+A split inherits a read class when its name includes a known read verb. The action
 name must also contain no known mutation verb. Mixed names such as
 `get_and_update` remain unclassified. Unknown actions also remain unclassified
 unless the connector declares an explicit per-action class. Split tool hints follow the
