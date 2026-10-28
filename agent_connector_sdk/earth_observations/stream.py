@@ -2,15 +2,14 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 import uuid
 from collections.abc import Awaitable, Callable, Sequence
 from typing import Any
 
 from agent_connector_sdk._extras import require_mcp_extra
 from agent_connector_sdk.earth_observations._stream_policy import (
-    _checkpoint_offset,
+    _authorized_offset,
+    _stream_binding,
     _validate_stream_policy,
 )
 from agent_connector_sdk.earth_observations.occurrence import OccurrenceProvider
@@ -44,28 +43,30 @@ def register_occurrence_stream(
         identifiers=identifiers,
         batch_size=batch_size,
     )
-    digest = hashlib.sha256(
-        json.dumps(
-            [
-                tenant,
-                name,
-                policy_revision,
-                provider.provider,
-                provider.http.base_url,
-                batch_size,
-                identifiers,
-            ],
-            separators=(",", ":"),
-        ).encode()
-    ).hexdigest()
+    digest = _stream_binding(
+        [
+            tenant,
+            name,
+            policy_revision,
+            provider.provider,
+            provider.http.base_url,
+            batch_size,
+            identifiers,
+        ]
+    )
 
     async def _serve(
         ctx: Context, mode: str, state: dict[str, Any] | None
     ) -> dict[str, Any]:
-        if mode != "delta" or not await authorize(tenant, ctx):
-            raise ValueError("access refused")
-        offset = _checkpoint_offset(
-            state, key="digest", binding=digest, size=len(identifiers)
+        offset = await _authorized_offset(
+            authorize,
+            tenant=tenant,
+            context=ctx,
+            mode=mode,
+            state=state,
+            key="digest",
+            binding=digest,
+            size=len(identifiers),
         )
         page_ids = identifiers[offset : offset + batch_size]
         rows = await provider.read(

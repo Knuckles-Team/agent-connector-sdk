@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 import uuid
 from collections.abc import Awaitable, Callable, Sequence
 from functools import partial
@@ -13,7 +11,8 @@ import anyio
 
 from agent_connector_sdk._extras import require_mcp_extra
 from agent_connector_sdk.earth_observations._stream_policy import (
-    _checkpoint_offset,
+    _authorized_offset,
+    _stream_binding,
     _validate_stream_policy,
 )
 from agent_connector_sdk.earth_observations.records import WeatherEvent
@@ -55,6 +54,54 @@ def _entities(
     return records, edges
 
 
+async def _serve_storm(
+    ctx: Context,
+    *,
+    mode: str,
+    state: dict[str, Any] | None,
+    authorize: Callable[[str, Any], Awaitable[bool]],
+    tenant: str,
+    archive: NoaaStormArchive,
+    name: str,
+    identifiers: Sequence[str],
+    batch_size: int,
+    binding: str,
+) -> dict[str, Any]:
+    offset = await _authorized_offset(
+        authorize,
+        tenant=tenant,
+        context=ctx,
+        mode=mode,
+        state=state,
+        key="binding",
+        binding=binding,
+        size=len(identifiers),
+    )
+    page = identifiers[offset : offset + batch_size]
+    rows = await anyio.to_thread.run_sync(
+        partial(
+            archive.read,
+            page,
+            tenant=tenant,
+            source=name,
+            max_records=batch_size,
+        )
+    )
+    records, relationships = _entities(rows)
+    next_offset = offset + len(page)
+    more = next_offset < len(identifiers)
+    return {
+        "records": records,
+        "relationships": relationships,
+        "next": str(next_offset) if more else None,
+        "checkpoint": {
+            "binding": binding,
+            "offset": next_offset if more else 0,
+            "generation": uuid.uuid4().hex,
+        },
+    }
+
+
 def register_storm_stream(
     server: Any,
     archive: NoaaStormArchive,
@@ -77,58 +124,28 @@ def register_storm_stream(
         identifiers=identifiers,
         batch_size=batch_size,
     )
-    binding = hashlib.sha256(
-        json.dumps(
-            [
-                tenant,
-                name,
-                policy_revision,
-                archive.policy.sha256,
-                batch_size,
-                identifiers,
-            ],
-            separators=(",", ":"),
-        ).encode()
-    ).hexdigest()
 
-    async def _serve(
-        ctx: Context, mode: str, state: dict[str, Any] | None
-    ) -> dict[str, Any]:
-        if mode != "delta" or not await authorize(tenant, ctx):
-            raise ValueError("access refused")
-        offset = _checkpoint_offset(
-            state, key="binding", binding=binding, size=len(identifiers)
-        )
-        page = identifiers[offset : offset + batch_size]
-        rows = await anyio.to_thread.run_sync(
-            partial(
-                archive.read,
-                page,
-                tenant=tenant,
-                source=name,
-                max_records=batch_size,
-            )
-        )
-        records, relationships = _entities(rows)
-        next_offset = offset + len(page)
-        more = next_offset < len(identifiers)
-        return {
-            "records": records,
-            "relationships": relationships,
-            "next": str(next_offset) if more else None,
-            "checkpoint": {
-                "binding": binding,
-                "offset": next_offset if more else 0,
-                "generation": uuid.uuid4().hex,
-            },
-        }
+    binding = _stream_binding(
+        [tenant, name, policy_revision, archive.policy.sha256, batch_size, identifiers]
+    )
 
     async def storm_stream(
         ctx: Context, mode: str = "delta", state: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Read a bounded archive page and its approved system relations."""
         try:
-            return await _serve(ctx, mode, state)
+            return await _serve_storm(
+                ctx,
+                mode=mode,
+                state=state,
+                authorize=authorize,
+                tenant=tenant,
+                archive=archive,
+                name=name,
+                identifiers=identifiers,
+                batch_size=batch_size,
+                binding=binding,
+            )
         except Exception:
             raise ToolError("storm source page refused") from None
 
