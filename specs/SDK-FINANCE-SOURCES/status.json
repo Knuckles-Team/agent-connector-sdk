@@ -13,15 +13,22 @@
     "SDK-FINANCE-SOURCES-R002",
     "SDK-FINANCE-SOURCES-R002.1",
     "SDK-FINANCE-SOURCES-R002.2",
+    "SDK-FINANCE-SOURCES-R002.3",
     "SDK-FINANCE-SOURCES-R003",
     "SDK-FINANCE-SOURCES-R003.1",
     "SDK-FINANCE-SOURCES-R003.2",
     "SDK-FINANCE-SOURCES-R003.3",
     "SDK-FINANCE-SOURCES-R004",
     "SDK-FINANCE-SOURCES-R004.1",
+    "SDK-FINANCE-SOURCES-R004.2",
+    "SDK-FINANCE-SOURCES-R004.3",
+    "SDK-FINANCE-SOURCES-R004.4",
+    "SDK-FINANCE-SOURCES-R004.5",
+    "SDK-FINANCE-SOURCES-R004.6",
     "SDK-FINANCE-SOURCES-R005",
     "SDK-FINANCE-SOURCES-R005.1",
     "SDK-FINANCE-SOURCES-R005.3",
+    "SDK-FINANCE-SOURCES-R005.2",
     "SDK-FINANCE-SOURCES-R900",
     "SDK-FINANCE-SOURCES-R900.1",
     "SDK-FINANCE-SOURCES-R900.2",
@@ -31,7 +38,8 @@
     "SDK-FINANCE-SOURCES-R900.6",
     "SDK-FINANCE-SOURCES-R900.8",
     "SDK-FINANCE-SOURCES-R900.7",
-    "SDK-FINANCE-SOURCES-R900.9"
+    "SDK-FINANCE-SOURCES-R900.9",
+    "SDK-FINANCE-SOURCES-R900.10"
   ],
   "requirements": [
     {
@@ -118,7 +126,8 @@
       ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R002.1",
-        "SDK-FINANCE-SOURCES-R002.2"
+        "SDK-FINANCE-SOURCES-R002.2",
+        "SDK-FINANCE-SOURCES-R002.3"
       ]
     },
     {
@@ -138,6 +147,18 @@
       ],
       "verified_by": [
         "tests/test_finance_records.py:261"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R002.3",
+      "title": "Alpaca page shape",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "9b6142797c31"
+      ],
+      "verified_by": [
+        "tests/test_finance_alpaca_stocks.py:115",
+        "tests/test_finance_alpaca_stocks.py:93"
       ]
     },
     {
@@ -203,13 +224,18 @@
         "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_finance_account_read.py:43",
-        "tests/test_finance_account_read.py:54",
-        "tests/test_finance_account_read.py:60",
-        "tests/test_finance_csv_import.py:76"
+        "tests/test_finance_account_read.py:44",
+        "tests/test_finance_account_read.py:55",
+        "tests/test_finance_account_read.py:61",
+        "tests/test_finance_csv_import.py:82"
       ],
       "rollup_of": [
-        "SDK-FINANCE-SOURCES-R004.1"
+        "SDK-FINANCE-SOURCES-R004.1",
+        "SDK-FINANCE-SOURCES-R004.2",
+        "SDK-FINANCE-SOURCES-R004.3",
+        "SDK-FINANCE-SOURCES-R004.4",
+        "SDK-FINANCE-SOURCES-R004.5",
+        "SDK-FINANCE-SOURCES-R004.6"
       ]
     },
     {
@@ -218,6 +244,62 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R004.2",
+      "title": "Finite account values",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "9c91f49274ab"
+      ],
+      "verified_by": [
+        "tests/test_finance_account_read.py:80",
+        "tests/test_finance_csv_import.py:105"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R004.3",
+      "title": "Reject duplicate CSV headers",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "9a3e47928684"
+      ],
+      "verified_by": [
+        "tests/test_finance_csv_import.py:114"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R004.4",
+      "title": "Reject ragged CSV rows",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "92f48614df2f"
+      ],
+      "verified_by": [
+        "tests/test_finance_csv_import.py:128"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R004.5",
+      "title": "ASCII currency syntax",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8247d7cce977"
+      ],
+      "verified_by": [
+        "tests/test_finance_csv_import.py:140"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R004.6",
+      "title": "Redact invalid currency cells",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "19e0189b0e7b"
+      ],
+      "verified_by": [
+        "tests/test_finance_csv_import.py:71"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R005",
@@ -231,14 +313,15 @@
         "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_finance_etf_flows.py:48",
-        "tests/test_finance_etf_flows.py:57",
-        "tests/test_finance_etf_flows.py:66",
+        "tests/test_finance_etf_flows.py:49",
+        "tests/test_finance_etf_flows.py:58",
+        "tests/test_finance_etf_flows.py:67",
         "tests/test_finance_fred_series.py:40"
       ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R005.1",
-        "SDK-FINANCE-SOURCES-R005.3"
+        "SDK-FINANCE-SOURCES-R005.3",
+        "SDK-FINANCE-SOURCES-R005.2"
       ]
     },
     {
@@ -256,7 +339,18 @@
         "93a80ac12f39"
       ],
       "verified_by": [
-        "tests/test_finance_etf_flows.py:81"
+        "tests/test_finance_etf_flows.py:82"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R005.2",
+      "title": "Finite ETF values",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1a4bb4a2d385"
+      ],
+      "verified_by": [
+        "tests/test_finance_etf_flows.py:92"
       ]
     },
     {
@@ -275,7 +369,7 @@
         "tests/test_finance_crypto.py:58",
         "tests/test_finance_crypto.py:69",
         "tests/test_finance_feeds.py:130",
-        "tests/test_finance_feeds.py:47"
+        "tests/test_finance_feeds.py:142"
       ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R900.1",
@@ -286,7 +380,8 @@
         "SDK-FINANCE-SOURCES-R900.6",
         "SDK-FINANCE-SOURCES-R900.8",
         "SDK-FINANCE-SOURCES-R900.7",
-        "SDK-FINANCE-SOURCES-R900.9"
+        "SDK-FINANCE-SOURCES-R900.9",
+        "SDK-FINANCE-SOURCES-R900.10"
       ]
     },
     {
@@ -389,6 +484,18 @@
       ],
       "verified_by": [
         "tests/test_finance_feeds.py:130"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900.10",
+      "title": "Finite live ticks",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d3241742827c"
+      ],
+      "verified_by": [
+        "tests/test_finance_feeds.py:142",
+        "tests/test_finance_feeds.py:170"
       ]
     }
   ]
