@@ -44,3 +44,4 @@ stream-bus imports with deterministic in-memory responses.
 
 - [x] Fetch bounded exchange history windows across pages (SDK-FINANCE-SOURCES-R001.7).
 - [x] Include the exchange client in the market extra (SDK-FINANCE-SOURCES-R001.8).
+- [x] Validate calendar page shape, event identity, vintage and announcement time (SDK-FINANCE-SOURCES-R001.9).

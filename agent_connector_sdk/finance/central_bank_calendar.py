@@ -13,7 +13,7 @@ the prior value (the same revision model FRED/ALFRED uses in
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from pydantic import Field
@@ -54,11 +54,28 @@ def _announcement_from_source(
     license_tag: str,
     observed_at_utc: datetime,
 ) -> CentralBankAnnouncement:
-    event_type = str(raw["event_type"])
-    vintage = str(raw["vintage_date"])
-    announcement_time = datetime.fromisoformat(str(raw["announcement_time_utc"]))
-    if announcement_time.tzinfo is None:
-        announcement_time = announcement_time.replace(tzinfo=UTC)
+    event_type = raw.get("event_type")
+    vintage = raw.get("vintage_date")
+    timestamp = raw.get("announcement_time_utc")
+    if not isinstance(event_type, str) or not event_type.strip():
+        raise ValueError("calendar event type is required")
+    if not isinstance(vintage, str):
+        raise ValueError("calendar vintage must be a canonical date")
+    try:
+        if date.fromisoformat(vintage).isoformat() != vintage:
+            raise ValueError
+    except ValueError:
+        raise ValueError("calendar vintage must be a canonical date") from None
+    if not isinstance(timestamp, str) or not any(c in timestamp for c in ("T", " ")):
+        raise ValueError("calendar announcement time must include a time")
+    try:
+        announcement_time = datetime.fromisoformat(timestamp)
+        if announcement_time.tzinfo is None:
+            announcement_time = announcement_time.replace(tzinfo=UTC)
+        else:
+            announcement_time = announcement_time.astimezone(UTC)
+    except (ValueError, OverflowError):
+        raise ValueError("calendar announcement time is invalid") from None
     event_id = _announcement_event_id(calendar_id, event_type, vintage)
     return CentralBankAnnouncement(
         tenant_id=tenant_id,
@@ -96,7 +113,11 @@ def central_bank_calendar_from_source(
     the same ``event_type`` and a later ``vintage_date``; it is a distinct
     record, never a replacement of the earlier one.
     """
-    raw_events: Sequence[Mapping[str, Any]] = payload.get("events", ())
+    raw_events = payload.get("events")
+    if not isinstance(raw_events, Sequence) or isinstance(raw_events, (str, bytes)):
+        raise ValueError("calendar events must be an array")
+    if not all(isinstance(item, Mapping) for item in raw_events):
+        raise ValueError("calendar events must be objects")
     events = tuple(
         _announcement_from_source(
             raw,

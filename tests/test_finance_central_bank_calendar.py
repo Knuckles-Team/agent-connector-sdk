@@ -143,3 +143,45 @@ def test_same_instant_with_equivalent_offsets_does_not_conflict() -> None:
     }
     events = _calendar(payload=payload)
     assert events[0].source_event_id == events[1].source_event_id
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.9")
+@pytest.mark.parametrize("events", [None, {}, "private-calendar-value", [None]])
+def test_calendar_rejects_missing_or_malformed_event_arrays(events) -> None:
+    with pytest.raises(ValueError) as error:
+        _calendar(payload={"events": events})
+    assert "private-calendar-value" not in str(error.value)
+    with pytest.raises(ValueError):
+        _calendar(payload={})
+    assert _calendar(payload={"events": []}) == ()
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.9")
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("event_type", None),
+        ("event_type", "  "),
+        ("vintage_date", "20251201"),
+        ("vintage_date", "private-calendar-value"),
+        ("announcement_time_utc", "2026-03-18"),
+        ("announcement_time_utc", "private-calendar-value"),
+        ("announcement_time_utc", "0001-01-01T00:00:00+14:00"),
+    ],
+)
+def test_calendar_refuses_ambiguous_identity_and_time(field, value) -> None:
+    record = {**_PAGE["events"][0], field: value}
+    with pytest.raises(ValueError) as error:
+        _calendar(payload={"events": [record]})
+    assert "private-calendar-value" not in str(error.value)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.9")
+def test_calendar_normalizes_offsets_without_changing_instant() -> None:
+    record = {
+        **_PAGE["events"][0],
+        "announcement_time_utc": "2026-03-18T14:00:00-04:00",
+    }
+    (event,) = _calendar(payload={"events": [record]})
+    assert event.announcement_time_utc == datetime(2026, 3, 18, 18, 0, tzinfo=UTC)
+    assert event.announcement_time_utc.tzinfo is UTC

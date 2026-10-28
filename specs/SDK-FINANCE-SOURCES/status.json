@@ -44,7 +44,8 @@
     "SDK-FINANCE-SOURCES-R900.10",
     "SDK-FINANCE-SOURCES-R900.11",
     "SDK-FINANCE-SOURCES-R001.7",
-    "SDK-FINANCE-SOURCES-R001.8"
+    "SDK-FINANCE-SOURCES-R001.8",
+    "SDK-FINANCE-SOURCES-R001.9"
   ],
   "requirements": [
     {
@@ -63,7 +64,8 @@
         "SDK-FINANCE-SOURCES-R001.5",
         "SDK-FINANCE-SOURCES-R001.6",
         "SDK-FINANCE-SOURCES-R001.7",
-        "SDK-FINANCE-SOURCES-R001.8"
+        "SDK-FINANCE-SOURCES-R001.8",
+        "SDK-FINANCE-SOURCES-R001.9"
       ]
     },
     {
@@ -569,6 +571,19 @@
       ],
       "verified_by": [
         "tests/test_market_extra_ccxt.py:8"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R001.9",
+      "title": "Calendar page identity and time",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e4f53d89e456"
+      ],
+      "verified_by": [
+        "tests/test_finance_central_bank_calendar.py:148",
+        "tests/test_finance_central_bank_calendar.py:159",
+        "tests/test_finance_central_bank_calendar.py:179"
       ]
     }
   ]
