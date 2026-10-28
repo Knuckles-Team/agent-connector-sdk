@@ -95,8 +95,9 @@
     "SDK-CONNECTOR-CONTROL-R046.4",
     "SDK-CONNECTOR-CONTROL-R046.5",
     "SDK-CONNECTOR-CONTROL-R046.6",
-    "SDK-CONNECTOR-CONTROL-R047",
     "SDK-CONNECTOR-CONTROL-R046.7",
+    "SDK-CONNECTOR-CONTROL-R046.10",
+    "SDK-CONNECTOR-CONTROL-R047",
     "SDK-CONNECTOR-CONTROL-R047.1",
     "SDK-CONNECTOR-CONTROL-R047.2",
     "SDK-CONNECTOR-CONTROL-R047.3",
@@ -113,6 +114,7 @@
     "SDK-CONNECTOR-CONTROL-R048.5",
     "SDK-CONNECTOR-CONTROL-R048.6",
     "SDK-CONNECTOR-CONTROL-R048.7",
+    "SDK-CONNECTOR-CONTROL-R048.8",
     "SDK-CONNECTOR-CONTROL-R049",
     "SDK-CONNECTOR-CONTROL-R049.1",
     "SDK-CONNECTOR-CONTROL-R049.2",
@@ -129,6 +131,7 @@
     "SDK-CONNECTOR-CONTROL-R050.5",
     "SDK-CONNECTOR-CONTROL-R050.6",
     "SDK-CONNECTOR-CONTROL-R050.8",
+    "SDK-CONNECTOR-CONTROL-R050.9",
     "SDK-CONNECTOR-CONTROL-R050.7",
     "SDK-CONNECTOR-CONTROL-R007.1",
     "SDK-CONNECTOR-CONTROL-R007.2",
@@ -1468,7 +1471,8 @@
         "SDK-CONNECTOR-CONTROL-R046.4",
         "SDK-CONNECTOR-CONTROL-R046.5",
         "SDK-CONNECTOR-CONTROL-R046.6",
-        "SDK-CONNECTOR-CONTROL-R046.7"
+        "SDK-CONNECTOR-CONTROL-R046.7",
+        "SDK-CONNECTOR-CONTROL-R046.10"
       ]
     },
     {
@@ -1514,6 +1518,29 @@
       "verified_by": []
     },
     {
+      "id": "SDK-CONNECTOR-CONTROL-R046.7",
+      "title": "Loopback callback state",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "896bd69c510c"
+      ],
+      "verified_by": [
+        "tests/test_oauth_loopback_state.py:23"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R046.10",
+      "title": "Legacy manual callback binding",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2ebf2b9bf860"
+      ],
+      "verified_by": [
+        "tests/test_oauth_manual_state.py:22",
+        "tests/test_oauth_manual_state.py:48"
+      ]
+    },
+    {
       "id": "SDK-CONNECTOR-CONTROL-R047",
       "title": "Agent-card discovery from the standard well-known path",
       "delivery_state": "SPECIFIED",
@@ -1532,17 +1559,6 @@
         "SDK-CONNECTOR-CONTROL-R047.6",
         "SDK-CONNECTOR-CONTROL-R047.7",
         "SDK-CONNECTOR-CONTROL-R047.8"
-      ]
-    },
-    {
-      "id": "SDK-CONNECTOR-CONTROL-R046.7",
-      "title": "Loopback callback state",
-      "delivery_state": "VERIFIED",
-      "landed_in": [
-        "896bd69c510c"
-      ],
-      "verified_by": [
-        "tests/test_oauth_loopback_state.py:23"
       ]
     },
     {
@@ -1644,7 +1660,8 @@
         "SDK-CONNECTOR-CONTROL-R048.4",
         "SDK-CONNECTOR-CONTROL-R048.5",
         "SDK-CONNECTOR-CONTROL-R048.6",
-        "SDK-CONNECTOR-CONTROL-R048.7"
+        "SDK-CONNECTOR-CONTROL-R048.7",
+        "SDK-CONNECTOR-CONTROL-R048.8"
       ]
     },
     {
@@ -1708,6 +1725,18 @@
       "verified_by": [
         "tests/test_readable_form.py:54",
         "tests/test_readable_form.py:73"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R048.8",
+      "title": "Count-based readable score",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "de34f54ab763"
+      ],
+      "verified_by": [
+        "tests/test_readable_count_score.py:19",
+        "tests/test_readable_count_score.py:8"
       ]
     },
     {
@@ -1793,6 +1822,7 @@
         "SDK-CONNECTOR-CONTROL-R050.5",
         "SDK-CONNECTOR-CONTROL-R050.6",
         "SDK-CONNECTOR-CONTROL-R050.8",
+        "SDK-CONNECTOR-CONTROL-R050.9",
         "SDK-CONNECTOR-CONTROL-R050.7"
       ]
     },
@@ -1852,6 +1882,18 @@
       ],
       "verified_by": [
         "tests/test_ordered_progress.py:26"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R050.9",
+      "title": "Request-local cache primitive",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "66354c9320c7",
+        "dec26950f9ce"
+      ],
+      "verified_by": [
+        "tests/test_request_cache.py:27"
       ]
     },
     {
