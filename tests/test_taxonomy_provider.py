@@ -41,6 +41,7 @@ from agent_connector_sdk.testing.http_server import ScriptedHttpServer, Scripted
             "123",
             {
                 "key": 123,
+                "nubKey": 123,
                 "scientificName": "Canis lupus",
                 "rank": "SPECIES",
                 "parentKey": 122,
@@ -88,7 +89,7 @@ async def test_rejects_mismatched_or_oversized_provider_data():
         yield
 
     with ScriptedHttpServer(
-        ScriptedResponse(body=b'{"key":2,"scientificName":"name"}'),
+        ScriptedResponse(body=b'{"key":1,"nubKey":2,"scientificName":"name"}'),
         ScriptedResponse(body=b"x" * 100),
     ) as server:
         source = TaxonomyProvider(

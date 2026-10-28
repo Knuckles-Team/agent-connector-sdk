@@ -6,7 +6,8 @@ Open-Meteo data as ``WeatherObservation``, and NOAA storm events as
 ``WeatherEvent`` occurring in a ``WeatherSystem``, with weather stations
 represented as ``Place`` located in a ``Region``. This module normalizes
 those shapes; host-admitted GBIF and iNaturalist occurrence sources live
-in this package. NOAA and Open-Meteo source adapters remain open.
+in this package. Bounded NOAA and Open-Meteo hourly temperatures are
+available; NOAA daily summaries and storm events remain open.
 """
 
 from __future__ import annotations
@@ -101,6 +102,8 @@ class WeatherObservation(EarthObservationRecordBase):
     variable: str = Field(min_length=1)
     value: float
     unit: str = Field(min_length=1)
+    latitude: float | None = Field(default=None, ge=-90.0, le=90.0)
+    longitude: float | None = Field(default=None, ge=-180.0, le=180.0)
 
 
 class WeatherEvent(EarthObservationRecordBase):

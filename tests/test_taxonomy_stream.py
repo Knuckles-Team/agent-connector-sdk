@@ -27,7 +27,11 @@ async def test_served_pages_preserve_state_on_refusal():
 
     def body(identifier):
         return json.dumps(
-            {"key": identifier, "scientificName": f"Taxon {identifier}"}
+            {
+                "key": identifier,
+                "nubKey": identifier,
+                "scientificName": f"Taxon {identifier}",
+            }
         ).encode()
 
     with ScriptedHttpServer(

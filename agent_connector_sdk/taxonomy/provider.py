@@ -102,8 +102,12 @@ async def _bounded(chunks: AsyncIterator[bytes], limit: int) -> bytes:
 
 def _normalize(provider: Provider, identifier: str, value: Any) -> TaxonRecord:
     if provider == "gbif":
-        if not isinstance(value, dict) or str(value.get("key")) != identifier:
-            raise ValueError("GBIF identity mismatch")
+        if (
+            not isinstance(value, dict)
+            or str(value.get("key")) != identifier
+            or str(value.get("nubKey")) != identifier
+        ):
+            raise ValueError("GBIF backbone identity mismatch")
         if (
             not isinstance(value.get("scientificName"), str)
             or not value["scientificName"]
