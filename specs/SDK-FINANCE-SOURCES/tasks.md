@@ -35,3 +35,4 @@ stream-bus imports with deterministic in-memory responses.
 - [x] Refuse invalid bar intervals before subscription (SDK-FINANCE-SOURCES-R900.9).
 
 - [x] Require canonical FRED period and vintage dates (SDK-FINANCE-SOURCES-R001.5).
+- [x] Require finite funding values and provider time (SDK-FINANCE-SOURCES-R900.10).
