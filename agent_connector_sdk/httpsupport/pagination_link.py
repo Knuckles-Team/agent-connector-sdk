@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 
 _REL_NEXT = re.compile(r'\brel="?next"?')
 
@@ -41,3 +41,15 @@ def next_link(raw: str) -> str | None:
         if relation is not None and relation.start() < comma:
             return raw[left:right]
     return None
+
+
+def _link_next_url(headers: Mapping[str, str]) -> str | None:
+    """Extract the ``rel="next"`` target from a ``Link`` header."""
+    raw = None
+    for key, value in headers.items():
+        if str(key).lower() == "link":
+            raw = str(value)
+            break
+    if not raw:
+        return None
+    return next_link(raw)

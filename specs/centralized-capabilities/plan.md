@@ -111,3 +111,10 @@ redirect target from receiving credentials or a delegated subject token.
 
 Scan Link targets and next relations once in header order. Preserve the prior
 first-match grammar. The existing origin guard still admits every followed URL.
+
+## Continuation cycles (R004.8)
+
+Cursor and since-ID walks retain fixed-size fingerprints of issued tokens.
+The page budget bounds their count.
+A repeated token stops the walk and marks it truncated. The cyclic token is
+not a resume cursor. This guard does not deduplicate records already returned.

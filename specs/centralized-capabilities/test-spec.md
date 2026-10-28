@@ -69,3 +69,9 @@ Run `uv run pytest tests/test_centralized_capability_index.py tests/test_central
 
 Compare generated and edge-case headers with the prior expression. Feed large
 malformed headers through the iterator and confirm it ends after one fetch.
+
+## Continuation cycles (R004.8)
+
+Return a cursor cycle and verify no request repeats. Test an initial token
+that repeats in cursor and since-ID modes. The result is truncated and has
+no next cursor.
