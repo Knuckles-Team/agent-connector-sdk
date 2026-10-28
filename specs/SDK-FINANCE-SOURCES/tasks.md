@@ -1,6 +1,6 @@
 # Tasks: finance sources
 
-- [x] Stock history, quote, stream, adjustment, corporate-action, profile, licensed logo, news and calendars (SDK-FINANCE-SOURCES-R002).
+- [x] Stock history, quote, stream, adjustment, corporate-action, profile, generated illustration, news and calendars (SDK-FINANCE-SOURCES-R002).
 - [x] FRED/ALFRED vintage and FOMC calendar plus other market feed sources (SDK-FINANCE-SOURCES-R001).
   - [x] Central-bank announcement calendar (`agent_connector_sdk.finance.central_bank_calendar`): one record per published vintage of a scheduled announcement, so a reschedule is a new record, never an overwrite (SDK-FINANCE-SOURCES-R001).
   - [x] Exchange history retrieval fix and a CoinMarketCap market-data adapter (SDK-FINANCE-SOURCES-R001).

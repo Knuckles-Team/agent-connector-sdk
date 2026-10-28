@@ -57,3 +57,25 @@ record and rejects a different account. It keeps the served provider fields and
 does not invent a provider event time. It submits non-authoritative delta pages
 and refuses reconciliation, so one account read cannot withdraw another. The owner pack test replays the same
 account, positions and CSV through the adapter into a real graph.
+
+## Stock source conformance evidence
+
+The stock SDK tests cover each source kind and the supported adjustment and
+session labels. Emerald Exchange tests replay served stock provider fixtures
+through the SDK adapter into a real graph. Owner fixtures cover the websocket
+stream and exchange calendar. A deterministic generated stock illustration is
+available from the adapter, identified as generated and non-official. It does
+not depend on a third-party logo license. Live provider access remains separate.
+The SVG composition follows the universal-skills
+[canvas-design skill](https://github.com/Knuckles-Team/universal-skills/blob/main/universal_skills/skills/canvas-design/SKILL.md).
+The adapter renders it locally from the validated symbol. Runtime needs no model
+or network. The image is not a company logo or provider fact.
+
+## Point-in-time liquidity composition
+
+R005.1 reads the three FRED series from the graph using tenant-scoped query.
+It requires the source identity, exact value text and actual capture time.
+The SDK converts the published decimal units into exact fixed-point inputs.
+The graph owns the versioned composite and heat-strip calculation. A missing
+capture, ambiguous source, nonfinite value or unsafe precision refuses before
+compute. Capture time is not the provider's historical publication time.
