@@ -47,3 +47,6 @@ R004.2 tests non-finite balances, position quantities, prices and activity amoun
 
 
 R002.3 checks required fields in the Alpaca single-symbol response contract. An empty page with a continuation token refuses because the tuple cannot represent partial empty data.
+
+
+R900.10 checks finite tick admission and refusal before publication and aggregation, including mutated ticks.
