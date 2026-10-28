@@ -400,3 +400,5 @@ R803.11 refuses any mismatch between certification state and signed summary stat
 
 R803.12 rejects non-string signer identity, algorithm and signature without reporting a pass.
 R803.13 checks the missing Arrow dependency through the public adapter and names the declared extra.
+
+R004.41 validates durable status and cursor identity and refuses malformed checkpoints before source fetch.

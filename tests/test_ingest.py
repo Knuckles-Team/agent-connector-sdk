@@ -10,6 +10,7 @@ from typing import Any
 
 import pytest
 from epistemic_graph.generated.source_ingestion import (
+    SourceCheckpoint,
     SourceIngestionMode,
     SourceIngestionReceipt,
     SourceIngestionRequest,
@@ -389,3 +390,79 @@ async def test_epistemic_graph_transport_stores_media_via_the_client_blob_api() 
     assert receipt.affected_count == 1
     (record,) = client.sink.batches[next(iter(client.sink.batches))].records
     assert record.record_id == f"blob:{digest}"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.41")
+async def test_accepted_cursor_refuses_malformed_or_mismatched_checkpoints() -> None:
+    class Transport(_Transport):
+        def __init__(self, status):
+            super().__init__()
+            self.status = status
+
+        async def source_status(self, connector, stream):
+            return self.status
+
+    def status(
+        position, *, connector="demo-mcp", stream="demo", checkpoint_stream="demo"
+    ):
+        return SourceIngestStatus(
+            connector=connector,
+            stream=stream,
+            accepted_checkpoint=SourceCheckpoint(
+                stream=checkpoint_stream, position=position
+            ),
+        )
+
+    assert (
+        await KnowledgeIngest(
+            Transport(SourceIngestStatus(connector="demo-mcp", stream="demo"))
+        ).accepted_cursor(BINDING)
+        is None
+    )
+    assert (
+        await KnowledgeIngest(Transport(status({"sequence": 1}))).accepted_cursor(
+            BINDING
+        )
+        is None
+    )
+    assert (
+        await KnowledgeIngest(Transport(status({"cursor": "next"}))).accepted_cursor(
+            BINDING
+        )
+        == "next"
+    )
+    for bad in (
+        status({"cursor": 123}),
+        status(["bad"]),
+        status({}, connector="other"),
+        status({}, stream="other"),
+        status({}, checkpoint_stream="other"),
+    ):
+        with pytest.raises(IngestError):
+            await KnowledgeIngest(Transport(bad)).accepted_cursor(BINDING)
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.41")
+async def test_stream_never_fetches_after_invalid_accepted_cursor() -> None:
+    from agent_connector_sdk.ingest import RecordMap, SourceStream
+
+    class Transport(_Transport):
+        async def source_status(self, connector, stream):
+            return SourceIngestStatus(
+                connector=connector,
+                stream=stream,
+                accepted_checkpoint=SourceCheckpoint(
+                    stream=stream, position={"cursor": 99}
+                ),
+            )
+
+    calls = []
+
+    async def fetch(cursor):
+        calls.append(cursor)
+        return [], None
+
+    stream = SourceStream(BINDING, {"item": RecordMap("Item", "demo:item:{_id}")})
+    with pytest.raises(IngestError, match="cursor"):
+        await stream.sync("item", fetch, ingest=KnowledgeIngest(Transport()))
+    assert calls == []
