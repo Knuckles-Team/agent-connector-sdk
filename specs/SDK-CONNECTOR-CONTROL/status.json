@@ -3931,14 +3931,18 @@
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_pack_surfaces_served.py:29"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R074.4",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_pack_surfaces_served.py:30"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R074.5",
@@ -3957,7 +3961,9 @@
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_pack_surfaces_served.py:31"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R074.7",
@@ -3985,8 +3991,8 @@
         "tests/test_eg_pack_entry_kinds.py:45",
         "tests/test_eg_pack_entry_kinds.py:54",
         "tests/test_eg_pack_entry_kinds.py:68",
-        "tests/test_eg_pack_entry_kinds.py:82",
-        "tests/test_eg_pack_entry_kinds.py:96"
+        "tests/test_eg_pack_entry_kinds.py:83",
+        "tests/test_eg_pack_entry_kinds.py:97"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R075.1",
@@ -4082,8 +4088,8 @@
         "tests/test_eg_pack_entry_kinds.py:45",
         "tests/test_eg_pack_entry_kinds.py:54",
         "tests/test_eg_pack_entry_kinds.py:68",
-        "tests/test_eg_pack_entry_kinds.py:82",
-        "tests/test_eg_pack_entry_kinds.py:96"
+        "tests/test_eg_pack_entry_kinds.py:83",
+        "tests/test_eg_pack_entry_kinds.py:97"
       ]
     },
     {

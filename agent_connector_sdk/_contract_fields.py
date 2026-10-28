@@ -75,6 +75,14 @@ def text(props: Props, name: str, subject: str) -> str:
     return value
 
 
+def _optional_text(props: Props, name: str, subject: str) -> str | None:
+    """Return an optional non-empty string without inventing a default."""
+    value = _one(props, name, subject)
+    if value is not None and (not isinstance(value, str) or not value.strip()):
+        raise AccessContractError(f"{subject}: invalid ac:{name}")
+    return value
+
+
 def integer(props: Props, name: str, subject: str) -> int | None:
     """Return an optional non-negative integer property."""
     value = _one(props, name, subject)

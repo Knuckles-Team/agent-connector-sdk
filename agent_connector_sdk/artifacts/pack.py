@@ -42,6 +42,7 @@ _RESOURCE_KINDS = {
     "shapes": PackEntryKind.SHAPES,
     "model-profile": PackEntryKind.MODEL_PROFILE,
     "a2a-card": PackEntryKind.A2A_CARD,
+    "data": PackEntryKind.RESOURCE,
 }
 _KINDS = {
     "tool": PackEntryKind.TOOL,
@@ -97,6 +98,14 @@ def _entry_content(entry: CapturedArtifact) -> ConnectorPackEntryContent:
             output_schema = _canonical_json_bytes(document["output_schema"])
     elif pack_kind is PackEntryKind.RESOURCE and uri == RESOURCES_URI:
         output_schema = declaration_content_schema()
+    elif pack_kind is PackEntryKind.RESOURCE and uri.startswith("data://"):
+        from pydantic import TypeAdapter
+
+        from agent_connector_sdk.artifacts.resource_descriptor import ResourceDescriptor
+
+        output_schema = _canonical_json_bytes(
+            TypeAdapter(ResourceDescriptor).json_schema()
+        )
     return ConnectorPackEntryContent(
         kind=pack_kind,
         uri=uri,
@@ -186,6 +195,37 @@ async def build_content_pack(
     _require_unique_uris(entries)
     _validate_resource_descriptors(entries)
     entries = _scope_imports(entries)
+    declaration = next((entry for entry in entries if entry.uri == RESOURCES_URI), None)
+    descriptors = json_object(declaration).get("descriptors", []) if declaration else []
+    data_entries = {
+        entry.uri: entry for entry in entries if entry.uri.startswith("data://")
+    }
+    for descriptor in descriptors:
+        uri = descriptor.get("uri")
+        entry = data_entries.pop(uri, None)
+        if entry is None or json_object(entry) != descriptor:
+            raise MalformedArtifactError(
+                "served data resources differ from their declaration"
+            )
+    if data_entries:
+        raise MalformedArtifactError("undeclared data resource in connector pack")
+    contract_entries: tuple[ConnectorPackEntryContent, ...] = ()
+    if descriptors:
+        from agent_connector_sdk.artifacts.source_contract import render_source_contract
+
+        contract_uri = f"contract://{connector}"
+        if any(entry.uri == contract_uri for entry in entries):
+            raise MalformedArtifactError("a content URI is served more than once")
+        contract_entries = (
+            ConnectorPackEntryContent(
+                kind=PackEntryKind.RESOURCE,
+                uri=contract_uri,
+                name="source-contract",
+                media_type="text/turtle",
+                body=render_source_contract(connector, descriptors).encode("utf-8"),
+                output_schema=_canonical_json_bytes({"type": "string"}),
+            ),
+        )
     server_entry = ConnectorPackEntryContent(
         kind=PackEntryKind.MCP_SERVER,
         uri=f"mcp-server://{connector}",
@@ -194,7 +234,8 @@ async def build_content_pack(
         body=_canonical_json_bytes({"name": server.name, "version": server.version}),
     )
     archive = ConnectorPackArchiveBuilder.build(
-        server_entry, tuple(_entry_content(entry) for entry in entries)
+        server_entry,
+        tuple(_entry_content(entry) for entry in entries) + contract_entries,
     )
     return CapturedConnectorPack(
         connector=connector,
@@ -202,7 +243,8 @@ async def build_content_pack(
         archive=archive,
         resource_uris=frozenset(
             entry.uri for entry in entries if entry.kind in {"skill", "resource"}
-        ),
+        )
+        | frozenset(entry.uri for entry in contract_entries),
     )
 
 

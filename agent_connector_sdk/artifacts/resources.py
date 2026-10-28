@@ -17,7 +17,9 @@ from agent_connector_sdk.ports.session import McpSession
 
 __all__ = ["ResourceArtifactKind"]
 
-_RESOURCE_SCHEMES = frozenset({"ontology", "shapes", "model-profile", "a2a-card"})
+_RESOURCE_SCHEMES = frozenset(
+    {"ontology", "shapes", "model-profile", "a2a-card", "data"}
+)
 _MCP_APP_URI = re.compile(r"^ui://[A-Za-z0-9][A-Za-z0-9._/-]{0,255}$")
 _MCP_APP_MEDIA_TYPES = frozenset({"text/html", "text/html;profile=mcp-app"})
 
@@ -30,7 +32,7 @@ def _scheme(uri: str) -> str:
 def _validate_body(entry: CapturedArtifact, scheme: str) -> None:
     if entry.uri == RESOURCES_URI:
         json_object(entry)
-    if scheme in {"a2a-card", "model-profile"}:
+    if scheme in {"a2a-card", "model-profile", "data"}:
         json_object(entry)
 
 

@@ -53,3 +53,14 @@ ac:authModel a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range
     rdfs:comment "The declared transport authentication model, never a credential value." .
 ac:streaming a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
     rdfs:comment "The declared stream form, or none for a non-streaming transport." .
+
+# Explicit result and paging mechanics. Missing values are not defaults: a
+# consumer must refuse a paged read whose completion cannot be established.
+ac:recordsPath a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string .
+ac:paginationParam a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string .
+ac:nextCursorPath a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string .
+ac:pageSize a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:integer .
+ac:pageSizeParam a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string .
+ac:startPage a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:integer .
+ac:startOffset a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:integer .
+ac:completion a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string .

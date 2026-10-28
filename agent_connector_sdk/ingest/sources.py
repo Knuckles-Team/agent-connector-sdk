@@ -81,8 +81,13 @@ class IngestSourceSpec(_Strict):
     cursor_field: str | None = None
     incremental: bool = False
     arguments: dict[str, JsonValue] = Field(default_factory=dict)
-    pagination: Literal["none", "page"] = "none"
+    pagination: Literal["none", "page", "cursor", "offset"] = "none"
     page_param: str | None = None
+    cursor_param: str | None = None
+    next_cursor_path: str | None = None
+    pagination_completion: Literal["short_page", "cursor_null"] | None = None
+    offset_param: str | None = None
+    start_offset: int = Field(default=0, ge=0, le=1_000_000)
     page_size_param: str | None = None
     page_size: int = Field(default=100, ge=1, le=1000)
     start_page: int = Field(default=1, ge=0)
@@ -106,6 +111,13 @@ class IngestSourceSpec(_Strict):
         return self
 
 
+class SurfaceDigest(_Strict):
+    """Count and SHA-256 of the canonical members of one served surface."""
+
+    count: int = Field(ge=0)
+    sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+
 class IngestSourceDeclaration(_Strict):
     """Every ingestible source one connector declares."""
 
@@ -114,6 +126,7 @@ class IngestSourceDeclaration(_Strict):
     schema_mappings: dict[str, SchemaMapping] = Field(default_factory=dict)
     resources: tuple[ResourceSpec, ...] = ()
     descriptors: tuple[dict[str, Any], ...] = ()
+    surfaces: dict[str, SurfaceDigest] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _unique(self) -> IngestSourceDeclaration:
