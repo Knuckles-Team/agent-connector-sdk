@@ -1671,7 +1671,7 @@
       "title": "Refusal",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "a1bc1b49b803"
+        "8df066084750"
       ],
       "verified_by": [
         "tests/test_certify_readable_form.py:16"
