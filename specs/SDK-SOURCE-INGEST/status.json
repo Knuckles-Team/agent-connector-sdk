@@ -2700,7 +2700,8 @@
       "title": "Signer output types",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "750b60282e20"
+        "750b60282e20",
+        "fb7a744764bd"
       ],
       "verified_by": [
         "tests/data_prep/certification/test_job.py:347"
