@@ -389,3 +389,27 @@ async def test_epistemic_graph_transport_stores_media_via_the_client_blob_api() 
     assert receipt.affected_count == 1
     (record,) = client.sink.batches[next(iter(client.sink.batches))].records
     assert record.record_id == f"blob:{digest}"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.44")
+async def test_cursor_conflict_refuses_without_replaying_old_page() -> None:
+    class Racing(_Transport):
+        async def submit(self, request):
+            self.requests.append(request)
+            if len(self.requests) == 1:
+                competing = build_request(
+                    BINDING,
+                    ChangeSet(entities=(Entity("new", "Item"),), cursor="newer"),
+                    previous=request.expected_previous_checkpoint,
+                )
+                await self.sink.submit(competing)
+                raise IngestConflictError("fixture concurrent writer")
+            return await self.sink.submit(request)
+
+    transport = Racing()
+    changes = ChangeSet(entities=(Entity("a", "Item"),), cursor="source-page-2")
+    with pytest.raises(IngestConflictError):
+        await KnowledgeIngest(transport).submit(BINDING, changes)
+    assert len(transport.requests) == 1
+    status = await transport.source_status(BINDING.connector, BINDING.stream)
+    assert status.accepted_checkpoint.position["cursor"] == "newer"
