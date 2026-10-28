@@ -117,7 +117,7 @@ def _adapter(kind, *, connector="finance", mode="delta"):
 
 
 @pytest.mark.spec("SDK-FINANCE-SOURCES-R001.2")
-@pytest.mark.parametrize("kind", list(MarketSourceKind))
+@pytest.mark.parametrize("kind", tuple(CASES))
 async def test_served_market_sources_reach_sink(kind):
     sink = InMemorySink()
     async with McpTransport().session(
