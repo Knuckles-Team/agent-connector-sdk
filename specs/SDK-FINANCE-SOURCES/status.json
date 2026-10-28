@@ -213,7 +213,7 @@
       "title": "ASCII currency syntax",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "145d4e79b163"
+        "97fa691e6d9d"
       ],
       "verified_by": [
         "tests/test_finance_csv_import.py:99"
