@@ -121,7 +121,7 @@ def _signed_result(
     }
     summary_digest, digest_hex = _digest(unsigned)
     try:
-        signature = signer.sign(digest_hex)
+        signature: object = signer.sign(digest_hex)
     except Exception:
         return _result(job, "failed", failure_code="signer_unavailable")
     if not isinstance(signature, str):
