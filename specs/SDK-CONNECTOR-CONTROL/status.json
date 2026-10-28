@@ -102,6 +102,7 @@
     "SDK-CONNECTOR-CONTROL-R047.4",
     "SDK-CONNECTOR-CONTROL-R047.5",
     "SDK-CONNECTOR-CONTROL-R047.6",
+    "SDK-CONNECTOR-CONTROL-R047.7",
     "SDK-CONNECTOR-CONTROL-R048",
     "SDK-CONNECTOR-CONTROL-R048.1",
     "SDK-CONNECTOR-CONTROL-R048.2",
@@ -1523,7 +1524,8 @@
         "SDK-CONNECTOR-CONTROL-R047.3",
         "SDK-CONNECTOR-CONTROL-R047.4",
         "SDK-CONNECTOR-CONTROL-R047.5",
-        "SDK-CONNECTOR-CONTROL-R047.6"
+        "SDK-CONNECTOR-CONTROL-R047.6",
+        "SDK-CONNECTOR-CONTROL-R047.7"
       ]
     },
     {
@@ -1588,6 +1590,17 @@
       ],
       "verified_by": [
         "tests/test_vendor_extractors_archer_infra_a2a.py:143"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R047.7",
+      "title": "Bounded discovery cache",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "b9d3bdff1947"
+      ],
+      "verified_by": [
+        "tests/test_a2a_discovery.py:128"
       ]
     },
     {
