@@ -274,6 +274,8 @@ def validate_request_binding(
 
     This structural check is not authentication or proof of equivalence.
     """
+    request = PlatformRequest.model_validate(request.model_dump(mode="python"))
+    capability = PlatformCapability.model_validate(capability.model_dump(mode="python"))
     if (request.platform_id, request.channel_id, request.operation) != (
         capability.platform_id,
         capability.channel_id,

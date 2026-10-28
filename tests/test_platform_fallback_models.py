@@ -131,6 +131,10 @@ def test_request_and_continuation_bindings_are_checked() -> None:
             )
     with pytest.raises(ValidationError, match="tenant"):
         PlatformRequest.model_validate({**request.model_dump(), "tenant_id": "other"})
+    with pytest.raises(ValidationError, match="tenant"):
+        validate_request_binding(
+            request.model_copy(update={"tenant_id": "other"}), _capability()
+        )
 
 
 def test_success_and_refusal_are_distinct_and_attempts_are_ordered() -> None:
