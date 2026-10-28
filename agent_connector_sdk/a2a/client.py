@@ -24,6 +24,30 @@ CARD_PATH = "/.well-known/agent-card.json"
 _MAX_RESPONSE_BYTES = 4 * 1024 * 1024
 
 
+def _validate_rpc_response(data: Any, request_id: int) -> dict[str, Any]:
+    if not isinstance(data, dict) or data.get("jsonrpc") != "2.0":
+        raise ValueError("A2A response envelope is invalid")
+    response_id = data.get("id")
+    if not isinstance(response_id, int) or isinstance(response_id, bool):
+        raise ValueError("A2A response id is invalid")
+    if response_id != request_id or (("result" in data) == ("error" in data)):
+        raise ValueError("A2A response does not match its request")
+    if "error" in data and not isinstance(data["error"], dict):
+        raise ValueError("A2A response error is invalid")
+    return data
+
+
+def _matching_task(data: Any, task_id: str) -> A2ATask:
+    task = A2ATask.model_validate(data)
+    if task.id != task_id:
+        raise ValueError("A2A poll returned another task")
+    return task
+
+
+class _PeerRejected(Exception):
+    """A peer rejected a request without exposing its error body."""
+
+
 @dataclass(frozen=True)
 class A2AResult:
     content: str = ""
@@ -113,31 +137,36 @@ class A2AClient:
             "POST", url, json=payload, headers={"Accept-Encoding": "identity"}
         ) as response:
             data = await self._json(response)
-        if not isinstance(data, dict):
-            raise ValueError("A2A response root must be an object")
-        return data
+        return _validate_rpc_response(data, rid)
+
+    async def _exchange(
+        self, client: httpx.AsyncClient, url: str, message: A2AMessage
+    ) -> A2ATask:
+        sent = await self._rpc(
+            client, url, "message/send", {"message": message.wire()}, 1
+        )
+        if "error" in sent:
+            raise _PeerRejected("A2A peer rejected the request")
+        task = A2ATask.model_validate(sent.get("result"))
+        task_id = task.id
+        while task.pending:
+            await asyncio.sleep(self.poll_interval)
+            polled = await self._rpc(client, url, "tasks/get", {"id": task_id}, 2)
+            if "error" in polled:
+                raise _PeerRejected("A2A peer rejected task polling")
+            task = _matching_task(polled.get("result"), task_id)
+        return task
 
     async def send(self, url: str, text: str) -> A2AResult:
         """Send one user text message and wait for the task's agent reply."""
         message = A2AMessage.user_text(text)
         try:
             async with asyncio.timeout(self.timeout), self._client() as client:
-                sent = await self._rpc(
-                    client, url, "message/send", {"message": message.wire()}, 1
-                )
-                if "error" in sent:
-                    return A2AResult(error="A2A peer rejected the request")
-                task = A2ATask.model_validate(sent.get("result"))
-                while task.pending:
-                    await asyncio.sleep(self.poll_interval)
-                    polled = await self._rpc(
-                        client, url, "tasks/get", {"id": task.id}, 2
-                    )
-                    if "error" in polled:
-                        return A2AResult(error="A2A peer rejected task polling")
-                    task = A2ATask.model_validate(polled.get("result"))
+                task = await self._exchange(client, url, message)
         except TimeoutError:
             return A2AResult(error="A2A execution deadline exceeded")
+        except _PeerRejected as exc:
+            return A2AResult(error=str(exc))
         except (httpx.HTTPError, httpx.StreamError, ValueError, ValidationError) as exc:
             return A2AResult(error=f"A2A communication failed ({type(exc).__name__})")
         reply = task.last_agent_message()

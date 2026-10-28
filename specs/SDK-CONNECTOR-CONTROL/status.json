@@ -251,6 +251,7 @@
     "SDK-CONNECTOR-CONTROL-R069.6",
     "SDK-CONNECTOR-CONTROL-R014.21",
     "SDK-CONNECTOR-CONTROL-R014.21.1",
+    "SDK-CONNECTOR-CONTROL-R014.21.3",
     "SDK-CONNECTOR-CONTROL-R014.21.2",
     "SDK-CONNECTOR-CONTROL-R700",
     "SDK-CONNECTOR-CONTROL-R701",
@@ -2891,15 +2892,19 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "04a50086718c",
-        "0744e3514186"
+        "0744e3514186",
+        "4549ac7babc9"
       ],
       "verified_by": [
-        "tests/test_a2a_protocol.py:150",
-        "tests/test_a2a_protocol.py:193",
-        "tests/test_a2a_protocol.py:220"
+        "tests/test_a2a_protocol.py:118",
+        "tests/test_a2a_protocol.py:209",
+        "tests/test_a2a_protocol.py:252",
+        "tests/test_a2a_protocol.py:279",
+        "tests/test_a2a_protocol.py:80"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R014.21.1",
+        "SDK-CONNECTOR-CONTROL-R014.21.3",
         "SDK-CONNECTOR-CONTROL-R014.21.2"
       ]
     },
@@ -2911,8 +2916,20 @@
         "04a50086718c"
       ],
       "verified_by": [
-        "tests/test_a2a_protocol.py:150",
-        "tests/test_a2a_protocol.py:193"
+        "tests/test_a2a_protocol.py:209",
+        "tests/test_a2a_protocol.py:252"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.21.3",
+      "title": "Correlated A2A responses",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4549ac7babc9"
+      ],
+      "verified_by": [
+        "tests/test_a2a_protocol.py:118",
+        "tests/test_a2a_protocol.py:80"
       ]
     },
     {
@@ -2923,7 +2940,7 @@
         "0744e3514186"
       ],
       "verified_by": [
-        "tests/test_a2a_protocol.py:220"
+        "tests/test_a2a_protocol.py:279"
       ]
     },
     {
