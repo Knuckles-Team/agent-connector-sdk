@@ -208,8 +208,10 @@
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R006.4",
       "title": "Keep GraphQL failures out of logs and errors",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "07255fb414db"
+      ],
       "verified_by": [
         "tests/test_graphql_failure_redaction.py:35",
         "tests/test_graphql_failure_redaction.py:49"
