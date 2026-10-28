@@ -137,3 +137,40 @@ def test_invalid_bar_interval_refuses_without_subscribing(size: int) -> None:
     assert bus.bus.subscriber_count == 0
     with pytest.raises(ValueError, match="positive integer"):
         TickAggregator("AAPL", size)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.10")
+@pytest.mark.parametrize("field", ["price", "volume", "bid", "ask"])
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+async def test_nonfinite_ticks_are_rejected_before_any_effect(
+    field: str, value: float
+) -> None:
+    with pytest.raises(ValueError, match="finite"):
+        Tick(**{"symbol": "AAPL", "price": 1.0, field: value})
+    tick = Tick(symbol="AAPL", price=1.0)
+    setattr(tick, field, value)
+    bus = MarketFeedBus()
+    seen: list[object] = []
+    bus.subscribe_ticks("AAPL", seen.append)
+    bus.subscribe_bars("AAPL", 60, seen.append)
+    with pytest.raises(ValueError, match="finite"):
+        await bus.publish_tick(tick)
+    assert seen == []
+    assert bus.total_ticks == 0
+    aggregator = TickAggregator("AAPL")
+    with pytest.raises(ValueError, match="finite"):
+        aggregator.on_tick(tick)
+    assert aggregator.total_ticks == 0
+    bar = LiveBar("AAPL")
+    with pytest.raises(ValueError, match="finite"):
+        bar.update(tick)
+    assert bar.is_empty
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.10")
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_nonfinite_alert_threshold_is_rejected(value: float) -> None:
+    bus = MarketFeedBus()
+    with pytest.raises(ValueError, match="finite"):
+        bus.add_price_alert("AAPL", value)
+    assert bus.pending_alerts == 0

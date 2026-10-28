@@ -82,7 +82,20 @@ def ohlcv_bars_from_alpaca(
     observed_at_utc: datetime,
 ) -> tuple[OhlcvBar, ...]:
     """Normalize one Alpaca bars page; never fabricates a complete series."""
-    raw_bars: Sequence[Mapping[str, Any]] = payload.get("bars", ())
+    raw_bars = payload.get("bars")
+    if not isinstance(raw_bars, Sequence) or isinstance(raw_bars, (str, bytes)):
+        raise ValueError("Alpaca bars must be an array")
+    if payload.get("symbol") != symbol:
+        raise ValueError("Alpaca bars symbol must match the request")
+    if "next_page_token" not in payload:
+        raise ValueError("Alpaca bars require a pagination token")
+    token = payload["next_page_token"]
+    if token is not None and (not isinstance(token, str) or not token):
+        raise ValueError(
+            "Alpaca bars pagination token must be a nonempty string or null"
+        )
+    if not raw_bars and token is not None:
+        raise ValueError("Alpaca empty page has a continuation token")
     completeness = (
         Completeness.PARTIAL
         if payload.get("next_page_token")

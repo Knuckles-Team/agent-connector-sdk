@@ -143,3 +143,13 @@ def test_fred_observation_identity_requires_canonical_dates(
     record = _series()[0]
     assert record.source_event_id == "UNRATE:2025-11-01:2025-12-05"
     assert record.event_time_utc == datetime(2025, 11, 1, tzinfo=UTC)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.6")
+@pytest.mark.parametrize("other_value", ["3.7", "9.1"])
+def test_fred_page_refuses_duplicate_observation_identities(other_value: str) -> None:
+    first = dict(_PAGE["observations"][0])
+    second = {**first, "value": other_value}
+    with pytest.raises(ValueError, match="duplicate observation identities"):
+        _series(payload={"observations": [first, second]})
+    assert len(_series()) == 2

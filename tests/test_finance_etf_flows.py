@@ -6,6 +6,7 @@ from __future__ import annotations
 from datetime import UTC, date, datetime
 
 import pytest
+from pydantic import ValidationError
 
 from agent_connector_sdk.finance.etf_flows import (
     EtfFundFlow,
@@ -86,3 +87,17 @@ def test_flow_page_requires_an_array(value: object) -> None:
     with pytest.raises(ValueError, match="flows must be an array"):
         _flows(payload={})
     assert _flows(payload={"flows": []}) == ()
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R005.2")
+@pytest.mark.parametrize("field", ["net_flow_usd", "aum_usd"])
+@pytest.mark.parametrize("value", ["nan", "inf", "-inf", "1e999"])
+def test_nonfinite_amounts_are_rejected(field: str, value: str) -> None:
+    raw = dict(_PAGE["flows"][0])
+    raw[field] = value
+    with pytest.raises(ValidationError):
+        _flows(payload={"flows": [raw]})
+    valid = _flows()[0].model_dump()
+    valid[field] = float(value)
+    with pytest.raises(ValidationError):
+        EtfFundFlow(**valid)
