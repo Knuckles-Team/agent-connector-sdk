@@ -23,7 +23,9 @@ from agent_connector_sdk.data_prep.certification import (  # noqa: E402
     CertificationArtifact,
     CertificationDependencyUnavailable,
     CertificationJobSpec,
+    CertificationResult,
     GreatExpectationsAdapter,
+    SignedResultSummary,
     run_certification_job,
 )
 
@@ -212,12 +214,10 @@ from pydantic import TypeAdapter  # noqa: E402
 from agent_connector_sdk.data_prep.certification import (  # noqa: E402
     CertificationAdapter,
     CertificationBackend,
-    CertificationResult,
     CertificationSigner,
     CertificationState,
     FailureCode,
     PanderaAdapter,
-    SignedResultSummary,
     mark_not_requested,
 )
 from agent_connector_sdk.data_prep.certification.models import (  # noqa: E402
@@ -268,3 +268,77 @@ def test_reference_aliases_reject_unsafe_values_and_pandera_is_lazy() -> None:
     with pytest.raises(ValidationError):
         TypeAdapter(Signature).validate_python("")
     assert PanderaAdapter(lambda _table, _authorization: {}).backend == "pandera"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.10")
+def test_empty_pass_is_refused() -> None:
+    empty = {
+        "schema_version": "data-quality-observation.v1",
+        "status": "passed",
+        "provider_version": "1.0.0",
+        "checks_total": 0,
+        "checks_passed": 0,
+        "checks_failed": 0,
+    }
+    with pytest.raises(ValidationError, match="at least one check"):
+        AdapterObservation.model_validate(empty)
+
+    class EmptyAdapter:
+        backend = "great_expectations"
+
+        def run(self, _table, *, authorization):
+            return AdapterObservation.model_construct(**empty)
+
+    result = run_certification_job(
+        pa.table({"id": [1]}),
+        _job(),
+        adapter=EmptyAdapter(),
+        signer=_Signer(),
+        now_ms=1_000,
+    )
+    assert result.state == "failed"
+    assert result.failure_code == "invalid_adapter_result"
+    assert result.signed_summary is not None
+    assert result.signed_summary.status == "failed"
+    forged = result.signed_summary.model_dump(mode="python")
+    forged.update(status="passed", failure_codes=[])
+    with pytest.raises(ValidationError, match="at least one check"):
+        SignedResultSummary.model_validate(forged)
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.11")
+@pytest.mark.parametrize("state", ["passed", "failed"])
+def test_result_rejects_mismatched_signed_status(state: str) -> None:
+    job = _job()
+    passed = run_certification_job(
+        pa.table({"id": [1]}),
+        job,
+        adapter=_PassingAdapter(None),
+        signer=_Signer(),
+        now_ms=1_000,
+    )
+
+    class FailureAdapter:
+        backend = "great_expectations"
+
+        def run(self, _table, *, authorization):
+            raise ValueError("provider failure")
+
+    failed = run_certification_job(
+        pa.table({"id": [1]}),
+        job,
+        adapter=FailureAdapter(),
+        signer=_Signer(),
+        now_ms=1_000,
+    )
+    summary = failed.signed_summary if state == "passed" else passed.signed_summary
+    assert summary is not None
+    with pytest.raises(ValidationError, match="state must match"):
+        CertificationResult.model_validate(
+            {
+                "schema_version": "data-quality-result-state.v1",
+                "job_ref": job.job_ref,
+                "state": state,
+                "signed_summary": summary,
+            }
+        )

@@ -15,6 +15,8 @@ import json
 import time
 from typing import Any, Protocol
 
+from pydantic import ValidationError
+
 from agent_connector_sdk.data_prep.kernel import (
     ArrowAdapter,
     DataPrepDependencyError,
@@ -212,6 +214,13 @@ def run_certification_job(
     except Exception:
         return _signed_failure(job, "adapter_error", signer)
     if not isinstance(observation, AdapterObservation):
+        return _signed_failure(job, "invalid_adapter_result", signer)
+
+    try:
+        observation = AdapterObservation.model_validate(
+            observation.model_dump(mode="python")
+        )
+    except (ValidationError, TypeError, ValueError):
         return _signed_failure(job, "invalid_adapter_result", signer)
 
     if (
