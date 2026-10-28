@@ -639,3 +639,42 @@ async def test_generated_status_rejects_checkpoint_for_another_stream() -> None:
 
     with pytest.raises(ValueError, match="checkpoint"):
         await SourceIngestChannel(WrongCheckpoint()).source_status("demo-mcp", "demo")
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.48")
+@pytest.mark.parametrize("batch_size", [None, 1])
+async def test_terminal_source_page_conflict_does_not_retry(batch_size) -> None:
+    from agent_connector_sdk.ingest import RecordMap, SourceStream
+
+    class Racing(_Transport):
+        async def submit(self, request):
+            if not self.requests:
+                return await super().submit(request)
+            self.requests.append(request)
+            if len(self.requests) == 2:
+                competing = build_request(
+                    BINDING,
+                    ChangeSet(entities=(Entity("new", "Item"),), cursor="newer"),
+                    previous=request.expected_previous_checkpoint,
+                )
+                await self.sink.submit(competing)
+                raise IngestConflictError("concurrent writer")
+            return await self.sink.submit(request)
+
+    transport = Racing()
+    service = KnowledgeIngest(transport)
+    await service.submit(
+        BINDING, ChangeSet(entities=(Entity("old", "Item"),), cursor="old")
+    )
+    stream = SourceStream(
+        BINDING, {"item": RecordMap("Item", "demo:item:{_id}")}, batch_size=batch_size
+    )
+
+    async def fetch(cursor):
+        assert cursor == "old"
+        return [{"id": "1"}], None
+
+    with pytest.raises(IngestConflictError):
+        await stream.sync("item", fetch, ingest=service)
+    assert len(transport.requests) == 2
+    assert await service.accepted_cursor(BINDING) == "newer"

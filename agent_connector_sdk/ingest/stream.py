@@ -319,6 +319,7 @@ class SourceStream:
                     documents=documents,
                     relationships=tuple(mapped.relationships),
                     cursor=cursor,
+                    source_page=page_complete,
                 ),
                 ingest=ingest,
             )
@@ -327,7 +328,9 @@ class SourceStream:
         for start in range(0, len(entities), size):
             counts = await self.submit(
                 ChangeSet(
-                    entities=tuple(entities[start : start + size]), preserve_cursor=True
+                    entities=tuple(entities[start : start + size]),
+                    preserve_cursor=True,
+                    source_page=page_complete,
                 ),
                 ingest=ingest,
             )
@@ -341,6 +344,7 @@ class SourceStream:
                     entities=anchor,
                     relationships=tuple(edges[start : start + size]),
                     preserve_cursor=True,
+                    source_page=page_complete,
                 ),
                 ingest=ingest,
             )
@@ -352,7 +356,12 @@ class SourceStream:
             }
         if documents or cursor or (page_complete and not split):
             counts = await self.submit(
-                ChangeSet(documents=documents, cursor=cursor, entities=anchor),
+                ChangeSet(
+                    documents=documents,
+                    cursor=cursor,
+                    entities=anchor,
+                    source_page=page_complete,
+                ),
                 ingest=ingest,
             )
             if counts is None:
@@ -442,8 +451,9 @@ class SourceStream:
                 counts = await self.mapped(
                     mapped, cursor=next_cursor, ingest=service, _page_complete=True
                 )
-                if counts is not None:
-                    totals = _add(totals, counts)
+                if counts is None:
+                    raise IngestError("source page was not accepted")
+                totals = _add(totals, counts)
             if next_cursor is None:
                 break
             cursor = next_cursor

@@ -4,7 +4,7 @@ Each submission reads the stream's durable checkpoint, builds one generated
 ``SourceIngestionRequest`` that expects exactly that checkpoint, and commits it.
 Submissions for one stream are serialized in this process; a race with another
 process re-reads and rebuilds cursorless submissions within a bounded budget.
-A cursor-bearing page instead reports the conflict for the caller to re-read.
+A source page instead reports the conflict for the caller to re-read.
 
 The transport's client belongs to one event loop. Async callers on any loop and
 synchronous callers on any other thread run the commit on that loop.
@@ -174,7 +174,7 @@ class KnowledgeIngest:
             except IngestConflictError:
                 # Opaque source cursors cannot be ordered against the winner's
                 # checkpoint. The caller must re-read before retrying this page.
-                if changes.cursor is not None:
+                if changes.cursor is not None or changes.source_page:
                     raise
                 continue
         raise IngestConflictError(

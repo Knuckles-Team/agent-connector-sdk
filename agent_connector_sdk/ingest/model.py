@@ -178,6 +178,7 @@ class ChangeSet:
     complete ``live_ids`` snapshot; an empty snapshot also needs
     ``empty_approval``. ``FULL`` never deletes. ``preserve_cursor`` retains
     the cursor from the checkpoint read for this commit, for partial work.
+    ``source_page`` marks page work that must not be retried after a conflict.
     """
 
     entities: tuple[Entity, ...] = ()
@@ -190,6 +191,7 @@ class ChangeSet:
     empty_approval: str | None = None
     cursor: str | None = None
     preserve_cursor: bool = False
+    source_page: bool = False
 
     def __post_init__(self) -> None:
         if self.preserve_cursor and self.cursor is not None:

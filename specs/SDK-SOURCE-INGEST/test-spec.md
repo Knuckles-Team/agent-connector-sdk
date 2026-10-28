@@ -416,3 +416,7 @@ R004.45 interrupts a chunked single-stream page. Earlier chunks keep the old cur
 R004.46 refuses split document pages before either stream commits. Entity-only sync still runs with the same binding setup.
 
 R004.47 refuses an accepted checkpoint that names another stream through the generated status channel.
+
+R004.48 checks conflict refusal on terminal pages and intermediate chunks while a competing writer advances the cursor.
+
+R004.49 denies a best-effort page and confirms that sync does not fetch its continuation.

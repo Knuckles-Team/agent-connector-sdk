@@ -346,3 +346,23 @@ def test_sync_refuses_split_document_pages_before_any_submission() -> None:
         "edges": 0,
     }
     assert sink.cursor == "next"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.49")
+def test_best_effort_sync_does_not_skip_a_refused_page() -> None:
+    class Refusing(_Ingest):
+        async def submit(self, binding, changes):
+            raise IngestError("refused")
+
+    calls = []
+
+    async def fetch(cursor):
+        calls.append(cursor)
+        return [{"id": "1"}], "next"
+
+    stream = SourceStream(
+        BINDING, {"item": RecordMap("Item", "demo:item:{_id}")}, best_effort=True
+    )
+    with pytest.raises(IngestError, match="page was not accepted"):
+        _run(stream.sync("item", fetch, ingest=Refusing()))
+    assert calls == [None]
