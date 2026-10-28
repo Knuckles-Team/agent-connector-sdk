@@ -67,7 +67,10 @@ class _SessionClient(httpx.Client):
 
     def send(self, request: httpx.Request, **kwargs: Any) -> httpx.Response:
         self._session_auth._guard_request(request)
-        return super().send(request, **kwargs)
+        try:
+            return super().send(request, **kwargs)
+        finally:
+            request.extensions.pop("scion_session_guard", None)
 
 
 class _AsyncSessionClient(httpx.AsyncClient):
@@ -77,7 +80,10 @@ class _AsyncSessionClient(httpx.AsyncClient):
 
     async def send(self, request: httpx.Request, **kwargs: Any) -> httpx.Response:
         self._session_auth._guard_request(request)
-        return await super().send(request, **kwargs)
+        try:
+            return await super().send(request, **kwargs)
+        finally:
+            request.extensions.pop("scion_session_guard", None)
 
 
 class _SessionTransport(httpx.BaseTransport):
@@ -86,6 +92,7 @@ class _SessionTransport(httpx.BaseTransport):
         self._auth = auth
 
     def handle_request(self, request: httpx.Request) -> httpx.Response:
+        request.extensions.pop("scion_session_guard", None)
         self._auth._check_origin(request)
         return self._inner.handle_request(request)
 
@@ -99,6 +106,7 @@ class _AsyncSessionTransport(httpx.AsyncBaseTransport):
         self._auth = auth
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        request.extensions.pop("scion_session_guard", None)
         self._auth._check_origin(request)
         return await self._inner.handle_async_request(request)
 

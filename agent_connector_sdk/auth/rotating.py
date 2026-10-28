@@ -123,7 +123,7 @@ class SessionLoginAuth(httpx.Auth):
         self, request: httpx.Request
     ) -> Generator[httpx.Request, httpx.Response]:
         """Log in when there is no session, attach it, re-login once on 401/403."""
-        if request.extensions.get("scion_session_guard") is not self._guard_token:
+        if request.extensions.pop("scion_session_guard", None) is not self._guard_token:
             raise TokenRequestError("session authentication requires a governed client")
         self._check_origin(request)
         with self._lock:

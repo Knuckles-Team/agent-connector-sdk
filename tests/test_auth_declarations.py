@@ -344,6 +344,36 @@ def test_session_allows_same_origin_redirect() -> None:
     assert requests[-1].headers["Cookie"] == "SID=secret"
 
 
+@pytest.mark.parametrize("without_auth", [False, True])
+def test_guarded_request_cannot_be_reused_with_plain_httpx(without_auth: bool) -> None:
+    from agent_connector_sdk.auth.rotating import SessionLoginAuth
+    from agent_connector_sdk.http.client import create_http_client
+    from agent_connector_sdk.http.options import HttpClientOptions
+
+    requests: list[httpx.Request] = []
+
+    def serve(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path == "/login":
+            return httpx.Response(200, headers={"Set-Cookie": "SID=secret; Path=/"})
+        return httpx.Response(200)
+
+    auth = SessionLoginAuth(login_path="/login", username="user", password=lambda: "pw")
+    options = HttpClientOptions(base_url="https://one.example.test", auth=auth)
+    request = httpx.Request("GET", "https://one.example.test/api")
+    with create_http_client(options, transport=httpx.MockTransport(serve)) as client:
+        response = (
+            client.send(request, auth=None) if without_auth else client.send(request)
+        )
+        assert response.status_code == 200
+    with (
+        httpx.Client(auth=auth, transport=httpx.MockTransport(serve)) as client,
+        pytest.raises(TokenRequestError, match="governed client"),
+    ):
+        client.send(request)
+    assert len(requests) == (1 if without_auth else 2)
+
+
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
 def test_ca_bundle_comes_from_the_declared_tls_name(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
