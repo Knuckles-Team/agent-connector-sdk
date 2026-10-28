@@ -82,7 +82,7 @@
 - [ ] **R060:** Native desktop operation port and no-cursor/no-focus invariant. Served tests with grant-bound refusal.
   - [x] **R047.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R047.6).
 - [ ] **R048:** Agent-readable text form in tool contracts. (SDK-CONNECTOR-CONTROL-R048).
-  - [ ] **R048.1:** Model row. (SDK-CONNECTOR-CONTROL-R048.1).
+  - [x] **R048.1:** Model row. (SDK-CONNECTOR-CONTROL-R048.1).
   - [x] **R048.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R048.2).
   - [ ] **R048.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R048.3).
   - [ ] **R048.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R048.4).
