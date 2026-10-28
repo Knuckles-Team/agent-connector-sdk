@@ -842,3 +842,7 @@ The signer resolves a versioned OpenBao key through a scoped credential provider
 It signs the live declaration and graph digest only if the trusted key
 matches. The verifier recomputes both inputs and checks the key ID and signature.
 Lock storage, key rotation and served admission stay open under R650.1.
+## Amendment: readable score bounds (R048.7)
+
+A declared score is absent or a finite ratio from zero through one. This check
+does not establish that any question was answered or close certification.

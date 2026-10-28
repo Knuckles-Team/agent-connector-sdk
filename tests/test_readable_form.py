@@ -49,3 +49,40 @@ def test_model_is_frozen_and_optional_on_facts() -> None:
     assert ToolContractFacts.model_validate(facts.model_dump()) == facts
     with pytest.raises(FrozenInstanceError):
         form.__setattr__("score", 0.5)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R048.7")
+@pytest.mark.parametrize("score", [-0.1, 1.1, float("nan"), float("inf"), True])
+def test_readable_score_refuses_non_ratios(score: float) -> None:
+    from pydantic import ValidationError
+
+    with pytest.raises(ValueError):
+        ReadableForm("default", score=score)
+    base = {
+        "read_only": True,
+        "side_effects": {"none"},
+        "arg_schema": {},
+        "schema_tokens": 0,
+        "declared_by": "connector",
+        "readable_form": {"template_id": "default", "score": score},
+    }
+    with pytest.raises(ValidationError):
+        ToolContractFacts.model_validate(base)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R048.7")
+@pytest.mark.parametrize("score", [0.0, 0.5, 1.0])
+def test_readable_score_accepts_finite_ratio(score: float) -> None:
+    assert ReadableForm("default", score=score).score == score
+    facts = ToolContractFacts.model_validate(
+        {
+            "read_only": True,
+            "side_effects": {"none"},
+            "arg_schema": {},
+            "schema_tokens": 0,
+            "declared_by": "connector",
+            "readable_form": {"template_id": "default", "score": score},
+        }
+    )
+    assert facts.readable_form is not None
+    assert facts.readable_form.score == score

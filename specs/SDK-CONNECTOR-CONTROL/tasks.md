@@ -335,3 +335,4 @@ The total response deadline remains open under R047.2.
 - [x] Compute a canonical digest for a live declaration and ontology (SDK-CONNECTOR-CONTROL-R650.2).
 
 - [x] Sign and verify release identities with an explicit trusted key (SDK-CONNECTOR-CONTROL-R650.3).
+- [x] Refuse malformed readable-form scores (SDK-CONNECTOR-CONTROL-R048.7).
