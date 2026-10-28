@@ -107,8 +107,10 @@
     {
       "id": "SDK-FINANCE-SOURCES-R001.6",
       "title": "Unique FRED page identities",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "f79e6711c9d5"
+      ],
       "verified_by": [
         "tests/test_finance_fred_series.py:148"
       ]
