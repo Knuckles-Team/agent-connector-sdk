@@ -188,7 +188,7 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R061.4:** Refuse unsupported platform, unknown operation and undeclared refusal types.
 - [ ] **SDK-CONNECTOR-CONTROL-R061.5:** Record queried service, operation, platform and matched interface digest.
 - [ ] **SDK-CONNECTOR-CONTROL-R061.6:** Verify host-management consumer queries platform-native commands correctly for each OS.
-- [ ] **SDK-CONNECTOR-CONTROL-R062.1:** Define CertificationAttestation model with decision and AU consumer binding.
+- [x] **SDK-CONNECTOR-CONTROL-R062.1:** Define CertificationAttestation model with decision and AU consumer binding.
 - [ ] **SDK-CONNECTOR-CONTROL-R062.2:** EG produces attestation; AU consumes and acts on accepted decisions.
 - [ ] **SDK-CONNECTOR-CONTROL-R062.3:** Wire EG producer and AU consumer through existing identity bindings.
 - [ ] **SDK-CONNECTOR-CONTROL-R062.4:** Refuse unknown outcome values and missing identity bindings.

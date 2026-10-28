@@ -513,3 +513,9 @@ process settings do not alter the result, and an unknown profile refuses.
 Mutate caller sets after construction. A sync and an async governed transport
 must make only one POST attempt. Refuse fractional or boolean attempt counts
 and non-boolean jitter before a request.
+
+## Certification attestation model
+
+`tests/test_certification_attestation.py` covers immutable decision and scope values,
+closed outcomes, malformed digests and missing identity. This test does not
+claim a producer, authenticated consumer or effect authority.

@@ -1,1 +1,8 @@
-"""Certify a connector's pinned MCP tool fingerprints against its live server."""
+"""Certification of connector contracts and typed decision references."""
+
+from agent_connector_sdk.certify.attestation import (
+    AttestationConsumerBinding,
+    CertificationAttestation,
+)
+
+__all__ = ["AttestationConsumerBinding", "CertificationAttestation"]

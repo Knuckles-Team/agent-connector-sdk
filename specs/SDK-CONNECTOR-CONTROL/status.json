@@ -2444,9 +2444,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R062.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "98d68425be41"
+      ],
+      "verified_by": [
+        "tests/test_certification_attestation.py:29",
+        "tests/test_certification_attestation.py:43"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R062.2",
