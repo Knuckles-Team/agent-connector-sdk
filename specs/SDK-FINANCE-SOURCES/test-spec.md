@@ -27,7 +27,11 @@ R005.1 remains open: current FRED and ETF normalization tests do not prove the r
 
 R001.1 tests non-finite FRED values through source normalization and direct model construction, while ordinary finite observations remain accepted.
 
-R003.1 remains open: existing FX, commodity and real-estate model tests do not exercise source adapters.
+R003.1 exercises canonical FX, commodity and real-estate records through an
+MCP source adapter and sink. It checks currency direction and spot/futures
+contract metadata. It checks dated values and configured valuation freshness.
+Malformed records are refused before submission. Provider API integrations
+remain open under R003.
 
 R004.1 remains open: synthetic mapping and stable identifiers do not prove real source reads or durable re-import.
 - `SDK-FINANCE-SOURCES-R003.2`: `tests/test_finance_records.py` checks non-finite FX and commodity prices and overflow on FX inversion.
