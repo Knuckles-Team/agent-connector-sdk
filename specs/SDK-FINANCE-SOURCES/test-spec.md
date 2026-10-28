@@ -33,4 +33,4 @@ R004.1 remains open: synthetic mapping and stable identifiers do not prove real 
 - `SDK-FINANCE-SOURCES-R003.2`: `tests/test_finance_records.py` checks non-finite FX and commodity prices and overflow on FX inversion.
 
 - `SDK-FINANCE-SOURCES-R003.3`: `tests/test_finance_records.py` checks FX currency normalization and refusal of malformed or identical currency codes.
-- `SDK-FINANCE-SOURCES-R900.9`: `tests/test_finance_feeds.py` covers invalid intervals and verifies no subscriber is added.
+- `SDK-FINANCE-SOURCES-R900.9`: `tests/test_finance_feeds.py` covers invalid intervals and refusal without a subscription.
