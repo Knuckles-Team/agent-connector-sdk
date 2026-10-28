@@ -3,12 +3,21 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from agent_connector_sdk.certify.checkout import checkout_from_resources
+from agent_connector_sdk.certify.checkout import (
+    ConnectorCheckout,
+    checkout_from_resources,
+)
 from agent_connector_sdk.certify.fingerprints import tool_name
-from agent_connector_sdk.certify.listing import ToolListingError, list_server_tools
+from agent_connector_sdk.certify.listing import (
+    ToolListing,
+    ToolListingError,
+    list_server_tools,
+)
+from agent_connector_sdk.certify.read_only_check import ToolFixture
 from agent_connector_sdk.certify.verdicts import ToolStatus, ToolVerdict, tool_verdicts
 from agent_connector_sdk.manifest.declaration import ContractError
 from agent_connector_sdk.manifest.tool_schema import (
@@ -88,22 +97,16 @@ async def certify_connector(
     *,
     timeout_seconds: float,
     predecessor: TransportEndpoint | None = None,
+    fixtures: Mapping[str, ToolFixture] | None = None,
 ) -> CertificationReport:
     """List the server's tools and declaration; check every preset tool live."""
     try:
-        listing = await list_server_tools(
-            transport, endpoint, timeout_seconds=timeout_seconds
+        listing, checkout, exact = await _certification_inputs(
+            transport,
+            endpoint,
+            timeout_seconds=timeout_seconds,
+            predecessor=predecessor,
         )
-        checkout = checkout_from_resources(listing.resources)
-        exact_check, exact_reason = None, ""
-        if predecessor is not None:
-            old = await list_server_tools(
-                transport, predecessor, timeout_seconds=timeout_seconds
-            )
-            old_checkout = checkout_from_resources(old.resources)
-            exact_check, exact_reason = _exact_names(
-                checkout.connector, listing.tools, old_checkout.connector, old.tools
-            )
     except (ToolListingError, ContractError) as exc:
         _logger.warning("connector certification failed: %s", exc)
         return CertificationReport(
@@ -118,10 +121,33 @@ async def certify_connector(
         listed=True,
         server_name=listing.server_name,
         server_version=listing.server_version,
-        verdicts=tool_verdicts(checkout, listing.tools),
-        exact_name_check=exact_check,
-        exact_name_reason=exact_reason,
+        verdicts=tool_verdicts(checkout, listing.tools, fixtures=fixtures),
+        exact_name_check=exact[0],
+        exact_name_reason=exact[1],
     )
+
+
+async def _certification_inputs(
+    transport: Transport,
+    endpoint: TransportEndpoint,
+    *,
+    timeout_seconds: float,
+    predecessor: TransportEndpoint | None,
+) -> tuple[ToolListing, ConnectorCheckout, tuple[bool | None, str]]:
+    listing = await list_server_tools(
+        transport, endpoint, timeout_seconds=timeout_seconds
+    )
+    checkout = checkout_from_resources(listing.resources)
+    if predecessor is None:
+        return listing, checkout, (None, "")
+    old = await list_server_tools(
+        transport, predecessor, timeout_seconds=timeout_seconds
+    )
+    old_checkout = checkout_from_resources(old.resources)
+    result, reason = _exact_names(
+        checkout.connector, listing.tools, old_checkout.connector, old.tools
+    )
+    return listing, checkout, (result, reason)
 
 
 def _exact_names(

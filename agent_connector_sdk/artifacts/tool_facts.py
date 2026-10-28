@@ -7,7 +7,6 @@ Callers may replace it with a measured tokenizer count where available.
 from __future__ import annotations
 
 from collections.abc import Mapping
-from enum import StrEnum
 from typing import Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -18,6 +17,7 @@ from agent_connector_sdk.artifacts.annotations import (
 )
 from agent_connector_sdk.artifacts.common import canonical_json
 from agent_connector_sdk.artifacts.readable_form import ReadableForm
+from agent_connector_sdk.artifacts.side_effect import SideEffect
 from agent_connector_sdk.manifest.tool_schema import (
     ToolSchemaContractError,
     canonical_input_schema,
@@ -43,15 +43,6 @@ def schema_tokens(body: str) -> int:
     return (
         byte_count + DEFAULT_SCHEMA_BYTES_PER_TOKEN - 1
     ) // DEFAULT_SCHEMA_BYTES_PER_TOKEN
-
-
-class SideEffect(StrEnum):
-    """Closed set of tool effects used by contract facts."""
-
-    NONE = "none"
-    WORKSPACE_WRITE = "workspace_write"
-    EXTERNAL_WRITE = "external_write"
-    NETWORK = "network"
 
 
 class ToolContractFacts(BaseModel):

@@ -4,14 +4,20 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum
 from typing import Any
 
 from agent_connector_sdk.certify.checkout import ConnectorCheckout
 from agent_connector_sdk.certify.fingerprints import output_schema_digest, tool_name
+from agent_connector_sdk.certify.read_only_check import (
+    ReadOnlyOutcome,
+    ToolFixture,
+    check_read_only,
+)
 from agent_connector_sdk.manifest.live_contract import validate_preset_tool_contract
 from agent_connector_sdk.manifest.tool_schema import ToolSchemaContractError, read_field
+from agent_connector_sdk.ports.errors import MalformedArtifactError
 
 __all__ = ["ToolStatus", "ToolVerdict", "tool_verdicts"]
 
@@ -24,6 +30,8 @@ class ToolStatus(StrEnum):
     CERTIFIED = "certified"
     TOOL_UNAVAILABLE = "tool_unavailable"
     UNSCORED_READABLE_FORM = "unscored_readable_form"
+    UNPROVEN = "unproven"
+    READ_ONLY_VIOLATION = "read_only_violation"
 
 
 @dataclass(frozen=True)
@@ -73,8 +81,14 @@ def _presets_for_tool(checkout: ConnectorCheckout, tool: str) -> tuple[Any, ...]
 
 
 def _verdict(
-    checkout: ConnectorCheckout, tool: str, matches: Sequence[Any]
+    checkout: ConnectorCheckout,
+    tool: str,
+    matches: Sequence[Any],
+    *,
+    fixture: ToolFixture | None,
 ) -> ToolVerdict:
+    from agent_connector_sdk.artifacts.tool_facts import facts_from_declaration
+
     if len(matches) != 1:
         state = "does not list" if not matches else "lists more than once"
         return _unavailable(checkout, tool, f"the server {state} tool {tool!r}")
@@ -86,29 +100,78 @@ def _verdict(
             tool_name=tool,
             presets=_presets_for_tool(checkout, tool),
         )
-    except ToolSchemaContractError as exc:
+        facts = facts_from_declaration(matches[0])
+    except (ToolSchemaContractError, MalformedArtifactError) as exc:
         _logger.warning("tool %r cannot be certified: %s", tool, exc)
         return _unavailable(checkout, tool, str(exc))
-    return ToolVerdict(
+    verdict = ToolVerdict(
         tool=tool,
         presets=checkout.presets_for(tool),
         status=ToolStatus.CERTIFIED,
         live=contract.compatibility_sha256,
         output_schema_sha256=output_schema_digest(matches[0]),
     )
+    return _gate_read_only(facts, fixture, verdict)
+
+
+def _gate_read_only(
+    facts: Any, fixture: ToolFixture | None, verdict: ToolVerdict
+) -> ToolVerdict:
+    outcome = check_read_only(
+        facts, fixture, tool=verdict.tool, fingerprint=verdict.live
+    )
+    if outcome is ReadOnlyOutcome.PASS:
+        return verdict
+    return replace(
+        verdict,
+        status=ToolStatus(outcome.value),
+        live="",
+        output_schema_sha256="",
+        defect="read-only observation is missing, stale or records a write",
+    )
 
 
 def tool_verdicts(
-    checkout: ConnectorCheckout, tools: Sequence[Any]
+    checkout: ConnectorCheckout,
+    tools: Sequence[Any],
+    *,
+    fixtures: Mapping[str, ToolFixture] | None = None,
 ) -> tuple[ToolVerdict, ...]:
     """One verdict per preset tool, from the server's ``tools/list`` entries."""
     by_name: dict[str, list[Any]] = {}
     for tool in tools:
         by_name.setdefault(tool_name(tool), []).append(tool)
     verdicts = [
-        _verdict(checkout, tool, by_name.get(tool, [])) for tool in checkout.tools
+        _verdict(
+            checkout, tool, by_name.get(tool, []), fixture=(fixtures or {}).get(tool)
+        )
+        for tool in checkout.tools
     ]
+    verdicts.extend(_extra_verdicts(checkout, by_name, fixtures or {}))
+    return tuple(verdicts)
+
+
+def _extra_verdicts(
+    checkout: ConnectorCheckout,
+    by_name: dict[str, list[Any]],
+    fixtures: Mapping[str, ToolFixture],
+) -> list[ToolVerdict]:
+    verdicts: list[ToolVerdict] = []
     for name in sorted(by_name.keys() - set(checkout.tools)):
         if any(_has_readable_form(tool) for tool in by_name[name]):
             verdicts.append(_unscored(checkout, name))
-    return tuple(verdicts)
+        elif any(_read_only_hint(tool) for tool in by_name[name]):
+            verdicts.append(
+                _verdict(checkout, name, by_name[name], fixture=fixtures.get(name))
+            )
+    return verdicts
+
+
+def _read_only_hint(tool: Any) -> bool:
+    """Find self-declared read-only tools outside the preset list, too."""
+    from agent_connector_sdk.artifacts.tool_facts import facts_from_declaration
+
+    try:
+        return facts_from_declaration(tool).read_only
+    except MalformedArtifactError:
+        return True
