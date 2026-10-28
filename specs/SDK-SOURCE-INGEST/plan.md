@@ -839,3 +839,12 @@ listed format profiles and reports unavailable parser dependencies per file.
 The reader is an offline parsing component; its host remains responsible for
 caller authentication and graph persistence policy. R005.21 and R005.24 remain
 open until certified dispatch and independent graph checkpoints are proven.
+
+## Enterprise operation contract model
+
+The shared model declares connector capabilities, typed operation parameters,
+and typed account and invoice results. Create-invoice requests carry the
+engine-generated source change set; effect receipts use the engine-generated
+write-back receipt. The model binds identities and units but cannot authenticate
+an authority or execute an operation. The served swap and governed write path
+remain open until real connector integrations prove them.

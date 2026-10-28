@@ -247,6 +247,7 @@ public_modules = [
     "agent_connector_sdk.adapters.workspace_reader",
     "agent_connector_sdk.adapters.workspace_models",
     "agent_connector_sdk.adapters.document_sources",
+    "agent_connector_sdk.vendor_extractors.enterprise_contract",
     "agent_connector_sdk.adapters.event_feed",
     "agent_connector_sdk.adapters.event_feed_bindings",
     "agent_connector_sdk.adapters.mcp_tool",
