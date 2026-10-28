@@ -140,6 +140,7 @@
     "SDK-SOURCE-INGEST-R004.37",
     "SDK-SOURCE-INGEST-R004.38",
     "SDK-SOURCE-INGEST-R004.39",
+    "SDK-SOURCE-INGEST-R004.40",
     "SDK-SOURCE-INGEST-R004.13",
     "SDK-SOURCE-INGEST-R004.14",
     "SDK-SOURCE-INGEST-R004.15",
@@ -341,6 +342,7 @@
         "SDK-SOURCE-INGEST-R004.37",
         "SDK-SOURCE-INGEST-R004.38",
         "SDK-SOURCE-INGEST-R004.39",
+        "SDK-SOURCE-INGEST-R004.40",
         "SDK-SOURCE-INGEST-R004.13",
         "SDK-SOURCE-INGEST-R004.14",
         "SDK-SOURCE-INGEST-R004.15",
@@ -1783,6 +1785,19 @@
         "tests/test_foreign_read.py:547",
         "tests/test_foreign_read.py:567",
         "tests/test_foreign_read.py:615"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.40",
+      "title": "Refuse cyclic stream continuations",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "01addc81a493"
+      ],
+      "verified_by": [
+        "tests/test_ingest_stream.py:253",
+        "tests/test_ingest_stream.py:282",
+        "tests/test_ingest_stream.py:301"
       ]
     },
     {
