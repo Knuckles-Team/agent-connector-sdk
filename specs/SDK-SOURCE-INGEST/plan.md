@@ -736,6 +736,13 @@ the previously unavailable category can be read without losing older records.
 The bounded seen-ID history can evict healthy entries during a prolonged outage,
 so a later sweep may redeliver those entries.
 
+## Bounded web crawl frontier (R800.10)
+
+The page limit counts attempted fetches, including seen pages and failed fetches.
+A checkpoint carries the pending breadth-first frontier and visited URLs. It
+binds that state to the source configuration and refuses malformed state. A
+frontier exceeding its bound fails the poll rather than dropping links.
+
 ## Numeric zero REST continuation (R800.11)
 
 The REST source retains numeric zero from a response or last record as the
