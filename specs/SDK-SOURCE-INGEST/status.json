@@ -144,6 +144,7 @@
     "SDK-SOURCE-INGEST-R004.41",
     "SDK-SOURCE-INGEST-R004.42",
     "SDK-SOURCE-INGEST-R004.43",
+    "SDK-SOURCE-INGEST-R004.51",
     "SDK-SOURCE-INGEST-R004.13",
     "SDK-SOURCE-INGEST-R004.14",
     "SDK-SOURCE-INGEST-R004.15",
@@ -350,6 +351,7 @@
         "SDK-SOURCE-INGEST-R004.41",
         "SDK-SOURCE-INGEST-R004.42",
         "SDK-SOURCE-INGEST-R004.43",
+        "SDK-SOURCE-INGEST-R004.51",
         "SDK-SOURCE-INGEST-R004.13",
         "SDK-SOURCE-INGEST-R004.14",
         "SDK-SOURCE-INGEST-R004.15",
@@ -1839,6 +1841,17 @@
       ],
       "verified_by": [
         "tests/test_ingest.py:502"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.51",
+      "title": "Check transport status identity before submission",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0a827f0c0b37"
+      ],
+      "verified_by": [
+        "tests/test_ingest.py:518"
       ]
     },
     {
