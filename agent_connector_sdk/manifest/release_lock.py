@@ -1,11 +1,13 @@
 """Read explicitly trusted release keys from an ontology lock file.
 
-The caller must obtain the lock from a trusted authority. This module neither
-writes a lock nor approves a rotation.
+The caller must obtain the lock from a trusted authority. Creating a lock
+does not approve a key rotation.
 """
 
 from __future__ import annotations
 
+import os
+import tempfile
 from collections.abc import Hashable, Mapping
 from pathlib import Path
 from types import MappingProxyType
@@ -17,9 +19,10 @@ from agent_connector_sdk.manifest.release_signature import (
     _KEY_ID,
     ReleaseSigningError,
     _decode,
+    _encode,
 )
 
-__all__ = ["MAX_RELEASE_LOCK_BYTES", "load_release_key_lock"]
+__all__ = ["MAX_RELEASE_LOCK_BYTES", "create_release_key_lock", "load_release_key_lock"]
 
 MAX_RELEASE_LOCK_BYTES = 1024 * 1024
 
@@ -72,3 +75,44 @@ def load_release_key_lock(path: str | Path) -> Mapping[str, bytes]:
             raise ReleaseSigningError("release lock has conflicting signer keys")
         keys[signer] = public_key
     return MappingProxyType(keys)
+
+
+def create_release_key_lock(
+    path: str | Path, artifacts: Mapping[str, tuple[str, bytes]]
+) -> None:
+    """Create a new pin lock without replacing existing files or authorizing rotation."""
+    if not artifacts:
+        raise ReleaseSigningError("release lock has no pinned artifacts")
+    document: dict[str, dict[str, str]] = {}
+    keys: dict[str, bytes] = {}
+    for artifact, (signer, public_key) in artifacts.items():
+        if not isinstance(artifact, str) or not artifact:
+            raise ReleaseSigningError("release lock artifact is invalid")
+        if not isinstance(signer, str) or not _KEY_ID.fullmatch(signer):
+            raise ReleaseSigningError("release lock signer is invalid")
+        if not isinstance(public_key, bytes) or len(public_key) != 32:
+            raise ReleaseSigningError("release lock public key is invalid")
+        if signer in keys and keys[signer] != public_key:
+            raise ReleaseSigningError("release lock has conflicting signer keys")
+        keys[signer] = public_key
+        document[artifact] = {
+            "signer": signer,
+            "signing_public_key": _encode(public_key),
+        }
+    raw = yaml.safe_dump(document, sort_keys=True).encode("utf-8")
+    if len(raw) > MAX_RELEASE_LOCK_BYTES:
+        raise ReleaseSigningError("release lock exceeds the size limit")
+    target = Path(path)
+    temporary: str | None = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as handle:
+            temporary = handle.name
+            handle.write(raw)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.link(temporary, target)
+    except OSError as exc:
+        raise ReleaseSigningError("release lock could not be created") from exc
+    finally:
+        if temporary is not None:
+            Path(temporary).unlink(missing_ok=True)
