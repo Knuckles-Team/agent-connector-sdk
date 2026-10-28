@@ -1517,7 +1517,7 @@
       "title": "Loopback callback state",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "32f6abf86a74"
+        "b899fc2f5737"
       ],
       "verified_by": [
         "tests/test_oauth_loopback_state.py:23"
