@@ -678,3 +678,14 @@ async def test_terminal_source_page_conflict_does_not_retry(batch_size) -> None:
         await stream.sync("item", fetch, ingest=service)
     assert len(transport.requests) == 2
     assert await service.accepted_cursor(BINDING) == "newer"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.52")
+async def test_non_page_write_preserves_existing_source_cursor() -> None:
+    transport = _Transport()
+    service = KnowledgeIngest(transport)
+    await service.submit(
+        BINDING, ChangeSet(entities=(Entity("a", "Item"),), cursor="page-2")
+    )
+    await service.submit(BINDING, ChangeSet(entities=(Entity("b", "Item"),)))
+    assert await service.accepted_cursor(BINDING) == "page-2"

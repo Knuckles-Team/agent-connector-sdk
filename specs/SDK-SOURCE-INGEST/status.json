@@ -153,6 +153,7 @@
     "SDK-SOURCE-INGEST-R004.47",
     "SDK-SOURCE-INGEST-R004.48",
     "SDK-SOURCE-INGEST-R004.49",
+    "SDK-SOURCE-INGEST-R004.52",
     "SDK-SOURCE-INGEST-R004.13",
     "SDK-SOURCE-INGEST-R004.14",
     "SDK-SOURCE-INGEST-R004.15",
@@ -368,6 +369,7 @@
         "SDK-SOURCE-INGEST-R004.47",
         "SDK-SOURCE-INGEST-R004.48",
         "SDK-SOURCE-INGEST-R004.49",
+        "SDK-SOURCE-INGEST-R004.52",
         "SDK-SOURCE-INGEST-R004.13",
         "SDK-SOURCE-INGEST-R004.14",
         "SDK-SOURCE-INGEST-R004.15",
@@ -1963,6 +1965,17 @@
       ],
       "verified_by": [
         "tests/test_ingest_stream.py:351"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.52",
+      "title": "Keep cursor on non-page writes",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e02fe49f73bd"
+      ],
+      "verified_by": [
+        "tests/test_ingest.py:683"
       ]
     },
     {
