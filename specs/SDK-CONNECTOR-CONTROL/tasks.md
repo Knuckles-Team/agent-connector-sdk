@@ -66,6 +66,7 @@
   - [ ] **R046.1:** Model row. (SDK-CONNECTOR-CONTROL-R046.1).
   - [ ] **R046.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R046.2).
   - [ ] **R046.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R046.3).
+- [x] Refuse unsafe legacy OAuth token file paths (SDK-CONNECTOR-CONTROL-R046.8).
   - [ ] **R046.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R046.4).
   - [ ] **R046.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R046.5).
   - [ ] **R046.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R046.6).

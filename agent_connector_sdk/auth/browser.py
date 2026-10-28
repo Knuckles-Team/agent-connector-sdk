@@ -20,6 +20,7 @@ import logging
 import os
 import re
 import secrets
+import stat
 import sys
 import threading
 import time
@@ -71,17 +72,28 @@ class FileTokenStore:
 
     def get(self, key: str) -> str | None:
         try:
-            return self._path(key).read_text(encoding="utf-8")
+            fd = os.open(self._path(key), os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+            with os.fdopen(fd, "r", encoding="utf-8") as handle:
+                if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+                    return None
+                return handle.read()
         except OSError:
             return None
 
     def set(self, key: str, value: str) -> None:
         self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
-        path = self._path(key)
-        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        flags = os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK
+        fd = os.open(self._path(key), flags, 0o600)
+        try:
+            if not stat.S_ISREG(os.fstat(fd).st_mode):
+                raise ValueError("token path must be a regular file")
+            os.fchmod(fd, 0o600)
+            os.ftruncate(fd, 0)
+        except BaseException:
+            os.close(fd)
+            raise
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             handle.write(value)
-        os.chmod(path, 0o600)
 
 
 def generate_pkce() -> tuple[str, str]:

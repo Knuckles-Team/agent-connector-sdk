@@ -62,6 +62,8 @@ Pull requests run `uv sync`, focused `pytest`, Ruff, mypy, wiring checks, CCCC, 
 | CC-49 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R049.6. (`tests/test_http_payments_flow.py::test_served_operation_pays_within_budget_and_refuses_over`) | The hot-path proof row holds as stated. |
 
 
+- `SDK-CONNECTOR-CONTROL-R046.8`: `tests/test_oauth_token_file_safety.py` covers symlink refusal and owner-only writes.
+
 ## Served context acceptance
 
 All cases below bind to SDK-CONNECTOR-CONTROL-R050 and its six children.
