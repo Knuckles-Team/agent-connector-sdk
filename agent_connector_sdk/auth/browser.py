@@ -18,7 +18,6 @@ import hashlib
 import json
 import logging
 import os
-import re
 import secrets
 import stat
 import sys
@@ -57,6 +56,9 @@ class FileTokenStore:
     """Owner-only JSON files, one per key, under ``root``.
 
     ``root`` defaults to ``agent_connector_sdk.paths.config_dir()/oauth-tokens``.
+    Filenames use a digest of the complete key. Legacy sanitized filenames are
+    not read because different keys could have shared one file; users must
+    sign in again after upgrading.
     """
 
     def __init__(self, root: Path | None = None) -> None:
@@ -67,8 +69,8 @@ class FileTokenStore:
         self.root = Path(root)
 
     def _path(self, key: str) -> Path:
-        safe = re.sub(r"[^A-Za-z0-9._-]+", "_", key).strip("._") or "token"
-        return self.root / f"{safe}.json"
+        digest = hashlib.sha256(key.encode("utf-8")).hexdigest()
+        return self.root / f"{digest}.json"
 
     def get(self, key: str) -> str | None:
         try:

@@ -4,6 +4,9 @@
 
 ### Changed
 
+- The OAuth file store now uses complete-key digests. Its old filenames
+  collided, so existing file-store users must sign in again.
+
 - Manual OAuth completion now requires the complete redirect URL. A raw code
   has no state binding and is refused.
 
