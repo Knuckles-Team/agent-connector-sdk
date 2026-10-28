@@ -213,7 +213,7 @@
       "title": "Reject ragged CSV rows",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "1d58481af941"
+        "b3a0df1b9f08"
       ],
       "verified_by": [
         "tests/test_finance_csv_import.py:99"
