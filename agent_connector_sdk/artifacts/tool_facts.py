@@ -17,6 +17,7 @@ from agent_connector_sdk.artifacts.annotations import (
     _declared_annotations,
 )
 from agent_connector_sdk.artifacts.common import canonical_json
+from agent_connector_sdk.artifacts.readable_form import ReadableForm
 from agent_connector_sdk.manifest.tool_schema import (
     ToolSchemaContractError,
     canonical_input_schema,
@@ -63,6 +64,7 @@ class ToolContractFacts(BaseModel):
     arg_schema: dict[str, Any]
     schema_tokens: int = Field(ge=0)
     declared_by: Literal["connector", "mcp_hint", "default"]
+    readable_form: ReadableForm | None = None
 
     @model_validator(mode="after")
     def _validate_effects(self) -> Self:

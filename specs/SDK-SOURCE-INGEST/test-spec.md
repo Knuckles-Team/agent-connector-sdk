@@ -359,3 +359,6 @@ trailing dots, IDNA and equivalent IPv6 forms. Another host has its own budget.
 
 R005.44 checks a valid IPv6 robots URL, denial of a private path and cache
 reuse for equivalent IPv6 and IDNA spellings.
+
+R005.45 calls the served web-fetch tool with a denied URL carrying a query
+secret. The refusal contains its reason but no requested path or query value.

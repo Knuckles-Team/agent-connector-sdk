@@ -312,7 +312,9 @@ class RobotsRules:
     async def check(self, url: str) -> None:
         """Raise ``robots_disallowed`` unless ``url`` may be fetched."""
         if not await self.allowed(url):
-            raise WebSourceRefused("robots_disallowed", url)
+            raise WebSourceRefused(
+                "robots_disallowed", "robots policy disallows the page"
+            )
 
     async def allowed(self, url: str) -> bool:
         origin = _origin(url)

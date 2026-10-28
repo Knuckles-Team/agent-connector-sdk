@@ -140,6 +140,7 @@
     "SDK-CONNECTOR-CONTROL-R060",
     "SDK-CONNECTOR-CONTROL-R650",
     "SDK-CONNECTOR-CONTROL-R650.1",
+    "SDK-CONNECTOR-CONTROL-R650.2",
     "SDK-CONNECTOR-CONTROL-R051",
     "SDK-CONNECTOR-CONTROL-R051.1",
     "SDK-CONNECTOR-CONTROL-R051.2",
@@ -1607,9 +1608,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R048.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "001bff61db68",
+        "7f1edf06973d"
+      ],
+      "verified_by": [
+        "tests/test_readable_form.py:35"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R048.2",
@@ -1619,7 +1625,7 @@
         "de142ee07ee4"
       ],
       "verified_by": [
-        "tests/test_readable_form.py:16"
+        "tests/test_readable_form.py:17"
       ]
     },
     {
@@ -1894,7 +1900,8 @@
       ],
       "verified_by": [],
       "rollup_of": [
-        "SDK-CONNECTOR-CONTROL-R650.1"
+        "SDK-CONNECTOR-CONTROL-R650.1",
+        "SDK-CONNECTOR-CONTROL-R650.2"
       ]
     },
     {
@@ -1903,6 +1910,19 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R650.2",
+      "title": "Release identity digest",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "c23ed3429195"
+      ],
+      "verified_by": [
+        "tests/test_release_identity.py:22",
+        "tests/test_release_identity.py:39",
+        "tests/test_release_identity.py:48"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R051",

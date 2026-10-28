@@ -11,6 +11,7 @@ from agent_connector_sdk.artifacts.readable_form import (
     default_readable_renderer,
     render_readable,
 )
+from agent_connector_sdk.artifacts.tool_facts import SideEffect, ToolContractFacts
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R048.2")
@@ -29,3 +30,22 @@ def test_render_is_bounded_plain_text() -> None:
         form.__setattr__("max_chars", 1)
     with pytest.raises(ValueError):
         ReadableForm("default", max_chars=-1)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R048.1")
+def test_model_is_frozen_and_optional_on_facts() -> None:
+    base = {
+        "read_only": True,
+        "side_effects": frozenset({SideEffect.NONE}),
+        "arg_schema": {"type": "object"},
+        "schema_tokens": 0,
+        "declared_by": "connector",
+    }
+    empty = ToolContractFacts.model_validate(base)
+    assert empty.readable_form is None
+    form = ReadableForm("fitted", question_set_ref="questions.json", score=0.9)
+    facts = ToolContractFacts.model_validate({**base, "readable_form": form})
+    assert facts.readable_form == form
+    assert ToolContractFacts.model_validate(facts.model_dump()) == facts
+    with pytest.raises(FrozenInstanceError):
+        form.__setattr__("score", 0.5)

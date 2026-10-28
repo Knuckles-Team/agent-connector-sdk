@@ -825,3 +825,9 @@ bound on either renderer. Certification and pack wiring remain open.
 `OrderedProgress` serializes redacted notifications within the deadline.
 The caller supplies the redactor and sender. Context authentication, request-cache
 isolation and served binding remain the separate R050 obligations.
+
+## Amendment: canonical release identity (R650.2)
+
+The digest covers the validated live source declaration and the canonical RDF
+graph. It does not establish a signer, admission decision, lock or rotation.
+The served signing and verification obligations of R650.1 remain open.

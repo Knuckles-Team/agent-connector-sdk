@@ -82,7 +82,7 @@
 - [ ] **R060:** Native desktop operation port and no-cursor/no-focus invariant. Served tests with grant-bound refusal.
   - [x] **R047.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R047.6).
 - [ ] **R048:** Agent-readable text form in tool contracts. (SDK-CONNECTOR-CONTROL-R048).
-  - [ ] **R048.1:** Model row. (SDK-CONNECTOR-CONTROL-R048.1).
+  - [x] **R048.1:** Model row. (SDK-CONNECTOR-CONTROL-R048.1).
   - [x] **R048.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R048.2).
   - [ ] **R048.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R048.3).
   - [ ] **R048.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R048.4).
@@ -329,3 +329,5 @@ The total response deadline remains open under R047.2.
 - [x] **SDK-CONNECTOR-CONTROL-R049.7:** Default the X402 guard to zero spending.
 
 - [ ] **R050.8:** Serialize and bound request-local progress notifications (SDK-CONNECTOR-CONTROL-R050.8).
+
+- [x] Compute a canonical digest for a live declaration and ontology (SDK-CONNECTOR-CONTROL-R650.2).
