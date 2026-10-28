@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from math import isfinite
 
@@ -34,6 +34,35 @@ class ReadableForm:
             or not 0 <= self.score <= 1
         ):
             raise ValueError("score must be a finite ratio between zero and one")
+
+
+@dataclass(frozen=True)
+class ReadableScore:
+    """Counts of graded questions, with a ratio derived from those counts."""
+
+    question_count: int
+    answered_count: int
+
+    def __post_init__(self) -> None:
+        if (
+            type(self.question_count) is not int
+            or type(self.answered_count) is not int
+            or self.question_count <= 0
+            or not 0 <= self.answered_count <= self.question_count
+        ):
+            raise ValueError("question counts are invalid")
+
+    @property
+    def score(self) -> float:
+        """Return the fraction of questions answered correctly."""
+        return self.answered_count / self.question_count
+
+
+def score_readable_answers(answers: Sequence[bool]) -> ReadableScore:
+    """Count externally graded answers; an empty or non-boolean set refuses."""
+    if not answers or any(type(answer) is not bool for answer in answers):
+        raise ValueError("graded answers must be nonempty booleans")
+    return ReadableScore(question_count=len(answers), answered_count=sum(answers))
 
 
 @dataclass(frozen=True)

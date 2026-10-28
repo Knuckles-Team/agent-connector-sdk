@@ -132,6 +132,11 @@ Decision. The score is the fraction of graded questions answered from the text f
 
 Cross-repository rows. The engine's tool-subset decision (`EG-DECISION-ENGINE`) may read `score` through the generated pack annotation; that field needs the `EG-TYPED-PACKS` row first.
 
+## Count-based readable scores (R048.8)
+
+The scorer counts already graded boolean answers and derives their ratio. It
+does not evaluate answers or close the certification and pack obligations.
+
 ## Payment challenge handling (SDK-CONNECTOR-CONTROL-R049)
 
 Data flow: served operation -> governed client from `create_http_client` (`agent_connector_sdk/http/client.py:84`) -> 402 response hook -> `PaymentGate.decide` (new) -> `ctx_confirm_destructive` (`agent_connector_sdk/mcp/context.py:49`) -> retry with payment header -> `PaymentRecord` entity.
@@ -173,6 +178,9 @@ a tool that cannot receive context. Keep transport context out of the public too
 argument schema. Bind identity from authenticated server state, never tool arguments.
 The method wrapper must use the same context adapter as condensed handlers.
 The adapter passes context only through a declared typed parameter.
+
+The request-local cache primitive accepts only caller-admitted transient values.
+Its owner binds the authenticated context and enforces the value exclusions below.
 
 `request_cache` keys include tenant, actor, connector, operation, normalized argument
 digest and authorization scope. The cache holds typed transient values only.

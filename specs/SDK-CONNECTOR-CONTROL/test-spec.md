@@ -70,6 +70,7 @@ The planned test module is `tests/test_tool_context_served.py`.
 | ID | Fixture/action | Required assertion |
 |---|---|---|
 | CC-50 | Construct context and progress models with malformed fields. | Unknown state, missing identity, NaN, negative completion and excessive message length refuse. |
+| CC-50B | Use two request-local caches, then close or expire one. | Values stay scoped and bounded. Denied values do not enter the cache. (SDK-CONNECTOR-CONTROL-R050.9) |
 | CC-51 | Two concurrent producers report completion `1`; after both finish, report `2`. Repeat with unknown total. Separately omit the token. | Emitted completion values are exactly `[1, 2]`; sequence strictly increases and completion never exceeds total. Equal-value updates may change the internal terminal summary. No token yields zero notifications and retains the terminal summary. |
 | CC-52 | Start the SDK server with condensed and method registrars; call both over MCP | Each handler receives the authenticated context. Its dispatch, logs, progress and result retain one request identity. |
 | CC-53 | Deny EG approval, expire deadline, cancel, and break progress delivery after a source effect. Reconnect after losing the terminal response. | Pre-effect refusal calls no backend. An uncertain result identifies the existing receipt. Governed reconciliation and retries produce at most one effect. Missing reconnect mapping returns `recovery_unavailable`, no reconstructed result and no second effect. |
@@ -492,3 +493,5 @@ process settings do not alter the result, and an unknown profile refuses.
 
 - `SDK-CONNECTOR-CONTROL-R650.3`: `tests/test_release_signature.py` covers input tampering, key scope, version, trust and canonical signature refusals.
 - `SDK-CONNECTOR-CONTROL-R048.7`: `tests/test_readable_form.py` covers finite ratios and refuses non-ratios through both constructors.
+
+- `SDK-CONNECTOR-CONTROL-R048.8`: `tests/test_readable_count_score.py` checks the ratio and refuses invalid grades.

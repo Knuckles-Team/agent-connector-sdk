@@ -34,6 +34,7 @@
 - [ ] **R015.1:** Add `scan_for_duplicate_manifest_or_certify_definitions` to `agent_connector_sdk.testing.duplicate_symbol_scan` — flags a connector package that locally defines `ConnectorManifest`/`CertificationReport`/`certify_connector` instead of importing them from the SDK.
   - [x] Port `agent_utilities.security.entitlements.identity_scoped_resources` to `agent_connector_sdk.entitlements`, over the SDK's own `identity.ActorContext` (SDK-CONNECTOR-CONTROL-R025). A fleet consumer (`vector-mcp`, `documentdb-mcp`, `sql-mcp`, `dockerhub-api`, `keycloak-agent`, `openbao-mcp`, `portainer-agent`, `tunnel-manager`, `systems-manager`, `container-manager-mcp` and others) can now swap its import with no call-site change.
 - [ ] **R020.1:** Extend `scan_many_packages` to inventory JSON tag loaders and prove parity across source and replacement registration.
+- [ ] **R050.9:** Add the bounded request-local cache primitive (SDK-CONNECTOR-CONTROL-R050.9).
 - [ ] **R050.7:** Add visual observation transport between ordered steps within a run, with frame provenance and ordered reference passing.
   - [x] Add `agent_connector_sdk.mcp.method_tools.register_method_tools`, an explicit opt-in primitive deriving one tool per public client-class method (SDK-CONNECTOR-CONTROL-R026). `data-science-mcp`'s `mcp_server.py` stays on `agent_utilities.mcp.verbose_tools.register_tool_surface` for exactly this (its own code comment names the gap as SDK-CONNECTOR-CONTROL-R009). It can now migrate without losing its per-`MLEngine`-method tool surface.
 - [ ] Attach exact merged commit, artifact digest, CI result, typed SQL receipt and live redacted pack receipt. Mark accepted only when CC-01–CC-10 pass.
@@ -90,6 +91,7 @@
   - [ ] **R048.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R048.4).
   - [ ] **R048.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R048.5).
   - [ ] **R048.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R048.6).
+- [x] Count graded readable answers (SDK-CONNECTOR-CONTROL-R048.8).
 - [ ] **R049:** Budget-limited, approval-gated payment challenge handling. (SDK-CONNECTOR-CONTROL-R049).
   - [ ] **R049.1:** Model row. (SDK-CONNECTOR-CONTROL-R049.1).
   - [ ] **R049.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R049.2).
