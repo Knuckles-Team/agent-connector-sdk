@@ -8,7 +8,7 @@ import httpx
 
 from agent_connector_sdk.http.errors import ResponseTooLargeError
 from agent_connector_sdk.http.problems import ProblemDetails
-from agent_connector_sdk.http.redaction import redact_url
+from agent_connector_sdk.http.redaction import redact_origin
 
 __all__ = [
     "DEFAULT_MAX_RESPONSE_BYTES",
@@ -27,7 +27,7 @@ def _too_large(response: httpx.Response, max_bytes: int) -> ResponseTooLargeErro
         ProblemDetails.sdk(
             "response-too-large",
             "Response body too large",
-            detail=f"{response.request.method} {redact_url(response.request.url)}",
+            detail=f"{response.request.method} {redact_origin(response.request.url)}",
             max_bytes=max_bytes,
         )
     )

@@ -1025,10 +1025,10 @@
         "e40ff88a9bbc"
       ],
       "verified_by": [
-        "tests/test_http_client.py:351",
-        "tests/test_http_client.py:373",
-        "tests/test_http_client.py:395",
-        "tests/test_http_client.py:426"
+        "tests/test_http_client.py:352",
+        "tests/test_http_client.py:374",
+        "tests/test_http_client.py:396",
+        "tests/test_http_client.py:427"
       ]
     },
     {

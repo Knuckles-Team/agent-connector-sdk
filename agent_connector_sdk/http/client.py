@@ -42,7 +42,7 @@ from agent_connector_sdk.http.egress import (
     _check_pinned_base_host,
 )
 from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.redaction import redact_url
+from agent_connector_sdk.http.redaction import redact_origin
 from agent_connector_sdk.http.transport import AsyncGovernedTransport, GovernedTransport
 
 __all__ = [
@@ -148,7 +148,7 @@ def _client_kwargs(options: HttpClientOptions) -> dict[str, Any]:
     if urlsplit(options.base_url).scheme == "http":
         _logger.warning(
             "plaintext HTTP client for %s: requests and credentials are not encrypted",
-            redact_url(options.base_url),
+            redact_origin(options.base_url),
         )
     headers = httpx.Headers(standard_headers())
     headers.update(options.headers)

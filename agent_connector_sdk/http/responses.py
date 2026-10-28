@@ -15,7 +15,7 @@ from agent_connector_sdk.http.bodies import (
 )
 from agent_connector_sdk.http.errors import HttpProblemError, error_for_response
 from agent_connector_sdk.http.problems import ProblemDetails
-from agent_connector_sdk.http.redaction import redact_url
+from agent_connector_sdk.http.redaction import redact_origin
 
 __all__ = [
     "ERROR_BODY_BYTES",
@@ -61,19 +61,26 @@ async def aensure_success(response: httpx.Response) -> None:
         raise error
 
 
+def _decode_json(body: bytes) -> tuple[bool, JsonValue]:
+    try:
+        document: JsonValue = json.loads(body)
+    except ValueError:
+        return False, None
+    return True, document
+
+
 def _json(response: httpx.Response, body: bytes) -> JsonValue:
     if not body:
         return None
-    try:
-        document: JsonValue = json.loads(body)
-    except ValueError as exc:
+    valid, document = _decode_json(body)
+    if not valid:
         raise HttpProblemError(
             ProblemDetails.sdk(
                 "invalid-json",
                 "Response is not valid JSON",
-                detail=f"{response.request.method} {redact_url(response.request.url)}",
+                detail=f"{response.request.method} {redact_origin(response.request.url)}",
             )
-        ) from exc
+        )
     return document
 
 

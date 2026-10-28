@@ -217,4 +217,5 @@ def test_attempt_flow_raises_mapped_error() -> None:
     next(flow)
     with pytest.raises(UpstreamTimeoutError) as raised:
         flow.send(httpx.ReadTimeout("slow"))
-    assert isinstance(raised.value.__cause__, httpx.ReadTimeout)
+    assert raised.value.__cause__ is None
+    assert raised.value.problem.extensions["cause"] == "ReadTimeout"

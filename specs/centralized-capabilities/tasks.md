@@ -59,3 +59,4 @@ Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requireme
 - [x] Refuse malformed pagination record collections (SDK-CENTRALIZED-CAPABILITIES-R004.6).
 - [x] Keep upstream response problem fields out of governed public errors while retaining numeric retry timing (SDK-CENTRALIZED-CAPABILITIES-R006.1).
 - [ ] Check fleet connector error paths do not expose secrets or upstream response bodies (SDK-CENTRALIZED-CAPABILITIES-R006.2).
+- [x] Keep paths and query values out of governed HTTP diagnostics (SDK-CENTRALIZED-CAPABILITIES-R006.3).
