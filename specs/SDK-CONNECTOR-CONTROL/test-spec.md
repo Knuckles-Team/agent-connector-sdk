@@ -470,4 +470,9 @@ test checks cookie path scope and refuses a second origin without dispatch.
 Sync and async tests also refuse cross-origin redirects. Direct unguarded
 HTTPX use refuses before login.
 
+## Explicit TLS settings (R780.13)
+
+Resolve a service-specific profile from an injected mapping. Conflicting
+process settings do not alter the result, and an unknown profile refuses.
+
 - `SDK-CONNECTOR-CONTROL-R035.8`: `tests/test_reference_invariants.py` refuses forged references before resolution.

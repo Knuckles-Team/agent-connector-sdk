@@ -775,6 +775,13 @@ policy, including redirects. Callers select a resolved TLS profile.
 The session ignores ambient proxies unless that profile permits them. The other
 R780.6 helpers remain open.
 
+## Explicit TLS settings (R780.13)
+
+The existing resolver accepts an explicit mapping of TLS selector keys.
+Profile selection reads only the mapping when present. Secret references
+remain the credential resolver’s responsibility. This supports explicit config
+without changing process state. Legacy AgentConfig projection remains open.
+
 
 ## Amendment: synchronous callable retry (R780.11)
 
