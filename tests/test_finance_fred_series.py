@@ -94,3 +94,19 @@ def test_vintage_before_its_own_observation_period_is_rejected() -> None:
             vintage_date=date(2025, 10, 1),
             value=3.7,
         )
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.1")
+@pytest.mark.parametrize("value", ["nan", "inf", "-inf", "1e999"])
+def test_nonfinite_values_are_rejected(value: str) -> None:
+    page = {
+        "observations": [
+            {"date": "2025-11-01", "realtime_start": "2025-12-05", "value": value}
+        ]
+    }
+    with pytest.raises(ValidationError, match="finite"):
+        _series(payload=page)
+    valid = _series()[0].model_dump()
+    valid["value"] = float(value)
+    with pytest.raises(ValidationError, match="finite"):
+        MacroSeriesObservation(**valid)
