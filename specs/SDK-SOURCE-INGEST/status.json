@@ -1231,16 +1231,30 @@
     {
       "id": "SDK-SOURCE-INGEST-R005.7",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "f5b605a30269"
+      ],
+      "verified_by": [
+        "tests/test_bookmark_source.py:120",
+        "tests/test_bookmark_source.py:177",
+        "tests/test_bookmark_source.py:51",
+        "tests/test_bookmark_source.py:92"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.8",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "f5b605a30269"
+      ],
+      "verified_by": [
+        "tests/test_bookmark_source.py:121",
+        "tests/test_bookmark_source.py:178",
+        "tests/test_bookmark_source.py:52",
+        "tests/test_bookmark_source.py:93"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.9",

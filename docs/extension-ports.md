@@ -162,6 +162,18 @@ There is no permissive default. `sdk_reference_extensions()` certifies the
 implementations this SDK version ships. Two distributions declaring the same
 name in a group is an error.
 
+## Offline bookmarks
+
+`BookmarkReader` reads a social-v1 JSON array beneath a host-authorized root.
+The host supplies the root and local domain categories. The reader does not
+authenticate callers, fetch links or make graph writes. It refuses symlink
+components, files over one MiB and malformed records.
+
+`register_bookmark_tool` exposes the reader on an authenticated MCP server.
+Each page carries file and vocabulary digests. Pass both digests with the next
+offset to continue; a changed file or vocabulary refuses. Certified runner
+activation and graph acceptance are separate integration steps.
+
 ## Contract ownership
 
 Source ingestion, ConnectorPack, and WriteBack request/result models come

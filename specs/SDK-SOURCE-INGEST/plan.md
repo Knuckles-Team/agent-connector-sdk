@@ -287,7 +287,11 @@ Rejected alternative: treating graph submission as SQL execution or returning a 
 Existing code: `agent_connector_sdk/vendor_extractors/social.py:160` extracts hashtags, mentions and known tools from structured records.
 Its URL helper at line 143 reads embedded URL fields; its domain helper at line 82 performs local hostname parsing.
 The extractor returns an empty ChangeSet for missing record identity; the new adapter must visibly refuse that malformed input.
-Reachable today: no. Local helpers exist; bookmark-file discovery, pagination and domain-category output remain absent.
+The SDK reader accepts a bounded social-v1 JSON array or `bookmarks` object under
+a host-authorized root. A served MCP tool can call it. It resolves each path
+component without following symlinks. It binds continuation to the file and
+local vocabulary digests. It preserves raw records, offsets and unknown domains.
+Certified discovery, runner integration and durable graph proof remain absent.
 
 BookmarkRequest binds root authority, relative_path, file_digest, export_revision, mapping_revision and limits.
 BookmarkRecord fields include bookmark_id, source_text, hashtags, urls, tool_mentions, domain_category and provenance.

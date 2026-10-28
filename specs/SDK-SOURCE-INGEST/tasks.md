@@ -47,8 +47,8 @@
 
 ## Offline bookmark import
 
-- [ ] `SDK-SOURCE-INGEST-R005.7`: implement and prove model for offline bookmark import.
-- [ ] `SDK-SOURCE-INGEST-R005.8`: implement and prove behavior for offline bookmark import.
+- [x] `SDK-SOURCE-INGEST-R005.7`: implement and prove model for offline bookmark import.
+- [x] `SDK-SOURCE-INGEST-R005.8`: implement and prove behavior for offline bookmark import.
 - [ ] `SDK-SOURCE-INGEST-R005.9`: implement and prove wiring for offline bookmark import.
 - [ ] `SDK-SOURCE-INGEST-R005.10`: implement and prove refusal for offline bookmark import.
 - [ ] `SDK-SOURCE-INGEST-R005.11`: implement and prove evidence for offline bookmark import.
