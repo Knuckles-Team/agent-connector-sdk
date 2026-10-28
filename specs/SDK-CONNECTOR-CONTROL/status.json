@@ -990,6 +990,7 @@
       "title": "Bind session cookies to their origin",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "6707fe2f10c4",
         "79a69d1fd61b",
         "bfb6be6caa15",
         "fb1f1684168c"
