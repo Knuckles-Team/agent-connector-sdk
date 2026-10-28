@@ -180,11 +180,13 @@ class RestJsonConnector(LoadConnector, PollConnector):
         """Resolve the next-page cursor from the response or the last record."""
         if self.cursor_field:
             top = _dig(body, self.cursor_field)
-            if top:
+            if top or (isinstance(top, int) and not isinstance(top, bool) and top == 0):
                 return str(top)
             if records:
                 last = _dig(records[-1], self.cursor_field)
-                if last:
+                if last or (
+                    isinstance(last, int) and not isinstance(last, bool) and last == 0
+                ):
                     return str(last)
         return None
 
