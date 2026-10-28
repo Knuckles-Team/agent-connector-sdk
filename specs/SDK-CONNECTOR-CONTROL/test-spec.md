@@ -525,3 +525,8 @@ claim a producer, authenticated consumer or effect authority.
 `tests/test_component_health.py` checks immutable state, contradictory
 configuration, and enabled-only alert decisions. Served host observation and
 alert delivery remain separate integration work.
+
+## Generated trajectory operations
+
+`tests/test_trajectory_recorder.py` checks generated method routing and reports
+an uncertain append without retry. It does not claim engine cleanup.

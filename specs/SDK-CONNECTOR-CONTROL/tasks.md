@@ -351,3 +351,5 @@ The total response deadline remains open under R047.2.
 - [x] Refuse non-finite agent-card JSON before extraction (SDK-CONNECTOR-CONTROL-R047.9).
 
 - [x] Freeze retry policy controls before requests (SDK-CONNECTOR-CONTROL-R028.6).
+
+- [x] Route generated trajectory and training calls (SDK-CONNECTOR-CONTROL-R781.1).
