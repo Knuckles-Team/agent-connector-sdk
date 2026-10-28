@@ -1461,6 +1461,7 @@
       "title": "Certify that a `read_only` tool wrote nothing in its recorded fixture",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "483f2e61beed",
         "9286753c526d"
       ],
       "verified_by": [
@@ -1472,6 +1473,7 @@
       "title": "Refuse an unproven self-declared `read_only`",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "483f2e61beed",
         "9286753c526d"
       ],
       "verified_by": [
