@@ -1459,16 +1459,25 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R045.9",
       "title": "Certify that a `read_only` tool wrote nothing in its recorded fixture",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "9286753c526d"
+      ],
+      "verified_by": [
+        "tests/test_certify_read_only.py:24"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R045.10",
       "title": "Refuse an unproven self-declared `read_only`",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "9286753c526d"
+      ],
+      "verified_by": [
+        "tests/test_certify_read_only.py:25",
+        "tests/test_certify_read_only.py:74"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R045.11",
