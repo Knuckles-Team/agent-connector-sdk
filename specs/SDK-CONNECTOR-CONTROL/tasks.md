@@ -327,3 +327,5 @@ The total response deadline remains open under R047.2.
 
 - [x] **SDK-CONNECTOR-CONTROL-R035.8:** Enforce secret-reference construction invariants.
 - [x] **SDK-CONNECTOR-CONTROL-R049.7:** Default the X402 guard to zero spending.
+
+- [x] Compute a canonical digest for a live declaration and ontology (SDK-CONNECTOR-CONTROL-R650.2).

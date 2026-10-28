@@ -819,3 +819,9 @@ not establish the served approval or durable accounting required by R049.
 The default renderer formats supplied fitted terms, effects and stated fit quality.
 The caller may replace it, and `render_readable` enforces the declared character
 bound on either renderer. Certification and pack wiring remain open.
+
+## Amendment: canonical release identity (R650.2)
+
+The digest covers the validated live source declaration and the canonical RDF
+graph. It does not establish a signer, admission decision, lock or rotation.
+The served signing and verification obligations of R650.1 remain open.
