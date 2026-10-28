@@ -22,6 +22,7 @@ from agent_connector_sdk.ports.audit_reservation import (
 )
 from agent_connector_sdk.ports.authorization_verifier import AuthorizationVerifier
 from agent_connector_sdk.ports.writeback_transport import (
+    AuditBoundWriteBackTransport,
     ReservableWriteBackTransport,
     WriteBackTransport,
 )
@@ -142,7 +143,12 @@ class GovernedWriteBack:
         change_set = change_set.model_copy(deep=True)
         self._validate(change_set)
         try:
-            result = await self._transport.apply(change_set, current.source_version)
+            if isinstance(self._transport, AuditBoundWriteBackTransport):
+                result = await self._transport.apply_reserved(
+                    change_set, current.source_version, reservation
+                )
+            else:
+                result = await self._transport.apply(change_set, current.source_version)
             require_effect(change_set, result)
             return result
         except OutcomeUncertainError:
