@@ -41,3 +41,6 @@ R002.2 rejects non-finite values across all bar, quote and corporate action fiel
 
 
 R005.2 rejects non-finite ETF amounts through source normalization and direct model construction.
+
+
+R004.2 tests non-finite balances, position quantities, prices and activity amounts through normalization.

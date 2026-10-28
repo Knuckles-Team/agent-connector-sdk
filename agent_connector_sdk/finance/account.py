@@ -29,8 +29,8 @@ class Position(_Frozen):
 
     account_id: str = Field(min_length=1)
     instrument_id: str = Field(min_length=1)
-    quantity: float
-    average_cost: float = Field(ge=0)
+    quantity: float = Field(allow_inf_nan=False)
+    average_cost: float = Field(ge=0, allow_inf_nan=False)
     currency: str = Field(min_length=3, max_length=3)
 
 
@@ -38,7 +38,7 @@ class AccountSnapshot(FinanceRecordBase):
     """One account read: cash balance plus every currently held position."""
 
     account_id: str = Field(min_length=1)
-    cash_balance: float
+    cash_balance: float = Field(allow_inf_nan=False)
     currency: str = Field(min_length=3, max_length=3)
     positions: tuple[Position, ...] = ()
 
@@ -62,9 +62,9 @@ class AccountActivity(FinanceRecordBase):
     source_file_digest: str | None = None
     row_id: str | None = None
     action: str = Field(min_length=1)
-    quantity: float
-    price: float = Field(ge=0)
-    fees: float = Field(ge=0)
+    quantity: float = Field(allow_inf_nan=False)
+    price: float = Field(ge=0, allow_inf_nan=False)
+    fees: float = Field(ge=0, allow_inf_nan=False)
     currency: str = Field(min_length=3, max_length=3)
     settlement_time_utc: datetime
 
