@@ -169,6 +169,38 @@ def test_rest_empty_page_can_continue():
     assert batch.checkpoint.has_more
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R800.11")
+@pytest.mark.parametrize("placement", ["top", "last_record"])
+def test_rest_numeric_zero_cursor_is_followed(placement):
+    requests = []
+
+    def fetch(_url, params):
+        requests.append(params.get("cursor"))
+        if len(requests) == 1:
+            if placement == "top":
+                return {"items": [{"id": 1, "body": "one"}], "next": 0}
+            return {"items": [{"id": 1, "body": "one", "next": 0}]}
+        return {"items": [{"id": 2, "body": "two"}], "next": None}
+
+    conn = build_connector(
+        "rest",
+        {
+            "url": "http://api/",
+            "records_field": "items",
+            "text_field": "body",
+            "cursor_field": "next",
+            "cursor_param": "cursor",
+            "fetch_fn": fetch,
+        },
+    )
+    first = conn.poll()
+    assert first.checkpoint.has_more
+    assert first.checkpoint.cursor == "0"
+    second = conn.poll(first.checkpoint)
+    assert requests == [None, "0"]
+    assert [doc.id for doc in second.documents] == ["2"]
+
+
 # spec: SDK-SOURCE-INGEST-R800.2
 def test_rss_connector_parses_rss_and_atom_and_polls_by_watermark():
     feeds = {"http://f/rss": RSS, "http://f/atom": ATOM.replace("2601.00090v1", "x")}

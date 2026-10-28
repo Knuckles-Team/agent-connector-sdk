@@ -193,6 +193,7 @@
     "SDK-SOURCE-INGEST-R800.9",
     "SDK-SOURCE-INGEST-R800.8",
     "SDK-SOURCE-INGEST-R800.7",
+    "SDK-SOURCE-INGEST-R800.11",
     "SDK-SOURCE-INGEST-R800.3",
     "SDK-SOURCE-INGEST-R800.4",
     "SDK-SOURCE-INGEST-R800.5",
@@ -2217,17 +2218,17 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "11366ce437d5",
+        "1fef6e28fd79",
         "23b5ecce8a59",
         "2d68f7c80246",
-        "4b003b24ce55",
-        "56ad646b3616"
+        "4b003b24ce55"
       ],
       "verified_by": [
         "tests/source_connectors/test_source_connectors.py:125",
         "tests/source_connectors/test_source_connectors.py:155",
         "tests/source_connectors/test_source_connectors.py:172",
-        "tests/source_connectors/test_source_connectors.py:195",
-        "tests/source_connectors/test_source_connectors.py:221"
+        "tests/source_connectors/test_source_connectors.py:204",
+        "tests/source_connectors/test_source_connectors.py:227"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R800.1",
@@ -2235,6 +2236,7 @@
         "SDK-SOURCE-INGEST-R800.9",
         "SDK-SOURCE-INGEST-R800.8",
         "SDK-SOURCE-INGEST-R800.7",
+        "SDK-SOURCE-INGEST-R800.11",
         "SDK-SOURCE-INGEST-R800.3",
         "SDK-SOURCE-INGEST-R800.4",
         "SDK-SOURCE-INGEST-R800.5",
@@ -2260,8 +2262,8 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:172",
-        "tests/source_connectors/test_source_connectors.py:195"
+        "tests/source_connectors/test_source_connectors.py:204",
+        "tests/source_connectors/test_source_connectors.py:227"
       ]
     },
     {
@@ -2285,7 +2287,7 @@
         "56ad646b3616"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:221"
+        "tests/source_connectors/test_source_connectors.py:253"
       ]
     },
     {
@@ -2296,7 +2298,18 @@
         "23b5ecce8a59"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:255"
+        "tests/source_connectors/test_source_connectors.py:287"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R800.11",
+      "title": "Zero REST cursor",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1fef6e28fd79"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:172"
       ]
     },
     {
@@ -2341,7 +2354,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:195"
+        "tests/source_connectors/test_source_connectors.py:227"
       ]
     },
     {

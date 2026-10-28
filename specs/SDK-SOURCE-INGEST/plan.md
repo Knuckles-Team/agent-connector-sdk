@@ -735,3 +735,9 @@ The poll still returns successful categories and records their IDs. On recovery,
 the previously unavailable category can be read without losing older records.
 The bounded seen-ID history can evict healthy entries during a prolonged outage,
 so a later sweep may redeliver those entries.
+
+## Numeric zero REST continuation (R800.11)
+
+The REST source retains numeric zero from a response or last record as the
+continuation string `0`. The next poll supplies it in the declared cursor
+parameter. Null and empty cursor values still indicate no continuation.
