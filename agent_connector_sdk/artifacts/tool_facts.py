@@ -17,6 +17,7 @@ from agent_connector_sdk.artifacts.annotations import (
     _declared_annotations,
 )
 from agent_connector_sdk.artifacts.common import canonical_json
+from agent_connector_sdk.artifacts.readable_form import ReadableForm
 from agent_connector_sdk.manifest.tool_schema import (
     ToolSchemaContractError,
     canonical_input_schema,
@@ -24,7 +25,6 @@ from agent_connector_sdk.manifest.tool_schema import (
 )
 from agent_connector_sdk.mcp.action_dispatch import is_destructive_action
 from agent_connector_sdk.ports.errors import MalformedArtifactError
-from agent_connector_sdk.artifacts.readable_form import ReadableForm
 
 __all__ = [
     "DEFAULT_SCHEMA_BYTES_PER_TOKEN",
