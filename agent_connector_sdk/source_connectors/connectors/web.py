@@ -28,6 +28,10 @@ from ..base import (
 )
 from ..http_safety import require_safe_source_url, safe_get_text
 from ..registry import register_source
+from .web_frontier import _FrontierRunner
+from .web_frontier_codec import _FrontierCodec
+from .web_frontier_types import _URL_LIMIT
+from .web_page import _check_base_url, _html_to_text
 
 logger = logging.getLogger(__name__)
 
@@ -35,25 +39,6 @@ FetchFn = Callable[[str], str]
 
 _LINK_RE = re.compile(r'href=["\']([^"\'#]+)["\']', re.IGNORECASE)
 _TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
-
-
-def _html_to_text(html: str) -> str:
-    """HTML → text via markitdown, falling back to a regex tag strip."""
-    import tempfile
-
-    try:
-        from markitdown import MarkItDown
-
-        with tempfile.NamedTemporaryFile(
-            "w", suffix=".html", delete=True, encoding="utf-8"
-        ) as tmp:
-            tmp.write(html)
-            tmp.flush()
-            return str(MarkItDown().convert(tmp.name).text_content)
-    except Exception:
-        text = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", html)
-        text = re.sub(r"<[^>]+>", " ", text)
-        return re.sub(r"\s+", " ", text).strip()
 
 
 @register_source("web")
@@ -65,7 +50,7 @@ class WebCrawlerConnector(LoadConnector, PollConnector):
     Config:
         base_url: Seed URL (required).
         max_depth: Link-following depth from the seed (default 1).
-        max_pages: Hard cap on pages crawled (default 50).
+        max_pages: Hard cap on pages fetched per poll or load (default 50).
         same_domain: Restrict to the seed's host (default True).
         fetch_fn: Optional ``(url) -> html`` injectable for offline tests.
     """
@@ -85,9 +70,9 @@ class WebCrawlerConnector(LoadConnector, PollConnector):
         max_response_bytes: int = 10 * 1024 * 1024,
         **_: object,
     ) -> None:
-        if not base_url:
-            raise ValueError("WebCrawlerConnector requires a 'base_url'")
+        _check_base_url(base_url)
         allowed_private_hosts = list(allowed_private_hosts or [])
+        self._allowed_private_hosts = allowed_private_hosts
         self._host = require_safe_source_url(
             base_url,
             allowed_private_hosts=allowed_private_hosts,
@@ -140,8 +125,7 @@ class WebCrawlerConnector(LoadConnector, PollConnector):
         skip = skip_ids or set()
         seen: set[str] = set()
         queue: list[tuple[str, int]] = [(self.base_url, 0)]
-        emitted = 0
-        while queue and emitted < self.max_pages:
+        while queue and len(seen) < self.max_pages:
             url, depth = queue.pop(0)
             if url in seen:
                 continue
@@ -151,45 +135,60 @@ class WebCrawlerConnector(LoadConnector, PollConnector):
             except Exception as exc:  # one unreachable page must not stop the crawl
                 logger.warning("web crawl skipped %s: %s", url, exc)
                 continue
-            text = _html_to_text(html)
-            if text.strip() and url not in skip:
-                title_match = _TITLE_RE.search(html)
-                title = (title_match.group(1).strip() if title_match else url)[:200]
-                emitted += 1
-                yield SourceDocument(
-                    id=url,
-                    source_uri=url,
-                    title=title,
-                    text=text,
-                    doc_type="webpage",
-                    metadata={"depth": depth},
-                    external_access=self.external_access.model_copy(deep=True),
-                )
-            if depth < self.max_depth:
-                for link in self._extract_links(url, html):
-                    if link not in seen:
-                        queue.append((link, depth + 1))
+            document = self._document(url, depth, html)
+            if document is not None and url not in skip:
+                yield document
+            if depth >= self.max_depth:
+                continue
+            for link in self._extract_links(url, html):
+                if link not in seen:
+                    queue.append((link, depth + 1))
 
     # -- LoadConnector -----------------------------------------------------
 
     def load(self) -> Iterator[SourceDocument]:
         yield from self._crawl()
 
+    def _document(self, url: str, depth: int, html: str) -> SourceDocument | None:
+        text = _html_to_text(html)
+        if not text.strip():
+            return None
+        title_match = _TITLE_RE.search(html)
+        title = (title_match.group(1).strip() if title_match else url)[:200]
+        return SourceDocument(
+            id=url,
+            source_uri=url,
+            title=title,
+            text=text,
+            doc_type="webpage",
+            metadata={"depth": depth},
+            external_access=self.external_access.model_copy(deep=True),
+        )
+
     # -- PollConnector -----------------------------------------------------
 
     def poll(self, checkpoint: ConnectorCheckpoint | None = None) -> CheckpointedBatch:
-        """Crawl, skipping URLs already emitted in a prior poll (by ``seen_ids``).
-
-        CONCEPT:AU-ECO.connector.incremental-poll-watermark — a re-poll re-walks the site but only emits pages not in
-        the prior ``seen_ids`` set, and records the union so the next poll skips
-        them too.
-        """
+        """Fetch at most ``max_pages`` and resume an unfinished crawl."""
         prior_ids = set(checkpoint.seen_ids) if checkpoint else set()
-        docs = list(self._crawl(skip_ids=prior_ids))
-        new_ids = prior_ids | {d.id for d in docs}
+        codec = _FrontierCodec(self)
+        frontier = codec.resume(checkpoint)
+        documents = _FrontierRunner(self).drain(frontier, prior_ids)
         cp = ConnectorCheckpoint(
-            has_more=False,
-            watermark=None,
-            seen_ids=sorted(new_ids),
+            has_more=bool(frontier.queue),
+            seen_ids=sorted(prior_ids | {d.id for d in documents}),
+            state=codec.state(frontier),
         )
-        return CheckpointedBatch(documents=docs, checkpoint=cp)
+        return CheckpointedBatch(documents=documents, checkpoint=cp)
+
+    def _valid_checkpoint_url(self, url: object) -> bool:
+        if not isinstance(url, str) or len(url) > _URL_LIMIT:
+            return False
+        try:
+            require_safe_source_url(
+                url,
+                allowed_private_hosts=self._allowed_private_hosts,
+                resolve_dns=False,
+            )
+            return self._same_domain(url)
+        except ValueError:
+            return False

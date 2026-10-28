@@ -193,6 +193,7 @@
     "SDK-SOURCE-INGEST-R800.9",
     "SDK-SOURCE-INGEST-R800.8",
     "SDK-SOURCE-INGEST-R800.7",
+    "SDK-SOURCE-INGEST-R800.10",
     "SDK-SOURCE-INGEST-R800.3",
     "SDK-SOURCE-INGEST-R800.4",
     "SDK-SOURCE-INGEST-R800.5",
@@ -2214,7 +2215,7 @@
     {
       "id": "SDK-SOURCE-INGEST-R800",
       "title": "Document-source connector framework (rollup)",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "11366ce437d5",
         "23b5ecce8a59",
@@ -2223,11 +2224,7 @@
         "56ad646b3616"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:125",
-        "tests/source_connectors/test_source_connectors.py:155",
-        "tests/source_connectors/test_source_connectors.py:172",
-        "tests/source_connectors/test_source_connectors.py:195",
-        "tests/source_connectors/test_source_connectors.py:221"
+        "tests/source_connectors/test_source_connectors.py:45"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R800.1",
@@ -2235,6 +2232,7 @@
         "SDK-SOURCE-INGEST-R800.9",
         "SDK-SOURCE-INGEST-R800.8",
         "SDK-SOURCE-INGEST-R800.7",
+        "SDK-SOURCE-INGEST-R800.10",
         "SDK-SOURCE-INGEST-R800.3",
         "SDK-SOURCE-INGEST-R800.4",
         "SDK-SOURCE-INGEST-R800.5",
@@ -2297,6 +2295,19 @@
       ],
       "verified_by": [
         "tests/source_connectors/test_source_connectors.py:255"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R800.10",
+      "title": "Bounded web crawl",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/source_connectors/test_web_crawl_budget.py:10",
+        "tests/source_connectors/test_web_crawl_budget.py:111",
+        "tests/source_connectors/test_web_crawl_budget.py:52",
+        "tests/source_connectors/test_web_crawl_budget.py:67",
+        "tests/source_connectors/test_web_crawl_budget.py:85"
       ]
     },
     {

@@ -340,3 +340,9 @@ timezone-aware and naive timestamps fail closed.
 
 R900.8 exercises missing text and missing watermarks against SQLite. The read
 refuses before a partial load or checkpoint, then succeeds after row repair.
+
+## Bounded web crawl and resumption (R800.10)
+
+Poll a linked site with a one-page limit and an already-seen seed. Every call
+fetches at most one page. Serialized checkpoints resume to the deeper pages.
+A checkpoint bound to a different source refuses before a fetch.
