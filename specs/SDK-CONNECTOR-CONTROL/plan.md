@@ -50,6 +50,12 @@ Decisions.
 
 Cross-repository rows. Depends on the `EG-TYPED-PACKS` row that adds `side_effects` and `schema_tokens` to the generated `PackAnnotations`. Unblocks the `EG-DECISION-ENGINE` tool-subset rows that read `read_only` and `schema_tokens` for the `HarnessConfig` allowed tool subset. Unblocks the `AU-HARNESS` run-guard row that runs read-only tools in parallel and reads the same envelope subset.
 
+## Amendment: legacy token-file access (R046.8)
+
+The file store refuses final-component symlinks and nonregular files. It restricts
+the file descriptor before replacing token bytes. The approved broker and
+served persistence obligations of R046 remain open.
+
 ## Scoped credentials and bounded PKCE (SDK-CONNECTOR-CONTROL-R035, R046)
 
 Data flow: authenticated connector request -> qualified host grant -> SDK credential/PKCE transport -> approved vault receipt -> authorized provider call.
