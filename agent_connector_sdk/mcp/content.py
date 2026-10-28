@@ -334,7 +334,21 @@ def _register_resource_descriptors(mcp: Any, content: ConnectorContent) -> int:
                     origin="declared",
                     key_field=source.id_field,
                     pagination=source.pagination,
-                    pagination_param=source.page_param,
+                    pagination_param={
+                        "page": source.page_param,
+                        "cursor": source.cursor_param,
+                        "offset": source.offset_param,
+                    }.get(source.pagination),
+                    records_path=source.records_path or None,
+                    next_cursor_path=source.next_cursor_path,
+                    page_size=source.page_size
+                    if source.pagination in {"page", "offset"}
+                    else None,
+                    page_size_param=source.page_size_param,
+                    start_page=source.start_page,
+                    start_offset=source.start_offset,
+                    completion=source.pagination_completion
+                    or ("short_page" if source.pagination == "page" else None),
                     fields=tuple(fields.values()),
                 )
             result.append(descriptor.to_json())

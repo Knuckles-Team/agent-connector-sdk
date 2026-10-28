@@ -173,9 +173,12 @@ async def test_source_metadata_overrides_live_descriptor(tmp_path: Path) -> None
             fields={"serial_number": "http://knuckles.team/kg#serialNumber"},
             pagination="page",
             page_param="page",
+            page_size_param="per_page",
+            page_size=50,
+            records_path="items",
         ),
     )
-    def list_widgets(page: int = 1) -> list[Widget]:
+    def list_widgets(page: int = 1, per_page: int = 50) -> list[Widget]:
         return []
 
     async with Client(server) as client:
@@ -192,11 +195,40 @@ async def test_source_metadata_overrides_live_descriptor(tmp_path: Path) -> None
             "page",
             "page",
         )
+        assert (
+            resource["records_path"],
+            resource["page_size"],
+            resource["page_size_param"],
+        ) == ("items", 50, "per_page")
         binding = next(
             field for field in resource["fields"] if field["name"] == "serial_number"
         )
         assert binding["mapping_status"] == "declared"
         assert binding["ontology_property"] == "http://knuckles.team/kg#serialNumber"
+    async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
+        pack = await build_content_pack(
+            session,
+            connector="widget-mcp",
+            kinds=(ToolArtifactKind(), ResourceArtifactKind()),
+        )
+    contract = next(
+        entry for entry in pack.archive.entries if entry.uri == "contract://widget-mcp"
+    )
+    body = pack.archive.data[
+        contract.body.offset : contract.body.offset + contract.body.length
+    ]
+    (parsed,) = parse_access_contracts(body.decode())
+    assert (parsed.pagination, parsed.pagination_param, parsed.records_path) == (
+        "page",
+        "page",
+        "items",
+    )
+    assert (parsed.page_size, parsed.page_size_param, parsed.start_page) == (
+        50,
+        "per_page",
+        1,
+    )
+    assert parsed.completion == "short_page"
 
 
 def test_contract_renderer_refuses_noncanonical_resource_identity() -> None:
@@ -255,3 +287,51 @@ def test_each_resource_has_a_distinct_stable_foreign_source_id() -> None:
         "widget-mcp/gadgets",
         "widget-mcp/widgets",
     }
+
+
+@pytest.mark.parametrize(
+    ("mode", "extra"),
+    [
+        (
+            "cursor",
+            {
+                "pagination_param": "cursor",
+                "next_cursor_path": "next",
+                "completion": "cursor_null",
+            },
+        ),
+        (
+            "offset",
+            {
+                "pagination_param": "offset",
+                "page_size": 50,
+                "page_size_param": "limit",
+                "completion": "short_page",
+                "start_offset": 10,
+            },
+        ),
+    ],
+)
+def test_paging_and_result_declarations_round_trip(
+    mode: str, extra: dict[str, object]
+) -> None:
+    from agent_connector_sdk.artifacts.source_contract import render_source_contract
+
+    descriptor = {
+        "name": "widgets",
+        "uri": "data://widget-mcp/widgets",
+        "ontology_class": "http://knuckles.team/kg#Widget",
+        "mapping_status": "declared",
+        "operation": "list_widgets",
+        "key_field": "id",
+        "pagination": mode,
+        "origin": "declared",
+        "records_path": "data.items",
+        **extra,
+    }
+    (contract,) = parse_access_contracts(
+        render_source_contract("widget-mcp", [descriptor])
+    )
+    assert contract.pagination == mode and contract.records_path == "data.items"
+    for name, value in extra.items():
+        assert getattr(contract, name) == value

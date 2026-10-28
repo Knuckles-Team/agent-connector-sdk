@@ -131,3 +131,31 @@ async def test_partial_flush_refusal_does_not_advance_checkpoint() -> None:
     assert report.state == "failed" and report.reason == "ingest_refused"
     assert report.engine_code == "UNKNOWN_MAPPING_REFERENCE"
     assert state.cursor is None and state.digests == {}
+
+
+@pytest.mark.parametrize("pagination", ["cursor", "offset"])
+async def test_source_sync_refuses_virtual_only_paging_before_a_tool_call(
+    pagination: str,
+) -> None:
+    session, ingest, checkpoints = _Session(ITEMS), _Ingest(), _Checkpoints()
+    spec = _spec(pagination=pagination, page_param=None)
+    report = await _runner(session, ingest, checkpoints).sync(spec)
+    assert report.state == "failed" and report.reason == "pagination_unsupported"
+    assert session.calls == []
+    assert ingest.batches == []
+
+
+async def test_virtual_only_parent_paging_refuses_before_reading_parent() -> None:
+    from test_for_each import _declaration
+    from test_for_each import _Ingest as ParentIngest
+    from test_for_each import _runner as parent_runner
+    from test_for_each import _Session as ParentSession
+
+    parent, child = _declaration()
+    parent = parent.model_copy(update={"pagination": "cursor"})
+    session, ingest = ParentSession(), ParentIngest()
+    result = await parent_runner(session, ingest).sync(
+        child, sources={parent.source_id: parent, child.source_id: child}
+    )
+    assert result.state == "failed" and result.reason == "pagination_unsupported"
+    assert session.calls == [] and ingest.entities == []

@@ -34,7 +34,7 @@ def render_source_contract(
                 "RESOURCE_URI_INVALID: descriptor identity is not canonical"
             )
         identity = f"{descriptor.uri}#access"
-        terms = (
+        terms: list[tuple[str, str | int]] = [
             ("classIri", descriptor.ontology_class),
             ("sourceId", f"{connector}/{descriptor.name}"),
             ("entity", descriptor.name),
@@ -42,20 +42,30 @@ def render_source_contract(
             ("accessKind", descriptor.access_kind),
             ("operation", descriptor.operation),
             ("pagination", descriptor.pagination),
+        ]
+        optional = (
+            ("recordsPath", descriptor.records_path),
+            ("paginationParam", descriptor.pagination_param),
+            ("nextCursorPath", descriptor.next_cursor_path),
+            ("pageSize", descriptor.page_size),
+            ("pageSizeParam", descriptor.page_size_param),
+            ("completion", descriptor.completion),
+            (
+                "startPage",
+                descriptor.start_page if descriptor.pagination == "page" else None,
+            ),
+            (
+                "startOffset",
+                descriptor.start_offset if descriptor.pagination == "offset" else None,
+            ),
+            ("authRef", descriptor.credential_ref),
         )
+        terms.extend((name, value_) for name, value_ in optional if value_ is not None)
         lines.append(f"<{identity}> a ac:AccessContract ;")
         for index, (name, value_) in enumerate(terms):
-            terminator = (
-                " ."
-                if index == len(terms) - 1 and not descriptor.credential_ref
-                else " ;"
-            )
+            terminator = " ." if index == len(terms) - 1 else " ;"
             lines.append(
                 f"    ac:{name} {json.dumps(value_, ensure_ascii=False)}{terminator}"
-            )
-        if descriptor.credential_ref:
-            lines.append(
-                f"    ac:authRef {json.dumps(descriptor.credential_ref, ensure_ascii=False)} ."
             )
         for field in sorted(descriptor.fields, key=lambda item: item.name):
             if field.ontology_property:
@@ -80,6 +90,16 @@ def render_source_contract(
             or contract.access_kind != descriptor.access_kind
             or contract.operation != descriptor.operation
             or contract.pagination != descriptor.pagination
+            or contract.records_path != descriptor.records_path
+            or contract.pagination_param != descriptor.pagination_param
+            or contract.next_cursor_path != descriptor.next_cursor_path
+            or contract.page_size != descriptor.page_size
+            or contract.page_size_param != descriptor.page_size_param
+            or contract.completion != descriptor.completion
+            or contract.start_page
+            != (descriptor.start_page if descriptor.pagination == "page" else None)
+            or contract.start_offset
+            != (descriptor.start_offset if descriptor.pagination == "offset" else None)
             or contract.auth_ref != descriptor.credential_ref
             or contract.predicates
             != tuple(

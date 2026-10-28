@@ -81,8 +81,13 @@ class IngestSourceSpec(_Strict):
     cursor_field: str | None = None
     incremental: bool = False
     arguments: dict[str, JsonValue] = Field(default_factory=dict)
-    pagination: Literal["none", "page"] = "none"
+    pagination: Literal["none", "page", "cursor", "offset"] = "none"
     page_param: str | None = None
+    cursor_param: str | None = None
+    next_cursor_path: str | None = None
+    pagination_completion: Literal["short_page", "cursor_null"] | None = None
+    offset_param: str | None = None
+    start_offset: int = Field(default=0, ge=0, le=1_000_000)
     page_size_param: str | None = None
     page_size: int = Field(default=100, ge=1, le=1000)
     start_page: int = Field(default=1, ge=0)
