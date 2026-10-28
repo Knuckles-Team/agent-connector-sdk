@@ -587,6 +587,8 @@ The SDK serves the resources and notifies on change. The engine validates and st
 
 ## SDK-CONNECTOR-CONTROL-R069 — connection-protocol transports
 
+The typed transport declaration and Turtle read path are delivered together. A declaration is not evidence that a transport exists; registry, certification enforcement and served engine proof remain separate.
+
 References: [EG-FEDERATED-QUERY-R073.2](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/spec.md), [ARBORA-FLEET-R038](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SDK-CONNECTOR-CONTROL-R014.17, SDK-CONNECTOR-CONTROL-R040, SDK-CONNECTOR-CONTROL-R041, SDK-CONNECTOR-CONTROL-R042, SDK-CONNECTOR-CONTROL-R043, SDK-CONNECTOR-CONTROL-R044
 
 One protocol stack has one implementation per role (`ARBORA-FLEET-R038`). The SDK owns connector client transports and connector server scaffolding. arbora owns serving and the multiplexer client side.

@@ -20,6 +20,8 @@ from agent_connector_sdk.transports.mcp import McpTransport
     [
         ({"ontology_class": "urn:test:Missing"}, "RESOURCE_UNMAPPED"),
         ({"access_kind": "invalid"}, "ACCESS_KIND_UNKNOWN"),
+        ({"access_kind": "stream_topic"}, "ACCESS_KIND_UNKNOWN"),
+        ({"pagination": "sync_token"}, "PAGINATION_UNDECLARED"),
         ({"pagination": None}, "PAGINATION_UNDECLARED"),
         ({"credential_ref": "test-secret"}, "SECRET_IN_CONTRACT"),
         ({"credential_ref": "env://SAFE_REFERENCE"}, None),

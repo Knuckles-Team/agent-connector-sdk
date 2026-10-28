@@ -3168,9 +3168,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R069.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "299c63d56db4",
+        "9457b6d5a33d"
+      ],
+      "verified_by": [
+        "tests/test_transport_contract.py:28"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R069.2",
@@ -3940,6 +3945,7 @@
       "title": "Refusal",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "52111adb6bf2",
         "e57b0b8d7896"
       ],
       "verified_by": [
