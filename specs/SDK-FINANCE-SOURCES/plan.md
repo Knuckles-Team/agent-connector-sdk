@@ -14,6 +14,15 @@ compares valuation age with the configured freshness threshold. Provider APIs
 and licensed live access remain outside this evidence. R003.4 retains the
 provider-specific API work needed for the parent requirement.
 
+## Cross-provider market source contract (R001.2)
+
+The SDK validates bounded CCXT candles and CoinMarketCap records.
+It also validates FRED vintage observations and sourced FOMC announcements.
+All use one MCP source contract before sink submission. It accepts only delta pages
+and refuses reconciliation because a bounded query is not an authoritative
+live set. Emerald exchange history and Bellwether finance streams are the
+producer paths. Live licensed access is separate evidence.
+
 ## Calendar identity collision refusal (R001.3)
 
 The normalizer preserves legacy event IDs. It refuses a page when one ID maps
