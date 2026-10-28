@@ -37,6 +37,10 @@ Discover the three feed-kind bindings. Deny activation without their exact
 identity, then load and construct each binding under the SDK reference policy.
 This is not a runner or durable receipt proof.
 
+## Exact last-page replay (R001.6)
+
+Accept a page, construct a fresh adapter, replay the identical page, then supply another event with the same timestamp. Verify the second page is accepted and the checkpoint advances. When the optional graph server binary is available, verify receipt status and exactly one graph record per event. The graph fixture uses a fresh adapter, not an operating-system process restart.
+
 ## Optional event tenant binding (R001.7)
 
 Supply an expected tenant. Submit another tenant with an existing event ID.

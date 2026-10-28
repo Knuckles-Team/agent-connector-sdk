@@ -128,6 +128,11 @@ class GovernedWriteBack:
             raise AuditReservationUnavailableError(
                 "audit reservation binding mismatch or missing ID"
             )
+        # Generated change sets are shallow-frozen. Recheck their nested data
+        # after awaiting admission, then isolate the exact effect from caller
+        # mutation while the transport is running.
+        change_set = change_set.model_copy(deep=True)
+        self._validate(change_set)
         try:
             result = await self._transport.apply(change_set, current.source_version)
             require_effect(change_set, result)

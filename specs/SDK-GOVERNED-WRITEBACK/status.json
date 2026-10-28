@@ -29,6 +29,7 @@
     "SDK-GOVERNED-WRITEBACK-R004.13",
     "SDK-GOVERNED-WRITEBACK-R004.14",
     "SDK-GOVERNED-WRITEBACK-R004.15",
+    "SDK-GOVERNED-WRITEBACK-R004.16",
     "SDK-GOVERNED-WRITEBACK-R005"
   ],
   "requirements": [
@@ -145,7 +146,8 @@
         "SDK-GOVERNED-WRITEBACK-R004.12",
         "SDK-GOVERNED-WRITEBACK-R004.13",
         "SDK-GOVERNED-WRITEBACK-R004.14",
-        "SDK-GOVERNED-WRITEBACK-R004.15"
+        "SDK-GOVERNED-WRITEBACK-R004.15",
+        "SDK-GOVERNED-WRITEBACK-R004.16"
       ]
     },
     {
@@ -272,6 +274,19 @@
       "verified_by": [
         "tests/test_writeback.py:111",
         "tests/test_writeback.py:79"
+      ]
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R004.16",
+      "title": "Recheck the approved change before apply",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "402182302e8c"
+      ],
+      "verified_by": [
+        "tests/test_writeback.py:221",
+        "tests/test_writeback.py:241",
+        "tests/test_writeback.py:259"
       ]
     },
     {
