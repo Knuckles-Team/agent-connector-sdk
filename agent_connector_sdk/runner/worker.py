@@ -100,7 +100,9 @@ class ConnectorWorker:
     async def _connect(self, *, follow: bool) -> None:
         endpoint = await resolve_endpoint(self._services, self._descriptor)
         async with self._services.transport.session(endpoint) as session:
-            adapters = await load_sync_adapters(self._descriptor, session)
+            adapters = await load_sync_adapters(
+                self._descriptor, session, policy=self._services.source_adapter_policy
+            )
             await self._cycle(session, adapters, full_plan(self._descriptor, adapters))
             self._backoff.reset()
             if follow:

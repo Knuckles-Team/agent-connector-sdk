@@ -88,6 +88,7 @@ class IngestSourceSpec(_Strict):
     description: str = ""
     server: str = ""
     preset: dict[str, JsonValue] | None = None
+    feed_kind: Literal["rum", "security_audit", "ci_cd"] | None = None
     for_each: ForEach | None = None
     edges: tuple[EdgeSpec, ...] = ()
 

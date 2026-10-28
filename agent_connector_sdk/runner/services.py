@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from agent_connector_sdk.discovery import ActivationPolicy
 from agent_connector_sdk.ports.artifact_kind import ArtifactKind
 from agent_connector_sdk.ports.decide_runner import DecisionRunner
 from agent_connector_sdk.ports.sink import Sink
@@ -32,3 +33,4 @@ class RunnerServices:
     #: ``Decide`` call site stays its deterministic fallback, exactly as
     #: before this port existed.
     decide_runner: DecisionRunner | None = None
+    source_adapter_policy: ActivationPolicy | None = None

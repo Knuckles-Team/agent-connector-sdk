@@ -27,10 +27,11 @@ The graph test skips if its optional server binary is absent.
 
 ## Event adapter registration (R001.4)
 
-The SDK distribution exposes the three feed bindings through source-adapter
-entry points. Loading each binding requires an activation policy. The generic worker can call an adapter supplied directly. The sync command
-cannot yet construct one from a declared feed kind.
-Registration and certified activation remain open work.
+The live source declaration may name a feed kind. The sync runner loads that
+binding through its composition root's activation policy and pins the live tool
+contract before extraction. A missing or unauthorized policy refuses the feed.
+The event tenant binding remains optional; this wiring does not establish a
+trusted host tenant.
 
 ## Exact last-page replay (R001.6)
 

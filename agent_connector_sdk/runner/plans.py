@@ -6,6 +6,7 @@ from collections.abc import Collection, Iterable, Mapping
 from dataclasses import dataclass
 
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from agent_connector_sdk.discovery import ActivationPolicy
 from agent_connector_sdk.ingest.live_declaration import RESOURCES_URI
 from agent_connector_sdk.manifest.declaration import (
     ContractError,
@@ -16,8 +17,13 @@ from agent_connector_sdk.manifest.model import SyncSpec
 from agent_connector_sdk.manifest.presets import ToolPreset
 from agent_connector_sdk.ports.change_source import ChangeEvent
 from agent_connector_sdk.ports.session import McpSession
+from agent_connector_sdk.ports.source_adapter import SourceAdapter
 from agent_connector_sdk.runner.descriptors import ConnectorDescriptor
 from agent_connector_sdk.runner.errors import RunnerConfigurationError
+from agent_connector_sdk.runner.event_adapters import (
+    _build_event_adapters,
+    _ordinary_names,
+)
 
 __all__ = [
     "CyclePlan",
@@ -108,8 +114,11 @@ def _explicit_mapping_problems(
 
 
 async def load_sync_adapters(
-    descriptor: ConnectorDescriptor, session: McpSession
-) -> dict[str, McpToolSourceAdapter]:
+    descriptor: ConnectorDescriptor,
+    session: McpSession,
+    *,
+    policy: ActivationPolicy | None = None,
+) -> dict[str, SourceAdapter]:
     """Build the adapters from the server's own ``connector://resources``.
 
     The MCP server is the only place connector metadata is read from; tool
@@ -134,12 +143,15 @@ async def load_sync_adapters(
         _raise_problems(
             descriptor, [f"the server declares connector {contract.connector!r}"]
         )
-    return _build_sync_adapters(descriptor, contract)
+    adapters = _build_sync_adapters(descriptor, contract)
+    events = await _build_event_adapters(descriptor, session, contract, policy=policy)
+    adapters.update(events)
+    return adapters
 
 
 def _build_sync_adapters(
     descriptor: ConnectorDescriptor, manifest: SyncContract
-) -> dict[str, McpToolSourceAdapter]:
+) -> dict[str, SourceAdapter]:
     specs = {spec.preset: spec for spec in manifest.sync}
     selected = descriptor.presets or tuple(specs)
     _raise_problems(
@@ -162,7 +174,7 @@ def _build_sync_adapters(
             resources=manifest.resources,
             parents=specs,
         )
-        for name in selected
+        for name in _ordinary_names(selected, specs)
     }
 
 

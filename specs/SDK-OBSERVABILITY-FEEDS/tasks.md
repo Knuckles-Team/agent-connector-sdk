@@ -10,3 +10,4 @@
 - [x] Prove one exact page across a worker process restart with an isolated graph (SDK-OBSERVABILITY-FEEDS-R001.3).
 - [x] Bound the event identity index and refuse overflow before acceptance (SDK-OBSERVABILITY-FEEDS-R001.8).
 - [x] Check an explicitly bound tenant before event identity deduplication (SDK-OBSERVABILITY-FEEDS-R001.7).
+- [x] Activate declared event feeds through the connector-sync runner (SDK-OBSERVABILITY-FEEDS-R001.4).
