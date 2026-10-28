@@ -2101,8 +2101,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R014.30",
       "title": "Reject unlisted shared addresses",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15e8fa735e6e"
+      ],
       "verified_by": [
         "tests/test_http_dns_pinned_egress.py:226",
         "tests/test_http_dns_pinned_egress.py:239",
