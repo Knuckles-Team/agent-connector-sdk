@@ -1331,8 +1331,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R005.56",
       "title": "Offline workspace reader floor",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "59d9d32b0d9e"
+      ],
       "verified_by": [
         "tests/test_workspace_reader.py:127",
         "tests/test_workspace_reader.py:149",
