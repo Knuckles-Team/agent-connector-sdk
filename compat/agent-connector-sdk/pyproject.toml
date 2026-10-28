@@ -27,6 +27,7 @@ market = ["scion-sdk[market]==0.5.8"]
 stream = ["scion-sdk[stream]==0.5.8"]
 vector = ["scion-sdk[vector]==0.5.8"]
 vector-chroma = ["scion-sdk[vector-chroma]==0.5.8"]
+workspace = ["scion-sdk[workspace]==0.5.8"]
 
 [project.urls]
 Homepage = "https://github.com/Knuckles-Team/scion-sdk"

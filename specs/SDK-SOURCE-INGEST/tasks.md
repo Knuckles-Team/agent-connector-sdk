@@ -65,6 +65,8 @@
 
 ## Parallel workspace document reads
 
+- [x] `SDK-SOURCE-INGEST-R005.56`: offline workspace reader floor.
+
 - [ ] `SDK-SOURCE-INGEST-R005.19`: implement and prove model for parallel workspace document reads.
 - [ ] `SDK-SOURCE-INGEST-R005.20`: implement and prove behavior for parallel workspace document reads.
 - [ ] `SDK-SOURCE-INGEST-R005.21`: implement and prove wiring for parallel workspace document reads.

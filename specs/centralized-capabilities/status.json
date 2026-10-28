@@ -464,6 +464,7 @@
       "title": "Optional dependencies come from SDK extras",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "59d9d32b0d9e",
         "fb85cad4b0ba"
       ],
       "verified_by": [

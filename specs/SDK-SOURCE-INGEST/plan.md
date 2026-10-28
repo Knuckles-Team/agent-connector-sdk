@@ -826,3 +826,16 @@ R005.18 remain open.
 ### Stalled MCP cursor (SDK-SOURCE-INGEST-R004.50)
 
 A repeated input cursor is a failed page, not a completed sweep. The worker keeps the previous accepted checkpoint and may retry. An empty cursor page may continue with a new token. An explicit provider end still completes. This does not detect longer cursor cycles.
+
+## Workspace reader implementation
+
+The reader receives a host-authorized absolute directory and a manifest of
+relative paths with expected sizes and SHA-256 digests. Every open rejects
+symlink components. It validates all limits before starting work and returns
+one result per file in manifest order. The reader never fetches URLs or follows
+office document relationships. Office ZIP members are subject to an aggregate
+expanded-byte limit before parsing. The parser supports only the explicitly
+listed format profiles and reports unavailable parser dependencies per file.
+The reader is an offline parsing component; its host remains responsible for
+caller authentication and graph persistence policy. R005.21 and R005.24 remain
+open until certified dispatch and independent graph checkpoints are proven.

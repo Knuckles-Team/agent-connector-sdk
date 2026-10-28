@@ -1,11 +1,12 @@
 {
-  "graph_sha256": "5ae351d1603ee68238f2471c84886d9f29b94810e2c38dd4b8dc016085410e33",
+  "graph_sha256": "7d62df6462afa64a1e25484f334c355244a3c30aa76cf9385d86ba81fc137dff",
   "installed_distributions": [
     "annotated-types==0.8.0",
     "anyio==4.15.1",
     "certifi==2026.7.22",
     "cffi==2.1.1",
     "cryptography==50.0.2",
+    "defusedxml==0.7.1",
     "epistemic-graph==2.27.6",
     "h11==0.16.0",
     "httpcore2==2.13.1",
