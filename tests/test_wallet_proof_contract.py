@@ -134,9 +134,9 @@ async def test_unavailable_trust_fails_closed():
 
 def test_jcs_bytes_are_stable_and_bind_unicode():
     _, _, request = _fixture()
-    payload = request.model_copy(update={"wallet_id": "café"}).signed_bytes()
+    payload = request.model_copy(update={"wallet_id": "雪"}).signed_bytes()
     assert payload.startswith(b"SDK-WALLET-INTENT\x001\x00{")
-    assert b'"wallet_id":"caf\xc3\xa9"' in payload
+    assert b'"wallet_id":"\xe9\x9b\xaa"' in payload
     assert b'"signature"' not in payload
 
 
