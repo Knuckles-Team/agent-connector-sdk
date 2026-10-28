@@ -13,6 +13,7 @@ import anyio
 
 from agent_connector_sdk._extras import require_mcp_extra
 from agent_connector_sdk.earth_observations._stream_policy import (
+    _checkpoint_offset,
     _validate_stream_policy,
 )
 from agent_connector_sdk.earth_observations.records import WeatherEvent
@@ -95,17 +96,9 @@ def register_storm_stream(
     ) -> dict[str, Any]:
         if mode != "delta" or not await authorize(tenant, ctx):
             raise ValueError("access refused")
-        offset = 0
-        if state is not None:
-            if (
-                set(state) != {"binding", "offset", "generation"}
-                or state["binding"] != binding
-                or not isinstance(state["generation"], str)
-                or type(state["offset"]) is not int
-                or not 0 <= state["offset"] < len(identifiers)
-            ):
-                raise ValueError("invalid storm checkpoint")
-            offset = state["offset"]
+        offset = _checkpoint_offset(
+            state, key="binding", binding=binding, size=len(identifiers)
+        )
         page = identifiers[offset : offset + batch_size]
         rows = await anyio.to_thread.run_sync(
             partial(

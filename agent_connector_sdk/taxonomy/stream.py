@@ -25,6 +25,7 @@ from agent_connector_sdk.taxonomy.provider import (  # noqa: E402
 async def _page(
     provider: TaxonomyProvider,
     identifiers: tuple[str, ...],
+    *,
     batch_size: int,
     digest: str,
     state: dict[str, Any] | None,
@@ -96,7 +97,9 @@ def register_taxonomy_stream(
         try:
             if mode != "delta" or not await authorize(tenant, ctx):
                 raise ValueError("access refused")
-            return await _page(provider, identifiers, batch_size, digest, state)
+            return await _page(
+                provider, identifiers, batch_size=batch_size, digest=digest, state=state
+            )
         except Exception:
             raise ToolError("taxonomy source page refused") from None
 

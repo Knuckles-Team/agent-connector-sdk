@@ -4,10 +4,17 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from datetime import UTC, date, datetime
-from typing import Any
+from typing import Any, NamedTuple
 
 TimeAuthority = Callable[[str, str, str], datetime]
-WeatherRow = tuple[datetime, float, str, float, float]
+
+
+class _WeatherRow(NamedTuple):
+    timestamp: datetime
+    value: float
+    unit: str
+    latitude: float
+    longitude: float
 
 
 def _daily_rows(
@@ -16,7 +23,7 @@ def _daily_rows(
     *,
     quality_admitted: Callable[[str], bool],
     time_authority: TimeAuthority,
-) -> list[WeatherRow]:
+) -> list[_WeatherRow]:
     if not isinstance(data, list):
         raise ValueError("invalid NOAA daily response")
     return [
@@ -36,7 +43,7 @@ def _daily_row(
     *,
     quality_admitted: Callable[[str], bool],
     time_authority: TimeAuthority,
-) -> WeatherRow:
+) -> _WeatherRow:
     if item["STATION"] != station:
         raise ValueError("NOAA station mismatch")
     attributes = item["TOBS_ATTRIBUTES"].split(",")
@@ -49,7 +56,7 @@ def _daily_row(
     timestamp = time_authority(station, day, clock)
     if timestamp.utcoffset() is None:
         raise ValueError("host did not resolve observation timezone")
-    return (
+    return _WeatherRow(
         timestamp.astimezone(UTC),
         float(item["TOBS"]),
         "°C",

@@ -110,6 +110,10 @@ def _normalize_gbif(identifier: str, value: Any) -> TaxonRecord:
     return taxon_from_gbif(value)
 
 
+def _valid_ancestry(parents: Any) -> bool:
+    return isinstance(parents, list) and (not parents or _valid_id(str(parents[-1])))
+
+
 def _normalize_ncbi(identifier: str, value: Any) -> TaxonRecord:
     if (
         not isinstance(value, dict)
@@ -124,7 +128,7 @@ def _normalize_ncbi(identifier: str, value: Any) -> TaxonRecord:
     if not isinstance(name, str) or not name:
         raise ValueError("missing NCBI scientific name")
     parents = item.get("parents", [])
-    if not isinstance(parents, list) or (parents and not _valid_id(str(parents[-1]))):
+    if not _valid_ancestry(parents):
         raise ValueError("invalid NCBI ancestry")
     return taxon_from_ncbi(
         {
