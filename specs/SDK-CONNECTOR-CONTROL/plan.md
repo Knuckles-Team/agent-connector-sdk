@@ -923,3 +923,9 @@ runs or proof of generated engine ingestion. R009 remains open.
 ## Legacy token-key isolation (R046.9)
 
 The file store hashes the complete key for its filename. Prior sanitized filenames cannot prove which key wrote them, so the store does not read them. Users of that legacy store must sign in again. Broker persistence remains open.
+
+## Retry policy snapshot (R028.6)
+
+The frozen policy copies the method and status sets at construction. It
+requires an integer attempt count and boolean jitter. A caller cannot change
+the admitted retry methods by mutating a set after validation.

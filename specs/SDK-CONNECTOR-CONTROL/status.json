@@ -338,7 +338,8 @@
     "SDK-CONNECTOR-CONTROL-R075.4",
     "SDK-CONNECTOR-CONTROL-R075.5",
     "SDK-CONNECTOR-CONTROL-R075.6",
-    "SDK-CONNECTOR-CONTROL-R075.7"
+    "SDK-CONNECTOR-CONTROL-R075.7",
+    "SDK-CONNECTOR-CONTROL-R028.6"
   ],
   "requirements": [
     {
@@ -974,7 +975,8 @@
         "SDK-CONNECTOR-CONTROL-R028.2",
         "SDK-CONNECTOR-CONTROL-R028.3",
         "SDK-CONNECTOR-CONTROL-R028.4",
-        "SDK-CONNECTOR-CONTROL-R028.5"
+        "SDK-CONNECTOR-CONTROL-R028.5",
+        "SDK-CONNECTOR-CONTROL-R028.6"
       ]
     },
     {
@@ -3985,6 +3987,13 @@
         "tests/test_eg_pack_entry_kinds.py:82",
         "tests/test_eg_pack_entry_kinds.py:96"
       ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R028.6",
+      "title": "Freeze retry policy controls",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
