@@ -101,12 +101,8 @@ class KnowledgeIngest:
         future = asyncio.run_coroutine_threadsafe(call, loop)
         return await asyncio.wrap_future(future)
 
-    async def accepted_cursor(self, binding: IngestBinding) -> str | None:
-        """The provider cursor stored in the stream's durable accepted checkpoint.
-
-        ``None`` before the first accepted submission, or when the accepted
-        checkpoint carries no cursor.
-        """
+    async def source_status(self, binding: IngestBinding) -> SourceIngestStatus:
+        """Read the bound stream's status without advancing its checkpoint."""
         call = self._guard(
             self._transport.source_status(binding.connector, binding.stream)
         )
@@ -117,6 +113,15 @@ class KnowledgeIngest:
             future = asyncio.run_coroutine_threadsafe(call, loop)
             status = await asyncio.wrap_future(future)
         _validate_status(binding, status)
+        return status
+
+    async def accepted_cursor(self, binding: IngestBinding) -> str | None:
+        """The provider cursor stored in the stream's durable accepted checkpoint.
+
+        ``None`` before the first accepted submission, or when the accepted
+        checkpoint carries no cursor.
+        """
+        status = await self.source_status(binding)
         checkpoint = status.accepted_checkpoint
         if checkpoint is None:
             return None

@@ -135,3 +135,26 @@ connector or host composes. The SDK owns no serving. This refinement bounds
 both rows. No row may add a server, a served tool, an admission check, or a
 registry entry. Any such need belongs to the serving-side or connector row,
 not to this spec.
+
+### Current served-contract inventory
+
+At arbora `743c7d1e3607d76e373dedac33c4276567dfe68e`,
+`arbora/api/ops/source.py` defines tree, blob, history and blame reads.
+Their operation result wrappers currently expose `value: dict[str, Any]`,
+and their outcomes do not expose page continuations. The source-write tasks
+remain open. SDK-SCM-R001 requires frozen typed pages and receipts, stable
+continuations and eight operations. The client needs an owner-backed contract
+for these fields. SDK-only wire records cannot establish interoperability.
+The repository-manager development tools and served proof remain prerequisites.
+
+The current arbora source reader passes the `FileVersion.content_digest`
+to `BlobFetchBegin` and returns that same string as `content_digest`. At
+medulla `dc0c490a32753ef3e589ffb788a05caf42f20dea`, the fetch handler uses
+that argument to look up a CAS manifest. The SDK cannot assume that it is
+the SHA-256 of returned file bytes. Arbora
+[`2de248dbb6b105242ed9d0ceb470d78e9c8425a7`](https://github.com/Knuckles-Team/arbora/commit/2de248dbb6b105242ed9d0ceb470d78e9c8425a7)
+adds a separate hash of returned bytes. It does not establish an immutable
+revision-bound authorization receipt. The current source reader
+also performs separate engine reads rather than a demonstrated single snapshot.
+A cache must not treat a mutable ref plus a byte hash as access authority.
+The hash also does not prove a multi-read result is revision-consistent.
