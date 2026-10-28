@@ -42,7 +42,7 @@ Pull requests run `uv sync`, focused `pytest`, Ruff, mypy, wiring checks, CCCC, 
 | CC-30 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R046.5. (`tests/test_auth_pkce.py::test_trace_record_has_no_secret_fields`) | The evidence row holds as stated. |
 | CC-31 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R046.6. (`tests/test_certify_pkce_flow.py::test_certify_run_authenticates_through_pkce`) | The hot-path proof row holds as stated. |
 | CC-32 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R047.1. (`tests/test_a2a_discovery.py::test_discovered_card_is_frozen_and_typed`) | The model row holds as stated. |
-| CC-33 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R047.2. (`tests/test_a2a_discovery.py::test_fetch_uses_well_known_path_and_etag`) | The behavior row holds as stated. |
+| CC-33 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R047.2. (`tests/test_a2a_discovery.py::test_fetch_uses_well_known_path_and_etag`; `tests/test_a2a_discovery_deadline.py::test_trickling_card_cannot_exceed_total_deadline`; `tests/test_a2a_discovery_deadline.py::test_stalled_dns_is_bounded_and_cannot_cache_late_result`) | The behavior row holds as stated. |
 | CC-34 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R047.3. (`tests/test_vendor_extractors_archer_infra_a2a.py::test_base_url_entry_is_fetched_into_cards`) | The wiring row holds as stated. |
 | CC-35 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R047.4. (`tests/test_a2a_discovery.py::test_refusals_write_nothing`) | The refusal row holds as stated. |
 | CC-36 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R047.5. (`tests/test_a2a_discovery.py::test_entity_carries_fetch_provenance`) | The evidence row holds as stated. |
