@@ -120,7 +120,7 @@
       "title": "Finite market records",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "e8b7174dc3c2"
+        "09be571fdac1"
       ],
       "verified_by": [
         "tests/test_finance_records.py:223"
