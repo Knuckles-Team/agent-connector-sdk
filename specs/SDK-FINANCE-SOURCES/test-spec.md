@@ -23,3 +23,5 @@ R002.1 remains open: the existing synthetic bar-page tests exercise normalizatio
 R005.1 remains open: current FRED and ETF normalization tests do not prove the remaining macro and liquidity panels.
 
 R001.1 tests non-finite FRED values through source normalization and direct model construction, while ordinary finite observations remain accepted.
+
+R003.1 remains open: existing FX, commodity and real-estate model tests do not exercise source adapters.
