@@ -171,6 +171,40 @@ def test_arxiv_connector_shapes_records_dedups_categories_and_polls():
         build_connector("arxiv", {"fetch_fn": lambda *_: ATOM})
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R800.8")
+@pytest.mark.parametrize("failure", ["network", "malformed"])
+def test_rss_partial_sweep_does_not_advance_watermark(failure):
+    prior = ConnectorCheckpoint(watermark="2025-06-16T00:00:00Z")
+    healthy = (
+        RSS.replace("http://n/1", "http://n/3")
+        .replace("http://n/2", "http://n/4")
+        .replace("18 Jun 2025", "19 Jun 2025")
+    )
+    unavailable = True
+
+    def fetch(url):
+        if url == "https://feed.example/older" and unavailable:
+            if failure == "network":
+                raise RuntimeError("network down")
+            return "<rss><broken>"
+        return healthy if url.endswith("newer") else RSS
+
+    conn = build_connector(
+        "rss",
+        {
+            "feed_urls": ["https://feed.example/newer", "https://feed.example/older"],
+            "fetch_fn": fetch,
+        },
+    )
+    partial = conn.poll(prior)
+    assert {doc.id for doc in partial.documents} == {"http://n/3", "http://n/4"}
+    assert partial.checkpoint.watermark == prior.watermark
+    unavailable = False
+    recovered = conn.poll(partial.checkpoint)
+    assert {doc.id for doc in recovered.documents} == {"http://n/1", "http://n/2"}
+    assert recovered.checkpoint.watermark == "2025-06-19T10:00:00Z"
+
+
 @pytest.mark.spec("SDK-SOURCE-INGEST-R800.7")
 @pytest.mark.parametrize("failure", ["network", "malformed"])
 def test_arxiv_partial_sweep_does_not_advance_watermark(failure):

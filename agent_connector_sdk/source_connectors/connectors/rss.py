@@ -148,12 +148,12 @@ class RssConnector(LoadConnector, PollConnector):
 
     # -- parsing -----------------------------------------------------------
 
-    def _entries(self, url: str) -> list[SourceDocument]:
+    def _entries(self, url: str) -> tuple[list[SourceDocument], bool]:
         """Fetch + parse one feed into SourceDocuments (a dead feed → ``[]``)."""
         try:
             content = self._fetch(url)
         except Exception:
-            return []
+            return [], False
         parsed = _parse(content)
         feed_title = str((parsed.feed or {}).get("title") or url)
         out: list[SourceDocument] = []
@@ -195,9 +195,9 @@ class RssConnector(LoadConnector, PollConnector):
                     external_access=self.external_access.model_copy(deep=True),
                 )
             )
-        return out
+        return out, not bool(parsed.bozo)
 
-    def _all_documents(self) -> list[SourceDocument]:
+    def _all_documents(self) -> tuple[list[SourceDocument], bool]:
         """Fetch + parse every feed CONCURRENTLY so one slow feed can't stall the
         sweep. Each ``_entries`` call is bounded by the per-feed fetch timeout and
         degrades to ``[]`` on error, so the whole pass costs ~the slowest single
@@ -205,23 +205,26 @@ class RssConnector(LoadConnector, PollConnector):
         unlock for many-feed sweeps (the 2000-reviews/hr path). (CONCEPT:AU-KG.ingest.rss-feed-connector)"""
         urls = self.feed_urls
         if len(urls) <= 1:
-            return self._entries(urls[0]) if urls else []
+            return self._entries(urls[0]) if urls else ([], True)
         from concurrent.futures import ThreadPoolExecutor
 
         docs: list[SourceDocument] = []
+        complete = True
         workers = min(len(urls), _FEED_FETCH_CONCURRENCY)
         with ThreadPoolExecutor(
             max_workers=workers, thread_name_prefix="rss-fetch"
         ) as ex:
             # ex.map preserves feed order; _entries never raises (dead feed → []).
-            for batch in ex.map(self._entries, urls):
+            for batch, succeeded in ex.map(self._entries, urls):
                 docs.extend(batch)
-        return docs
+                complete = complete and succeeded
+        return docs, complete
 
     # -- LoadConnector -----------------------------------------------------
 
     def load(self) -> Iterator[SourceDocument]:
-        yield from self._all_documents()
+        documents, _complete = self._all_documents()
+        yield from documents
 
     # -- PollConnector -----------------------------------------------------
 
@@ -234,7 +237,7 @@ class RssConnector(LoadConnector, PollConnector):
         """
         prior_ids = set(checkpoint.seen_ids) if checkpoint else set()
         wm = checkpoint.watermark if checkpoint else None
-        all_docs = self._all_documents()
+        all_docs, complete = self._all_documents()
         # ``>= wm`` (not ``>``) so a new entry sharing the watermark second is still
         # emitted; the seen-id belt is what prevents re-emitting one already sent.
         fresh = [
@@ -246,7 +249,7 @@ class RssConnector(LoadConnector, PollConnector):
         dates = [d.updated_at for d in all_docs if d.updated_at]
         if wm:
             dates.append(wm)
-        new_wm = max(dates) if dates else wm
+        new_wm = (max(dates) if dates else wm) if complete else wm
         new_ids = sorted(prior_ids | {d.id for d in fresh})[-_SEEN_CAP:]
         cp = ConnectorCheckpoint(has_more=False, watermark=new_wm, seen_ids=new_ids)
         return CheckpointedBatch(documents=fresh, checkpoint=cp)
