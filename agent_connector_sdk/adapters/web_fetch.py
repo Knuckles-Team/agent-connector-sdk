@@ -34,6 +34,7 @@ from epistemic_graph.generated.source_ingestion import (
 )
 from pydantic import BaseModel, ConfigDict, Field
 
+from agent_connector_sdk.adapters.web_fetch_checkpoint import _page_index
 from agent_connector_sdk.adapters.web_fetch_helpers import (
     _markdown_from_html,
     extract_og_metadata,
@@ -144,12 +145,6 @@ async def _read_web_text(options: HttpClientOptions) -> str | None:
         return body.decode(response.encoding or "utf-8", errors="replace")
 
 
-def _page_index(checkpoint: SourceCheckpoint | None) -> int:
-    if checkpoint is None:
-        return 0
-    return int(checkpoint.position.get("index", 0))
-
-
 def _record_from_page(
     page: FetchedPage, *, stream: str, connector: str, mapping_reference: str
 ) -> SourceRecord:
@@ -221,7 +216,7 @@ class WebFetchSourceAdapter:
     ) -> RecordPage:
         """Fetch the next URL in this adapter's fixed list, if any remain."""
         del session
-        index = _page_index(checkpoint)
+        index = _page_index(checkpoint, self.stream, len(self._urls))
         records: tuple[SourceRecord, ...] = ()
         if index < len(self._urls):
             page = await fetch_page(
@@ -239,7 +234,7 @@ class WebFetchSourceAdapter:
                     mapping_reference=self._mapping_reference,
                 ),
             )
-        next_index = index + 1
+        next_index = min(index + 1, len(self._urls))
         return RecordPage(
             records=records,
             mode=SourceIngestionMode.FULL,
