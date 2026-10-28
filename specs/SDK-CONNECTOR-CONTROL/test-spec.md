@@ -458,6 +458,9 @@ migration result. A separate test exercises invalid Python syntax.
 R014.29 tests literal legacy names in common dynamic import forms, a nonliteral
 name and a safe literal import. It does not claim coverage of all runtime calls.
 
+R015.1 also checks incomplete duplicate scans. Invalid Python, unreadable
+bytes, empty or missing roots and symbolic links do not report clean.
+
 ## Session cookie scope (R028.5)
 
 An HTTPX client logs in once, then calls a matching and nonmatching path. The

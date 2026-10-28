@@ -9,9 +9,7 @@ fine; a package that *defines its own* top-level class or function with one
 of those names is carrying a parallel schema or publisher the requirement
 asks to retire.
 
-This mirrors ``fleet_migration.scan_for_agent_utilities_imports``: AST-based,
-not a brittle text search, and a file that fails to parse is skipped rather
-than fabricated clean.
+This shares fail-closed traversal with the fleet migration import scan.
 """
 
 from __future__ import annotations
@@ -19,6 +17,11 @@ from __future__ import annotations
 import ast
 from dataclasses import dataclass
 from pathlib import Path
+
+from agent_connector_sdk.testing.fleet_migration import (
+    _DEFAULT_EXCLUDED_DIRS,
+    _scan_python_sources,
+)
 
 __all__ = [
     "MANIFEST_AND_CERTIFY_SURFACE_SYMBOLS",
@@ -34,8 +37,6 @@ MANIFEST_AND_CERTIFY_SURFACE_SYMBOLS: frozenset[str] = frozenset(
     {"ConnectorManifest", "CertificationReport", "certify_connector"}
 )
 
-_DEFAULT_EXCLUDED_DIRS = frozenset({".venv", "build", "__pycache__"})
-
 
 @dataclass(frozen=True)
 class DuplicateDefinitionResult:
@@ -43,18 +44,16 @@ class DuplicateDefinitionResult:
 
     package: str
     offending_files: tuple[str, ...]
+    unscanned_files: tuple[str, ...] = ()
 
     @property
     def clean(self) -> bool:
-        """True when no scanned file locally defines a tracked symbol."""
-        return not self.offending_files
+        """True when the scan is complete and finds no duplicate definitions."""
+        return not self.offending_files and not self.unscanned_files
 
 
 def _defines_a_tracked_symbol(source: str, symbol_names: frozenset[str]) -> bool:
-    try:
-        tree = ast.parse(source)
-    except SyntaxError:
-        return False
+    tree = ast.parse(source)
     for node in ast.walk(tree):
         if (
             isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
@@ -73,16 +72,13 @@ def scan_for_duplicate_manifest_or_certify_definitions(
     """Scan every ``.py`` file under ``package_root`` for a local redefinition
     of one of the SDK's manifest/certify surface symbols.
     """
-    offending: list[str] = []
-    for path in sorted(package_root.rglob("*.py")):
-        if any(part in exclude_dirs for part in path.relative_to(package_root).parts):
-            continue
-        try:
-            source = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            continue
-        if _defines_a_tracked_symbol(source, symbol_names):
-            offending.append(str(path.relative_to(package_root)))
+    result = _scan_python_sources(
+        package_root,
+        lambda source: _defines_a_tracked_symbol(source, symbol_names),
+        exclude_dirs=exclude_dirs,
+    )
     return DuplicateDefinitionResult(
-        package=package_root.name, offending_files=tuple(offending)
+        package=result.package,
+        offending_files=result.offending_files,
+        unscanned_files=result.unscanned_files,
     )
