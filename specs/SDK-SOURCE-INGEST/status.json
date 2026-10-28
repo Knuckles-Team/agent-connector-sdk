@@ -119,6 +119,7 @@
     "SDK-SOURCE-INGEST-R005.46",
     "SDK-SOURCE-INGEST-R005.47",
     "SDK-SOURCE-INGEST-R005.48",
+    "SDK-SOURCE-INGEST-R005.49",
     "SDK-SOURCE-INGEST-R006.32",
     "SDK-SOURCE-INGEST-R006.33",
     "SDK-SOURCE-INGEST-R006.34",
@@ -416,7 +417,8 @@
         "SDK-SOURCE-INGEST-R005.45",
         "SDK-SOURCE-INGEST-R005.46",
         "SDK-SOURCE-INGEST-R005.47",
-        "SDK-SOURCE-INGEST-R005.48"
+        "SDK-SOURCE-INGEST-R005.48",
+        "SDK-SOURCE-INGEST-R005.49"
       ]
     },
     {
@@ -1571,6 +1573,17 @@
       ],
       "verified_by": [
         "tests/test_adapters_web_fetch.py:131"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.49",
+      "title": "Validate legacy web checkpoints",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "b8d725045757"
+      ],
+      "verified_by": [
+        "tests/test_adapters_web_fetch_source_adapter.py:181"
       ]
     },
     {
