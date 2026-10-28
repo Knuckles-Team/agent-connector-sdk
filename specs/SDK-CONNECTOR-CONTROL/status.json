@@ -109,6 +109,7 @@
     "SDK-CONNECTOR-CONTROL-R048.4",
     "SDK-CONNECTOR-CONTROL-R048.5",
     "SDK-CONNECTOR-CONTROL-R048.6",
+    "SDK-CONNECTOR-CONTROL-R048.7",
     "SDK-CONNECTOR-CONTROL-R049",
     "SDK-CONNECTOR-CONTROL-R049.1",
     "SDK-CONNECTOR-CONTROL-R049.2",
@@ -1603,7 +1604,8 @@
         "SDK-CONNECTOR-CONTROL-R048.3",
         "SDK-CONNECTOR-CONTROL-R048.4",
         "SDK-CONNECTOR-CONTROL-R048.5",
-        "SDK-CONNECTOR-CONTROL-R048.6"
+        "SDK-CONNECTOR-CONTROL-R048.6",
+        "SDK-CONNECTOR-CONTROL-R048.7"
       ]
     },
     {
@@ -1656,6 +1658,18 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R048.7",
+      "title": "Readable score bounds",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "aaa4fb613eed"
+      ],
+      "verified_by": [
+        "tests/test_readable_form.py:54",
+        "tests/test_readable_form.py:73"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R049",
