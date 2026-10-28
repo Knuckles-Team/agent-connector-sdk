@@ -283,6 +283,7 @@
     "SDK-SOURCE-INGEST-R805.4",
     "SDK-SOURCE-INGEST-R805.5",
     "SDK-SOURCE-INGEST-R805.6",
+    "SDK-SOURCE-INGEST-R805.7",
     "SDK-SOURCE-INGEST-R004.50"
   ],
   "requirements": [
@@ -3374,7 +3375,8 @@
         "SDK-SOURCE-INGEST-R805.3",
         "SDK-SOURCE-INGEST-R805.4",
         "SDK-SOURCE-INGEST-R805.5",
-        "SDK-SOURCE-INGEST-R805.6"
+        "SDK-SOURCE-INGEST-R805.6",
+        "SDK-SOURCE-INGEST-R805.7"
       ]
     },
     {
@@ -3418,6 +3420,19 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R805.7",
+      "title": "SDK-local access-check boundary",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3cd872ae516e"
+      ],
+      "verified_by": [
+        "tests/test_access_check_port.py:34",
+        "tests/test_access_check_port.py:45",
+        "tests/test_access_check_port.py:66"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R004.50",

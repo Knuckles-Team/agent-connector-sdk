@@ -71,6 +71,7 @@ class IngestSourceSpec(_Strict):
     """
 
     source_id: str = Field(pattern=_ID_PATTERN)
+    access_mode: Literal["synced", "checked_at_read"] | None = None
     record_type: str = Field(min_length=1, max_length=128)
     tools: tuple[str, ...] = Field(min_length=1)
     records_path: str = ""
