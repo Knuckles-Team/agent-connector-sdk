@@ -141,7 +141,9 @@ def test_real_client_is_dns_pinned_without_redirects(monkeypatch):
     )
     client = model._client
     assert client.follow_redirects is False
-    assert type(client._transport).__name__ == "DnsPinnedEgressTransport"
+    # The air-gap guard is outermost; DNS pinning must remain inside it.
+    assert type(client._transport).__name__ == "_AirgapTransport"
+    assert type(client._transport._inner).__name__ == "DnsPinnedEgressTransport"
 
 
 def test_providers_and_model_type_are_the_public_surface(monkeypatch):

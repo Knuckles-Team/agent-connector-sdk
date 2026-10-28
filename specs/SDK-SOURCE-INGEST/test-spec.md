@@ -336,6 +336,11 @@ R900.7 checks a SQLite source compares offset-bearing timestamps by instant
 and replays idempotently. Invalid timestamps and mixing
 timezone-aware and naive timestamps fail closed.
 
+## Numeric zero REST cursor (R800.11)
+
+Return numeric zero as a continuation from the first page. Confirm that the
+next poll sends the string cursor and returns the second page.
+
 ## Database page completeness
 
 R900.8 exercises missing text and missing watermarks against SQLite. The read

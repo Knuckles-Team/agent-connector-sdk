@@ -188,12 +188,17 @@ def test_mixed_read_and_mutation_verbs_never_inherit_read() -> None:
     mcp: FastMCP[Any] = FastMCP("mixed")
 
     @mcp.tool(annotations={"readOnlyHint": True})
-    def mixed(action: Literal["get_status", "get_and_update", "update_status"]) -> str:
+    def mixed(
+        action: Literal[
+            "get_status", "get_and_update", "update_status", "drawdown_check"
+        ],
+    ) -> str:
         return action
 
     split_action_tool(mcp, "mixed", _tools(mcp)["mixed"], operations={})
     assert split_tool_classes(mcp, {"mixed": "read"}, read_classes={"read"}) == {
-        "mixed_get_status": "read"
+        "mixed_get_status": "read",
+        "mixed_drawdown_check": "read",
     }
     tools = _tools(mcp)
     assert not tools["mixed_get_and_update"].annotations.readOnlyHint

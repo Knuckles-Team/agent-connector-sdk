@@ -214,7 +214,7 @@ def _names(node: ast.AST) -> set[str]:
 
 def _annotations(action: str, declared: Any) -> dict[str, Any]:
     destructive = bool(_DESTRUCTIVE.search(action))
-    read_only = bool(_READ_ONLY.match(action)) and not _MUTATING.search(action)
+    read_only = bool(_READ_ONLY.search(action)) and not _MUTATING.search(action)
     return {
         "title": action.replace("_", " ").title(),
         "readOnlyHint": read_only,
@@ -688,7 +688,7 @@ def split_tool_classes(
     ``declared`` maps a tool name to its class (one string for the whole tool)
     or to a per-action mapping. A split tool takes its own action's declared
     class first, then its parent's single class. A parent class listed in
-    ``read_classes`` is inherited only by an action whose first verb reads and
+    ``read_classes`` is inherited only by an action with a recognized read verb that
     contains no recognized mutation verb. A mutating or unrecognized action is
     left unclassified; a parent read-only hint does not override this check.
     A split tool with no declared parent is left out too.
@@ -703,7 +703,7 @@ def split_tool_classes(
             if item.action in parent:
                 classes[item.split] = parent[item.action]
             continue
-        verb_reads = bool(_READ_ONLY.match(item.action)) and not _MUTATING.search(
+        verb_reads = bool(_READ_ONLY.search(item.action)) and not _MUTATING.search(
             item.action
         )
         if parent in reads and not verb_reads:
