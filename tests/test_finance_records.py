@@ -257,6 +257,7 @@ def test_fx_currency_rejects_invalid_code(currency: str) -> None:
     with pytest.raises(ValidationError, match="three ASCII letters"):
         FxRate(**_base_fields(), base_currency=currency, quote_currency="EUR", rate=1.0)
 
+
 @pytest.mark.spec("SDK-FINANCE-SOURCES-R002.2")
 @pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
 @pytest.mark.parametrize("field", ["open", "high", "low", "close", "volume"])
