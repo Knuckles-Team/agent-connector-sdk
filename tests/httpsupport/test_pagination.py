@@ -51,7 +51,8 @@ def test_cursor_pagination_follows_dotted_response_path():
     assert seen_params[1] == {"q": "x", "after": "c2"}
 
 
-def test_cursor_max_items_truncates_and_reports_resume_cursor():
+@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.5")
+def test_cursor_partial_page_has_no_unsafe_resume_cursor():
     def fetch(url, params):
         start = int((params or {}).get("cursor", 0))
         items = [_record(start + i) for i in range(3)]
@@ -62,7 +63,7 @@ def test_cursor_max_items_truncates_and_reports_resume_cursor():
     )
     assert len(list(iterator)) == 4
     assert iterator.truncated is True
-    assert iterator.next_cursor is not None
+    assert iterator.next_cursor is None
 
 
 def test_page_pagination_stops_on_short_page():

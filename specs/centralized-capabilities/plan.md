@@ -112,6 +112,13 @@ redirect target from receiving credentials or a delegated subject token.
 Scan Link targets and next relations once in header order. Preserve the prior
 first-match grammar. The existing origin guard still admits every followed URL.
 
+## Partial-page cursor safety (R004.5)
+
+When the item budget cuts a page, its provider cursor points past unseen
+records. Return no cursor for that partial page. Keep `truncated` true. A cap
+on a full page can return the provider cursor. Exact mid-page resume remains
+open work.
+
 ## Continuation cycles (R004.8)
 
 Cursor and since-ID walks retain fixed-size fingerprints of issued tokens.
