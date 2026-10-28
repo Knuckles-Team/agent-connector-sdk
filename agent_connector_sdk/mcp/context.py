@@ -10,20 +10,100 @@ from __future__ import annotations
 import logging
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Literal, Self
+
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 from .confirmation import ctx_confirm_destructive
 
 __all__ = [
+    "MAX_PROGRESS_MESSAGE_BYTES",
     "GraphQLField",
     "GraphQLFieldArgument",
     "GraphQLTypeDetails",
     "GraphQLTypeNotFoundError",
+    "ToolExecutionContext",
+    "ToolExecutionResult",
+    "ToolProgress",
     "ctx_confirm_destructive",
     "ctx_graphql_get_type_details",
     "ctx_graphql_list_types",
     "ctx_log",
 ]
+
+MAX_PROGRESS_MESSAGE_BYTES = 4096
+
+
+class ToolExecutionContext(BaseModel):
+    """Request identity supplied by the authenticated caller boundary.
+
+    Construction checks shape only; the caller must verify identity and authority.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
+    tenant_id: str = Field(min_length=1)
+    actor_id: str = Field(min_length=1)
+    session_id: str = Field(min_length=1)
+    request_id: str = Field(min_length=1)
+    connector_id: str = Field(min_length=1)
+    operation_id: str = Field(min_length=1)
+    deadline: AwareDatetime
+    progress_token: str | int | None = None
+
+    @field_validator(
+        "tenant_id",
+        "actor_id",
+        "session_id",
+        "request_id",
+        "connector_id",
+        "operation_id",
+    )
+    @classmethod
+    def _nonblank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("identity must not be blank")
+        return value
+
+
+class ToolProgress(BaseModel):
+    """One bounded progress summary; ordering is enforced by the sender."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
+    sequence: int = Field(ge=0)
+    completed: float = Field(ge=0, allow_inf_nan=False)
+    total: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    message: str | None = None
+
+    @model_validator(mode="after")
+    def _bounds(self) -> Self:
+        if self.total is not None and self.completed > self.total:
+            raise ValueError("completed exceeds total")
+        if (
+            self.message is not None
+            and len(self.message.encode("utf-8")) > MAX_PROGRESS_MESSAGE_BYTES
+        ):
+            raise ValueError("progress message exceeds byte limit")
+        return self
+
+
+class ToolExecutionResult(BaseModel):
+    """Terminal status and receipt reference for one execution."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
+    state: Literal["succeeded", "failed", "cancelled", "uncertain"]
+    last_sequence: int = Field(ge=0)
+    effect_receipt_ref: str | None = None
+
 
 _logger = logging.getLogger(__name__)
 
