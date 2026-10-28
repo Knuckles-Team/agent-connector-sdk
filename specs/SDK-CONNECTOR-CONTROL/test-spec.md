@@ -504,3 +504,5 @@ process settings do not alter the result, and an unknown profile refuses.
 - `SDK-CONNECTOR-CONTROL-R046.9`: `tests/test_oauth_token_key_identity.py` tests key collisions and refuses ambiguous legacy files.
 
 - `SDK-CONNECTOR-CONTROL-R650.5`: `tests/test_release_lock.py` checks lock creation, round-trip and refusal without replacement.
+
+- `SDK-CONNECTOR-CONTROL-R014.30`: `tests/test_http_dns_pinned_egress.py` covers shared-address refusal through the URL guard and governed transports.

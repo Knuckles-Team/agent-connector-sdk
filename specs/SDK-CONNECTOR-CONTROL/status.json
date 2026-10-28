@@ -153,6 +153,7 @@
     "SDK-CONNECTOR-CONTROL-R650.3",
     "SDK-CONNECTOR-CONTROL-R650.4",
     "SDK-CONNECTOR-CONTROL-R650.5",
+    "SDK-CONNECTOR-CONTROL-R014.30",
     "SDK-CONNECTOR-CONTROL-R051",
     "SDK-CONNECTOR-CONTROL-R051.1",
     "SDK-CONNECTOR-CONTROL-R051.2",
@@ -532,6 +533,7 @@
         "SDK-CONNECTOR-CONTROL-R014.28",
         "SDK-CONNECTOR-CONTROL-R014.29",
         "SDK-CONNECTOR-CONTROL-R014.1",
+        "SDK-CONNECTOR-CONTROL-R014.30",
         "SDK-CONNECTOR-CONTROL-R014.2",
         "SDK-CONNECTOR-CONTROL-R014.3",
         "SDK-CONNECTOR-CONTROL-R014.4",
@@ -2094,6 +2096,17 @@
         "tests/test_release_lock.py:111",
         "tests/test_release_lock.py:84",
         "tests/test_release_lock.py:97"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.30",
+      "title": "Reject unlisted shared addresses",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_http_dns_pinned_egress.py:226",
+        "tests/test_http_dns_pinned_egress.py:239",
+        "tests/test_http_dns_pinned_egress.py:259"
       ]
     },
     {
