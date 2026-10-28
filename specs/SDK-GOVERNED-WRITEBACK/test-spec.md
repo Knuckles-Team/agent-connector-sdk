@@ -91,6 +91,11 @@ Read-only ingestion and hydration must still work without any write capability. 
 R004.3 checks reservation-before-effect ordering, missing and wrong bindings,
 and durable reservation reuse on a proven-no-effect retry.
 
+## Pre-apply binding (R004.16)
+
+Mutate the patch while reserving audit and check no effect. Mutate the caller
+copy while apply runs and check the approved patch is the only effect. Expire
+the request during reservation and check no effect.
 ## In-flight effect guard (R004.17)
 
 Pause one apply during lookup. A second apply and a reconcile for that key
