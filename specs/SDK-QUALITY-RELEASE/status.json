@@ -56,8 +56,8 @@
         "tests/gates/test_workflow_contract.py:141",
         "tests/gates/test_workflow_contract.py:211",
         "tests/gates/test_workflow_contract.py:246",
-        "tests/test_compatibility_distribution.py:21",
-        "tests/test_compatibility_distribution.py:37"
+        "tests/test_compatibility_distribution.py:106",
+        "tests/test_compatibility_distribution.py:23"
       ]
     },
     {
