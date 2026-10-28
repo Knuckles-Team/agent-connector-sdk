@@ -21,17 +21,28 @@ from pydantic import (
 )
 
 from agent_connector_sdk.ports.audit_reservation import AuditReservation
+from agent_connector_sdk.writeback._contract_json import _decode_contract_json
 
 _DIGEST = re.compile(r"[0-9a-f]{64}\Z")
 _REVISION = re.compile(r"(?:[0-9a-f]{40}|[0-9a-f]{64})\Z")
 
 
-class RepositorySourceEffectIntent(BaseModel):
-    """An exact regular-file effect bound to a provider-specific contract."""
-
+class _VersionedModel(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
 
     schema_version: Literal[1]
+
+    @field_validator("schema_version", mode="before")
+    @classmethod
+    def require_version(cls, value: object) -> object:
+        if type(value) is not int or value != 1:
+            raise ValueError("unsupported schema version")
+        return value
+
+
+class RepositorySourceEffectIntent(_VersionedModel):
+    """An exact regular-file effect bound to a provider-specific contract."""
+
     repository_id: str = Field(min_length=1)
     target_ref: str = Field(min_length=1)
     relative_path: str = Field(min_length=1)
@@ -44,13 +55,6 @@ class RepositorySourceEffectIntent(BaseModel):
     payload_size: StrictInt = Field(ge=0)
     executable: StrictBool
     adapter_contract_digest: str
-
-    @field_validator("schema_version", mode="before")
-    @classmethod
-    def require_version(cls, value: object) -> object:
-        if type(value) is not int or value != 1:
-            raise ValueError("unsupported schema version")
-        return value
 
     @model_validator(mode="after")
     def validate_intent(self) -> RepositorySourceEffectIntent:
@@ -117,12 +121,9 @@ class RepositorySourceEffectIntent(BaseModel):
             raise ValueError("payload exceeds trusted provider limit")
 
 
-class RepositorySourceEffectRequest(BaseModel):
+class RepositorySourceEffectRequest(_VersionedModel):
     """An intent joined to the existing generated graph change set."""
 
-    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
-
-    schema_version: Literal[1]
     change_set: SourceChangeSet
     intent: RepositorySourceEffectIntent
 
@@ -141,35 +142,10 @@ class RepositorySourceEffectRequest(BaseModel):
         if len(data) > 4 * ((max_payload_size + 2) // 3) + 65536:
             raise ValueError("repository request exceeds trusted limit")
 
-        def unique(pairs: list[tuple[str, object]]) -> dict[str, object]:
-            result: dict[str, object] = {}
-            for key, value in pairs:
-                if key in result:
-                    raise ValueError("duplicate JSON key")
-                result[key] = value
-            return result
-
-        try:
-            decoded = data.decode("utf-8", errors="strict")
-            parsed = json.loads(
-                decoded,
-                object_pairs_hook=unique,
-                parse_constant=lambda _: (_ for _ in ()).throw(
-                    ValueError("invalid JSON constant")
-                ),
-            )
-        except (UnicodeError, json.JSONDecodeError, RecursionError) as exc:
-            raise ValueError("invalid repository request JSON") from exc
+        parsed = _decode_contract_json(data)
         request = cls.model_validate(parsed)
         request.intent.require_payload_limit(max_payload_size)
         return request
-
-    @field_validator("schema_version", mode="before")
-    @classmethod
-    def require_version(cls, value: object) -> object:
-        if type(value) is not int or value != 1:
-            raise ValueError("unsupported schema version")
-        return value
 
     @model_validator(mode="after")
     def validate_binding(self) -> RepositorySourceEffectRequest:
@@ -202,16 +178,13 @@ class RepositorySourceEffectRequest(BaseModel):
         return self
 
 
-class RepositorySourceEffectReceipt(BaseModel):
+class RepositorySourceEffectReceipt(_VersionedModel):
     """Stable evidence fields for a provider effect with independent readback.
 
     Constructing this model does not establish an effect; a successful receipt
     must also be bound to the durable graph attempt by the transport.
     """
 
-    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
-
-    schema_version: Literal[1]
     tenant_id: str = Field(min_length=1)
     actor: str = Field(min_length=1)
     connector_id: str = Field(min_length=1)
@@ -231,13 +204,6 @@ class RepositorySourceEffectReceipt(BaseModel):
     readback_sha256: str
     readback_size: StrictInt = Field(ge=0)
     executable: StrictBool
-
-    @field_validator("schema_version", mode="before")
-    @classmethod
-    def require_version(cls, value: object) -> object:
-        if type(value) is not int or value != 1:
-            raise ValueError("unsupported schema version")
-        return value
 
     @model_validator(mode="after")
     def validate_receipt(self) -> RepositorySourceEffectReceipt:

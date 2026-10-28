@@ -14,6 +14,8 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 
+from agent_connector_sdk.writeback._contract_json import _decode_contract_json
+
 _MAX_JSON_INTEGER = 2**53 - 1
 _SIGNATURE = re.compile(r"[A-Za-z0-9_-]{86}\Z")
 _DIGEST = re.compile(r"[0-9a-f]{64}\Z")
@@ -93,20 +95,7 @@ class WalletProofRequest(BaseModel):
         if len(data) > 65536:
             raise ValueError("wallet proof exceeds size limit")
 
-        def unique(pairs: list[tuple[str, object]]) -> dict[str, object]:
-            result: dict[str, object] = {}
-            for key, value in pairs:
-                if key in result:
-                    raise ValueError("duplicate wallet proof member")
-                result[key] = value
-            return result
-
-        try:
-            parsed = json.loads(
-                data.decode("utf-8", errors="strict"), object_pairs_hook=unique
-            )
-        except (UnicodeError, json.JSONDecodeError, RecursionError) as exc:
-            raise ValueError("invalid wallet proof JSON") from exc
+        parsed = _decode_contract_json(data)
         return cls.model_validate(parsed)
 
     def signed_bytes(self) -> bytes:
