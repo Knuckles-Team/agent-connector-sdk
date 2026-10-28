@@ -61,7 +61,8 @@ class SessionLoginAuth(httpx.Auth):
 
     The session cookie is held in memory and attached by this class; it never
     reaches a log or an error. A 401 or 403 after a login clears the session and
-    retries once with a fresh login.
+    retries once with a fresh login. Use a governed SDK client: unguarded HTTPX
+    clients cannot enforce origin checks on redirect hops and are refused.
     """
 
     def __init__(
