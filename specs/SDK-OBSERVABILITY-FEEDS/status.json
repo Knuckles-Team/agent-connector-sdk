@@ -7,7 +7,8 @@
     "SDK-OBSERVABILITY-FEEDS-R001",
     "SDK-OBSERVABILITY-FEEDS-R001.1",
     "SDK-OBSERVABILITY-FEEDS-R001.2",
-    "SDK-OBSERVABILITY-FEEDS-R001.3"
+    "SDK-OBSERVABILITY-FEEDS-R001.3",
+    "SDK-OBSERVABILITY-FEEDS-R001.4"
   ],
   "requirements": [
     {
@@ -26,7 +27,8 @@
       "rollup_of": [
         "SDK-OBSERVABILITY-FEEDS-R001.1",
         "SDK-OBSERVABILITY-FEEDS-R001.2",
-        "SDK-OBSERVABILITY-FEEDS-R001.3"
+        "SDK-OBSERVABILITY-FEEDS-R001.3",
+        "SDK-OBSERVABILITY-FEEDS-R001.4"
       ]
     },
     {
@@ -56,6 +58,13 @@
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001.3",
       "title": "Durable event receipt proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-OBSERVABILITY-FEEDS-R001.4",
+      "title": "Event adapter registration",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []

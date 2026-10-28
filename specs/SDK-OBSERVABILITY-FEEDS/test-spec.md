@@ -25,3 +25,8 @@ lost. Accept the receipt and verify cross-page duplicates remain idempotent.
 
 Run OF-06 against a graph. Read back the receipt after restart and verify
 that replay retains one logical event. The local in-memory sink is not proof.
+
+## Event adapter registration (R001.4)
+
+Run the sync command against a registered, certified connector. Observe the
+event adapter and its feed kind through the served MCP call and sink receipt.

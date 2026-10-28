@@ -23,3 +23,9 @@ refuses while a page remains unfinished.
 
 A graph-backed restart test must establish persistence and logical replay.
 The in-memory receipt fixture proves control flow only.
+
+## Event adapter registration (R001.4)
+
+The generic worker can call an event adapter supplied directly. The SDK
+entry-point registry does not yet construct one from a declared feed kind.
+Registration and certified activation remain open work.
