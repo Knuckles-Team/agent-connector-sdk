@@ -35,6 +35,15 @@ __all__ = ["ToolPage", "cursor_target", "next_link_cursor", "preset_pagination"]
 _ORIGIN_PORTS = {"http": 80, "https": 443}
 
 
+def _require_page_size(page_size: int) -> None:
+    if (
+        isinstance(page_size, bool)
+        or not isinstance(page_size, int)
+        or not 1 <= page_size <= 10_000
+    ):
+        raise ValueError("page size must be an integer from 1 to 10000")
+
+
 class ToolPage(BaseModel):
     """One page of records returned by a connector tool."""
 
@@ -57,6 +66,7 @@ class ToolPage(BaseModel):
         cls, items: list[JsonValue], *, page_size: int, total: int | None = None
     ) -> ToolPage:
         """A page or offset page; ``has_more`` is whether the page was full."""
+        _require_page_size(page_size)
         return cls(items=items, has_more=len(items) >= page_size, total=total)
 
 
@@ -77,6 +87,7 @@ def preset_pagination(
             "cursor_path": "next_cursor",
             "more_path": "has_more",
         }
+    _require_page_size(page_size)
     numbered: dict[str, JsonValue] = {
         "page_param": page_param,
         "page_size_param": page_size_param,

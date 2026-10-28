@@ -566,3 +566,30 @@ def test_link_cursors_stay_on_origin() -> None:
     for bad in ("https://evil.example.invalid/x", "//evil.example.invalid/x", "items"):
         with pytest.raises(HttpProblemError):
             cursor_target(bad, base_url=base_url)
+
+
+@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.4")
+@pytest.mark.parametrize("size", [0, -1, 10001, True, 1.5])
+def test_tool_window_and_numbered_preset_reject_invalid_size(size) -> None:
+    with pytest.raises(ValueError, match="page size"):
+        ToolPage.from_window([], page_size=size)
+    for mode in ("page", "offset"):
+        with pytest.raises(ValueError, match="page size"):
+            preset_pagination(mode, page_param="page", page_size=size)
+    assert ToolPage.from_window([], page_size=1).has_more is False
+    assert ToolPage.from_window([{"id": 1}], page_size=1).has_more is True
+
+
+@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.4")
+async def test_served_tool_refuses_invalid_window_size() -> None:
+    from fastmcp import Client, FastMCP
+
+    server = FastMCP("page-size")
+
+    @server.tool
+    def list_items() -> dict:
+        return ToolPage.from_window([], page_size=0).model_dump()
+
+    async with Client(server) as client:
+        result = await client.call_tool("list_items", {}, raise_on_error=False)
+    assert result.is_error
