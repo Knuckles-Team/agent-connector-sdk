@@ -117,6 +117,7 @@
     "SDK-SOURCE-INGEST-R005.44",
     "SDK-SOURCE-INGEST-R005.45",
     "SDK-SOURCE-INGEST-R005.46",
+    "SDK-SOURCE-INGEST-R005.47",
     "SDK-SOURCE-INGEST-R006.32",
     "SDK-SOURCE-INGEST-R006.33",
     "SDK-SOURCE-INGEST-R006.34",
@@ -412,7 +413,8 @@
         "SDK-SOURCE-INGEST-R005.43",
         "SDK-SOURCE-INGEST-R005.44",
         "SDK-SOURCE-INGEST-R005.45",
-        "SDK-SOURCE-INGEST-R005.46"
+        "SDK-SOURCE-INGEST-R005.46",
+        "SDK-SOURCE-INGEST-R005.47"
       ]
     },
     {
@@ -1544,6 +1546,18 @@
       ],
       "verified_by": [
         "tests/test_web_source_contract.py:262"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.47",
+      "title": "EVM log model",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e3f8c713c3da"
+      ],
+      "verified_by": [
+        "tests/test_evm_chain_models.py:51",
+        "tests/test_evm_chain_models.py:84"
       ]
     },
     {
