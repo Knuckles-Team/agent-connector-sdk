@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import asdict
 from typing import cast
 
@@ -38,6 +39,11 @@ def test_transport_contract_round_trips() -> None:
     mutable.add("filter")
     assert value.pushdown == frozenset({"time_range"})
     assert TransportContract(**asdict(value)) == value
+    assert TransportContract.from_json(json.loads(json.dumps(value.to_json()))) == value
+    with pytest.raises(ValueError, match="duplicate"):
+        TransportContract.from_json(
+            value.to_json() | {"pushdown": ["time_range", "time_range"]}
+        )
     with pytest.raises(ValueError, match="protocol"):
         TransportContract("unknown", "none")
     with pytest.raises(ValueError, match="pushdown"):

@@ -6,7 +6,9 @@ consumer must independently check its transport registry before use.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import cast
 
 from agent_connector_sdk._contract_fields import (
     ACCESS_KINDS,
@@ -51,3 +53,31 @@ class TransportContract:
         if self.protocol in _STREAM_PROTOCOLS and not ops <= {"time_range"}:
             raise ValueError("unsupported stream pushdown")
         object.__setattr__(self, "pushdown", ops)
+
+    def to_json(self) -> dict[str, object]:
+        """Return deterministic JSON-compatible contract fields."""
+        return {
+            "protocol": self.protocol,
+            "auth_model": self.auth_model,
+            "paging": self.paging,
+            "streaming": self.streaming,
+            "pushdown": sorted(self.pushdown),
+        }
+
+    @classmethod
+    def from_json(cls, value: Mapping[str, object]) -> TransportContract:
+        """Validate and reconstruct a serialized declaration."""
+        if set(value) != {"protocol", "auth_model", "paging", "streaming", "pushdown"}:
+            raise ValueError("invalid transport contract fields")
+        ops = value["pushdown"]
+        if not isinstance(ops, list) or any(not isinstance(op, str) for op in ops):
+            raise ValueError("invalid transport pushdown")
+        if len(ops) != len(set(ops)):
+            raise ValueError("duplicate transport pushdown")
+        return cls(
+            protocol=cast(str, value["protocol"]),
+            auth_model=cast(str, value["auth_model"]),
+            paging=cast(str, value["paging"]),
+            streaming=cast(str, value["streaming"]),
+            pushdown=frozenset(ops),
+        )
