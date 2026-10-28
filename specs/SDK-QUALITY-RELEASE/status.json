@@ -21,7 +21,7 @@
         "3d9f268c4a6b",
         "3edcf05bc64a",
         "42b930057c3e",
-        "5b53e943e468"
+        "42d95428aad4"
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:286",
