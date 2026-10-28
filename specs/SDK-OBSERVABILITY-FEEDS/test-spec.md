@@ -31,6 +31,8 @@ uses synthetic credentials. It skips when the optional server binary is absent.
 
 Run the sync command against a registered, certified connector. Observe the
 event adapter and its feed kind through the served MCP call and sink receipt.
+`tests/test_event_runner.py::test_declared_event_feed_reaches_served_worker`
+also verifies that a policy denying the entry point prevents the tool call.
 
 ## Event adapter entry points (R001.5)
 

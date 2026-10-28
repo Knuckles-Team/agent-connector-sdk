@@ -209,4 +209,5 @@ def default_services(
         settings=settings,
         health=RunnerHealth(sink=sink, liveness_window_seconds=window),
         decide_runner=runner,
+        source_adapter_policy=chosen,
     )

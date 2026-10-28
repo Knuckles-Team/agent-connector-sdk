@@ -95,6 +95,7 @@ def _sync_spec(source: IngestSourceSpec, connector: str) -> SyncSpec:
         updated_field=preset.updated_field,
         pagination=preset.pagination,
         doc_type=preset.doc_type,
+        feed_kind=source.feed_kind,
         raw=raw,
     )
 

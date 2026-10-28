@@ -62,3 +62,4 @@ class SyncSpec(_Strict):
     pagination: str | None = None
     doc_type: str | None = None
     raw: dict[str, Any] = Field(default_factory=dict)
+    feed_kind: str | None = None
