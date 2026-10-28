@@ -140,6 +140,8 @@ class AdapterObservation(ProtocolModel):
     def counts_and_status_are_consistent(self) -> AdapterObservation:
         if self.checks_total != self.checks_passed + self.checks_failed:
             raise ValueError("quality check counts must reconcile")
+        if self.status == "passed" and self.checks_total == 0:
+            raise ValueError("a passed result must contain at least one check")
         if self.status == "passed" and (self.checks_failed or self.failure_codes):
             raise ValueError("a passed observation cannot contain failures")
         if self.status == "failed" and not (self.checks_failed or self.failure_codes):
@@ -173,6 +175,8 @@ class SignedResultSummary(ProtocolModel):
     def counts_and_status_are_consistent(self) -> SignedResultSummary:
         if self.checks_total != self.checks_passed + self.checks_failed:
             raise ValueError("signed quality check counts must reconcile")
+        if self.status == "passed" and self.checks_total == 0:
+            raise ValueError("a passed result must contain at least one check")
         if self.status == "passed" and (self.checks_failed or self.failure_codes):
             raise ValueError("a signed passed result cannot contain failures")
         if self.status == "failed" and not (self.checks_failed or self.failure_codes):
@@ -205,6 +209,8 @@ class CertificationResult(ProtocolModel):
         if self.signed_summary is not None:
             if self.state not in {"failed", "passed"}:
                 raise ValueError("only executed states may carry a signed summary")
+            if self.state != self.signed_summary.status:
+                raise ValueError("certification state must match signed summary status")
             if self.report is not None and (
                 self.report.artifact_ref != self.signed_summary.report_artifact_ref
             ):

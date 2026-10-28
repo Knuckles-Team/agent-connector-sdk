@@ -393,3 +393,9 @@ R803.7 mutates the exposed plan view and asserts that both execution paths retai
 R803.8 refuses duplicate Arrow names before a row conversion can overwrite a field.
 
 R803.9 suppresses numeric statistics when any value is below the disclosure threshold. Eligible-only data still produces statistics.
+
+R803.10 refuses a passed result with zero checks at both models and at the job boundary.
+
+R803.11 refuses any mismatch between certification state and signed summary status.
+
+R803.12 rejects non-string signer identity, algorithm and signature without reporting a pass.

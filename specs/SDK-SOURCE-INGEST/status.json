@@ -221,6 +221,9 @@
     "SDK-SOURCE-INGEST-R803.7",
     "SDK-SOURCE-INGEST-R803.8",
     "SDK-SOURCE-INGEST-R803.9",
+    "SDK-SOURCE-INGEST-R803.10",
+    "SDK-SOURCE-INGEST-R803.11",
+    "SDK-SOURCE-INGEST-R803.12",
     "SDK-SOURCE-INGEST-R804",
     "SDK-SOURCE-INGEST-R804.1",
     "SDK-SOURCE-INGEST-R804.2",
@@ -2543,15 +2546,15 @@
         "05f0db88c98a",
         "075dd1650da3",
         "11366ce437d5",
-        "3f465bfdb7b3",
-        "4b003b24ce55"
+        "2c94a2fb2e0c",
+        "3f465bfdb7b3"
       ],
       "verified_by": [
-        "tests/data_prep/certification/test_job.py:180",
-        "tests/data_prep/certification/test_job.py:31",
-        "tests/data_prep/test_kernel.py:135",
-        "tests/data_prep/test_kernel.py:26",
-        "tests/data_prep/test_kernel.py:416"
+        "tests/data_prep/certification/test_job.py:182",
+        "tests/data_prep/certification/test_job.py:273",
+        "tests/data_prep/certification/test_job.py:309",
+        "tests/data_prep/certification/test_job.py:33",
+        "tests/data_prep/certification/test_job.py:347"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R803.1",
@@ -2562,7 +2565,10 @@
         "SDK-SOURCE-INGEST-R803.6",
         "SDK-SOURCE-INGEST-R803.7",
         "SDK-SOURCE-INGEST-R803.8",
-        "SDK-SOURCE-INGEST-R803.9"
+        "SDK-SOURCE-INGEST-R803.9",
+        "SDK-SOURCE-INGEST-R803.10",
+        "SDK-SOURCE-INGEST-R803.11",
+        "SDK-SOURCE-INGEST-R803.12"
       ]
     },
     {
@@ -2595,7 +2601,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/data_prep/certification/test_job.py:180"
+        "tests/data_prep/certification/test_job.py:182"
       ]
     },
     {
@@ -2665,6 +2671,40 @@
       "verified_by": [
         "tests/data_prep/test_profiling.py:281",
         "tests/data_prep/test_profiling.py:301"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.10",
+      "title": "No empty certification pass",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2c94a2fb2e0c"
+      ],
+      "verified_by": [
+        "tests/data_prep/certification/test_job.py:273"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.11",
+      "title": "Bind certification state",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2c94a2fb2e0c"
+      ],
+      "verified_by": [
+        "tests/data_prep/certification/test_job.py:309"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.12",
+      "title": "Signer output types",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "750b60282e20",
+        "fb7a744764bd"
+      ],
+      "verified_by": [
+        "tests/data_prep/certification/test_job.py:347"
       ]
     },
     {

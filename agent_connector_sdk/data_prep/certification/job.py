@@ -15,6 +15,8 @@ import json
 import time
 from typing import Any, Protocol
 
+from pydantic import ValidationError
+
 from agent_connector_sdk.data_prep.kernel import (
     ArrowAdapter,
     DataPrepDependencyError,
@@ -84,8 +86,10 @@ def _signed_result(
     observation: AdapterObservation,
     signer: CertificationSigner,
 ) -> CertificationResult:
-    signer_id = str(getattr(signer, "signer_id", ""))
-    algorithm = str(getattr(signer, "algorithm", ""))
+    signer_id = getattr(signer, "signer_id", None)
+    algorithm = getattr(signer, "algorithm", None)
+    if not isinstance(signer_id, str) or not isinstance(algorithm, str):
+        return _result(job, "failed", failure_code="signer_invalid")
     if not signer_id or not algorithm:
         return _result(job, "failed", failure_code="signer_invalid")
     if algorithm != "ed25519":
@@ -117,9 +121,11 @@ def _signed_result(
     }
     summary_digest, digest_hex = _digest(unsigned)
     try:
-        signature = str(signer.sign(digest_hex))
+        signature: object = signer.sign(digest_hex)
     except Exception:
         return _result(job, "failed", failure_code="signer_unavailable")
+    if not isinstance(signature, str):
+        return _result(job, "failed", failure_code="signer_invalid")
     try:
         summary = SignedResultSummary(
             **{**unsigned, "policy": job.sample.policy},
@@ -212,6 +218,13 @@ def run_certification_job(
     except Exception:
         return _signed_failure(job, "adapter_error", signer)
     if not isinstance(observation, AdapterObservation):
+        return _signed_failure(job, "invalid_adapter_result", signer)
+
+    try:
+        observation = AdapterObservation.model_validate(
+            observation.model_dump(mode="python")
+        )
+    except (ValidationError, TypeError, ValueError):
         return _signed_failure(job, "invalid_adapter_result", signer)
 
     if (
