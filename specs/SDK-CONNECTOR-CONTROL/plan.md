@@ -788,3 +788,9 @@ obligations remain open.
 The expansion helper reads only an explicit mapping. It never consults
 the ambient environment. Existing coercion helpers continue to avoid implicit
 expansion. This helper does not claim legacy automatic-expansion parity.
+
+## A2A response correlation (R014.21.3)
+
+The client checks each RPC envelope against its request ID and version before
+reading the result. Polling remains bound to the task returned by the initial
+send. A mismatch returns the fixed communication failure without peer content.

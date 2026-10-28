@@ -66,12 +66,71 @@ async def test_r014_21_client_sends_then_polls_until_completed() -> None:
                     {"role": "agent", "parts": [{"kind": "text", "text": "done"}]}
                 ],
             }
-        return httpx.Response(200, json={"jsonrpc": "2.0", "id": 1, "result": result})
+        return httpx.Response(
+            200, json={"jsonrpc": "2.0", "id": body["id"], "result": result}
+        )
 
     client = A2AClient(poll_interval=0.01, transport=_transport(handler))
     result = await client.send("https://peer.example.test/", "do it")
     assert result.ok and result.content == "done"
     assert calls == ["message/send", "tasks/get"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.21.3")
+@pytest.mark.parametrize("violation", ["id", "version", "task", "both"])
+async def test_a2a_poll_rejects_uncorrelated_response(violation):
+    def handler(request):
+        body = json.loads(request.content)
+        if body["method"] == "message/send":
+            return httpx.Response(
+                200,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": body["id"],
+                    "result": {"id": "original", "status": {"state": "submitted"}},
+                },
+            )
+        result = {
+            "id": "different" if violation == "task" else "original",
+            "status": {"state": "completed"},
+            "history": [
+                {"role": "agent", "parts": [{"kind": "text", "text": "private"}]}
+            ],
+        }
+        reply = {
+            "jsonrpc": "1.0" if violation == "version" else "2.0",
+            "id": 1 if violation == "id" else body["id"],
+            "result": result,
+        }
+        if violation == "both":
+            reply["error"] = {"message": "private"}
+        return httpx.Response(200, json=reply)
+
+    result = await A2AClient(poll_interval=0.001, transport=_transport(handler)).send(
+        "https://peer.example.test/", "request"
+    )
+    assert result.error == "A2A communication failed (ValueError)"
+    assert "private" not in str(result)
+
+
+@pytest.mark.asyncio
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.21.3")
+async def test_a2a_send_rejects_boolean_response_id():
+    transport = _transport(
+        lambda _request: httpx.Response(
+            200,
+            json={
+                "jsonrpc": "2.0",
+                "id": True,
+                "result": {"id": "t", "status": {"state": "completed"}},
+            },
+        )
+    )
+    result = await A2AClient(transport=transport).send(
+        "https://peer.example.test/", "x"
+    )
+    assert result.error == "A2A communication failed (ValueError)"
 
 
 @pytest.mark.asyncio

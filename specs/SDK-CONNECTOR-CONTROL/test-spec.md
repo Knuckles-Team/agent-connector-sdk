@@ -469,3 +469,8 @@ An HTTPX client logs in once, then calls a matching and nonmatching path. The
 test checks cookie path scope and refuses a second origin without dispatch.
 Sync and async tests also refuse cross-origin redirects. Direct unguarded
 HTTPX use refuses before login.
+
+## A2A response correlation (R014.21.3)
+
+A controlled peer returns the wrong RPC ID, version, task ID or both result
+and error. Each call fails without exposing peer content. Boolean IDs refuse.
