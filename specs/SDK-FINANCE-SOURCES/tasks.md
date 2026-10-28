@@ -30,3 +30,5 @@ stream-bus imports with deterministic in-memory responses.
 - [ ] **SDK-FINANCE-SOURCES-R900.3:** Prove crypto defaults call governed HTTP safety and market feeds default to the SDK stream bus. (`tests/test_finance_crypto.py::test_crypto_default_fetch_uses_governed_http_safety`; `tests/test_finance_feeds.py::test_market_feed_defaults_to_sdk_stream_bus`)
 
 - [x] Refuse non-finite multi-asset prices and inversion overflow (SDK-FINANCE-SOURCES-R003.2).
+
+- [x] Canonicalize FX currency codes before comparing the pair (SDK-FINANCE-SOURCES-R003.3).
