@@ -76,6 +76,7 @@
       "title": "Pagination helpers",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "aa62b25d68af",
         "c842d089626d",
         "cc7da30e1213",
         "e26eb224bc48",
@@ -402,9 +403,15 @@
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R004.8",
       "title": "Stop repeated continuation tokens",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "aa62b25d68af"
+      ],
+      "verified_by": [
+        "tests/httpsupport/test_pagination_token_loop.py:13",
+        "tests/httpsupport/test_pagination_token_loop.py:33",
+        "tests/httpsupport/test_pagination_token_loop.py:49"
+      ]
     }
   ]
 }
