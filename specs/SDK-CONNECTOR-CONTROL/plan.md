@@ -112,7 +112,8 @@ refused. Brokered asynchronous input and served persistence remain open.
 ## Agent-card discovery (SDK-CONNECTOR-CONTROL-R047)
 
 The in-process card cache uses a named entry limit and least-recently-used
-eviction. The absolute discovery deadline remains open under R047.2.
+eviction. Cache hits and insertions detach their nested JSON from callers. The
+absolute discovery deadline remains open under R047.2.
 
 Data flow: `extract` (`agent_connector_sdk/vendor_extractors/a2a.py:98`) -> `_collect_cards` (`agent_connector_sdk/vendor_extractors/a2a_helpers.py:79`) -> `discover_agent_card` (new) -> governed HTTP client -> `A2AAgentCard` entity with provenance.
 
