@@ -219,6 +219,7 @@
     "SDK-SOURCE-INGEST-R803.5",
     "SDK-SOURCE-INGEST-R803.6",
     "SDK-SOURCE-INGEST-R803.7",
+    "SDK-SOURCE-INGEST-R803.8",
     "SDK-SOURCE-INGEST-R804",
     "SDK-SOURCE-INGEST-R804.1",
     "SDK-SOURCE-INGEST-R804.2",
@@ -2538,10 +2539,11 @@
       "title": "Typed, privacy-safe data preparation kernel (rollup)",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "05f0db88c98a",
+        "075dd1650da3",
         "11366ce437d5",
         "3f465bfdb7b3",
-        "4b003b24ce55",
-        "d2a659a5f3b8"
+        "4b003b24ce55"
       ],
       "verified_by": [
         "tests/data_prep/certification/test_job.py:180",
@@ -2557,7 +2559,8 @@
         "SDK-SOURCE-INGEST-R803.4",
         "SDK-SOURCE-INGEST-R803.5",
         "SDK-SOURCE-INGEST-R803.6",
-        "SDK-SOURCE-INGEST-R803.7"
+        "SDK-SOURCE-INGEST-R803.7",
+        "SDK-SOURCE-INGEST-R803.8"
       ]
     },
     {
@@ -2635,6 +2638,18 @@
       ],
       "verified_by": [
         "tests/data_prep/test_kernel.py:701"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.8",
+      "title": "Unique row fields",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "05f0db88c98a",
+        "075dd1650da3"
+      ],
+      "verified_by": [
+        "tests/data_prep/test_kernel.py:726"
       ]
     },
     {
