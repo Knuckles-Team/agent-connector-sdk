@@ -42,3 +42,9 @@ identity and digest bytes, including a candidate page. It refuses new entries
 at either bound. Known duplicates and conflicts still resolve. This limit
 does not bound provider response size. Reaching it stops new events until a
 separate safe reset or durable identity strategy exists.
+
+## Optional event tenant binding (R001.7)
+
+The host may construct an adapter with an expected tenant. Each envelope must
+match it before identity deduplication. The host owns tenant authentication.
+The optional parameter does not bind the served runner or an unconfigured host.

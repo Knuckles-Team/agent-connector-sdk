@@ -11,7 +11,8 @@
     "SDK-OBSERVABILITY-FEEDS-R001.4",
     "SDK-OBSERVABILITY-FEEDS-R001.5",
     "SDK-OBSERVABILITY-FEEDS-R001.6",
-    "SDK-OBSERVABILITY-FEEDS-R001.8"
+    "SDK-OBSERVABILITY-FEEDS-R001.8",
+    "SDK-OBSERVABILITY-FEEDS-R001.7"
   ],
   "requirements": [
     {
@@ -34,7 +35,8 @@
         "SDK-OBSERVABILITY-FEEDS-R001.4",
         "SDK-OBSERVABILITY-FEEDS-R001.5",
         "SDK-OBSERVABILITY-FEEDS-R001.6",
-        "SDK-OBSERVABILITY-FEEDS-R001.8"
+        "SDK-OBSERVABILITY-FEEDS-R001.8",
+        "SDK-OBSERVABILITY-FEEDS-R001.7"
       ]
     },
     {
@@ -112,6 +114,19 @@
         "tests/test_event_feeds.py:725",
         "tests/test_event_feeds.py:743",
         "tests/test_event_feeds.py:756"
+      ]
+    },
+    {
+      "id": "SDK-OBSERVABILITY-FEEDS-R001.7",
+      "title": "Optional event tenant binding",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8f1df59c0536"
+      ],
+      "verified_by": [
+        "tests/test_event_feeds.py:772",
+        "tests/test_event_feeds.py:798",
+        "tests/test_event_feeds.py:812"
       ]
     }
   ]

@@ -73,9 +73,19 @@ def _validate_feed_payload(feed_kind: FeedKind, payload: Mapping[str, Any]) -> N
         )
 
 
+def _check_expected_tenant(tenant_id: str, expected_tenant: str | None) -> None:
+    if expected_tenant is not None and tenant_id != expected_tenant:
+        raise SourceContractError("event names a different tenant")
+
+
 def _check_scope_matches_tenant(
-    feed_kind: FeedKind, payload: Mapping[str, Any], tenant_id: str
+    feed_kind: FeedKind,
+    payload: Mapping[str, Any],
+    tenant_id: str,
+    *,
+    expected_tenant: str | None,
 ) -> None:
+    _check_expected_tenant(tenant_id, expected_tenant)
     if feed_kind is FeedKind.SECURITY_AUDIT and payload.get("scope") != tenant_id:
         raise SourceContractError("audit event scope does not match its tenant")
 
@@ -118,6 +128,7 @@ def _event_source_record(
     connector: str,
     schema_sha256: str,
     mapping_reference: str,
+    expected_tenant: str | None,
     tracker: EventIdentityTracker,
 ) -> SourceRecord | None:
     """Validate one raw event into its envelope, or ``None`` for a duplicate.
@@ -146,7 +157,9 @@ def _event_source_record(
         raise MalformedSourceDataError(f"malformed event envelope: {exc}") from exc
     if envelope.stream != preset.name:
         raise SourceContractError("event names a stream other than this adapter's own")
-    _check_scope_matches_tenant(feed_kind, payload, envelope.tenant_id)
+    _check_scope_matches_tenant(
+        feed_kind, payload, envelope.tenant_id, expected_tenant=expected_tenant
+    )
     record_id = envelope.identity
     if (
         tracker.classify(record_id, envelope.payload_digest)

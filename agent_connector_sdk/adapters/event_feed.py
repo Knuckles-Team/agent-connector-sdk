@@ -39,6 +39,7 @@ from agent_connector_sdk.adapters.event_feed_records import (
 )
 from agent_connector_sdk.adapters.event_feed_validation import (
     _reject_unsupported_preset_fields,
+    _require_expected_tenant,
     _require_identity,
 )
 from agent_connector_sdk.adapters.event_identity import EventIdentityTracker
@@ -94,6 +95,7 @@ class EventFeedSourceAdapter:
         connector: str,
         tool_schema_sha256: str,
         mapping_reference: str,
+        expected_tenant: str | None = None,
         chain_descriptor: EvmLogDescriptor | None = None,
     ) -> None:
         if chain_descriptor is not None and not isinstance(
@@ -101,6 +103,7 @@ class EventFeedSourceAdapter:
         ):
             raise TypeError("chain_descriptor must be an EvmLogDescriptor")
         _require_identity(connector, tool_schema_sha256, mapping_reference)
+        _require_expected_tenant(expected_tenant)
         _reject_unsupported_preset_fields(preset)
         self.kind = f"event_feed:{feed_kind.value}"
         self._preset = preset
@@ -108,6 +111,7 @@ class EventFeedSourceAdapter:
         self._connector = connector
         self._pinned = tool_schema_sha256
         self._mapping_reference = mapping_reference
+        self._expected_tenant = expected_tenant
         self.chain_descriptor = chain_descriptor
         self._verified_sha256 = ""
         self._identity = _EventPageIdentity()
@@ -218,6 +222,7 @@ class EventFeedSourceAdapter:
                 connector=self._connector,
                 schema_sha256=self._verified_sha256,
                 mapping_reference=self._mapping_reference,
+                expected_tenant=self._expected_tenant,
                 tracker=tracker,
             )
             for item in raw

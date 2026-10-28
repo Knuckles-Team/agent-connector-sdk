@@ -46,3 +46,8 @@ Accept a page, construct a fresh adapter, replay the identical page, then supply
 Fill the entry and byte limits. Verify duplicates, conflicts and UTF-8 sizes.
 An over-limit page must fail before sink submission or checkpoint advance.
 A stale staged page must not overwrite an accepted identity.
+
+## Optional event tenant binding (R001.7)
+
+Supply an expected tenant. Submit another tenant with an existing event ID.
+Require refusal before deduplication. Verify that no sink checkpoint advances.

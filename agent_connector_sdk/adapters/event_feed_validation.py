@@ -30,3 +30,10 @@ def _reject_unsupported_preset_fields(preset: ToolPreset) -> None:
         raise ValueError(
             f"preset {preset.name!r}: event feeds do not support {', '.join(configured)}"
         )
+
+
+def _require_expected_tenant(value: str | None) -> None:
+    if value is not None and (
+        not isinstance(value, str) or not value or value != value.strip()
+    ):
+        raise ValueError("expected tenant must be a nonblank exact identity")
