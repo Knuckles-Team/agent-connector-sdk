@@ -409,6 +409,7 @@
         "3735e4434463",
         "45c6c7c1fd37",
         "8e87ef9675f0",
+        "c151dd6baf5d",
         "db3659c92a3b"
       ],
       "verified_by": [
@@ -480,7 +481,10 @@
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_paper_contract.py:48",
+        "tests/test_paper_contract.py:70"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R005.2",
