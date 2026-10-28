@@ -1613,9 +1613,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R048.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "de142ee07ee4"
+      ],
+      "verified_by": [
+        "tests/test_readable_form.py:16"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R048.3",
