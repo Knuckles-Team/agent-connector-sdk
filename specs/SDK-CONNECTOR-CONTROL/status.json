@@ -1893,7 +1893,7 @@
       "title": "Release identity digest",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "24628495ecaa"
+        "c23ed3429195"
       ],
       "verified_by": [
         "tests/test_release_identity.py:22",
