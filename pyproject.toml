@@ -309,6 +309,7 @@ public_modules = [
     "agent_connector_sdk.exceptions",
     "agent_connector_sdk.file_lock",
     "agent_connector_sdk.finance.account",
+    "agent_connector_sdk.finance.account_source",
     "agent_connector_sdk.finance.alpaca_account",
     "agent_connector_sdk.finance.alpaca_stocks",
     "agent_connector_sdk.finance.banking",

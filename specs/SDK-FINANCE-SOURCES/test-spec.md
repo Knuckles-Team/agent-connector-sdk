@@ -46,7 +46,7 @@ remain open under R003.
 R003.4 uses the SDK provider-record boundary test together with Emerald Exchange
 `tests/test_multi_asset_sources.py` and `tests/test_multi_asset_sources_graph.py::test_provider_records_through_sdk_and_graph`. Synthetic responses cover FMP FX, Databento futures, Twelve Data gold and ATTOM valuations. The owner reads them through provider transports and a served MCP pack. The SDK adapter submits each stream to a real graph twice. Graph assertions check pair direction, price basis, contract, roll and valuation age. The graph proof requires graph 2.27.6 and an SDK containing the adapter. The SDK refuses reconciliation for bounded delta sources. These offline fixtures do not establish live access or provider licensing.
 
-R004.1 remains open: synthetic mapping and stable identifiers do not prove real source reads or durable re-import.
+R004.1 tests bind the account snapshot, positions and CSV activity before the sink. The Emerald Exchange served-pack test uses synthetic Alpaca responses and imports each source twice into a real graph. It checks account and activity identity. That graph test needs graph 2.27.6 and the candidate SDK. It does not establish live account access.
 - `SDK-FINANCE-SOURCES-R003.2`: `tests/test_finance_records.py` checks non-finite FX and commodity prices and overflow on FX inversion.
 
 - `SDK-FINANCE-SOURCES-R003.3`: `tests/test_finance_records.py` checks FX currency normalization and refusal of malformed or identical currency codes.
