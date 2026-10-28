@@ -10,9 +10,9 @@ from datetime import UTC, datetime
 from typing import Any, Literal
 
 from agent_connector_sdk.earth_observations.records import OrganismObservation
-from agent_connector_sdk.http.client import create_async_http_client
+from agent_connector_sdk.http._bounded_provider import _BoundedProvider, _fetch
 from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.taxonomy.provider import _bounded, _valid_id
+from agent_connector_sdk.taxonomy.provider import _valid_id
 
 OccurrenceProviderName = Literal["gbif", "inaturalist"]
 
@@ -21,7 +21,7 @@ class OccurrenceProviderError(RuntimeError):
     """A bounded occurrence request could not be accepted."""
 
 
-class OccurrenceProvider:
+class OccurrenceProvider(_BoundedProvider[OccurrenceProviderName]):
     """Read explicit IDs under a host's egress, quota and license policy."""
 
     def __init__(
@@ -33,18 +33,10 @@ class OccurrenceProvider:
         license_admitted: Callable[[str], bool],
         max_bytes: int,
     ) -> None:
-        if (
-            provider not in ("gbif", "inaturalist")
-            or not http.pin_egress
-            or http.retry.max_attempts != 1
-            or max_bytes < 1
-        ):
+        if provider not in ("gbif", "inaturalist"):
             raise ValueError("invalid occurrence provider policy")
-        self.provider = provider
-        self.http = http
-        self.quota = quota
+        super().__init__(provider=provider, http=http, quota=quota, max_bytes=max_bytes)
         self.license_admitted = license_admitted
-        self.max_bytes = max_bytes
 
     async def read(
         self, identifiers: Sequence[str], *, tenant: str, source: str, max_records: int
@@ -71,48 +63,48 @@ class OccurrenceProvider:
     async def _read_one(
         self, identifier: str, *, tenant: str, source: str
     ) -> OrganismObservation:
+        try:
+            return await self._read_record(identifier, tenant=tenant, source=source)
+        except Exception:
+            raise OccurrenceProviderError(
+                "occurrence provider response refused"
+            ) from None
+
+    async def _read_record(
+        self, identifier: str, *, tenant: str, source: str
+    ) -> OrganismObservation:
         path = (
             f"occurrence/{identifier}"
             if self.provider == "gbif"
             else f"observations/{identifier}"
         )
-        try:
-            async with (
-                create_async_http_client(self.http) as client,
-                client.stream("GET", path) as response,
-            ):
-                response.raise_for_status()
-                payload = await _bounded(response.aiter_bytes(), self.max_bytes)
-            data = json.loads(payload)
-            raw = _source_record(self.provider, identifier, data)
-            license_tag = raw["license"]
-            if (
-                not isinstance(license_tag, str)
-                or not license_tag
-                or not self.license_admitted(license_tag)
-            ):
-                raise ValueError("occurrence license not admitted")
-            return OrganismObservation(
-                tenant_id=tenant,
-                source_id=source,
-                provider=self.provider,
-                source_event_id=identifier,
-                event_time_utc=_timestamp(raw["time"]),
-                observed_at_utc=datetime.now(UTC),
-                license_tag=license_tag,
-                source_digest=hashlib.sha256(payload).hexdigest(),
-                taxon_id=raw["taxon_id"],
-                scientific_name=raw["scientific_name"],
-                place_id=f"{self.provider}:occurrence:{identifier}:location",
-                latitude=raw["latitude"],
-                longitude=raw["longitude"],
-                individual_count=raw["count"],
-                basis_of_record=raw["basis"],
-            )
-        except Exception:
-            raise OccurrenceProviderError(
-                "occurrence provider response refused"
-            ) from None
+        payload = await _fetch(self.http, path, self.max_bytes)
+        data = json.loads(payload)
+        raw = _source_record(self.provider, identifier, data)
+        license_tag = raw["license"]
+        if (
+            not isinstance(license_tag, str)
+            or not license_tag
+            or not self.license_admitted(license_tag)
+        ):
+            raise ValueError("occurrence license not admitted")
+        return OrganismObservation(
+            tenant_id=tenant,
+            source_id=source,
+            provider=self.provider,
+            source_event_id=identifier,
+            event_time_utc=_timestamp(raw["time"]),
+            observed_at_utc=datetime.now(UTC),
+            license_tag=license_tag,
+            source_digest=hashlib.sha256(payload).hexdigest(),
+            taxon_id=raw["taxon_id"],
+            scientific_name=raw["scientific_name"],
+            place_id=f"{self.provider}:occurrence:{identifier}:location",
+            latitude=raw["latitude"],
+            longitude=raw["longitude"],
+            individual_count=raw["count"],
+            basis_of_record=raw["basis"],
+        )
 
 
 def _timestamp(value: Any) -> datetime:
@@ -128,22 +120,30 @@ def _source_record(
     provider: OccurrenceProviderName, identifier: str, data: Any
 ) -> dict[str, Any]:
     if provider == "gbif":
-        if (
-            not isinstance(data, dict)
-            or str(data.get("key")) != identifier
-            or not _valid_id(str(data.get("taxonKey")))
-        ):
-            raise ValueError("GBIF identity mismatch")
-        return {
-            "time": data.get("eventDate"),
-            "license": data.get("license"),
-            "taxon_id": f"GBIF:{data['taxonKey']}",
-            "scientific_name": data.get("scientificName"),
-            "latitude": data.get("decimalLatitude"),
-            "longitude": data.get("decimalLongitude"),
-            "count": data.get("individualCount"),
-            "basis": data.get("basisOfRecord"),
-        }
+        return _gbif_record(identifier, data)
+    return _inat_record(identifier, data)
+
+
+def _gbif_record(identifier: str, data: Any) -> dict[str, Any]:
+    if (
+        not isinstance(data, dict)
+        or str(data.get("key")) != identifier
+        or not _valid_id(str(data.get("taxonKey")))
+    ):
+        raise ValueError("GBIF identity mismatch")
+    return {
+        "time": data.get("eventDate"),
+        "license": data.get("license"),
+        "taxon_id": f"GBIF:{data['taxonKey']}",
+        "scientific_name": data.get("scientificName"),
+        "latitude": data.get("decimalLatitude"),
+        "longitude": data.get("decimalLongitude"),
+        "count": data.get("individualCount"),
+        "basis": data.get("basisOfRecord"),
+    }
+
+
+def _inat_record(identifier: str, data: Any) -> dict[str, Any]:
     if (
         not isinstance(data, dict)
         or not isinstance(data.get("results"), list)

@@ -7,7 +7,7 @@ Open-Meteo data as ``WeatherObservation``, and NOAA storm events as
 represented as ``Place`` located in a ``Region``. This module normalizes
 those shapes; host-admitted GBIF and iNaturalist occurrence sources live
 in this package. Bounded NOAA and Open-Meteo hourly temperatures are
-available; NOAA daily summaries and storm events remain open.
+available; NOAA daily extrema and broader storm acceptance remain open.
 """
 
 from __future__ import annotations

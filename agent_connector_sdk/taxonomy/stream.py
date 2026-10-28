@@ -18,7 +18,7 @@ from fastmcp.exceptions import ToolError  # noqa: E402
 from agent_connector_sdk.ingest.live_declaration import source_meta  # noqa: E402
 from agent_connector_sdk.taxonomy.provider import (  # noqa: E402
     TaxonomyProvider,
-    _valid_id,
+    _valid_identifier_batch,
 )
 
 
@@ -74,14 +74,7 @@ def register_taxonomy_stream(
 ) -> None:
     """Publish only a host-admitted tenant, provider and bounded ID set."""
     identifiers = tuple(identifiers)
-    if (
-        not tenant
-        or not identifiers
-        or not 1 <= batch_size <= 1000
-        or len(identifiers) > 10000
-        or len(set(identifiers)) != len(identifiers)
-        or any(not _valid_id(item) for item in identifiers)
-    ):
+    if not tenant or not _valid_identifier_batch(identifiers, batch_size):
         raise ValueError("invalid taxonomy stream policy")
     digest = hashlib.sha256(
         json.dumps(

@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import json
-from collections.abc import AsyncIterator, Callable, Sequence
+from collections.abc import Callable, Sequence
 from contextlib import AbstractAsyncContextManager
 from typing import Any, Literal
 
-from agent_connector_sdk.http.client import create_async_http_client
+from agent_connector_sdk.http._bounded_provider import _BoundedProvider, _fetch
 from agent_connector_sdk.http.options import HttpClientOptions
 from agent_connector_sdk.taxonomy.records import (
     TaxonRecord,
@@ -29,11 +29,21 @@ def _valid_id(value: object) -> bool:
     )
 
 
+def _valid_identifier_batch(identifiers: Sequence[str], batch_size: int) -> bool:
+    return (
+        bool(identifiers)
+        and 1 <= batch_size <= 1000
+        and len(identifiers) <= 10000
+        and len(set(identifiers)) == len(identifiers)
+        and all(_valid_id(item) for item in identifiers)
+    )
+
+
 class TaxonomyProviderError(RuntimeError):
     """A provider page could not be obtained or validated."""
 
 
-class TaxonomyProvider:
+class TaxonomyProvider(_BoundedProvider[Provider]):
     """Read admitted IDs under caller-supplied provider and quota policies."""
 
     def __init__(
@@ -44,17 +54,9 @@ class TaxonomyProvider:
         quota: Quota,
         max_bytes: int,
     ) -> None:
-        if (
-            provider not in ("ncbi", "gbif")
-            or not http.pin_egress
-            or http.retry.max_attempts != 1
-            or max_bytes < 1
-        ):
+        if provider not in ("ncbi", "gbif"):
             raise ValueError("invalid taxonomy provider policy")
-        self.provider = provider
-        self.http = http
-        self.quota = quota
-        self.max_bytes = max_bytes
+        super().__init__(provider=provider, http=http, quota=quota, max_bytes=max_bytes)
 
     async def read(
         self, identifiers: Sequence[str], *, max_records: int
@@ -73,51 +75,42 @@ class TaxonomyProvider:
         return tuple(records)
 
     async def _read_one(self, identifier: str) -> TaxonRecord:
+        try:
+            return await self._read_record(identifier)
+        except Exception:
+            raise TaxonomyProviderError("taxonomy provider response refused") from None
+
+    async def _read_record(self, identifier: str) -> TaxonRecord:
         path = (
             f"taxonomy/taxon/{identifier}/dataset_report"
             if self.provider == "ncbi"
             else f"species/{identifier}"
         )
-        try:
-            async with (
-                create_async_http_client(self.http) as client,
-                client.stream("GET", path) as response,
-            ):
-                response.raise_for_status()
-                payload = await _bounded(response.aiter_bytes(), self.max_bytes)
-            data = json.loads(payload)
-            return _normalize(self.provider, identifier, data)
-        except Exception:
-            raise TaxonomyProviderError("taxonomy provider response refused") from None
-
-
-async def _bounded(chunks: AsyncIterator[bytes], limit: int) -> bytes:
-    result = bytearray()
-    async for chunk in chunks:
-        if len(result) + len(chunk) > limit:
-            raise ValueError("taxonomy response exceeds admitted byte bound")
-        result.extend(chunk)
-    return bytes(result)
+        payload = await _fetch(self.http, path, self.max_bytes)
+        return _normalize(self.provider, identifier, json.loads(payload))
 
 
 def _normalize(provider: Provider, identifier: str, value: Any) -> TaxonRecord:
     if provider == "gbif":
-        if (
-            not isinstance(value, dict)
-            or str(value.get("key")) != identifier
-            or str(value.get("nubKey")) != identifier
-        ):
-            raise ValueError("GBIF backbone identity mismatch")
-        if (
-            not isinstance(value.get("scientificName"), str)
-            or not value["scientificName"]
-        ):
-            raise ValueError("missing GBIF scientific name")
-        if value.get("parentKey") is not None and not _valid_id(
-            str(value["parentKey"])
-        ):
-            raise ValueError("invalid GBIF parent")
-        return taxon_from_gbif(value)
+        return _normalize_gbif(identifier, value)
+    return _normalize_ncbi(identifier, value)
+
+
+def _normalize_gbif(identifier: str, value: Any) -> TaxonRecord:
+    if (
+        not isinstance(value, dict)
+        or str(value.get("key")) != identifier
+        or str(value.get("nubKey")) != identifier
+    ):
+        raise ValueError("GBIF backbone identity mismatch")
+    if not isinstance(value.get("scientificName"), str) or not value["scientificName"]:
+        raise ValueError("missing GBIF scientific name")
+    if value.get("parentKey") is not None and not _valid_id(str(value["parentKey"])):
+        raise ValueError("invalid GBIF parent")
+    return taxon_from_gbif(value)
+
+
+def _normalize_ncbi(identifier: str, value: Any) -> TaxonRecord:
     if (
         not isinstance(value, dict)
         or not isinstance(value.get("reports"), list)

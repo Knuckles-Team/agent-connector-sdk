@@ -243,6 +243,8 @@ public_modules = [
     "agent_connector_sdk.a2a.client",
     "agent_connector_sdk.a2a.models",
     "agent_connector_sdk.access_contract",
+    "agent_connector_sdk.earth_observations.storm",
+    "agent_connector_sdk.earth_observations.storm_stream",
     "agent_connector_sdk.earth_observations.weather",
     "agent_connector_sdk.earth_observations.weather_stream",
     "agent_connector_sdk.earth_observations.occurrence",

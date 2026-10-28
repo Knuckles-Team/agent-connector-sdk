@@ -10,17 +10,20 @@ from agent_connector_sdk.earth_observations.weather import (
 )
 
 
-def weather_provider(url, provider, quota, quality=lambda code: code == "1"):
+def weather_provider(
+    url, provider, quota, quality=lambda code: code == "1", time_authority=None
+):
     return WeatherProvider(
         provider=provider,
         http=loopback_options(url),
         quota=quota,
         max_bytes=65536,
         quality_admitted=quality,
+        time_authority=time_authority,
     )
 
 
-def weather_request(tenant="tenant", hours=2, max_records=2):
+def weather_request(tenant="tenant", hours=2, max_records=2, station="123"):
     start = datetime(2025, 1, 1, tzinfo=UTC)
     return WeatherRequest(
         tenant=tenant,
@@ -32,5 +35,5 @@ def weather_request(tenant="tenant", hours=2, max_records=2):
         max_records=max_records,
         latitude=45,
         longitude=-92,
-        station="123",
+        station=station,
     )

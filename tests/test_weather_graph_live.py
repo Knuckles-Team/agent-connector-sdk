@@ -1,6 +1,7 @@
 import asyncio
 import json
 from contextlib import asynccontextmanager
+from datetime import datetime
 
 import pytest
 import source_graph_helpers as graph_helpers
@@ -49,8 +50,17 @@ async def exercise(url, provider_name):
         async def authorize(tenant, ctx):
             return tenant == "allowed" and ctx is not None
 
-        provider = weather_provider(url, provider_name, quota, lambda code: code == "1")
-        request = weather_request(tenant="allowed", hours=2, max_records=2)
+        def station_time(station, day, clock):
+            return datetime.fromisoformat(f"{day}T{clock[:2]}:{clock[2:]}+00:00")
+
+        provider = weather_provider(
+            url, provider_name, quota, time_authority=station_time
+        )
+        request = weather_request(
+            tenant="allowed",
+            hours=48 if provider_name == "noaa_daily" else 2,
+            max_records=2,
+        )
         server = FastMCP("weather-graph")
         register_weather_stream(
             server,
@@ -88,7 +98,7 @@ async def exercise(url, provider_name):
         await engine.close()
 
 
-@pytest.mark.parametrize("provider_name", ["open_meteo", "noaa_hourly"])
+@pytest.mark.parametrize("provider_name", ["open_meteo", "noaa_hourly", "noaa_daily"])
 def test_weather_graph_failure_and_repeat(live_ingest, provider_name):  # noqa: F811
     if provider_name == "open_meteo":
         body = {
@@ -101,6 +111,25 @@ def test_weather_graph_failure_and_repeat(live_ingest, provider_name):  # noqa: 
                 "temperature_2m": [1.1, 2.2],
             },
         }
+    elif provider_name == "noaa_daily":
+        body = [
+            {
+                "STATION": "123",
+                "DATE": "2025-01-01",
+                "TOBS": "1.1",
+                "TOBS_ATTRIBUTES": ",1,7,0000",
+                "LATITUDE": "45.1",
+                "LONGITUDE": "-92.1",
+            },
+            {
+                "STATION": "123",
+                "DATE": "2025-01-02",
+                "TOBS": "2.2",
+                "TOBS_ATTRIBUTES": ",1,7,0000",
+                "LATITUDE": "45.1",
+                "LONGITUDE": "-92.1",
+            },
+        ]
     else:
         body = [
             {
