@@ -21,6 +21,7 @@
     "SDK-FINANCE-SOURCES-R005",
     "SDK-FINANCE-SOURCES-R005.1",
     "SDK-FINANCE-SOURCES-R005.3",
+    "SDK-FINANCE-SOURCES-R005.2",
     "SDK-FINANCE-SOURCES-R900",
     "SDK-FINANCE-SOURCES-R900.1",
     "SDK-FINANCE-SOURCES-R900.2",
@@ -218,14 +219,15 @@
         "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_finance_etf_flows.py:48",
-        "tests/test_finance_etf_flows.py:57",
-        "tests/test_finance_etf_flows.py:66",
+        "tests/test_finance_etf_flows.py:49",
+        "tests/test_finance_etf_flows.py:58",
+        "tests/test_finance_etf_flows.py:67",
         "tests/test_finance_fred_series.py:40"
       ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R005.1",
-        "SDK-FINANCE-SOURCES-R005.3"
+        "SDK-FINANCE-SOURCES-R005.3",
+        "SDK-FINANCE-SOURCES-R005.2"
       ]
     },
     {
@@ -243,7 +245,18 @@
         "93a80ac12f39"
       ],
       "verified_by": [
-        "tests/test_finance_etf_flows.py:81"
+        "tests/test_finance_etf_flows.py:82"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R005.2",
+      "title": "Finite ETF values",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1b40a9470780"
+      ],
+      "verified_by": [
+        "tests/test_finance_etf_flows.py:91"
       ]
     },
     {
