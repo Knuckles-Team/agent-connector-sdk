@@ -96,6 +96,7 @@
     "SDK-CONNECTOR-CONTROL-R046.5",
     "SDK-CONNECTOR-CONTROL-R046.6",
     "SDK-CONNECTOR-CONTROL-R046.7",
+    "SDK-CONNECTOR-CONTROL-R046.8",
     "SDK-CONNECTOR-CONTROL-R046.10",
     "SDK-CONNECTOR-CONTROL-R047",
     "SDK-CONNECTOR-CONTROL-R047.1",
@@ -1471,6 +1472,7 @@
         "SDK-CONNECTOR-CONTROL-R046.5",
         "SDK-CONNECTOR-CONTROL-R046.6",
         "SDK-CONNECTOR-CONTROL-R046.7",
+        "SDK-CONNECTOR-CONTROL-R046.8",
         "SDK-CONNECTOR-CONTROL-R046.10"
       ]
     },
@@ -1525,6 +1527,19 @@
       ],
       "verified_by": [
         "tests/test_oauth_loopback_state.py:23"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R046.8",
+      "title": "Legacy token-file safety",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2a4f0f192573"
+      ],
+      "verified_by": [
+        "tests/test_oauth_token_file_safety.py:10",
+        "tests/test_oauth_token_file_safety.py:24",
+        "tests/test_oauth_token_file_safety.py:37"
       ]
     },
     {
