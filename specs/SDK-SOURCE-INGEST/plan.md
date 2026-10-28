@@ -8,6 +8,13 @@
 
 Each change carries focused unit/contract tests. A final opt-in integration job runs against a provisioned graph instance and reports exact receipts.
 
+R004.33 treats a successfully fetched empty advancing page as a checkpoint-only
+delta. The accepted checkpoint must be durable before fetching the next page.
+An empty terminal page keeps the prior cursor. A nonempty page that maps to no
+records fails rather than silently advancing or reporting an empty success.
+Page, batch and record limits must be positive integers; invalid limits refuse
+before source reads or submissions.
+
 ## Ingest worker (SDK-SOURCE-INGEST-R010, R011)
 
 The worker runs a thin loop. It asks the engine for admission, lane floors and
