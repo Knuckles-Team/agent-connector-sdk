@@ -57,10 +57,13 @@ from agent_connector_sdk.httpsupport.pagination_tokens import (
     _TokenHistory,
 )
 
+from .pagination_page import PaginationPageError, _require_items
+
 __all__ = [
     "AsyncPaginationIterator",
     "PaginationIterator",
     "PaginationOriginError",
+    "PaginationPageError",
 ]
 
 #: Pagination dialects supported by the iterators.
@@ -323,10 +326,7 @@ class _PaginationConfig:
         )
 
     def _extract_items(self, data: Any) -> list[Any]:
-        payload = _dig(data, self.items_path) if self.items_path else data
-        if isinstance(payload, list):
-            return payload
-        return []
+        return _require_items(_dig(data, self.items_path) if self.items_path else data)
 
     def _begin(self, walk: _PageWalk) -> None:
         self.truncated = False
@@ -376,7 +376,7 @@ class PaginationIterator(_PaginationConfig):
             ``since_id`` (see module docstring).
         params: Base query parameters sent with every page.
         items_path: Dotted path to the record list inside the response body;
-            empty when the body *is* the list.
+            empty when the body *is* the list; other shapes raise PaginationPageError.
         max_items: Overall record budget (yields stop and ``truncated`` is
             set when reached).
         max_pages: Page-fetch budget.

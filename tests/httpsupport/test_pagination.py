@@ -11,6 +11,7 @@ import pytest
 from agent_connector_sdk.httpsupport.pagination import (
     AsyncPaginationIterator,
     PaginationIterator,
+    PaginationPageError,
 )
 
 pytestmark = [
@@ -148,11 +149,12 @@ def test_invalid_mode_rejected_at_construction():
         PaginationIterator(lambda url, params: ([], {}), "/x", mode="scroll")
 
 
-def test_non_list_payload_yields_nothing():
+def test_non_list_payload_is_refused():
     iterator = PaginationIterator(
         lambda url, params: ({"unexpected": "shape"}, {}), "/x", mode="page"
     )
-    assert list(iterator) == []
+    with pytest.raises(PaginationPageError):
+        list(iterator)
 
 
 def test_collect_returns_okta_style_envelope():

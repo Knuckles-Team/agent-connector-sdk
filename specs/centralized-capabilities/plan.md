@@ -130,3 +130,8 @@ not a resume cursor. This guard does not deduplicate records already returned.
 An iterator owns one mutable walk and budget. It refuses another active
 consumer. Exhaustion, fetch failure or explicit close releases the claim.
 A caller that stops early must close the active generator before reuse.
+## Malformed page refusal (R004.6)
+
+The declared records path must resolve to a list. A missing or non-list value
+raises a typed error without echoing response data. A valid empty list remains
+a page. A malformed page cannot advance the continuation.
