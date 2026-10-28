@@ -722,6 +722,7 @@ def test_public_plan_view_cannot_mutate_execution() -> None:
     assert paged.rows_out == 2
     assert paged.dropped_rows == 1
 
+
 @pytest.mark.spec("SDK-SOURCE-INGEST-R803.8")
 def test_duplicate_schema_fields_are_rejected() -> None:
     table = pa.Table.from_arrays(
