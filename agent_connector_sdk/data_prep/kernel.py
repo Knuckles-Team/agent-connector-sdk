@@ -1011,6 +1011,8 @@ def _validate_row_model_schema(table: Any, row_model: type[BaseModel]) -> None:
 
     _validate_row_model_class(row_model)
     fields = row_model.model_fields
+    if len(table.column_names) != len(set(table.column_names)):
+        raise PlanExecutionError("Arrow schema field names must be unique")
     if set(fields) != set(table.column_names):
         raise PlanExecutionError("row_model fields must exactly match the Arrow schema")
 
