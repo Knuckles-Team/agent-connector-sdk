@@ -93,6 +93,9 @@ class SourceStream:
         max_records: int | None = None,
         batch_size: int | None = None,
     ) -> None:
+        for name, value in (("max_records", max_records), ("batch_size", batch_size)):
+            if value is not None and (type(value) is not int or value < 1):
+                raise IngestError(f"{name} must be a positive integer")
         self.projection = projection
         self.before_submit = before_submit
         self.max_records = max_records
@@ -412,6 +415,8 @@ class SourceStream:
         A page with documents on a separate binding is refused before submission:
         the two streams do not have an atomic checkpoint.
         """
+        if max_pages is not None and (type(max_pages) is not int or max_pages < 1):
+            raise IngestError("max_pages must be a positive integer")
         service = ingest
         if service is None:
             from agent_connector_sdk.ingest import current_ingest
@@ -454,6 +459,16 @@ class SourceStream:
                 if counts is None:
                     raise IngestError("source page was not accepted")
                 totals = _add(totals, counts)
+            elif records:
+                raise IngestError("source page mapping produced no records")
+            elif next_cursor is not None:
+                # Empty windows still represent accepted source progress.  Do
+                # not advance in memory until the checkpoint is durable.
+                counts = await self.submit(
+                    ChangeSet(cursor=next_cursor, source_page=True), ingest=service
+                )
+                if counts is None:
+                    raise IngestError("source page was not accepted")
             if next_cursor is None:
                 break
             cursor = next_cursor

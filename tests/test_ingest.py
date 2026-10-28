@@ -53,6 +53,54 @@ from agent_connector_sdk.testing.sinks import InMemorySink
 BINDING = IngestBinding(connector="demo-mcp", stream="demo")
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.33")
+async def test_empty_source_page_is_checkpointed_before_next_fetch() -> None:
+    from agent_connector_sdk.ingest import RecordMap, SourceStream
+
+    transport = _Transport()
+    service = KnowledgeIngest(transport)
+    stream = SourceStream(BINDING, {"item": RecordMap("Item", "demo:item:{_id}")})
+    visited: list[str | None] = []
+
+    async def fetch(cursor: str | None) -> tuple[list[dict[str, str]], str | None]:
+        visited.append(cursor)
+        if cursor is None:
+            return [], "window-2"
+        raise RuntimeError("source interrupted")
+
+    with pytest.raises(RuntimeError, match="source interrupted"):
+        await stream.sync("item", fetch, ingest=service)
+    assert visited == [None, "window-2"]
+    assert await KnowledgeIngest(transport).accepted_cursor(BINDING) == "window-2"
+    assert len(transport.requests) == 1
+    assert not transport.requests[0].records
+
+    async def resumed(cursor: str | None) -> tuple[list[dict[str, str]], str | None]:
+        assert cursor == "window-2"
+        return [], None
+
+    assert await stream.sync("item", resumed, ingest=KnowledgeIngest(transport)) == {
+        "nodes": 0,
+        "edges": 0,
+    }
+    assert await service.accepted_cursor(BINDING) == "window-2"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.33")
+async def test_nonempty_page_with_empty_mapping_does_not_advance() -> None:
+    from agent_connector_sdk.ingest import Mapped, SourceStream
+
+    transport = _Transport()
+    stream = SourceStream(BINDING, {"item": lambda records: Mapped()})
+
+    async def fetch(cursor: str | None) -> tuple[list[dict[str, str]], str | None]:
+        return [{"id": "unmapped"}], "next"
+
+    with pytest.raises(IngestError, match="mapping produced no records"):
+        await stream.sync("item", fetch, ingest=KnowledgeIngest(transport))
+    assert transport.requests == []
+
+
 class _Transport:
     """An in-memory epistemic-graph: CAS checkpoints, receipts and Blob CAS."""
 

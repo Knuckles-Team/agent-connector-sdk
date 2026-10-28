@@ -338,9 +338,9 @@
         "55bab2b23000"
       ],
       "verified_by": [
-        "tests/test_ingest.py:177",
-        "tests/test_ingest.py:194",
-        "tests/test_ingest.py:222"
+        "tests/test_ingest.py:225",
+        "tests/test_ingest.py:242",
+        "tests/test_ingest.py:270"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R004.1",
@@ -1863,8 +1863,8 @@
         "7990ab055ef8"
       ],
       "verified_by": [
-        "tests/test_ingest.py:395",
-        "tests/test_ingest.py:445"
+        "tests/test_ingest.py:443",
+        "tests/test_ingest.py:493"
       ]
     },
     {
@@ -1875,7 +1875,7 @@
         "22f14c128bac"
       ],
       "verified_by": [
-        "tests/test_ingest.py:471"
+        "tests/test_ingest.py:519"
       ]
     },
     {
@@ -1886,7 +1886,7 @@
         "976fb92ad5ec"
       ],
       "verified_by": [
-        "tests/test_ingest.py:502"
+        "tests/test_ingest.py:550"
       ]
     },
     {
@@ -1897,7 +1897,7 @@
         "e517969ca5c4"
       ],
       "verified_by": [
-        "tests/test_ingest.py:518"
+        "tests/test_ingest.py:566"
       ]
     },
     {
@@ -1908,7 +1908,7 @@
         "cc667d74af34"
       ],
       "verified_by": [
-        "tests/test_ingest.py:543"
+        "tests/test_ingest.py:591"
       ]
     },
     {
@@ -1919,8 +1919,8 @@
         "cc667d74af34"
       ],
       "verified_by": [
-        "tests/test_ingest.py:567",
-        "tests/test_ingest.py:595"
+        "tests/test_ingest.py:615",
+        "tests/test_ingest.py:643"
       ]
     },
     {
@@ -1942,7 +1942,7 @@
         "cc667d74af34"
       ],
       "verified_by": [
-        "tests/test_ingest.py:629"
+        "tests/test_ingest.py:677"
       ]
     },
     {
@@ -1953,7 +1953,7 @@
         "cc667d74af34"
       ],
       "verified_by": [
-        "tests/test_ingest.py:644"
+        "tests/test_ingest.py:692"
       ]
     },
     {
@@ -1975,7 +1975,7 @@
         "e02fe49f73bd"
       ],
       "verified_by": [
-        "tests/test_ingest.py:683"
+        "tests/test_ingest.py:731"
       ]
     },
     {
@@ -2209,13 +2209,15 @@
       "title": "`sync` takes a cursor strategy; `mapped` takes a batch size",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "67bc512d6678",
         "840277a9b0a4"
       ],
       "verified_by": [
-        "tests/test_ingest_strategies.py:105",
-        "tests/test_ingest_strategies.py:198",
-        "tests/test_ingest_strategies.py:299",
-        "tests/test_ingest_strategies.py:79"
+        "tests/test_empty_page_real_graph.py:22",
+        "tests/test_ingest.py:56",
+        "tests/test_ingest.py:89",
+        "tests/test_ingest_strategies.py:102",
+        "tests/test_ingest_strategies.py:128"
       ]
     },
     {
@@ -2226,9 +2228,9 @@
         "840277a9b0a4"
       ],
       "verified_by": [
-        "tests/test_ingest_strategies.py:129",
-        "tests/test_ingest_strategies.py:155",
-        "tests/test_ingest_strategies.py:168"
+        "tests/test_ingest_strategies.py:152",
+        "tests/test_ingest_strategies.py:178",
+        "tests/test_ingest_strategies.py:191"
       ]
     },
     {
@@ -2240,9 +2242,9 @@
         "d0b3de5b772d"
       ],
       "verified_by": [
-        "tests/test_ingest_strategies.py:212",
-        "tests/test_ingest_strategies.py:290",
-        "tests/test_ingest_strategies.py:321"
+        "tests/test_ingest_strategies.py:235",
+        "tests/test_ingest_strategies.py:313",
+        "tests/test_ingest_strategies.py:344"
       ]
     },
     {

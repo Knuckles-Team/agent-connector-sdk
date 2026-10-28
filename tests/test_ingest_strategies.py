@@ -77,6 +77,29 @@ def _stream(**options: Any) -> SourceStream:
 
 
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.33")
+def test_page_and_batch_limits_refuse_invalid_values_before_effects() -> None:
+    calls: list[str | None] = []
+
+    async def fetch(cursor: str | None) -> Any:
+        calls.append(cursor)
+        return [], None
+
+    for invalid in (0, -1, True, 1.5):
+        for option in ("batch_size", "max_records"):
+            with pytest.raises(IngestError, match="positive integer"):
+                _stream(**{option: invalid})
+        for factory in (OffsetCursor, lambda value: KeysetCursor("id", value)):
+            with pytest.raises(IngestError, match="positive integer"):
+                factory(invalid)
+
+        sink = _Ingest()
+        with pytest.raises(IngestError, match="positive integer"):
+            _run(_stream().sync("row", fetch, ingest=sink, max_pages=invalid))
+        assert calls == []
+        assert sink.submitted == []
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.33")
 def test_offset_keyset_and_window_strategies_advance_and_stop() -> None:
     offset: CursorStrategy = OffsetCursor(2)
     assert offset.first() == "0"

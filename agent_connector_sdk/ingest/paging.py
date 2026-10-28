@@ -37,8 +37,8 @@ class CursorStrategy(Protocol):
 
 
 def _page_size(value: int) -> int:
-    if value < 1:
-        raise IngestError("page_size must be at least 1")
+    if type(value) is not int or value < 1:
+        raise IngestError("page_size must be a positive integer")
     return value
 
 
