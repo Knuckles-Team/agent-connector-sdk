@@ -1,8 +1,7 @@
 """SDK-OBSERVABILITY-FEEDS-R001: RUM, security-audit and CI/CD event feeds.
 
 OF-01..OF-05 run offline against a fake in-memory MCP session (no network, no
-production telemetry). OF-06 is opt-in acceptance against a contributor-owned
-graph and is recorded NOT RUN here, per the spec's completion section.
+production telemetry). OF-06 uses a separate isolated graph fixture.
 """
 
 from __future__ import annotations
@@ -587,22 +586,6 @@ async def test_breaking_schema_quarantines_with_zero_writes_and_zero_checkpoint_
     assert (
         await sink.source_status(CONNECTOR, "rum-stream")
     ).accepted_checkpoint is None
-
-
-# ---------------------------------------------------------------------------
-# OF-06: restart after an accepted page with a contributor-owned graph.
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.skip(
-    reason=(
-        "OF-06 is opt-in acceptance against a contributor-owned graph "
-        "(SDK-OBSERVABILITY-FEEDS spec, Portable contribution and completion). "
-        "NOT RUN: no such environment is provisioned in this suite."
-    )
-)
-async def test_restart_replay_against_a_live_graph_is_exactly_once() -> None:
-    raise AssertionError("opt-in acceptance test; never executed offline")
 
 
 # ---------------------------------------------------------------------------

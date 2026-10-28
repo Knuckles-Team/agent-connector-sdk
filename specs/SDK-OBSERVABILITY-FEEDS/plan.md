@@ -21,8 +21,9 @@ refuses while a page remains unfinished.
 
 ## Durable event receipt proof (R001.3)
 
-A graph-backed restart test must establish persistence and logical replay.
-The in-memory receipt fixture proves control flow only.
+An isolated graph accepts a synthetic page. A second worker process replays it.
+Graph status retains the same receipt, and readback has one logical event.
+The graph test skips if its optional server binary is absent.
 
 ## Event adapter registration (R001.4)
 
@@ -33,7 +34,7 @@ Registration and certified activation remain open work.
 
 ## Exact last-page replay (R001.6)
 
-The accepted checkpoint binds a digest of the last raw event page and its adapter identity. A fresh adapter suppresses only the same page when the resulting checkpoint is also unchanged. Different pages with the same watermark still commit. This guard has constant size. It does not store all event identities. R001.3 remains open for process restart and general replay evidence.
+The accepted checkpoint binds a digest of the last raw event page and its adapter identity. A fresh adapter suppresses only the same page when the resulting checkpoint is also unchanged. Different pages with the same watermark still commit. This guard has constant size. It does not store all event identities. R001.3 proves a restart for one exact page. It does not prove all replay cases.
 
 ## Bounded identity index (R001.8)
 

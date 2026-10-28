@@ -24,9 +24,9 @@
         "c44284a671b3"
       ],
       "verified_by": [
-        "tests/test_event_feeds.py:268",
-        "tests/test_event_feeds.py:286",
-        "tests/test_event_feeds.py:302"
+        "tests/test_event_feeds.py:267",
+        "tests/test_event_feeds.py:285",
+        "tests/test_event_feeds.py:301"
       ],
       "rollup_of": [
         "SDK-OBSERVABILITY-FEEDS-R001.1",
@@ -47,7 +47,7 @@
         "123c6ecbe31b"
       ],
       "verified_by": [
-        "tests/test_event_feeds.py:394"
+        "tests/test_event_feeds.py:393"
       ]
     },
     {
@@ -58,17 +58,21 @@
         "a8abb6b534e6"
       ],
       "verified_by": [
-        "tests/test_event_feeds.py:430",
-        "tests/test_event_feeds.py:477",
-        "tests/test_event_feeds.py:495"
+        "tests/test_event_feeds.py:429",
+        "tests/test_event_feeds.py:476",
+        "tests/test_event_feeds.py:494"
       ]
     },
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001.3",
       "title": "Durable event receipt proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "c7ef1a7bb072"
+      ],
+      "verified_by": [
+        "tests/test_event_replay_checkpoint.py:189"
+      ]
     },
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001.4",
@@ -109,11 +113,11 @@
         "083be3f609e4"
       ],
       "verified_by": [
-        "tests/test_event_feeds.py:702",
-        "tests/test_event_feeds.py:715",
-        "tests/test_event_feeds.py:725",
-        "tests/test_event_feeds.py:743",
-        "tests/test_event_feeds.py:756"
+        "tests/test_event_feeds.py:685",
+        "tests/test_event_feeds.py:698",
+        "tests/test_event_feeds.py:708",
+        "tests/test_event_feeds.py:726",
+        "tests/test_event_feeds.py:739"
       ]
     },
     {
