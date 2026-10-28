@@ -17,6 +17,8 @@ from email.utils import parsedate_to_datetime
 
 import httpx
 
+from agent_connector_sdk.http.retry_values import _require_retry_shape, _snapshot_set
+
 __all__ = [
     "IDEMPOTENT_METHODS",
     "RETRYABLE_STATUSES",
@@ -93,6 +95,9 @@ class RetryPolicy:
     retry_methods: frozenset[str] = IDEMPOTENT_METHODS
 
     def __post_init__(self) -> None:
+        _require_retry_shape(self.max_attempts, self.jitter)
+        object.__setattr__(self, "retry_methods", _snapshot_set(self.retry_methods))
+        object.__setattr__(self, "retry_statuses", _snapshot_set(self.retry_statuses))
         numbers = (
             self.backoff_base,
             self.backoff_factor,

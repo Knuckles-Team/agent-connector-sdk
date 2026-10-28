@@ -508,6 +508,12 @@ process settings do not alter the result, and an unknown profile refuses.
 - `SDK-CONNECTOR-CONTROL-R014.30`: `tests/test_http_dns_pinned_egress.py` covers shared-address refusal through the URL guard and governed transports.
 - `SDK-CONNECTOR-CONTROL-R047.9`: `tests/test_a2a_discovery.py` covers non-finite card refusal through governed fetch and extractor.
 
+## Retry policy snapshot (R028.6)
+
+Mutate caller sets after construction. A sync and an async governed transport
+must make only one POST attempt. Refuse fractional or boolean attempt counts
+and non-boolean jitter before a request.
+
 ## Certification attestation model
 
 `tests/test_certification_attestation.py` covers immutable decision and scope values,
