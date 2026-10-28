@@ -782,3 +782,9 @@ The synchronous runner shares retry and fallback safety rules with the async
 runner. It refuses a requested timeout before calling the operation. An
 arbitrary blocking call cannot be stopped safely by the SDK. Other R780.6
 obligations remain open.
+
+## Amendment: explicit value expansion (R780.12)
+
+The expansion helper reads only an explicit mapping. It never consults
+the ambient environment. Existing coercion helpers continue to avoid implicit
+expansion. This helper does not claim legacy automatic-expansion parity.

@@ -294,6 +294,7 @@
     "SDK-CONNECTOR-CONTROL-R780.10",
     "SDK-CONNECTOR-CONTROL-R780.9",
     "SDK-CONNECTOR-CONTROL-R780.11",
+    "SDK-CONNECTOR-CONTROL-R780.12",
     "SDK-CONNECTOR-CONTROL-R781",
     "SDK-CONNECTOR-CONTROL-R782",
     "SDK-CONNECTOR-CONTROL-R070",
@@ -3228,7 +3229,8 @@
         "SDK-CONNECTOR-CONTROL-R780.8",
         "SDK-CONNECTOR-CONTROL-R780.10",
         "SDK-CONNECTOR-CONTROL-R780.9",
-        "SDK-CONNECTOR-CONTROL-R780.11"
+        "SDK-CONNECTOR-CONTROL-R780.11",
+        "SDK-CONNECTOR-CONTROL-R780.12"
       ]
     },
     {
@@ -3357,6 +3359,18 @@
         "tests/test_sync_resilience.py:11",
         "tests/test_sync_resilience.py:36",
         "tests/test_sync_resilience.py:58"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R780.12",
+      "title": "Explicit value expansion",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "28a188c77d56"
+      ],
+      "verified_by": [
+        "tests/test_explicit_env_expansion.py:22",
+        "tests/test_explicit_env_expansion.py:8"
       ]
     },
     {

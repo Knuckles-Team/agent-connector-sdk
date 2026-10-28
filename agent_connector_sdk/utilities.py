@@ -13,10 +13,13 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import sys
+from collections.abc import Mapping
 from typing import Any
 
 __all__ = [
+    "expand_env_vars",
     "get_logger",
     "to_boolean",
     "to_dict",
@@ -24,6 +27,28 @@ __all__ = [
     "to_integer",
     "to_list",
 ]
+
+_ENV_PLACEHOLDER = re.compile(r"\$\{([A-Z0-9_]+)(?::-([^}]*))?\}")
+
+
+def expand_env_vars(text: str, *, values: Mapping[str, str]) -> str:
+    """Expand ``${NAME}`` and ``${NAME:-default}`` from an explicit mapping.
+
+    Missing or empty values use the default, or an empty string when absent.
+    Expansion is one pass and does not read the process environment. Coercion
+    helpers remain non-expanding; callers choose whether to use this function.
+    """
+
+    def replace(match: re.Match[str]) -> str:
+        value = values.get(match.group(1))
+        if value is None or value == "":
+            return match.group(2) or ""
+        if not isinstance(value, str):
+            raise ValueError("expansion values must be strings")
+        return value
+
+    return _ENV_PLACEHOLDER.sub(replace, text)
+
 
 _TRUE_TOKENS = frozenset({"t", "true", "y", "yes", "1", "on"})
 
