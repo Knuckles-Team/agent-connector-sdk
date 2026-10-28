@@ -126,3 +126,68 @@ async def test_explicit_private_host_allowlist_permits_local_fetch() -> None:
         page = await fetch_page(server.base_url, allowed_private_hosts=("127.0.0.1",))
         assert isinstance(page, FetchedPage)
         assert len(server.requests) == 1
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.48")
+async def test_legacy_fetch_stops_on_oversized_or_compressed_response(
+    monkeypatch,
+) -> None:
+    from agent_connector_sdk.adapters import web_fetch
+    from agent_connector_sdk.http.client import create_async_http_client
+
+    class Chunks(httpx.AsyncByteStream):
+        def __init__(self) -> None:
+            self.reads = 0
+            self.closed = False
+
+        async def __aiter__(self):
+            for part in (b"12345", b"67890", b"remaining"):
+                self.reads += 1
+                yield part
+
+        async def aclose(self) -> None:
+            self.closed = True
+
+    class Peer:
+        def get_extra_info(self, name):
+            return ("127.0.0.1", 80) if name == "server_addr" else None
+
+    streams = []
+    encoding = ["identity"]
+    declared = [None]
+
+    def respond(request):
+        assert request.headers["accept-encoding"] == "identity"
+        stream = Chunks()
+        streams.append(stream)
+        headers = {"content-encoding": encoding[0]}
+        if declared[0] is not None:
+            headers["content-length"] = declared[0]
+        return httpx.Response(
+            200, headers=headers, stream=stream, extensions={"network_stream": Peer()}
+        )
+
+    transport = httpx.MockTransport(respond)
+    monkeypatch.setattr(web_fetch, "DEFAULT_MAX_RESPONSE_BYTES", 8)
+    monkeypatch.setattr(
+        web_fetch,
+        "create_async_http_client",
+        lambda options: create_async_http_client(options, transport=transport),
+    )
+    url = "http://127.0.0.1/article"
+    assert await fetch_page(url, allowed_private_hosts=("127.0.0.1",)) is None
+    assert streams[-1].reads == 2 and streams[-1].closed
+    declared[0] = "9"
+    assert await fetch_page(url, allowed_private_hosts=("127.0.0.1",)) is None
+    assert streams[-1].reads == 0 and streams[-1].closed
+    declared[0] = None
+    encoding[0] = "gzip"
+    adapter = WebFetchSourceAdapter(
+        (url,),
+        connector="test",
+        mapping_reference="v1",
+        allowed_private_hosts=("127.0.0.1",),
+    )
+    with pytest.raises(SourceContractError, match="web fetch failed"):
+        await adapter.extract(None, None)
+    assert streams[-1].reads == 0 and streams[-1].closed

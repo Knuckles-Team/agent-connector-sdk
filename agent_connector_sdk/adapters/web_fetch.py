@@ -22,6 +22,7 @@ SourceIngest client can reach it through the same ``discover``/``extract``/
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from collections.abc import Sequence
 
@@ -34,6 +35,10 @@ from epistemic_graph.generated.source_ingestion import (
 )
 from pydantic import BaseModel, ConfigDict, Field
 
+from agent_connector_sdk.adapters.web_fetch_checkpoint import (
+    _next_checkpoint,
+    _page_index,
+)
 from agent_connector_sdk.adapters.web_fetch_helpers import (
     _markdown_from_html,
     extract_og_metadata,
@@ -44,7 +49,9 @@ from agent_connector_sdk.contracts import (
     RecordPage,
     StreamDescriptor,
 )
+from agent_connector_sdk.http.bodies import DEFAULT_MAX_RESPONSE_BYTES, aread_bounded
 from agent_connector_sdk.http.client import create_async_http_client
+from agent_connector_sdk.http.errors import ResponseTooLargeError
 from agent_connector_sdk.http.options import HttpClientOptions
 from agent_connector_sdk.ports.errors import SourceContractError
 from agent_connector_sdk.ports.session import McpSession
@@ -101,19 +108,17 @@ async def fetch_page(
     options = HttpClientOptions(
         base_url=url,
         timeout=timeout,
-        headers={"User-Agent": _USER_AGENT},
+        headers={"User-Agent": _USER_AGENT, "Accept-Encoding": "identity"},
         pin_egress=True,
         allowed_private_hosts=tuple(allowed_private_hosts),
         allow_plaintext=allow_plaintext,
     )
     try:
-        async with create_async_http_client(options) as client:
-            response = await client.get("")
-    except httpx.HTTPError:
+        raw = await _read_web_text(options)
+    except (httpx.HTTPError, ResponseTooLargeError):
         return None
-    if response.status_code >= 400:
+    if raw is None:
         return None
-    raw = response.text
     text = _markdown_from_html(raw)
     if not text.strip():
         return None
@@ -130,10 +135,18 @@ async def fetch_page(
     )
 
 
-def _page_index(checkpoint: SourceCheckpoint | None) -> int:
-    if checkpoint is None:
-        return 0
-    return int(checkpoint.position.get("index", 0))
+async def _read_web_text(options: HttpClientOptions) -> str | None:
+    """Read one identity-encoded response within the shared byte bound."""
+    async with (
+        create_async_http_client(options) as client,
+        client.stream("GET", "") as response,
+    ):
+        if response.status_code >= 400:
+            return None
+        if response.headers.get("content-encoding", "identity").lower() != "identity":
+            return None
+        body = await aread_bounded(response, DEFAULT_MAX_RESPONSE_BYTES)
+        return body.decode(response.encoding or "utf-8", errors="replace")
 
 
 def _record_from_page(
@@ -178,6 +191,10 @@ class WebFetchSourceAdapter:
         allow_plaintext: bool = False,
     ) -> None:
         self._urls = tuple(urls)
+        encoded_urls = json.dumps(
+            self._urls, ensure_ascii=True, separators=(",", ":")
+        ).encode("utf-8")
+        self._url_digest = hashlib.sha256(encoded_urls).hexdigest()
         self._connector = connector
         self._mapping_reference = mapping_reference
         self._allowed_private_hosts = tuple(allowed_private_hosts)
@@ -207,7 +224,9 @@ class WebFetchSourceAdapter:
     ) -> RecordPage:
         """Fetch the next URL in this adapter's fixed list, if any remain."""
         del session
-        index = _page_index(checkpoint)
+        index = _page_index(
+            checkpoint, self.stream, count=len(self._urls), url_digest=self._url_digest
+        )
         records: tuple[SourceRecord, ...] = ()
         if index < len(self._urls):
             page = await fetch_page(
@@ -225,13 +244,17 @@ class WebFetchSourceAdapter:
                     mapping_reference=self._mapping_reference,
                 ),
             )
-        next_index = index + 1
+        next_index = min(index + 1, len(self._urls))
         return RecordPage(
             records=records,
             mode=SourceIngestionMode.FULL,
             strict_schema=False,
-            checkpoint=SourceCheckpoint(
-                stream=self.stream, position={"index": next_index}
+            checkpoint=_next_checkpoint(
+                checkpoint,
+                self.stream,
+                index=index,
+                next_index=next_index,
+                url_digest=self._url_digest,
             ),
             exhausted=next_index >= len(self._urls),
         )

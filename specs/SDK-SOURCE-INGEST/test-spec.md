@@ -360,6 +360,15 @@ trailing dots, IDNA and equivalent IPv6 forms. Another host has its own budget.
 R005.44 checks a valid IPv6 robots URL, denial of a private path and cache
 reuse for equivalent IPv6 and IDNA spellings.
 
+R005.50 resumes a bound checkpoint against the same and changed URL lists.
+A mismatch refuses before fetching. Legacy unbound checkpoints stay usable.
+
+R005.49 submits invalid stream and index values to the legacy adapter. It
+refuses each before a fetch, and a terminal checkpoint remains unchanged.
+
+R005.48 streams an oversized body and a compressed body. It refuses both,
+closes each response and leaves the adapter without a page.
+
 R005.45 calls the served web-fetch tool with a denied URL carrying a query
 secret. The refusal contains its reason but no requested path or query value.
 

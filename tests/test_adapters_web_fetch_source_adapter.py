@@ -176,3 +176,69 @@ async def test_blocked_web_fetch_never_submits_or_advances_checkpoint() -> None:
             await sync_stream(_SESSION, adapter, target)
         assert server.requests == []
     assert checkpoint.position == {"index": 1}
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.49")
+async def test_invalid_checkpoint_refuses_before_fetch(monkeypatch) -> None:
+    from agent_connector_sdk.adapters import web_fetch
+
+    calls = []
+
+    async def fetch(*args, **kwargs):
+        calls.append(args)
+        raise AssertionError("invalid or terminal checkpoints must not fetch")
+
+    monkeypatch.setattr(web_fetch, "fetch_page", fetch)
+    adapter = WebFetchSourceAdapter(
+        ("https://example.invalid/one",), connector="test", mapping_reference="v1"
+    )
+    for stream, position in (
+        ("other", {"index": 0}),
+        ("web_fetch", {}),
+        ("web_fetch", {"index": -1}),
+        ("web_fetch", {"index": 2}),
+        ("web_fetch", {"index": True}),
+        ("web_fetch", {"index": "0"}),
+        ("web_fetch", {"index": 0.5}),
+    ):
+        with pytest.raises(SourceContractError, match="invalid web fetch checkpoint"):
+            await adapter.extract(
+                _SESSION, SourceCheckpoint(stream=stream, position=position)
+            )
+    terminal = SourceCheckpoint(stream="web_fetch", position={"index": 1})
+    first = await adapter.extract(_SESSION, terminal)
+    second = await adapter.extract(_SESSION, first.checkpoint)
+    assert first.exhausted and second.exhausted
+    assert first.checkpoint == terminal == second.checkpoint
+    assert calls == []
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.50")
+async def test_checkpoint_binds_ordered_url_list(monkeypatch) -> None:
+    from agent_connector_sdk.adapters import web_fetch
+
+    calls = []
+
+    async def fetch(url, **_kwargs):
+        calls.append(url)
+        return web_fetch.FetchedPage(url=url, markdown="page")
+
+    monkeypatch.setattr(web_fetch, "fetch_page", fetch)
+    urls = ("https://example.invalid/one", "https://example.invalid/two")
+    adapter = WebFetchSourceAdapter(urls, connector="test", mapping_reference="v1")
+    first = await adapter.extract(_SESSION, None)
+    assert len(first.checkpoint.position["url_list_sha256"]) == 64
+    resumed = await adapter.extract(_SESSION, first.checkpoint)
+    assert resumed.exhausted and calls == list(urls)
+    changed = WebFetchSourceAdapter(
+        tuple(reversed(urls)), connector="test", mapping_reference="v1"
+    )
+    with pytest.raises(SourceContractError, match="does not match URL list"):
+        await changed.extract(_SESSION, first.checkpoint)
+    assert calls == list(urls)
+    legacy = SourceCheckpoint(stream="web_fetch", position={"index": 1})
+    upgraded = await adapter.extract(_SESSION, legacy)
+    assert (
+        upgraded.checkpoint.position["url_list_sha256"]
+        == first.checkpoint.position["url_list_sha256"]
+    )

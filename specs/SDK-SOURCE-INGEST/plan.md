@@ -705,6 +705,18 @@ The database source validates each row before it yields any document or
 returns a checkpoint. Missing required fields refuse the full page. A caller
 can repair the row and retry from the accepted checkpoint.
 
+## Legacy web checkpoint validation (R005.49)
+
+The fixed-list adapter validates stream identity and index bounds before dispatch.
+It preserves a terminal index rather than advancing beyond the URL count.
+New checkpoints bind the ordered URL list by SHA-256. An old unbound checkpoint
+remains accepted, but it cannot prove whether earlier list changes occurred.
+
+## Bounded legacy web responses (R005.48)
+
+Until connector-tool migration, the direct fetch streams through the shared
+byte bound and accepts only identity encoding. Refusal returns no page.
+
 ## Web host rate limiting (R005.43)
 
 The web-source limiter groups requests by normalized host. Scheme and port
