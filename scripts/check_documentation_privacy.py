@@ -4,7 +4,7 @@
 Every published page under ``docs/`` is read by anyone who can reach
 https://knuckles-team.github.io/scion-sdk/ -- a literal private IPv4
 address, a homelab-only DNS suffix (``.arpa``/``.local``), or a short internal
-host alias (``r510``, ``gr1080``, ``host42``, ...) checked into one of those
+host alias checked into one of those
 pages leaks environment topology that has no business being public.
 
 This is the SDK's own instance of a check that already exists, independently,

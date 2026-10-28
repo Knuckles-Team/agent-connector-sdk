@@ -5,6 +5,7 @@
   - [x] Central-bank announcement calendar (`agent_connector_sdk.finance.central_bank_calendar`): one record per published vintage of a scheduled announcement, so a reschedule is a new record, never an overwrite (SDK-FINANCE-SOURCES-R001).
   - [x] Exchange history retrieval fix and a CoinMarketCap market-data adapter (SDK-FINANCE-SOURCES-R001).
 - [x] Refuse same-page calendar identity collisions (SDK-FINANCE-SOURCES-R001.3).
+- [x] Verify exchange, CoinMarketCap, FRED vintage and FOMC announcement records through the shared source contract (SDK-FINANCE-SOURCES-R001.2).
 - [x] FX, commodity spot/futures and dated real-estate valuation adapters (SDK-FINANCE-SOURCES-R003).
 - [x] Verify canonical MCP FX, commodity and real-estate source streams and their domain refusals (SDK-FINANCE-SOURCES-R003.1).
 - [ ] Exercise provider-specific FX, commodity and real-estate source integrations (SDK-FINANCE-SOURCES-R003.4).
