@@ -27,6 +27,18 @@ def test_event_feed_entrypoints_require_certified_identity() -> None:
         assert identity.distribution == "scion-sdk"
         with pytest.raises(ExtensionActivationError):
             load_extension(SOURCE_ADAPTER_GROUP, name, policy=CertifiedExtensions(()))
+        wrong_version = CertifiedExtensions(
+            (
+                (
+                    SOURCE_ADAPTER_GROUP,
+                    name,
+                    identity.distribution,
+                    identity.version + "-other",
+                ),
+            )
+        )
+        with pytest.raises(ExtensionActivationError):
+            load_extension(SOURCE_ADAPTER_GROUP, name, policy=wrong_version)
         factory = load_extension(
             SOURCE_ADAPTER_GROUP, name, policy=sdk_reference_extensions()
         )
