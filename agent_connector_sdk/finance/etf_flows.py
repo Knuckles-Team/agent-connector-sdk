@@ -28,8 +28,8 @@ class EtfFundFlow(FinanceRecordBase):
 
     fund_ticker: str = Field(min_length=1)
     flow_date: date
-    net_flow_usd: float
-    aum_usd: float = Field(ge=0)
+    net_flow_usd: float = Field(allow_inf_nan=False)
+    aum_usd: float = Field(ge=0, allow_inf_nan=False)
 
 
 def _flow_event_id(fund_ticker: str, flow_date: str) -> str:
