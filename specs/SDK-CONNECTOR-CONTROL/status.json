@@ -3363,8 +3363,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R780.11",
       "title": "Synchronous callable retry",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1ddadb905f3a"
+      ],
       "verified_by": [
         "tests/test_sync_resilience.py:11",
         "tests/test_sync_resilience.py:36",
