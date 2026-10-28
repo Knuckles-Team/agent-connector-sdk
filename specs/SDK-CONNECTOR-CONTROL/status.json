@@ -1606,9 +1606,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R048.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "08d36ed15c16"
+      ],
+      "verified_by": [
+        "tests/test_readable_form.py:35"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R048.2",
@@ -1618,7 +1622,7 @@
         "de142ee07ee4"
       ],
       "verified_by": [
-        "tests/test_readable_form.py:16"
+        "tests/test_readable_form.py:17"
       ]
     },
     {
