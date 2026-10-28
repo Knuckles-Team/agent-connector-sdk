@@ -10,6 +10,7 @@
     "SDK-FINANCE-SOURCES-R001.3",
     "SDK-FINANCE-SOURCES-R001.4",
     "SDK-FINANCE-SOURCES-R001.5",
+    "SDK-FINANCE-SOURCES-R001.6",
     "SDK-FINANCE-SOURCES-R002",
     "SDK-FINANCE-SOURCES-R002.1",
     "SDK-FINANCE-SOURCES-R002.2",
@@ -39,7 +40,8 @@
     "SDK-FINANCE-SOURCES-R900.8",
     "SDK-FINANCE-SOURCES-R900.7",
     "SDK-FINANCE-SOURCES-R900.9",
-    "SDK-FINANCE-SOURCES-R900.10"
+    "SDK-FINANCE-SOURCES-R900.10",
+    "SDK-FINANCE-SOURCES-R900.11"
   ],
   "requirements": [
     {
@@ -55,7 +57,8 @@
         "SDK-FINANCE-SOURCES-R001.2",
         "SDK-FINANCE-SOURCES-R001.3",
         "SDK-FINANCE-SOURCES-R001.4",
-        "SDK-FINANCE-SOURCES-R001.5"
+        "SDK-FINANCE-SOURCES-R001.5",
+        "SDK-FINANCE-SOURCES-R001.6"
       ]
     },
     {
@@ -108,6 +111,17 @@
       ],
       "verified_by": [
         "tests/test_finance_fred_series.py:125"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R001.6",
+      "title": "Unique FRED page identities",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a2b8b7ce3da3"
+      ],
+      "verified_by": [
+        "tests/test_finance_fred_series.py:148"
       ]
     },
     {
@@ -362,14 +376,14 @@
         "341a4a3478e7",
         "48551e89426a",
         "4b003b24ce55",
-        "8c6dcfdd27e8"
+        "69ec5b2bf18f"
       ],
       "verified_by": [
+        "tests/test_finance_crypto.py:105",
         "tests/test_finance_crypto.py:49",
         "tests/test_finance_crypto.py:58",
         "tests/test_finance_crypto.py:69",
-        "tests/test_finance_feeds.py:130",
-        "tests/test_finance_feeds.py:142"
+        "tests/test_finance_feeds.py:130"
       ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R900.1",
@@ -381,7 +395,8 @@
         "SDK-FINANCE-SOURCES-R900.8",
         "SDK-FINANCE-SOURCES-R900.7",
         "SDK-FINANCE-SOURCES-R900.9",
-        "SDK-FINANCE-SOURCES-R900.10"
+        "SDK-FINANCE-SOURCES-R900.10",
+        "SDK-FINANCE-SOURCES-R900.11"
       ]
     },
     {
@@ -496,6 +511,17 @@
       "verified_by": [
         "tests/test_finance_feeds.py:142",
         "tests/test_finance_feeds.py:170"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900.11",
+      "title": "Funding source time",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "69ec5b2bf18f"
+      ],
+      "verified_by": [
+        "tests/test_finance_crypto.py:105"
       ]
     }
   ]
