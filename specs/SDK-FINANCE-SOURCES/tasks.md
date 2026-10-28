@@ -39,3 +39,5 @@ stream-bus imports with deterministic in-memory responses.
 - [x] Refuse repeated FRED observation identities within a page (SDK-FINANCE-SOURCES-R001.6).
 
 - [x] Require finite funding values and provider time (SDK-FINANCE-SOURCES-R900.11).
+
+- [x] Fetch bounded exchange history windows across pages (SDK-FINANCE-SOURCES-R001.7).

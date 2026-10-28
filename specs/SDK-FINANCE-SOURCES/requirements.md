@@ -43,3 +43,5 @@
 
 
 | `SDK-FINANCE-SOURCES-R900.11` | **Funding source time.** Funding-rate reads require a finite rate and explicit finite provider timestamp. Missing or malformed values refuse rather than substituting local time. | `tests/test_finance_crypto.py` covers invalid values and preserves the provider timestamp. |
+
+| `SDK-FINANCE-SOURCES-R001.7` | **Bounded exchange history windows.** CryptoProvider requests the selected period and interval, then reads advancing CCXT pages. It rejects unsupported windows, malformed bars, repeated timestamps and a page-cap overflow instead of returning a partial result. | `tests/test_exchange_history_window.py` exercises the real provider with an offline exchange. |

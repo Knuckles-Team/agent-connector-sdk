@@ -167,26 +167,10 @@ class CryptoProvider:
                 "ccxt is required for crypto markets; install the ccxt package"
             ) from e
 
-        # Map '1d' to CCXT timeframe format
-        tf_map = {"1d": "1d", "1h": "1h", "5m": "5m"}
-        tf = tf_map.get(interval, "1d")
+        from agent_connector_sdk.finance.crypto_history import _fetch_crypto_history
 
-        try:
-            exchange = ccxt.binance({"enableRateLimit": True})
-            ohlcv = exchange.fetch_ohlcv(symbol, timeframe=tf, limit=1000)
-
-            if not ohlcv:
-                return pd.DataFrame()
-
-            df = pd.DataFrame(
-                ohlcv, columns=["timestamp", "Open", "High", "Low", "Close", "Volume"]
-            )
-            df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
-            df.set_index("timestamp", inplace=True)
-            return df
-        except Exception as e:
-            logger.warning(f"CCXT fetch failed for {symbol}: {e}")
-            return pd.DataFrame()
+        exchange = ccxt.binance({"enableRateLimit": True})
+        return _fetch_crypto_history(exchange, symbol, period, interval)
 
 
 class DataRegistry:
