@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum
+from math import isfinite
 from typing import Self
 
 from pydantic import Field, model_validator
@@ -32,7 +33,7 @@ class FxRate(FinanceRecordBase):
 
     base_currency: str = Field(min_length=3, max_length=3)
     quote_currency: str = Field(min_length=3, max_length=3)
-    rate: float = Field(gt=0)
+    rate: float = Field(gt=0, allow_inf_nan=False)
 
     @model_validator(mode="after")
     def _base_and_quote_differ(self) -> Self:
@@ -42,11 +43,14 @@ class FxRate(FinanceRecordBase):
 
     def inverted(self) -> FxRate:
         """Return the mirror rate with base and quote swapped."""
+        inverse_rate = 1.0 / self.rate
+        if not isfinite(inverse_rate):
+            raise ValueError("inverted FX rate must be finite")
         return self.model_copy(
             update={
                 "base_currency": self.quote_currency,
                 "quote_currency": self.base_currency,
-                "rate": 1.0 / self.rate,
+                "rate": inverse_rate,
                 "source_event_id": f"{self.source_event_id}:inverted",
             }
         )
@@ -63,7 +67,7 @@ class CommodityPrice(FinanceRecordBase):
     """One gold or commodity price, spot or a specific futures contract."""
 
     basis: CommodityPriceBasis
-    price: float = Field(gt=0)
+    price: float = Field(gt=0, allow_inf_nan=False)
     currency: str = Field(min_length=3, max_length=3)
     contract_code: str | None = None
     expiry: datetime | None = None
