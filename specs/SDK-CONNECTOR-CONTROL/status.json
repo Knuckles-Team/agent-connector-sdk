@@ -3308,7 +3308,8 @@
       "title": "Requests session factory",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "64da2f887f36"
+        "64da2f887f36",
+        "b1c18e431888"
       ],
       "verified_by": [
         "tests/test_http_requests.py:34",
