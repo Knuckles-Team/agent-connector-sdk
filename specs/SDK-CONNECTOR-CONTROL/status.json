@@ -148,6 +148,7 @@
     "SDK-CONNECTOR-CONTROL-R650.1",
     "SDK-CONNECTOR-CONTROL-R650.2",
     "SDK-CONNECTOR-CONTROL-R650.3",
+    "SDK-CONNECTOR-CONTROL-R650.4",
     "SDK-CONNECTOR-CONTROL-R051",
     "SDK-CONNECTOR-CONTROL-R051.1",
     "SDK-CONNECTOR-CONTROL-R051.2",
@@ -1989,7 +1990,8 @@
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R650.1",
         "SDK-CONNECTOR-CONTROL-R650.2",
-        "SDK-CONNECTOR-CONTROL-R650.3"
+        "SDK-CONNECTOR-CONTROL-R650.3",
+        "SDK-CONNECTOR-CONTROL-R650.4"
       ]
     },
     {
@@ -2022,6 +2024,18 @@
       "verified_by": [
         "tests/test_release_signature.py:50",
         "tests/test_release_signature.py:91"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R650.4",
+      "title": "Explicit release key lock",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "57fa2bcc5ed7"
+      ],
+      "verified_by": [
+        "tests/test_release_lock.py:35",
+        "tests/test_release_lock.py:59"
       ]
     },
     {
