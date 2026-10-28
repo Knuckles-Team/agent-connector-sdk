@@ -1126,6 +1126,7 @@
       "title": "Platform contract primitives",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "ce25158042f7",
         "ea130d670efb",
         "ea3f58848c83"
       ],
