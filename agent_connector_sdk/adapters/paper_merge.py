@@ -12,6 +12,7 @@ from urllib.parse import urlsplit
 
 from agent_connector_sdk.adapters.paper_identity import _groups, _identity_tokens
 from agent_connector_sdk.adapters.paper_models import (
+    DocumentOffer,
     FieldAlternative,
     FieldEvidence,
     PaperQuery,
@@ -79,14 +80,7 @@ def _merge_group(group: list[ProviderPaper]) -> PaperRecord:
         for name in ("title", "authors", "abstract", "publication_date")
     }
     references = tuple(dict.fromkeys(record.reference for record in group))
-    offers = tuple(
-        dict.fromkeys(
-            offer
-            for record in group
-            for offer in record.document_offers
-            if not urlsplit(offer.url).query and not urlsplit(offer.url).fragment
-        )
-    )
+    offers = _public_offers(group)
     return PaperRecord(
         canonical_id=_canonical(group),
         revision=group[0].revision,
@@ -102,6 +96,17 @@ def _merge_group(group: list[ProviderPaper]) -> PaperRecord:
         alternate_values={
             name: result[2] for name, result in fields.items() if result[2]
         },
+    )
+
+
+def _public_offers(group: list[ProviderPaper]) -> tuple[DocumentOffer, ...]:
+    return tuple(
+        dict.fromkeys(
+            offer
+            for record in group
+            for offer in record.document_offers
+            if not urlsplit(offer.url).query and not urlsplit(offer.url).fragment
+        )
     )
 
 

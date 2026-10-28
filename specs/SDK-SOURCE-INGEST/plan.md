@@ -941,3 +941,8 @@ resolves it. The SDK reads metadata from a verified artifact. It fills only
 missing provider values and records the digest and parser location. PDF support
 requires the workspace extra. Production proof requires authenticated host
 configuration and process restart through the connector-sync CLI.
+
+A document response over the byte limit returns `size_exceeded`. A provider
+authentication refusal returns `unauthorized`. A governed egress refusal
+returns `egress_denied`. A truncated response returns `integrity_failed`.
+Each refusal removes the incomplete temporary file.

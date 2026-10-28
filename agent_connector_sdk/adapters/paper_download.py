@@ -20,13 +20,17 @@ from pydantic import BaseModel, ConfigDict
 from agent_connector_sdk.adapters.paper_document_errors import (
     DocumentRefusal,
     _DocumentRateLimit,
+    _translate_download,
 )
 from agent_connector_sdk.adapters.paper_download_files import (
     _validate,
     _verify_existing,
 )
 from agent_connector_sdk.adapters.paper_download_http import _stream
-from agent_connector_sdk.adapters.paper_download_temp import _temporary
+from agent_connector_sdk.adapters.paper_download_temp import (
+    _open_validation,
+    _temporary,
+)
 from agent_connector_sdk.adapters.paper_models import (
     DocumentOffer,
     DocumentReceipt,
@@ -90,7 +94,9 @@ class PaperDocumentService:
         except Exception:
             raise DocumentRefusal("unauthorized") from None
         admission = _validate_admission(request, admission)
-        return await _run_download(request, admission, self._quota)
+        return await _translate_download(
+            _bounded_download(request, admission, self._quota)
+        )
 
 
 def _validate_admission(
@@ -113,19 +119,6 @@ def _validate_admission(
     if _origin(admission.http.base_url) != _origin(request.offer.url):
         raise DocumentRefusal("egress_denied")
     return admission
-
-
-async def _run_download(
-    request: DocumentRequest, admission: DocumentAdmission, quota: SharedPaperQuota
-) -> DocumentReceipt:
-    try:
-        return await _bounded_download(request, admission, quota)
-    except DocumentRefusal:
-        raise
-    except TimeoutError:
-        raise DocumentRefusal("deadline_exceeded") from None
-    except Exception:
-        raise DocumentRefusal("document_unavailable") from None
 
 
 async def _bounded_download(
@@ -186,7 +179,7 @@ async def _save(
     slot: QuotaSlot,
 ) -> DocumentReceipt:
     size, digest = await _stream(request, admission, fd, slot=slot)
-    validation_fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=directory)
+    validation_fd = _open_validation(directory, name)
     await anyio.to_thread.run_sync(
         _validate, validation_fd, request.offer.media_type, abandon_on_cancel=True
     )

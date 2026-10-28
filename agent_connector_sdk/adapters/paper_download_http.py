@@ -19,6 +19,7 @@ from agent_connector_sdk.adapters.paper_provider import ProviderFailure
 from agent_connector_sdk.adapters.paper_quota import QuotaSlot
 from agent_connector_sdk.http.bodies import aiter_bounded
 from agent_connector_sdk.http.client import create_async_http_client
+from agent_connector_sdk.http.errors import ResponseTooLargeError
 from agent_connector_sdk.http.retry import parse_retry_after
 
 if TYPE_CHECKING:
@@ -50,18 +51,38 @@ async def _receive(
 ) -> tuple[int, str]:
     declared = _check_response(response, request, admission=admission, slot=slot)
     digest = hashlib.sha256()
+    total = await _copy_response(response, admission.max_bytes, fd=fd, digest=digest)
+    if total == 0 or (declared is not None and declared != total):
+        raise DocumentRefusal("integrity_failed")
+    _check_digest(response, digest)
+    return total, digest.hexdigest()
+
+
+async def _copy_response(
+    response: httpx.Response, max_bytes: int, *, fd: int, digest: Any
+) -> int:
+    try:
+        return await _copy_chunks(response, max_bytes, fd=fd, digest=digest)
+    except ResponseTooLargeError:
+        raise DocumentRefusal("size_exceeded") from None
+    except httpx.RemoteProtocolError:
+        raise DocumentRefusal("integrity_failed") from None
+    except OSError:
+        raise DocumentRefusal("storage_denied") from None
+
+
+async def _copy_chunks(
+    response: httpx.Response, max_bytes: int, *, fd: int, digest: Any
+) -> int:
     total = 0
-    async for chunk in aiter_bounded(response, admission.max_bytes):
+    async for chunk in aiter_bounded(response, max_bytes):
         total += len(chunk)
         digest.update(chunk)
         worker_fd = os.dup(fd)
         await anyio.to_thread.run_sync(
             _write_chunk, worker_fd, chunk, abandon_on_cancel=True
         )
-    if total == 0 or (declared is not None and declared != total):
-        raise DocumentRefusal("integrity_failed")
-    _check_digest(response, digest)
-    return total, digest.hexdigest()
+    return total
 
 
 def _check_response(
@@ -71,16 +92,7 @@ def _check_response(
     admission: DocumentAdmission,
     slot: QuotaSlot,
 ) -> int | None:
-    if response.status_code == 429:
-        slot.retain()
-        try:
-            retry_after = parse_retry_after(response.headers.get("retry-after"))
-            ProviderFailure("rate_limited", retry_after_seconds=retry_after)
-        except (ValueError, OverflowError):
-            retry_after = None
-        raise _DocumentRateLimit(retry_after)
-    if response.status_code != 200:
-        raise DocumentRefusal("document_unavailable")
+    _check_status(response, slot)
     if response.headers.get("content-encoding", "identity").lower() not in {
         "",
         "identity",
@@ -95,6 +107,21 @@ def _check_response(
     ):
         raise DocumentRefusal("size_exceeded")
     return int(declared) if declared is not None else None
+
+
+def _check_status(response: httpx.Response, slot: QuotaSlot) -> None:
+    if response.status_code == 429:
+        slot.retain()
+        try:
+            retry_after = parse_retry_after(response.headers.get("retry-after"))
+            ProviderFailure("rate_limited", retry_after_seconds=retry_after)
+        except (ValueError, OverflowError):
+            retry_after = None
+        raise _DocumentRateLimit(retry_after)
+    if response.status_code in {401, 403}:
+        raise DocumentRefusal("unauthorized")
+    if response.status_code != 200:
+        raise DocumentRefusal("document_unavailable")
 
 
 def _check_digest(response: httpx.Response, digest: Any) -> None:
