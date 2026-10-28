@@ -6,6 +6,12 @@
 4. Add account read and CSV mapping-preview/import with stable activity IDs and replay-safe checkpointing.
 5. Run offline conformance first; then opt-in licensed live probes and graph receipt qualification. Release each adapter independently once its own evidence is complete.
 
+## Calendar identity collision refusal (R001.3)
+
+The normalizer preserves legacy event IDs. It refuses a page when one ID maps
+to different announcement instants, instead of returning conflicting records.
+This does not establish cross-page identity or migrate existing graph records.
+
 ## Payment amount validation
 
 For SDK-FINANCE-SOURCES-R900.4, the guard refuses negative or non-finite
