@@ -76,17 +76,18 @@
       "title": "Pagination helpers",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "a0e4fdd71f64",
         "c842d089626d",
         "cc7da30e1213",
         "e26eb224bc48",
         "e8673acfc5b0"
       ],
       "verified_by": [
+        "tests/httpsupport/test_pagination_consumer.py:13",
+        "tests/httpsupport/test_pagination_consumer.py:28",
+        "tests/httpsupport/test_pagination_consumer.py:43",
         "tests/httpsupport/test_pagination_link_linear.py:14",
-        "tests/httpsupport/test_pagination_link_linear.py:31",
-        "tests/httpsupport/test_pagination_link_origin.py:13",
-        "tests/httpsupport/test_pagination_next_url.py:101",
-        "tests/httpsupport/test_pagination_next_url.py:121"
+        "tests/httpsupport/test_pagination_link_linear.py:31"
       ],
       "rollup_of": [
         "SDK-CENTRALIZED-CAPABILITIES-R004.1",
@@ -402,9 +403,15 @@
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R004.7",
       "title": "Protect pagination iterator state",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a0e4fdd71f64"
+      ],
+      "verified_by": [
+        "tests/httpsupport/test_pagination_consumer.py:13",
+        "tests/httpsupport/test_pagination_consumer.py:28",
+        "tests/httpsupport/test_pagination_consumer.py:43"
+      ]
     }
   ]
 }
