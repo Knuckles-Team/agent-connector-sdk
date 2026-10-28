@@ -90,11 +90,11 @@ class OhlcvBar(FinanceRecordBase):
     currency: str = Field(min_length=3, max_length=3)
     adjustment_mode: AdjustmentMode
     completeness: Completeness
-    open: float
-    high: float
-    low: float
-    close: float
-    volume: float = Field(ge=0)
+    open: float = Field(allow_inf_nan=False)
+    high: float = Field(allow_inf_nan=False)
+    low: float = Field(allow_inf_nan=False)
+    close: float = Field(allow_inf_nan=False)
+    volume: float = Field(ge=0, allow_inf_nan=False)
 
     @model_validator(mode="after")
     def _high_low_bound_open_close(self) -> Self:
@@ -108,8 +108,8 @@ class OhlcvBar(FinanceRecordBase):
 class Quote(FinanceRecordBase):
     """One bid/ask snapshot at an exact quote time."""
 
-    bid: float = Field(ge=0)
-    ask: float = Field(ge=0)
+    bid: float = Field(ge=0, allow_inf_nan=False)
+    ask: float = Field(ge=0, allow_inf_nan=False)
     quote_time_utc: datetime
 
     @model_validator(mode="after")
@@ -125,7 +125,7 @@ class CorporateAction(FinanceRecordBase):
     ex_date: datetime
     effective_date: datetime
     action_type: str = Field(min_length=1)
-    adjustment_factor: float = Field(gt=0)
+    adjustment_factor: float = Field(gt=0, allow_inf_nan=False)
 
     @model_validator(mode="after")
     def _ex_date_not_after_effective(self) -> Self:

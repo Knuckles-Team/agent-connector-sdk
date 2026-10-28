@@ -11,6 +11,7 @@
     "SDK-FINANCE-SOURCES-R001.4",
     "SDK-FINANCE-SOURCES-R002",
     "SDK-FINANCE-SOURCES-R002.1",
+    "SDK-FINANCE-SOURCES-R002.2",
     "SDK-FINANCE-SOURCES-R003",
     "SDK-FINANCE-SOURCES-R003.1",
     "SDK-FINANCE-SOURCES-R003.2",
@@ -103,7 +104,8 @@
         "tests/test_finance_alpaca_stocks.py:75"
       ],
       "rollup_of": [
-        "SDK-FINANCE-SOURCES-R002.1"
+        "SDK-FINANCE-SOURCES-R002.1",
+        "SDK-FINANCE-SOURCES-R002.2"
       ]
     },
     {
@@ -112,6 +114,18 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R002.2",
+      "title": "Finite market records",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "461c05ae92f7",
+        "c6c8658a8771"
+      ],
+      "verified_by": [
+        "tests/test_finance_records.py:261"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R003",
