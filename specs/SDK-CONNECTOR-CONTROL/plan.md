@@ -771,7 +771,15 @@ R780.6 helpers remain open.
 
 ## Explicit TLS settings (R780.13)
 
-The existing resolver accepts a explicit mapping of TLS selector keys.
+The existing resolver accepts an explicit mapping of TLS selector keys.
 Profile selection reads only the mapping when present. Secret references
 remain the credential resolver’s responsibility. This supports explicit config
 without changing process state. Legacy AgentConfig projection remains open.
+
+
+## Amendment: synchronous callable retry (R780.11)
+
+The synchronous runner shares retry and fallback safety rules with the async
+runner. It refuses a requested timeout before calling the operation. An
+arbitrary blocking call cannot be stopped safely by the SDK. Other R780.6
+obligations remain open.

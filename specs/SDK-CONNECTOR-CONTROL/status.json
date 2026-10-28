@@ -294,6 +294,7 @@
     "SDK-CONNECTOR-CONTROL-R780.10",
     "SDK-CONNECTOR-CONTROL-R780.9",
     "SDK-CONNECTOR-CONTROL-R780.13",
+    "SDK-CONNECTOR-CONTROL-R780.11",
     "SDK-CONNECTOR-CONTROL-R781",
     "SDK-CONNECTOR-CONTROL-R782",
     "SDK-CONNECTOR-CONTROL-R070",
@@ -3227,7 +3228,8 @@
         "SDK-CONNECTOR-CONTROL-R780.8",
         "SDK-CONNECTOR-CONTROL-R780.10",
         "SDK-CONNECTOR-CONTROL-R780.9",
-        "SDK-CONNECTOR-CONTROL-R780.13"
+        "SDK-CONNECTOR-CONTROL-R780.13",
+        "SDK-CONNECTOR-CONTROL-R780.11"
       ]
     },
     {
@@ -3356,6 +3358,17 @@
         "tests/test_tls_explicit_settings.py:14",
         "tests/test_tls_explicit_settings.py:28",
         "tests/test_tls_explicit_settings.py:42"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R780.11",
+      "title": "Synchronous callable retry",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_sync_resilience.py:11",
+        "tests/test_sync_resilience.py:36",
+        "tests/test_sync_resilience.py:58"
       ]
     },
     {
