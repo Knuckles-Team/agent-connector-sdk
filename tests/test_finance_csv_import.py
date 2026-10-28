@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
 
 from agent_connector_sdk.finance.csv_import import (
     AccountContext,
@@ -94,3 +95,12 @@ def test_a_changed_file_is_a_new_version_with_a_different_identity() -> None:
 
     assert first[0].source_file_digest != changed[0].source_file_digest
     assert first[0].source_event_id != changed[0].source_event_id
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.2")
+@pytest.mark.parametrize("value", [b"nan", b"inf", b"-inf", b"1e999"])
+@pytest.mark.parametrize("original", [b"10", b"100.5", b"1.0"])
+def test_nonfinite_csv_amounts_are_rejected(original: bytes, value: bytes) -> None:
+    invalid = _CSV.replace(b"," + original + b",", b"," + value + b",", 1)
+    with pytest.raises(ValidationError):
+        import_activities(invalid, _MAPPING, _CONTEXT)
