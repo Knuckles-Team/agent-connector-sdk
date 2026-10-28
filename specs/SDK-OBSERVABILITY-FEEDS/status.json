@@ -2,15 +2,17 @@
   "schema_version": 2,
   "spec_id": "SDK-OBSERVABILITY-FEEDS",
   "owner_repo": "scion-sdk",
-  "delivery_state": "VERIFIED",
+  "delivery_state": "SPECIFIED",
   "requirement_ids": [
-    "SDK-OBSERVABILITY-FEEDS-R001"
+    "SDK-OBSERVABILITY-FEEDS-R001",
+    "SDK-OBSERVABILITY-FEEDS-R001.1",
+    "SDK-OBSERVABILITY-FEEDS-R001.2"
   ],
   "requirements": [
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001",
       "title": "RUM, security-audit, and CI/CD events join the durable source pipeline",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "077a14c9f3d3",
         "c44284a671b3"
@@ -19,7 +21,27 @@
         "tests/test_event_feeds.py:266",
         "tests/test_event_feeds.py:284",
         "tests/test_event_feeds.py:300"
+      ],
+      "rollup_of": [
+        "SDK-OBSERVABILITY-FEEDS-R001.1",
+        "SDK-OBSERVABILITY-FEEDS-R001.2"
       ]
+    },
+    {
+      "id": "SDK-OBSERVABILITY-FEEDS-R001.1",
+      "title": "Rejected page identity isolation",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_event_feeds.py:391"
+      ]
+    },
+    {
+      "id": "SDK-OBSERVABILITY-FEEDS-R001.2",
+      "title": "Durable event identity acceptance",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }

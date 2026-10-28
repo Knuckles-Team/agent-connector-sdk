@@ -155,10 +155,11 @@ class EventFeedSourceAdapter:
             session, preset, pinned_schema_sha256=""
         )
         raw = raw_records(preset, result)
-        records = self._mapped_events(raw)
+        candidate = self._tracker.fork()
+        records = self._mapped_events(raw, candidate)
         position = current.position if isinstance(current.position, Mapping) else {}
         next_page = next_position(preset, position, result=result, raw=raw)
-        return RecordPage(
+        page = RecordPage(
             records=records,
             mode=SourceIngestionMode.DELTA,
             strict_schema=False,
@@ -166,8 +167,12 @@ class EventFeedSourceAdapter:
             exhausted=next_page is None,
             schema_contract=observed.schema_contract,
         )
+        self._tracker.merge(candidate)
+        return page
 
-    def _mapped_events(self, raw: list[dict[str, Any]]) -> tuple[SourceRecord, ...]:
+    def _mapped_events(
+        self, raw: list[dict[str, Any]], tracker: EventIdentityTracker
+    ) -> tuple[SourceRecord, ...]:
         records = (
             _event_source_record(
                 self._preset,
@@ -176,7 +181,7 @@ class EventFeedSourceAdapter:
                 connector=self._connector,
                 schema_sha256=self._verified_sha256,
                 mapping_reference=self._mapping_reference,
-                tracker=self._tracker,
+                tracker=tracker,
             )
             for item in raw
         )

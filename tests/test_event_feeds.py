@@ -388,6 +388,25 @@ async def test_identical_duplicate_is_idempotent_across_pages() -> None:
     assert await _collect_record_ids(adapter, session, pages=2) == ["dup-1"]
 
 
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.1")
+async def test_rejected_page_does_not_poison_event_identity():
+    preset = _preset("rum-stream", "rum_events")
+    valid = _rum_event("retry-1")
+    malformed = _rum_event("bad-1")
+    malformed["payload"] = {"signal": "page_view"}
+    session = FakeEventSession(
+        descriptor=_tool_descriptor(preset.tool),
+        pages=[_page(valid, malformed), _page(valid)],
+    )
+    adapter = _adapter(rum_source_adapter, preset)
+    await adapter.discover(session)
+    with pytest.raises(MalformedSourceDataError):
+        await adapter.extract(session, None)
+    page = await adapter.extract(session, None)
+    assert len(page.records) == 1
+    assert page.records[0].payload["provider_event_id"] == "retry-1"
+
+
 async def test_changed_digest_for_a_known_id_is_a_conflict_not_an_overwrite() -> None:
     preset = _preset("rum-stream", "rum_events")
     first = _rum_event("dup-2")
