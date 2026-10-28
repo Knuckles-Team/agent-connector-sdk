@@ -716,6 +716,12 @@ name must also contain no known mutation verb. Mixed names such as
 unless the connector declares an explicit per-action class. Split tool hints follow the
 same conservative rule; the complete successor parity requirement remains open.
 
+## Fleet scan completeness (R014.28)
+
+The fleet import scan reports files or directories it did not inspect. An
+empty or missing root, invalid source, traversal error or symbolic link cannot
+prove migration. Duplicate package names refuse instead of overwriting results.
+
 ## Session origin and cookie scope (R028.5)
 
 The session-login auth instance binds its first request origin. It refuses a

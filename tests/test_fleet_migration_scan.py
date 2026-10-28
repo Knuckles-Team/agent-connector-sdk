@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterator
 from pathlib import Path
 
 import pytest
 
+from agent_connector_sdk.testing import fleet_migration
 from agent_connector_sdk.testing.fleet_migration import (
     PackageScanResult,
     scan_for_agent_utilities_imports,
@@ -85,6 +87,54 @@ def test_a_file_that_fails_to_parse_is_skipped_not_fabricated_clean(
     result = scan_for_agent_utilities_imports(tmp_path / "pkg")
 
     assert result.offending_files == ()
+    assert result.unscanned_files == ("broken.py",)
+    assert not result.migrated
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.28")
+def test_incomplete_or_ambiguous_fleet_scans_never_prove_migration(
+    tmp_path: Path,
+) -> None:
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    missing = tmp_path / "missing"
+    assert not scan_for_agent_utilities_imports(empty).migrated
+    assert not scan_for_agent_utilities_imports(missing).migrated
+
+    root = tmp_path / "pkg"
+    _write(root / "good.py", "import httpx\n")
+    (root / "invalid.py").write_bytes(b"\xff")
+    (root / "linked.py").symlink_to(root / "good.py")
+    target = tmp_path / "target"
+    target.mkdir()
+    (root / "linked_dir").symlink_to(target, target_is_directory=True)
+    result = scan_for_agent_utilities_imports(root)
+    assert not result.migrated
+    assert result.unscanned_files == ("invalid.py", "linked.py", "linked_dir")
+
+    other = tmp_path / "other" / "pkg"
+    _write(other / "good.py", "import httpx\n")
+    with pytest.raises(ValueError, match="unique"):
+        scan_many_packages([root, other])
+
+
+def test_traversal_error_prevents_migration(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = tmp_path / "pkg"
+    _write(root / "good.py", "import httpx\n")
+
+    def broken_walk(
+        path: Path, *, onerror: Callable[[OSError], None]
+    ) -> Iterator[tuple[str, list[str], list[str]]]:
+        assert path == root
+        onerror(PermissionError(13, "denied", str(root / "private")))
+        yield str(root), [], ["good.py"]
+
+    monkeypatch.setattr(fleet_migration.os, "walk", broken_walk)
+    result = scan_for_agent_utilities_imports(root)
+    assert result.unscanned_files == ("private",)
+    assert not result.migrated
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.1")

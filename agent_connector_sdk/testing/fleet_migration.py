@@ -15,6 +15,7 @@ than a brittle text search.
 from __future__ import annotations
 
 import ast
+import os
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
@@ -34,18 +35,16 @@ class PackageScanResult:
 
     package: str
     offending_files: tuple[str, ...]
+    unscanned_files: tuple[str, ...] = ()
 
     @property
     def migrated(self) -> bool:
         """True when no scanned file imports ``agent_utilities``."""
-        return not self.offending_files
+        return not self.offending_files and not self.unscanned_files
 
 
 def _imports_agent_utilities(source: str) -> bool:
-    try:
-        tree = ast.parse(source)
-    except SyntaxError:
-        return False
+    tree = ast.parse(source)
     for node in ast.walk(tree):
         if isinstance(node, ast.Import) and any(
             alias.name.split(".")[0] == "agent_utilities" for alias in node.names
@@ -69,21 +68,57 @@ def scan_for_agent_utilities_imports(
 
     Parses each file with :mod:`ast` rather than a text search, so a string
     or comment that merely mentions ``agent_utilities`` is never a false
-    positive. A file that fails to parse or decode is skipped, not treated
-    as clean by omission versus flagged by inspection of its raw text.
+    positive. Missing, empty, unreadable or invalid roots cannot report
+    migration as complete.
     """
     offending: list[str] = []
-    for path in sorted(package_root.rglob("*.py")):
-        if any(part in exclude_dirs for part in path.relative_to(package_root).parts):
-            continue
+    unscanned: list[str] = []
+    scanned = 0
+    if package_root.is_symlink() or not package_root.is_dir():
+        return PackageScanResult(package_root.name, (), (".",))
+
+    def traversal_error(error: OSError) -> None:
+        path = Path(error.filename) if error.filename else package_root
         try:
-            source = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            continue
-        if _imports_agent_utilities(source):
-            offending.append(str(path.relative_to(package_root)))
+            unscanned.append(str(path.relative_to(package_root)))
+        except ValueError:
+            unscanned.append(".")
+
+    for directory, dirs, files in os.walk(package_root, onerror=traversal_error):
+        base = Path(directory)
+        retained: list[str] = []
+        for name in sorted(dirs):
+            if name in exclude_dirs:
+                continue
+            path = base / name
+            if path.is_symlink():
+                unscanned.append(str(path.relative_to(package_root)))
+            else:
+                retained.append(name)
+        dirs[:] = retained
+        for name in sorted(files):
+            path = base / name
+            relative = str(path.relative_to(package_root))
+            if path.is_symlink():
+                unscanned.append(relative)
+                continue
+            if not name.endswith(".py"):
+                continue
+            try:
+                source = path.read_text(encoding="utf-8")
+                legacy = _imports_agent_utilities(source)
+            except (OSError, UnicodeDecodeError, SyntaxError):
+                unscanned.append(relative)
+                continue
+            scanned += 1
+            if legacy:
+                offending.append(relative)
+    if not scanned and not unscanned:
+        unscanned.append(".")
     return PackageScanResult(
-        package=package_root.name, offending_files=tuple(offending)
+        package=package_root.name,
+        offending_files=tuple(sorted(offending)),
+        unscanned_files=tuple(sorted(unscanned)),
     )
 
 
@@ -100,7 +135,11 @@ def scan_many_packages(
     and R014's own fleet-wide census share this function instead of each
     re-deriving a loop over :func:`scan_for_agent_utilities_imports`.
     """
-    return {
-        root.name: scan_for_agent_utilities_imports(root, exclude_dirs=exclude_dirs)
-        for root in package_roots
-    }
+    results: dict[str, PackageScanResult] = {}
+    for root in package_roots:
+        if root.name in results:
+            raise ValueError("connector package names must be unique")
+        results[root.name] = scan_for_agent_utilities_imports(
+            root, exclude_dirs=exclude_dirs
+        )
+    return results
