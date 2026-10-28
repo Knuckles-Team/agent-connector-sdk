@@ -71,3 +71,7 @@ R004.6 refuses invalid currency cells without placing their values in errors.
 
 `tests/test_exchange_history_window.py` checks window selection, paging,
 non-advancing cursors, non-finite values and the page cap through CryptoProvider.
+
+## Exchange client extra
+
+`tests/test_market_extra_ccxt.py` instantiates the real exchange client offline.

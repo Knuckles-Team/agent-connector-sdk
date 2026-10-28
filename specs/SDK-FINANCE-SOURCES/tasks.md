@@ -41,3 +41,4 @@ stream-bus imports with deterministic in-memory responses.
 - [x] Require finite funding values and provider time (SDK-FINANCE-SOURCES-R900.11).
 
 - [x] Fetch bounded exchange history windows across pages (SDK-FINANCE-SOURCES-R001.7).
+- [x] Include the exchange client in the market extra (SDK-FINANCE-SOURCES-R001.8).
