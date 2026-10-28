@@ -281,3 +281,5 @@ same `governed_writeback` evidence on timeout and cancellation manifests.
 - [x] Validate stage identities, limits and dependencies at target construction (SDK-SOURCE-INGEST-R001.1). Refuse stage execution until the concurrent runner is wired.
 
 - [x] Validate EVM log descriptors and exact trade values (SDK-SOURCE-INGEST-R005.47).
+
+- [x] Refuse repeated MCP source cursors before checkpoint advancement (SDK-SOURCE-INGEST-R004.50).

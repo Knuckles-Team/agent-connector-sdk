@@ -811,3 +811,7 @@ Trade models retain integer quantities and block provenance without floats.
 The adapter refuses a chain descriptor before discovery or extraction until
 the decoder and durable checkpoint behavior are implemented. R005.13 through
 R005.18 remain open.
+
+### Stalled MCP cursor (SDK-SOURCE-INGEST-R004.50)
+
+A repeated input cursor is a failed page, not a completed sweep. The worker keeps the previous accepted checkpoint and may retry. An empty cursor page may continue with a new token. An explicit provider end still completes. This does not detect longer cursor cycles.
