@@ -94,3 +94,13 @@ def test_a_changed_file_is_a_new_version_with_a_different_identity() -> None:
 
     assert first[0].source_file_digest != changed[0].source_file_digest
     assert first[0].source_event_id != changed[0].source_event_id
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.5")
+@pytest.mark.parametrize("currency", ["\uff35\uff33\uff24", "ΑΒΓ"])
+def test_non_ascii_currency_is_rejected(currency: str) -> None:
+    invalid = _CSV.replace(b",USD,", b"," + currency.encode("utf-8") + b",", 1)
+    with pytest.raises(AmbiguousCurrencyError):
+        preview_csv_mapping(invalid, _MAPPING)
+    with pytest.raises(AmbiguousCurrencyError):
+        import_activities(invalid, _MAPPING, _CONTEXT)

@@ -85,7 +85,12 @@ def _rows(content: bytes) -> list[dict[str, str]]:
 
 
 def _is_currency_code(value: str) -> bool:
-    return len(value) == _CURRENCY_CODE_LENGTH and value.isalpha() and value.isupper()
+    return (
+        len(value) == _CURRENCY_CODE_LENGTH
+        and value.isascii()
+        and value.isalpha()
+        and value.isupper()
+    )
 
 
 def _require_unambiguous_mapping(
