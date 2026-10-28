@@ -42,7 +42,7 @@
       "title": "Finite FRED values",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "af6f97b3326a"
+        "02b449199739"
       ],
       "verified_by": [
         "tests/test_finance_fred_series.py:99"
