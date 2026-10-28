@@ -253,7 +253,8 @@
       "title": "Finite ETF values",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "1b40a9470780"
+        "1b40a9470780",
+        "d5a35befb634"
       ],
       "verified_by": [
         "tests/test_finance_etf_flows.py:92"
