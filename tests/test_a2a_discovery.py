@@ -123,3 +123,33 @@ def test_compressed_card_is_refused_before_decoding() -> None:
         result = discover_agent_card(server.base_url, allow_loopback=True)
     assert result == AgentCardRefused("not_json")
     assert server.requests[0].headers["accept-encoding"] == "identity"
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.7")
+def test_discovery_cache_is_bounded_and_refreshes_hits(monkeypatch) -> None:
+    from collections import OrderedDict
+
+    from agent_connector_sdk.vendor_extractors import a2a_discovery as discovery
+
+    assert discovery.DEFAULT_AGENT_CARD_CACHE_ENTRIES == 64
+    monkeypatch.setattr(discovery, "DEFAULT_AGENT_CARD_CACHE_ENTRIES", 2)
+    monkeypatch.setattr(discovery, "_CACHE", OrderedDict())
+
+    def card(name: str) -> DiscoveredAgentCard:
+        return DiscoveredAgentCard(
+            base_url=f"https://{name}.example",
+            card={"name": name},
+            fetched_at="2026-01-01T00:00:00+00:00",
+            etag='"v1"',
+            skills=(),
+        )
+
+    first, second, third = card("first"), card("second"), card("third")
+    discovery._remember(first)
+    discovery._remember(second)
+    assert discovery._cached(first.base_url, None) is first
+    discovery._remember(third)
+    assert discovery._cached(second.base_url, None) is None
+    assert discovery._cached(first.base_url, None) is first
+    assert discovery._cached(third.base_url, None) is third
+    assert len(discovery._CACHE) == 2

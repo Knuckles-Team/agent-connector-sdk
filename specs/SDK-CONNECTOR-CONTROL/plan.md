@@ -93,6 +93,9 @@ All new R035 children and the refined R046 children require real local issuer/ca
 
 ## Agent-card discovery (SDK-CONNECTOR-CONTROL-R047)
 
+The in-process card cache uses a named entry limit and least-recently-used
+eviction. The absolute discovery deadline remains open under R047.2.
+
 Data flow: `extract` (`agent_connector_sdk/vendor_extractors/a2a.py:98`) -> `_collect_cards` (`agent_connector_sdk/vendor_extractors/a2a_helpers.py:79`) -> `discover_agent_card` (new) -> governed HTTP client -> `A2AAgentCard` entity with provenance.
 
 Types. `DiscoveredAgentCard` and `AgentCardRefused` are new. The entity shape is the existing one from `_card_entity` (`agent_connector_sdk/vendor_extractors/a2a.py:34`) plus three provenance fields.
