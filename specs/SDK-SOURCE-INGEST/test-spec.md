@@ -334,3 +334,8 @@ timezone-aware and naive timestamps fail closed.
 
 Return numeric zero as a continuation from the first page. Confirm that the
 next poll sends the string cursor and returns the second page.
+
+## Database page completeness
+
+R900.8 exercises missing text and missing watermarks against SQLite. The read
+refuses before a partial load or checkpoint, then succeeds after row repair.

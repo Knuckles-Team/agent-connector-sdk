@@ -146,3 +146,42 @@ def test_client_parses_402_proves_and_records_spend() -> None:
     assert client.guard.remaining_daily == pytest.approx(2.0)
     headers = client.get_proof_headers(proof)
     assert "Payment-Proof" in headers and headers["X-Payment-Chain"] == "base"
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.8")
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("challenge_id", "other"),
+        ("amount", 4.0),
+        ("currency", "DAI"),
+        ("chain", "ethereum"),
+        ("recipient_address", "other"),
+        ("sender_address", "other"),
+        ("transaction_hash", "  "),
+    ],
+)
+def test_confirmed_payment_rejects_mismatched_proof_without_accounting(
+    field: str, value: object
+) -> None:
+    client = X402PaymentClient(wallet_address="wallet")
+    challenge = PaymentChallenge(
+        "r", 3.0, recipient_address="recipient", challenge_id="c"
+    )
+    proof = client.create_proof(challenge, "tx")
+    setattr(proof, field, value)
+    with pytest.raises(ValueError, match="proof does not match"):
+        client.record_payment(challenge, proof)
+    with pytest.raises(ValueError, match="proof does not match"):
+        client.record_payment(challenge)
+    assert client.get_payment_history() == []
+    assert client.guard.remaining_daily == 100.0
+    assert client.guard.remaining_monthly == 1000.0
+
+
+def test_confirmed_payment_requires_challenge_identity() -> None:
+    client = X402PaymentClient(wallet_address="wallet")
+    challenge = PaymentChallenge("r", 3.0)
+    with pytest.raises(ValueError, match="proof does not match"):
+        client.record_payment(challenge, client.create_proof(challenge, "tx"))
+    assert client.get_payment_history() == []

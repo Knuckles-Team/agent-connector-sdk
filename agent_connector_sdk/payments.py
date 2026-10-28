@@ -287,7 +287,18 @@ class X402PaymentClient:
         error: str = "",
     ) -> PaymentRecord:
         """Record a payment for audit trail and KG persistence."""
-        if status == PaymentStatus.CONFIRMED and proof:
+        if status == PaymentStatus.CONFIRMED:
+            if proof is None or (
+                not challenge.challenge_id.strip()
+                or not proof.transaction_hash.strip()
+                or proof.challenge_id != challenge.challenge_id
+                or proof.amount != challenge.amount
+                or proof.currency != challenge.currency
+                or proof.chain != challenge.chain
+                or proof.recipient_address != challenge.recipient_address
+                or proof.sender_address != self.wallet_address
+            ):
+                raise ValueError("confirmed payment proof does not match challenge")
             self.guard.record_spend(challenge.amount)
         self._payment_counter += 1
         record = PaymentRecord(

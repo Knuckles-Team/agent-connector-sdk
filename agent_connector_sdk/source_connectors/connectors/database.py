@@ -331,15 +331,23 @@ class DatabaseConnector(LoadConnector, PollConnector):
         )
         if len(rows) > self.max_rows:
             raise RuntimeError("database source result exceeds the configured row cap")
-        return [r for r in rows if isinstance(r, dict)]
+        if any(not isinstance(row, dict) for row in rows):
+            raise ValueError("database source row is not an object")
+        return cast(list[dict[str, Any]], rows)
+
+    def _documents(self, rows: list[dict[str, Any]]) -> list[SourceDocument]:
+        documents: list[SourceDocument] = []
+        for row in rows:
+            doc = self._to_document(row)
+            if doc is None or (self.updated_field and doc.updated_at is None):
+                raise ValueError("database source row lacks required fields")
+            documents.append(doc)
+        return documents
 
     # -- LoadConnector -----------------------------------------------------
 
     def load(self) -> Iterator[SourceDocument]:
-        for row in self._run():
-            doc = self._to_document(row)
-            if doc is not None:
-                yield doc
+        yield from self._documents(self._run())
 
     # -- PollConnector -----------------------------------------------------
 
@@ -359,10 +367,7 @@ class DatabaseConnector(LoadConnector, PollConnector):
 
         docs: list[SourceDocument] = []
         max_wm = prior
-        for row in rows:
-            doc = self._to_document(row)
-            if doc is None:
-                continue
+        for doc in self._documents(rows):
             if (
                 self.updated_field
                 and prior is not None

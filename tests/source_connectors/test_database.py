@@ -125,6 +125,58 @@ def test_poll_refuses_invalid_initial_timestamp(tmp_path: Path) -> None:
         source.poll()
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R900.8")
+@pytest.mark.parametrize("missing", ["text", "updated"])
+def test_bad_database_row_never_advances_or_yields_partial_page(
+    tmp_path: Path, missing: str
+) -> None:
+    path = tmp_path / "rows.db"
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            "CREATE TABLE events (id INTEGER, text TEXT, updated INTEGER)"
+        )
+        connection.executemany(
+            "INSERT INTO events VALUES (?, ?, ?)",
+            [
+                (1, "Old", 1),
+                (
+                    2,
+                    None if missing == "text" else "Two",
+                    None if missing == "updated" else 2,
+                ),
+                (3, "Three", 3),
+            ],
+        )
+    source = build_connector(
+        "database",
+        {
+            "query": "SELECT id, text, updated FROM events",
+            "updated_field": "updated",
+            "conn": UniversalConnector(f"sqlite:///{path}"),
+        },
+    )
+    prior = ConnectorCheckpoint(watermark="1")
+    with pytest.raises(ValueError, match="required fields"):
+        source.poll(prior)
+    with pytest.raises(ValueError, match="required fields"):
+        next(source.load())
+    assert prior.watermark == "1"
+    with sqlite3.connect(path) as connection:
+        connection.execute("UPDATE events SET text='Two', updated=2 WHERE id=2")
+    result = source.poll(prior)
+    assert [doc.text for doc in result.documents] == ["Two", "Three"]
+    assert result.checkpoint.watermark == "3"
+
+
+def test_non_object_database_row_refuses_before_partial_load() -> None:
+    connection = SimpleNamespace(
+        read=lambda *_args, **_kwargs: [{"id": 1, "text": "One"}, None]
+    )
+    source = build_connector("database", {"query": "SELECT 1", "conn": connection})
+    with pytest.raises(ValueError, match="not an object"):
+        next(source.load())
+
+
 # spec: SDK-SOURCE-INGEST-R900.4
 @pytest.mark.parametrize(
     ("config", "error"),

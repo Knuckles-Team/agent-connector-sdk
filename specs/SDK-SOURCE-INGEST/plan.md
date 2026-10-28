@@ -699,6 +699,12 @@ watermarks compare by instant, not their offset-bearing string representation
 textual watermarks keep their existing ordering. A query that filters with a
 bound watermark remains responsible for using the database's timestamp semantics.
 
+## Database page completeness (R900.8)
+
+The database source validates each row before it yields any document or
+returns a checkpoint. Missing required fields refuse the full page. A caller
+can repair the row and retry from the accepted checkpoint.
+
 ## 2026-10-27: bounded evidence for large preparation plans
 
 R803.6 requires a single plan over one million rows. Keep `run` and its

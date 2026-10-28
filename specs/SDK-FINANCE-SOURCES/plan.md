@@ -12,6 +12,11 @@ For SDK-FINANCE-SOURCES-R900.4, the guard refuses negative or non-finite
 amounts and budget limits. Spend recording rejects invalid or overflowing
 amounts before changing counters. Zero spend remains valid.
 
+## Confirmed payment binding (R900.8)
+
+The payment client records a confirmed payment only when the supplied proof
+matches the challenge and the configured wallet. A mismatch changes no spend
+counter or history. This comparison does not establish the transaction on chain.
 ## Independent bar intervals
 
 For R900.7, market feed subscriptions use one aggregator per symbol and bar

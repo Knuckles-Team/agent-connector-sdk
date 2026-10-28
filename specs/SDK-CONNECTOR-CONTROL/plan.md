@@ -724,3 +724,10 @@ accept local IP literals and localhost without DNS resolution. They reject
 public destinations and configured proxies before a transport can send.
 Malformed mode values also fail closed. An injected transport remains trusted
 configuration. The other helpers in R780.6 remain open.
+
+## Amendment: standard request headers (R780.8)
+
+The SDK exports the standard User-Agent header from its HTTP client module.
+The client merges a caller's headers without regard to header-name case.
+A caller override replaces the standard value. The other missing R780.6
+helpers remain open.
