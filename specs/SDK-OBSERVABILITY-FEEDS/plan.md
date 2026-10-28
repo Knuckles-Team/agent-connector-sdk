@@ -12,8 +12,14 @@ only after the adapter forms a complete `RecordPage`. This guard leaves the
 durable acceptance boundary open. A failed sink submission requires replay
 semantics beyond the adapter-local tracker.
 
-## Durable event identity acceptance (R001.2)
+## Event identity receipt boundary (R001.2)
 
-The worker must promote staged identity only after its matching durable receipt.
-An adapter-local validation success is not an acceptance receipt. R001.1 does
-not close this boundary.
+The worker promotes staged identity only after validating the matching sink receipt.
+An adapter-local validation success is not an acceptance receipt. A failed or
+cancelled submission discards the stage. Concurrent use of the same adapter
+refuses while a page remains unfinished.
+
+## Durable event receipt proof (R001.3)
+
+A graph-backed restart test must establish persistence and logical replay.
+The in-memory receipt fixture proves control flow only.

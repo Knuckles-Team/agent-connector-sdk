@@ -7,6 +7,7 @@ graph and is recorded NOT RUN here, per the spec's completion section.
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -45,7 +46,8 @@ from agent_connector_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
 )
-from agent_connector_sdk.runner.errors import SchemaDriftQuarantined
+from agent_connector_sdk.ports.page_completion import PageCompletionAdapter
+from agent_connector_sdk.runner.errors import SchemaDriftQuarantined, SinkReceiptError
 from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
 from agent_connector_sdk.testing.sinks import InMemorySink
 
@@ -372,6 +374,7 @@ async def _collect_record_ids(
     for _ in range(pages):
         page = await adapter.extract(session, checkpoint)
         seen.extend(record.record_id for record in page.records)
+        adapter.finish_page(page, accepted=True)
         checkpoint = page.checkpoint
     return seen
 
@@ -417,9 +420,102 @@ async def test_changed_digest_for_a_known_id_is_a_conflict_not_an_overwrite() ->
     )
     adapter = _adapter(rum_source_adapter, preset)
     await adapter.discover(session)
-    checkpoint = (await adapter.extract(session, None)).checkpoint
+    first_page = await adapter.extract(session, None)
+    adapter.finish_page(first_page, accepted=True)
+    checkpoint = first_page.checkpoint
     with pytest.raises(EventIdentityConflictError):
         await adapter.extract(session, checkpoint)
+
+
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.2")
+@pytest.mark.parametrize("failure", ["network", "invalid_receipt", "cancel"])
+async def test_event_identity_waits_for_worker_acceptance(failure):
+    class FailOnceSink(InMemorySink):
+        def __init__(self):
+            super().__init__()
+            self.fail = True
+
+        async def submit(self, batch):
+            if self.fail:
+                self.fail = False
+                if failure == "cancel":
+                    raise asyncio.CancelledError
+                if failure == "invalid_receipt":
+                    receipt = await super().submit(batch)
+                    self.batches.clear()
+                    self.statuses.clear()
+                    return receipt.model_copy(update={"batch_digest": "0" * 64})
+                raise RuntimeError("sink unavailable")
+            return await super().submit(batch)
+
+    preset = _preset("rum-stream", "rum_events")
+    event = _rum_event("receipt-retry")
+    session = FakeEventSession(
+        descriptor=_tool_descriptor(preset.tool),
+        pages=[_page(event, cursor="next"), _page(event, cursor="next"), _page(event)],
+    )
+    adapter = _adapter(rum_source_adapter, preset)
+    assert isinstance(adapter, PageCompletionAdapter)
+    sink = FailOnceSink()
+    target = SyncTarget(CONNECTOR, sink, max_pages=2)
+    errors = {
+        "network": RuntimeError,
+        "invalid_receipt": SinkReceiptError,
+        "cancel": asyncio.CancelledError,
+    }
+    with pytest.raises(errors[failure]):
+        await sync_stream(session, adapter, target)
+    assert not sink.batches
+    assert (
+        await sink.source_status(CONNECTOR, "rum-stream")
+    ).accepted_checkpoint is None
+    outcome = await sync_stream(session, adapter, target)
+    assert outcome.accepted == 1
+    assert sum(len(batch.records) for batch in sink.batches.values()) == 1
+
+
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.2")
+async def test_unfinished_event_page_refuses_reentry_and_wrong_completion():
+    preset = _preset("rum-stream", "rum_events")
+    event = _rum_event("pending")
+    session = FakeEventSession(
+        descriptor=_tool_descriptor(preset.tool), pages=[_page(event), _page(event)]
+    )
+    adapter = _adapter(rum_source_adapter, preset)
+    await adapter.discover(session)
+    page = await adapter.extract(session, None)
+    with pytest.raises(SourceContractError, match="unfinished"):
+        await adapter.extract(session, None)
+    with pytest.raises(SourceContractError, match="does not match"):
+        adapter.finish_page(page.model_copy(), accepted=True)
+    adapter.finish_page(page, accepted=False)
+    assert len((await adapter.extract(session, None)).records) == 1
+
+
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.2")
+async def test_concurrent_event_extraction_refuses_before_second_tool_call():
+    entered, release = asyncio.Event(), asyncio.Event()
+    preset = _preset("rum-stream", "rum_events")
+
+    class BlockedSession(FakeEventSession):
+        async def call_tool(self, name, arguments):
+            entered.set()
+            await release.wait()
+            return await super().call_tool(name, arguments)
+
+    session = BlockedSession(
+        descriptor=_tool_descriptor(preset.tool), pages=[_page(_rum_event("single"))]
+    )
+    adapter = _adapter(rum_source_adapter, preset)
+    await adapter.discover(session)
+    first = asyncio.create_task(adapter.extract(session, None))
+    await entered.wait()
+    with pytest.raises(SourceContractError, match="unfinished"):
+        await adapter.extract(session, None)
+    release.set()
+    page = await first
+    adapter.finish_page(page, accepted=False)
+    assert len(session.calls) == 1
 
 
 async def test_out_of_order_arrival_does_not_skip_a_durable_event() -> None:

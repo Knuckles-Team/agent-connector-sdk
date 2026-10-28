@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, replace
+from functools import partial
 from typing import Self
 
 from epistemic_graph.generated.source_ingestion import (
@@ -14,6 +15,7 @@ from epistemic_graph.generated.source_ingestion import (
 )
 
 from agent_connector_sdk.contracts import RecordPage, StreamDescriptor
+from agent_connector_sdk.ports.page_completion import _accept_adapter_page
 from agent_connector_sdk.ports.repair_proposals import RepairProposalStore
 from agent_connector_sdk.ports.session import McpSession
 from agent_connector_sdk.ports.sink import Sink
@@ -227,7 +229,9 @@ async def sync_stream(
     exhausted = False
     while pages < target.max_pages and not exhausted:
         page = await adapter.extract(session, checkpoint)
-        checkpoint, newly_accepted = await _accept_page(page, target, checkpoint)
+        checkpoint, newly_accepted = await _accept_adapter_page(
+            adapter, page, accept=partial(_accept_page, page, target, checkpoint)
+        )
         exhausted = page.exhausted
         pages, records = pages + 1, records + len(page.records)
         accepted += newly_accepted

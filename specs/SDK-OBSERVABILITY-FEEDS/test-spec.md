@@ -16,7 +16,12 @@ OF-01–05 run offline through focused pytest and the repository's Ruff, mypy, C
 Return a valid event followed by a malformed one. Retry the valid event on the
 same adapter and assert it is emitted. This is not a durable-ingestion proof.
 
-## Durable event identity acceptance (R001.2)
+## Event identity receipt boundary (R001.2)
 
 Make the sink fail before acceptance. Retry the page and assert no record is
 lost. Accept the receipt and verify cross-page duplicates remain idempotent.
+
+## Durable event receipt proof (R001.3)
+
+Run OF-06 against a graph. Read back the receipt after restart and verify
+that replay retains one logical event. The local in-memory sink is not proof.
