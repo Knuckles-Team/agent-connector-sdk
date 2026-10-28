@@ -7,3 +7,4 @@
 
 - [ ] Register the three event-feed adapter entry points (SDK-OBSERVABILITY-FEEDS-R001.5).
 - [x] Bind the last event page to a bounded checkpoint digest and test exact replay and same-time distinct events (SDK-OBSERVABILITY-FEEDS-R001.6).
+- [x] Bound the event identity index and refuse overflow before acceptance (SDK-OBSERVABILITY-FEEDS-R001.8).
