@@ -1356,7 +1356,8 @@
       "title": "Stop cancelled workspace parsers",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "cd23c9fae2a5"
+        "cd23c9fae2a5",
+        "f0f5c2898a78"
       ],
       "verified_by": [
         "tests/test_workspace_reader.py:221",

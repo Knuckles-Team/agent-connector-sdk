@@ -17,6 +17,8 @@
       "title": "SDK release builds against a published compatible graph-client wheel",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "090e32ceb671",
+        "3d9f268c4a6b",
         "3edcf05bc64a",
         "42b930057c3e",
         "5b53e943e468"

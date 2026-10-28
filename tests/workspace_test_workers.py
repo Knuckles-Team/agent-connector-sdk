@@ -51,7 +51,10 @@ def coordinated_read(
 
 def blocking_read(file: WorkspaceFile, request: WorkspaceRequest) -> WorkspaceOutcome:
     """Announce the worker PID and block until the parent cancels it."""
-    (Path(request.root_authority) / "worker.pid").write_text(str(os.getpid()))
+    marker = Path(request.root_authority) / "worker.pid"
+    pending = marker.with_suffix(".pending")
+    pending.write_text(str(os.getpid()))
+    pending.replace(marker)
     time.sleep(60)
     return WorkspaceOutcome(file=file, outcome="ok", elapsed_seconds=60.0)
 
