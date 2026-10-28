@@ -330,6 +330,7 @@ responses are refused before decoding to preserve the response size bound.
 The total response deadline remains open under R047.2.
 - [x] Compute the named byte-based tool schema estimate (SDK-CONNECTOR-CONTROL-R045.3).
 
+- [x] Read explicit trusted release key pins (SDK-CONNECTOR-CONTROL-R650.4).
 - [ ] **SDK-CONNECTOR-CONTROL-R650.1:** Restore release integrity for the current declaration path and prove signer-lock and rotation behavior.
 
 - [x] **SDK-CONNECTOR-CONTROL-R035.8:** Enforce secret-reference construction invariants.

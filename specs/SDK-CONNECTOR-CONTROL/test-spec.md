@@ -496,6 +496,7 @@ process settings do not alter the result, and an unknown profile refuses.
 - `SDK-CONNECTOR-CONTROL-R650.2`: `tests/test_release_identity.py::test_release_digest_binds_live_declaration_and_graph` checks order invariance and changes to each input.
 
 - `SDK-CONNECTOR-CONTROL-R650.3`: `tests/test_release_signature.py` covers input tampering, key scope, version, trust and canonical signature refusals.
+- `SDK-CONNECTOR-CONTROL-R650.4`: `tests/test_release_lock.py` uses lock pins in actual release signing and verification and refuses malformed locks.
 - `SDK-CONNECTOR-CONTROL-R048.7`: `tests/test_readable_form.py` covers finite ratios and refuses non-ratios through both constructors.
 
 - `SDK-CONNECTOR-CONTROL-R048.8`: `tests/test_readable_count_score.py` checks the ratio and refuses invalid grades.
