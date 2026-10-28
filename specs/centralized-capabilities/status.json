@@ -77,14 +77,15 @@
       "landed_in": [
         "c842d089626d",
         "cc7da30e1213",
+        "d1ab0ffd561c",
         "e26eb224bc48"
       ],
       "verified_by": [
+        "tests/httpsupport/test_pagination.py:54",
         "tests/httpsupport/test_pagination_link_origin.py:13",
         "tests/httpsupport/test_pagination_next_url.py:101",
         "tests/httpsupport/test_pagination_next_url.py:121",
-        "tests/httpsupport/test_pagination_next_url.py:135",
-        "tests/httpsupport/test_pagination_next_url.py:15"
+        "tests/httpsupport/test_pagination_next_url.py:135"
       ],
       "rollup_of": [
         "SDK-CENTRALIZED-CAPABILITIES-R004.1",
@@ -387,9 +388,15 @@
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R004.5",
       "title": "Refuse an unsafe partial-page cursor",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d1ab0ffd561c"
+      ],
+      "verified_by": [
+        "tests/httpsupport/test_pagination.py:54",
+        "tests/httpsupport/test_pagination_partial_cursor.py:16",
+        "tests/httpsupport/test_pagination_partial_cursor.py:34"
+      ]
     }
   ]
 }
