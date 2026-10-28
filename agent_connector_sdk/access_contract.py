@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from importlib import resources
+from typing import Any
 
 from . import _contract_fields as f
 from ._contract_fields import (
@@ -115,6 +116,19 @@ def _transport(props: f.Props, subject: str) -> TransportContract | None:
         raise AccessContractError(f"{subject}: invalid transport declaration") from exc
 
 
+def _pagination_fields(props: f.Props, subject: str) -> dict[str, Any]:
+    return {
+        "records_path": f._optional_text(props, "recordsPath", subject),
+        "pagination_param": f._optional_text(props, "paginationParam", subject),
+        "next_cursor_path": f._optional_text(props, "nextCursorPath", subject),
+        "page_size": f.integer(props, "pageSize", subject),
+        "page_size_param": f._optional_text(props, "pageSizeParam", subject),
+        "start_page": f.integer(props, "startPage", subject),
+        "start_offset": f.integer(props, "startOffset", subject),
+        "completion": f._optional_text(props, "completion", subject),
+    }
+
+
 def _contract(graph: dict[str, f.Props], subject: str) -> AccessContract:
     props = graph[subject]
     return AccessContract(
@@ -129,14 +143,7 @@ def _contract(graph: dict[str, f.Props], subject: str) -> AccessContract:
         pagination=f.choice(
             props, "pagination", subject, allowed=PAGINATION_MODES, default="none"
         ),
-        records_path=f._optional_text(props, "recordsPath", subject),
-        pagination_param=f._optional_text(props, "paginationParam", subject),
-        next_cursor_path=f._optional_text(props, "nextCursorPath", subject),
-        page_size=f.integer(props, "pageSize", subject),
-        page_size_param=f._optional_text(props, "pageSizeParam", subject),
-        start_page=f.integer(props, "startPage", subject),
-        start_offset=f.integer(props, "startOffset", subject),
-        completion=f._optional_text(props, "completion", subject),
+        **_pagination_fields(props, subject),
         pushdown=f.pushdown(props, subject),
         auth_ref=f.auth_ref(props, subject),
         rate_limit_per_minute=f.integer(props, "rateLimitPerMinute", subject),
