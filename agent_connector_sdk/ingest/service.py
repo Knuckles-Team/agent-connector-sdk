@@ -102,10 +102,19 @@ class KnowledgeIngest:
         else:
             future = asyncio.run_coroutine_threadsafe(call, loop)
             status = await asyncio.wrap_future(future)
+        if status.connector != binding.connector or status.stream != binding.stream:
+            raise IngestError("source status does not match the requested stream")
         checkpoint = status.accepted_checkpoint
-        position = checkpoint.position if checkpoint is not None else None
-        cursor = position.get("cursor") if isinstance(position, dict) else None
-        return cursor if isinstance(cursor, str) else None
+        if checkpoint is None:
+            return None
+        if checkpoint.stream != binding.stream or not isinstance(
+            checkpoint.position, dict
+        ):
+            raise IngestError("accepted checkpoint does not match the requested stream")
+        cursor = checkpoint.position.get("cursor")
+        if cursor is not None and not isinstance(cursor, str):
+            raise IngestError("accepted checkpoint cursor must be a string")
+        return cursor
 
     def submit_blocking(
         self, binding: IngestBinding, changes: ChangeSet

@@ -403,3 +403,5 @@ R803.13 checks the missing Arrow dependency through the public adapter and names
 R803.14 submits a mutated engine profile with a below-threshold value and requires refusal before it reaches the caller.
 
 R004.40 exercises cyclic and malformed continuation tokens and a bounded history, preserving accepted pages while refusing the offending page.
+
+R004.41 validates durable status and cursor identity and refuses malformed checkpoints before source fetch.
