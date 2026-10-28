@@ -13,9 +13,10 @@ from typing import Any, Literal
 
 from agent_connector_sdk.earth_observations._weather_daily import (
     TimeAuthority,
-    WeatherRow,
     _daily_rows,
+    _WeatherRow,
 )
+from agent_connector_sdk.earth_observations._weather_hourly import _noaa_rows, _time
 from agent_connector_sdk.earth_observations.records import WeatherObservation
 from agent_connector_sdk.http._bounded_provider import _bounded, _BoundedProvider
 from agent_connector_sdk.http.client import create_async_http_client
@@ -162,17 +163,6 @@ def _meteo_request(request: WeatherRequest) -> tuple[str, dict[str, str]]:
     }
 
 
-def _time(value: Any) -> datetime:
-    if not isinstance(value, str) or "T" not in value:
-        raise ValueError("invalid hourly observation time")
-    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    return (
-        parsed.replace(tzinfo=UTC)
-        if parsed.utcoffset() is None
-        else parsed.astimezone(UTC)
-    )
-
-
 def _read_rows(
     provider: WeatherProviderName,
     data: Any,
@@ -180,7 +170,7 @@ def _read_rows(
     request: WeatherRequest,
     quality_admitted: Callable[[str], bool],
     time_authority: TimeAuthority | None,
-) -> list[WeatherRow]:
+) -> list[_WeatherRow]:
     if provider == "noaa_daily":
         if request.station is None or time_authority is None:
             raise ValueError("NOAA time authority missing")
@@ -202,32 +192,7 @@ def _read_rows(
     return selected
 
 
-def _noaa_rows(
-    data: Any, station: str | None, quality_admitted: Callable[[str], bool]
-) -> list[WeatherRow]:
-    if not isinstance(data, list):
-        raise ValueError("invalid NOAA response")
-    return [_noaa_row(item, station, quality_admitted) for item in data]
-
-
-def _noaa_row(
-    item: Any, station: str | None, quality_admitted: Callable[[str], bool]
-) -> WeatherRow:
-    if item["STATION"] != station:
-        raise ValueError("NOAA station mismatch")
-    value, quality = item["TMP"].split(",", 1)
-    if value in ("+9999", "9999") or not quality_admitted(quality):
-        raise ValueError("unadmitted NOAA value")
-    return (
-        _time(item["DATE"]),
-        int(value) / 10,
-        "°C",
-        float(item["LATITUDE"]),
-        float(item["LONGITUDE"]),
-    )
-
-
-def _meteo_rows(data: Any) -> list[WeatherRow]:
+def _meteo_rows(data: Any) -> list[_WeatherRow]:
     if not isinstance(data, dict) or data.get("utc_offset_seconds") != 0:
         raise ValueError("Open-Meteo response not UTC")
     hourly = data["hourly"]
@@ -243,7 +208,7 @@ def _meteo_rows(data: Any) -> list[WeatherRow]:
         raise ValueError("Open-Meteo unit missing")
     latitude, longitude = float(data["latitude"]), float(data["longitude"])
     return [
-        (_time(timestamp), float(value), unit, latitude, longitude)
+        _WeatherRow(_time(timestamp), float(value), unit, latitude, longitude)
         for timestamp, value in zip(times, temperatures, strict=True)
     ]
 
@@ -253,7 +218,7 @@ def _observation(
     request: WeatherRequest,
     *,
     digest: str,
-    row: WeatherRow,
+    row: _WeatherRow,
 ) -> WeatherObservation:
     timestamp, value, unit, latitude, longitude = row
     if not math.isfinite(value):

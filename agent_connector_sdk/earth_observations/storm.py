@@ -109,20 +109,7 @@ class NoaaStormArchive:
             raise ValueError("storm event missing")
         return tuple(records[identifier] for identifier in identifiers)
 
-    def _record(self, row: dict[str, Any], tenant: str, source: str) -> WeatherEvent:
-        identifier, episode = row["EVENT_ID"], row["EPISODE_ID"]
-        if not _valid_id(identifier) or not _valid_id(episode):
-            raise ValueError("storm event or episode identity missing")
-        admitted = self.admit(row)
-        if admitted is None or not all(
-            (
-                admitted.weather_system_id,
-                admitted.weather_system_name,
-                admitted.place_id,
-                admitted.severity,
-            )
-        ):
-            raise ValueError("storm event not admitted")
+    def _event_time(self, row: dict[str, Any]) -> datetime:
         zone = row["CZ_TIMEZONE"]
         if zone not in self.policy.timezone_offsets_minutes:
             raise ValueError("storm timezone not admitted")
@@ -140,6 +127,23 @@ class NoaaStormArchive:
                 timedelta(minutes=self.policy.timezone_offsets_minutes[zone])
             ),
         ).astimezone(UTC)
+        return event_time
+
+    def _record(self, row: dict[str, Any], tenant: str, source: str) -> WeatherEvent:
+        identifier, episode = row["EVENT_ID"], row["EPISODE_ID"]
+        if not _valid_id(identifier) or not _valid_id(episode):
+            raise ValueError("storm event or episode identity missing")
+        admitted = self.admit(row)
+        if admitted is None or not all(
+            (
+                admitted.weather_system_id,
+                admitted.weather_system_name,
+                admitted.place_id,
+                admitted.severity,
+            )
+        ):
+            raise ValueError("storm event not admitted")
+        event_time = self._event_time(row)
         return WeatherEvent(
             tenant_id=tenant,
             source_id=source,
