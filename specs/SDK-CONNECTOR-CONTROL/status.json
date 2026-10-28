@@ -290,6 +290,7 @@
     "SDK-CONNECTOR-CONTROL-R780.7",
     "SDK-CONNECTOR-CONTROL-R780.8",
     "SDK-CONNECTOR-CONTROL-R780.10",
+    "SDK-CONNECTOR-CONTROL-R780.9",
     "SDK-CONNECTOR-CONTROL-R781",
     "SDK-CONNECTOR-CONTROL-R782",
     "SDK-CONNECTOR-CONTROL-R070",
@@ -3196,7 +3197,8 @@
         "SDK-CONNECTOR-CONTROL-R780.6",
         "SDK-CONNECTOR-CONTROL-R780.7",
         "SDK-CONNECTOR-CONTROL-R780.8",
-        "SDK-CONNECTOR-CONTROL-R780.10"
+        "SDK-CONNECTOR-CONTROL-R780.10",
+        "SDK-CONNECTOR-CONTROL-R780.9"
       ]
     },
     {
@@ -3299,6 +3301,18 @@
         "tests/test_async_resilience.py:130",
         "tests/test_async_resilience.py:39",
         "tests/test_async_resilience.py:74"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R780.9",
+      "title": "Requests session factory",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "64da2f887f36"
+      ],
+      "verified_by": [
+        "tests/test_http_requests.py:34",
+        "tests/test_http_requests.py:56"
       ]
     },
     {
