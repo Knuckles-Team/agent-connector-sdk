@@ -196,6 +196,7 @@
 - [x] **SDK-SOURCE-INGEST-R005.42:** Pin legacy fetch egress and refuse private targets without an explicit host allowlist.
 - [ ] **SDK-SOURCE-INGEST-R005.48:** Bound streamed legacy web responses.
 - [ ] **SDK-SOURCE-INGEST-R005.49:** Refuse malformed legacy web checkpoints before fetching.
+- [ ] **SDK-SOURCE-INGEST-R005.50:** Bind new legacy web checkpoints to the ordered URL list.
 - [x] `SDK-SOURCE-INGEST-R004.26` — Citable public URL fields kept by the persistence guard.
 - [x] `SDK-SOURCE-INGEST-R004.27` — Pass the operator's mass-withdrawal decision through the sink.
 

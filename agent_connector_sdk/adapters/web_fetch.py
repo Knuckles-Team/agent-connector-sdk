@@ -22,6 +22,7 @@ SourceIngest client can reach it through the same ``discover``/``extract``/
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from collections.abc import Sequence
 
@@ -34,7 +35,10 @@ from epistemic_graph.generated.source_ingestion import (
 )
 from pydantic import BaseModel, ConfigDict, Field
 
-from agent_connector_sdk.adapters.web_fetch_checkpoint import _page_index
+from agent_connector_sdk.adapters.web_fetch_checkpoint import (
+    _next_checkpoint,
+    _page_index,
+)
 from agent_connector_sdk.adapters.web_fetch_helpers import (
     _markdown_from_html,
     extract_og_metadata,
@@ -187,6 +191,10 @@ class WebFetchSourceAdapter:
         allow_plaintext: bool = False,
     ) -> None:
         self._urls = tuple(urls)
+        encoded_urls = json.dumps(
+            self._urls, ensure_ascii=True, separators=(",", ":")
+        ).encode("utf-8")
+        self._url_digest = hashlib.sha256(encoded_urls).hexdigest()
         self._connector = connector
         self._mapping_reference = mapping_reference
         self._allowed_private_hosts = tuple(allowed_private_hosts)
@@ -216,7 +224,9 @@ class WebFetchSourceAdapter:
     ) -> RecordPage:
         """Fetch the next URL in this adapter's fixed list, if any remain."""
         del session
-        index = _page_index(checkpoint, self.stream, len(self._urls))
+        index = _page_index(
+            checkpoint, self.stream, count=len(self._urls), url_digest=self._url_digest
+        )
         records: tuple[SourceRecord, ...] = ()
         if index < len(self._urls):
             page = await fetch_page(
@@ -239,8 +249,12 @@ class WebFetchSourceAdapter:
             records=records,
             mode=SourceIngestionMode.FULL,
             strict_schema=False,
-            checkpoint=SourceCheckpoint(
-                stream=self.stream, position={"index": next_index}
+            checkpoint=_next_checkpoint(
+                checkpoint,
+                self.stream,
+                index=index,
+                next_index=next_index,
+                url_digest=self._url_digest,
             ),
             exhausted=next_index >= len(self._urls),
         )

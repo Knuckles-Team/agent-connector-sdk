@@ -709,7 +709,8 @@ can repair the row and retry from the accepted checkpoint.
 
 The fixed-list adapter validates stream identity and index bounds before dispatch.
 It preserves a terminal index rather than advancing beyond the URL count.
-A checkpoint does not bind changes to the URL list itself.
+New checkpoints bind the ordered URL list by SHA-256. An old unbound checkpoint
+remains accepted, but it cannot prove whether earlier list changes occurred.
 
 ## Bounded legacy web responses (R005.48)
 
