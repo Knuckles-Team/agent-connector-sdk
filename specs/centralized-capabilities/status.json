@@ -48,6 +48,7 @@
     "SDK-CENTRALIZED-CAPABILITIES-R040",
     "SDK-CENTRALIZED-CAPABILITIES-R004.3",
     "SDK-CENTRALIZED-CAPABILITIES-R004.5",
+    "SDK-CENTRALIZED-CAPABILITIES-R004.8",
     "SDK-CENTRALIZED-CAPABILITIES-R004.7"
   ],
   "requirements": [
@@ -78,10 +79,10 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "a0e4fdd71f64",
+        "a328e462721a",
+        "aa62b25d68af",
         "c842d089626d",
-        "cc7da30e1213",
-        "d1ab0ffd561c",
-        "e26eb224bc48"
+        "cc7da30e1213"
       ],
       "verified_by": [
         "tests/httpsupport/test_pagination.py:54",
@@ -95,6 +96,7 @@
         "SDK-CENTRALIZED-CAPABILITIES-R004.2",
         "SDK-CENTRALIZED-CAPABILITIES-R004.3",
         "SDK-CENTRALIZED-CAPABILITIES-R004.5",
+        "SDK-CENTRALIZED-CAPABILITIES-R004.8",
         "SDK-CENTRALIZED-CAPABILITIES-R004.7"
       ]
     },
@@ -413,6 +415,20 @@
         "tests/httpsupport/test_pagination.py:54",
         "tests/httpsupport/test_pagination_partial_cursor.py:16",
         "tests/httpsupport/test_pagination_partial_cursor.py:34"
+      ]
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.8",
+      "title": "Stop repeated continuation tokens",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a328e462721a",
+        "aa62b25d68af"
+      ],
+      "verified_by": [
+        "tests/httpsupport/test_pagination_token_loop.py:13",
+        "tests/httpsupport/test_pagination_token_loop.py:33",
+        "tests/httpsupport/test_pagination_token_loop.py:49"
       ]
     },
     {

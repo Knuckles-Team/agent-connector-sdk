@@ -75,6 +75,11 @@ malformed headers through the iterator and confirm it ends after one fetch.
 Run sync and async iterators with a page larger than the remaining budget.
 They return no next cursor. A budget that ends on a full page keeps its cursor.
 
+## Continuation cycles (R004.8)
+
+Return a cursor cycle and verify no request repeats. Test an initial token
+that repeats in cursor and since-ID modes. The result is truncated and has
+no next cursor.
 ## Pagination consumer isolation (R004.7)
 
 Interleave two consumers of one sync or async iterator. The second refuses
