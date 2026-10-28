@@ -202,5 +202,7 @@ capability policy. The provider returns one backend bound to that policy;
 fallback rejects a mismatched backend before an outbound request. Each backend
 exposes the Pydantic record model it enforces. The SDK computes its policy
 digest with `platform_record_schema_digest`. It validates each record before
-accepting a page. Record validators must be pure and must not perform external calls. A
-timed-out validation may finish in its worker thread after the caller returns.
+accepting a page. The model must be importable from its installed module.
+Record validators must be pure and must not perform external calls or spawn
+processes. Validation uses a worker process. Cancellation stops its worker.
+Worker startup counts against the request deadline.

@@ -7,6 +7,7 @@ import time
 from collections.abc import Mapping, Sequence
 
 import anyio
+import anyio.to_process
 
 from agent_connector_sdk.adapters._platform_validation import (
     _platform_request_digest,
@@ -266,11 +267,11 @@ class PlatformFallback:
             if backend.policy != policy:
                 return _refused(request, "trust_failed", attempts, skipped, capability)
             try:
-                await anyio.to_thread.run_sync(
+                await anyio.to_process.run_sync(
                     _verify_schema,
                     backend.output_model,
                     policy.output_schema_digest,
-                    abandon_on_cancel=True,
+                    cancellable=True,
                 )
             except (AttributeError, TypeError, ValueError):
                 return _refused(request, "trust_failed", attempts, skipped, capability)
@@ -314,13 +315,13 @@ class PlatformFallback:
                             (
                                 validated_page,
                                 canonical_page,
-                            ) = await anyio.to_thread.run_sync(
+                            ) = await anyio.to_process.run_sync(
                                 _validate_page,
                                 page,
                                 request,
                                 capability,
                                 backend.output_model,
-                                abandon_on_cancel=True,
+                                cancellable=True,
                             )
                         elapsed = min(
                             30_000, max(0, int((time.monotonic() - started) * 1000))

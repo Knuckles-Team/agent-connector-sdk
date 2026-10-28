@@ -4,7 +4,7 @@ import hashlib
 import json
 
 import pytest
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from agent_connector_sdk.adapters.platform_backend import (
     AdmittedPlatformBackend,
@@ -39,6 +39,23 @@ class FixtureRecord(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     id: str
     title: str = ""
+
+
+class SlowRecord(BaseModel):
+    id: str
+
+    @field_validator("id")
+    @classmethod
+    def slow_validation(cls, value):
+        import os
+        import time
+        from pathlib import Path
+
+        marker = Path(os.environ["SCION_TEST_VALIDATOR_MARKER"])
+        marker.with_suffix(".started").write_text("started")
+        time.sleep(2)
+        marker.write_text("finished")
+        return value
 
 
 DIGEST = platform_record_schema_digest(FixtureRecord)
@@ -372,7 +389,7 @@ async def test_deadline_preserves_started_attempt_without_retry():
             self.output_model = FixtureRecord
 
         async def read(self, request, *, timeout_ms):
-            await anyio.sleep(1)
+            await anyio.sleep(5)
             return BackendPage(records=())
 
     class SlowAdmission:
@@ -387,7 +404,7 @@ async def test_deadline_preserves_started_attempt_without_retry():
         retry_policies={"v1": RetryPolicy(max_attempts=1)},
     )
     result = await client.execute(
-        actor(), request().model_copy(update={"deadline_ms": 20})
+        actor(), request().model_copy(update={"deadline_ms": 2000})
     )
     assert result.reason == "deadline_exceeded"
     assert len(result.attempts) == 1 and result.attempts[0].reason == "timeout"
@@ -1125,6 +1142,69 @@ async def test_backend_schema_mismatch_refuses_before_provider_call():
 
 
 @pytest.mark.asyncio
+async def test_nonimportable_record_model_refuses_before_provider_call():
+    class LocalRecord(BaseModel):
+        id: str
+
+    digest = platform_record_schema_digest(LocalRecord)
+    base = capability()
+    equivalent = base.backends[0].equivalence_contract.model_copy(
+        update={"output_schema_digest": digest}
+    )
+    policies = tuple(
+        policy.model_copy(
+            update={"equivalence_contract": equivalent, "output_schema_digest": digest}
+        )
+        for policy in base.backends
+    )
+    cap = base.model_copy(update={"backends": policies})
+    calls = []
+
+    class LocalAdmission:
+        async def admit(self, actor, request, policy):
+            backend = Backend(BackendPage(records=()), calls, policy.backend_id, policy)
+            backend.output_model = LocalRecord
+            return backend
+
+    client = PlatformFallback(
+        (cap,),
+        connector_id="connector",
+        authorizer=Authority(),
+        admission=LocalAdmission(),
+        retry_policies={"v1": RetryPolicy(max_attempts=1)},
+    )
+    result = await client.execute(actor(), request())
+    assert result.reason == "trust_failed"
+    assert not calls and not result.attempts
+
+
+@pytest.mark.asyncio
+async def test_validation_worker_startup_uses_request_deadline(monkeypatch):
+    import anyio
+    import anyio.to_process
+
+    async def slow_start(*args, **kwargs):
+        await anyio.sleep_forever()
+
+    monkeypatch.setattr(anyio.to_process, "run_sync", slow_start)
+    admission = Admission(
+        {"first": BackendPage(records=()), "second": BackendPage(records=())}
+    )
+    client = PlatformFallback(
+        (capability(),),
+        connector_id="connector",
+        authorizer=Authority(),
+        admission=admission,
+        retry_policies={"v1": RetryPolicy(max_attempts=1)},
+    )
+    result = await client.execute(
+        actor(), request().model_copy(update={"deadline_ms": 20})
+    )
+    assert result.reason == "deadline_exceeded"
+    assert not result.attempts and not admission.calls
+
+
+@pytest.mark.asyncio
 async def test_invalid_record_schema_refuses_without_trying_another_backend():
     from agent_connector_sdk.adapters.platform_models import PlatformRecord, Provenance
 
@@ -1217,6 +1297,7 @@ async def test_external_cancellation_stops_current_attempt_and_never_falls_back(
 
     calls = []
     finished = []
+    started = anyio.Event()
 
     class CancelBackend:
         def __init__(self, policy):
@@ -1225,6 +1306,7 @@ async def test_external_cancellation_stops_current_attempt_and_never_falls_back(
 
         async def read(self, request, *, timeout_ms):
             calls.append(self.policy.backend_id)
+            started.set()
             try:
                 await anyio.sleep_forever()
             finally:
@@ -1241,8 +1323,11 @@ async def test_external_cancellation_stops_current_attempt_and_never_falls_back(
         admission=CancelAdmission(),
         retry_policies={"v1": RetryPolicy(max_attempts=1)},
     )
-    with pytest.raises(TimeoutError), anyio.fail_after(0.1):
-        await client.execute(actor(), request())
+    async with anyio.create_task_group() as group:
+        group.start_soon(client.execute, actor(), request())
+        with anyio.fail_after(10):
+            await started.wait()
+        group.cancel_scope.cancel()
     assert calls == finished == ["first"]
 
 
@@ -1340,21 +1425,14 @@ def test_generic_source_response_is_not_reinterpreted_as_platform_envelope():
 
 
 @pytest.mark.asyncio
-async def test_record_validation_respects_backend_attempt_timeout():
-    import time
+async def test_record_validation_respects_backend_attempt_timeout(
+    monkeypatch, tmp_path
+):
+    import anyio
 
-    from pydantic import field_validator
-
+    marker = tmp_path / "validator.finished"
+    monkeypatch.setenv("SCION_TEST_VALIDATOR_MARKER", str(marker))
     from agent_connector_sdk.adapters.platform_models import PlatformRecord, Provenance
-
-    class SlowRecord(BaseModel):
-        id: str
-
-        @field_validator("id")
-        @classmethod
-        def slow_validation(cls, value):
-            time.sleep(0.3)
-            return value
 
     digest = platform_record_schema_digest(SlowRecord)
     base = capability()
@@ -1366,7 +1444,7 @@ async def test_record_validation_respects_backend_attempt_timeout():
             update={
                 "equivalence_contract": equivalent,
                 "output_schema_digest": digest,
-                "timeout_ms": 100,
+                "timeout_ms": 1000,
             }
         )
         for policy in base.backends
@@ -1413,3 +1491,6 @@ async def test_record_validation_respects_backend_attempt_timeout():
     assert result.outcome == "ok" and result.selected_backend == "second"
     assert [attempt.reason for attempt in result.attempts] == ["timeout", None]
     assert calls == ["first", "second"]
+    assert marker.with_suffix(".started").exists()
+    await anyio.sleep(2.1)
+    assert not marker.exists()
