@@ -389,3 +389,19 @@ async def test_epistemic_graph_transport_stores_media_via_the_client_blob_api() 
     assert receipt.affected_count == 1
     (record,) = client.sink.batches[next(iter(client.sink.batches))].records
     assert record.record_id == f"blob:{digest}"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.43")
+async def test_source_ingest_uses_snapshot_when_caller_mutates_checkpoint() -> None:
+    request = build_request(BINDING, _changes(), previous=None)
+
+    class MutatingClient(_GeneratedClient):
+        async def _send(self, method, params, graph, *, idempotency_key=None):
+            request.provider_checkpoint.position["sequence"] = 99
+            return await super()._send(
+                method, params, graph, idempotency_key=idempotency_key
+            )
+
+    receipt = await SourceIngestChannel(MutatingClient()).submit(request)
+    assert receipt.accepted_checkpoint.position["sequence"] == 1
+    assert request.provider_checkpoint.position["sequence"] == 99
