@@ -12,6 +12,7 @@
     "SDK-FINANCE-SOURCES-R002",
     "SDK-FINANCE-SOURCES-R002.1",
     "SDK-FINANCE-SOURCES-R002.2",
+    "SDK-FINANCE-SOURCES-R002.3",
     "SDK-FINANCE-SOURCES-R003",
     "SDK-FINANCE-SOURCES-R003.1",
     "SDK-FINANCE-SOURCES-R003.2",
@@ -105,7 +106,8 @@
       ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R002.1",
-        "SDK-FINANCE-SOURCES-R002.2"
+        "SDK-FINANCE-SOURCES-R002.2",
+        "SDK-FINANCE-SOURCES-R002.3"
       ]
     },
     {
@@ -125,6 +127,18 @@
       ],
       "verified_by": [
         "tests/test_finance_records.py:261"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R002.3",
+      "title": "Alpaca page shape",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6fd2cdde070b"
+      ],
+      "verified_by": [
+        "tests/test_finance_alpaca_stocks.py:115",
+        "tests/test_finance_alpaca_stocks.py:93"
       ]
     },
     {
