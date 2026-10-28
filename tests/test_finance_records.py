@@ -218,3 +218,26 @@ def test_account_snapshot_rejects_a_foreign_position() -> None:
             currency="USD",
             positions=(position,),
         )
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.2")
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_multi_asset_refuses_nonfinite_prices(value: float) -> None:
+    with pytest.raises(ValidationError):
+        FxRate(**_base_fields(), base_currency="EUR", quote_currency="USD", rate=value)
+    with pytest.raises(ValidationError):
+        CommodityPrice(
+            **_base_fields(),
+            basis=CommodityPriceBasis.SPOT,
+            price=value,
+            currency="USD",
+        )
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.2")
+def test_fx_inversion_refuses_overflow() -> None:
+    rate = FxRate(
+        **_base_fields(), base_currency="EUR", quote_currency="USD", rate=1e-320
+    )
+    with pytest.raises(ValueError, match="inverted FX rate must be finite"):
+        rate.inverted()
