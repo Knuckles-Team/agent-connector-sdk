@@ -27,6 +27,19 @@ class EventIdentityTracker:
 
     def __init__(self) -> None:
         self._digests: dict[str, str] = {}
+        self._base: dict[str, str] | None = None
+
+    def fork(self) -> EventIdentityTracker:
+        """Stage a page without copying the accepted identity index."""
+        candidate = EventIdentityTracker()
+        candidate._base = self._digests
+        return candidate
+
+    def merge(self, candidate: EventIdentityTracker) -> None:
+        """Record a validated page staged from this tracker."""
+        if candidate._base is not self._digests:
+            raise ValueError("event identity candidate belongs to another tracker")
+        self._digests.update(candidate._digests)
 
     def classify(self, event_id: str, digest: str) -> EventIdentityOutcome:
         """Classify ``event_id``, recording it as seen when it is new.
@@ -35,7 +48,7 @@ class EventIdentityTracker:
             EventIdentityConflictError: ``event_id`` was seen before with a
                 different payload digest.
         """
-        known = self._digests.get(event_id)
+        known = self._lookup(event_id)
         if known is None:
             self._digests[event_id] = digest
             return EventIdentityOutcome.NEW
@@ -44,3 +57,8 @@ class EventIdentityTracker:
         raise EventIdentityConflictError(
             f"event {event_id!r} changed payload digest from {known} to {digest}"
         )
+
+    def _lookup(self, event_id: str) -> str | None:
+        if self._base is None:
+            return self._digests.get(event_id)
+        return self._digests.get(event_id, self._base.get(event_id))
