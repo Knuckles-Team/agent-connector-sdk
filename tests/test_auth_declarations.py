@@ -319,6 +319,31 @@ def test_session_auth_refuses_plain_httpx_client() -> None:
     assert requests == []
 
 
+def test_session_allows_same_origin_redirect() -> None:
+    from agent_connector_sdk.auth.rotating import SessionLoginAuth
+    from agent_connector_sdk.http.client import create_http_client
+    from agent_connector_sdk.http.options import HttpClientOptions
+
+    requests: list[httpx.Request] = []
+
+    def serve(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path == "/login":
+            return httpx.Response(
+                200, headers={"Set-Cookie": "SID=secret; Path=/; Secure"}
+            )
+        if request.url.path == "/start":
+            return httpx.Response(302, headers={"Location": "/target"})
+        return httpx.Response(200)
+
+    auth = SessionLoginAuth(login_path="/login", username="user", password=lambda: "pw")
+    options = HttpClientOptions(base_url="https://one.example.test", auth=auth)
+    with create_http_client(options, transport=httpx.MockTransport(serve)) as client:
+        assert client.get("/start", follow_redirects=True).status_code == 200
+    assert requests[-1].url.path == "/target"
+    assert requests[-1].headers["Cookie"] == "SID=secret"
+
+
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
 def test_ca_bundle_comes_from_the_declared_tls_name(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
