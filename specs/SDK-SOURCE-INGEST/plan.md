@@ -865,3 +865,49 @@ partial progress and preserves accepted batches. The runner refuses a page
 that exceeds the remaining record budget. It keeps the prior checkpoint for
 the next run to retry the whole page. A fan-out stops as soon
 as it exceeds its admitted unique-value bound.
+## Paper provider model and deterministic merge
+
+The paper models bind tenant, provider identities, revisions, bounds, source
+fields and document receipts. A deterministic local merge applies the existing
+exact-identity and declared-precedence rules to already received provider
+records. This merge does not call a provider, authenticate a caller, enforce a
+shared quota or install a document. Those behaviors remain open under R005.2
+through R005.6.
+
+Search omits document offers with URL queries or fragments. Provider reference
+URLs omit queries and fragments. A host-managed secret handle is required to
+return signed document links safely.
+
+### Shared paper provider quota enforcement
+
+The host supplies each provider's globally named credential group and quota
+policy revision. Providers subject to one upstream limit use the same group.
+The SDK uses EG shared-scope KV compare-and-swap to serialize one request per
+credential group. It waits the admitted spacing before a source
+request. The stored lock binds the policy revision and spacing; a mismatch or
+unavailable KV refuses the source call. A crashed holder leaves a locked
+entry, so recovery needs an authorized operator rather than a guessed expiry.
+Search, retries and downloads must acquire this same gate for every request.
+
+### Paper provider streams and document operations
+
+The ScholarX host supplies caller authorization, provider HTTP options,
+credential quota groups, and the tenant storage root. The SDK does not derive
+these authorities from tool arguments. Each configured
+provider stream serves a separately named read-only tool with live source
+metadata and delta lifecycle. Its provider continuation is query-bound. A
+provider refusal raises a tool error before emitting a checkpoint. Each
+completed sweep receives a fresh graph checkpoint. The host must import the
+matching connector mapping and certify its live tool. The runner then submits
+the page.
+
+A document offer is not a storage grant. The host authorizes each document and
+supplies pinned, single-attempt HTTP options and the tenant root. Requests use
+the same shared credential quota as search. Responses stream to a private file
+within the authorized root with a byte limit. The SDK validates complete
+transfer and format before atomic installation. The SDK refuses unapproved
+redirects. A provider 429 retains the shared quota until an authorized operator
+resolves it. The SDK reads metadata from a verified artifact. It fills only
+missing provider values and records the digest and parser location. PDF support
+requires the workspace extra. Production proof requires authenticated host
+configuration and process restart through the connector-sync CLI.
