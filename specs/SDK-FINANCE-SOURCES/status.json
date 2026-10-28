@@ -10,6 +10,7 @@
     "SDK-FINANCE-SOURCES-R001.3",
     "SDK-FINANCE-SOURCES-R001.4",
     "SDK-FINANCE-SOURCES-R001.5",
+    "SDK-FINANCE-SOURCES-R001.6",
     "SDK-FINANCE-SOURCES-R002",
     "SDK-FINANCE-SOURCES-R002.1",
     "SDK-FINANCE-SOURCES-R002.2",
@@ -47,7 +48,8 @@
         "SDK-FINANCE-SOURCES-R001.2",
         "SDK-FINANCE-SOURCES-R001.3",
         "SDK-FINANCE-SOURCES-R001.4",
-        "SDK-FINANCE-SOURCES-R001.5"
+        "SDK-FINANCE-SOURCES-R001.5",
+        "SDK-FINANCE-SOURCES-R001.6"
       ]
     },
     {
@@ -100,6 +102,15 @@
       ],
       "verified_by": [
         "tests/test_finance_fred_series.py:125"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R001.6",
+      "title": "Unique FRED page identities",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_finance_fred_series.py:148"
       ]
     },
     {
