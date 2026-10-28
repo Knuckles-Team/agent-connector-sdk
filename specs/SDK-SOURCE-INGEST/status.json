@@ -406,11 +406,11 @@
       "title": "SDK adapters cover document, conversation, and feed sources",
       "delivery_state": "SPECIFIED",
       "landed_in": [
+        "0398017fcbb6",
         "3735e4434463",
         "45c6c7c1fd37",
         "763bc5318182",
-        "8e87ef9675f0",
-        "c151dd6baf5d"
+        "8e87ef9675f0"
       ],
       "verified_by": [
         "tests/test_adapters_web_fetch_source_adapter.py:58",
