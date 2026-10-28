@@ -49,9 +49,6 @@ class OrderedProgress:
         """Accept one increasing summary and await its bounded notification."""
         async with self._lock:
             self._check_transition(completed, total)
-            remaining = (self._context.deadline - datetime.now(UTC)).total_seconds()
-            if remaining <= 0:
-                raise TimeoutError("progress deadline exceeded")
             sequence = self._last.sequence + 1 if self._last else 1
             safe_message = self._redact(message) if message is not None else None
             progress = ToolProgress(
@@ -60,6 +57,9 @@ class OrderedProgress:
                 total=total,
                 message=safe_message,
             )
+            remaining = (self._context.deadline - datetime.now(UTC)).total_seconds()
+            if remaining <= 0:
+                raise TimeoutError("progress deadline exceeded")
             if self._last is not None and completed == self._last.completed:
                 self._last = progress.model_copy(
                     update={"sequence": self._last.sequence}
