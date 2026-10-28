@@ -102,6 +102,7 @@ class BaseLoopbackCallbackServer(HTTPServer):
     ) -> None:
         super().__init__(server_address, RequestHandlerClass)
         self.auth_code: str | None = None
+        self.expected_state: str | None = None
 
 
 class BaseLoopbackCallbackHandler(BaseHTTPRequestHandler):
@@ -169,10 +170,21 @@ class BaseLoopbackCallbackHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         parsed_url = urlparse(self.path)
         if parsed_url.path == self.redirect_path:
-            query_params = parse_qs(parsed_url.query)
-            if "code" in query_params:
-                if isinstance(self.server, BaseLoopbackCallbackServer):
-                    self.server.auth_code = query_params["code"][0]
+            query_params = parse_qs(parsed_url.query, keep_blank_values=True)
+            states = query_params.get("state", [])
+            codes = query_params.get("code", [])
+            server = self.server
+            if (
+                isinstance(server, BaseLoopbackCallbackServer)
+                and server.expected_state
+                and len(states) == 1
+                and secrets.compare_digest(
+                    states[0].encode("utf-8"), server.expected_state.encode("utf-8")
+                )
+                and len(codes) == 1
+                and codes[0]
+            ):
+                server.auth_code = codes[0]
                 self.send_response(200)
                 self.send_header("Content-Type", "text/html")
                 self.end_headers()
@@ -378,7 +390,7 @@ class BaseBrowserAuthManager:
             return None
         return tokens.get("access_token")
 
-    def _start_loopback_server(self) -> BaseLoopbackCallbackServer | None:
+    def _start_loopback_server(self, state: str) -> BaseLoopbackCallbackServer | None:
         """Start the callback server, falling back when the port is unavailable."""
 
         class CustomHandler(BaseLoopbackCallbackHandler):
@@ -389,6 +401,7 @@ class BaseBrowserAuthManager:
                 (self.redirect_host, self.redirect_port),
                 CustomHandler,
             )
+            server.expected_state = state
             server_thread = threading.Thread(target=server.handle_request, daemon=True)
             server_thread.start()
             logger.info("Started loopback HTTP server on port %d", self.redirect_port)
@@ -401,7 +414,9 @@ class BaseBrowserAuthManager:
             )
             return None
 
-    def _build_authorization_url(self, auth_endpoint: str, challenge: str) -> str:
+    def _build_authorization_url(
+        self, auth_endpoint: str, challenge: str, state: str | None = None
+    ) -> str:
         """Build the authorization URL from the configured PKCE challenge."""
         authorize_params = {
             "response_type": "code",
@@ -413,6 +428,8 @@ class BaseBrowserAuthManager:
         }
         if self.extra_auth_params:
             authorize_params.update(self.extra_auth_params)
+        if state is not None:
+            authorize_params["state"] = state
         return f"{auth_endpoint}?{urlencode(authorize_params)}"
 
     @staticmethod
@@ -555,8 +572,9 @@ class BaseBrowserAuthManager:
         """Execute the interactive OAuth PKCE flow."""
         auth_endpoint, token_endpoint = self._discover_endpoints()
         verifier, challenge = generate_pkce()
-        server = self._start_loopback_server()
-        auth_url = self._build_authorization_url(auth_endpoint, challenge)
+        state = secrets.token_urlsafe(32)
+        server = self._start_loopback_server(state)
+        auth_url = self._build_authorization_url(auth_endpoint, challenge, state)
         self._announce_authorization(auth_url)
         auth_code = self._get_authorization_code(server)
         if not auth_code:

@@ -89,6 +89,8 @@ Record server revision, transport, exact command, result and redacted trace rece
 These are implementation acceptance requirements; specification checks do not run them.
 
 
+- `SDK-CONNECTOR-CONTROL-R046.7`: `tests/test_oauth_loopback_state.py::test_loopback_callback_requires_exact_state` exercises real loopback requests with matching, missing, duplicate and invalid state or code.
+
 ## Scoped credential and inline authorization acceptance
 
 CC-56 through CC-61 bind SDK-CONNECTOR-CONTROL-R035.1 through R035.6 in tests/test_scoped_credential_transport.py.
