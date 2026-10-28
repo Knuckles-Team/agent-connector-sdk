@@ -3259,7 +3259,7 @@
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R780.6",
-      "title": "Remainder with no SDK equivalent",
+      "title": "Remainder of SDK helper migration",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
