@@ -243,6 +243,7 @@ Runtime work and test execution remain outstanding.
 - [x] **SDK-CONNECTOR-CONTROL-R780.4:** TLS profile resolution, bound.
 - [x] **SDK-CONNECTOR-CONTROL-R780.5:** Value helpers and configuration projection, bound.
 - [ ] **SDK-CONNECTOR-CONTROL-R780.6:** Add the remainder helpers.
+- [x] **SDK-CONNECTOR-CONTROL-R780.11:** Add a retry-safe synchronous callable runner.
 - [x] **SDK-CONNECTOR-CONTROL-R780.10:** Add a retry-safe async callable runner.
 - [x] **SDK-CONNECTOR-CONTROL-R780.9:** Add the governed Requests session factory.
 - [x] **SDK-CONNECTOR-CONTROL-R780.7:** Gate governed transports in air-gap mode.

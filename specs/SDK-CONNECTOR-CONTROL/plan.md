@@ -768,3 +768,11 @@ Session with TLS trust and finite timeouts. Each send enforces the air-gap
 policy, including redirects. Callers select a resolved TLS profile.
 The session ignores ambient proxies unless that profile permits them. The other
 R780.6 helpers remain open.
+
+
+## Amendment: synchronous callable retry (R780.11)
+
+The synchronous runner shares retry and fallback safety rules with the async
+runner. It refuses a requested timeout before calling the operation. An
+arbitrary blocking call cannot be stopped safely by the SDK. Other R780.6
+obligations remain open.
