@@ -3316,9 +3316,13 @@
     {
       "id": "SDK-SOURCE-INGEST-R004.50",
       "title": "Refuse a stalled MCP cursor",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "c8eb3e3d146b"
+      ],
+      "verified_by": [
+        "tests/test_mcp_cursor_refusal.py:22"
+      ]
     }
   ]
 }
