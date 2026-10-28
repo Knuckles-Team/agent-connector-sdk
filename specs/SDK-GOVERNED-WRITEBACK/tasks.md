@@ -28,3 +28,5 @@
 - [ ] Implement and prove served repository producer composition (SDK-GOVERNED-WRITEBACK-R004.12); preserve the original parent acceptance.
 - [ ] Refuse invalid reservation IDs and mismatched file-backed reservations (SDK-GOVERNED-WRITEBACK-R004.13).
 - [ ] Refuse an uncertain reconciliation that claims retry is safe (SDK-GOVERNED-WRITEBACK-R004.14).
+
+- [x] Recheck and isolate the approved change immediately before apply (SDK-GOVERNED-WRITEBACK-R004.16).

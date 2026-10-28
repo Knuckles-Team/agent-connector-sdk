@@ -216,3 +216,63 @@ async def test_idempotency_key_cannot_name_a_different_digest() -> None:
     )
     with pytest.raises(IdempotencyConflictError):
         await fixture.port.apply(changed)
+
+
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.16")
+async def test_mutated_change_set_after_audit_cannot_apply(monkeypatch):
+    fixture = make_writeback_fixture()
+    reserve = fixture.audit.reserve
+
+    async def mutate_after_reservation(change_set):
+        reservation = await reserve(change_set)
+        change_set.desired_patch["status"] = "forged"
+        return reservation
+
+    monkeypatch.setattr(fixture.audit, "reserve", mutate_after_reservation)
+    with pytest.raises(ChangeSetValidationError, match="digest"):
+        await fixture.port.apply(fixture.change_set)
+    assert fixture.transport.attempts == 0
+    assert (
+        fixture.transport.entities[fixture.change_set.entity_id].fields["status"]
+        == "new"
+    )
+
+
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.16")
+async def test_caller_mutation_during_apply_cannot_change_effect(monkeypatch):
+    fixture = make_writeback_fixture()
+    apply = fixture.transport.apply
+
+    async def mutate_caller_during_apply(change_set, version):
+        fixture.change_set.desired_patch["status"] = "forged"
+        return await apply(change_set, version)
+
+    monkeypatch.setattr(fixture.transport, "apply", mutate_caller_during_apply)
+    result = await fixture.port.apply(fixture.change_set)
+    assert result.effect_status is WriteBackEffectStatus.APPLIED
+    assert (
+        fixture.transport.entities[fixture.change_set.entity_id].fields["status"]
+        == "approved"
+    )
+
+
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.16")
+async def test_expiry_during_reservation_cannot_apply(monkeypatch):
+    fixture = make_writeback_fixture()
+    reserve = fixture.audit.reserve
+    clock = [fixture.change_set.expires_at_ms - 1]
+
+    async def expire_after_reservation(change_set):
+        reservation = await reserve(change_set)
+        clock[0] = fixture.change_set.expires_at_ms
+        return reservation
+
+    monkeypatch.setattr(fixture.audit, "reserve", expire_after_reservation)
+    verifier = DeterministicAuthorizationVerifier()
+    verifier.grant(fixture.change_set)
+    port = GovernedWriteBack(
+        fixture.transport, verifier, fixture.audit, clock_ms=lambda: clock[0]
+    )
+    with pytest.raises(ChangeSetExpiredError):
+        await port.apply(fixture.change_set)
+    assert fixture.transport.attempts == 0

@@ -213,3 +213,9 @@ digest. External audit adapters must return the same typed binding.
 ## Exact dry-run display
 
 SDK-GOVERNED-WRITEBACK-R004.15 binds each displayed preview to the validated current snapshot and approved patch. Compare JSON values by their serialized type and value, not Python equality that equates booleans and integers. This remains independent of repository provider composition.
+
+## Pre-apply binding (R004.16)
+
+The generated change set has mutable nested values. After audit reservation,
+the apply path copies the set and verifies its digest and expiry again. The
+transport receives that isolated copy. A changed or expired set has no effect.
