@@ -156,6 +156,7 @@
     "SDK-CONNECTOR-CONTROL-R650.4",
     "SDK-CONNECTOR-CONTROL-R650.5",
     "SDK-CONNECTOR-CONTROL-R014.30",
+    "SDK-CONNECTOR-CONTROL-R014.31",
     "SDK-CONNECTOR-CONTROL-R051",
     "SDK-CONNECTOR-CONTROL-R051.1",
     "SDK-CONNECTOR-CONTROL-R051.2",
@@ -536,6 +537,7 @@
         "SDK-CONNECTOR-CONTROL-R014.29",
         "SDK-CONNECTOR-CONTROL-R014.1",
         "SDK-CONNECTOR-CONTROL-R014.30",
+        "SDK-CONNECTOR-CONTROL-R014.31",
         "SDK-CONNECTOR-CONTROL-R014.2",
         "SDK-CONNECTOR-CONTROL-R014.3",
         "SDK-CONNECTOR-CONTROL-R014.4",
@@ -2139,6 +2141,18 @@
         "tests/test_http_dns_pinned_egress.py:226",
         "tests/test_http_dns_pinned_egress.py:239",
         "tests/test_http_dns_pinned_egress.py:259"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R014.31",
+      "title": "Cancellable async DNS pinning",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "65b7b041e442"
+      ],
+      "verified_by": [
+        "tests/test_http_dns_pinned_egress.py:268",
+        "tests/test_http_dns_pinned_egress.py:320"
       ]
     },
     {
