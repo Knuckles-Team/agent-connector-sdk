@@ -141,8 +141,10 @@
     {
       "id": "SDK-FINANCE-SOURCES-R003.3",
       "title": "Canonical FX currency identity",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "16691cb89ea9"
+      ],
       "verified_by": [
         "tests/test_finance_records.py:246",
         "tests/test_finance_records.py:254"
