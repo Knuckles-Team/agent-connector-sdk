@@ -2031,8 +2031,8 @@
       "title": "Explicit release key lock",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "57fa2bcc5ed7",
-        "e08e115f6cf3"
+        "1098588e7e23",
+        "851287a63d7a"
       ],
       "verified_by": [
         "tests/test_release_lock.py:35",
