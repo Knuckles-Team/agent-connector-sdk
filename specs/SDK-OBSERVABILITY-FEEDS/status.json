@@ -88,9 +88,15 @@
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001.7",
       "title": "Optional event tenant binding",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8f1df59c0536"
+      ],
+      "verified_by": [
+        "tests/test_event_feeds.py:702",
+        "tests/test_event_feeds.py:728",
+        "tests/test_event_feeds.py:742"
+      ]
     }
   ]
 }
