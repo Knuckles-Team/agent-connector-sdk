@@ -39,6 +39,6 @@ Imports remain `epistemic_graph`. Candidate-wheel experiments must not install
 both distributions into that shared namespace. The exact hosted Medulla wheel
 is prerelease evidence here, not a published-release claim. Fresh lock, release
 record and isolated installed acceptance remain required before release or
-promotion. Reviewed draft-source publication is permitted solely to build and
-qualify this prerelease candidate with the official same-run Medulla wheel; it
-does not satisfy the release gates or make the unchanged release lock current.
+promotion. Reviewers may publish the draft source only to build this candidate.
+They must qualify it with the official Medulla wheel from the same run.
+This does not satisfy release gates or update the unchanged release lock.
