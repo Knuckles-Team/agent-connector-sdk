@@ -11,8 +11,7 @@
 R003.1 binds the MCP source to a tenant and source identity. It validates each
 FX, commodity or real-estate record before submission. For property values, it
 compares valuation age with the configured freshness threshold. Provider APIs
-and licensed live access remain outside this evidence. R003.4 retains the
-provider-specific API work needed for the parent requirement.
+and licensed live access remain outside this evidence. R003.4 adds offline provider evidence in Emerald Exchange. It covers FMP FX, Databento fixed futures, Twelve Data gold spot and ATTOM valuations. The served pack test runs the SDK adapter and graph replay with graph 2.27.6. It uses the candidate SDK. It does not test live credentials or licensing. Explicitly bounded delta sources refuse reconciliation and authoritative pages.
 
 ## Cross-provider market source contract (R001.2)
 

@@ -6,10 +6,15 @@ from datetime import UTC
 from enum import StrEnum
 from typing import Any
 
-from epistemic_graph.generated.source_ingestion import SourceCheckpoint, SourceRecord
+from epistemic_graph.generated.source_ingestion import (
+    SourceCheckpoint,
+    SourceIngestionMode,
+    SourceRecord,
+)
 from pydantic import ValidationError
 
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from agent_connector_sdk.adapters.mcp_tool_paging import dig_path
 from agent_connector_sdk.contracts import (
     CapabilityDescriptor,
     ReconciliationReport,
@@ -124,11 +129,32 @@ class MultiAssetSourceAdapter:
                 "invalid multi-asset source record"
             ) from None
 
+    def _is_bounded(self) -> bool:
+        return (
+            dig_path(self._source.preset.params, self._source.preset.mode_param)
+            == "delta"
+        )
+
+    def _validate_bounded_page(self, page: RecordPage) -> None:
+        if self._is_bounded() and (
+            page.mode is not SourceIngestionMode.DELTA
+            or page.withdrawals
+            or page.authoritative_live_ids is not None
+        ):
+            raise SourceContractError("bounded multi-asset sources require delta pages")
+
+    def _require_reconcilable(self) -> None:
+        if self._is_bounded():
+            raise SourceContractError(
+                "bounded multi-asset sources do not support reconciliation"
+            )
+
     async def extract(
         self, session: McpSession, checkpoint: SourceCheckpoint | None
     ) -> RecordPage:
         """Validate and normalize every record before returning the whole page."""
         page = await self._source.extract(session, checkpoint)
+        self._validate_bounded_page(page)
         records = tuple(self._validated(record) for record in page.records)
         if len({record.record_id for record in records}) != len(records):
             raise MalformedSourceDataError("duplicate multi-asset source identity")
@@ -138,6 +164,7 @@ class MultiAssetSourceAdapter:
         self, session: McpSession, known_ids: frozenset[str]
     ) -> ReconciliationReport:
         """Compare IDs only after validating each source page."""
+        self._require_reconcilable()
         await self.discover(session)
         seen: set[str] = set()
         checkpoint = None

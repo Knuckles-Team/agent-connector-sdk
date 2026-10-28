@@ -240,3 +240,127 @@ async def test_reconciliation_validates_source_before_comparing_ids():
     ) as session:
         with pytest.raises(MalformedSourceDataError):
             await adapter.reconcile(session, frozenset({"old"}))
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.4")
+async def test_provider_records_cross_the_sdk_source_boundary():
+    """The owner pack separately exercises provider transport and graph replay."""
+    fx = {
+        **_base("fmp-fx"),
+        "provider": "financialmodelingprep",
+        "instrument_id": "EURUSD",
+        "base_currency": "EUR",
+        "quote_currency": "USD",
+        "rate": 1.12,
+    }
+    spot = {
+        **_base("twelve-spot"),
+        "provider": "twelvedata",
+        "instrument_id": "XAU/USD",
+        "basis": "spot",
+        "price": 2020.25,
+        "currency": "USD",
+    }
+    future = {
+        **_base("databento-future"),
+        "provider": "databento",
+        "instrument_id": "GLBX.MDP3:GCZ4",
+        "basis": "future",
+        "price": 2000,
+        "currency": "USD",
+        "contract_code": "GCZ4",
+        "expiry": "2026-12-01T00:00:00Z",
+        "roll_rule": "none:fixed-contract",
+    }
+    valuation = {
+        **_base("attom-home"),
+        "provider": "attom",
+        "instrument_id": "attom:123",
+        "valuation_date": "2026-01-01T00:00:00Z",
+        "method": "attom_avm",
+        "currency": "USD",
+        "estimated_value": 500000,
+        "staleness_days": 30,
+        "stale": True,
+    }
+    fx_sink, _ = await _sync(MultiAssetKind.FX, [fx])
+    market_sink, _ = await _sync(MultiAssetKind.COMMODITY, [spot, future])
+    home_sink, _ = await _sync(MultiAssetKind.REAL_ESTATE, [valuation], age=10)
+    assert (
+        next(iter(fx_sink.batches.values())).records[0].payload["provider"]
+        == "financialmodelingprep"
+    )
+    prices = next(iter(market_sink.batches.values())).records
+    assert [r.payload["basis"] for r in prices] == ["spot", "future"]
+    assert prices[1].payload["roll_rule"] == "none:fixed-contract"
+    assert (
+        next(iter(home_sink.batches.values())).records[0].payload["staleness_days"]
+        == 30
+    )
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.4")
+async def test_bounded_provider_source_cannot_reconcile():
+    """A single provider observation is not a complete live set."""
+    from agent_connector_sdk.ports.errors import SourceContractError
+
+    server = FastMCP("finance", version="1.0.0")
+
+    @server.tool()
+    def read(mode: str, since: dict | None = None) -> dict:
+        return {
+            "records": [
+                {
+                    **_base("fx-1"),
+                    "base_currency": "EUR",
+                    "quote_currency": "USD",
+                    "rate": 1.12,
+                }
+            ],
+            "checkpoint": {"generation": "fresh"},
+        }
+
+    preset = ToolPreset(
+        name="prices",
+        server="finance",
+        tool="read",
+        id_field="source_event_id",
+        params_style="args",
+        params={"mode": "delta"},
+        updated_since_param="since",
+        checkpoint_path="checkpoint",
+        records_path="records",
+    )
+    adapter = MultiAssetSourceAdapter(
+        McpToolSourceAdapter(
+            preset,
+            connector="finance",
+            mapping_reference="connector:finance#mappings/Record",
+        ),
+        asset_kind=MultiAssetKind.FX,
+        tenant_id="tenant-1",
+        source_id="finance-source",
+    )
+    async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
+        await adapter.discover(session)
+        assert len((await adapter.extract(session, None)).records) == 1
+        with pytest.raises(SourceContractError, match="do not support reconciliation"):
+            await adapter.reconcile(session, frozenset({"old"}))
+        nested = preset.model_copy(
+            update={
+                "mode_param": "options.mode",
+                "params": {"options": {"mode": "delta"}},
+            }
+        )
+        nested_adapter = MultiAssetSourceAdapter(
+            McpToolSourceAdapter(
+                nested,
+                connector="finance",
+                mapping_reference="connector:finance#mappings/Record",
+            ),
+            asset_kind=MultiAssetKind.FX,
+            tenant_id="tenant-1",
+            source_id="finance-source",
+        )
+        with pytest.raises(SourceContractError, match="do not support reconciliation"):
+            await nested_adapter.reconcile(session, frozenset({"old"}))
