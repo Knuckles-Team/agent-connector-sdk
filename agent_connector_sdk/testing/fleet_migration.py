@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import ast
 import os
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -96,18 +96,13 @@ def _imports_agent_utilities(source: str) -> bool | None:
     return False
 
 
-def scan_for_agent_utilities_imports(
+def _scan_python_sources(
     package_root: Path,
+    predicate: Callable[[str], bool | None],
     *,
     exclude_dirs: frozenset[str] = _DEFAULT_EXCLUDED_DIRS,
 ) -> PackageScanResult:
-    """Scan every ``.py`` file under ``package_root`` for an ``agent_utilities`` import.
-
-    Parses each file with :mod:`ast` rather than a text search, so a string
-    or comment that merely mentions ``agent_utilities`` is never a false
-    positive. Missing, empty, unreadable or invalid roots cannot report
-    migration as complete.
-    """
+    """Run a source predicate with fail-closed traversal and parsing."""
     offending: list[str] = []
     unscanned: list[str] = []
     scanned = 0
@@ -143,7 +138,7 @@ def scan_for_agent_utilities_imports(
                 continue
             try:
                 source = path.read_text(encoding="utf-8")
-                legacy = _imports_agent_utilities(source)
+                legacy = predicate(source)
             except (OSError, UnicodeDecodeError, SyntaxError):
                 unscanned.append(relative)
                 continue
@@ -158,6 +153,17 @@ def scan_for_agent_utilities_imports(
         package=package_root.name,
         offending_files=tuple(sorted(offending)),
         unscanned_files=tuple(sorted(unscanned)),
+    )
+
+
+def scan_for_agent_utilities_imports(
+    package_root: Path,
+    *,
+    exclude_dirs: frozenset[str] = _DEFAULT_EXCLUDED_DIRS,
+) -> PackageScanResult:
+    """Scan Python imports without treating incomplete scans as migrated."""
+    return _scan_python_sources(
+        package_root, _imports_agent_utilities, exclude_dirs=exclude_dirs
     )
 
 

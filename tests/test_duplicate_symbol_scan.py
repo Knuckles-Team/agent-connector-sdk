@@ -89,3 +89,22 @@ def test_a_file_that_fails_to_parse_is_skipped_not_fabricated_clean(
     result = scan_for_duplicate_manifest_or_certify_definitions(tmp_path / "pkg")
 
     assert result.offending_files == ()
+    assert result.unscanned_files == ("broken.py",)
+    assert not result.clean
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R015.1")
+def test_incomplete_duplicate_scan_is_not_clean(tmp_path: Path) -> None:
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    assert not scan_for_duplicate_manifest_or_certify_definitions(empty).clean
+    assert not scan_for_duplicate_manifest_or_certify_definitions(
+        tmp_path / "missing"
+    ).clean
+    root = tmp_path / "pkg"
+    _write(root / "good.py", "import httpx\n")
+    (root / "invalid.py").write_bytes(b"\xff")
+    (root / "linked.py").symlink_to(root / "good.py")
+    result = scan_for_duplicate_manifest_or_certify_definitions(root)
+    assert not result.clean
+    assert result.unscanned_files == ("invalid.py", "linked.py")

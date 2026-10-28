@@ -592,7 +592,7 @@
         "077a14c9f3d3",
         "5e1bd9257555",
         "9cec9cea7d37",
-        "fad5328aee62"
+        "b3d7982de139"
       ],
       "verified_by": [
         "tests/test_duplicate_symbol_scan.py:21",
@@ -613,6 +613,7 @@
         "061f9b58abb2",
         "077a14c9f3d3",
         "9cec9cea7d37",
+        "b3d7982de139",
         "fad5328aee62"
       ],
       "verified_by": [
