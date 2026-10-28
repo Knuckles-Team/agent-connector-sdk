@@ -101,7 +101,14 @@ def test_document_retry_after_uses_same_quota(live_ingest, tmp_path):  # noqa: F
         assert len(server.requests) == 2
 
 
-async def exercise_refusal(url, root, content_type="text/html"):
+async def exercise_refusal(
+    url,
+    root,
+    content_type="text/html",
+    *,
+    max_bytes=50 * 1024 * 1024,
+    allow_loopback=True,
+):
     client = await scoped_client(
         ["kv:read", "kv:write", "kv:shared:read", "kv:shared:write"]
     )
@@ -113,7 +120,7 @@ async def exercise_refusal(url, root, content_type="text/html"):
                 http=HttpClientOptions(
                     base_url=url,
                     pin_egress=True,
-                    allow_loopback=True,
+                    allow_loopback=allow_loopback,
                     retry=RetryPolicy(max_attempts=1),
                 ),
                 quota=PaperQuotaPolicy(
@@ -122,6 +129,7 @@ async def exercise_refusal(url, root, content_type="text/html"):
                     policy_revision="v1",
                     minimum_spacing_ns=1,
                 ),
+                max_bytes=max_bytes,
             )
 
         service = PaperDocumentService(SharedPaperQuota(client), authorize)
@@ -169,6 +177,34 @@ def test_bad_digest_rejected_without_artifact(live_ingest, tmp_path):  # noqa: F
             exercise_refusal(server.base_url, tmp_path), live_ingest._loop
         ).result(30)
         assert reason == "integrity_failed"
+        assert list(tmp_path.iterdir()) == []
+
+
+def test_provider_auth_and_size_refusals_leave_no_artifact(live_ingest, tmp_path):  # noqa: F811
+    with ScriptedHttpServer(ScriptedResponse(status=401)) as server:
+        reason = asyncio.run_coroutine_threadsafe(
+            exercise_refusal(server.base_url, tmp_path), live_ingest._loop
+        ).result(30)
+        assert reason == "unauthorized"
+        assert list(tmp_path.iterdir()) == []
+    with ScriptedHttpServer(
+        ScriptedResponse(body=b"oversized", headers={"Content-Type": "text/html"})
+    ) as server:
+        reason = asyncio.run_coroutine_threadsafe(
+            exercise_refusal(server.base_url, tmp_path, max_bytes=3), live_ingest._loop
+        ).result(30)
+        assert reason == "size_exceeded"
+        assert list(tmp_path.iterdir()) == []
+
+
+def test_governed_egress_refusal_precedes_provider_request(live_ingest, tmp_path):  # noqa: F811
+    with ScriptedHttpServer(ScriptedResponse(body=b"unused")) as server:
+        reason = asyncio.run_coroutine_threadsafe(
+            exercise_refusal(server.base_url, tmp_path, allow_loopback=False),
+            live_ingest._loop,
+        ).result(30)
+        assert reason == "egress_denied"
+        assert not server.requests
         assert list(tmp_path.iterdir()) == []
 
 
@@ -224,3 +260,57 @@ def test_metadata_fallback_preserves_provider_fields(live_ingest, tmp_path):  # 
     assert enriched.abstract == "Document abstract"
     assert enriched.field_provenance["authors"][0].document_sha256 == receipt.sha256
     assert enriched.field_provenance["title"] == (evidence,)
+
+
+async def exercise_busy_quota(url, root):
+    engine = await scoped_client(
+        ["kv:read", "kv:write", "kv:shared:read", "kv:shared:write"]
+    )
+    try:
+        quota = SharedPaperQuota(engine)
+        policy = PaperQuotaPolicy(
+            provider_id="arxiv",
+            credential_group="busy-document",
+            policy_revision="v1",
+            minimum_spacing_ns=1,
+        )
+
+        async def authorize(request, context):
+            return DocumentAdmission(
+                root=Path(root),
+                http=HttpClientOptions(
+                    base_url=url,
+                    pin_egress=True,
+                    allow_loopback=True,
+                    retry=RetryPolicy(max_attempts=1),
+                ),
+                quota=policy,
+            )
+
+        service = PaperDocumentService(quota, authorize)
+        request = DocumentRequest(
+            tenant="allowed",
+            paper_id="paper",
+            revision=None,
+            offer=DocumentOffer(
+                provider_id="arxiv", url=url + "/paper", media_type="text/html"
+            ),
+        )
+        async with quota.request_slot(policy):
+            try:
+                await service.download(request, None)
+            except DocumentRefusal as error:
+                return error.reason
+            raise AssertionError("a busy quota permitted a request")
+    finally:
+        await engine.close()
+
+
+def test_busy_shared_quota_refuses_before_provider_request(live_ingest, tmp_path):  # noqa: F811
+    with ScriptedHttpServer(ScriptedResponse(body=b"unused")) as server:
+        reason = asyncio.run_coroutine_threadsafe(
+            exercise_busy_quota(server.base_url, tmp_path), live_ingest._loop
+        ).result(30)
+        assert reason == "rate_limited"
+        assert not server.requests
+        assert list(tmp_path.iterdir()) == []

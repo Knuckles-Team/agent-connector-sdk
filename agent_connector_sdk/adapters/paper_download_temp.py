@@ -11,6 +11,13 @@ from pathlib import Path
 from agent_connector_sdk.adapters.paper_document_errors import DocumentRefusal
 
 
+def _open_validation(directory: int, name: str) -> int:
+    try:
+        return os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=directory)
+    except OSError:
+        raise DocumentRefusal("storage_denied") from None
+
+
 @contextmanager
 def _temporary(root: Path) -> Iterator[tuple[int, str, int]]:
     try:
