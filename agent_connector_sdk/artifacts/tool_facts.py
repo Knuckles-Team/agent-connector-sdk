@@ -6,6 +6,7 @@ Callers may replace it with a measured tokenizer count where available.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import StrEnum
 from typing import Any, Literal, Self
 
@@ -21,6 +22,7 @@ from agent_connector_sdk.manifest.tool_schema import (
     canonical_input_schema,
     read_field,
 )
+from agent_connector_sdk.mcp.action_dispatch import is_destructive_action
 from agent_connector_sdk.ports.errors import MalformedArtifactError
 
 __all__ = [
@@ -91,21 +93,28 @@ def _tool_body(tool: Any) -> dict[str, Any]:
     }
 
 
-def facts_from_declaration(tool: Any) -> ToolContractFacts:
+def facts_from_declaration(
+    tool: Any, *, operation: Mapping[str, Any] | None = None
+) -> ToolContractFacts:
     """Build conservative facts from a live tool and its declared hints."""
     body = _tool_body(tool)
     annotations = read_field(tool, "annotations")
     declared = _declared_annotations(tool)
     merged = _annotations_from_mcp(tool, tool_annotations=annotations)
     hint = merged.read_only_hint
+    destructive = is_destructive_action(body["name"], operation)
     source: Literal["connector", "mcp_hint", "default"] = (
         "connector"
         if declared.get("read_only_hint") is not None
         else ("mcp_hint" if hint is not None else "default")
     )
     return ToolContractFacts(
-        read_only=bool(hint) if hint is not None else False,
-        side_effects=frozenset() if hint else frozenset({SideEffect.EXTERNAL_WRITE}),
+        read_only=bool(hint) and not destructive,
+        side_effects=(
+            frozenset()
+            if hint and not destructive
+            else frozenset({SideEffect.EXTERNAL_WRITE})
+        ),
         arg_schema=body["input_schema"],
         schema_tokens=schema_tokens(canonical_json(body)),
         declared_by=source,

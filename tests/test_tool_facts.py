@@ -119,3 +119,20 @@ def test_mcp_read_only_hint_is_recorded_as_self_declared() -> None:
     tool.meta = {"eg.annotations": {"read_only_hint": False}}
     with pytest.raises(MalformedArtifactError, match="conflicting"):
         facts_from_declaration(tool)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.7")
+def test_destructive_action_is_never_read_only() -> None:
+    tool = {
+        "name": "delete_user",
+        "inputSchema": {"type": "object"},
+        "annotations": {"readOnlyHint": True},
+    }
+    facts = facts_from_declaration(tool)
+    assert not facts.read_only and SideEffect.EXTERNAL_WRITE in facts.side_effects
+    assert facts.declared_by == "mcp_hint"
+    exempt = facts_from_declaration(tool, operation={"destructive": False})
+    assert exempt.read_only
+    safe_name = {**tool, "name": "list_users"}
+    explicit = facts_from_declaration(safe_name, operation={"destructive": True})
+    assert not explicit.read_only and SideEffect.EXTERNAL_WRITE in explicit.side_effects
