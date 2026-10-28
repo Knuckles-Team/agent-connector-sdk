@@ -106,3 +106,10 @@ current URL. Apply the same origin, userinfo and loop guards as `next_url`.
 For SDK-CENTRALIZED-CAPABILITIES-R011, token requests must not follow redirects.
 Reject a redirect response even when it contains a token. This prevents a
 redirect target from receiving credentials or a delegated subject token.
+
+## Partial-page cursor safety (R004.5)
+
+When the item budget cuts a page, its provider cursor points past unseen
+records. Return no cursor for that partial page. Keep `truncated` true. A cap
+on a full page can return the provider cursor. Exact mid-page resume remains
+open work.

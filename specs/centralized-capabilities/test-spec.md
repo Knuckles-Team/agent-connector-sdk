@@ -64,3 +64,8 @@ A negative or zero interval clamps to zero and never sleeps (`test_interval_is_c
 | CC-50 | `SDK-CENTRALIZED-CAPABILITIES-R004.2` | Unit | Follow safe and unsafe Link headers with both iterators. | Cross-origin and credential-bearing links never reach the fetch callable. A repeated link ends the sweep. |
 
 Run `uv run pytest tests/test_centralized_capability_index.py tests/test_centralized_extras.py tests/httpsupport/test_rate_limiter.py tests/httpsupport/test_pagination_next_url.py`. Run the `spec-standard` and `spec-status` hooks on the directory. A fleet-wide scan of connectors is outside this spec.
+
+## Partial-page cursor safety (R004.5)
+
+Run sync and async iterators with a page larger than the remaining budget.
+They return no next cursor. A budget that ends on a full page keeps its cursor.
