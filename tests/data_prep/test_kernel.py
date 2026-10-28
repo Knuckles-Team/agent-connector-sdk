@@ -736,3 +736,23 @@ def test_duplicate_schema_fields_are_rejected() -> None:
         pipeline.run(table)
     with pytest.raises(PlanExecutionError, match="field names must be unique"):
         pipeline.run_paged(table)
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.13")
+def test_missing_arrow_names_the_declared_extra(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import builtins
+
+    original_import = builtins.__import__
+
+    def missing_arrow(name: str, *args: object, **kwargs: object) -> object:
+        if name == "pyarrow":
+            raise ImportError("unavailable")
+        return original_import(name, *args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(builtins, "__import__", missing_arrow)
+        with pytest.raises(DataPrepDependencyError) as error:
+            ArrowAdapter.as_table(object())
+    assert "scion-sdk[dataprep]" in str(error.value)

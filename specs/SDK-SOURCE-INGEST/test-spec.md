@@ -399,3 +399,4 @@ R803.10 refuses a passed result with zero checks at both models and at the job b
 R803.11 refuses any mismatch between certification state and signed summary status.
 
 R803.12 rejects non-string signer identity, algorithm and signature without reporting a pass.
+R803.13 checks the missing Arrow dependency through the public adapter and names the declared extra.
