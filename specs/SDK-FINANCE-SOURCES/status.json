@@ -200,20 +200,20 @@
     {
       "id": "SDK-FINANCE-SOURCES-R003",
       "title": "FX, commodities, and real-estate adapters with roll and staleness rules",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "08979a040365",
         "13fcdacb3ff1",
         "16691cb89ea9",
         "6ef04661acc2",
-        "a386922d65f8",
-        "ea3bb5a2b00c"
+        "a386922d65f8"
       ],
       "verified_by": [
-        "tests/test_finance_records.py:101",
-        "tests/test_finance_records.py:113",
-        "tests/test_finance_records.py:119",
-        "tests/test_finance_records.py:130",
-        "tests/test_finance_records.py:142"
+        "tests/test_finance_multi_asset_source.py:136",
+        "tests/test_finance_multi_asset_source.py:202",
+        "tests/test_finance_multi_asset_source.py:222",
+        "tests/test_finance_multi_asset_source.py:245",
+        "tests/test_finance_multi_asset_source.py:302"
       ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R003.1",
@@ -263,9 +263,14 @@
     {
       "id": "SDK-FINANCE-SOURCES-R003.4",
       "title": "Provider-specific multi-asset source coverage",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "08979a040365"
+      ],
+      "verified_by": [
+        "tests/test_finance_multi_asset_source.py:245",
+        "tests/test_finance_multi_asset_source.py:302"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R004",

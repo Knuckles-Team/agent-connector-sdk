@@ -43,9 +43,8 @@ contract metadata. It checks dated values and configured valuation freshness.
 Malformed records are refused before submission. Provider API integrations
 remain open under R003.
 
-R003.4 requires offline fixtures for actual provider API reads. The fixtures
-must preserve FX pair direction, commodity contract and roll data, and dated
-property valuations.
+R003.4 uses the SDK provider-record boundary test together with Emerald Exchange
+`tests/test_multi_asset_sources.py` and `tests/test_multi_asset_sources_graph.py::test_provider_records_through_sdk_and_graph`. Synthetic responses cover FMP FX, Databento futures, Twelve Data gold and ATTOM valuations. The owner reads them through provider transports and a served MCP pack. The SDK adapter submits each stream to a real graph twice. Graph assertions check pair direction, price basis, contract, roll and valuation age. The graph proof requires graph 2.27.6 and an SDK containing the adapter. The SDK refuses reconciliation for bounded delta sources. These offline fixtures do not establish live access or provider licensing.
 
 R004.1 remains open: synthetic mapping and stable identifiers do not prove real source reads or durable re-import.
 - `SDK-FINANCE-SOURCES-R003.2`: `tests/test_finance_records.py` checks non-finite FX and commodity prices and overflow on FX inversion.
