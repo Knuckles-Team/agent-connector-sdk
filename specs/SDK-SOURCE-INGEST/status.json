@@ -224,6 +224,7 @@
     "SDK-SOURCE-INGEST-R803.10",
     "SDK-SOURCE-INGEST-R803.11",
     "SDK-SOURCE-INGEST-R803.12",
+    "SDK-SOURCE-INGEST-R803.13",
     "SDK-SOURCE-INGEST-R804",
     "SDK-SOURCE-INGEST-R804.1",
     "SDK-SOURCE-INGEST-R804.2",
@@ -2568,7 +2569,8 @@
         "SDK-SOURCE-INGEST-R803.9",
         "SDK-SOURCE-INGEST-R803.10",
         "SDK-SOURCE-INGEST-R803.11",
-        "SDK-SOURCE-INGEST-R803.12"
+        "SDK-SOURCE-INGEST-R803.12",
+        "SDK-SOURCE-INGEST-R803.13"
       ]
     },
     {
@@ -2705,6 +2707,17 @@
       ],
       "verified_by": [
         "tests/data_prep/certification/test_job.py:347"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.13",
+      "title": "Correct Arrow installation hint",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "832766055f8f"
+      ],
+      "verified_by": [
+        "tests/data_prep/test_kernel.py:741"
       ]
     },
     {

@@ -10,7 +10,7 @@ from pydantic import ValidationError
 
 pa = pytest.importorskip(
     "pyarrow",
-    reason="NE-114 Arrow contract requires the explicit [pyarrow] extra",
+    reason="NE-114 Arrow contract requires the explicit [dataprep] extra",
 )
 
 from agent_connector_sdk.data_prep._classification import (  # noqa: E402
