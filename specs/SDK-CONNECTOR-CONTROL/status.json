@@ -1608,7 +1608,8 @@
       "title": "Model",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "001bff61db68"
+        "001bff61db68",
+        "7f1edf06973d"
       ],
       "verified_by": [
         "tests/test_readable_form.py:35"
