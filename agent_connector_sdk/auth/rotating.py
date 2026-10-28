@@ -61,7 +61,8 @@ class SessionLoginAuth(httpx.Auth):
 
     The session cookie is held in memory and attached by this class; it never
     reaches a log or an error. A 401 or 403 after a login clears the session and
-    retries once with a fresh login.
+    retries once with a fresh login. Use a governed SDK client: unguarded HTTPX
+    clients cannot enforce origin checks on redirect hops and are refused.
     """
 
     def __init__(
@@ -77,7 +78,9 @@ class SessionLoginAuth(httpx.Auth):
         self._username = header_safe(username, what="username")
         self._password = password
         self._fields = (username_field, password_field)
-        self._cookie = ""
+        self._cookies = httpx.Cookies()
+        self._origin: tuple[str, str, int | None] | None = None
+        self._guard_token = object()
         self._lock = threading.Lock()
 
     def __repr__(self) -> str:
@@ -95,23 +98,43 @@ class SessionLoginAuth(httpx.Auth):
         response = yield self._login_request(request)
         jar = httpx.Cookies()
         jar.extract_cookies(response)
-        pairs = [f"{c.name}={c.value}" for c in jar.jar]
-        if response.status_code >= 400 or not pairs:
+        if response.status_code >= 400 or not list(jar.jar):
             raise TokenRequestError("session login was rejected")
         with self._lock:
-            self._cookie = "; ".join(pairs)
+            self._cookies = jar
+
+    def _attach_cookies(self, request: httpx.Request) -> None:
+        with self._lock:
+            request.headers.pop("Cookie", None)
+            self._cookies.set_cookie_header(request)
+
+    def _guard_request(self, request: httpx.Request) -> None:
+        request.extensions["scion_session_guard"] = self._guard_token
+
+    def _check_origin(self, request: httpx.Request) -> None:
+        origin = (request.url.scheme, request.url.host, request.url.port)
+        with self._lock:
+            if self._origin is None:
+                self._origin = origin
+            elif self._origin != origin:
+                raise TokenRequestError("session authentication origin does not match")
 
     def auth_flow(
         self, request: httpx.Request
     ) -> Generator[httpx.Request, httpx.Response]:
         """Log in when there is no session, attach it, re-login once on 401/403."""
-        if not self._cookie:
+        if request.extensions.pop("scion_session_guard", None) is not self._guard_token:
+            raise TokenRequestError("session authentication requires a governed client")
+        self._check_origin(request)
+        with self._lock:
+            has_cookies = bool(list(self._cookies.jar))
+        if not has_cookies:
             yield from self._login(request)
-        request.headers["Cookie"] = self._cookie
+        self._attach_cookies(request)
         response = yield request
         if response.status_code in (401, 403):
             with self._lock:
-                self._cookie = ""
+                self._cookies = httpx.Cookies()
             yield from self._login(request)
-            request.headers["Cookie"] = self._cookie
+            self._attach_cookies(request)
             yield request
