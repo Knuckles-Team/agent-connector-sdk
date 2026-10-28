@@ -447,6 +447,12 @@ checks empty, missing, extra and duplicate captures against served MCP tools.
 `tests/test_artifacts_discovery.py::test_contract_pin_normalization_rejects_duplicate_live_names`
 checks duplicate names in the live response.
 
+## Fleet scan completeness (R014.28)
+
+The fleet scan test uses empty and missing roots, invalid bytes, symbolic
+links and duplicate package names. It asserts that none can produce a clean
+migration result. A separate test exercises invalid Python syntax.
+
 ## Session cookie scope (R028.5)
 
 An HTTPX client logs in once, then calls a matching and nonmatching path. The
