@@ -446,3 +446,10 @@ checks bounded fallback through the governed transport.
 checks empty, missing, extra and duplicate captures against served MCP tools.
 `tests/test_artifacts_discovery.py::test_contract_pin_normalization_rejects_duplicate_live_names`
 checks duplicate names in the live response.
+
+## Session cookie scope (R028.5)
+
+An HTTPX client logs in once, then calls a matching and nonmatching path. The
+test checks cookie path scope and refuses a second origin without dispatch.
+Sync and async tests also refuse cross-origin redirects. Direct unguarded
+HTTPX use refuses before login.
