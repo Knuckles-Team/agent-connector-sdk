@@ -92,6 +92,14 @@ def _macro_observation_from_fred(
     )
 
 
+def _require_unique_observations(
+    observations: tuple[MacroSeriesObservation, ...],
+) -> tuple[MacroSeriesObservation, ...]:
+    if len({item.source_event_id for item in observations}) != len(observations):
+        raise ValueError("FRED page contains duplicate observation identities")
+    return observations
+
+
 def macro_series_from_fred(
     payload: Mapping[str, Any],
     *,
@@ -108,15 +116,17 @@ def macro_series_from_fred(
         raw_observations, (str, bytes)
     ):
         raise ValueError("FRED observations must be an array")
-    return tuple(
-        _macro_observation_from_fred(
-            raw,
-            tenant_id=tenant_id,
-            source_id=source_id,
-            provider=provider,
-            series_id=series_id,
-            license_tag=license_tag,
-            observed_at_utc=observed_at_utc,
+    return _require_unique_observations(
+        tuple(
+            _macro_observation_from_fred(
+                raw,
+                tenant_id=tenant_id,
+                source_id=source_id,
+                provider=provider,
+                series_id=series_id,
+                license_tag=license_tag,
+                observed_at_utc=observed_at_utc,
+            )
+            for raw in raw_observations
         )
-        for raw in raw_observations
     )
