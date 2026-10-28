@@ -10,6 +10,7 @@
 - [x] Verify canonical MCP FX, commodity and real-estate source streams and their domain refusals (SDK-FINANCE-SOURCES-R003.1).
 - [x] Exercise provider-specific FX, commodity and real-estate source integrations (SDK-FINANCE-SOURCES-R003.4).
 - [x] Account/position reads and idempotent CSV import with preview (SDK-FINANCE-SOURCES-R004).
+- [x] Bind account, position and CSV sources and replay them into the graph (SDK-FINANCE-SOURCES-R004.1).
 - [x] Macro and liquidity panels: FRED series, ETF flows, sentiment, on-chain, each tagged with source and observation time (SDK-FINANCE-SOURCES-R005).
   - [x] FRED/ALFRED macro series preserving reporting vintage (`agent_connector_sdk.finance.fred_series`) (SDK-FINANCE-SOURCES-R005).
   - [x] ETF fund-flow panel: net flow and AUM per fund per trading day (`agent_connector_sdk.finance.etf_flows`) (SDK-FINANCE-SOURCES-R005).

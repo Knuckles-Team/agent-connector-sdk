@@ -48,3 +48,12 @@ counter or history. This comparison does not establish the transaction on chain.
 For R900.7, market feed subscriptions use one aggregator per symbol and bar
 interval. Each tick updates every interval for its symbol. Subscribers to the
 same interval share the same aggregator.
+
+## Account source binding
+
+R004.1 requires the account snapshot, positions and CSV activity to pass through
+an account-bound SDK source adapter before the sink. The adapter validates each
+record and rejects a different account. It keeps the served provider fields and
+does not invent a provider event time. It submits non-authoritative delta pages
+and refuses reconciliation, so one account read cannot withdraw another. The owner pack test replays the same
+account, positions and CSV through the adapter into a real graph.
