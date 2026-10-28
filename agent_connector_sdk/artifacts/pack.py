@@ -122,9 +122,6 @@ async def _capture_entries(
 
 def _validate_resource_descriptors(entries: Sequence[CapturedArtifact]) -> None:
     """Validate the served declaration before it enters a content pack."""
-    from rdflib import RDF, RDFS, Graph, URIRef
-    from rdflib.namespace import OWL
-
     resources = next((entry for entry in entries if entry.uri == RESOURCES_URI), None)
     if resources is None:
         return
@@ -135,6 +132,9 @@ def _validate_resource_descriptors(entries: Sequence[CapturedArtifact]) -> None:
         raise MalformedArtifactError("resource descriptors must be a list of objects")
     if not descriptors:
         return
+    from rdflib import RDF, RDFS, Graph, URIRef
+    from rdflib.namespace import OWL
+
     graph = Graph()
     try:
         for entry in entries:
