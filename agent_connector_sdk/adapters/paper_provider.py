@@ -15,7 +15,6 @@ from agent_connector_sdk.adapters.paper_models import (
     ProviderReference,
     _Model,
 )
-
 from agent_connector_sdk.runner.backoff import _finite_number
 
 __all__ = ["PaperProvider", "ProviderFailure", "ProviderPage", "ProviderPaper"]
