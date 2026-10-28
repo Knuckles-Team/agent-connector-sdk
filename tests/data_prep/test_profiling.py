@@ -296,3 +296,28 @@ def test_rare_numeric_values_do_not_escape_in_statistics() -> None:
     )
     assert eligible.column_profiles[0].min_value == 1
     assert eligible.column_profiles[0].max_value == 3
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.9")
+def test_failed_frequency_count_suppresses_numeric_statistics(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pyarrow.compute as pc
+
+    def unavailable(_values: object) -> None:
+        raise NotImplementedError("frequency count unavailable")
+
+    monkeypatch.setattr(pc, "value_counts", unavailable)
+    result = profile_table(
+        pa.table({"value": [1, 1, 987654321]}),
+        _plan().profile,
+        limits=ProfileLimits(disclosure_threshold=2),
+    )
+    column = result.column_profiles[0]
+    assert column.min_value is None
+    assert column.max_value is None
+    assert column.mean is None
+    assert column.quantiles == []
+    assert column.top_k == []
+    assert "stats_suppressed" in column.warning_codes
+    assert "987654321" not in result.model_dump_json()
