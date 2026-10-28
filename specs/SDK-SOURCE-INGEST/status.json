@@ -123,6 +123,7 @@
     "SDK-SOURCE-INGEST-R005.50",
     "SDK-SOURCE-INGEST-R005.51",
     "SDK-SOURCE-INGEST-R005.52",
+    "SDK-SOURCE-INGEST-R005.53",
     "SDK-SOURCE-INGEST-R006.32",
     "SDK-SOURCE-INGEST-R006.33",
     "SDK-SOURCE-INGEST-R006.34",
@@ -424,7 +425,8 @@
         "SDK-SOURCE-INGEST-R005.49",
         "SDK-SOURCE-INGEST-R005.50",
         "SDK-SOURCE-INGEST-R005.51",
-        "SDK-SOURCE-INGEST-R005.52"
+        "SDK-SOURCE-INGEST-R005.52",
+        "SDK-SOURCE-INGEST-R005.53"
       ]
     },
     {
@@ -1623,6 +1625,17 @@
       ],
       "verified_by": [
         "tests/test_adapters_web_fetch.py:213"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.53",
+      "title": "Linear legacy title scanning",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "c549081c0921"
+      ],
+      "verified_by": [
+        "tests/test_adapters_web_fetch.py:271"
       ]
     },
     {
