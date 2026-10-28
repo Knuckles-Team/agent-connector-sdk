@@ -26,6 +26,7 @@ The in-memory receipt fixture proves control flow only.
 
 ## Event adapter registration (R001.4)
 
-The generic worker can call an event adapter supplied directly. The SDK
-entry-point registry does not yet construct one from a declared feed kind.
+The SDK distribution exposes the three feed bindings through source-adapter
+entry points. Loading each binding requires an activation policy. The generic worker can call an adapter supplied directly. The sync command
+cannot yet construct one from a declared feed kind.
 Registration and certified activation remain open work.

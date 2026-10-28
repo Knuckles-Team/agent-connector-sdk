@@ -30,3 +30,9 @@ that replay retains one logical event. The local in-memory sink is not proof.
 
 Run the sync command against a registered, certified connector. Observe the
 event adapter and its feed kind through the served MCP call and sink receipt.
+
+## Event adapter entry points (R001.5)
+
+Discover the three feed-kind bindings. Deny activation without their exact
+identity, then load and construct each binding under the SDK reference policy.
+This is not a runner or durable receipt proof.
