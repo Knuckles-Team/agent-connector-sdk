@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from math import isfinite
+
+from pydantic import StrictFloat
 
 
 @dataclass(frozen=True)
@@ -13,7 +16,7 @@ class ReadableForm:
     template_id: str
     max_chars: int = 4000
     question_set_ref: str | None = None
-    score: float | None = None
+    score: StrictFloat | None = None
 
     def __post_init__(self) -> None:
         if not self.template_id:
@@ -24,6 +27,13 @@ class ReadableForm:
             or self.max_chars < 0
         ):
             raise ValueError("max_chars must be nonnegative")
+        if self.score is not None and (
+            isinstance(self.score, bool)
+            or not isinstance(self.score, (int, float))
+            or not isfinite(self.score)
+            or not 0 <= self.score <= 1
+        ):
+            raise ValueError("score must be a finite ratio between zero and one")
 
 
 @dataclass(frozen=True)
