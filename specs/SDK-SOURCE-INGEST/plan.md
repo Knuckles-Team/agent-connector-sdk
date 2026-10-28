@@ -856,6 +856,8 @@ process. A deadline or caller cancellation stops an active worker before
 returning. The reader retains manifest order and per-request task limits.
 The host still authenticates callers. Certified sync and independent graph
 checkpoints remain outside this local reader.
+The test worker publishes its process ID by atomic rename. The parent reads
+the marker only after the entire ID is available.
 
 ## Declared source time and record budgets
 
