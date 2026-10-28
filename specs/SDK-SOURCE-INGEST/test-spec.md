@@ -434,4 +434,6 @@ R004.52 submits a non-page write after a paged checkpoint and confirms the prior
 
 ### Offline workspace reader floor
 
-`SDK-SOURCE-INGEST-R005.56`: `tests/test_workspace_reader.py` exercises the read-only MCP tool with local text, transcript, PDF, DOCX and XLSX fixtures, content identity and per-file refusals. It checks bounded overlapping reads and reports timeouts. It does not prove hard cancellation of parser threads, certification or graph ingestion.
+`SDK-SOURCE-INGEST-R005.56`: `tests/test_workspace_reader.py` exercises the read-only MCP tool with local text, transcript, PDF, DOCX and XLSX fixtures, content identity and per-file refusals. It checks bounded overlapping reads and reports timeouts. It does not prove certification or graph ingestion.
+
+`SDK-SOURCE-INGEST-R005.57`: `tests/test_workspace_reader.py` checks that a real active worker process exits after caller cancellation and after a deadline. It also checks overlapping reads and the per-request concurrency bound.

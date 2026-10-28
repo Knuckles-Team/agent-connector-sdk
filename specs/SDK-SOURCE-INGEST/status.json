@@ -85,6 +85,7 @@
     "SDK-SOURCE-INGEST-R005.17",
     "SDK-SOURCE-INGEST-R005.18",
     "SDK-SOURCE-INGEST-R005.56",
+    "SDK-SOURCE-INGEST-R005.57",
     "SDK-SOURCE-INGEST-R005.19",
     "SDK-SOURCE-INGEST-R005.20",
     "SDK-SOURCE-INGEST-R005.21",
@@ -432,6 +433,7 @@
         "SDK-SOURCE-INGEST-R005.17",
         "SDK-SOURCE-INGEST-R005.18",
         "SDK-SOURCE-INGEST-R005.56",
+        "SDK-SOURCE-INGEST-R005.57",
         "SDK-SOURCE-INGEST-R005.19",
         "SDK-SOURCE-INGEST-R005.20",
         "SDK-SOURCE-INGEST-R005.21",
@@ -1336,11 +1338,21 @@
         "59d9d32b0d9e"
       ],
       "verified_by": [
-        "tests/test_workspace_reader.py:127",
-        "tests/test_workspace_reader.py:149",
-        "tests/test_workspace_reader.py:168",
-        "tests/test_workspace_reader.py:185",
-        "tests/test_workspace_reader.py:219"
+        "tests/test_workspace_reader.py:124",
+        "tests/test_workspace_reader.py:146",
+        "tests/test_workspace_reader.py:165",
+        "tests/test_workspace_reader.py:182",
+        "tests/test_workspace_reader.py:199"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.57",
+      "title": "Stop cancelled workspace parsers",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_workspace_reader.py:221",
+        "tests/test_workspace_reader.py:274"
       ]
     },
     {
