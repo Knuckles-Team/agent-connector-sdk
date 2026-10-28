@@ -6,6 +6,14 @@
 4. Add account read and CSV mapping-preview/import with stable activity IDs and replay-safe checkpointing.
 5. Run offline conformance first; then opt-in licensed live probes and graph receipt qualification. Release each adapter independently once its own evidence is complete.
 
+## Canonical multi-asset MCP sources
+
+R003.1 binds the MCP source to a tenant and source identity. It validates each
+FX, commodity or real-estate record before submission. For property values, it
+compares valuation age with the configured freshness threshold. Provider APIs
+and licensed live access remain outside this evidence. R003.4 retains the
+provider-specific API work needed for the parent requirement.
+
 ## Calendar identity collision refusal (R001.3)
 
 The normalizer preserves legacy event IDs. It refuses a page when one ID maps

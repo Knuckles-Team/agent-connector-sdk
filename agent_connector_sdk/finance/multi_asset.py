@@ -104,6 +104,7 @@ class RealEstateValuation(FinanceRecordBase):
     valuation_date: datetime
     method: str = Field(min_length=1)
     currency: str = Field(min_length=3, max_length=3)
+    estimated_value: float | None = Field(default=None, ge=0, allow_inf_nan=False)
     staleness_days: int = Field(ge=0)
     stale: bool
 
