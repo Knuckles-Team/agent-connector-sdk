@@ -721,3 +721,11 @@ same conservative rule; the complete successor parity requirement remains open.
 The session-login auth instance binds its first request origin. It refuses a
 different scheme, host or port before login or dispatch. It stores login
 cookies in a cookie jar and lets the jar apply domain, path and secure rules.
+
+## Amendment: air-gap governed transport (R780.7)
+
+Both governed HTTP factories enforce `AIRGAP_MODE` at each request. They
+accept local IP literals and localhost without DNS resolution. They reject
+public destinations and configured proxies before a transport can send.
+Malformed mode values also fail closed. An injected transport remains trusted
+configuration. The other helpers in R780.6 remain open.

@@ -287,6 +287,7 @@
     "SDK-CONNECTOR-CONTROL-R780.4",
     "SDK-CONNECTOR-CONTROL-R780.5",
     "SDK-CONNECTOR-CONTROL-R780.6",
+    "SDK-CONNECTOR-CONTROL-R780.7",
     "SDK-CONNECTOR-CONTROL-R781",
     "SDK-CONNECTOR-CONTROL-R782",
     "SDK-CONNECTOR-CONTROL-R070",
@@ -3184,7 +3185,8 @@
         "SDK-CONNECTOR-CONTROL-R780.3",
         "SDK-CONNECTOR-CONTROL-R780.4",
         "SDK-CONNECTOR-CONTROL-R780.5",
-        "SDK-CONNECTOR-CONTROL-R780.6"
+        "SDK-CONNECTOR-CONTROL-R780.6",
+        "SDK-CONNECTOR-CONTROL-R780.7"
       ]
     },
     {
@@ -3249,6 +3251,19 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R780.7",
+      "title": "Air-gap transport guard",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ec3be6142adf"
+      ],
+      "verified_by": [
+        "tests/test_http_airgap.py:14",
+        "tests/test_http_airgap.py:36",
+        "tests/test_http_airgap.py:52"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R781",

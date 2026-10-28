@@ -15,13 +15,15 @@ Every client built here:
   each attempt to the ``agent_connector_sdk.http`` logger with secrets redacted;
 * with ``pin_egress``, resolves each request once, refuses non-public
   destinations (except ``allowed_private_hosts``) and dials only that address;
-* rejects credential-bearing default headers: credentials go through ``auth``.
+* rejects credential-bearing default headers: credentials go through ``auth``;
+* enforces ``AIRGAP_MODE`` before either transport sends a request.
 
 The options are :class:`~agent_connector_sdk.http.options.HttpClientOptions`.
 """
 
 from __future__ import annotations
 
+import ipaddress
 import logging
 import ssl
 from typing import Any
@@ -31,6 +33,7 @@ import httpx
 
 from agent_connector_sdk._version import __version__
 from agent_connector_sdk.auth.static import ApiKeyAuth
+from agent_connector_sdk.config import setting
 from agent_connector_sdk.http.egress import (
     AsyncDnsPinnedEgressTransport,
     DnsPinnedEgressTransport,
@@ -43,6 +46,7 @@ from agent_connector_sdk.http.transport import AsyncGovernedTransport, GovernedT
 
 __all__ = [
     "HTTP_LOGGER_NAME",
+    "AirgapViolation",
     "create_async_http_client",
     "create_http_client",
     "default_ssl_context",
@@ -109,6 +113,73 @@ def _check_base_host(options: HttpClientOptions) -> None:
         )
 
 
+class AirgapViolation(RuntimeError):
+    """A request or proxy is outside the air-gap network boundary."""
+
+
+_LOCAL_NETWORKS = tuple(
+    ipaddress.ip_network(value)
+    for value in (
+        "10.0.0.0/8",
+        "172.16.0.0/12",
+        "192.168.0.0/16",
+        "127.0.0.0/8",
+        "169.254.0.0/16",
+        "::1/128",
+        "fc00::/7",
+        "fe80::/10",
+    )
+)
+
+
+def _airgap_local(host: str) -> bool:
+    if host.lower() == "localhost":
+        return True
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped:
+        address = address.ipv4_mapped
+    return any(address in network for network in _LOCAL_NETWORKS)
+
+
+def _check_airgap(request: httpx.Request, proxy: str | None) -> None:
+    mode = str(setting("AIRGAP_MODE", "") or "").strip().lower()
+    if mode in {"", "0", "false", "no", "off", "n", "f"}:
+        return
+    if mode not in {"1", "true", "yes", "on", "y", "t"}:
+        raise AirgapViolation("air-gap mode configuration is invalid")
+    if proxy is not None or not _airgap_local(request.url.host):
+        raise AirgapViolation("air-gap mode refused a non-local destination or proxy")
+
+
+class _AirgapTransport(httpx.BaseTransport):
+    def __init__(self, inner: httpx.BaseTransport, proxy: str | None) -> None:
+        self._inner = inner
+        self._proxy = proxy
+
+    def handle_request(self, request: httpx.Request) -> httpx.Response:
+        _check_airgap(request, self._proxy)
+        return self._inner.handle_request(request)
+
+    def close(self) -> None:
+        self._inner.close()
+
+
+class _AsyncAirgapTransport(httpx.AsyncBaseTransport):
+    def __init__(self, inner: httpx.AsyncBaseTransport, proxy: str | None) -> None:
+        self._inner = inner
+        self._proxy = proxy
+
+    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        _check_airgap(request, self._proxy)
+        return await self._inner.handle_async_request(request)
+
+    async def aclose(self) -> None:
+        await self._inner.aclose()
+
+
 def create_http_client(
     options: HttpClientOptions, *, transport: httpx.BaseTransport | None = None
 ) -> httpx.Client:
@@ -132,7 +203,10 @@ def create_http_client(
             allow_loopback=options.allow_loopback,
             verify_peer=options.verify_pinned_peer,
         )
-    return httpx.Client(transport=governed, **_client_kwargs(options))
+    proxy = options.tls.proxy_url if options.tls else None
+    return httpx.Client(
+        transport=_AirgapTransport(governed, proxy), **_client_kwargs(options)
+    )
 
 
 def create_async_http_client(
@@ -154,4 +228,7 @@ def create_async_http_client(
             allow_loopback=options.allow_loopback,
             verify_peer=options.verify_pinned_peer,
         )
-    return httpx.AsyncClient(transport=governed, **_client_kwargs(options))
+    proxy = options.tls.proxy_url if options.tls else None
+    return httpx.AsyncClient(
+        transport=_AsyncAirgapTransport(governed, proxy), **_client_kwargs(options)
+    )
