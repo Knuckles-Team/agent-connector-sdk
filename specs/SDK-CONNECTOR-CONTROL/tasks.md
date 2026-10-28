@@ -279,7 +279,7 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R902.6:** Hot-path proof.
 
 - [ ] **SDK-CONNECTOR-CONTROL-R074:** A connector pack declares every surface and the source contracts for virtual access (rollup).
-- [ ] **SDK-CONNECTOR-CONTROL-R074.1:** Model.
+- [x] **SDK-CONNECTOR-CONTROL-R074.1:** Model.
 - [ ] **SDK-CONNECTOR-CONTROL-R074.2:** Prompt role.
 - [ ] **SDK-CONNECTOR-CONTROL-R074.3:** Behavior.
 - [ ] **SDK-CONNECTOR-CONTROL-R074.4:** Wiring.
