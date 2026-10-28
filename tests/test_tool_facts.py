@@ -9,6 +9,7 @@ from agent_connector_sdk.artifacts.tool_facts import (
     DEFAULT_SCHEMA_BYTES_PER_TOKEN,
     SideEffect,
     ToolContractFacts,
+    facts_from_declaration,
     schema_tokens,
 )
 from agent_connector_sdk.artifacts.tools import _tool_entry
@@ -79,3 +80,42 @@ def test_side_effect_set_is_closed_and_read_only_is_consistent() -> None:
     assert not ToolContractFacts.model_validate(
         {**base, "read_only": False, "side_effects": {"external_write", "network"}}
     ).read_only
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.4")
+def test_undeclared_tool_defaults_to_not_read_only() -> None:
+    tool = SimpleNamespace(
+        name="read_users", inputSchema={"type": "object"}, annotations=None
+    )
+    facts = facts_from_declaration(tool)
+    assert not facts.read_only
+    assert facts.side_effects == {SideEffect.EXTERNAL_WRITE}
+    assert facts.declared_by == "default"
+    entry = _tool_entry(tool, ServerIdentity(name="example", version="1"))
+    assert facts.schema_tokens == schema_tokens(entry.body)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.5")
+def test_mcp_read_only_hint_is_recorded_as_self_declared() -> None:
+    from agent_connector_sdk.ports.errors import MalformedArtifactError
+
+    tool = SimpleNamespace(
+        name="write",
+        inputSchema={"type": "object"},
+        annotations={"readOnlyHint": True},
+        meta=None,
+    )
+    facts = facts_from_declaration(tool)
+    assert facts.read_only and facts.declared_by == "mcp_hint"
+    assert not facts.side_effects
+    declared = facts_from_declaration(
+        {
+            "name": "query",
+            "inputSchema": {"type": "object"},
+            "_meta": {"eg.annotations": {"read_only_hint": True}},
+        }
+    )
+    assert declared.read_only and declared.declared_by == "connector"
+    tool.meta = {"eg.annotations": {"read_only_hint": False}}
+    with pytest.raises(MalformedArtifactError, match="conflicting"):
+        facts_from_declaration(tool)

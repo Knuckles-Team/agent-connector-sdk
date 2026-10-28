@@ -10,12 +10,9 @@ from agent_connector_sdk.artifacts.common import (
     json_object,
     require_kind,
 )
+from agent_connector_sdk.artifacts.tool_facts import _tool_body
 from agent_connector_sdk.certify.fingerprints import tool_fingerprint
 from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
-from agent_connector_sdk.manifest.tool_schema import (
-    ToolSchemaContractError,
-    canonical_input_schema,
-)
 from agent_connector_sdk.ports.errors import MalformedArtifactError
 from agent_connector_sdk.ports.session import McpSession
 
@@ -23,20 +20,8 @@ __all__ = ["ToolArtifactKind"]
 
 
 def _tool_entry(tool: Any, server: ServerIdentity) -> CapturedArtifact:
-    name = str(getattr(tool, "name", "") or "")
-    try:
-        input_schema = canonical_input_schema(tool)
-    except ToolSchemaContractError as exc:
-        raise MalformedArtifactError(
-            f"tool {name!r} has no object input schema"
-        ) from exc
-    output_schema = getattr(tool, "output_schema", None)
-    body = {
-        "name": name,
-        "description": str(getattr(tool, "description", "") or ""),
-        "input_schema": input_schema,
-        "output_schema": output_schema if isinstance(output_schema, dict) else None,
-    }
+    body = _tool_body(tool)
+    name = body["name"]
     return CapturedArtifact(
         kind=ToolArtifactKind.kind,
         uri=f"tool://{server.name}/{name}",
