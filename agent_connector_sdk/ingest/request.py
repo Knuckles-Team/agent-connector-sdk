@@ -145,6 +145,14 @@ def _checkpoint(
 ) -> SourceCheckpoint:
     position = previous.position if previous is not None else None
     sequence = position.get("sequence") if isinstance(position, dict) else None
+    if (
+        isinstance(position, dict)
+        and "sequence" in position
+        and (
+            isinstance(sequence, bool) or not isinstance(sequence, int) or sequence < 0
+        )
+    ):
+        raise IngestError("accepted checkpoint sequence must be a non-negative integer")
     encoded = json.dumps(
         [item.model_dump(mode="json") for item in content],
         sort_keys=True,

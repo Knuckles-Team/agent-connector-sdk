@@ -466,3 +466,34 @@ async def test_stream_never_fetches_after_invalid_accepted_cursor() -> None:
     with pytest.raises(IngestError, match="cursor"):
         await stream.sync("item", fetch, ingest=KnowledgeIngest(Transport()))
     assert calls == []
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.42")
+async def test_invalid_durable_sequence_refuses_before_submit() -> None:
+    class Transport(_Transport):
+        def __init__(self, position):
+            super().__init__()
+            self.position = position
+
+        async def source_status(self, connector, stream):
+            return SourceIngestStatus(
+                connector=connector,
+                stream=stream,
+                accepted_checkpoint=SourceCheckpoint(
+                    stream=stream, position=self.position
+                ),
+            )
+
+    for invalid in (True, False, -1, "7", None, 1.5):
+        transport = Transport({"sequence": invalid})
+        with pytest.raises(IngestError, match="sequence"):
+            await KnowledgeIngest(transport).submit(BINDING, _changes())
+        assert transport.requests == []
+
+    for position, expected in (({}, 1), ({"sequence": 0}, 1), ({"sequence": 4}, 5)):
+        request = build_request(
+            BINDING,
+            _changes(),
+            previous=SourceCheckpoint(stream="demo", position=position),
+        )
+        assert request.provider_checkpoint.position["sequence"] == expected

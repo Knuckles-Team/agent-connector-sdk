@@ -405,3 +405,5 @@ R803.14 submits a mutated engine profile with a below-threshold value and requir
 R004.40 exercises cyclic and malformed continuation tokens and a bounded history, preserving accepted pages while refusing the offending page.
 
 R004.41 validates durable status and cursor identity and refuses malformed checkpoints before source fetch.
+
+R004.42 refuses malformed durable sequence values before SourceIngest submission, while retaining legacy absence and valid sequence advancement.
