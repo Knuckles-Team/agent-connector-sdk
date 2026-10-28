@@ -795,3 +795,10 @@ obligations remain open.
 The expansion helper reads only an explicit mapping. It never consults
 the ambient environment. Existing coercion helpers continue to avoid implicit
 expansion. This helper does not claim legacy automatic-expansion parity.
+
+## Amendment: secret reference construction (R035.8)
+
+`SecretReference` validates direct construction against its canonical target.
+Its path, mount, field and version must match that target. The constructor
+refuses traversal and malformed names before any resolver can run. The host
+authority and served credential binding in R035 remain separate.

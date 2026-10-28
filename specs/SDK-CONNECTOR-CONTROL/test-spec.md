@@ -474,3 +474,5 @@ HTTPX use refuses before login.
 
 Resolve a service-specific profile from an injected mapping. Conflicting
 process settings do not alter the result, and an unknown profile refuses.
+
+- `SDK-CONNECTOR-CONTROL-R035.8`: `tests/test_reference_invariants.py` refuses forged references before resolution.
