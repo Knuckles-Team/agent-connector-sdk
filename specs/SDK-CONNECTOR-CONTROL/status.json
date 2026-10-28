@@ -1686,7 +1686,7 @@
       "title": "Default payment guard limits deny spending",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "cc2d70cf8469"
+        "9ef637916543"
       ],
       "verified_by": [
         "tests/test_payments.py:200"
