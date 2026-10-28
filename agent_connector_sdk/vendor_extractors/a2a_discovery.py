@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import threading
+from collections import OrderedDict
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, Literal
@@ -21,6 +22,7 @@ from agent_connector_sdk.http.options import HttpClientOptions
 
 __all__ = [
     "AGENT_CARD_PATH",
+    "DEFAULT_AGENT_CARD_CACHE_ENTRIES",
     "DEFAULT_DISCOVERY_TIMEOUT_SECONDS",
     "DEFAULT_MAX_AGENT_CARD_BYTES",
     "AgentCardRefused",
@@ -31,9 +33,10 @@ __all__ = [
 AGENT_CARD_PATH = "/.well-known/agent-card.json"
 DEFAULT_DISCOVERY_TIMEOUT_SECONDS = 10.0
 DEFAULT_MAX_AGENT_CARD_BYTES = 256 * 1024
+DEFAULT_AGENT_CARD_CACHE_ENTRIES = 64
 
 _RefusalReason = Literal["not_found", "not_json", "oversize", "egress_blocked"]
-_CACHE: dict[str, DiscoveredAgentCard] = {}
+_CACHE: OrderedDict[str, DiscoveredAgentCard] = OrderedDict()
 _CACHE_LOCK = threading.RLock()
 
 
@@ -96,12 +99,27 @@ def _cached(
     if previous is not None and _cache_key(previous.base_url) == key:
         return previous
     with _CACHE_LOCK:
-        return _CACHE.get(key)
+        return _touch_cached(key)
+
+
+def _touch_cached(key: str) -> DiscoveredAgentCard | None:
+    result = _CACHE.get(key)
+    if result is not None:
+        _CACHE.move_to_end(key)
+    return result
+
+
+def _evict_oldest() -> None:
+    while len(_CACHE) > DEFAULT_AGENT_CARD_CACHE_ENTRIES:
+        _CACHE.popitem(last=False)
 
 
 def _remember(card: DiscoveredAgentCard) -> None:
     with _CACHE_LOCK:
-        _CACHE[_cache_key(card.base_url)] = card
+        key = _cache_key(card.base_url)
+        _CACHE[key] = card
+        _CACHE.move_to_end(key)
+        _evict_oldest()
 
 
 def _refused(reason: _RefusalReason) -> AgentCardRefused:

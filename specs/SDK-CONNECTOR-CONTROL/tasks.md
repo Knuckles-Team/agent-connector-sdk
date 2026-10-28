@@ -81,6 +81,7 @@
 - [ ] **R059:** EG capability-to-existing-method bindings. Map five capabilities to existing EG methods.
 - [ ] **R060:** Native desktop operation port and no-cursor/no-focus invariant. Served tests with grant-bound refusal.
   - [x] **R047.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R047.6).
+  - [ ] **R047.7:** Bound discovery cache entries with least-recently-used eviction. (SDK-CONNECTOR-CONTROL-R047.7).
 - [ ] **R048:** Agent-readable text form in tool contracts. (SDK-CONNECTOR-CONTROL-R048).
   - [x] **R048.1:** Model row. (SDK-CONNECTOR-CONTROL-R048.1).
   - [x] **R048.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R048.2).
