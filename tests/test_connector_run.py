@@ -229,3 +229,42 @@ def test_connector_forwards_every_tool_surface_keyword(democonn, monkeypatch) ->
     assert seen["verbose_targets"][0]["prefix"] == "vb"
     tools, _, _ = asyncio.run(_read(mcp))
     assert "demo_extra" in tools and "dm_list_items" in tools
+
+
+def test_build_server_loads_config_before_transport_defaults(
+    democonn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = tmp_path / "connector-config.json"
+    config.write_text('{"HOST": "127.0.0.8", "PORT": 8129}')
+    monkeypatch.setenv("CONNECTOR_CONFIG_FILE", str(config))
+    # Record the original environment even when a key was absent: load_config
+    # populates it directly and monkeypatch must remove it after the test.
+    for key in ("HOST", "PORT"):
+        monkeypatch.setenv(key, "placeholder")
+        monkeypatch.delenv(key)
+    args, _ = build_server("democonn", command_args=["--transport", "stdio"])
+    assert args.host == "127.0.0.8"
+    assert args.port == 8129
+
+
+def test_build_server_config_keeps_explicit_environment_precedence(
+    democonn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = tmp_path / "connector-config.json"
+    config.write_text('{"PORT": 8129}')
+    monkeypatch.setenv("CONNECTOR_CONFIG_FILE", str(config))
+    monkeypatch.setenv("PORT", "9130")
+    args, _ = build_server("democonn", command_args=["--transport", "stdio"])
+    assert args.port == 9130
+
+
+def test_build_server_refuses_invalid_config_before_starting(
+    democonn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from agent_connector_sdk.config import ConfigurationError
+
+    config = tmp_path / "invalid-config.json"
+    config.write_text("{")
+    monkeypatch.setenv("CONNECTOR_CONFIG_FILE", str(config))
+    with pytest.raises(ConfigurationError):
+        build_server("democonn", command_args=["--transport", "stdio"])
