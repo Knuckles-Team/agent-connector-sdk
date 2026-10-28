@@ -337,6 +337,7 @@ Hot-path proof for `SDK-CONNECTOR-CONTROL-R069`: `tests/test_transport_contract_
 - `SDK-CONNECTOR-CONTROL-R780.10`: `tests/test_async_resilience.py` checks the callable retry and refusal paths.
 - `SDK-CONNECTOR-CONTROL-R780.9`: `tests/test_http_requests.py` covers Requests TLS, timeout, headers and air-gap redirects.
 - `SDK-CONNECTOR-CONTROL-R780.11`: `tests/test_sync_resilience.py` checks blocking callable retries and refusal paths.
+- `SDK-CONNECTOR-CONTROL-R780.12`: `tests/test_explicit_env_expansion.py` checks explicit values and defaults.
 - `SDK-CONNECTOR-CONTROL-R781`: `tests/test_trajectory_recorder.py`.
 - `SDK-CONNECTOR-CONTROL-R014.21.1`: `tests/test_a2a_protocol.py` streams oversized card, send and poll replies, and refuses compressed replies before reading.
 - `SDK-CONNECTOR-CONTROL-R014.21.2`: A future served test exercises the optional A2A app with the caller's broker and storage.
@@ -458,6 +459,9 @@ migration result. A separate test exercises invalid Python syntax.
 
 R014.29 tests literal legacy names in common dynamic import forms, a nonliteral
 name and a safe literal import. It does not claim coverage of all runtime calls.
+
+R015.1 also checks incomplete duplicate scans. Invalid Python, unreadable
+bytes, empty or missing roots and symbolic links do not report clean.
 
 ## Session cookie scope (R028.5)
 

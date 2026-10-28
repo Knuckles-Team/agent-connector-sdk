@@ -729,6 +729,12 @@ forms. A literal legacy package is an offending file. A nonliteral or relative
 argument leaves the scan incomplete. Other runtime indirection remains outside
 this static check and cannot establish fleet-wide migration by itself.
 
+## Duplicate scan completeness (R015.1)
+
+The duplicate-definition scan shares the fleet scanner's fail-closed source
+traversal. It lists unscanned paths and reports clean only after a complete
+scan finds no tracked definitions. The fleet-wide census remains open.
+
 ## Session origin and cookie scope (R028.5)
 
 The session-login auth instance binds its first request origin. It refuses a
@@ -783,3 +789,9 @@ The synchronous runner shares retry and fallback safety rules with the async
 runner. It refuses a requested timeout before calling the operation. An
 arbitrary blocking call cannot be stopped safely by the SDK. Other R780.6
 obligations remain open.
+
+## Amendment: explicit value expansion (R780.12)
+
+The expansion helper reads only an explicit mapping. It never consults
+the ambient environment. Existing coercion helpers continue to avoid implicit
+expansion. This helper does not claim legacy automatic-expansion parity.

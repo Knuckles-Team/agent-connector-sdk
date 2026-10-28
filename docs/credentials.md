@@ -44,3 +44,7 @@ There is no fallback to the pre-rename `graph-os` or `agent-utilities` locations
 `CONNECTOR_CONFIG_FILE`) into the environment without overriding variables that
 are already set. A credential-shaped key (`*_SECRET`, `*_PASSWORD`, `*_TOKEN`,
 `*_API_KEY`, `*_PRIVATE_KEY`) must hold a reference; a plain value is an error.
+
+For explicit non-secret interpolation, `agent_connector_sdk.utilities.expand_env_vars`
+expands `${NAME}` and `${NAME:-default}` from an explicit mapping. It does
+not read the process environment. The coercion helpers do not expand values.

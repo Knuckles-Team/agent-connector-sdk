@@ -6,7 +6,9 @@
   "requirement_ids": [
     "SDK-OBSERVABILITY-FEEDS-R001",
     "SDK-OBSERVABILITY-FEEDS-R001.1",
-    "SDK-OBSERVABILITY-FEEDS-R001.2"
+    "SDK-OBSERVABILITY-FEEDS-R001.2",
+    "SDK-OBSERVABILITY-FEEDS-R001.3",
+    "SDK-OBSERVABILITY-FEEDS-R001.4"
   ],
   "requirements": [
     {
@@ -18,13 +20,15 @@
         "c44284a671b3"
       ],
       "verified_by": [
-        "tests/test_event_feeds.py:266",
-        "tests/test_event_feeds.py:284",
-        "tests/test_event_feeds.py:300"
+        "tests/test_event_feeds.py:268",
+        "tests/test_event_feeds.py:286",
+        "tests/test_event_feeds.py:302"
       ],
       "rollup_of": [
         "SDK-OBSERVABILITY-FEEDS-R001.1",
-        "SDK-OBSERVABILITY-FEEDS-R001.2"
+        "SDK-OBSERVABILITY-FEEDS-R001.2",
+        "SDK-OBSERVABILITY-FEEDS-R001.3",
+        "SDK-OBSERVABILITY-FEEDS-R001.4"
       ]
     },
     {
@@ -35,12 +39,30 @@
         "123c6ecbe31b"
       ],
       "verified_by": [
-        "tests/test_event_feeds.py:391"
+        "tests/test_event_feeds.py:394"
       ]
     },
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001.2",
-      "title": "Durable event identity acceptance",
+      "title": "Event identity receipt boundary",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_event_feeds.py:430",
+        "tests/test_event_feeds.py:477",
+        "tests/test_event_feeds.py:495"
+      ]
+    },
+    {
+      "id": "SDK-OBSERVABILITY-FEEDS-R001.3",
+      "title": "Durable event receipt proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SDK-OBSERVABILITY-FEEDS-R001.4",
+      "title": "Event adapter registration",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
