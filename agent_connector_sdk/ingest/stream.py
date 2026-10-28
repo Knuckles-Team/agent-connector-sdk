@@ -276,6 +276,7 @@ class SourceStream:
         *,
         cursor: str | None = None,
         ingest: KnowledgeIngest | None = None,
+        _page_complete: bool = False,
     ) -> dict[str, int] | None:
         """Submit a :class:`Mapped` result; documents go to the document stream."""
         if not (mapped.entities or mapped.documents):
@@ -284,7 +285,9 @@ class SourceStream:
         split = self.document_binding is not None and bool(mapped.documents)
         totals = {"nodes": 0, "edges": 0}
         if mapped.entities or not split:
-            counts = await self._commit_entities(mapped, split, cursor, ingest)
+            counts = await self._commit_entities(
+                mapped, split, cursor, ingest, _page_complete
+            )
             if counts is None:
                 return None
             totals = _add(totals, counts)
@@ -305,6 +308,7 @@ class SourceStream:
         split: bool,
         cursor: str | None,
         ingest: KnowledgeIngest | None,
+        page_complete: bool,
     ) -> dict[str, int] | None:
         documents = () if split else tuple(mapped.documents)
         size = self.batch_size
@@ -322,7 +326,9 @@ class SourceStream:
         entities, edges = mapped.entities, mapped.relationships
         for start in range(0, len(entities), size):
             counts = await self.submit(
-                ChangeSet(entities=tuple(entities[start : start + size])),
+                ChangeSet(
+                    entities=tuple(entities[start : start + size]), preserve_cursor=True
+                ),
                 ingest=ingest,
             )
             if counts is None:
@@ -332,7 +338,9 @@ class SourceStream:
         for start in range(0, len(edges), size):
             counts = await self.submit(
                 ChangeSet(
-                    entities=anchor, relationships=tuple(edges[start : start + size])
+                    entities=anchor,
+                    relationships=tuple(edges[start : start + size]),
+                    preserve_cursor=True,
                 ),
                 ingest=ingest,
             )
@@ -342,7 +350,7 @@ class SourceStream:
                 "nodes": totals["nodes"],
                 "edges": totals["edges"] + counts["edges"],
             }
-        if documents or cursor:
+        if documents or cursor or (page_complete and not split):
             counts = await self.submit(
                 ChangeSet(documents=documents, cursor=cursor, entities=anchor),
                 ingest=ingest,
@@ -425,7 +433,9 @@ class SourceStream:
                 seen.add(fingerprint)
             mapped = self._mapper(kind, records)
             if mapped.entities or mapped.documents:
-                counts = await self.mapped(mapped, cursor=next_cursor, ingest=service)
+                counts = await self.mapped(
+                    mapped, cursor=next_cursor, ingest=service, _page_complete=True
+                )
                 if counts is not None:
                     totals = _add(totals, counts)
             if next_cursor is None:

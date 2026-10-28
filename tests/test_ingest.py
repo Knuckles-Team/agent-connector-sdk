@@ -562,3 +562,65 @@ async def test_cursor_conflict_refuses_without_replaying_old_page() -> None:
     assert len(transport.requests) == 1
     status = await transport.source_status(BINDING.connector, BINDING.stream)
     assert status.accepted_checkpoint.position["cursor"] == "newer"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.45")
+async def test_chunk_failure_retains_previous_accepted_source_cursor() -> None:
+    from agent_connector_sdk.ingest import RecordMap, SourceStream
+
+    class FailingTransport(_Transport):
+        async def submit(self, request):
+            if len(self.requests) == 2:
+                raise IngestError("second chunk failed")
+            return await super().submit(request)
+
+    transport = FailingTransport()
+    service = KnowledgeIngest(transport)
+    await service.submit(
+        BINDING, ChangeSet(entities=(Entity("old", "Item"),), cursor="old-page")
+    )
+    stream = SourceStream(
+        BINDING, {"item": RecordMap("Item", "demo:item:{_id}")}, batch_size=1
+    )
+
+    async def fetch(cursor):
+        assert cursor == "old-page"
+        return [{"id": "1"}, {"id": "2"}], "next-page"
+
+    with pytest.raises(IngestError, match="second chunk failed"):
+        await stream.sync("item", fetch, ingest=service)
+    assert await service.accepted_cursor(BINDING) == "old-page"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.45")
+async def test_chunked_page_advances_only_after_all_chunks_and_clears_at_end() -> None:
+    from agent_connector_sdk.ingest import RecordMap, SourceStream
+
+    transport = _Transport()
+    service = KnowledgeIngest(transport)
+    await service.submit(
+        BINDING, ChangeSet(entities=(Entity("old", "Item"),), cursor="old-page")
+    )
+    stream = SourceStream(
+        BINDING, {"item": RecordMap("Item", "demo:item:{_id}")}, batch_size=1
+    )
+
+    async def fetch(cursor):
+        if cursor == "old-page":
+            return [{"id": "1"}, {"id": "2"}], "next-page"
+        assert cursor == "next-page"
+        return [{"id": "3"}], None
+
+    await stream.sync("item", fetch, ingest=service)
+    checkpoints = [
+        r.provider_checkpoint.position.get("cursor") for r in transport.requests
+    ]
+    assert checkpoints == [
+        "old-page",
+        "old-page",
+        "old-page",
+        "next-page",
+        "next-page",
+        None,
+    ]
+    assert await service.accepted_cursor(BINDING) is None
