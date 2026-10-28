@@ -231,7 +231,8 @@ def build_request(
                 previous,
                 (*records, *relationships),
                 changes.cursor,
-                preserve_cursor=changes.preserve_cursor,
+                preserve_cursor=changes.preserve_cursor
+                or (changes.cursor is None and not changes.source_page),
             ),
             expected_previous_checkpoint=previous,
             authoritative_live_ids=_live_ids(binding, changes),

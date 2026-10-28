@@ -427,3 +427,5 @@ R004.48 checks conflict refusal on terminal pages and intermediate chunks while 
 
 R004.49 denies a best-effort page and confirms that sync does not fetch its continuation.
 R012.7 tests bounded platform contract primitives and structural continuation binding. Authentication, continuation integrity, equivalence certification, and served behavior remain open.
+
+R004.52 submits a non-page write after a paged checkpoint and confirms the prior cursor survives.
