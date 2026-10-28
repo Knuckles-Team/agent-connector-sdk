@@ -716,6 +716,12 @@ The legacy REST source validates the complete records list before returning
 any documents or continuation checkpoint. Invalid pages raise without advancing
 the caller-owned checkpoint; valid empty lists remain legitimate empty pages.
 
+## Partial RSS sweep checkpoint (R800.8)
+
+A feed fetch or parse failure leaves the shared watermark at its prior value.
+The poll still returns available entries and records their IDs. On recovery,
+the previously unavailable feed can be read without losing older records.
+
 ## Partial arXiv sweep checkpoint (R800.7)
 
 A category fetch or parse failure leaves the shared watermark at its prior value.

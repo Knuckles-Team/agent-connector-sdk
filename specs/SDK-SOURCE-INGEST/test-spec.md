@@ -318,6 +318,12 @@ Poll through the registered REST source with a prior cursor and next cursor.
 Refuse missing or non-list records, non-object records, blank IDs and empty text.
 The caller checkpoint stays unchanged, and no next cursor is returned.
 
+## Partial RSS sweep (R800.8)
+
+Inject network failure and malformed input in concurrent feeds. A healthy feed
+returns newer records while the prior watermark remains fixed. Recover the
+failed feed and assert its older records arrive once and the watermark moves.
+
 ## Partial arXiv sweep (R800.7)
 
 Inject both a network failure and malformed category feed. A healthy category
