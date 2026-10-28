@@ -74,8 +74,8 @@ def check_rate_limit_retry(factory: HttpClientFactory) -> ConformanceResult:
 
 
 def check_problem_mapping(factory: HttpClientFactory) -> ConformanceResult:
-    """A problem+json 404 surfaces as :class:`HttpProblemError` with its details."""
-    body = b'{"type": "https://api.example.invalid/missing", "title": "Missing"}'
+    """A 404 yields status-only details without echoing vendor content."""
+    body = b'{"type": "https://api.example.invalid/missing", "title": "Missing", "detail": "private-marker"}'
     missing = ScriptedResponse(
         status=404, body=body, headers={"Content-Type": PROBLEM_JSON}
     )
@@ -83,7 +83,12 @@ def check_problem_mapping(factory: HttpClientFactory) -> ConformanceResult:
         try:
             request_json(client, "GET", "/conformance")
         except HttpProblemError as error:
-            passed = error.problem.status == 404 and error.problem.title == "Missing"
+            passed = (
+                error.problem.status == 404
+                and error.problem.type == "about:blank"
+                and error.problem.title == "Not Found"
+                and "private-marker" not in str(error.problem.to_json())
+            )
             return ConformanceResult("problem-mapping", passed, error.problem.type)
     return ConformanceResult("problem-mapping", False, "a 404 did not raise")
 

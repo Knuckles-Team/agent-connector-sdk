@@ -135,3 +135,8 @@ A caller that stops early must close the active generator before reuse.
 The declared records path must resolve to a list. A missing or non-list value
 raises a typed error without echoing response data. A valid empty list remains
 a page. A malformed page cannot advance the continuation.
+
+
+## Governed response error boundary
+
+R006.1 keeps upstream problem body fields out of governed public exceptions. The low-level parser remains available for callers that explicitly trust the upstream body.

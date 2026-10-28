@@ -13,6 +13,8 @@
     "SDK-CENTRALIZED-CAPABILITIES-R004.4",
     "SDK-CENTRALIZED-CAPABILITIES-R005",
     "SDK-CENTRALIZED-CAPABILITIES-R006",
+    "SDK-CENTRALIZED-CAPABILITIES-R006.1",
+    "SDK-CENTRALIZED-CAPABILITIES-R006.2",
     "SDK-CENTRALIZED-CAPABILITIES-R007",
     "SDK-CENTRALIZED-CAPABILITIES-R008",
     "SDK-CENTRALIZED-CAPABILITIES-R009",
@@ -157,6 +159,29 @@
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R006",
       "title": "Error redaction and typed problems",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-CENTRALIZED-CAPABILITIES-R006.1",
+        "SDK-CENTRALIZED-CAPABILITIES-R006.2"
+      ]
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R006.1",
+      "title": "Do not expose upstream problem fields in governed response errors",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4924f5edaf7f"
+      ],
+      "verified_by": [
+        "tests/test_governed_problem_redaction.py:54",
+        "tests/test_governed_problem_redaction.py:65"
+      ]
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R006.2",
+      "title": "Fleet error redaction",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
