@@ -14,6 +14,7 @@
     "SDK-FINANCE-SOURCES-R003",
     "SDK-FINANCE-SOURCES-R003.1",
     "SDK-FINANCE-SOURCES-R003.2",
+    "SDK-FINANCE-SOURCES-R003.3",
     "SDK-FINANCE-SOURCES-R004",
     "SDK-FINANCE-SOURCES-R004.1",
     "SDK-FINANCE-SOURCES-R005",
@@ -128,7 +129,8 @@
       ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R003.1",
-        "SDK-FINANCE-SOURCES-R003.2"
+        "SDK-FINANCE-SOURCES-R003.2",
+        "SDK-FINANCE-SOURCES-R003.3"
       ]
     },
     {
@@ -148,6 +150,18 @@
       "verified_by": [
         "tests/test_finance_records.py:223",
         "tests/test_finance_records.py:237"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R003.3",
+      "title": "Canonical FX currency identity",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "16691cb89ea9"
+      ],
+      "verified_by": [
+        "tests/test_finance_records.py:246",
+        "tests/test_finance_records.py:254"
       ]
     },
     {
