@@ -825,3 +825,10 @@ bound on either renderer. Certification and pack wiring remain open.
 The digest covers the validated live source declaration and the canonical RDF
 graph. It does not establish a signer, admission decision, lock or rotation.
 The served signing and verification obligations of R650.1 remain open.
+
+## Amendment: explicit release signatures (R650.3)
+
+The signer resolves a versioned OpenBao key through a scoped credential provider.
+It signs the live declaration and graph digest only if the trusted key
+matches. The verifier recomputes both inputs and checks the key ID and signature.
+Lock storage, key rotation and served admission stay open under R650.1.
