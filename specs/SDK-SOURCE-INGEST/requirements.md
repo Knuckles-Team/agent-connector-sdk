@@ -148,6 +148,7 @@
 | `SDK-SOURCE-INGEST-R005.52` | **Linear legacy metadata scanning.** The legacy web fetcher scans metadata without retrying an unclosed tag. Quoted metadata on well-formed tags retains the existing precedence and entity handling. Title-tag parsing remains separate. | `tests/test_adapters_web_fetch.py::test_metadata_scanning_is_linear_on_unclosed_tags` |
 | `SDK-SOURCE-INGEST-R005.53` | **Linear legacy title scanning.** The legacy web fetcher locates the first complete title without retrying unclosed starts. It preserves the prior title matching and whitespace behavior. | `tests/test_adapters_web_fetch.py::test_title_scanning_is_linear_and_matches_prior_behavior` |
 | `SDK-SOURCE-INGEST-R005.54` | **Exercise legacy parsing through the adapter.** A pinned local web fetch through `WebFetchSourceAdapter.extract` handles a bounded body with repeated malformed tag, metadata and title starts. It returns the fetched page within the test timeout. This proves the legacy adapter path, not graph receipt or connector-tool migration. | `tests/test_adapters_web_fetch_source_adapter.py::test_legacy_fetch_handles_adversarial_html` |
+| `SDK-SOURCE-INGEST-R005.55` | **Bound legacy web fetch time.** The configured fetch timeout bounds governed DNS, response headers and body. It applies even when a peer sends bytes continuously. On expiry the adapter returns no page. Cancellable DNS requires the governed async pinned transport. | `tests/test_web_fetch_deadline.py` exercises a trickling response and stalled DNS. |
 
 ## Interchangeable enterprise operations
 

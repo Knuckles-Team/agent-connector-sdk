@@ -201,6 +201,7 @@
 - [ ] **SDK-SOURCE-INGEST-R005.52:** Scan legacy metadata in linear time.
 - [ ] **SDK-SOURCE-INGEST-R005.53:** Scan legacy title tags in linear time.
 - [ ] **SDK-SOURCE-INGEST-R005.54:** Exercise the bounded legacy fetch with adversarial HTML.
+- [x] Bound legacy web fetch across DNS and response streaming (SDK-SOURCE-INGEST-R005.55).
 - [x] `SDK-SOURCE-INGEST-R004.26` — Citable public URL fields kept by the persistence guard.
 - [x] `SDK-SOURCE-INGEST-R004.27` — Pass the operator's mass-withdrawal decision through the sink.
 
