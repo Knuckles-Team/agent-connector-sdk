@@ -471,3 +471,4 @@ Sync and async tests also refuse cross-origin redirects. Direct unguarded
 HTTPX use refuses before login.
 
 - `SDK-CONNECTOR-CONTROL-R035.8`: `tests/test_reference_invariants.py` refuses forged references before resolution.
+- `SDK-CONNECTOR-CONTROL-R049.7`: `tests/test_payments.py::test_default_payment_budgets_deny_positive_challenges`.

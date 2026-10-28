@@ -190,7 +190,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/test_payments.py:122"
+        "tests/test_payments.py:131"
       ]
     },
     {
@@ -201,7 +201,7 @@
         "0567e6db2c3d"
       ],
       "verified_by": [
-        "tests/test_payments.py:151"
+        "tests/test_payments.py:161"
       ]
     },
     {
