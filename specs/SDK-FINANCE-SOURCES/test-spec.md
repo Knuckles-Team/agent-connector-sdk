@@ -50,3 +50,6 @@ R002.3 checks required fields in the Alpaca single-symbol response contract. An 
 
 
 R900.10 checks finite tick admission and refusal before publication and aggregation, including mutated ticks.
+
+
+R004.3 checks duplicate CSV header refusal before preview or import produces results.

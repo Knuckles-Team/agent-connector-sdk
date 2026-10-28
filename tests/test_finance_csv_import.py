@@ -104,3 +104,17 @@ def test_nonfinite_csv_amounts_are_rejected(original: bytes, value: bytes) -> No
     invalid = _CSV.replace(b"," + original + b",", b"," + value + b",", 1)
     with pytest.raises(ValidationError):
         import_activities(invalid, _MAPPING, _CONTEXT)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.3")
+@pytest.mark.parametrize("header", [b"Price", b"Unmapped"])
+def test_duplicate_headers_are_rejected(header: bytes) -> None:
+    duplicated = _CSV.replace(
+        b"Trade Date,Side,Qty,Price,Fee,Ccy,Settle Date",
+        b"Trade Date,Side,Qty,Price,Fee,Ccy,Settle Date," + header + b"," + header,
+        1,
+    )
+    with pytest.raises(AmbiguousColumnMappingError, match="unique"):
+        preview_csv_mapping(duplicated, _MAPPING)
+    with pytest.raises(AmbiguousColumnMappingError, match="unique"):
+        import_activities(duplicated, _MAPPING, _CONTEXT)
