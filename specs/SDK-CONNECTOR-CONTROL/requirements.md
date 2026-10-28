@@ -152,6 +152,7 @@
 | `SDK-CONNECTOR-CONTROL-R650.2` | **Release identity digest.** Hash a validated live source declaration and canonical RDF graph as a domain-separated pair. Mapping and triple order do not change the digest. The digest alone does not authenticate a release. | `tests/test_release_identity.py::test_release_digest_binds_live_declaration_and_graph`. |
 | `SDK-CONNECTOR-CONTROL-R650.3` | **Explicit release signing.** Sign the live declaration and ontology digest with a versioned, scoped OpenBao key. Require the derived key to match a caller-trusted key. Verify both inputs, key ID and canonical Ed25519 signature. | `tests/test_release_signature.py` covers changes, key scope, version and trust refusals. |
 | `SDK-CONNECTOR-CONTROL-R650.4` | **Explicit release key lock.** Read a bounded caller-trusted ontology lock whose artifact entries name a signer and public key. Refuse missing, malformed, duplicate or conflicting pins. The returned key map feeds release signing and verification. | `tests/test_release_lock.py` exercises signing and verification plus lock refusals. |
+| `SDK-CONNECTOR-CONTROL-R650.5` | **Create a release key lock.** Create a new bounded lock with canonical signer pins. Refuse invalid pins and an existing target. Creation does not approve rotation. | `tests/test_release_lock.py` covers round-trip, refusal and preservation of an existing lock. |
 <!-- /spec-definition-patch -->
 
 <!-- spec-definition-patch:sdk-consolidated-primary-20261012-req -->

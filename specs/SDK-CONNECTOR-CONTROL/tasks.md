@@ -344,3 +344,5 @@ The total response deadline remains open under R047.2.
 - [x] Refuse malformed readable-form scores (SDK-CONNECTOR-CONTROL-R048.7).
 
 - [x] Isolate OAuth token files by complete key (SDK-CONNECTOR-CONTROL-R046.9).
+
+- [x] Create a new lock without replacing an existing lock (SDK-CONNECTOR-CONTROL-R650.5).
