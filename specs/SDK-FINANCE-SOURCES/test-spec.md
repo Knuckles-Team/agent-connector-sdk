@@ -59,3 +59,6 @@ R004.4 rejects short and overlong CSV rows before preview or import returns a re
 
 
 R004.5 refuses non-ASCII currency lookalikes without claiming registry membership.
+
+
+R004.6 refuses invalid currency cells without placing their values in errors.

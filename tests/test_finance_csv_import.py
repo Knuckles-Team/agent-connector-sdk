@@ -68,10 +68,15 @@ def test_preview_rejects_a_mapping_naming_two_headers_for_one_field() -> None:
         preview_csv_mapping(_CSV, duplicated)
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.6")
 def test_preview_rejects_an_unrecognized_currency_code() -> None:
     bad_currency_csv = _CSV.replace(b",USD,", b",us dollars,")
-    with pytest.raises(AmbiguousCurrencyError):
+    with pytest.raises(AmbiguousCurrencyError) as preview_error:
         preview_csv_mapping(bad_currency_csv, _MAPPING)
+    with pytest.raises(AmbiguousCurrencyError) as import_error:
+        import_activities(bad_currency_csv, _MAPPING, _CONTEXT)
+    assert "us dollars" not in str(preview_error.value)
+    assert "us dollars" not in str(import_error.value)
 
 
 @pytest.mark.spec("SDK-FINANCE-SOURCES-R004")
