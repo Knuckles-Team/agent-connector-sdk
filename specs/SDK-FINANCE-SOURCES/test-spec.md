@@ -13,5 +13,7 @@
 
 Offline source PRs run fixture pytest and repository quality hooks (Ruff, mypy, CCCC, Dupehound, KISS). FS-08 is an opt-in acceptance probe and reports **NOT RUN** without licensed provider access.
 
+R900.8 rejects a missing proof and each field mismatch before recording spend.
+The tests also retain the matched challenge and proof success path.
 R900.7 runs the production market bus with a controlled clock. Two bar
 intervals for one symbol each receive their own completed bars.

@@ -710,7 +710,7 @@ fail instead of reporting a vacuous pin match.
 ## Amendment: split read-class inheritance (R020.5)
 
 A parent read-only hint does not prove that every router action is read-only.
-A split inherits a read class when its first verb names a read. The action
+A split inherits a read class when its name includes a known read verb. The action
 name must also contain no known mutation verb. Mixed names such as
 `get_and_update` remain unclassified. Unknown actions also remain unclassified
 unless the connector declares an explicit per-action class. Split tool hints follow the
@@ -731,3 +731,10 @@ accept local IP literals and localhost without DNS resolution. They reject
 public destinations and configured proxies before a transport can send.
 Malformed mode values also fail closed. An injected transport remains trusted
 configuration. The other helpers in R780.6 remain open.
+
+## Amendment: standard request headers (R780.8)
+
+The SDK exports the standard User-Agent header from its HTTP client module.
+The client merges a caller's headers without regard to header-name case.
+A caller override replaces the standard value. The other missing R780.6
+helpers remain open.

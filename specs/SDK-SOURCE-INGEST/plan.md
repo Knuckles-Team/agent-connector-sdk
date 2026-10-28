@@ -699,6 +699,12 @@ watermarks compare by instant, not their offset-bearing string representation
 textual watermarks keep their existing ordering. A query that filters with a
 bound watermark remains responsible for using the database's timestamp semantics.
 
+## Database page completeness (R900.8)
+
+The database source validates each row before it yields any document or
+returns a checkpoint. Missing required fields refuse the full page. A caller
+can repair the row and retry from the accepted checkpoint.
+
 ## 2026-10-27: bounded evidence for large preparation plans
 
 R803.6 requires a single plan over one million rows. Keep `run` and its
@@ -709,6 +715,18 @@ redacted outcomes in pages within the admitted outcome limit. A failed plan retu
 no successful result or evidence pages. The summary identifies paged evidence
 and must not imply that a partial page traversal is complete. The hot-path
 proof records elapsed time and peak memory with its declared profile limits.
+
+## REST source page validation (R800.9)
+
+The legacy REST source validates the complete records list before returning
+any documents or continuation checkpoint. Invalid pages raise without advancing
+the caller-owned checkpoint; valid empty lists remain legitimate empty pages.
+
+## Partial RSS sweep checkpoint (R800.8)
+
+A feed fetch or parse failure leaves the shared watermark at its prior value.
+The poll still returns available entries and records their IDs. On recovery,
+the previously unavailable feed can be read without losing older records.
 
 ## Partial arXiv sweep checkpoint (R800.7)
 

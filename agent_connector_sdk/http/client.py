@@ -51,6 +51,7 @@ __all__ = [
     "create_async_http_client",
     "create_http_client",
     "default_ssl_context",
+    "standard_headers",
 ]
 
 #: The logger every governed client writes request records to.
@@ -130,20 +131,24 @@ def _transport_kwargs(options: HttpClientOptions) -> dict[str, Any]:
     return kwargs
 
 
+def standard_headers() -> dict[str, str]:
+    """Return the SDK's standard request headers."""
+    return {"User-Agent": f"agent-connector-sdk/{__version__}"}
+
+
 def _client_kwargs(options: HttpClientOptions) -> dict[str, Any]:
     if urlsplit(options.base_url).scheme == "http":
         _logger.warning(
             "plaintext HTTP client for %s: requests and credentials are not encrypted",
             redact_url(options.base_url),
         )
+    headers = httpx.Headers(standard_headers())
+    headers.update(options.headers)
     return {
         "base_url": options.base_url,
         "timeout": options.timeout,
         "auth": options.auth,
-        "headers": {
-            "User-Agent": f"agent-connector-sdk/{__version__}",
-            **options.headers,
-        },
+        "headers": headers,
         "trust_env": False,
         "follow_redirects": False,
     }

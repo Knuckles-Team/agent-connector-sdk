@@ -122,6 +122,53 @@ def test_rest_connector_follows_cursor_and_refuses_cross_host_next_url():
         list(hostile.load())
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R800.9")
+@pytest.mark.parametrize(
+    "items",
+    [
+        None,
+        {},
+        ["bad"],
+        [{"id": "", "body": "ok"}],
+        [{"id": "x", "body": ""}],
+        [{"id": "valid", "body": "ok"}, "bad"],
+    ],
+)
+def test_rest_malformed_page_cannot_advance_checkpoint(items):
+    prior = ConnectorCheckpoint(has_more=True, cursor="old")
+    conn = build_connector(
+        "rest",
+        {
+            "url": "http://api/",
+            "records_field": "items",
+            "text_field": "body",
+            "cursor_field": "next",
+            "cursor_param": "cursor",
+            "fetch_fn": lambda *_: {"items": items, "next": "new"},
+        },
+    )
+    with pytest.raises(ValueError, match="REST source"):
+        conn.poll(prior)
+    assert prior.cursor == "old"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R800.9")
+def test_rest_empty_page_can_continue():
+    conn = build_connector(
+        "rest",
+        {
+            "url": "http://api/",
+            "records_field": "items",
+            "cursor_field": "next",
+            "fetch_fn": lambda *_: {"items": [], "next": "new"},
+        },
+    )
+    batch = conn.poll()
+    assert batch.documents == []
+    assert batch.checkpoint.cursor == "new"
+    assert batch.checkpoint.has_more
+
+
 # spec: SDK-SOURCE-INGEST-R800.2
 def test_rss_connector_parses_rss_and_atom_and_polls_by_watermark():
     feeds = {"http://f/rss": RSS, "http://f/atom": ATOM.replace("2601.00090v1", "x")}
@@ -169,6 +216,40 @@ def test_arxiv_connector_shapes_records_dedups_categories_and_polls():
     assert conn.poll(batch.checkpoint).documents == []
     with pytest.raises(ValueError, match="categories"):
         build_connector("arxiv", {"fetch_fn": lambda *_: ATOM})
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R800.8")
+@pytest.mark.parametrize("failure", ["network", "malformed"])
+def test_rss_partial_sweep_does_not_advance_watermark(failure):
+    prior = ConnectorCheckpoint(watermark="2025-06-16T00:00:00Z")
+    healthy = (
+        RSS.replace("http://n/1", "http://n/3")
+        .replace("http://n/2", "http://n/4")
+        .replace("18 Jun 2025", "19 Jun 2025")
+    )
+    unavailable = True
+
+    def fetch(url):
+        if url == "https://feed.example/older" and unavailable:
+            if failure == "network":
+                raise RuntimeError("network down")
+            return "<rss><broken>"
+        return healthy if url.endswith("newer") else RSS
+
+    conn = build_connector(
+        "rss",
+        {
+            "feed_urls": ["https://feed.example/newer", "https://feed.example/older"],
+            "fetch_fn": fetch,
+        },
+    )
+    partial = conn.poll(prior)
+    assert {doc.id for doc in partial.documents} == {"http://n/3", "http://n/4"}
+    assert partial.checkpoint.watermark == prior.watermark
+    unavailable = False
+    recovered = conn.poll(partial.checkpoint)
+    assert {doc.id for doc in recovered.documents} == {"http://n/1", "http://n/2"}
+    assert recovered.checkpoint.watermark == "2025-06-19T10:00:00Z"
 
 
 @pytest.mark.spec("SDK-SOURCE-INGEST-R800.7")

@@ -312,6 +312,18 @@ connector revision and live tool schemas. A schema-only match is not web
 conformance. Tests must refuse missing, stale and mismatched evidence before
 the tool call and leave the checkpoint unchanged.
 
+## REST source malformed pages (R800.9)
+
+Poll through the registered REST source with a prior cursor and next cursor.
+Refuse missing or non-list records, non-object records, blank IDs and empty text.
+The caller checkpoint stays unchanged, and no next cursor is returned.
+
+## Partial RSS sweep (R800.8)
+
+Inject network failure and malformed input in concurrent feeds. A healthy feed
+returns newer records while the prior watermark remains fixed. Recover the
+failed feed and assert its older records arrive once and the watermark moves.
+
 ## Partial arXiv sweep (R800.7)
 
 Inject both a network failure and malformed category feed. A healthy category
@@ -323,3 +335,8 @@ failed category and assert its older record arrives once and the watermark moves
 R900.7 checks a SQLite source compares offset-bearing timestamps by instant
 and replays idempotently. Invalid timestamps and mixing
 timezone-aware and naive timestamps fail closed.
+
+## Database page completeness
+
+R900.8 exercises missing text and missing watermarks against SQLite. The read
+refuses before a partial load or checkpoint, then succeeds after row repair.
