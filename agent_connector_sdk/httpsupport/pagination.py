@@ -355,12 +355,12 @@ class _PaginationConfig:
     def _consume_page(
         self, items: list[Any], data: Any, headers: Mapping[str, str]
     ) -> tuple[list[Any], tuple[str, dict[str, Any]] | None]:
-        """Apply budgets to one fetched page; returns (to_yield, next_request)."""
+        """Apply budgets; a sliced page has no safe next-page cursor."""
         self.pages_fetched += 1
         next_request = self._walk.advance(items, data, headers)
         to_yield = items
         if len(items) > self._budget:
-            to_yield = items[: self._budget]
+            to_yield, self._walk.next_cursor = items[: self._budget], None
             self.truncated = True
             next_request = None
         self._budget -= len(to_yield)
