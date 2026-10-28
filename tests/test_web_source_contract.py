@@ -259,6 +259,44 @@ async def test_served_robots_refusal_omits_requested_url_and_query() -> None:
     assert "/private" not in str(refusal)
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.46")
+@pytest.mark.parametrize("expired", [False, True])
+async def test_robots_concurrent_checks_share_one_origin_fetch(expired: bool) -> None:
+    calls: list[str] = []
+    now = 0.0
+    started = asyncio.Event()
+    release = asyncio.Event()
+
+    async def load(url: str) -> tuple[int, str]:
+        calls.append(url)
+        if url.startswith("https://one.example.test"):
+            started.set()
+            await release.wait()
+        return 200, "User-agent: *\nDisallow: /private\n"
+
+    rules = RobotsRules(load, user_agent="test", clock=lambda: now)
+    if expired:
+        release.set()
+        assert await rules.allowed("https://one.example.test/public")
+        release.clear()
+        started.clear()
+        calls.clear()
+        now = 3601.0
+    first = asyncio.create_task(rules.allowed("https://one.example.test/public"))
+    await started.wait()
+    second = asyncio.create_task(rules.allowed("https://one.example.test/private"))
+    other = asyncio.create_task(rules.allowed("https://other.example.test/public"))
+    assert await other
+    assert calls == [
+        "https://one.example.test/robots.txt",
+        "https://other.example.test/robots.txt",
+    ]
+    release.set()
+    assert await first
+    assert not await second
+    assert len(calls) == 2
+
+
 @pytest.mark.spec("SDK-SOURCE-INGEST-R005.40.1")
 async def test_a_refusal_is_a_result_and_a_bad_digest_is_refused() -> None:
     server = FastMCP("fixture-web-source")
