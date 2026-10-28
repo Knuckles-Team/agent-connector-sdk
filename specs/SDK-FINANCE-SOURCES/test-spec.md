@@ -37,3 +37,5 @@ R004.1 remains open: synthetic mapping and stable identifiers do not prove real 
 
 
 R002.2 rejects non-finite values across all bar, quote and corporate action fields.
+
+R900.10 checks finite tick admission and refusal before publication and aggregation, including mutated ticks.

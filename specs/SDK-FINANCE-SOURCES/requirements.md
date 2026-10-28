@@ -30,3 +30,4 @@
 | `SDK-FINANCE-SOURCES-R900.7` | **Independent market bar intervals.** A symbol supports multiple bar intervals. Each interval aggregates every matching tick and publishes to its own topic. Repeated subscriptions to one interval share one aggregator. | `tests/test_finance_feeds.py::test_bar_subscriptions_use_independent_intervals` subscribes to two intervals and asserts each completed bar. |
 
 | `SDK-FINANCE-SOURCES-R900.9` | **Positive bar intervals.** The feed and tick aggregator refuse non-positive or non-integer bar intervals. A refused subscription adds no subscriber. | `tests/test_finance_feeds.py` covers both entry points and refusal without side effects. |
+| `SDK-FINANCE-SOURCES-R900.10` | **Finite live ticks.** The market bus and direct bar aggregation reject non-finite tick values and alert thresholds. Invalid ticks cause no publication or aggregation. | `tests/test_finance_feeds.py` tests invalid and mutated ticks at each entry point. |
