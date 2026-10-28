@@ -88,6 +88,7 @@
   - [ ] **R048.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R048.4).
   - [ ] **R048.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R048.5).
   - [ ] **R048.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R048.6).
+- [x] Count graded readable answers (SDK-CONNECTOR-CONTROL-R048.8).
 - [ ] **R049:** Budget-limited, approval-gated payment challenge handling. (SDK-CONNECTOR-CONTROL-R049).
   - [ ] **R049.1:** Model row. (SDK-CONNECTOR-CONTROL-R049.1).
   - [ ] **R049.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R049.2).

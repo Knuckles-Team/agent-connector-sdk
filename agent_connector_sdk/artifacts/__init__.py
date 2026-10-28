@@ -20,14 +20,18 @@ from agent_connector_sdk.artifacts.readable_form import (
     FittedAnalysis,
     FittedTerm,
     ReadableForm,
+    ReadableScore,
     default_readable_renderer,
     render_readable,
+    score_readable_answers,
 )
 
 __all__ = [
     "FittedAnalysis",
     "FittedTerm",
     "ReadableForm",
+    "ReadableScore",
     "default_readable_renderer",
     "render_readable",
+    "score_readable_answers",
 ]
