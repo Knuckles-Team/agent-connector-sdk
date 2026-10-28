@@ -97,6 +97,12 @@ The legacy browser login binds its loopback callback to a fresh state.
 It rejects missing, duplicate or mismatched values before storing a code. This does not
 close the broker-bound, headless, persistence or served obligations of R046.
 
+## Amendment: manual OAuth callback state (R046.10)
+
+The legacy manual fallback accepts a complete redirect only when its target
+and state match the active login. Raw codes cannot prove that binding and are
+refused. Brokered asynchronous input and served persistence remain open.
+
 ## Agent-card discovery (SDK-CONNECTOR-CONTROL-R047)
 
 The in-process card cache uses a named entry limit and least-recently-used
@@ -132,6 +138,11 @@ Reused: `canonical_json` body building in `_tool_entry`. New: the form, the rend
 Decision. The score is the fraction of graded questions answered from the text form. The rejected alternative is a free-form model judgment, which cannot be replayed offline.
 
 Cross-repository rows. The engine's tool-subset decision (`EG-DECISION-ENGINE`) may read `score` through the generated pack annotation; that field needs the `EG-TYPED-PACKS` row first.
+
+## Count-based readable scores (R048.8)
+
+The scorer counts already graded boolean answers and derives their ratio. It
+does not evaluate answers or close the certification and pack obligations.
 
 ## Payment challenge handling (SDK-CONNECTOR-CONTROL-R049)
 
@@ -174,6 +185,9 @@ a tool that cannot receive context. Keep transport context out of the public too
 argument schema. Bind identity from authenticated server state, never tool arguments.
 The method wrapper must use the same context adapter as condensed handlers.
 The adapter passes context only through a declared typed parameter.
+
+The request-local cache primitive accepts only caller-admitted transient values.
+Its owner binds the authenticated context and enforces the value exclusions below.
 
 `request_cache` keys include tenant, actor, connector, operation, normalized argument
 digest and authorization scope. The cache holds typed transient values only.
