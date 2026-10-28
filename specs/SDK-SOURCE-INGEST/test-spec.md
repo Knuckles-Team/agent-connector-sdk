@@ -289,6 +289,7 @@ Current dictation routes are single-shot. These tests require a registered meeti
 | `SDK-SOURCE-INGEST-R805.4` | `tests/test_source_sync.py::test_runner_schedules_access_enumeration_and_containers` |
 | `SDK-SOURCE-INGEST-R805.5` | `tests/test_access_check_port.py::test_timeout_denies_every_record` |
 | `SDK-SOURCE-INGEST-R805.6` | `tests/test_permission_sync_served.py::test_revocation_and_prune_against_real_engine` |
+| `SDK-SOURCE-INGEST-R805.7` | `tests/test_access_check_port.py` covers bounded SDK-local access checks. |
 
 ## Voice registry identity binding
 

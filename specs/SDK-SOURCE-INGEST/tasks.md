@@ -211,6 +211,7 @@
 - [ ] **SDK-SOURCE-INGEST-R805.4:** Wiring.
 - [ ] **SDK-SOURCE-INGEST-R805.5:** Read-time access lookup port.
 - [ ] **SDK-SOURCE-INGEST-R805.6:** Hot-path proof.
+- [x] Bound SDK-local read-time access decisions (SDK-SOURCE-INGEST-R805.7).
 - [x] `SDK-SOURCE-INGEST-R004.29`: load declarations as typed data with shared field sets.
 - [x] `SDK-SOURCE-INGEST-R004.30`: declared record mappers (`RecordMap`, `Mapped`) and shared field validation.
 - [x] `SDK-SOURCE-INGEST-R004.31`: `SourceStream` entry with paging and cursor checkpointing.
