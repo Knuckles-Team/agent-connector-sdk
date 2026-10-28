@@ -12,7 +12,7 @@ from __future__ import annotations
 import importlib
 import importlib.util
 import json
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Awaitable, Callable, Iterable, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -265,6 +265,8 @@ def register_live_declaration(
     connector: str,
     descriptors: Callable[[], list[dict[str, Any]]] | None = None,
     declared: Mapping[str, Any] | None = None,
+    surface_summary: Callable[[list[dict[str, Any]]], Awaitable[dict[str, Any]]]
+    | None = None,
 ) -> None:
     """Serve ``connector://resources``, computed when read.
 
@@ -278,14 +280,22 @@ def register_live_declaration(
     if any(RESOURCES_URI in str(key) for key in served):
         return
 
-    def resources() -> str:
+    async def resources() -> str:
         """The data sources and resources this connector declares, as JSON."""
+        current_descriptors = descriptors() if descriptors is not None else []
         declaration = build_declaration(
             connector,
             registered_tools(mcp).values(),
-            descriptors() if descriptors is not None else (),
+            current_descriptors,
             declared,
         )
+        if surface_summary is not None:
+            declaration = IngestSourceDeclaration.model_validate(
+                {
+                    **declaration.model_dump(),
+                    "surfaces": await surface_summary(current_descriptors),
+                }
+            )
         return json.dumps(
             declaration.model_dump(mode="json", exclude_unset=True), sort_keys=True
         )

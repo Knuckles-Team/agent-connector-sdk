@@ -75,6 +75,7 @@ def test_every_mapped_entry_kind_exists_in_the_engine() -> None:
         "shapes",
         "model-profile",
         "a2a-card",
+        "data",
     }
     assert not hasattr(PackEntryKind, "MANIFEST")
 

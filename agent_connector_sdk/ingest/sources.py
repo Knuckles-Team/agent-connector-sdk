@@ -106,6 +106,13 @@ class IngestSourceSpec(_Strict):
         return self
 
 
+class SurfaceDigest(_Strict):
+    """Count and SHA-256 of the canonical members of one served surface."""
+
+    count: int = Field(ge=0)
+    sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+
 class IngestSourceDeclaration(_Strict):
     """Every ingestible source one connector declares."""
 
@@ -114,6 +121,7 @@ class IngestSourceDeclaration(_Strict):
     schema_mappings: dict[str, SchemaMapping] = Field(default_factory=dict)
     resources: tuple[ResourceSpec, ...] = ()
     descriptors: tuple[dict[str, Any], ...] = ()
+    surfaces: dict[str, SurfaceDigest] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _unique(self) -> IngestSourceDeclaration:
