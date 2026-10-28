@@ -53,3 +53,6 @@ R900.10 checks finite tick admission and refusal before publication and aggregat
 
 
 R004.3 checks duplicate CSV header refusal before preview or import produces results.
+
+
+R004.4 rejects short and overlong CSV rows before preview or import returns a result.

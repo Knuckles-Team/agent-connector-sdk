@@ -118,3 +118,15 @@ def test_duplicate_headers_are_rejected(header: bytes) -> None:
         preview_csv_mapping(duplicated, _MAPPING)
     with pytest.raises(AmbiguousColumnMappingError, match="unique"):
         import_activities(duplicated, _MAPPING, _CONTEXT)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.4")
+@pytest.mark.parametrize(
+    "replacement", [b"USD", b"USD,2026-01-04T00:00:00+00:00,EXTRA"]
+)
+def test_ragged_rows_are_rejected(replacement: bytes) -> None:
+    malformed = _CSV.replace(b"USD,2026-01-04T00:00:00+00:00", replacement, 1)
+    with pytest.raises(AmbiguousColumnMappingError, match="header width"):
+        preview_csv_mapping(malformed, _MAPPING)
+    with pytest.raises(AmbiguousColumnMappingError, match="header width"):
+        import_activities(malformed, _MAPPING, _CONTEXT)
