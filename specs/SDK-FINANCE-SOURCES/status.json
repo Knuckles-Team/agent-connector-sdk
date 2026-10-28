@@ -253,10 +253,10 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "0567e6db2c3d",
-        "09fa547e9091",
         "341a4a3478e7",
         "48551e89426a",
-        "4b003b24ce55"
+        "4b003b24ce55",
+        "4c28572d33d9"
       ],
       "verified_by": [
         "tests/test_finance_crypto.py:49",
@@ -385,7 +385,7 @@
       "title": "Finite live ticks",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "09fa547e9091"
+        "4c28572d33d9"
       ],
       "verified_by": [
         "tests/test_finance_feeds.py:142",
