@@ -21,9 +21,14 @@ from pydantic import Field
 from agent_connector_sdk.finance.records import FinanceRecordBase
 
 __all__ = [
+    "CalendarIdentityConflictError",
     "CentralBankAnnouncement",
     "central_bank_calendar_from_source",
 ]
+
+
+class CalendarIdentityConflictError(ValueError):
+    """Different announcements share one legacy source identity."""
 
 
 class CentralBankAnnouncement(FinanceRecordBase):
@@ -92,7 +97,7 @@ def central_bank_calendar_from_source(
     record, never a replacement of the earlier one.
     """
     raw_events: Sequence[Mapping[str, Any]] = payload.get("events", ())
-    return tuple(
+    events = tuple(
         _announcement_from_source(
             raw,
             tenant_id=tenant_id,
@@ -104,3 +109,16 @@ def central_bank_calendar_from_source(
         )
         for raw in raw_events
     )
+    _require_consistent_identities(events)
+    return events
+
+
+def _require_consistent_identities(events: tuple[CentralBankAnnouncement, ...]) -> None:
+    seen: dict[str, datetime] = {}
+    for event in events:
+        previous = seen.get(event.source_event_id)
+        if previous is not None and previous != event.announcement_time_utc:
+            raise CalendarIdentityConflictError(
+                "calendar page has conflicting announcement identities"
+            )
+        seen[event.source_event_id] = event.announcement_time_utc
