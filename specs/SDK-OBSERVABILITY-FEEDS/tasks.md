@@ -6,3 +6,5 @@
 - [x] Record exact merged commits, CI tests and graph-backed restart receipt before acceptance (SDK-OBSERVABILITY-FEEDS-R001).
 
 - [ ] Register the three event-feed adapter entry points (SDK-OBSERVABILITY-FEEDS-R001.5).
+
+- [x] Bound the event identity index and refuse overflow before acceptance (SDK-OBSERVABILITY-FEEDS-R001.8).

@@ -36,3 +36,9 @@ event adapter and its feed kind through the served MCP call and sink receipt.
 Discover the three feed-kind bindings. Deny activation without their exact
 identity, then load and construct each binding under the SDK reference policy.
 This is not a runner or durable receipt proof.
+
+## Bounded identity index (R001.8)
+
+Fill the entry and byte limits. Verify duplicates, conflicts and UTF-8 sizes.
+An over-limit page must fail before sink submission or checkpoint advance.
+A stale staged page must not overwrite an accepted identity.

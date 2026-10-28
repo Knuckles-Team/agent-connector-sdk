@@ -30,3 +30,11 @@ The SDK distribution exposes the three feed bindings through source-adapter
 entry points. Loading each binding requires an activation policy. The generic worker can call an adapter supplied directly. The sync command
 cannot yet construct one from a declared feed kind.
 Registration and certified activation remain open work.
+
+## Bounded identity index (R001.8)
+
+One adapter retains at most 100,000 identity entries and 16 MiB of UTF-8
+identity and digest bytes, including a candidate page. It refuses new entries
+at either bound. Known duplicates and conflicts still resolve. This limit
+does not bound provider response size. Reaching it stops new events until a
+separate safe reset or durable identity strategy exists.
