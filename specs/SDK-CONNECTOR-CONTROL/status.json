@@ -140,6 +140,7 @@
     "SDK-CONNECTOR-CONTROL-R650",
     "SDK-CONNECTOR-CONTROL-R650.1",
     "SDK-CONNECTOR-CONTROL-R650.2",
+    "SDK-CONNECTOR-CONTROL-R650.3",
     "SDK-CONNECTOR-CONTROL-R051",
     "SDK-CONNECTOR-CONTROL-R051.1",
     "SDK-CONNECTOR-CONTROL-R051.2",
@@ -1887,7 +1888,8 @@
       "verified_by": [],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R650.1",
-        "SDK-CONNECTOR-CONTROL-R650.2"
+        "SDK-CONNECTOR-CONTROL-R650.2",
+        "SDK-CONNECTOR-CONTROL-R650.3"
       ]
     },
     {
@@ -1908,6 +1910,18 @@
         "tests/test_release_identity.py:22",
         "tests/test_release_identity.py:39",
         "tests/test_release_identity.py:48"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R650.3",
+      "title": "Explicit release signing",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "aa1c7c5c495e"
+      ],
+      "verified_by": [
+        "tests/test_release_signature.py:50",
+        "tests/test_release_signature.py:91"
       ]
     },
     {
