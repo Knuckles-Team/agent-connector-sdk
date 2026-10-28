@@ -30,8 +30,10 @@
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001.1",
       "title": "Rejected page identity isolation",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "123c6ecbe31b"
+      ],
       "verified_by": [
         "tests/test_event_feeds.py:391"
       ]
