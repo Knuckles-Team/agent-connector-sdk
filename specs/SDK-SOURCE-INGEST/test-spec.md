@@ -351,3 +351,8 @@ refuses before a partial load or checkpoint, then succeeds after row repair.
 Poll a linked site with a one-page limit and an already-seen seed. Every call
 fetches at most one page. Serialized checkpoints resume to the deeper pages.
 A checkpoint bound to a different source refuses before a fetch.
+
+## Web host rate limiting (R005.43)
+
+A controlled clock checks shared pacing across schemes, ports, host case,
+trailing dots, IDNA and equivalent IPv6 forms. Another host has its own budget.

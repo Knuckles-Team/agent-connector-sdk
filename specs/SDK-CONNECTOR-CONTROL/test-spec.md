@@ -474,3 +474,5 @@ HTTPX use refuses before login.
 
 A controlled peer returns the wrong RPC ID, version, task ID or both result
 and error. Each call fails without exposing peer content. Boolean IDs refuse.
+
+- `SDK-CONNECTOR-CONTROL-R035.8`: `tests/test_reference_invariants.py` refuses forged references before resolution.

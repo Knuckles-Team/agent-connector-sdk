@@ -794,3 +794,10 @@ expansion. This helper does not claim legacy automatic-expansion parity.
 The client checks each RPC envelope against its request ID and version before
 reading the result. Polling remains bound to the task returned by the initial
 send. A mismatch returns the fixed communication failure without peer content.
+
+## Amendment: secret reference construction (R035.8)
+
+`SecretReference` validates direct construction against its canonical target.
+Its path, mount, field and version must match that target. The constructor
+refuses traversal and malformed names before any resolver can run. The host
+authority and served credential binding in R035 remain separate.

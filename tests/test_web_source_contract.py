@@ -178,6 +178,39 @@ async def test_conformance_kit_flags_each_obligation() -> None:
     }, bad.results
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.43")
+async def test_domain_rate_limit_shares_host_across_schemes_and_ports() -> None:
+    now = 0.0
+    waits: list[float] = []
+
+    def clock() -> float:
+        return now
+
+    async def sleep(delay: float) -> None:
+        nonlocal now
+        waits.append(delay)
+        now += delay
+
+    limiter = DomainRateLimiter(min_interval_s=1.0, clock=clock, sleep=sleep)
+    await limiter.acquire("https://EXAMPLE.test/a")
+    await limiter.acquire("http://example.test:8080/b")
+    await limiter.acquire("https://example.test.:443/c")
+    await limiter.acquire("https://other.test/a")
+    assert waits == [1.0, 1.0]
+
+    await limiter.acquire("https://[2001:db8::1]/a")
+    await limiter.acquire("http://[2001:0db8::1]:8080/a")
+    assert waits == [1.0, 1.0, 1.0]
+    await limiter.acquire("https://bücher.example/a")
+    await limiter.acquire("http://xn--bcher-kva.example/a")
+    assert waits == [1.0, 1.0, 1.0, 1.0]
+    await limiter.acquire("https://faß.example/a")
+    await limiter.acquire("http://xn--fa-hia.example/a")
+    assert waits == [1.0, 1.0, 1.0, 1.0, 1.0]
+    with pytest.raises(WebSourceRefused, match="policy_refused"):
+        await limiter.acquire("https://example.test:invalid/")
+
+
 @pytest.mark.spec("SDK-SOURCE-INGEST-R005.40.1")
 async def test_a_refusal_is_a_result_and_a_bad_digest_is_refused() -> None:
     server = FastMCP("fixture-web-source")
