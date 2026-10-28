@@ -206,8 +206,8 @@ Runtime work and test execution remain outstanding.
 - [ ] **SDK-CONNECTOR-CONTROL-R064.4:** Refuse missing vault endpoint, root bundle or failed certificate chain verification.
 - [ ] **SDK-CONNECTOR-CONTROL-R064.5:** Record vault endpoint, bundle digest and propagation matrix revision.
 - [ ] **SDK-CONNECTOR-CONTROL-R064.6:** Verify guided deployment propagates bundle and startup fails on unverified certificate.
-- [ ] **SDK-CONNECTOR-CONTROL-R065.1:** Define ComponentHealthState distinguishing not-configured from configured-but-unavailable.
-- [ ] **SDK-CONNECTOR-CONTROL-R065.2:** Unconfigured and disabled components suppress alerts automatically.
+- [x] **SDK-CONNECTOR-CONTROL-R065.1:** Define ComponentHealthState distinguishing not-configured from configured-but-unavailable.
+- [x] **SDK-CONNECTOR-CONTROL-R065.2:** Unconfigured and disabled components suppress alerts automatically.
 - [ ] **SDK-CONNECTOR-CONTROL-R065.3:** Wire health state classification into Arbora /health endpoint and alert evaluation.
 - [ ] **SDK-CONNECTOR-CONTROL-R065.4:** Refuse unknown state values and contradictory configuration pairs.
 - [ ] **SDK-CONNECTOR-CONTROL-R065.5:** Record component state, configuration status and alert suppression reason.

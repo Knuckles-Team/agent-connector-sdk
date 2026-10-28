@@ -513,3 +513,9 @@ process settings do not alter the result, and an unknown profile refuses.
 `tests/test_certification_attestation.py` covers immutable decision and scope values,
 closed outcomes, malformed digests and missing identity. This test does not
 claim a producer, authenticated consumer or effect authority.
+
+## Component health classification
+
+`tests/test_component_health.py` checks immutable state, contradictory
+configuration, and enabled-only alert decisions. Served host observation and
+alert delivery remain separate integration work.
