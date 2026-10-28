@@ -34,7 +34,12 @@ from agent_connector_sdk.adapters.event_feed_records import (
     _check_feed_status,
     _event_source_record,
 )
+from agent_connector_sdk.adapters.event_feed_validation import (
+    _reject_unsupported_preset_fields,
+    _require_identity,
+)
 from agent_connector_sdk.adapters.event_identity import EventIdentityTracker
+from agent_connector_sdk.adapters.event_pending import _EventPageIdentity
 from agent_connector_sdk.adapters.mcp_tool_paging import (
     checkpoint_after_page,
     next_position,
@@ -58,33 +63,6 @@ from agent_connector_sdk.ports.session import McpSession
 
 __all__ = ["EventFeedSourceAdapter"]
 
-#: Preset fields this adapter does not implement; a configured value is refused
-#: at construction rather than silently ignored.
-_UNSUPPORTED_PRESET_FIELDS = (
-    "checkpoint_path",
-    "relationships_path",
-    "reconcile_path",
-    "authoritative_path",
-    "withdrawals_path",
-)
-
-
-def _require_identity(
-    connector: str, tool_schema_sha256: str, mapping_reference: str
-) -> None:
-    if not all((connector, tool_schema_sha256, mapping_reference)):
-        raise ValueError(
-            "connector, mapping_reference and a pinned tool_schema_sha256 are required"
-        )
-
-
-def _reject_unsupported_preset_fields(preset: ToolPreset) -> None:
-    configured = [name for name in _UNSUPPORTED_PRESET_FIELDS if getattr(preset, name)]
-    if configured:
-        raise ValueError(
-            f"preset {preset.name!r}: event feeds do not support {', '.join(configured)}"
-        )
-
 
 class EventFeedSourceAdapter:
     """Extract one operational event feed stream, validating its envelope.
@@ -92,6 +70,7 @@ class EventFeedSourceAdapter:
     The provider contract, pagination and checkpoint are declared the same
     way as :class:`agent_connector_sdk.adapters.mcp_tool.McpToolSourceAdapter`;
     only event-specific validation, identity and status handling differ.
+    Callers must finish each returned page after acceptance or rejection.
     """
 
     def __init__(
@@ -112,7 +91,7 @@ class EventFeedSourceAdapter:
         self._pinned = tool_schema_sha256
         self._mapping_reference = mapping_reference
         self._verified_sha256 = ""
-        self._tracker = EventIdentityTracker()
+        self._identity = _EventPageIdentity()
 
     @property
     def stream(self) -> str:
@@ -139,6 +118,18 @@ class EventFeedSourceAdapter:
             FeedBackpressureError: the provider is rate limited or down.
             FeedRetentionExpiredError: the checkpoint fell outside retention.
         """
+        candidate = self._identity.begin()
+        try:
+            return await self._extract_staged(session, checkpoint, candidate)
+        finally:
+            self._identity.end()
+
+    async def _extract_staged(
+        self,
+        session: McpSession,
+        checkpoint: SourceCheckpoint | None,
+        candidate: EventIdentityTracker,
+    ) -> RecordPage:
         preset = self._preset
         current = checkpoint or SourceCheckpoint(stream=self.stream, position={})
         if not self._verified_sha256 or current.stream != self.stream:
@@ -155,7 +146,6 @@ class EventFeedSourceAdapter:
             session, preset, pinned_schema_sha256=""
         )
         raw = raw_records(preset, result)
-        candidate = self._tracker.fork()
         records = self._mapped_events(raw, candidate)
         position = current.position if isinstance(current.position, Mapping) else {}
         next_page = next_position(preset, position, result=result, raw=raw)
@@ -167,7 +157,7 @@ class EventFeedSourceAdapter:
             exhausted=next_page is None,
             schema_contract=observed.schema_contract,
         )
-        self._tracker.merge(candidate)
+        self._identity.stage(page, candidate)
         return page
 
     def _mapped_events(
@@ -186,6 +176,10 @@ class EventFeedSourceAdapter:
             for item in raw
         )
         return tuple(record for record in records if record is not None)
+
+    def finish_page(self, page: RecordPage, *, accepted: bool) -> None:
+        """Commit staged identities only after the worker accepts this page."""
+        self._identity.finish(page, accepted=accepted)
 
     async def reconcile(
         self, session: McpSession, known_ids: frozenset[str]
