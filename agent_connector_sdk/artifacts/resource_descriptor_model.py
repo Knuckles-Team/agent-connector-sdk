@@ -6,13 +6,18 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
-from agent_connector_sdk._contract_fields import ACCESS_KINDS, PAGINATION_MODES
 from agent_connector_sdk.credentials.references import (
     SecretReferenceError,
     parse_secret_reference,
 )
 
 _RESOURCE_KINDS = frozenset({"data", "ontology", "shapes", "skill", "seed", "manifest"})
+# Do not admit a newly described protocol into a captured pack until its
+# transport has a certification boundary. Keep existing resource support.
+_RESOURCE_ACCESS_KINDS = frozenset(
+    {"mcp_tool", "http_endpoint", "graphql_query", "a2a_skill", "virtual_graph"}
+)
+_RESOURCE_PAGINATION_MODES = frozenset({"none", "cursor", "offset", "page"})
 
 
 class ResourceDeclarationError(ValueError):
@@ -111,11 +116,11 @@ def _validate(
 ) -> ResourceDeclarationError | None:
     """The refusal for one merged declaration, or ``None`` when it is sound."""
     name = entry.get("name")
-    if entry.get("access_kind", "mcp_tool") not in ACCESS_KINDS:
+    if entry.get("access_kind", "mcp_tool") not in _RESOURCE_ACCESS_KINDS:
         return ResourceDeclarationError(
             "ACCESS_KIND_UNKNOWN", f"{name}: unknown access_kind"
         )
-    if entry.get("pagination") not in PAGINATION_MODES:
+    if entry.get("pagination") not in _RESOURCE_PAGINATION_MODES:
         return ResourceDeclarationError(
             "PAGINATION_UNDECLARED",
             f"{name}: pagination must be one of cursor, page, offset or none",
