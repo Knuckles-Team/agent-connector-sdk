@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "SDK-FINANCE-SOURCES",
   "owner_repo": "scion-sdk",
-  "delivery_state": "SPECIFIED",
+  "delivery_state": "LANDED",
   "requirement_ids": [
     "SDK-FINANCE-SOURCES-R001",
     "SDK-FINANCE-SOURCES-R002",
@@ -98,14 +98,21 @@
     {
       "id": "SDK-FINANCE-SOURCES-R900",
       "title": "Venue and API connector helpers (rollup)",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "0567e6db2c3d",
         "341a4a3478e7",
         "4b003b24ce55",
         "8c6dcfdd27e8",
         "be6035bc97e5"
       ],
-      "verified_by": [],
+      "verified_by": [
+        "tests/test_finance_crypto.py:49",
+        "tests/test_finance_crypto.py:58",
+        "tests/test_finance_crypto.py:69",
+        "tests/test_finance_feeds.py:47",
+        "tests/test_finance_feeds.py:77"
+      ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R900.1",
         "SDK-FINANCE-SOURCES-R900.2",
@@ -189,8 +196,10 @@
     {
       "id": "SDK-FINANCE-SOURCES-R900.8",
       "title": "Bind confirmed payment records to proofs",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0567e6db2c3d"
+      ],
       "verified_by": [
         "tests/test_payments.py:151"
       ]

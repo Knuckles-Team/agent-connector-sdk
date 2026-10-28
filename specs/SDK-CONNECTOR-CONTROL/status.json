@@ -3257,8 +3257,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R780.8",
       "title": "Standard HTTP request headers",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "18cdae66cae9"
+      ],
       "verified_by": [
         "tests/test_http_standard_headers.py:10"
       ]
