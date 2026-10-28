@@ -94,3 +94,17 @@ def test_a_changed_file_is_a_new_version_with_a_different_identity() -> None:
 
     assert first[0].source_file_digest != changed[0].source_file_digest
     assert first[0].source_event_id != changed[0].source_event_id
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.3")
+@pytest.mark.parametrize("header", [b"Price", b"Unmapped"])
+def test_duplicate_headers_are_rejected(header: bytes) -> None:
+    duplicated = _CSV.replace(
+        b"Trade Date,Side,Qty,Price,Fee,Ccy,Settle Date",
+        b"Trade Date,Side,Qty,Price,Fee,Ccy,Settle Date," + header + b"," + header,
+        1,
+    )
+    with pytest.raises(AmbiguousColumnMappingError, match="unique"):
+        preview_csv_mapping(duplicated, _MAPPING)
+    with pytest.raises(AmbiguousColumnMappingError, match="unique"):
+        import_activities(duplicated, _MAPPING, _CONTEXT)
