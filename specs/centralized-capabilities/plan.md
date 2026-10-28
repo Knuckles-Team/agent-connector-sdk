@@ -140,3 +140,5 @@ a page. A malformed page cannot advance the continuation.
 ## Governed response error boundary
 
 R006.1 keeps upstream problem body fields out of governed public exceptions. The low-level parser remains available for callers that explicitly trust the upstream body.
+
+R006.3 limits governed diagnostics to the origin. The public URL redactor remains available when a caller chooses its separate field-based policy.

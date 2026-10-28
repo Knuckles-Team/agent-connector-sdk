@@ -15,6 +15,7 @@
     "SDK-CENTRALIZED-CAPABILITIES-R006",
     "SDK-CENTRALIZED-CAPABILITIES-R006.1",
     "SDK-CENTRALIZED-CAPABILITIES-R006.2",
+    "SDK-CENTRALIZED-CAPABILITIES-R006.3",
     "SDK-CENTRALIZED-CAPABILITIES-R007",
     "SDK-CENTRALIZED-CAPABILITIES-R008",
     "SDK-CENTRALIZED-CAPABILITIES-R009",
@@ -139,8 +140,8 @@
         "ccec3daa1661"
       ],
       "verified_by": [
-        "tests/test_http_client.py:571",
-        "tests/test_http_client.py:583"
+        "tests/test_http_client.py:572",
+        "tests/test_http_client.py:584"
       ]
     },
     {
@@ -164,7 +165,8 @@
       "verified_by": [],
       "rollup_of": [
         "SDK-CENTRALIZED-CAPABILITIES-R006.1",
-        "SDK-CENTRALIZED-CAPABILITIES-R006.2"
+        "SDK-CENTRALIZED-CAPABILITIES-R006.2",
+        "SDK-CENTRALIZED-CAPABILITIES-R006.3"
       ]
     },
     {
@@ -185,6 +187,19 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R006.3",
+      "title": "Limit governed HTTP diagnostics to the origin",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "40169f2c6bf9"
+      ],
+      "verified_by": [
+        "tests/test_http_diagnostic_origin.py:49",
+        "tests/test_http_diagnostic_origin.py:63",
+        "tests/test_http_diagnostic_origin.py:83"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R007",

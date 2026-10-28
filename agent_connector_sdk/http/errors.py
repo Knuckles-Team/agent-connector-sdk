@@ -12,7 +12,7 @@ import httpx
 
 from agent_connector_sdk.exceptions import ApiError, UnauthorizedError
 from agent_connector_sdk.http.problems import ProblemDetails
-from agent_connector_sdk.http.redaction import redact_url
+from agent_connector_sdk.http.redaction import redact_origin
 from agent_connector_sdk.http.retry import (
     is_tls_verification_failure,
     parse_retry_after,
@@ -99,7 +99,7 @@ def error_for_transport_failure(
     error: httpx.TransportError, request: httpx.Request, *, attempts: int
 ) -> HttpProblemError:
     """The error a transport failure represents after ``attempts`` attempts."""
-    target = f"{request.method} {redact_url(request.url)}"
+    target = f"{request.method} {redact_origin(request.url)}"
     cause = type(error).__name__
     if is_tls_verification_failure(error):
         return TlsVerificationError(

@@ -56,7 +56,7 @@ exactly what the tool returns.
 | Retries | `RetryPolicy`: 3 attempts, exponential backoff with jitter, idempotent methods only; a connection never established is retried for any method; certificate failures are never retried |
 | Rate limits | `Retry-After` (seconds or HTTP date) is honoured up to `max_retry_after`; beyond that, or for a non-idempotent request, the caller gets `HttpRateLimitedError.retry_after` |
 | Bodies | `request_json`, `read_bounded` and `iter_bounded` bound the size (16 MiB by default) |
-| Logging | one record per attempt on `agent_connector_sdk.http`: method, URL with credentials redacted, status or error class, attempt, elapsed time |
+| Logging | one record per attempt on `agent_connector_sdk.http`: method, origin only, status or error class, attempt, elapsed time |
 | Credentials | never in `headers` or `base_url`; always through `auth` |
 
 ## Retrying async callables

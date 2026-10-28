@@ -6,7 +6,13 @@ import re
 from collections.abc import Iterable
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-__all__ = ["REDACTED", "is_sensitive_name", "redact_headers", "redact_url"]
+__all__ = [
+    "REDACTED",
+    "is_sensitive_name",
+    "redact_headers",
+    "redact_origin",
+    "redact_url",
+]
 
 #: The replacement for a redacted value.
 REDACTED = "REDACTED"
@@ -52,3 +58,18 @@ def redact_url(url: object) -> str:
         ]
     )
     return urlunsplit((parts.scheme, netloc, parts.path, query, ""))
+
+
+def redact_origin(url: object) -> str:
+    """Return only the HTTP origin, excluding all path, query and user data."""
+    try:
+        parts = urlsplit(str(url))
+        host = parts.hostname or ""
+        if parts.scheme not in {"http", "https"} or not host:
+            return "<invalid-url>"
+        authority = f"[{host}]" if ":" in host else host
+        if parts.port is not None:
+            authority = f"{authority}:{parts.port}"
+        return urlunsplit((parts.scheme, authority, "", "", ""))
+    except ValueError:
+        return "<invalid-url>"

@@ -225,7 +225,8 @@ def test_timeouts() -> None:
         with pytest.raises(RetriesExhaustedError) as raised:
             client.get("/items")
     assert raised.value.problem.extensions["attempts"] == 3
-    assert isinstance(raised.value.__cause__, httpx.TimeoutException)
+    assert raised.value.__cause__ is None
+    assert raised.value.problem.extensions["cause"] == "ReadTimeout"
 
 
 def test_unreachable_upstream() -> None:
@@ -268,7 +269,7 @@ def test_request_logs_redact_secrets(caplog: pytest.LogCaptureFixture) -> None:
     assert "secret-value" not in caplog.text
     record = caplog.records[-1]
     fields = record.__dict__["http"]
-    assert fields["url"].endswith("?private_token=REDACTED&page=2")
+    assert fields["url"] == server.base_url
     assert fields["result"] == 200
 
 

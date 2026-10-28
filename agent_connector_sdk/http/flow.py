@@ -17,7 +17,7 @@ from typing import cast
 import httpx
 
 from agent_connector_sdk.http.errors import error_for_transport_failure
-from agent_connector_sdk.http.redaction import redact_url
+from agent_connector_sdk.http.redaction import redact_origin
 from agent_connector_sdk.http.retry import RetryPolicy
 
 __all__ = ["AttemptFlow", "Done", "Outcome", "Pause", "advance", "attempt_flow"]
@@ -68,7 +68,7 @@ def _log_attempt(
         if isinstance(outcome, httpx.Response)
         else type(outcome).__name__
     )
-    fields.update(method=request.method, url=redact_url(request.url), result=result)
+    fields.update(method=request.method, url=redact_origin(request.url), result=result)
     level = logging.INFO if fields["retry_in"] is None else logging.WARNING
     logger.log(
         level,
@@ -107,6 +107,6 @@ def attempt_flow(
         if delay is None and isinstance(outcome, httpx.TransportError):
             raise error_for_transport_failure(
                 outcome, request, attempts=attempt
-            ) from outcome
+            ) from None
         yield Pause(delay or 0.0, response)
         attempt += 1
