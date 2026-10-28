@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
@@ -11,7 +11,7 @@ from typing import Any
 from agent_connector_sdk.certify.checkout import ConnectorCheckout
 from agent_connector_sdk.certify.fingerprints import output_schema_digest, tool_name
 from agent_connector_sdk.manifest.live_contract import validate_preset_tool_contract
-from agent_connector_sdk.manifest.tool_schema import ToolSchemaContractError
+from agent_connector_sdk.manifest.tool_schema import ToolSchemaContractError, read_field
 
 __all__ = ["ToolStatus", "ToolVerdict", "tool_verdicts"]
 
@@ -23,6 +23,7 @@ class ToolStatus(StrEnum):
 
     CERTIFIED = "certified"
     TOOL_UNAVAILABLE = "tool_unavailable"
+    UNSCORED_READABLE_FORM = "unscored_readable_form"
 
 
 @dataclass(frozen=True)
@@ -50,6 +51,23 @@ def _unavailable(checkout: ConnectorCheckout, tool: str, defect: str) -> ToolVer
     )
 
 
+def _has_readable_form(tool: Any) -> bool:
+    meta = read_field(tool, "_meta", "meta", attr_names=("meta", "_meta"))
+    if not isinstance(meta, Mapping):
+        return False
+    annotations = meta.get("eg.annotations")
+    return isinstance(annotations, Mapping) and "readable_form" in annotations
+
+
+def _unscored(checkout: ConnectorCheckout, tool: str) -> ToolVerdict:
+    return ToolVerdict(
+        tool=tool,
+        presets=checkout.presets_for(tool),
+        status=ToolStatus.UNSCORED_READABLE_FORM,
+        defect="readable form has no verified question score",
+    )
+
+
 def _presets_for_tool(checkout: ConnectorCheckout, tool: str) -> tuple[Any, ...]:
     return tuple(preset for preset in checkout.presets.values() if preset.tool == tool)
 
@@ -60,6 +78,8 @@ def _verdict(
     if len(matches) != 1:
         state = "does not list" if not matches else "lists more than once"
         return _unavailable(checkout, tool, f"the server {state} tool {tool!r}")
+    if _has_readable_form(matches[0]):
+        return _unscored(checkout, tool)
     try:
         contract = validate_preset_tool_contract(
             matches,
@@ -85,6 +105,10 @@ def tool_verdicts(
     by_name: dict[str, list[Any]] = {}
     for tool in tools:
         by_name.setdefault(tool_name(tool), []).append(tool)
-    return tuple(
+    verdicts = [
         _verdict(checkout, tool, by_name.get(tool, [])) for tool in checkout.tools
-    )
+    ]
+    for name in sorted(by_name.keys() - set(checkout.tools)):
+        if any(_has_readable_form(tool) for tool in by_name[name]):
+            verdicts.append(_unscored(checkout, name))
+    return tuple(verdicts)

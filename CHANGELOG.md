@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Changed
+
+- Manual OAuth completion now requires the complete redirect URL. A raw code
+  has no state binding and is refused.
+
 ### Removed
 
 - `agent_connector_sdk.paths` no longer reads `GRAPH_OS_CONFIG_DIR`, `AGENT_UTILITIES_CONFIG_DIR`, `~/.config/graph-os` or `~/.config/agent-utilities`; the platform config lives under `ARBORA_CONFIG_DIR` / `~/.config/arbora` only. `legacy_platform_config_dir(s)` are removed.

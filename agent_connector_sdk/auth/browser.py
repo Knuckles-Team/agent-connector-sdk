@@ -463,15 +463,15 @@ class BaseBrowserAuthManager:
 
     @staticmethod
     def _read_manual_code_file() -> str:
-        """Wait for and consume the authorization code supplied out of band."""
+        """Wait for and consume the full redirect supplied out of band."""
         from agent_connector_sdk.paths import config_dir
 
         auth_file_path = str(config_dir() / "browser_auth_code.txt")
         print(
-            f"Non-TTY environment detected. Please write the authorization code to {auth_file_path}",
+            f"Non-TTY environment detected. Please write the full redirect URL to {auth_file_path}",
             file=sys.stderr,
         )
-        print(f"Example: echo 'your_code_here' > {auth_file_path}", file=sys.stderr)
+        print(f"Write the complete callback URL to {auth_file_path}.", file=sys.stderr)
 
         wait_limit = 300.0
         start_time = time.time()
@@ -491,34 +491,54 @@ class BaseBrowserAuthManager:
 
     @staticmethod
     def _prompt_for_manual_code() -> str | None:
-        """Prompt for a redirected URL or raw authorization code on a TTY."""
+        """Prompt for the complete redirected URL on a TTY."""
         print(
             "Please open the URL above in your local browser, authorize, and then:",
             file=sys.stderr,
         )
-        paste_val = input(
-            "Paste the redirected URL (containing '?code=...') or the raw code: "
-        ).strip()
-        if "code=" not in paste_val:
-            return paste_val
+        return input("Paste the complete redirected URL: ").strip()
+
+    def _manual_authorization_code(self, redirect: str, state: str) -> str:
+        """Refuse manual input unless the redirect and state match this login."""
         try:
-            parsed = urlparse(paste_val)
-            return parse_qs(parsed.query).get("code", [None])[0]
-        except Exception:
-            return paste_val
+            actual = urlparse(redirect)
+            expected = urlparse(self.redirect_uri)
+            query = parse_qs(actual.query, keep_blank_values=True)
+        except ValueError as exc:
+            raise ValueError("manual callback is invalid") from exc
+        states = query.get("state", [])
+        codes = query.get("code", [])
+        if (
+            (actual.scheme, actual.netloc, actual.path)
+            != (expected.scheme, expected.netloc, expected.path)
+            or actual.params
+            or actual.fragment
+            or "error" in query
+            or len(states) != 1
+            or not secrets.compare_digest(
+                states[0].encode("utf-8"), state.encode("utf-8")
+            )
+            or len(codes) != 1
+            or not codes[0]
+        ):
+            raise ValueError("manual callback is invalid")
+        return codes[0]
 
     def _get_authorization_code(
-        self, server: BaseLoopbackCallbackServer | None
+        self, server: BaseLoopbackCallbackServer | None, state: str
     ) -> str | None:
-        """Obtain the authorization code from loopback or the manual fallback."""
+        """Obtain a loopback code or validate a complete manual redirect."""
         auth_code = self._wait_for_loopback_code(server) if server else None
         if auth_code:
             return auth_code
 
         print("Loopback server timed out or is unavailable.", file=sys.stderr)
-        if not sys.stdin.isatty():
-            return self._read_manual_code_file()
-        return self._prompt_for_manual_code()
+        redirect = (
+            self._prompt_for_manual_code()
+            if sys.stdin.isatty()
+            else self._read_manual_code_file()
+        )
+        return self._manual_authorization_code(redirect, state) if redirect else None
 
     def _exchange_authorization_code(
         self,
@@ -576,7 +596,7 @@ class BaseBrowserAuthManager:
         server = self._start_loopback_server(state)
         auth_url = self._build_authorization_url(auth_endpoint, challenge, state)
         self._announce_authorization(auth_url)
-        auth_code = self._get_authorization_code(server)
+        auth_code = self._get_authorization_code(server, state)
         if not auth_code:
             raise ValueError("Authentication cancelled or code was not provided.")
 

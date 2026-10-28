@@ -70,6 +70,7 @@
   - [ ] **R046.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R046.5).
   - [ ] **R046.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R046.6).
 - [x] Bind the legacy browser loopback callback to its generated state (SDK-CONNECTOR-CONTROL-R046.7).
+- [x] Bind manual OAuth redirects to their login state (SDK-CONNECTOR-CONTROL-R046.10).
 - [ ] **R047:** Agent-card discovery from the standard well-known path. (SDK-CONNECTOR-CONTROL-R047).
   - [x] **R047.1:** Model row. (SDK-CONNECTOR-CONTROL-R047.1).
   - [ ] **R047.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R047.2).
@@ -88,7 +89,7 @@
   - [x] **R048.1:** Model row. (SDK-CONNECTOR-CONTROL-R048.1).
   - [x] **R048.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R048.2).
   - [ ] **R048.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R048.3).
-  - [ ] **R048.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R048.4).
+  - [x] **R048.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R048.4).
   - [ ] **R048.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R048.5).
   - [ ] **R048.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R048.6).
 - [x] Count graded readable answers (SDK-CONNECTOR-CONTROL-R048.8).
