@@ -1835,6 +1835,7 @@
       "title": "Request-local cache primitive",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "66354c9320c7",
         "dec26950f9ce"
       ],
       "verified_by": [
