@@ -2216,16 +2216,20 @@
     {
       "id": "SDK-SOURCE-INGEST-R800",
       "title": "Document-source connector framework (rollup)",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "11366ce437d5",
+        "1fef6e28fd79",
         "23b5ecce8a59",
         "2d68f7c80246",
-        "4b003b24ce55",
-        "56ad646b3616"
+        "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:45"
+        "tests/source_connectors/test_source_connectors.py:125",
+        "tests/source_connectors/test_source_connectors.py:155",
+        "tests/source_connectors/test_source_connectors.py:172",
+        "tests/source_connectors/test_source_connectors.py:204",
+        "tests/source_connectors/test_source_connectors.py:227"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R800.1",
@@ -2317,8 +2321,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R800.11",
       "title": "Zero REST cursor",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1fef6e28fd79"
+      ],
       "verified_by": [
         "tests/source_connectors/test_source_connectors.py:172"
       ]
