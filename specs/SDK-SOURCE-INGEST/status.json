@@ -2513,11 +2513,11 @@
       "title": "Typed, privacy-safe data preparation kernel (rollup)",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "05f0db88c98a",
         "075dd1650da3",
         "11366ce437d5",
         "3f465bfdb7b3",
-        "4b003b24ce55",
-        "d2a659a5f3b8"
+        "4b003b24ce55"
       ],
       "verified_by": [
         "tests/data_prep/certification/test_job.py:180",
@@ -2619,10 +2619,11 @@
       "title": "Unique row fields",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "05f0db88c98a",
         "075dd1650da3"
       ],
       "verified_by": [
-        "tests/data_prep/test_kernel.py:725"
+        "tests/data_prep/test_kernel.py:726"
       ]
     },
     {
