@@ -59,6 +59,15 @@ exactly what the tool returns.
 | Logging | one record per attempt on `agent_connector_sdk.http`: method, URL with credentials redacted, status or error class, attempt, elapsed time |
 | Credentials | never in `headers` or `base_url`; always through `auth` |
 
+## Retrying async callables
+
+`agent_connector_sdk.resilience.run_with_resilience` runs an async callable
+with explicit retryable exception types and a `RetryPolicy`. Repeated calls
+and fallbacks require `retry_safe=True`. The caller must know those calls are
+safe to repeat. Timeouts use cooperative cancellation and propagate without
+another call; a coroutine that suppresses cancellation cannot be forcibly
+stopped. Permission, validation and certificate failures also propagate.
+
 ## Errors
 
 Every failure is an `HttpProblemError` (an `ApiError`) carrying an RFC 9457
