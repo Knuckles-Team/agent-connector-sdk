@@ -103,6 +103,7 @@
     "SDK-CONNECTOR-CONTROL-R047.5",
     "SDK-CONNECTOR-CONTROL-R047.6",
     "SDK-CONNECTOR-CONTROL-R047.7",
+    "SDK-CONNECTOR-CONTROL-R047.8",
     "SDK-CONNECTOR-CONTROL-R048",
     "SDK-CONNECTOR-CONTROL-R048.1",
     "SDK-CONNECTOR-CONTROL-R048.2",
@@ -1526,7 +1527,8 @@
         "SDK-CONNECTOR-CONTROL-R047.4",
         "SDK-CONNECTOR-CONTROL-R047.5",
         "SDK-CONNECTOR-CONTROL-R047.6",
-        "SDK-CONNECTOR-CONTROL-R047.7"
+        "SDK-CONNECTOR-CONTROL-R047.7",
+        "SDK-CONNECTOR-CONTROL-R047.8"
       ]
     },
     {
@@ -1602,6 +1604,17 @@
       ],
       "verified_by": [
         "tests/test_a2a_discovery.py:128"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R047.8",
+      "title": "Isolate cached observations",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6c1d3630854f"
+      ],
+      "verified_by": [
+        "tests/test_a2a_discovery.py:158"
       ]
     },
     {
