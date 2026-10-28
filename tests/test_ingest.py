@@ -490,6 +490,33 @@ async def test_accepted_cursor_refuses_malformed_or_mismatched_checkpoints() -> 
             await KnowledgeIngest(Transport(bad)).accepted_cursor(BINDING)
 
 
+async def test_source_status_distinguishes_cursorless_checkpoint_from_empty() -> None:
+    class Transport(_Transport):
+        def __init__(self, status):
+            super().__init__()
+            self.status = status
+
+        async def source_status(self, connector, stream):
+            return self.status
+
+    empty = SourceIngestStatus(connector="demo-mcp", stream="demo")
+    present = SourceIngestStatus(
+        connector="demo-mcp",
+        stream="demo",
+        accepted_checkpoint=SourceCheckpoint(stream="demo", position={}),
+    )
+    assert (
+        await KnowledgeIngest(Transport(empty)).source_status(BINDING)
+    ).accepted_checkpoint is None
+    status = await KnowledgeIngest(Transport(present)).source_status(BINDING)
+    assert status.accepted_checkpoint is not None
+    assert await KnowledgeIngest(Transport(present)).accepted_cursor(BINDING) is None
+    with pytest.raises(IngestError):
+        await KnowledgeIngest(Transport(present)).source_status(
+            IngestBinding(connector="other", stream="demo")
+        )
+
+
 @pytest.mark.spec("SDK-SOURCE-INGEST-R004.41")
 async def test_stream_never_fetches_after_invalid_accepted_cursor() -> None:
     from agent_connector_sdk.ingest import RecordMap, SourceStream
