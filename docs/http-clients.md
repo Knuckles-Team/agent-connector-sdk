@@ -68,6 +68,19 @@ safe to repeat. Timeouts use cooperative cancellation and propagate without
 another call; a coroutine that suppresses cancellation cannot be forcibly
 stopped. Permission, validation and certificate failures also propagate.
 
+## Requests-only SDKs
+
+Install `scion-sdk[requests]` to use
+`agent_connector_sdk.http.requests.create_requests_session`. This factory
+returns a `requests.Session` for libraries that require Requests. It enforces
+TLS verification, finite timeouts and the SDK air-gap policy on every send,
+including redirects. It ignores ambient proxy settings by default. A resolved
+TLS profile configures trust material or a proxy.
+
+The Requests adapter follows Requests redirect behavior and does not provide
+the httpx client's pinned egress, retry or bounded-body features. Prefer the
+httpx factories for new integrations.
+
 ## Errors
 
 Every failure is an `HttpProblemError` (an `ApiError`) carrying an RFC 9457
