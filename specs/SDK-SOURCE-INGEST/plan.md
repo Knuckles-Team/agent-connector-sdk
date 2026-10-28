@@ -978,7 +978,8 @@ paths run.
 
 A host admits explicit NCBI or GBIF taxon identifiers and a finite batch size.
 The SDK reads each admitted identifier through governed HTTP. NCBI Datasets v2
-returns taxonomy reports; GBIF species returns a backbone usage by key. A
+returns taxonomy reports; GBIF species returns a usage by key. The SDK accepts it as a backbone usage
+only when its `key` and `nubKey` match. A
 provider response must match the requested identifier and contain a scientific
 name. NCBI's nearest parent is the final entry in its ordered `parents` list.
 GBIF supplies `parentKey` when present. Neither API result is a deletion
@@ -999,3 +1000,12 @@ A source location identifies this observation's reported coordinates, not a
 claim that the SDK chose or resolved a graph region. Host authorization and
 license admission precede an accepted page. Provider failures do not advance
 the graph checkpoint. Weather and storm ingestion remain required by R008.
+
+## Bounded hourly weather reads
+
+The host admits a tenant, station or point, source interval, quota and license.
+The SDK requests Open-Meteo hourly temperatures in UTC and NOAA global-hourly
+station temperatures. It validates source identity, units, quality and row bounds.
+A missing value or unadmitted quality is an explicit failure. NOAA daily
+summaries remain open because a calendar-day aggregate does not establish an
+exact observation time. A host-supplied place is not a graph region assertion.
