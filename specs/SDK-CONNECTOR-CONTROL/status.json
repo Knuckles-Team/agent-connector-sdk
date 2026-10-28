@@ -20,6 +20,7 @@
     "SDK-CONNECTOR-CONTROL-R013",
     "SDK-CONNECTOR-CONTROL-R014",
     "SDK-CONNECTOR-CONTROL-R014.27",
+    "SDK-CONNECTOR-CONTROL-R014.28",
     "SDK-CONNECTOR-CONTROL-R014.1",
     "SDK-CONNECTOR-CONTROL-R015",
     "SDK-CONNECTOR-CONTROL-R015.1",
@@ -505,6 +506,7 @@
       "verified_by": [],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R014.27",
+        "SDK-CONNECTOR-CONTROL-R014.28",
         "SDK-CONNECTOR-CONTROL-R014.1",
         "SDK-CONNECTOR-CONTROL-R014.2",
         "SDK-CONNECTOR-CONTROL-R014.3",
@@ -541,6 +543,17 @@
       "verified_by": []
     },
     {
+      "id": "SDK-CONNECTOR-CONTROL-R014.28",
+      "title": "Refuse incomplete migration scans",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "11f2cc3efb0f"
+      ],
+      "verified_by": [
+        "tests/test_fleet_migration_scan.py:94"
+      ]
+    },
+    {
       "id": "SDK-CONNECTOR-CONTROL-R014.1",
       "title": "One reusable cross-repository import-scan call site",
       "delivery_state": "VERIFIED",
@@ -550,7 +563,7 @@
         "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_fleet_migration_scan.py:90"
+        "tests/test_fleet_migration_scan.py:140"
       ]
     },
     {
