@@ -1972,10 +1972,10 @@
       "title": "Keep cursor on non-page writes",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "9e25829e778c"
+        "2052a429412d"
       ],
       "verified_by": [
-        "tests/test_ingest.py:658"
+        "tests/test_ingest.py:683"
       ]
     },
     {
