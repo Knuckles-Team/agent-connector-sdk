@@ -57,3 +57,10 @@ record and rejects a different account. It keeps the served provider fields and
 does not invent a provider event time. It submits non-authoritative delta pages
 and refuses reconciliation, so one account read cannot withdraw another. The owner pack test replays the same
 account, positions and CSV through the adapter into a real graph.
+
+## Stock source conformance evidence
+
+The stock SDK tests cover each source kind and the supported adjustment and
+session labels. Emerald Exchange tests replay served stock provider fixtures
+through the SDK adapter into a real graph. Owner fixtures cover the websocket
+stream and exchange calendar. Live access and logo usage rights remain open.

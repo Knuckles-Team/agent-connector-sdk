@@ -31,7 +31,7 @@ The tests also retain the matched challenge and proof success path.
 R900.7 runs the production market bus with a controlled clock. Two bar
 intervals for one symbol each receive their own completed bars.
 
-R002.1 remains open: the existing synthetic bar-page tests exercise normalization and labels, not the complete source-adapter coverage required by R002.
+R002.1 remains open for licensed logo rights evidence. SDK fixtures cover all stock source kinds, adjustment modes and calendar labels. The Emerald Exchange stock graph tests use synthetic provider responses. They exercise the served source packs, SDK adapter and graph replay. Owner tests also cover streaming and calendar sessions. These fixtures do not establish live access or rights to use logos.
 
 R005.1 remains open: current FRED and ETF normalization tests do not prove the remaining macro and liquidity panels.
 
