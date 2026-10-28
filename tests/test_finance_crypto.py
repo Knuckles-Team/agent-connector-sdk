@@ -100,3 +100,27 @@ def test_error_hierarchy_lets_callers_catch_by_family(
     error: type, bases: tuple
 ) -> None:
     assert issubclass(error, bases)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.11")
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("lastFundingRate", "nan"),
+        ("lastFundingRate", "inf"),
+        ("lastFundingRate", "invalid"),
+        ("lastFundingRate", True),
+        ("time", None),
+        ("time", "nan"),
+        ("time", "1e999"),
+        ("time", False),
+    ],
+)
+def test_funding_rate_requires_finite_provider_data(field: str, value: object) -> None:
+    answer = {"lastFundingRate": "0.0001", "time": 1_700_000_000_000}
+    answer[field] = value
+    with pytest.raises(ProviderRequestError):
+        CryptoDerivatives(_serve(answer)[1]).get_funding_rate("BTC/USDT")
+    del answer["time"]
+    with pytest.raises(ProviderRequestError):
+        CryptoDerivatives(_serve(answer)[1]).get_funding_rate("BTC/USDT")

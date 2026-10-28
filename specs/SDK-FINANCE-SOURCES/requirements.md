@@ -40,3 +40,6 @@
 
 | `SDK-FINANCE-SOURCES-R900.9` | **Positive bar intervals.** The feed and tick aggregator refuse non-positive or non-integer bar intervals. A refused subscription adds no subscriber. | `tests/test_finance_feeds.py` covers both entry points and refusal without side effects. |
 | `SDK-FINANCE-SOURCES-R900.10` | **Finite live ticks.** The market bus and direct bar aggregation reject non-finite tick values and alert thresholds. Invalid ticks cause no publication or aggregation. | `tests/test_finance_feeds.py` tests invalid and mutated ticks at each entry point. |
+
+
+| `SDK-FINANCE-SOURCES-R900.11` | **Funding source time.** Funding-rate reads require a finite rate and explicit finite provider timestamp. Missing or malformed values refuse rather than substituting local time. | `tests/test_finance_crypto.py` covers invalid values and preserves the provider timestamp. |

@@ -64,3 +64,5 @@ R004.5 refuses non-ASCII currency lookalikes without claiming registry membershi
 R004.6 refuses invalid currency cells without placing their values in errors.
 
 - `SDK-FINANCE-SOURCES-R001.6`: `tests/test_finance_fred_series.py` covers duplicate IDs with equal and differing values.
+
+- `SDK-FINANCE-SOURCES-R900.11`: `tests/test_finance_crypto.py` covers missing or invalid funding rates and provider timestamps.
