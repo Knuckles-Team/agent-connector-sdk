@@ -33,6 +33,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+requests = [
+    "requests>=2.34.0,<3",
+]
 integrity = [
     "rdflib>=7.1.0",
 ]
@@ -136,7 +139,7 @@ agent_connector_sdk = ["py.typed", "skills/**/*", "ontology/*.ttl"]
 
 [dependency-groups]
 test = [
-    "scion-sdk[mcp,feeds,dataprep,integrity,graphql,a2a]",
+    "scion-sdk[mcp,feeds,dataprep,integrity,graphql,a2a,requests]",
     "pandas>=2.2.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
@@ -146,9 +149,10 @@ docs = [
     "mkdocs-material==9.7.7",
 ]
 typecheck = [
-    "scion-sdk[mcp,feeds,dataprep,integrity,graphql]",
+    "scion-sdk[mcp,feeds,dataprep,integrity,graphql,requests]",
     "mypy==2.4.0",
     "types-PyYAML==6.0.12.20260906",
+    "types-requests>=2.32.0",
 ]
 
 [tool.uv]
@@ -292,6 +296,7 @@ public_modules = [
     "agent_connector_sdk.finance.strategy_export",
     "agent_connector_sdk.http.bodies",
     "agent_connector_sdk.http.client",
+    "agent_connector_sdk.http.requests",
     "agent_connector_sdk.http.egress",
     "agent_connector_sdk.http.errors",
     "agent_connector_sdk.http.options",

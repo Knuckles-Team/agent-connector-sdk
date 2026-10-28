@@ -753,3 +753,11 @@ must affirm retry safety before repeated calls or fallbacks. Timeouts use
 cooperative cancellation and never trigger another attempt. Permission and
 validation failures also propagate without a fallback. Synchronous callable
 timeout handling and the remaining R780.6 helpers stay open.
+
+## Amendment: Requests session factory (R780.9)
+
+A Requests-only SDK can use the optional Requests adapter. It returns a real
+Session with TLS trust and finite timeouts. Each send enforces the air-gap
+policy, including redirects. Callers select a resolved TLS profile.
+The session ignores ambient proxies unless that profile permits them. The other
+R780.6 helpers remain open.

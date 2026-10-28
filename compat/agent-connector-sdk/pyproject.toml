@@ -14,6 +14,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+requests = ["scion-sdk[requests]==0.5.8"]
 integrity = ["scion-sdk[integrity]==0.5.8"]
 mcp = ["scion-sdk[mcp]==0.5.8"]
 a2a = ["scion-sdk[a2a]==0.5.8"]
