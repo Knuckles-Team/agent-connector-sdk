@@ -28,15 +28,15 @@ ac:keyField a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range 
     rdfs:comment "The source field holding the entity key (VirtualMapping.key_field)." .
 
 ac:accessKind a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
-    rdfs:comment "One of mcp_tool, http_endpoint, graphql_query, a2a_skill, virtual_graph." .
+    rdfs:comment "A declared connection-protocol term such as virtual_graph. Declaration alone does not establish transport availability." .
 ac:operation a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
     rdfs:comment "The MCP tool name, endpoint path, GraphQL query name or A2A skill id." .
 ac:parameter a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
     rdfs:comment "One parameter name the operation accepts. Repeatable." .
 ac:pagination a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
-    rdfs:comment "One of none, cursor, offset, page." .
+    rdfs:comment "One of none, cursor, offset, page, range, sync_token or batch." .
 ac:pushdown a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
-    rdfs:comment "One operation the source executes itself: filter, sort, limit or project. Repeatable." .
+    rdfs:comment "One operation the source executes itself: filter, sort, limit, project, aggregate, join or time_range. Repeatable." .
 ac:authRef a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
     rdfs:comment "A credential reference (env://NAME or openbao://mount/path#field). Never a secret." .
 ac:rateLimitPerMinute a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:integer .
@@ -48,3 +48,8 @@ ac:costHint a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range 
 ac:contract a owl:ObjectProperty ; rdfs:domain ac:PropertyBinding ; rdfs:range ac:AccessContract .
 ac:property a owl:ObjectProperty ; rdfs:domain ac:PropertyBinding .
 ac:field a owl:DatatypeProperty ; rdfs:domain ac:PropertyBinding ; rdfs:range xsd:string .
+
+ac:authModel a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
+    rdfs:comment "The declared transport authentication model, never a credential value." .
+ac:streaming a owl:DatatypeProperty ; rdfs:domain ac:AccessContract ; rdfs:range xsd:string ;
+    rdfs:comment "The declared stream form, or none for a non-streaming transport." .

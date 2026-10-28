@@ -119,7 +119,7 @@ def test_virtual_graph_refuses_unknown_kind_and_literal_credential() -> None:
     ("old", "new", "message"),
     [
         ('"env://FAKE_TRACKER_TOKEN"', '"sk-live-123456"', "not a secret"),
-        ('"filter", "limit"', '"filter", "join"', "unknown ac:pushdown"),
+        ('"filter", "limit"', '"filter", "unsupported"', "unknown ac:pushdown"),
         ('    ac:operation "fake_ticket_query" ;\n', "", "missing ac:operation"),
         ('"mcp_tool"', '"carrier_pigeon"', "unknown ac:accessKind"),
         (

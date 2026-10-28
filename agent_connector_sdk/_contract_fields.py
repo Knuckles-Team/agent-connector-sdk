@@ -7,10 +7,54 @@ from .credentials.references import SecretReferenceError, parse_secret_reference
 
 AC = "https://knuckles-team.github.io/agent-connector-sdk/access#"
 ACCESS_KINDS = frozenset(
-    {"mcp_tool", "http_endpoint", "graphql_query", "a2a_skill", "virtual_graph"}
+    {
+        "mcp_tool",
+        "http_endpoint",
+        "graphql_query",
+        "a2a_skill",
+        "virtual_graph",
+        "grpc_method",
+        "odata_entity_set",
+        "soap_operation",
+        "jsonrpc_method",
+        "sparql_endpoint",
+        "graph_endpoint",
+        "stream_topic",
+        "change_feed",
+        "webhook_event",
+        "event_stream",
+        "file_store",
+        "directory",
+        "mailbox",
+        "calendar_collection",
+    }
 )
-PAGINATION_MODES = frozenset({"none", "cursor", "offset", "page"})
-PUSHDOWN_OPS = frozenset({"filter", "sort", "limit", "project"})
+PAGINATION_MODES = frozenset(
+    {"none", "cursor", "offset", "page", "range", "sync_token", "batch"}
+)
+PUSHDOWN_OPS = frozenset(
+    {"filter", "sort", "limit", "project", "aggregate", "join", "time_range"}
+)
+STREAM_MODES = frozenset(
+    {"none", "server", "offset", "position", "push", "frames", "record_batch"}
+)
+AUTH_MODELS = frozenset(
+    {
+        "none",
+        "api_key",
+        "oauth2",
+        "mtls",
+        "bearer",
+        "basic",
+        "password",
+        "token",
+        "sasl",
+        "hmac",
+        "ssh_key",
+        "access_key",
+        "ws_security",
+    }
+)
 COST_HINTS = frozenset({"low", "medium", "high"})
 
 Props = dict[str, list[Term]]

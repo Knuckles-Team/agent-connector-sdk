@@ -3170,7 +3170,9 @@
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_transport_contract.py:27"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R069.2",

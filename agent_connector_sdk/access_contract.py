@@ -26,6 +26,7 @@ from ._contract_fields import (
     PUSHDOWN_OPS,
 )
 from ._turtle import RDF_TYPE, AccessContractError, parse_graph
+from .transports.contract import TransportContract
 
 __all__ = [
     "AC",
@@ -34,6 +35,7 @@ __all__ = [
     "PUSHDOWN_OPS",
     "AccessContract",
     "AccessContractError",
+    "TransportContract",
     "access_contract_vocabulary",
     "parse_access_contracts",
 ]
@@ -62,6 +64,7 @@ class AccessContract:
     freshness_seconds: int | None = None
     cost_hint: str = "unknown"
     predicates: tuple[tuple[str, str], ...] = ()
+    transport: TransportContract | None = None
 
     def virtual_mapping_fields(self) -> dict[str, object]:
         """Return the keyword arguments of an unapproved ``VirtualMapping``."""
@@ -79,6 +82,29 @@ def access_contract_vocabulary() -> str:
     """Return the packaged access-contract vocabulary as Turtle text."""
     path = resources.files("agent_connector_sdk") / "ontology" / "access_contract.ttl"
     return path.read_text(encoding="utf-8")
+
+
+def _transport(props: f.Props, subject: str) -> TransportContract | None:
+    protocol = f.choice(props, "accessKind", subject, allowed=ACCESS_KINDS)
+    declared = f.AC + "authModel" in props or f.AC + "streaming" in props
+    if not declared and protocol not in {"stream_topic", "change_feed", "event_stream"}:
+        return None
+    try:
+        return TransportContract(
+            protocol=protocol,
+            auth_model=f.choice(props, "authModel", subject, allowed=f.AUTH_MODELS),
+            paging=f.choice(
+                props, "pagination", subject, allowed=PAGINATION_MODES, default="none"
+            ),
+            streaming=f.choice(
+                props, "streaming", subject, allowed=f.STREAM_MODES, default="none"
+            ),
+            pushdown=f.pushdown(props, subject),
+        )
+    except AccessContractError:
+        raise
+    except ValueError as exc:
+        raise AccessContractError(f"{subject}: invalid transport declaration") from exc
 
 
 def _contract(graph: dict[str, f.Props], subject: str) -> AccessContract:
@@ -107,6 +133,7 @@ def _contract(graph: dict[str, f.Props], subject: str) -> AccessContract:
             default="unknown",
         ),
         predicates=f.bindings(graph, subject),
+        transport=_transport(props, subject),
     )
 
 
