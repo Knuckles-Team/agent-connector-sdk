@@ -256,3 +256,23 @@ def test_fx_currency_codes_are_canonical_and_distinct() -> None:
 def test_fx_currency_rejects_invalid_code(currency: str) -> None:
     with pytest.raises(ValidationError, match="three ASCII letters"):
         FxRate(**_base_fields(), base_currency=currency, quote_currency="EUR", rate=1.0)
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R002.2")
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+@pytest.mark.parametrize("field", ["open", "high", "low", "close", "volume"])
+def test_market_records_reject_nonfinite_values(field: str, value: float) -> None:
+    with pytest.raises(ValidationError):
+        _bar(**{field: value})
+    for quote_field in ("bid", "ask"):
+        quote = {"bid": 10.0, "ask": 11.0, "quote_time_utc": _NOW}
+        quote[quote_field] = value
+        with pytest.raises(ValidationError):
+            Quote(**_base_fields(), **quote)
+    with pytest.raises(ValidationError):
+        CorporateAction(
+            **_base_fields(),
+            ex_date=_NOW,
+            effective_date=_NOW,
+            action_type="split",
+            adjustment_factor=value,
+        )
