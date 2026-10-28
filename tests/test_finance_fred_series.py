@@ -120,3 +120,26 @@ def test_observation_page_requires_an_array(value: object) -> None:
     with pytest.raises(ValueError, match="observations must be an array"):
         _series(payload={})
     assert _series(payload={"observations": []}) == ()
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.5")
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("date", "20251101"),
+        ("realtime_start", "20251205"),
+        ("date", "2025-W44-6"),
+        ("realtime_start", "2025-12-05T00:00:00"),
+        ("date", None),
+    ],
+)
+def test_fred_observation_identity_requires_canonical_dates(
+    field: str, value: object
+) -> None:
+    observation = dict(_PAGE["observations"][0])
+    observation[field] = value
+    with pytest.raises(ValueError):
+        _series(payload={"observations": [observation]})
+    record = _series()[0]
+    assert record.source_event_id == "UNRATE:2025-11-01:2025-12-05"
+    assert record.event_time_utc == datetime(2025, 11, 1, tzinfo=UTC)
