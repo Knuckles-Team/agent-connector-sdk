@@ -1685,8 +1685,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R047.9",
       "title": "Finite card JSON",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "772eecafdcb1"
+      ],
       "verified_by": [
         "tests/test_a2a_discovery.py:181",
         "tests/test_a2a_discovery.py:194"
