@@ -42,7 +42,8 @@
     "SDK-FINANCE-SOURCES-R900.9",
     "SDK-FINANCE-SOURCES-R900.10",
     "SDK-FINANCE-SOURCES-R900.11",
-    "SDK-FINANCE-SOURCES-R001.7"
+    "SDK-FINANCE-SOURCES-R001.7",
+    "SDK-FINANCE-SOURCES-R001.8"
   ],
   "requirements": [
     {
@@ -60,7 +61,8 @@
         "SDK-FINANCE-SOURCES-R001.4",
         "SDK-FINANCE-SOURCES-R001.5",
         "SDK-FINANCE-SOURCES-R001.6",
-        "SDK-FINANCE-SOURCES-R001.7"
+        "SDK-FINANCE-SOURCES-R001.7",
+        "SDK-FINANCE-SOURCES-R001.8"
       ]
     },
     {
@@ -537,6 +539,17 @@
         "tests/test_exchange_history_window.py:46",
         "tests/test_exchange_history_window.py:62",
         "tests/test_exchange_history_window.py:77"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R001.8",
+      "title": "Exchange client in the market extra",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d90bfd21306b"
+      ],
+      "verified_by": [
+        "tests/test_market_extra_ccxt.py:8"
       ]
     }
   ]
