@@ -1425,8 +1425,8 @@
       ],
       "verified_by": [
         "tests/test_web_source_contract.py:125",
-        "tests/test_web_source_contract.py:211",
-        "tests/test_web_source_contract.py:242"
+        "tests/test_web_source_contract.py:214",
+        "tests/test_web_source_contract.py:245"
       ]
     },
     {
@@ -1500,6 +1500,7 @@
       "title": "Limit web requests by host",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "43ad3c4af727",
         "5fc2f27e1716"
       ],
       "verified_by": [
