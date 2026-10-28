@@ -125,6 +125,7 @@
     "SDK-SOURCE-INGEST-R005.52",
     "SDK-SOURCE-INGEST-R005.53",
     "SDK-SOURCE-INGEST-R005.54",
+    "SDK-SOURCE-INGEST-R005.55",
     "SDK-SOURCE-INGEST-R006.32",
     "SDK-SOURCE-INGEST-R006.33",
     "SDK-SOURCE-INGEST-R006.34",
@@ -448,7 +449,8 @@
         "SDK-SOURCE-INGEST-R005.51",
         "SDK-SOURCE-INGEST-R005.52",
         "SDK-SOURCE-INGEST-R005.53",
-        "SDK-SOURCE-INGEST-R005.54"
+        "SDK-SOURCE-INGEST-R005.54",
+        "SDK-SOURCE-INGEST-R005.55"
       ]
     },
     {
@@ -1672,6 +1674,18 @@
       ]
     },
     {
+      "id": "SDK-SOURCE-INGEST-R005.55",
+      "title": "Bound legacy web fetch time",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a578a8085a9f"
+      ],
+      "verified_by": [
+        "tests/test_web_fetch_deadline.py:14",
+        "tests/test_web_fetch_deadline.py:51"
+      ]
+    },
+    {
       "id": "SDK-SOURCE-INGEST-R006.32",
       "title": "Model",
       "delivery_state": "SPECIFIED",
@@ -1850,7 +1864,7 @@
       "title": "Check transport status identity before submission",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "0a827f0c0b37"
+        "e517969ca5c4"
       ],
       "verified_by": [
         "tests/test_ingest.py:518"
