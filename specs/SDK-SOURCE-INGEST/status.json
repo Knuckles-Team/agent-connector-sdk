@@ -216,6 +216,7 @@
     "SDK-SOURCE-INGEST-R803.4",
     "SDK-SOURCE-INGEST-R803.5",
     "SDK-SOURCE-INGEST-R803.6",
+    "SDK-SOURCE-INGEST-R803.7",
     "SDK-SOURCE-INGEST-R804",
     "SDK-SOURCE-INGEST-R804.1",
     "SDK-SOURCE-INGEST-R804.2",
@@ -2512,6 +2513,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "11366ce437d5",
+        "3f465bfdb7b3",
         "4b003b24ce55",
         "d2a659a5f3b8"
       ],
@@ -2528,7 +2530,8 @@
         "SDK-SOURCE-INGEST-R803.3",
         "SDK-SOURCE-INGEST-R803.4",
         "SDK-SOURCE-INGEST-R803.5",
-        "SDK-SOURCE-INGEST-R803.6"
+        "SDK-SOURCE-INGEST-R803.6",
+        "SDK-SOURCE-INGEST-R803.7"
       ]
     },
     {
@@ -2595,6 +2598,17 @@
       ],
       "verified_by": [
         "tests/data_prep/test_kernel.py:416"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.7",
+      "title": "Plan isolation",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3f465bfdb7b3"
+      ],
+      "verified_by": [
+        "tests/data_prep/test_kernel.py:701"
       ]
     },
     {
