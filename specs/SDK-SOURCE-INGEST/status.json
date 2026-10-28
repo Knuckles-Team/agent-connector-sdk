@@ -190,6 +190,7 @@
     "SDK-SOURCE-INGEST-R800",
     "SDK-SOURCE-INGEST-R800.1",
     "SDK-SOURCE-INGEST-R800.2",
+    "SDK-SOURCE-INGEST-R800.9",
     "SDK-SOURCE-INGEST-R800.8",
     "SDK-SOURCE-INGEST-R800.7",
     "SDK-SOURCE-INGEST-R800.11",
@@ -2214,7 +2215,7 @@
     {
       "id": "SDK-SOURCE-INGEST-R800",
       "title": "Document-source connector framework (rollup)",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "11366ce437d5",
         "1fef6e28fd79",
@@ -2223,15 +2224,12 @@
         "56ad646b3616"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:125",
-        "tests/source_connectors/test_source_connectors.py:157",
-        "tests/source_connectors/test_source_connectors.py:180",
-        "tests/source_connectors/test_source_connectors.py:206",
-        "tests/source_connectors/test_source_connectors.py:240"
+        "tests/source_connectors/test_source_connectors.py:45"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R800.1",
         "SDK-SOURCE-INGEST-R800.2",
+        "SDK-SOURCE-INGEST-R800.9",
         "SDK-SOURCE-INGEST-R800.8",
         "SDK-SOURCE-INGEST-R800.7",
         "SDK-SOURCE-INGEST-R800.11",
@@ -2260,8 +2258,18 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:157",
-        "tests/source_connectors/test_source_connectors.py:180"
+        "tests/source_connectors/test_source_connectors.py:204",
+        "tests/source_connectors/test_source_connectors.py:227"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R800.9",
+      "title": "REST source page validity",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:125",
+        "tests/source_connectors/test_source_connectors.py:155"
       ]
     },
     {
@@ -2272,7 +2280,7 @@
         "56ad646b3616"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:206"
+        "tests/source_connectors/test_source_connectors.py:253"
       ]
     },
     {
@@ -2283,7 +2291,7 @@
         "23b5ecce8a59"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:240"
+        "tests/source_connectors/test_source_connectors.py:287"
       ]
     },
     {
@@ -2294,7 +2302,7 @@
         "1fef6e28fd79"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:125"
+        "tests/source_connectors/test_source_connectors.py:172"
       ]
     },
     {
@@ -2339,7 +2347,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/source_connectors/test_source_connectors.py:180"
+        "tests/source_connectors/test_source_connectors.py:227"
       ]
     },
     {

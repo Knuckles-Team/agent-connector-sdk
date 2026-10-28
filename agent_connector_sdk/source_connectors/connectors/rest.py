@@ -154,15 +154,23 @@ class RestJsonConnector(LoadConnector, PollConnector):
 
     def _records(self, body: Any) -> list[dict[str, Any]]:
         data = _dig(body, self.records_field) if self.records_field else body
-        if isinstance(data, list):
-            return [r for r in data if isinstance(r, dict)]
-        return []
+        if not isinstance(data, list):
+            raise ValueError("REST source records path must resolve to a list")
+        if any(not isinstance(record, dict) for record in data):
+            raise ValueError("REST source page contains a non-object record")
+        return data
 
-    def _to_document(self, record: dict[str, Any]) -> SourceDocument | None:
+    def _to_document(self, record: dict[str, Any]) -> SourceDocument:
         rid = _dig(record, self.id_field)
         text = _dig(record, self.text_field)
-        if rid is None or not isinstance(text, str) or not text.strip():
-            return None
+        if (
+            not isinstance(rid, (str, int))
+            or isinstance(rid, bool)
+            or not str(rid).strip()
+        ):
+            raise ValueError("REST source record has an invalid identity")
+        if not isinstance(text, str) or not text.strip():
+            raise ValueError("REST source record has invalid text")
         title = _dig(record, self.title_field)
         updated = _dig(record, self.updated_field) if self.updated_field else None
         return SourceDocument(
@@ -206,7 +214,7 @@ class RestJsonConnector(LoadConnector, PollConnector):
             params[self.cursor_param] = cursor
         body = self._fetch(url, params)
         records = self._records(body)
-        docs = [d for d in (self._to_document(r) for r in records) if d is not None]
+        docs = [self._to_document(record) for record in records]
         next_url = _dig(body, self.next_url_field) if self.next_url_field else None
         if next_url:
             next_url = urljoin(url, str(next_url))
