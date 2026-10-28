@@ -22,7 +22,7 @@ classifiers = [
 # epistemic-graph client. The MCP server/client stack is the "mcp" extra.
 # It must never depend on the agent control plane.
 dependencies = [
-    "epistemic-graph>=2.27.6,<3.0.0",
+    "medulla>=2.27.10,<3.0.0",
     "mcp-types>=2.3.0,<3",
     "pydantic>=2.14.1,<3",
     "PyYAML>=6.0.3",
@@ -168,7 +168,7 @@ typecheck = [
 default-groups = ["test"]
 # epistemic-graph installs from PyPI only, as a published wheel: never from
 # source, so no Rust toolchain is ever invoked.
-no-build-package = ["epistemic-graph"]
+no-build-package = ["medulla"]
 
 [tool.ruff]
 line-length = 88

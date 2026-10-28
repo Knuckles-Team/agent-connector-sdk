@@ -29,3 +29,16 @@ lock-keyed cache; dependency and security checks remain unchanged. Measure cache
 Compare setup times for serial and concurrent jobs before claiming a speedup.
 Allow 45 minutes for the PR gate. This gives quality checks time to finish
 during storage stalls.
+
+
+### 2026-10-28: local Medulla dependency migration candidate
+
+R001 and R005 retain their released-wheel qualification gates. The local
+candidate requires `medulla>=2.27.10,<3.0.0` instead of the retired distribution.
+Imports remain `epistemic_graph`. Candidate-wheel experiments must not install
+both distributions into that shared namespace. The exact hosted Medulla wheel
+is prerelease evidence here, not a published-release claim. Fresh lock, release
+record and isolated installed acceptance remain required before release or
+promotion. Reviewed draft-source publication is permitted solely to build and
+qualify this prerelease candidate with the official same-run Medulla wheel; it
+does not satisfy the release gates or make the unchanged release lock current.
