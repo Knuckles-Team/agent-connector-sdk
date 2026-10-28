@@ -717,6 +717,11 @@ Robots lookup uses the HTTP client's normalized host and preserves IPv6
 brackets and non-default ports. Equivalent IP and IDNA spellings share a
 cache entry. Invalid URL origins refuse before the loader runs.
 
+## Robots refusal detail (R005.45)
+
+A robots denial retains its typed reason. Its detail contains no requested
+URL, path or query, which may contain private material.
+
 ## 2026-10-27: bounded evidence for large preparation plans
 
 R803.6 requires a single plan over one million rows. Keep `run` and its
