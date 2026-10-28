@@ -2620,16 +2620,24 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R065.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0e77c20e20a4"
+      ],
+      "verified_by": [
+        "tests/test_component_health.py:25"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R065.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0e77c20e20a4"
+      ],
+      "verified_by": [
+        "tests/test_component_health.py:56"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R065.3",
@@ -3848,9 +3856,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R074.2",
       "title": "Prompt role",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1ac640f88ad4"
+      ],
+      "verified_by": [
+        "tests/test_prompt_role.py:12"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R074.3",

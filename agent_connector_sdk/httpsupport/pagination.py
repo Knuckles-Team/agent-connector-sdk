@@ -49,7 +49,13 @@ from agent_connector_sdk.httpsupport.pagination_iteration import (
     _iterate,
     _iterate_async,
 )
-from agent_connector_sdk.httpsupport.pagination_link import next_link
+from agent_connector_sdk.httpsupport.pagination_link import _link_next_url
+from agent_connector_sdk.httpsupport.pagination_tokens import (
+    _advance_cursor,
+    _advance_numbered,
+    _advance_since,
+    _TokenHistory,
+)
 
 __all__ = [
     "AsyncPaginationIterator",
@@ -112,18 +118,6 @@ def _dig(obj: Any, path: str) -> Any:
     return current
 
 
-def _link_next_url(headers: Mapping[str, str]) -> str | None:
-    """Extract the ``rel="next"`` target from a ``Link`` header."""
-    raw = None
-    for key, value in headers.items():
-        if str(key).lower() == "link":
-            raw = str(value)
-            break
-    if not raw:
-        return None
-    return next_link(raw)
-
-
 class _PageWalk:
     """Pure pagination state machine shared by the sync and async iterators.
 
@@ -173,6 +167,8 @@ class _PageWalk:
         self.loop_detected = False
         self.endpoint = endpoint
         self.base_params = dict(params or {})
+        token_param = {"cursor": cursor_param, "since_id": since_param}.get(mode, "")
+        self._tokens = _TokenHistory(self.base_params.get(token_param))
         self.cursor_param = cursor_param
         self.cursor_path = cursor_path
         self.page_param = page_param
@@ -207,45 +203,27 @@ class _PageWalk:
     ) -> tuple[str, dict[str, Any]] | None:
         if self.mode == "cursor":
             cursor = _dig(data, self.cursor_path) if self.cursor_path else None
-            self.next_cursor = str(cursor) if cursor else None
-            if not cursor:
-                return None
-            params = dict(self.base_params)
-            params[self.cursor_param] = cursor
-            return self.endpoint, params
+            return _advance_cursor(self, cursor)
 
         if self.mode == "link":
-            next_url = _link_next_url(headers)
-            if not next_url:
-                self.next_cursor = None
-                return None
-            return self._follow_url(next_url)
+            return self._advance_link(headers)
 
         if self.mode == "next_url":
             return self._advance_next_url(data)
 
         if self.mode == "since_id":
-            if not items:
-                self.next_cursor = None
-                return None
-            last = items[-1]
-            last_id = last.get(self.id_field) if isinstance(last, dict) else None
-            if last_id is None:
-                self.next_cursor = None
-                return None
-            self.next_cursor = str(last_id)
-            params = dict(self.base_params)
-            params[self.since_param] = last_id
-            return self.endpoint, params
+            return _advance_since(self, items)
 
-        # page / offset: a short or empty page means the collection is done.
-        if not items or (self.page_size is not None and len(items) < self.page_size):
+        return _advance_numbered(self, items)
+
+    def _advance_link(
+        self, headers: Mapping[str, str]
+    ) -> tuple[str, dict[str, Any]] | None:
+        next_url = _link_next_url(headers)
+        if not next_url:
+            self.next_cursor = None
             return None
-        if self.mode == "page":
-            self._page += 1
-        else:
-            self._offset += len(items)
-        return self.start()
+        return self._follow_url(next_url)
 
     def _advance_next_url(self, data: Any) -> tuple[str, dict[str, Any]] | None:
         raw = _dig(data, self.next_path)
