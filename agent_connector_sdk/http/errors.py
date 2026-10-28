@@ -11,7 +11,7 @@ from __future__ import annotations
 import httpx
 
 from agent_connector_sdk.exceptions import ApiError, UnauthorizedError
-from agent_connector_sdk.http.problems import ProblemDetails, problem_from_response
+from agent_connector_sdk.http.problems import ProblemDetails
 from agent_connector_sdk.http.redaction import redact_url
 from agent_connector_sdk.http.retry import (
     is_tls_verification_failure,
@@ -81,11 +81,13 @@ def error_for_response(
     status = response.status_code
     if status < 400:
         return None
+    # Upstream problem fields may echo request credentials or private data.
+    # Public errors carry only SDK-derived status details.
+    problem = ProblemDetails.for_status(status)
     if status in (401, 403):
-        return HttpUnauthorizedError(problem_from_response(response, body))
+        return HttpUnauthorizedError(problem)
     if status != 429:
-        return HttpProblemError(problem_from_response(response, body))
-    problem = problem_from_response(response, body)
+        return HttpProblemError(problem)
     retry_after = parse_retry_after(response.headers.get("retry-after"))
     if retry_after is not None:
         extensions = {**problem.extensions, "retry_after": retry_after}

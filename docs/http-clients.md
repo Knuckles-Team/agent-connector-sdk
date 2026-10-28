@@ -88,8 +88,9 @@ httpx factories for new integrations.
 ## Errors
 
 Every failure is an `HttpProblemError` (an `ApiError`) carrying an RFC 9457
-`ProblemDetails`. A `application/problem+json` response is parsed; any other error
-body is not copied, because it can echo request data.
+`ProblemDetails`. Governed response errors use status-only details; upstream
+error bodies are not copied because they can echo request data. The low-level
+`problem_from_response` parser is available for explicit, trusted use.
 
 | Error | When |
 |---|---|
