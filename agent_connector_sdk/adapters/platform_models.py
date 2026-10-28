@@ -12,6 +12,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
+from agent_connector_sdk.credentials.references import parse_secret_reference
+
 Text = Annotated[str, Field(min_length=1, max_length=256)]
 Digest = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$")]
 Operation = Literal["read", "search"]
@@ -37,7 +39,9 @@ Reason = Literal[
 class _ClosedModel(BaseModel):
     """Strict closed contract; receiving code must still authenticate inputs."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    model_config = ConfigDict(
+        extra="forbid", frozen=True, strict=True, hide_input_in_errors=True
+    )
 
 
 class EquivalenceContract(_ClosedModel):
@@ -54,7 +58,7 @@ class BackendPolicy(_ClosedModel):
     adapter_version: Text
     enabled: bool
     auth_mode: Literal["public", "credential"]
-    credential_ref: Text | None
+    credential_ref: Text | None = Field(repr=False)
     allowed_destinations: tuple[Text, ...] = Field(min_length=1, max_length=16)
     equivalence_contract: EquivalenceContract
     quota_group: Text
@@ -67,6 +71,8 @@ class BackendPolicy(_ClosedModel):
     def validate_policy(self) -> BackendPolicy:
         if (self.auth_mode == "public") != (self.credential_ref is None):
             raise ValueError("credential reference must match auth mode")
+        if self.credential_ref is not None:
+            parse_secret_reference(self.credential_ref)
         if self.output_schema_digest != self.equivalence_contract.output_schema_digest:
             raise ValueError("backend output schema differs from equivalence contract")
         if (
@@ -99,7 +105,7 @@ class PlatformCapability(_ClosedModel):
 
 
 class Continuation(_ClosedModel):
-    token: Text
+    token: Text = Field(repr=False)
     tenant_id: Text
     query_digest: Digest
     backend_id: Text
@@ -115,9 +121,9 @@ class PlatformRequest(_ClosedModel):
     platform_id: Text
     channel_id: Text
     operation: Operation
-    target: Text | None = None
-    query: Text | None = None
-    continuation: Continuation | None = None
+    target: Text | None = Field(default=None, repr=False)
+    query: Text | None = Field(default=None, repr=False)
+    continuation: Continuation | None = Field(default=None, repr=False)
     limit: int = Field(default=100, ge=1, le=100)
     deadline_ms: int = Field(default=30_000, ge=1, le=30_000)
 
@@ -198,13 +204,21 @@ class Provenance(_ClosedModel):
 
 
 class PlatformRecord(_ClosedModel):
-    content: dict[str, JsonValue]
+    content: dict[str, JsonValue] = Field(repr=False)
     provenance: Provenance
 
 
 class PlatformResult(_ClosedModel):
     request_id: Text
     request_digest: Digest
+    tenant_id: Text | None = None
+    principal_id: Text | None = None
+    connector_id: Text | None = None
+    platform_id: Text | None = None
+    channel_id: Text | None = None
+    operation: Operation | None = None
+    policy_revision: Text | None = None
+    output_schema_digest: Digest | None = None
     outcome: Literal["ok", "refused"]
     reason: Reason | None = None
     records: tuple[PlatformRecord, ...] = Field(default=(), max_length=100)
@@ -217,6 +231,38 @@ class PlatformResult(_ClosedModel):
 
     @model_validator(mode="after")
     def validate_outcome(self) -> PlatformResult:
+        request_scope = (
+            self.tenant_id,
+            self.principal_id,
+            self.connector_id,
+            self.platform_id,
+            self.channel_id,
+            self.operation,
+        )
+        if any(value is not None for value in request_scope) and not all(
+            value is not None for value in request_scope
+        ):
+            raise ValueError("result request scope must be complete")
+        if (self.policy_revision is None) != (self.output_schema_digest is None):
+            raise ValueError("result policy and schema must be bound together")
+        if self.channel_status is not None and self.tenant_id is not None:
+            status = self.channel_status
+            if (
+                status.tenant_id,
+                status.connector_id,
+                status.platform_id,
+                status.channel_id,
+                status.operation,
+                status.policy_revision,
+            ) != (
+                self.tenant_id,
+                self.connector_id,
+                self.platform_id,
+                self.channel_id,
+                self.operation,
+                self.policy_revision,
+            ):
+                raise ValueError("result status does not match its request scope")
         if self.outcome == "refused":
             if (
                 self.reason is None

@@ -29,7 +29,10 @@ from agent_connector_sdk.adapters.mcp_tool_lifecycle import (
     raw_relationships,
 )
 from agent_connector_sdk.adapters.mcp_tool_paging import page_params, tool_arguments
-from agent_connector_sdk.adapters.mcp_tool_records import raw_records
+from agent_connector_sdk.adapters.mcp_tool_records import (
+    _validate_platform_binding,
+    raw_records,
+)
 from agent_connector_sdk.adapters.tool_contract import (
     describe_preset_adapter,
     discover_tool_backed_stream,
@@ -174,9 +177,9 @@ class McpToolSourceAdapter:
             current.position if self._preset.checkpoint_path else current.watermark
         )
         params = page_params(self._preset, current.position, since)
-        result = await session.call_tool(
-            self._preset.tool, tool_arguments(self._preset, params)
-        )
+        arguments = tool_arguments(self._preset, params)
+        result = await session.call_tool(self._preset.tool, arguments)
+        await _validate_platform_binding(self._preset, arguments, result)
         observed = validate_preset_tool_contract(
             await session.list_tools(),
             tool_name=self._preset.tool,

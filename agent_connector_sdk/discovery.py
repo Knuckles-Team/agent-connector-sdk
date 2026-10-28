@@ -4,12 +4,13 @@ Replaces ``agent_utilities.protocols.source_connectors.registry``. AU's registry
 self-registered connector classes with a decorator and discovered them by
 importing modules inside AU, so a new source kind meant editing AU. Here an
 extension self-registers by declaring a Python entry point in its own
-distribution, in one of four groups:
+distribution, in one of five groups:
 
 * ``agent_connector_sdk.source_adapters``
 * ``agent_connector_sdk.artifact_kinds``
 * ``agent_connector_sdk.transports``
 * ``agent_connector_sdk.sinks``
+* ``agent_connector_sdk.platform_backends``
 
 AU's certified-bundle governance is kept as an explicit
 :class:`ActivationPolicy`: loading an extension requires a policy that
@@ -31,6 +32,7 @@ from agent_connector_sdk import __version__
 __all__ = [
     "ARTIFACT_KIND_GROUP",
     "EXTENSION_GROUPS",
+    "PLATFORM_BACKEND_GROUP",
     "SINK_GROUP",
     "SOURCE_ADAPTER_GROUP",
     "TRANSPORT_GROUP",
@@ -48,11 +50,13 @@ SOURCE_ADAPTER_GROUP = "agent_connector_sdk.source_adapters"
 ARTIFACT_KIND_GROUP = "agent_connector_sdk.artifact_kinds"
 TRANSPORT_GROUP = "agent_connector_sdk.transports"
 SINK_GROUP = "agent_connector_sdk.sinks"
+PLATFORM_BACKEND_GROUP = "agent_connector_sdk.platform_backends"
 EXTENSION_GROUPS = (
     SOURCE_ADAPTER_GROUP,
     ARTIFACT_KIND_GROUP,
     TRANSPORT_GROUP,
     SINK_GROUP,
+    PLATFORM_BACKEND_GROUP,
 )
 
 _SDK_DISTRIBUTION = "scion-sdk"
@@ -139,24 +143,37 @@ def discover_extensions(group: str) -> tuple[ExtensionIdentity, ...]:
     return tuple(found[name] for name in sorted(found))
 
 
-def load_extension(group: str, name: str, *, policy: ActivationPolicy) -> object:
-    """Load the object an authorized extension entry point names.
+def load_extension(
+    group: str,
+    name: str,
+    *,
+    policy: ActivationPolicy,
+    expected_version: str | None = None,
+) -> object:
+    """Load exactly the installed entry point authorized by the supplied policy.
 
-    Raises:
-        LookupError: no extension named ``name`` is declared in ``group``.
-        ExtensionActivationError: the policy does not authorize it.
+    When supplied, ``expected_version`` binds activation to the caller's pinned
+    adapter version. The selected entry point's metadata is checked again
+    before its code is loaded.
     """
-    for identity in discover_extensions(group):
-        if identity.name != name:
-            continue
-        if not policy.authorizes(identity):
-            raise ExtensionActivationError(
-                f"extension {name!r} in {group} from {identity.distribution} "
-                f"{identity.version} is not certified for activation"
-            )
-        (entry_point,) = entry_points(group=group, name=name)
-        return entry_point.load()
-    raise LookupError(f"no extension named {name!r} is declared in {group}")
+    identity = next(
+        (item for item in discover_extensions(group) if item.name == name), None
+    )
+    if identity is None:
+        raise LookupError(f"no extension named {name!r} is declared in {group}")
+    candidates = tuple(entry_points(group=group, name=name))
+    if len(candidates) != 1 or _identity(group, candidates[0]) != identity:
+        raise ExtensionDiscoveryError("extension metadata changed during activation")
+    if expected_version is not None and identity.version != expected_version:
+        raise ExtensionActivationError(
+            "extension version does not match the admitted policy"
+        )
+    if not policy.authorizes(identity):
+        raise ExtensionActivationError(
+            f"extension {name!r} in {group} from {identity.distribution} "
+            f"{identity.version} is not certified for activation"
+        )
+    return candidates[0].load()
 
 
 def sdk_reference_extensions() -> CertifiedExtensions:

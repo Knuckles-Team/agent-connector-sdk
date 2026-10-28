@@ -1,6 +1,6 @@
 # Extension ports
 
-Five typed protocols keep the SDK open. An implementation ships in its own
+Six typed protocols keep the SDK open. An implementation ships in its own
 distribution and declares an entry point; nothing in the SDK changes.
 
 | Port | Module | Entry-point group | Reference implementation |
@@ -10,6 +10,7 @@ distribution and declares an entry point; nothing in the SDK changes.
 | `Transport` | `ports.transport` | `agent_connector_sdk.transports` | `mcp` |
 | `Sink` | `ports.sink` | `agent_connector_sdk.sinks` | `epistemic_graph` |
 | `WriteBackPort` | `ports.writeback` | generated connector binding | `GovernedWriteBack` + fixture transport |
+| `PlatformBackendFactory` | `adapters.platform_admission` | `agent_connector_sdk.platform_backends` | connector-owned provider |
 
 ## SourceAdapter
 
@@ -20,10 +21,14 @@ distribution and declares an entry point; nothing in the SDK changes.
 | `extract(session, checkpoint)` | one page and the provider checkpoint that resumes after it |
 | `reconcile(session, known_ids)` | ids missing from the source and unknown to the sink |
 
-The `mcp_tool` adapter extracts through a connector's MCP tool as a preset
-describes it (pagination, a since-watermark), requires the pinned
-`tool_schema_sha256`, and rejects records that do not match the preset. The
+The `mcp_tool` adapter extracts through a connector's MCP tool. Its preset
+describes pagination and a since-watermark. The adapter requires the pinned
+`tool_schema_sha256`. It rejects records that do not match the preset. The
 watermark advances only when a sweep is exhausted.
+
+A preset that consumes a platform result declares `result_contract: platform`.
+The adapter validates the result envelope before it submits a page. It rejects
+refusals and missing authority or policy bindings.
 
 | `pagination` | Parameters | Next page |
 |---|---|---|
@@ -186,3 +191,16 @@ digest.
 `agent_connector_sdk.current_plan` exports `CurrentPlanRequest`, `PlanItem`, `CurrentPlanSnapshot` and `CurrentPlanRead`. The request selects only a run ID. Snapshots carry a nonnegative revision, UTC observation and expiry, and ordered immutable items. An available read contains a snapshot, which can have no items. An unavailable read has no snapshot. All models reject unknown fields and coercion. Use `model_validate_json` for JSON input and `model_dump_json` for output.
 
 The models validate shape and the timestamp interval. They do not establish caller authority, run ownership, current freshness or a live lease. The serving owner must verify those conditions before returning an available read.
+
+## Platform backend activation
+
+A platform provider publishes a `PlatformBackendFactory` under
+`agent_connector_sdk.platform_backends`. `CertifiedPlatformAdmission` loads it
+only when the installed entry point's name, distribution and version are
+covered by the host's extension activation policy and its version matches the
+capability policy. The provider returns one backend bound to that policy;
+fallback rejects a mismatched backend before an outbound request. Each backend
+exposes the Pydantic record model it enforces. The SDK computes its policy
+digest with `platform_record_schema_digest`. It validates each record before
+accepting a page. Record validators must be pure and must not perform external calls. A
+timed-out validation may finish in its worker thread after the caller returns.

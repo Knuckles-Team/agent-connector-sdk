@@ -2,19 +2,26 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping
 from typing import Any
 
+import anyio
 from epistemic_graph.generated.source_ingestion import (
     SourceRecord,
     SourceRecordProvenance,
 )
 from pydantic import JsonValue, TypeAdapter, ValidationError
 
+from agent_connector_sdk.adapters._platform_validation import _validate_source_binding
 from agent_connector_sdk.adapters.mcp_tool_lifecycle import raw_relationships
 from agent_connector_sdk.adapters.mcp_tool_paging import dig_path
+from agent_connector_sdk.adapters.platform_models import PlatformResult
 from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.ports.errors import MalformedSourceDataError
+from agent_connector_sdk.ports.errors import (
+    MalformedSourceDataError,
+    SourceContractError,
+)
 
 __all__ = ["raw_records", "raw_relationships", "source_record"]
 
@@ -32,8 +39,42 @@ def _mapping_records(
     ]
 
 
+async def _validate_platform_binding(
+    preset: ToolPreset, arguments: dict[str, Any], result: Any
+) -> None:
+    if preset.result_contract != "platform":
+        return
+    binding_failed = False
+    try:
+        await anyio.to_thread.run_sync(
+            _validate_source_binding, arguments, result, abandon_on_cancel=True
+        )
+    except (TypeError, ValueError):
+        binding_failed = True
+    if binding_failed:
+        raise SourceContractError("platform result does not match the source request")
+
+
 def raw_records(preset: ToolPreset, result: Any) -> list[dict[str, Any]]:
     """Return the object records selected by the preset."""
+    if preset.result_contract == "platform":
+        platform_result = None
+        try:
+            platform_result = PlatformResult.model_validate_json(
+                json.dumps(result, allow_nan=False)
+            )
+        except (TypeError, ValueError):
+            platform_result = None
+        if platform_result is None:
+            raise MalformedSourceDataError("platform result is malformed")
+        if platform_result.outcome == "refused":
+            raise SourceContractError(
+                f"platform result refused: {platform_result.reason}"
+            )
+        if platform_result.tenant_id is None or platform_result.policy_revision is None:
+            raise MalformedSourceDataError(
+                "platform result is missing authority or policy binding"
+            )
     data = dig_path(result, preset.records_path) if preset.records_path else result
     if isinstance(data, Mapping) and preset.records_is_mapping:
         return _mapping_records(preset, data)

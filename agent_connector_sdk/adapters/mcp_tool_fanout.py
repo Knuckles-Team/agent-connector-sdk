@@ -23,7 +23,10 @@ from agent_connector_sdk.adapters.mcp_tool_paging import (
     page_params,
     tool_arguments,
 )
-from agent_connector_sdk.adapters.mcp_tool_records import raw_records
+from agent_connector_sdk.adapters.mcp_tool_records import (
+    _validate_platform_binding,
+    raw_records,
+)
 from agent_connector_sdk.contracts import RecordPage
 from agent_connector_sdk.ingest.for_each import MAX_FAN_OUT, ForEachRefusal
 from agent_connector_sdk.manifest.presets import ToolPreset
@@ -85,9 +88,9 @@ async def parent_values(
         position: dict[str, Any] = {}
         for _ in range(parent.max_pages):
             params = page_params(scoped, position, None)
-            result = await session.call_tool(
-                scoped.tool, tool_arguments(scoped, params)
-            )
+            arguments = tool_arguments(scoped, params)
+            result = await session.call_tool(scoped.tool, arguments)
+            await _validate_platform_binding(scoped, arguments, result)
             raw = raw_records(scoped, result)
             for record in raw:
                 value = record.get(link.field)

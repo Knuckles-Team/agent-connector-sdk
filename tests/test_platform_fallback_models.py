@@ -32,7 +32,7 @@ def _policy(backend_id: str = "first") -> BackendPolicy:
         adapter_version="1",
         enabled=True,
         auth_mode="credential",
-        credential_ref="vault:one",
+        credential_ref="env://PLATFORM_FIXTURE_CREDENTIAL",
         allowed_destinations=("api.example",),
         equivalence_contract=EquivalenceContract(
             platform_id="p",
@@ -220,3 +220,34 @@ def test_status_and_record_are_scoped_and_bounded() -> None:
     assert result.channel_status.tenant_id == "t"
     with pytest.raises(ValidationError):
         ChannelStatus.model_validate({**status.model_dump(), "expires_at": 9})
+
+
+def test_backend_refuses_literal_credentials_without_echoing_them() -> None:
+    literal = "fixture-private-credential-value"
+    with pytest.raises(ValidationError) as failure:
+        BackendPolicy.model_validate(
+            {**_policy().model_dump(), "credential_ref": literal}
+        )
+    assert literal not in str(failure.value)
+
+
+def test_private_inputs_and_record_content_are_not_in_repr() -> None:
+    from agent_connector_sdk.adapters.platform_models import PlatformRecord, Provenance
+
+    private_query = "sensitive-query-fixture"
+    private_content = "sensitive-content-fixture"
+    request = _request().model_copy(
+        update={"query": private_query, "continuation": None}
+    )
+    record = PlatformRecord(
+        content={"text": private_content},
+        provenance=Provenance(
+            source_id="fixture",
+            backend_id="first",
+            retrieved_at=1,
+            content_digest=DIGEST,
+            coverage="complete",
+        ),
+    )
+    assert private_query not in repr(request)
+    assert private_content not in repr(record)

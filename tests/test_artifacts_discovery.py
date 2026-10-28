@@ -520,12 +520,15 @@ def test_artifact_helpers() -> None:
 
 
 def test_reference_extensions_are_discoverable_and_certified() -> None:
+    from agent_connector_sdk.discovery import PLATFORM_BACKEND_GROUP
+
     policy: ActivationPolicy = sdk_reference_extensions()
     assert set(EXTENSION_GROUPS) == {
         SOURCE_ADAPTER_GROUP,
         ARTIFACT_KIND_GROUP,
         TRANSPORT_GROUP,
         SINK_GROUP,
+        PLATFORM_BACKEND_GROUP,
     }
     kinds = discover_extensions(ARTIFACT_KIND_GROUP)
     assert [identity.name for identity in kinds] == [
@@ -583,3 +586,32 @@ def test_discovery_rejects_ambiguous_metadata(monkeypatch: pytest.MonkeyPatch) -
     )
     with pytest.raises(ExtensionDiscoveryError, match="no distribution"):
         discover_extensions(SOURCE_ADAPTER_GROUP)
+
+
+def test_activation_refuses_entry_point_metadata_change(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from agent_connector_sdk.discovery import PLATFORM_BACKEND_GROUP
+
+    def entry(version: str) -> SimpleNamespace:
+        distribution = SimpleNamespace(
+            metadata={"Name": "fixture-distribution"}, version=version
+        )
+        return SimpleNamespace(
+            name="adapter",
+            value="fixture:adapter",
+            dist=distribution,
+            load=lambda: object(),
+        )
+
+    monkeypatch.setattr(
+        "agent_connector_sdk.discovery.entry_points",
+        lambda group, name=None: [entry("1" if name is None else "2")],
+    )
+    policy = CertifiedExtensions(
+        [(PLATFORM_BACKEND_GROUP, "adapter", "fixture-distribution", "1")]
+    )
+    with pytest.raises(ExtensionDiscoveryError, match="changed during activation"):
+        load_extension(
+            PLATFORM_BACKEND_GROUP, "adapter", policy=policy, expected_version="1"
+        )

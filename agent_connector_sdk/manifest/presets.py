@@ -55,6 +55,7 @@ _EXTRACTION_KEYS = frozenset(
         "params_arg",
         "arguments",
         "records_path",
+        "result_contract",
         "records_is_mapping",
         "mapping_key_field",
         "id_field",
@@ -120,6 +121,7 @@ class ToolPreset(BaseModel):
     params_arg: str = "params_json"
     arguments: dict[str, JsonValue] = Field(default_factory=dict)
     records_path: str = ""
+    result_contract: Literal["generic", "platform"] = "generic"
     records_is_mapping: bool = False
     mapping_key_field: str = "source_key"
     id_field: str = Field(default="id", min_length=1)
