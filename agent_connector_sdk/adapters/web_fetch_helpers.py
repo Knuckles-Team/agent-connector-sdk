@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import re
 
+from agent_connector_sdk.adapters.web_html_text import _strip_tags
+
 _META_ENTITY_RE = re.compile(r"&(#39|#x27|quot|apos|amp|lt|gt);")
 _META_ENTITY_MAP = {
     "#39": "'",
@@ -14,7 +16,6 @@ _META_ENTITY_MAP = {
     "gt": ">",
     "amp": "&",  # decoded last so "&amp;lt;" does not double-unescape
 }
-_TAG_RE = re.compile(r"<[^>]+>")
 
 
 def _decode_entities(text: str) -> str:
@@ -70,4 +71,4 @@ def _markdown_from_html(html: str) -> str:
     ``specs/SDK-SOURCE-INGEST/tasks.md``) rather than adding an unvetted,
     unpinned dependency to this port.
     """
-    return _TAG_RE.sub(" ", html)
+    return _strip_tags(html)
