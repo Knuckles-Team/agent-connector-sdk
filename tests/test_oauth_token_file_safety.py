@@ -13,8 +13,8 @@ def test_token_file_symlink_never_reads_or_overwrites_target(tmp_path) -> None:
     root.mkdir()
     target = tmp_path / "outside"
     target.write_text("original", encoding="utf-8")
-    (root / "account.json").symlink_to(target)
     store = FileTokenStore(root)
+    store._path("account").symlink_to(target)
     assert store.get("account") is None
     with pytest.raises(OSError):
         store.set("account", "replacement")
@@ -25,10 +25,10 @@ def test_token_file_symlink_never_reads_or_overwrites_target(tmp_path) -> None:
 def test_token_file_is_restricted_before_write(tmp_path) -> None:
     root = tmp_path / "tokens"
     root.mkdir()
-    path = root / "account.json"
+    store = FileTokenStore(root)
+    path = store._path("account")
     path.write_text("old", encoding="utf-8")
     path.chmod(0o666)
-    store = FileTokenStore(root)
     store.set("account", "new")
     assert stat.S_IMODE(path.stat().st_mode) == 0o600
     assert store.get("account") == "new"
@@ -40,8 +40,8 @@ def test_token_store_refuses_nonregular_files_without_waiting(tmp_path) -> None:
 
     root = tmp_path / "tokens"
     root.mkdir()
-    os.mkfifo(root / "account.json")
     store = FileTokenStore(root)
+    os.mkfifo(store._path("account"))
     assert store.get("account") is None
     with pytest.raises(OSError):
         store.set("account", "new")

@@ -911,3 +911,7 @@ runs or proof of generated engine ingestion. R009 remains open.
 | `egeria-mcp` | `d6c0e954f2c21fcde036a5b5e98535927cf3f3d8` | incomplete | incomplete |
 | `emerald-exchange` | `189fa9ad9eac34275ebfa6e364063d916668c586` | complete | incomplete |
 | `erpnext-agent` | `9109962deb50c72b0315e022d3b4dbccf5a7c4d0` | incomplete | incomplete |
+
+## Legacy token-key isolation (R046.9)
+
+The file store hashes the complete key for its filename. Prior sanitized filenames cannot prove which key wrote them, so the store does not read them. Users of that legacy store must sign in again. Broker persistence remains open.
