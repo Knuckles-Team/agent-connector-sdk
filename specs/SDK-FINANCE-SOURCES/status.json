@@ -16,6 +16,7 @@
     "SDK-FINANCE-SOURCES-R900.4",
     "SDK-FINANCE-SOURCES-R900.5",
     "SDK-FINANCE-SOURCES-R900.6",
+    "SDK-FINANCE-SOURCES-R900.8",
     "SDK-FINANCE-SOURCES-R900.7"
   ],
   "requirements": [
@@ -99,11 +100,11 @@
       "title": "Venue and API connector helpers (rollup)",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "0567e6db2c3d",
         "341a4a3478e7",
         "4b003b24ce55",
         "8c6dcfdd27e8",
-        "be6035bc97e5",
-        "d51f8dfcef72"
+        "be6035bc97e5"
       ],
       "verified_by": [
         "tests/test_finance_crypto.py:49",
@@ -119,6 +120,7 @@
         "SDK-FINANCE-SOURCES-R900.4",
         "SDK-FINANCE-SOURCES-R900.5",
         "SDK-FINANCE-SOURCES-R900.6",
+        "SDK-FINANCE-SOURCES-R900.8",
         "SDK-FINANCE-SOURCES-R900.7"
       ]
     },
@@ -189,6 +191,17 @@
       ],
       "verified_by": [
         "tests/test_payments.py:122"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R900.8",
+      "title": "Bind confirmed payment records to proofs",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0567e6db2c3d"
+      ],
+      "verified_by": [
+        "tests/test_payments.py:151"
       ]
     },
     {
