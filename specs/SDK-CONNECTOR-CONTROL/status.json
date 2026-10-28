@@ -1986,9 +1986,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R007.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "514a35cffc27"
+      ],
+      "verified_by": [
+        "tests/test_major_version_models.py:72",
+        "tests/test_major_version_models.py:98"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R007.2",
