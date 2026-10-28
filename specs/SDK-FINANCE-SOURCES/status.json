@@ -5,9 +5,12 @@
   "delivery_state": "SPECIFIED",
   "requirement_ids": [
     "SDK-FINANCE-SOURCES-R001",
+    "SDK-FINANCE-SOURCES-R001.1",
+    "SDK-FINANCE-SOURCES-R001.2",
     "SDK-FINANCE-SOURCES-R002",
     "SDK-FINANCE-SOURCES-R002.1",
     "SDK-FINANCE-SOURCES-R003",
+    "SDK-FINANCE-SOURCES-R003.1",
     "SDK-FINANCE-SOURCES-R004",
     "SDK-FINANCE-SOURCES-R005",
     "SDK-FINANCE-SOURCES-R005.1",
@@ -25,10 +28,32 @@
     {
       "id": "SDK-FINANCE-SOURCES-R001",
       "title": "Market-data adapters: exchange history fix, CoinMarketCap, FRED/ALFRED",
-      "delivery_state": "LANDED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "840bd894c581"
       ],
+      "verified_by": [],
+      "rollup_of": [
+        "SDK-FINANCE-SOURCES-R001.1",
+        "SDK-FINANCE-SOURCES-R001.2"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R001.1",
+      "title": "Finite FRED values",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "02b449199739"
+      ],
+      "verified_by": [
+        "tests/test_finance_fred_series.py:99"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R001.2",
+      "title": "Cross-provider conformance",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
       "verified_by": []
     },
     {
@@ -59,7 +84,7 @@
     {
       "id": "SDK-FINANCE-SOURCES-R003",
       "title": "FX, commodities, and real-estate adapters with roll and staleness rules",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "13fcdacb3ff1",
         "6ef04661acc2"
@@ -70,7 +95,17 @@
         "tests/test_finance_records.py:119",
         "tests/test_finance_records.py:130",
         "tests/test_finance_records.py:142"
+      ],
+      "rollup_of": [
+        "SDK-FINANCE-SOURCES-R003.1"
       ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R003.1",
+      "title": "Multi-asset source adapters",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-FINANCE-SOURCES-R004",
