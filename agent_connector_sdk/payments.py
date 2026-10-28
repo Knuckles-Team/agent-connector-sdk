@@ -103,8 +103,8 @@ class PaymentRecord:
 class BudgetLimits:
     """Configurable budget limits for autonomous payments."""
 
-    max_single_payment: float = 10.0
-    max_daily_spend: float = 100.0
+    max_single_payment: float = 0.0
+    max_daily_spend: float = 0.0
     max_monthly_spend: float = 1000.0
     allowed_currencies: list[str] = field(
         default_factory=lambda: ["USDC", "USDT", "DAI"]

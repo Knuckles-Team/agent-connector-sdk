@@ -116,6 +116,7 @@
     "SDK-CONNECTOR-CONTROL-R049.4",
     "SDK-CONNECTOR-CONTROL-R049.5",
     "SDK-CONNECTOR-CONTROL-R049.6",
+    "SDK-CONNECTOR-CONTROL-R049.7",
     "SDK-CONNECTOR-CONTROL-R050",
     "SDK-CONNECTOR-CONTROL-R050.1",
     "SDK-CONNECTOR-CONTROL-R050.2",
@@ -1651,7 +1652,8 @@
         "SDK-CONNECTOR-CONTROL-R049.3",
         "SDK-CONNECTOR-CONTROL-R049.4",
         "SDK-CONNECTOR-CONTROL-R049.5",
-        "SDK-CONNECTOR-CONTROL-R049.6"
+        "SDK-CONNECTOR-CONTROL-R049.6",
+        "SDK-CONNECTOR-CONTROL-R049.7"
       ]
     },
     {
@@ -1695,6 +1697,17 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R049.7",
+      "title": "Default payment guard limits deny spending",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "9ef637916543"
+      ],
+      "verified_by": [
+        "tests/test_payments.py:200"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R050",

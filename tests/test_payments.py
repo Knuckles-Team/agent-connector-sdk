@@ -39,7 +39,12 @@ def test_proof_hash_is_deterministic_and_content_bound() -> None:
 @pytest.mark.parametrize(
     ("limits", "spent", "challenge", "reason"),
     [
-        (BudgetLimits(), 0.0, PaymentChallenge(resource_url="r", amount=5.0), ""),
+        (
+            BudgetLimits(max_single_payment=10.0, max_daily_spend=100.0),
+            0.0,
+            PaymentChallenge(resource_url="r", amount=5.0),
+            "",
+        ),
         (
             BudgetLimits(max_single_payment=1.0),
             0.0,
@@ -47,7 +52,7 @@ def test_proof_hash_is_deterministic_and_content_bound() -> None:
             "single payment limit",
         ),
         (
-            BudgetLimits(max_daily_spend=10.0),
+            BudgetLimits(max_single_payment=10.0, max_daily_spend=10.0),
             8.0,
             PaymentChallenge(resource_url="r", amount=5.0),
             "daily",
@@ -65,7 +70,11 @@ def test_proof_hash_is_deterministic_and_content_bound() -> None:
             "hain",
         ),
         (
-            BudgetLimits(require_approval_above=5.0, max_single_payment=100.0),
+            BudgetLimits(
+                require_approval_above=5.0,
+                max_single_payment=100.0,
+                max_daily_spend=100.0,
+            ),
             0.0,
             PaymentChallenge(resource_url="r", amount=10.0),
             "manual approval",
@@ -104,7 +113,7 @@ def test_guard_refuses_invalid_amounts_without_changing_spend(amount: float) -> 
     with pytest.raises(ValueError):
         client.record_payment(challenge, _proof())
     assert client.get_payment_history() == []
-    assert client.guard.remaining_daily == 100.0
+    assert client.guard.remaining_daily == 0.0
     assert client.guard.remaining_monthly == 1000.0
 
 
@@ -122,7 +131,8 @@ def test_guard_refuses_invalid_limits_and_accounting_overflow() -> None:
 # spec: SDK-FINANCE-SOURCES-R900.6
 def test_client_parses_402_proves_and_records_spend() -> None:
     client = X402PaymentClient(
-        wallet_address="0xwallet", budget_limits=BudgetLimits(max_daily_spend=5.0)
+        wallet_address="0xwallet",
+        budget_limits=BudgetLimits(max_single_payment=5.0, max_daily_spend=5.0),
     )
     challenge = client.handle_402(
         {
@@ -175,7 +185,7 @@ def test_confirmed_payment_rejects_mismatched_proof_without_accounting(
     with pytest.raises(ValueError, match="proof does not match"):
         client.record_payment(challenge)
     assert client.get_payment_history() == []
-    assert client.guard.remaining_daily == 100.0
+    assert client.guard.remaining_daily == 0.0
     assert client.guard.remaining_monthly == 1000.0
 
 
@@ -185,3 +195,22 @@ def test_confirmed_payment_requires_challenge_identity() -> None:
     with pytest.raises(ValueError, match="proof does not match"):
         client.record_payment(challenge, client.create_proof(challenge, "tx"))
     assert client.get_payment_history() == []
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R049.7")
+def test_default_payment_budgets_deny_positive_challenges() -> None:
+    challenge = PaymentChallenge("r", 1.0)
+    assert X402PaymentClient().authorize_payment(challenge)[0] is False
+    assert (
+        PaymentGuard(BudgetLimits(max_single_payment=10)).validate(challenge)[0]
+        is False
+    )
+    assert (
+        PaymentGuard(BudgetLimits(max_daily_spend=10)).validate(challenge)[0] is False
+    )
+    assert (
+        PaymentGuard(BudgetLimits(max_single_payment=10, max_daily_spend=10)).validate(
+            challenge
+        )[0]
+        is True
+    )

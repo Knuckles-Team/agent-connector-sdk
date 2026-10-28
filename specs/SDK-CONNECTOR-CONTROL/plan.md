@@ -802,3 +802,9 @@ expansion. This helper does not claim legacy automatic-expansion parity.
 Its path, mount, field and version must match that target. The constructor
 refuses traversal and malformed names before any resolver can run. The host
 authority and served credential binding in R035 remain separate.
+
+## Amendment: default payment limits (R049.7)
+
+The existing X402 guard starts with zero per-payment and daily limits. A caller
+must set both before it approves a positive challenge. This local guard does
+not establish the served approval or durable accounting required by R049.
