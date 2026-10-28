@@ -116,6 +116,7 @@
     "SDK-SOURCE-INGEST-R005.43",
     "SDK-SOURCE-INGEST-R005.44",
     "SDK-SOURCE-INGEST-R005.45",
+    "SDK-SOURCE-INGEST-R005.46",
     "SDK-SOURCE-INGEST-R006.32",
     "SDK-SOURCE-INGEST-R006.33",
     "SDK-SOURCE-INGEST-R006.34",
@@ -410,7 +411,8 @@
         "SDK-SOURCE-INGEST-R005.42",
         "SDK-SOURCE-INGEST-R005.43",
         "SDK-SOURCE-INGEST-R005.44",
-        "SDK-SOURCE-INGEST-R005.45"
+        "SDK-SOURCE-INGEST-R005.45",
+        "SDK-SOURCE-INGEST-R005.46"
       ]
     },
     {
@@ -1429,8 +1431,8 @@
       ],
       "verified_by": [
         "tests/test_web_source_contract.py:125",
-        "tests/test_web_source_contract.py:262",
-        "tests/test_web_source_contract.py:293"
+        "tests/test_web_source_contract.py:300",
+        "tests/test_web_source_contract.py:331"
       ]
     },
     {
@@ -1531,6 +1533,17 @@
       ],
       "verified_by": [
         "tests/test_web_source_contract.py:234"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R005.46",
+      "title": "Share concurrent robots loads",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "91ae731d9a3f"
+      ],
+      "verified_by": [
+        "tests/test_web_source_contract.py:262"
       ]
     },
     {
