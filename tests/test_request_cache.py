@@ -31,10 +31,10 @@ def test_request_cache_is_bounded_scoped_and_expires() -> None:
         _context("first"), lambda value: value != "denied", max_entries=2
     )
     second = RequestCache(_context("second"), lambda value: True, max_entries=2)
-    a = RequestCacheKey("a", "scope")
-    b = RequestCacheKey("b", "scope")
-    c = RequestCacheKey("c", "scope")
-    other_scope = RequestCacheKey("a", "other")
+    a = RequestCacheKey("a" * 64, "d" * 64)
+    b = RequestCacheKey("b" * 64, "d" * 64)
+    c = RequestCacheKey("c" * 64, "d" * 64)
+    other_scope = RequestCacheKey("a" * 64, "e" * 64)
     with pytest.raises(ValueError, match="carry digests"):
         first.get("raw arguments")
     first.put(a, "one")
@@ -55,7 +55,7 @@ def test_request_cache_is_bounded_scoped_and_expires() -> None:
     with pytest.raises(ValueError, match="closed"):
         expired.get(a)
     with pytest.raises(ValueError):
-        RequestCacheKey(" ", "scope")
+        RequestCacheKey("raw", "d" * 64)
 
 
 def test_deadline_is_rechecked_after_admission(monkeypatch) -> None:
@@ -76,6 +76,6 @@ def test_deadline_is_rechecked_after_admission(monkeypatch) -> None:
     monkeypatch.setattr(request_cache, "datetime", Clock)
     cache = RequestCache(context, admit)
     with pytest.raises(TimeoutError):
-        cache.put(RequestCacheKey("a", "scope"), "value")
+        cache.put(RequestCacheKey("a" * 64, "d" * 64), "value")
     with pytest.raises(ValueError, match="closed"):
-        cache.get(RequestCacheKey("a", "scope"))
+        cache.get(RequestCacheKey("a" * 64, "d" * 64))

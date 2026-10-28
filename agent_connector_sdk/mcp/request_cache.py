@@ -6,6 +6,7 @@ and effect results. Authenticated context binding is the caller's responsibility
 
 from __future__ import annotations
 
+import re
 from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -27,12 +28,12 @@ class RequestCacheKey:
     scope_digest: str
 
     def __post_init__(self) -> None:
-        if not isinstance(self.argument_digest, str) or not isinstance(
-            self.scope_digest, str
-        ):
-            raise ValueError("cache key digests must be strings")
-        if not self.argument_digest.strip() or not self.scope_digest.strip():
-            raise ValueError("cache key digests must not be blank")
+        for digest in (self.argument_digest, self.scope_digest):
+            if (
+                not isinstance(digest, str)
+                or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+            ):
+                raise ValueError("cache key must carry lowercase SHA-256 digests")
 
 
 class RequestCache[T]:
