@@ -1348,8 +1348,10 @@
     {
       "id": "SDK-SOURCE-INGEST-R005.57",
       "title": "Stop cancelled workspace parsers",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "cd23c9fae2a5"
+      ],
       "verified_by": [
         "tests/test_workspace_reader.py:221",
         "tests/test_workspace_reader.py:274"
