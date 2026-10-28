@@ -3168,8 +3168,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R069.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "9457b6d5a33d"
+      ],
       "verified_by": [
         "tests/test_transport_contract.py:27"
       ]
