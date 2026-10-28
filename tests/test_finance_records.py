@@ -241,3 +241,18 @@ def test_fx_inversion_refuses_overflow() -> None:
     )
     with pytest.raises(ValueError, match="inverted FX rate must be finite"):
         rate.inverted()
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.3")
+def test_fx_currency_codes_are_canonical_and_distinct() -> None:
+    rate = FxRate(**_base_fields(), base_currency="eur", quote_currency="Usd", rate=1.1)
+    assert (rate.base_currency, rate.quote_currency) == ("EUR", "USD")
+    with pytest.raises(ValidationError, match="must differ"):
+        FxRate(**_base_fields(), base_currency="usd", quote_currency="USD", rate=1.0)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.3")
+@pytest.mark.parametrize("currency", ["U1D", "U D", "éUR"])
+def test_fx_currency_rejects_invalid_code(currency: str) -> None:
+    with pytest.raises(ValidationError, match="three ASCII letters"):
+        FxRate(**_base_fields(), base_currency=currency, quote_currency="EUR", rate=1.0)
