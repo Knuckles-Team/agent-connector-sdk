@@ -45,7 +45,8 @@
     "SDK-CENTRALIZED-CAPABILITIES-R037",
     "SDK-CENTRALIZED-CAPABILITIES-R038",
     "SDK-CENTRALIZED-CAPABILITIES-R039",
-    "SDK-CENTRALIZED-CAPABILITIES-R040"
+    "SDK-CENTRALIZED-CAPABILITIES-R040",
+    "SDK-CENTRALIZED-CAPABILITIES-R004.3"
   ],
   "requirements": [
     {
@@ -87,7 +88,8 @@
       ],
       "rollup_of": [
         "SDK-CENTRALIZED-CAPABILITIES-R004.1",
-        "SDK-CENTRALIZED-CAPABILITIES-R004.2"
+        "SDK-CENTRALIZED-CAPABILITIES-R004.2",
+        "SDK-CENTRALIZED-CAPABILITIES-R004.3"
       ]
     },
     {
@@ -381,6 +383,13 @@
         "tests/test_centralized_extras.py:27",
         "tests/test_centralized_extras.py:37"
       ]
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.3",
+      "title": "Bound Link-header parsing work",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
