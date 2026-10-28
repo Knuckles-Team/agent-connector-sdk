@@ -2547,8 +2547,8 @@
         "05f0db88c98a",
         "075dd1650da3",
         "11366ce437d5",
-        "2c94a2fb2e0c",
-        "3f465bfdb7b3"
+        "22044d5f3981",
+        "2c94a2fb2e0c"
       ],
       "verified_by": [
         "tests/data_prep/certification/test_job.py:182",
@@ -2714,7 +2714,7 @@
       "title": "Correct Arrow installation hint",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "832766055f8f"
+        "22044d5f3981"
       ],
       "verified_by": [
         "tests/data_prep/test_kernel.py:741"
