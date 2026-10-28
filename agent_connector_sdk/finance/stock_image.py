@@ -23,6 +23,16 @@ class GeneratedStockImage:
     official_logo: bool = field(default=False, init=False)
 
 
+class _StockImageMixin:
+    """Provide an adapter-bound original illustration."""
+
+    _symbol: str
+
+    def generated_image(self) -> GeneratedStockImage:
+        """Return an original symbol illustration, not an official company mark."""
+        return generate_stock_image(self._symbol)
+
+
 def generate_stock_image(symbol: str) -> GeneratedStockImage:
     """Render a deterministic abstract SVG for a canonical ticker symbol."""
     if not isinstance(symbol, str) or not _SYMBOL.fullmatch(symbol):
