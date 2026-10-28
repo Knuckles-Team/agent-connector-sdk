@@ -1405,9 +1405,13 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R045.7",
       "title": "Reuse the destructive classification",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e4eede90f758"
+      ],
+      "verified_by": [
+        "tests/test_tool_facts.py:124"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R045.8",
