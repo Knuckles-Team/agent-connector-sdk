@@ -360,6 +360,9 @@ trailing dots, IDNA and equivalent IPv6 forms. Another host has its own budget.
 R005.44 checks a valid IPv6 robots URL, denial of a private path and cache
 reuse for equivalent IPv6 and IDNA spellings.
 
+R005.53 compares title selection with the previous expression and exercises
+large unclosed starts and missing closing tags.
+
 R005.52 compares quoted metadata precedence and entities with the previous
 parser, then exercises large unclosed and nested metadata spans.
 

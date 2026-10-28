@@ -705,6 +705,11 @@ The database source validates each row before it yields any document or
 returns a checkpoint. Missing required fields refuse the full page. A caller
 can repair the row and retry from the accepted checkpoint.
 
+## Linear legacy title scanning (R005.53)
+
+Title scanning finds the first opening boundary and the first following close.
+An incomplete title returns no fallback title without retrying each start.
+
 ## Linear legacy metadata scanning (R005.52)
 
 Metadata scanning visits each tag and attribute without retrying an unclosed
