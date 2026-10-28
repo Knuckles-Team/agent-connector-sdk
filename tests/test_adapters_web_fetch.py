@@ -265,3 +265,22 @@ def test_metadata_scanning_is_linear_on_unclosed_tags() -> None:
         extract_og_metadata("<meta " + 'property="og:title" ' * 20_000 + ">")["title"]
         == ""
     )
+
+
+@pytest.mark.timeout(10)
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.53")
+def test_title_scanning_is_linear_and_matches_prior_behavior() -> None:
+    import random
+    import re
+
+    from agent_connector_sdk.adapters.web_html_text import _title_from_html
+
+    old = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
+    rng = random.Random(53)
+    tokens = ("<title", ">", "</title>", "<TITLE>", "text", "\n", " ", "<x>")
+    for _ in range(1000):
+        html = "".join(rng.choice(tokens) for _ in range(rng.randrange(30)))
+        match = old.search(html)
+        assert _title_from_html(html) == (match.group(1).strip() if match else "")
+    assert _title_from_html("<title " * 100_000) == ""
+    assert _title_from_html("<title>" * 100_000) == ""

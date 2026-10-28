@@ -1,5 +1,10 @@
 """Linear text extraction for the legacy web-fetch adapter."""
 
+import re
+
+_TITLE_START = re.compile(r"<title", re.IGNORECASE)
+_TITLE_END = re.compile(r"</title>", re.IGNORECASE)
+
 
 def _strip_tags(html: str) -> str:
     """Replace each nonempty angle-bracket span with one space."""
@@ -19,3 +24,17 @@ def _strip_tags(html: str) -> str:
         start = right + 1
     parts.append(html[start:])
     return "".join(parts)
+
+
+def _title_from_html(html: str) -> str:
+    """Return the first complete title with the previous matching semantics."""
+    start = _TITLE_START.search(html)
+    if start is None:
+        return ""
+    opening_end = html.find(">", start.end())
+    if opening_end < 0:
+        return ""
+    closing = _TITLE_END.search(html, opening_end + 1)
+    if closing is None:
+        return ""
+    return html[opening_end + 1 : closing.start()].strip()
