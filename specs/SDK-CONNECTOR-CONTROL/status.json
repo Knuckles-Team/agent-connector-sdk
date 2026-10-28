@@ -903,11 +903,11 @@
       "title": "SDK's governed HTTP client controls egress with named escape hatches, not ad hoc trust",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "0388c2c0fbac",
         "0481308202ca",
         "19ca24046d12",
         "284fb12a19ed",
-        "459897c19da8",
-        "54744d32428a"
+        "459897c19da8"
       ],
       "verified_by": [
         "tests/test_auth_declarations.py:106",
@@ -993,6 +993,7 @@
       "title": "Bind session cookies to their origin",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "0388c2c0fbac",
         "6707fe2f10c4",
         "79a69d1fd61b",
         "bfb6be6caa15",
