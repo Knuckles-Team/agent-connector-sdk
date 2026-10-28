@@ -30,6 +30,7 @@ dependencies = [
     "httpx2>=2.13.1",
     "anyio>=4.15.1",
     "cryptography>=50.0.2",
+    "defusedxml>=0.7.1,<1",
 ]
 
 [project.optional-dependencies]
@@ -92,6 +93,9 @@ vector-chroma = [
     "chromadb>=1.5.0",
     "llama-index-vector-stores-chroma>=0.5.0",
 ]
+workspace = [
+    "pypdf>=6.21.3,<7",
+]
 
 [[project.authors]]
 name = "Repository Maintainers"
@@ -143,7 +147,7 @@ agent_connector_sdk = ["py.typed", "skills/**/*", "ontology/*.ttl"]
 
 [dependency-groups]
 test = [
-    "scion-sdk[mcp,feeds,dataprep,integrity,graphql,a2a,requests]",
+    "scion-sdk[mcp,feeds,dataprep,integrity,graphql,a2a,requests,workspace]",
     "pandas>=2.2.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
@@ -157,6 +161,7 @@ typecheck = [
     "mypy==2.4.0",
     "types-PyYAML==6.0.12.20260906",
     "types-requests>=2.32.0",
+    "types-defusedxml>=0.7.0",
 ]
 
 [tool.uv]
@@ -239,6 +244,8 @@ public_modules = [
     "agent_connector_sdk.a2a.models",
     "agent_connector_sdk.access_contract",
     "agent_connector_sdk.adapters.bookmark_source",
+    "agent_connector_sdk.adapters.workspace_reader",
+    "agent_connector_sdk.adapters.workspace_models",
     "agent_connector_sdk.adapters.document_sources",
     "agent_connector_sdk.adapters.event_feed",
     "agent_connector_sdk.adapters.event_feed_bindings",
