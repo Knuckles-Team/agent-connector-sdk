@@ -152,6 +152,7 @@
     "SDK-CONNECTOR-CONTROL-R650.2",
     "SDK-CONNECTOR-CONTROL-R650.3",
     "SDK-CONNECTOR-CONTROL-R650.4",
+    "SDK-CONNECTOR-CONTROL-R650.5",
     "SDK-CONNECTOR-CONTROL-R051",
     "SDK-CONNECTOR-CONTROL-R051.1",
     "SDK-CONNECTOR-CONTROL-R051.2",
@@ -2033,7 +2034,8 @@
         "SDK-CONNECTOR-CONTROL-R650.1",
         "SDK-CONNECTOR-CONTROL-R650.2",
         "SDK-CONNECTOR-CONTROL-R650.3",
-        "SDK-CONNECTOR-CONTROL-R650.4"
+        "SDK-CONNECTOR-CONTROL-R650.4",
+        "SDK-CONNECTOR-CONTROL-R650.5"
       ]
     },
     {
@@ -2077,8 +2079,19 @@
         "851287a63d7a"
       ],
       "verified_by": [
-        "tests/test_release_lock.py:35",
-        "tests/test_release_lock.py:59"
+        "tests/test_release_lock.py:39",
+        "tests/test_release_lock.py:63"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R650.5",
+      "title": "Create a release key lock",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_release_lock.py:111",
+        "tests/test_release_lock.py:84",
+        "tests/test_release_lock.py:97"
       ]
     },
     {
