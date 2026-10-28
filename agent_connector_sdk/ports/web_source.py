@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import ipaddress
 import logging
 import time
 import urllib.robotparser
@@ -29,6 +30,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal, Protocol, runtime_checkable
 from urllib.parse import urlsplit
 
+import httpx
 from pydantic import BaseModel, ConfigDict, Field
 
 __all__ = [
@@ -236,9 +238,27 @@ def _origin(url: str) -> str:
     return f"{parts.scheme}://{parts.hostname.lower()}{port}"
 
 
+def _rate_limit_domain(url: str) -> str:
+    try:
+        parts = urlsplit(url)
+        host = parts.hostname
+        _ = parts.port
+        if parts.scheme not in {"http", "https"} or not host:
+            raise ValueError("absolute URL required")
+        host = httpx.URL(url).raw_host.decode("ascii").rstrip(".")
+        if not host or any(char.isspace() for char in host):
+            raise ValueError("invalid host")
+        try:
+            return str(ipaddress.ip_address(host))
+        except ValueError:
+            return host.lower()
+    except (httpx.InvalidURL, UnicodeError, ValueError) as exc:
+        raise WebSourceRefused("policy_refused", "invalid web URL") from exc
+
+
 @dataclass
 class DomainRateLimiter:
-    """Space requests to one origin at least ``min_interval_s`` apart."""
+    """Space requests to one host at least ``min_interval_s`` apart."""
 
     min_interval_s: float = DEFAULT_MIN_INTERVAL_S
     clock: Callable[[], float] = time.monotonic
@@ -247,15 +267,15 @@ class DomainRateLimiter:
     _locks: dict[str, asyncio.Lock] = field(default_factory=dict)
 
     async def acquire(self, url: str) -> None:
-        origin = _origin(url)
-        lock = self._locks.setdefault(origin, asyncio.Lock())
+        domain = _rate_limit_domain(url)
+        lock = self._locks.setdefault(domain, asyncio.Lock())
         async with lock:
             now = self.clock()
-            wait = self._next.get(origin, now) - now
+            wait = self._next.get(domain, now) - now
             if wait > 0:
                 await self.sleep(wait)
                 now = self.clock()
-            self._next[origin] = now + self.min_interval_s
+            self._next[domain] = now + self.min_interval_s
 
 
 RobotsLoader = Callable[[str], Awaitable[tuple[int, str]]]

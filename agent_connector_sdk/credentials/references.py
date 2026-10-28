@@ -43,6 +43,39 @@ class SecretReference:
     field: str = ""
     version: int | None = None
 
+    def __post_init__(self) -> None:
+        if not isinstance(self.target, str) or len(self.target) > _MAX_REFERENCE_BYTES:
+            raise SecretReferenceError("secret reference is invalid")
+        scheme: object = self.scheme
+        if scheme == "env":
+            valid = (
+                _ENV_NAME_RE.fullmatch(self.target) is not None
+                and self.mount == self.path == self.field == ""
+                and self.version is None
+            )
+        elif scheme == "openbao":
+            match = _OPENBAO_RE.fullmatch(self.target)
+            valid = bool(
+                match is not None
+                and all(
+                    segment not in {"", ".", ".."}
+                    for segment in match["path"].split("/")
+                )
+                and self.mount == match["mount"]
+                and self.path == match["path"]
+                and self.field == match["field"]
+                and (
+                    self.version is None
+                    if match["version"] is None
+                    else type(self.version) is int
+                    and self.version == int(match["version"])
+                )
+            )
+        else:
+            valid = False
+        if not valid:
+            raise SecretReferenceError("secret reference is invalid")
+
     def render(self) -> str:
         """Return the canonical reference string."""
         return f"{self.scheme}://{self.target}"

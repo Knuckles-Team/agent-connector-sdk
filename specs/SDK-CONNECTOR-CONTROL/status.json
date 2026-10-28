@@ -66,6 +66,7 @@
     "SDK-CONNECTOR-CONTROL-R035.5",
     "SDK-CONNECTOR-CONTROL-R035.6",
     "SDK-CONNECTOR-CONTROL-R035.7",
+    "SDK-CONNECTOR-CONTROL-R035.8",
     "SDK-CONNECTOR-CONTROL-R036",
     "SDK-CONNECTOR-CONTROL-R037",
     "SDK-CONNECTOR-CONTROL-R038",
@@ -1156,7 +1157,8 @@
         "SDK-CONNECTOR-CONTROL-R035.4",
         "SDK-CONNECTOR-CONTROL-R035.5",
         "SDK-CONNECTOR-CONTROL-R035.6",
-        "SDK-CONNECTOR-CONTROL-R035.7"
+        "SDK-CONNECTOR-CONTROL-R035.7",
+        "SDK-CONNECTOR-CONTROL-R035.8"
       ]
     },
     {
@@ -1211,6 +1213,17 @@
       "verified_by": [
         "tests/test_credentials.py:112",
         "tests/test_credentials.py:134"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R035.8",
+      "title": "Secret reference object integrity",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1d4a4d15366e"
+      ],
+      "verified_by": [
+        "tests/test_reference_invariants.py:12"
       ]
     },
     {

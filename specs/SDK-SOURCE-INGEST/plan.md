@@ -705,6 +705,12 @@ The database source validates each row before it yields any document or
 returns a checkpoint. Missing required fields refuse the full page. A caller
 can repair the row and retry from the accepted checkpoint.
 
+## Web host rate limiting (R005.43)
+
+The web-source limiter groups requests by normalized host. Scheme and port
+changes do not create independent budgets. Robots rules retain their own
+per-origin cache because their contents can differ by scheme or port.
+
 ## 2026-10-27: bounded evidence for large preparation plans
 
 R803.6 requires a single plan over one million rows. Keep `run` and its
