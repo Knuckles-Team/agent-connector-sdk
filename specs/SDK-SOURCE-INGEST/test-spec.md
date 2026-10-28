@@ -397,3 +397,5 @@ R803.9 suppresses numeric statistics when any value is below the disclosure thre
 R803.10 refuses a passed result with zero checks at both models and at the job boundary.
 
 R803.11 refuses any mismatch between certification state and signed summary status.
+
+R803.12 rejects non-string signer identity, algorithm and signature without reporting a pass.

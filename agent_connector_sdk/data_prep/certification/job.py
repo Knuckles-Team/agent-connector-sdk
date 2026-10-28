@@ -86,8 +86,10 @@ def _signed_result(
     observation: AdapterObservation,
     signer: CertificationSigner,
 ) -> CertificationResult:
-    signer_id = str(getattr(signer, "signer_id", ""))
-    algorithm = str(getattr(signer, "algorithm", ""))
+    signer_id = getattr(signer, "signer_id", None)
+    algorithm = getattr(signer, "algorithm", None)
+    if not isinstance(signer_id, str) or not isinstance(algorithm, str):
+        return _result(job, "failed", failure_code="signer_invalid")
     if not signer_id or not algorithm:
         return _result(job, "failed", failure_code="signer_invalid")
     if algorithm != "ed25519":
@@ -119,9 +121,11 @@ def _signed_result(
     }
     summary_digest, digest_hex = _digest(unsigned)
     try:
-        signature = str(signer.sign(digest_hex))
+        signature = signer.sign(digest_hex)
     except Exception:
         return _result(job, "failed", failure_code="signer_unavailable")
+    if not isinstance(signature, str):
+        return _result(job, "failed", failure_code="signer_invalid")
     try:
         summary = SignedResultSummary(
             **{**unsigned, "policy": job.sample.policy},

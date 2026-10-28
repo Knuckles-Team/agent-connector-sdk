@@ -342,3 +342,29 @@ def test_result_rejects_mismatched_signed_status(state: str) -> None:
                 "signed_summary": summary,
             }
         )
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.12")
+@pytest.mark.parametrize("field", ["signer_id", "algorithm", "signature"])
+@pytest.mark.parametrize("value", [None, 123, b"signature"])
+def test_nonstring_signer_output_is_refused(field: str, value: object) -> None:
+    class InvalidSigner:
+        signer_id = "fixture-signer"
+        algorithm = "ed25519"
+
+        def sign(self, _digest_hex):
+            return value if field == "signature" else "fixture-signature"
+
+    signer = InvalidSigner()
+    if field != "signature":
+        setattr(signer, field, value)
+    result = run_certification_job(
+        pa.table({"id": [1]}),
+        _job(),
+        adapter=_PassingAdapter(None),
+        signer=signer,
+        now_ms=1_000,
+    )
+    assert result.state == "failed"
+    assert result.failure_code == "signer_invalid"
+    assert result.signed_summary is None
