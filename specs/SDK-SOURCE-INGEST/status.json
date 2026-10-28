@@ -124,6 +124,7 @@
     "SDK-SOURCE-INGEST-R005.51",
     "SDK-SOURCE-INGEST-R005.52",
     "SDK-SOURCE-INGEST-R005.53",
+    "SDK-SOURCE-INGEST-R005.54",
     "SDK-SOURCE-INGEST-R006.32",
     "SDK-SOURCE-INGEST-R006.33",
     "SDK-SOURCE-INGEST-R006.34",
@@ -217,6 +218,7 @@
     "SDK-SOURCE-INGEST-R803.4",
     "SDK-SOURCE-INGEST-R803.5",
     "SDK-SOURCE-INGEST-R803.6",
+    "SDK-SOURCE-INGEST-R803.7",
     "SDK-SOURCE-INGEST-R804",
     "SDK-SOURCE-INGEST-R804.1",
     "SDK-SOURCE-INGEST-R804.2",
@@ -426,7 +428,8 @@
         "SDK-SOURCE-INGEST-R005.50",
         "SDK-SOURCE-INGEST-R005.51",
         "SDK-SOURCE-INGEST-R005.52",
-        "SDK-SOURCE-INGEST-R005.53"
+        "SDK-SOURCE-INGEST-R005.53",
+        "SDK-SOURCE-INGEST-R005.54"
       ]
     },
     {
@@ -1639,6 +1642,17 @@
       ]
     },
     {
+      "id": "SDK-SOURCE-INGEST-R005.54",
+      "title": "Exercise legacy parsing through the adapter",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "f30eb75c62c7"
+      ],
+      "verified_by": [
+        "tests/test_adapters_web_fetch_source_adapter.py:248"
+      ]
+    },
+    {
       "id": "SDK-SOURCE-INGEST-R006.32",
       "title": "Model",
       "delivery_state": "SPECIFIED",
@@ -2525,6 +2539,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "11366ce437d5",
+        "3f465bfdb7b3",
         "4b003b24ce55",
         "d2a659a5f3b8"
       ],
@@ -2541,7 +2556,8 @@
         "SDK-SOURCE-INGEST-R803.3",
         "SDK-SOURCE-INGEST-R803.4",
         "SDK-SOURCE-INGEST-R803.5",
-        "SDK-SOURCE-INGEST-R803.6"
+        "SDK-SOURCE-INGEST-R803.6",
+        "SDK-SOURCE-INGEST-R803.7"
       ]
     },
     {
@@ -2608,6 +2624,17 @@
       ],
       "verified_by": [
         "tests/data_prep/test_kernel.py:416"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R803.7",
+      "title": "Plan isolation",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3f465bfdb7b3"
+      ],
+      "verified_by": [
+        "tests/data_prep/test_kernel.py:701"
       ]
     },
     {

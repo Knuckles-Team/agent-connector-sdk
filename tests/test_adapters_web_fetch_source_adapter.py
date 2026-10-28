@@ -242,3 +242,22 @@ async def test_checkpoint_binds_ordered_url_list(monkeypatch) -> None:
         upgraded.checkpoint.position["url_list_sha256"]
         == first.checkpoint.position["url_list_sha256"]
     )
+
+
+@pytest.mark.timeout(30)
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.54")
+async def test_legacy_fetch_handles_adversarial_html() -> None:
+    body = ("<meta " * 50_000 + "<title>" * 50_000 + "<" * 100_000).encode()
+    with ScriptedHttpServer(
+        ScriptedResponse(body=body, headers={"Content-Type": "text/html"})
+    ) as server:
+        adapter = WebFetchSourceAdapter(
+            (server.base_url,),
+            connector="test",
+            mapping_reference="v1",
+            allowed_private_hosts=("127.0.0.1",),
+        )
+        page = await adapter.extract(_SESSION, None)
+        assert page.exhausted and len(page.records) == 1
+        assert page.records[0].payload["markdown"]
+        assert server.requests[0].headers["accept-encoding"] == "identity"

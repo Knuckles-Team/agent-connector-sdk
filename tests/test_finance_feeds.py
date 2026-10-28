@@ -125,3 +125,15 @@ async def test_price_alert_fires_once_when_crossed(
     for price in prices:
         await bus.publish_tick(Tick(symbol="AAPL", price=price))
     assert len(alerts) == fired
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.9")
+@pytest.mark.parametrize("size", [0, -1, True, 0.5])
+def test_invalid_bar_interval_refuses_without_subscribing(size: int) -> None:
+    bus = MarketFeedBus()
+    with pytest.raises(ValueError, match="positive integer"):
+        bus.subscribe_bars("AAPL", size, lambda _bar: None)
+    assert bus.active_symbols == []
+    assert bus.bus.subscriber_count == 0
+    with pytest.raises(ValueError, match="positive integer"):
+        TickAggregator("AAPL", size)

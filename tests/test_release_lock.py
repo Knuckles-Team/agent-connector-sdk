@@ -10,7 +10,11 @@ from rdflib import Graph
 from agent_connector_sdk.credentials.provider import CredentialProvider
 from agent_connector_sdk.credentials.references import parse_secret_reference
 from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
-from agent_connector_sdk.manifest import MAX_RELEASE_LOCK_BYTES, load_release_key_lock
+from agent_connector_sdk.manifest import (
+    MAX_RELEASE_LOCK_BYTES,
+    create_release_key_lock,
+    load_release_key_lock,
+)
 from agent_connector_sdk.manifest.release_signature import (
     ReleaseSigningError,
     sign_release,
@@ -75,3 +79,42 @@ def test_ambiguous_or_untrusted_locks_refuse(tmp_path) -> None:
     lock.unlink()
     with pytest.raises(ReleaseSigningError):
         load_release_key_lock(lock)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.5")
+def test_create_release_lock_round_trips_without_overwriting(tmp_path) -> None:
+    lock = tmp_path / "ontology.lock"
+    key = base64.urlsafe_b64decode(encoded_public() + "=")
+    create_release_key_lock(lock, {"artifact": ("demo", key)})
+    assert load_release_key_lock(lock) == {"demo": key}
+    before = lock.read_bytes()
+    with pytest.raises(ReleaseSigningError):
+        create_release_key_lock(lock, {"artifact": ("demo", bytes(32))})
+    assert lock.read_bytes() == before
+    assert list(tmp_path.iterdir()) == [lock]
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.5")
+def test_create_release_lock_refuses_invalid_inputs_without_a_file(tmp_path) -> None:
+    lock = tmp_path / "ontology.lock"
+    for artifacts in (
+        {},
+        {"a": ("bad signer", bytes(32))},
+        {"a": ("demo", b"short")},
+        {"a": ("demo", bytes(32)), "b": ("demo", bytes([1]) * 32)},
+    ):
+        with pytest.raises(ReleaseSigningError):
+            create_release_key_lock(lock, artifacts)
+        assert not lock.exists()
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.5")
+def test_create_release_lock_refuses_symlink_without_touching_target(tmp_path) -> None:
+    target = tmp_path / "existing"
+    target.write_text("keep")
+    lock = tmp_path / "ontology.lock"
+    lock.symlink_to(target)
+    with pytest.raises(ReleaseSigningError):
+        create_release_key_lock(lock, {"artifact": ("demo", bytes(32))})
+    assert target.read_text() == "keep"
+    assert lock.is_symlink()

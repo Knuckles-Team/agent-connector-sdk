@@ -705,6 +705,12 @@ The database source validates each row before it yields any document or
 returns a checkpoint. Missing required fields refuse the full page. A caller
 can repair the row and retry from the accepted checkpoint.
 
+## Legacy parser path proof (R005.54)
+
+The adapter test sends malformed HTML over the pinned local fetch. It exercises
+the bounded reader and all three linear scanners together. It does not claim an
+engine receipt or the connector-tool path.
+
 ## Linear legacy title scanning (R005.53)
 
 Title scanning finds the first opening boundary and the first following close.

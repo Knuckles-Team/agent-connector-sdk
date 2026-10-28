@@ -360,6 +360,9 @@ trailing dots, IDNA and equivalent IPv6 forms. Another host has its own budget.
 R005.44 checks a valid IPv6 robots URL, denial of a private path and cache
 reuse for equivalent IPv6 and IDNA spellings.
 
+R005.54 sends malformed tag, metadata and title starts through the legacy
+adapter. It uses a pinned local HTTP fetch and observes a returned page.
+
 R005.53 compares title selection with the previous expression and exercises
 large unclosed starts and missing closing tags.
 
@@ -384,3 +387,5 @@ secret. The refusal contains its reason but no requested path or query value.
 R005.46 blocks one fake robots load while concurrent checks enter. They share
 one load for that origin; a different origin completes independently.
 - `SDK-SOURCE-INGEST-R005.47`: `tests/test_evm_chain_models.py` checks model bounds and refusal before discovery or extraction.
+
+R803.7 mutates the exposed plan view and asserts that both execution paths retain their original plan and evidence.

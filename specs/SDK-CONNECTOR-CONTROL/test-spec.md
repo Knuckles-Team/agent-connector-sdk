@@ -502,3 +502,5 @@ process settings do not alter the result, and an unknown profile refuses.
 - `SDK-CONNECTOR-CONTROL-R048.8`: `tests/test_readable_count_score.py` checks the ratio and refuses invalid grades.
 
 - `SDK-CONNECTOR-CONTROL-R046.9`: `tests/test_oauth_token_key_identity.py` tests key collisions and refuses ambiguous legacy files.
+
+- `SDK-CONNECTOR-CONTROL-R650.5`: `tests/test_release_lock.py` checks lock creation, round-trip and refusal without replacement.
