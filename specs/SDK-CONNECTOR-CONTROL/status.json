@@ -1344,16 +1344,24 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R045.1",
       "title": "Type `ToolContractFacts`",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a20fc49a180f"
+      ],
+      "verified_by": [
+        "tests/test_tool_facts.py:35"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R045.2",
       "title": "Close the `SideEffect` set",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a20fc49a180f"
+      ],
+      "verified_by": [
+        "tests/test_tool_facts.py:54"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R045.3",
@@ -1363,7 +1371,7 @@
         "2907b584635e"
       ],
       "verified_by": [
-        "tests/test_tool_facts.py:15"
+        "tests/test_tool_facts.py:18"
       ]
     },
     {
