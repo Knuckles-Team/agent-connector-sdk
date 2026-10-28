@@ -351,3 +351,59 @@ async def test_writable_connector_rejects_noncanonical_or_wrong_connector() -> N
     wrong_connector = fixture.change_set.model_copy(update={"connector_id": "other"})
     with pytest.raises(ValueError, match="another connector"):
         await connector.register(wrong_connector)
+
+
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.17")
+async def test_connector_refuses_overlapping_effects(monkeypatch):
+    import asyncio
+
+    from agent_connector_sdk.writeback.errors import WriteBackError
+
+    fixture = make_writeback_fixture()
+    ledger = MemoryLedger()
+    connector = _reference_connector(fixture, ledger, InMemoryAuditReservation())
+    await connector.register(fixture.change_set)
+    entered, release = asyncio.Event(), asyncio.Event()
+    lookup = ledger.get
+
+    async def blocked_lookup(tenant_id, change_set_id):
+        entered.set()
+        await release.wait()
+        return await lookup(tenant_id, change_set_id)
+
+    monkeypatch.setattr(ledger, "get", blocked_lookup)
+    first = asyncio.create_task(connector.apply(fixture.change_set))
+    await entered.wait()
+    try:
+        with pytest.raises(WriteBackError, match="already in flight"):
+            await connector.apply(fixture.change_set)
+        with pytest.raises(WriteBackError, match="already in flight"):
+            await connector.reconcile(fixture.change_set)
+        assert fixture.transport.attempts == 0
+    finally:
+        release.set()
+    applied = await first
+    assert applied.effect_status is WriteBackEffectStatus.APPLIED
+    replay = await connector.apply(fixture.change_set)
+    assert replay == applied
+    assert fixture.transport.attempts == 1
+
+
+@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.17")
+async def test_connector_releases_claim_after_lookup_failure(monkeypatch):
+    fixture = make_writeback_fixture()
+    ledger = MemoryLedger()
+    connector = _reference_connector(fixture, ledger, InMemoryAuditReservation())
+    await connector.register(fixture.change_set)
+    lookup = ledger.get
+
+    async def fail_lookup(_tenant_id, _change_set_id):
+        raise WriteBackPersistenceError("ledger unavailable")
+
+    monkeypatch.setattr(ledger, "get", fail_lookup)
+    with pytest.raises(WriteBackPersistenceError, match="ledger unavailable"):
+        await connector.apply(fixture.change_set)
+    monkeypatch.setattr(ledger, "get", lookup)
+    result = await connector.apply(fixture.change_set)
+    assert result.effect_status is WriteBackEffectStatus.APPLIED
+    assert fixture.transport.attempts == 1
