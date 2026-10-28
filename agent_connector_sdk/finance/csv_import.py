@@ -81,7 +81,10 @@ def _file_digest(content: bytes) -> str:
 
 
 def _rows(content: bytes) -> list[dict[str, str]]:
-    return list(csv.DictReader(io.StringIO(content.decode("utf-8"))))
+    rows = list(csv.DictReader(io.StringIO(content.decode("utf-8"))))
+    if any(None in row or any(value is None for value in row.values()) for row in rows):
+        raise AmbiguousColumnMappingError("CSV rows must match the header width")
+    return rows
 
 
 def _is_currency_code(value: str) -> bool:

@@ -94,3 +94,15 @@ def test_a_changed_file_is_a_new_version_with_a_different_identity() -> None:
 
     assert first[0].source_file_digest != changed[0].source_file_digest
     assert first[0].source_event_id != changed[0].source_event_id
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.4")
+@pytest.mark.parametrize(
+    "replacement", [b"USD", b"USD,2026-01-04T00:00:00+00:00,EXTRA"]
+)
+def test_ragged_rows_are_rejected(replacement: bytes) -> None:
+    malformed = _CSV.replace(b"USD,2026-01-04T00:00:00+00:00", replacement, 1)
+    with pytest.raises(AmbiguousColumnMappingError, match="header width"):
+        preview_csv_mapping(malformed, _MAPPING)
+    with pytest.raises(AmbiguousColumnMappingError, match="header width"):
+        import_activities(malformed, _MAPPING, _CONTEXT)
