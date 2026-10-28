@@ -1,0 +1,104 @@
+"""Taxonomy sources authorize callers and expose resumable certified pages."""
+
+import json
+from contextlib import asynccontextmanager
+
+import pytest
+from fastmcp import Client, FastMCP
+from fastmcp.exceptions import ToolError
+
+from agent_connector_sdk.earth_observations.occurrence import OccurrenceProvider
+from agent_connector_sdk.earth_observations.stream import register_occurrence_stream
+from agent_connector_sdk.http.options import HttpClientOptions
+from agent_connector_sdk.http.retry import RetryPolicy
+from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+
+
+@pytest.mark.asyncio
+async def test_served_occurrences_preserve_state_on_refusal():
+    @asynccontextmanager
+    async def quota(name):
+        yield
+
+    allowed = False
+
+    async def authorize(tenant, ctx):
+        return allowed and tenant == "tenant-a"
+
+    def body(identifier):
+        return json.dumps(
+            {
+                "key": identifier,
+                "taxonKey": 7,
+                "scientificName": "Taxon",
+                "eventDate": "2026-01-02T03:04:00Z",
+                "license": "CC-BY",
+                "decimalLatitude": 45.0,
+                "decimalLongitude": -92.0,
+                "basisOfRecord": "HUMAN_OBSERVATION",
+            }
+        ).encode()
+
+    with ScriptedHttpServer(
+        ScriptedResponse(body=body(1)),
+        ScriptedResponse(status=503),
+        ScriptedResponse(body=body(2)),
+    ) as server:
+        provider = OccurrenceProvider(
+            provider="gbif",
+            http=HttpClientOptions(
+                base_url=server.base_url,
+                pin_egress=True,
+                allow_loopback=True,
+                retry=RetryPolicy(max_attempts=1),
+            ),
+            quota=quota,
+            max_bytes=1024,
+            license_admitted=lambda tag: tag == "CC-BY",
+        )
+        mcp = FastMCP("taxonomy")
+        register_occurrence_stream(
+            mcp,
+            provider,
+            ["1", "2"],
+            tenant="tenant-a",
+            batch_size=1,
+            policy_revision="v1",
+            authorize=authorize,
+            name="taxa",
+            connector="taxonomy",
+        )
+        register_occurrence_stream(
+            mcp,
+            provider,
+            ["1", "2"],
+            tenant="tenant-a",
+            batch_size=2,
+            policy_revision="v2",
+            authorize=authorize,
+            name="taxa_changed_policy",
+            connector="taxonomy",
+        )
+        async with Client(mcp) as client:
+            with pytest.raises(ToolError):
+                await client.call_tool("taxa", {})
+            assert not server.requests
+            allowed = True
+            first = (await client.call_tool("taxa", {})).structured_content
+            assert first["records"][0]["id"] == "gbif:1"
+            checkpoint = first["checkpoint"]
+            with pytest.raises(ToolError):
+                await client.call_tool("taxa_changed_policy", {"state": checkpoint})
+            assert len(server.requests) == 1
+            with pytest.raises(ToolError):
+                await client.call_tool("taxa", {"state": checkpoint})
+            second = (
+                await client.call_tool("taxa", {"state": checkpoint})
+            ).structured_content
+            assert second["records"][0]["id"] == "gbif:2"
+            assert second["next"] is None
+            assert [request.path for request in server.requests] == [
+                "/occurrence/1",
+                "/occurrence/2",
+                "/occurrence/2",
+            ]

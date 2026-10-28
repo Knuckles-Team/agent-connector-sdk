@@ -987,3 +987,15 @@ Failures remain visible and stop the affected page before a graph checkpoint.
 The host owns the request authorization and provider quotas. The generated EG
 checkpoint remains the durable source authority. Parent and rank graph links
 and graph-side TaxonShape validation remain required for R009 acceptance.
+
+## Bounded occurrence provider reads
+
+The host admits one tenant, provider, identifier set, quota and license policy.
+GBIF and iNaturalist occurrence reads use the host's governed HTTP options.
+A record must supply an exact ID, source taxon, coordinates, license and an
+explicit observation time. A date without time does not establish UTC time.
+Missing individual count remains unknown; the SDK does not invent one.
+A source location identifies this observation's reported coordinates, not a
+claim that the SDK chose or resolved a graph region. Host authorization and
+license admission precede an accepted page. Provider failures do not advance
+the graph checkpoint. Weather and storm ingestion remain required by R008.
