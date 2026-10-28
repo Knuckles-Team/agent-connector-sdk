@@ -839,7 +839,8 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "92210596714c",
-        "d0d04813b42e"
+        "d0d04813b42e",
+        "e6841fe68fbc"
       ],
       "verified_by": [
         "tests/test_action_split.py:114",
@@ -929,6 +930,7 @@
         "0481308202ca",
         "284fb12a19ed",
         "54744d32428a",
+        "e6841fe68fbc",
         "f53d74df879a"
       ],
       "verified_by": [
