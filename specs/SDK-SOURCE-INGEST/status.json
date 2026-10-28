@@ -59,6 +59,7 @@
     "SDK-SOURCE-INGEST-R012.4",
     "SDK-SOURCE-INGEST-R012.5",
     "SDK-SOURCE-INGEST-R012.6",
+    "SDK-SOURCE-INGEST-R012.7",
     "SDK-SOURCE-INGEST-R001.1",
     "SDK-SOURCE-INGEST-R001.2",
     "SDK-SOURCE-INGEST-R001.3",
@@ -1077,7 +1078,8 @@
         "SDK-SOURCE-INGEST-R012.3",
         "SDK-SOURCE-INGEST-R012.4",
         "SDK-SOURCE-INGEST-R012.5",
-        "SDK-SOURCE-INGEST-R012.6"
+        "SDK-SOURCE-INGEST-R012.6",
+        "SDK-SOURCE-INGEST-R012.7"
       ]
     },
     {
@@ -1121,6 +1123,19 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R012.7",
+      "title": "Platform contract primitives",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "27aa0ca2e9ae",
+        "8d984764c9d8",
+        "8eacf9ba10b6"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback_models.py:24"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R001.1",
@@ -1888,7 +1903,7 @@
       "title": "Refuse cursor-bearing checkpoint conflicts",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "acb68ec670f0"
+        "cc667d74af34"
       ],
       "verified_by": [
         "tests/test_ingest.py:543"
@@ -1899,7 +1914,7 @@
       "title": "Preserve cursor across page chunks",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "417a6886d5f3"
+        "cc667d74af34"
       ],
       "verified_by": [
         "tests/test_ingest.py:567",
@@ -1911,7 +1926,7 @@
       "title": "Refuse split-stream page sync",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "1a64750b2d70"
+        "cc667d74af34"
       ],
       "verified_by": [
         "tests/test_ingest_stream.py:320"
@@ -1922,7 +1937,7 @@
       "title": "Bind returned checkpoint identity",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "eb9e2ee87bf0"
+        "cc667d74af34"
       ],
       "verified_by": [
         "tests/test_ingest.py:629"
@@ -1933,7 +1948,7 @@
       "title": "Refuse conflicts on all page commits",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "35ae62d6d404"
+        "cc667d74af34"
       ],
       "verified_by": [
         "tests/test_ingest.py:644"
@@ -1944,7 +1959,7 @@
       "title": "Stop after a refused page",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "35ae62d6d404"
+        "cc667d74af34"
       ],
       "verified_by": [
         "tests/test_ingest_stream.py:351"

@@ -426,3 +426,4 @@ R004.47 refuses an accepted checkpoint that names another stream through the gen
 R004.48 checks conflict refusal on terminal pages and intermediate chunks while a competing writer advances the cursor.
 
 R004.49 denies a best-effort page and confirms that sync does not fetch its continuation.
+R012.7 tests bounded platform contract primitives and structural continuation binding. Authentication, continuation integrity, equivalence certification, and served behavior remain open.
