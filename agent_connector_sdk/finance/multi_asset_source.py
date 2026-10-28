@@ -130,7 +130,7 @@ class MultiAssetSourceAdapter:
             ) from None
 
     def _is_bounded(self) -> bool:
-        return (
+        return bool(
             dig_path(self._source.preset.params, self._source.preset.mode_param)
             == "delta"
         )
