@@ -45,8 +45,10 @@
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001.2",
       "title": "Event identity receipt boundary",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a8abb6b534e6"
+      ],
       "verified_by": [
         "tests/test_event_feeds.py:430",
         "tests/test_event_feeds.py:477",
