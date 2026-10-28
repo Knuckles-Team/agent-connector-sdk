@@ -321,3 +321,22 @@ def test_failed_frequency_count_suppresses_numeric_statistics(
     assert column.top_k == []
     assert "stats_suppressed" in column.warning_codes
     assert "987654321" not in result.model_dump_json()
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.14")
+def test_engine_profile_revalidates_mutated_nested_results() -> None:
+    local = profile_table(
+        pa.table({"value": [1, 1, 2, 2]}), _plan().profile, target_ref="engine:table"
+    )
+    engine = ProfileResult.model_validate(
+        {**local.model_dump(mode="python"), "algorithm": "epistemic-graph-profile"}
+    )
+    request = ProfileRequest(schema_version="data-prep-profile.v1", target=local.target)
+    engine.column_profiles[0].top_k.append(TopKEntry(value=987654321, count=1))
+
+    class Client:
+        def profile(self, received: ProfileRequest) -> ProfileResult:
+            return engine
+
+    with pytest.raises(ProfileProtocolError, match="invalid result"):
+        profile_with_client(Client(), request)
