@@ -14,6 +14,8 @@ import json
 import time
 from typing import Any, Protocol
 
+from pydantic import ValidationError
+
 from .models import (
     ProfileEvidenceReference,
     ProfileRequest,
@@ -109,6 +111,10 @@ def validate_engine_profile(
 
     if not isinstance(result, ProfileResult):
         raise ProfileProtocolError("profile client must return ProfileResult")
+    try:
+        result = ProfileResult.model_validate(result.model_dump(mode="python"))
+    except (ValidationError, TypeError, ValueError) as exc:
+        raise ProfileProtocolError("profile client returned an invalid result") from exc
     if result.algorithm != "epistemic-graph-profile":
         raise ProfileProtocolError("profile client returned the wrong authority")
     if result.target != request.target:
