@@ -18,6 +18,7 @@
     "SDK-FINANCE-SOURCES-R003.3",
     "SDK-FINANCE-SOURCES-R004",
     "SDK-FINANCE-SOURCES-R004.1",
+    "SDK-FINANCE-SOURCES-R004.5",
     "SDK-FINANCE-SOURCES-R005",
     "SDK-FINANCE-SOURCES-R005.1",
     "SDK-FINANCE-SOURCES-R005.3",
@@ -196,7 +197,8 @@
         "tests/test_finance_csv_import.py:76"
       ],
       "rollup_of": [
-        "SDK-FINANCE-SOURCES-R004.1"
+        "SDK-FINANCE-SOURCES-R004.1",
+        "SDK-FINANCE-SOURCES-R004.5"
       ]
     },
     {
@@ -205,6 +207,17 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R004.5",
+      "title": "ASCII currency syntax",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "145d4e79b163"
+      ],
+      "verified_by": [
+        "tests/test_finance_csv_import.py:99"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R005",
