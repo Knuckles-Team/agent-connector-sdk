@@ -9,6 +9,7 @@
     "SDK-OBSERVABILITY-FEEDS-R001.2",
     "SDK-OBSERVABILITY-FEEDS-R001.3",
     "SDK-OBSERVABILITY-FEEDS-R001.4",
+    "SDK-OBSERVABILITY-FEEDS-R001.5",
     "SDK-OBSERVABILITY-FEEDS-R001.6"
   ],
   "requirements": [
@@ -30,6 +31,7 @@
         "SDK-OBSERVABILITY-FEEDS-R001.2",
         "SDK-OBSERVABILITY-FEEDS-R001.3",
         "SDK-OBSERVABILITY-FEEDS-R001.4",
+        "SDK-OBSERVABILITY-FEEDS-R001.5",
         "SDK-OBSERVABILITY-FEEDS-R001.6"
       ]
     },
@@ -70,6 +72,18 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-OBSERVABILITY-FEEDS-R001.5",
+      "title": "Event adapter entry points",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "79c2eb26af34",
+        "baeeea046b64"
+      ],
+      "verified_by": [
+        "tests/test_event_feed_registration.py:17"
+      ]
     },
     {
       "id": "SDK-OBSERVABILITY-FEEDS-R001.6",

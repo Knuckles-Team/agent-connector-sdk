@@ -110,6 +110,9 @@ agent_connector_sdk = "agent_connector_sdk.testing.plugin"
 [project.entry-points."agent_connector_sdk.source_adapters"]
 mcp_tool = "agent_connector_sdk.adapters.mcp_tool:McpToolSourceAdapter"
 web_fetch = "agent_connector_sdk.adapters.web_fetch:WebFetchSourceAdapter"
+rum = "agent_connector_sdk.adapters.event_feed_bindings:rum_source_adapter"
+security_audit = "agent_connector_sdk.adapters.event_feed_bindings:security_audit_source_adapter"
+ci_cd = "agent_connector_sdk.adapters.event_feed_bindings:ci_cd_source_adapter"
 
 # Expose this SDK's development skill to the same provider federation
 # epistemic-graph and agent-webui use. This is metadata only: consumers

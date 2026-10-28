@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 from collections.abc import Sequence
 
 import httpx
@@ -43,6 +42,7 @@ from agent_connector_sdk.adapters.web_fetch_helpers import (
     _markdown_from_html,
     extract_og_metadata,
 )
+from agent_connector_sdk.adapters.web_html_text import _title_from_html
 from agent_connector_sdk.contracts import (
     CapabilityDescriptor,
     ReconciliationReport,
@@ -73,8 +73,6 @@ _USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 )
-
-_TITLE_TAG_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
 
 
 class FetchedPage(BaseModel):
@@ -123,8 +121,7 @@ async def fetch_page(
     if not text.strip():
         return None
     og = extract_og_metadata(raw)
-    title_match = _TITLE_TAG_RE.search(raw)
-    title = og["title"] or (title_match.group(1).strip() if title_match else "")
+    title = og["title"] or _title_from_html(raw)
     return FetchedPage(
         url=url,
         markdown=text,

@@ -199,6 +199,8 @@
 - [ ] **SDK-SOURCE-INGEST-R005.50:** Bind new legacy web checkpoints to the ordered URL list.
 - [ ] **SDK-SOURCE-INGEST-R005.51:** Make legacy tag stripping linear.
 - [ ] **SDK-SOURCE-INGEST-R005.52:** Scan legacy metadata in linear time.
+- [ ] **SDK-SOURCE-INGEST-R005.53:** Scan legacy title tags in linear time.
+- [ ] **SDK-SOURCE-INGEST-R005.54:** Exercise the bounded legacy fetch with adversarial HTML.
 - [x] `SDK-SOURCE-INGEST-R004.26` — Citable public URL fields kept by the persistence guard.
 - [x] `SDK-SOURCE-INGEST-R004.27` — Pass the operator's mass-withdrawal decision through the sink.
 
