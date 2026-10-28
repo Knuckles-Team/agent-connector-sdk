@@ -7,6 +7,7 @@
 - [x] Refuse same-page calendar identity collisions (SDK-FINANCE-SOURCES-R001.3).
 - [x] FX, commodity spot/futures and dated real-estate valuation adapters (SDK-FINANCE-SOURCES-R003).
 - [x] Verify canonical MCP FX, commodity and real-estate source streams and their domain refusals (SDK-FINANCE-SOURCES-R003.1).
+- [ ] Exercise provider-specific FX, commodity and real-estate source integrations (SDK-FINANCE-SOURCES-R003.4).
 - [x] Account/position reads and idempotent CSV import with preview (SDK-FINANCE-SOURCES-R004).
 - [x] Macro and liquidity panels: FRED series, ETF flows, sentiment, on-chain, each tagged with source and observation time (SDK-FINANCE-SOURCES-R005).
   - [x] FRED/ALFRED macro series preserving reporting vintage (`agent_connector_sdk.finance.fred_series`) (SDK-FINANCE-SOURCES-R005).

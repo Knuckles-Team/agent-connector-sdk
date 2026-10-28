@@ -11,7 +11,8 @@
 R003.1 binds the MCP source to a tenant and source identity. It validates each
 FX, commodity or real-estate record before submission. For property values, it
 compares valuation age with the configured freshness threshold. Provider APIs
-and licensed live access remain outside this evidence.
+and licensed live access remain outside this evidence. R003.4 retains the
+provider-specific API work needed for the parent requirement.
 
 ## Calendar identity collision refusal (R001.3)
 
