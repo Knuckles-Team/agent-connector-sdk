@@ -30,8 +30,8 @@
     "SDK-GOVERNED-WRITEBACK-R004.14",
     "SDK-GOVERNED-WRITEBACK-R004.15",
     "SDK-GOVERNED-WRITEBACK-R004.16",
-    "SDK-GOVERNED-WRITEBACK-R005",
-    "SDK-GOVERNED-WRITEBACK-R004.17"
+    "SDK-GOVERNED-WRITEBACK-R004.17",
+    "SDK-GOVERNED-WRITEBACK-R005"
   ],
   "requirements": [
     {
@@ -292,18 +292,6 @@
       ]
     },
     {
-      "id": "SDK-GOVERNED-WRITEBACK-R005",
-      "title": "Write-back implementation passes its full durable test suite together",
-      "delivery_state": "VERIFIED",
-      "landed_in": [
-        "2d39be956d8d"
-      ],
-      "verified_by": [
-        "tests/test_writeback_durable.py:218",
-        "tests/test_writeback_durable.py:238"
-      ]
-    },
-    {
       "id": "SDK-GOVERNED-WRITEBACK-R004.17",
       "title": "Refuse overlapping effects in one connector",
       "delivery_state": "VERIFIED",
@@ -313,6 +301,18 @@
       "verified_by": [
         "tests/test_writeback_durable.py:356",
         "tests/test_writeback_durable.py:392"
+      ]
+    },
+    {
+      "id": "SDK-GOVERNED-WRITEBACK-R005",
+      "title": "Write-back implementation passes its full durable test suite together",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2d39be956d8d"
+      ],
+      "verified_by": [
+        "tests/test_writeback_durable.py:218",
+        "tests/test_writeback_durable.py:238"
       ]
     }
   ]
