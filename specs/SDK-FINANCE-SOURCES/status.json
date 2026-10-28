@@ -113,8 +113,10 @@
     {
       "id": "SDK-FINANCE-SOURCES-R003.2",
       "title": "Finite multi-asset prices",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ea3bb5a2b00c"
+      ],
       "verified_by": [
         "tests/test_finance_records.py:223",
         "tests/test_finance_records.py:237"
