@@ -70,3 +70,12 @@ The SVG composition follows the universal-skills
 [canvas-design skill](https://github.com/Knuckles-Team/universal-skills/blob/main/universal_skills/skills/canvas-design/SKILL.md).
 The adapter renders it locally from the validated symbol. Runtime needs no model
 or network. The image is not a company logo or provider fact.
+
+## Point-in-time liquidity composition
+
+R005.1 reads the three FRED series from the graph using tenant-scoped query.
+It requires the source identity, exact value text and actual capture time.
+The SDK converts the published decimal units into exact fixed-point inputs.
+The graph owns the versioned composite and heat-strip calculation. A missing
+capture, ambiguous source, nonfinite value or unsafe precision refuses before
+compute. Capture time is not the provider's historical publication time.
