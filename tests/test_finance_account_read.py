@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 import pytest
+from pydantic import ValidationError
 
 from agent_connector_sdk.finance.alpaca_account import account_snapshot_from_alpaca
 from agent_connector_sdk.finance.csv_import import AccountContext
@@ -74,3 +75,17 @@ def test_a_later_read_instant_is_a_new_version() -> None:
 
     assert first.source_event_id != later.source_event_id
     assert first.source_digest != later.source_digest
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.2")
+@pytest.mark.parametrize("value", ["nan", "inf", "-inf", "1e999"])
+@pytest.mark.parametrize("field", ["cash", "qty", "avg_entry_price"])
+def test_nonfinite_account_values_are_rejected(field: str, value: str) -> None:
+    account = dict(_ACCOUNT)
+    position = dict(_POSITIONS[0])
+    if field == "cash":
+        account[field] = value
+    else:
+        position[field] = value
+    with pytest.raises(ValidationError):
+        account_snapshot_from_alpaca(**_snapshot(account=account, positions=[position]))

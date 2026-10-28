@@ -46,6 +46,7 @@
     "SDK-CENTRALIZED-CAPABILITIES-R038",
     "SDK-CENTRALIZED-CAPABILITIES-R039",
     "SDK-CENTRALIZED-CAPABILITIES-R040",
+    "SDK-CENTRALIZED-CAPABILITIES-R004.3",
     "SDK-CENTRALIZED-CAPABILITIES-R004.5"
   ],
   "requirements": [
@@ -77,19 +78,20 @@
       "landed_in": [
         "c842d089626d",
         "cc7da30e1213",
-        "d1ab0ffd561c",
-        "e26eb224bc48"
+        "e26eb224bc48",
+        "e8673acfc5b0"
       ],
       "verified_by": [
-        "tests/httpsupport/test_pagination.py:54",
+        "tests/httpsupport/test_pagination_link_linear.py:14",
+        "tests/httpsupport/test_pagination_link_linear.py:31",
         "tests/httpsupport/test_pagination_link_origin.py:13",
         "tests/httpsupport/test_pagination_next_url.py:101",
-        "tests/httpsupport/test_pagination_next_url.py:121",
-        "tests/httpsupport/test_pagination_next_url.py:135"
+        "tests/httpsupport/test_pagination_next_url.py:121"
       ],
       "rollup_of": [
         "SDK-CENTRALIZED-CAPABILITIES-R004.1",
         "SDK-CENTRALIZED-CAPABILITIES-R004.2",
+        "SDK-CENTRALIZED-CAPABILITIES-R004.3",
         "SDK-CENTRALIZED-CAPABILITIES-R004.5"
       ]
     },
@@ -383,6 +385,18 @@
       "verified_by": [
         "tests/test_centralized_extras.py:27",
         "tests/test_centralized_extras.py:37"
+      ]
+    },
+    {
+      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.3",
+      "title": "Bound Link-header parsing work",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e8673acfc5b0"
+      ],
+      "verified_by": [
+        "tests/httpsupport/test_pagination_link_linear.py:14",
+        "tests/httpsupport/test_pagination_link_linear.py:31"
       ]
     },
     {

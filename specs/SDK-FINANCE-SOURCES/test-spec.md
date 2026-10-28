@@ -38,3 +38,31 @@ R004.1 remains open: synthetic mapping and stable identifiers do not prove real 
 
 R002.2 rejects non-finite values across all bar, quote and corporate action fields.
 - `SDK-FINANCE-SOURCES-R001.5`: `tests/test_finance_fred_series.py` covers canonical FRED dates and stable event identity.
+
+
+R005.2 rejects non-finite ETF amounts through source normalization and direct model construction.
+
+
+R004.2 tests non-finite balances, position quantities, prices and activity amounts through normalization.
+
+
+R002.3 checks required fields in the Alpaca single-symbol response contract. An empty page with a continuation token refuses because the tuple cannot represent partial empty data.
+
+
+R900.10 checks finite tick admission and refusal before publication and aggregation, including mutated ticks.
+
+
+R004.3 checks duplicate CSV header refusal before preview or import produces results.
+
+
+R004.4 rejects short and overlong CSV rows before preview or import returns a result.
+
+
+R004.5 refuses non-ASCII currency lookalikes without claiming registry membership.
+
+
+R004.6 refuses invalid currency cells without placing their values in errors.
+
+- `SDK-FINANCE-SOURCES-R001.6`: `tests/test_finance_fred_series.py` covers duplicate IDs with equal and differing values.
+
+- `SDK-FINANCE-SOURCES-R900.11`: `tests/test_finance_crypto.py` covers missing or invalid funding rates and provider timestamps.

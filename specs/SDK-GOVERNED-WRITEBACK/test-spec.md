@@ -96,3 +96,8 @@ and durable reservation reuse on a proven-no-effect retry.
 Mutate the patch while reserving audit and check no effect. Mutate the caller
 copy while apply runs and check the approved patch is the only effect. Expire
 the request during reservation and check no effect.
+## In-flight effect guard (R004.17)
+
+Pause one apply during lookup. A second apply and a reconcile for that key
+must refuse without effect. Release the first call and replay its receipt.
+A failed lookup also releases its claim for a later attempt.

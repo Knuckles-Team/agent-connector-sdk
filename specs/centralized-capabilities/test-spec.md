@@ -65,6 +65,11 @@ A negative or zero interval clamps to zero and never sleeps (`test_interval_is_c
 
 Run `uv run pytest tests/test_centralized_capability_index.py tests/test_centralized_extras.py tests/httpsupport/test_rate_limiter.py tests/httpsupport/test_pagination_next_url.py`. Run the `spec-standard` and `spec-status` hooks on the directory. A fleet-wide scan of connectors is outside this spec.
 
+## Linear Link parsing (R004.3)
+
+Compare generated and edge-case headers with the prior expression. Feed large
+malformed headers through the iterator and confirm it ends after one fetch.
+
 ## Partial-page cursor safety (R004.5)
 
 Run sync and async iterators with a page larger than the remaining budget.

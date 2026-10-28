@@ -107,6 +107,11 @@ For SDK-CENTRALIZED-CAPABILITIES-R011, token requests must not follow redirects.
 Reject a redirect response even when it contains a token. This prevents a
 redirect target from receiving credentials or a delegated subject token.
 
+## Linear Link parsing (R004.3)
+
+Scan Link targets and next relations once in header order. Preserve the prior
+first-match grammar. The existing origin guard still admits every followed URL.
+
 ## Partial-page cursor safety (R004.5)
 
 When the item budget cuts a page, its provider cursor points past unseen

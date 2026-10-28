@@ -17,6 +17,7 @@ from agent_connector_sdk.writeback.errors import (
     ReconciliationRequiredError,
     WriteBackPersistenceError,
 )
+from agent_connector_sdk.writeback.inflight import _InFlight
 from agent_connector_sdk.writeback.models import DryRunObservation, SourceSnapshot
 from agent_connector_sdk.writeback.recovery import (
     _receipt_recovery_state,
@@ -50,6 +51,7 @@ class DurableWritableConnector:
         self._connector_id = connector_id
         self._transport = transport
         self._ledger = ledger
+        self._inflight = _InFlight()
         self._governed = GovernedWriteBack(
             transport, DurableAuthorizationResolver(ledger), audit
         )
@@ -74,6 +76,10 @@ class DurableWritableConnector:
 
     async def apply(self, change_set: SourceChangeSet) -> WriteBackAttempt:
         """Apply once and append the attempt before returning to the caller."""
+        with self._inflight.claim(change_set):
+            return await self._apply(change_set)
+
+    async def _apply(self, change_set: SourceChangeSet) -> WriteBackAttempt:
         durable = await self._authoritative(change_set)
         state = await _receipt_recovery_state(self._ledger, durable)
         if state is _ReceiptRecoveryState.UNCERTAIN:
@@ -95,6 +101,12 @@ class DurableWritableConnector:
 
     async def reconcile(self, change_set: SourceChangeSet) -> ReconciliationObservation:
         """Reconcile a durable uncertain attempt and append the observation."""
+        with self._inflight.claim(change_set):
+            return await self._reconcile(change_set)
+
+    async def _reconcile(
+        self, change_set: SourceChangeSet
+    ) -> ReconciliationObservation:
         durable = await self._authoritative(change_set)
         state = await _receipt_recovery_state(self._ledger, durable)
         if state is not _ReceiptRecoveryState.UNCERTAIN:
