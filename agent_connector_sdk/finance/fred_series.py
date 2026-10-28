@@ -30,7 +30,7 @@ class MacroSeriesObservation(FinanceRecordBase):
     series_id: str = Field(min_length=1)
     observation_date: date
     vintage_date: date
-    value: float
+    value: float = Field(allow_inf_nan=False)
 
     @model_validator(mode="after")
     def _vintage_is_not_before_its_observation(self) -> Self:
