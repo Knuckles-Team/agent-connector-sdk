@@ -1530,7 +1530,7 @@
       "title": "Legacy manual callback binding",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "3faeea68aff4"
+        "2ebf2b9bf860"
       ],
       "verified_by": [
         "tests/test_oauth_manual_state.py:22",
