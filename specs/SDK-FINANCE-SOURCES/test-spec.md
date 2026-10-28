@@ -44,3 +44,6 @@ R005.2 rejects non-finite ETF amounts through source normalization and direct mo
 
 
 R004.2 tests non-finite balances, position quantities, prices and activity amounts through normalization.
+
+
+R002.3 checks required fields in the Alpaca single-symbol response contract. An empty page with a continuation token refuses because the tuple cannot represent partial empty data.
