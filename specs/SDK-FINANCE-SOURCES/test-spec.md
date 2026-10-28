@@ -37,3 +37,5 @@ R004.1 remains open: synthetic mapping and stable identifiers do not prove real 
 
 
 R002.2 rejects non-finite values across all bar, quote and corporate action fields.
+
+R002.3 checks required fields in the Alpaca single-symbol response contract. An empty page with a continuation token refuses because the tuple cannot represent partial empty data.
