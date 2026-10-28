@@ -453,6 +453,9 @@ The fleet scan test uses empty and missing roots, invalid bytes, symbolic
 links and duplicate package names. It asserts that none can produce a clean
 migration result. A separate test exercises invalid Python syntax.
 
+R014.29 tests literal legacy names in common dynamic import forms, a nonliteral
+name and a safe literal import. It does not claim coverage of all runtime calls.
+
 ## Session cookie scope (R028.5)
 
 An HTTPX client logs in once, then calls a matching and nonmatching path. The

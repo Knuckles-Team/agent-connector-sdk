@@ -722,6 +722,13 @@ The fleet import scan reports files or directories it did not inspect. An
 empty or missing root, invalid source, traversal error or symbolic link cannot
 prove migration. Duplicate package names refuse instead of overwriting results.
 
+## Common dynamic imports (R014.29)
+
+The fleet scan checks common `__import__` and `importlib.import_module` call
+forms. A literal legacy package is an offending file. A nonliteral or relative
+argument leaves the scan incomplete. Other runtime indirection remains outside
+this static check and cannot establish fleet-wide migration by itself.
+
 ## Session origin and cookie scope (R028.5)
 
 The session-login auth instance binds its first request origin. It refuses a

@@ -137,6 +137,36 @@ def test_traversal_error_prevents_migration(
     assert not result.migrated
 
 
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.29")
+@pytest.mark.parametrize(
+    "source",
+    [
+        '__import__("agent_utilities.core")',
+        'import importlib as loader\nloader.import_module("agent_utilities.core")',
+        'from importlib import import_module as load\nload("agent_utilities.core")',
+        'from builtins import __import__ as load\nload("agent_utilities")',
+    ],
+)
+def test_fleet_scan_detects_literal_dynamic_legacy_imports(
+    tmp_path: Path, source: str
+) -> None:
+    root = tmp_path / "pkg"
+    _write(root / "dynamic.py", source)
+    result = scan_for_agent_utilities_imports(root)
+    assert not result.migrated
+    assert result.offending_files == ("dynamic.py",)
+
+
+def test_fleet_scan_marks_unknown_dynamic_import_incomplete(tmp_path: Path) -> None:
+    root = tmp_path / "pkg"
+    _write(root / "dynamic.py", "import importlib\nimportlib.import_module(name)")
+    result = scan_for_agent_utilities_imports(root)
+    assert not result.migrated
+    assert result.unscanned_files == ("dynamic.py",)
+    _write(root / "dynamic.py", 'import importlib\nimportlib.import_module("json")')
+    assert scan_for_agent_utilities_imports(root).migrated
+
+
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.1")
 def test_scan_many_packages_reports_each_root_by_name(tmp_path: Path) -> None:
     """SDK-CONNECTOR-CONTROL-R014.1: one call site scans a whole fleet of
