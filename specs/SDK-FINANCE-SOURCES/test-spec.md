@@ -37,3 +37,4 @@ R004.1 remains open: synthetic mapping and stable identifiers do not prove real 
 
 
 R002.2 rejects non-finite values across all bar, quote and corporate action fields.
+- `SDK-FINANCE-SOURCES-R001.5`: `tests/test_finance_fred_series.py` covers canonical FRED dates and stable event identity.

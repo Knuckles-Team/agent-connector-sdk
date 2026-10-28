@@ -33,3 +33,5 @@ stream-bus imports with deterministic in-memory responses.
 
 - [x] Canonicalize FX currency codes before comparing the pair (SDK-FINANCE-SOURCES-R003.3).
 - [x] Refuse invalid bar intervals before subscription (SDK-FINANCE-SOURCES-R900.9).
+
+- [x] Require canonical FRED period and vintage dates (SDK-FINANCE-SOURCES-R001.5).
