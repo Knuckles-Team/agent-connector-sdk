@@ -482,3 +482,5 @@ process settings do not alter the result, and an unknown profile refuses.
 
 - `SDK-CONNECTOR-CONTROL-R035.8`: `tests/test_reference_invariants.py` refuses forged references before resolution.
 - `SDK-CONNECTOR-CONTROL-R049.7`: `tests/test_payments.py::test_default_payment_budgets_deny_positive_challenges`.
+
+| CC-50A | Concurrent updates through `OrderedProgress`. | Increasing sequence, equal suppression, bounded delivery, no-token summaries, terminal refusal, fixed total and redaction. (SDK-CONNECTOR-CONTROL-R050.8) |

@@ -327,3 +327,5 @@ The total response deadline remains open under R047.2.
 
 - [x] **SDK-CONNECTOR-CONTROL-R035.8:** Enforce secret-reference construction invariants.
 - [x] **SDK-CONNECTOR-CONTROL-R049.7:** Default the X402 guard to zero spending.
+
+- [ ] **R050.8:** Serialize and bound request-local progress notifications (SDK-CONNECTOR-CONTROL-R050.8).
