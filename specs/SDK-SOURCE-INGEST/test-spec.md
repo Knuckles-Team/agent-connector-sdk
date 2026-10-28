@@ -407,3 +407,5 @@ R004.40 exercises cyclic and malformed continuation tokens and a bounded history
 R004.41 validates durable status and cursor identity and refuses malformed checkpoints before source fetch.
 
 R004.42 refuses malformed durable sequence values before SourceIngest submission, while retaining legacy absence and valid sequence advancement.
+
+R004.43 mutates the caller checkpoint during dispatch. The receipt still binds the sent snapshot.

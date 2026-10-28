@@ -497,3 +497,19 @@ async def test_invalid_durable_sequence_refuses_before_submit() -> None:
             previous=SourceCheckpoint(stream="demo", position=position),
         )
         assert request.provider_checkpoint.position["sequence"] == expected
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.43")
+async def test_source_ingest_uses_snapshot_when_caller_mutates_checkpoint() -> None:
+    request = build_request(BINDING, _changes(), previous=None)
+
+    class MutatingClient(_GeneratedClient):
+        async def _send(self, method, params, graph, *, idempotency_key=None):
+            request.provider_checkpoint.position["sequence"] = 99
+            return await super()._send(
+                method, params, graph, idempotency_key=idempotency_key
+            )
+
+    receipt = await SourceIngestChannel(MutatingClient()).submit(request)
+    assert receipt.accepted_checkpoint.position["sequence"] == 1
+    assert request.provider_checkpoint.position["sequence"] == 99
