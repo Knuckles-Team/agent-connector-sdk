@@ -18,6 +18,7 @@
     "SDK-FINANCE-SOURCES-R003.3",
     "SDK-FINANCE-SOURCES-R004",
     "SDK-FINANCE-SOURCES-R004.1",
+    "SDK-FINANCE-SOURCES-R004.6",
     "SDK-FINANCE-SOURCES-R005",
     "SDK-FINANCE-SOURCES-R005.1",
     "SDK-FINANCE-SOURCES-R005.3",
@@ -193,10 +194,11 @@
         "tests/test_finance_account_read.py:43",
         "tests/test_finance_account_read.py:54",
         "tests/test_finance_account_read.py:60",
-        "tests/test_finance_csv_import.py:76"
+        "tests/test_finance_csv_import.py:81"
       ],
       "rollup_of": [
-        "SDK-FINANCE-SOURCES-R004.1"
+        "SDK-FINANCE-SOURCES-R004.1",
+        "SDK-FINANCE-SOURCES-R004.6"
       ]
     },
     {
@@ -205,6 +207,17 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R004.6",
+      "title": "Redact invalid currency cells",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ddee80622664"
+      ],
+      "verified_by": [
+        "tests/test_finance_csv_import.py:70"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R005",
