@@ -204,6 +204,9 @@ async def test_domain_rate_limit_shares_host_across_schemes_and_ports() -> None:
     await limiter.acquire("https://bücher.example/a")
     await limiter.acquire("http://xn--bcher-kva.example/a")
     assert waits == [1.0, 1.0, 1.0, 1.0]
+    await limiter.acquire("https://faß.example/a")
+    await limiter.acquire("http://xn--fa-hia.example/a")
+    assert waits == [1.0, 1.0, 1.0, 1.0, 1.0]
     with pytest.raises(WebSourceRefused, match="policy_refused"):
         await limiter.acquire("https://example.test:invalid/")
 

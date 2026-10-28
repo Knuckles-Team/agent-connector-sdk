@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal, Protocol, runtime_checkable
 from urllib.parse import urlsplit
 
+import httpx
 from pydantic import BaseModel, ConfigDict, Field
 
 __all__ = [
@@ -244,14 +245,14 @@ def _rate_limit_domain(url: str) -> str:
         _ = parts.port
         if parts.scheme not in {"http", "https"} or not host:
             raise ValueError("absolute URL required")
-        host = host.rstrip(".")
+        host = httpx.URL(url).raw_host.decode("ascii").rstrip(".")
         if not host or any(char.isspace() for char in host):
             raise ValueError("invalid host")
         try:
             return str(ipaddress.ip_address(host))
         except ValueError:
-            return host.encode("idna").decode("ascii").lower()
-    except (UnicodeError, ValueError) as exc:
+            return host.lower()
+    except (httpx.InvalidURL, UnicodeError, ValueError) as exc:
         raise WebSourceRefused("policy_refused", "invalid web URL") from exc
 
 
