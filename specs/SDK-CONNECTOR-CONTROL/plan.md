@@ -97,6 +97,12 @@ The legacy browser login binds its loopback callback to a fresh state.
 It rejects missing, duplicate or mismatched values before storing a code. This does not
 close the broker-bound, headless, persistence or served obligations of R046.
 
+## Amendment: manual OAuth callback state (R046.10)
+
+The legacy manual fallback accepts a complete redirect only when its target
+and state match the active login. Raw codes cannot prove that binding and are
+refused. Brokered asynchronous input and served persistence remain open.
+
 ## Agent-card discovery (SDK-CONNECTOR-CONTROL-R047)
 
 The in-process card cache uses a named entry limit and least-recently-used

@@ -69,6 +69,7 @@
   - [ ] **R046.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R046.5).
   - [ ] **R046.6:** Hot-path proof row. (SDK-CONNECTOR-CONTROL-R046.6).
 - [x] Bind the legacy browser loopback callback to its generated state (SDK-CONNECTOR-CONTROL-R046.7).
+- [x] Bind manual OAuth redirects to their login state (SDK-CONNECTOR-CONTROL-R046.10).
 - [ ] **R047:** Agent-card discovery from the standard well-known path. (SDK-CONNECTOR-CONTROL-R047).
   - [x] **R047.1:** Model row. (SDK-CONNECTOR-CONTROL-R047.1).
   - [ ] **R047.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R047.2).

@@ -89,6 +89,7 @@ These are implementation acceptance requirements; specification checks do not ru
 
 
 - `SDK-CONNECTOR-CONTROL-R046.7`: `tests/test_oauth_loopback_state.py::test_loopback_callback_requires_exact_state` exercises real loopback requests with matching, missing, duplicate and invalid state or code.
+- `SDK-CONNECTOR-CONTROL-R046.10`: `tests/test_oauth_manual_state.py` tests TTY and file fallback against invalid targets and state.
 
 ## Scoped credential and inline authorization acceptance
 
