@@ -165,3 +165,53 @@ def test_fresh_worker_replays_against_real_graph(live_ingest):  # noqa: F811
     assert older_replay.accepted == 1
     events = [row["n"] for row in rows if row["n"].get("source_stream") == "rum-stream"]
     assert sorted(event["source_record_id"] for event in events) == ["first", "other"]
+
+
+async def _prepare_restart_graph():
+    client = await scoped_client(["*"])
+    try:
+        await _import_mapping(client)
+    finally:
+        await client.close()
+
+
+async def _read_restart_graph():
+    client = await scoped_client(["*"])
+    try:
+        rows = await client.query.cypher_read("MATCH (n) RETURN n LIMIT 100")
+        return [
+            row["n"] for row in rows if row["n"].get("source_stream") == "rum-stream"
+        ]
+    finally:
+        await client.close()
+
+
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.3")
+def test_restart_worker_process_against_real_graph(live_ingest):  # noqa: F811
+    import json
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    from live_engine import _LIVE
+
+    loop = live_ingest._loop
+    asyncio.run_coroutine_threadsafe(_prepare_restart_graph(), loop).result(30)
+    script = Path(__file__).with_name("event_restart_worker.py")
+
+    def worker():
+        result = subprocess.run(
+            [sys.executable, str(script), str(_LIVE["socket"])],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        return json.loads(result.stdout)
+
+    first = worker()
+    second = worker()
+    assert first["accepted"] == 1 and first["receipt"]
+    assert second == {"accepted": 0, "receipt": first["receipt"]}
+    events = asyncio.run_coroutine_threadsafe(_read_restart_graph(), loop).result(30)
+    assert [event["source_record_id"] for event in events] == ["restart-proof"]

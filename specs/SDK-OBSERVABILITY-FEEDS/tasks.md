@@ -7,3 +7,4 @@
 
 - [ ] Register the three event-feed adapter entry points (SDK-OBSERVABILITY-FEEDS-R001.5).
 - [x] Bind the last event page to a bounded checkpoint digest and test exact replay and same-time distinct events (SDK-OBSERVABILITY-FEEDS-R001.6).
+- [x] Prove one exact page across a worker process restart with an isolated graph (SDK-OBSERVABILITY-FEEDS-R001.3).
