@@ -3944,6 +3944,7 @@
       "title": "Refusal",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "52111adb6bf2",
         "e57b0b8d7896"
       ],
       "verified_by": [
