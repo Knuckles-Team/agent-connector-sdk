@@ -507,3 +507,9 @@ process settings do not alter the result, and an unknown profile refuses.
 
 - `SDK-CONNECTOR-CONTROL-R014.30`: `tests/test_http_dns_pinned_egress.py` covers shared-address refusal through the URL guard and governed transports.
 - `SDK-CONNECTOR-CONTROL-R047.9`: `tests/test_a2a_discovery.py` covers non-finite card refusal through governed fetch and extractor.
+
+## Certification attestation model
+
+`tests/test_certification_attestation.py` covers immutable decision and scope values,
+closed outcomes, malformed digests and missing identity. This test does not
+claim a producer, authenticated consumer or effect authority.
