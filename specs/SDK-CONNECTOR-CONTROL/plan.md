@@ -842,3 +842,38 @@ Lock storage, key rotation and served admission stay open under R650.1.
 
 A declared score is absent or a finite ratio from zero through one. This check
 does not establish that any question was answered or close certification.
+
+## Partial A–E fleet scan (R009)
+
+A 2026-10-28 scan covered 22 connector repositories at the revisions below.
+The package root comes from each connector entry point. A complete result means the static scanner found no retired import and left no
+source unread. The scanner excludes `.venv`, `build` and `__pycache__`.
+An incomplete result includes dynamic imports whose names are not resolved.
+The scanner does not cover every possible form of runtime indirection.
+This sample is not a full fleet census. It does not include per-package test
+runs or proof of generated engine ingestion. R009 remains open.
+
+| Repository | Revision | Package root | Repository root |
+|---|---|---|---|
+| `adguard-home-agent` | `a9175684cbc270ef8f367221789eb2c34ffc7363` | complete | incomplete |
+| `ansible-tower-mcp` | `4c51708027e412ae28b662ee7471e09ad1f7c28a` | incomplete | incomplete |
+| `archimate-mcp` | `ae40d92ecab999afc1867b3426f2c81cd8b7007c` | incomplete | incomplete |
+| `archivebox-api` | `f5b57c8ff319b67c0b204f109061c49991427c52` | incomplete | incomplete |
+| `aris-mcp` | `c5df897fa6e4ff561c21c5d57c74f513f0ff2e3d` | incomplete | incomplete |
+| `arr-mcp` | `2a48e5d33f89014c7644b166ef329923f8997af1` | incomplete | incomplete |
+| `atlassian-agent` | `c3366fa84def0e8dbec61c627cec1a6481222282` | incomplete | incomplete |
+| `audio-transcriber` | `df6fc5e45a99ef6a573b57f58f73638ce565c188` | complete | incomplete |
+| `audiobookshelf-mcp` | `28f426777c2c7fa4ba07bf78b377608285e990aa` | complete | complete |
+| `bellwether-mcp` | `9bdbd54d36492f5bc447749c82b3d8f0ee639de0` | complete | incomplete |
+| `caddy-mcp` | `0ab6f0e84bcf1060e2ed5c2c011ca1f2e33bd973` | incomplete | incomplete |
+| `camunda-mcp` | `933b2f44838535b621b999b1499b076efe564978` | incomplete | incomplete |
+| `ciso-assistant-api` | `6ff3f1eee2b772df793cc30f29855c31470d5730` | incomplete | incomplete |
+| `clarity-api` | `797073611faf61be84858a414745a1ac1e45cff1` | incomplete | incomplete |
+| `container-manager-mcp` | `db08ad5123a1b12ef715d237d2d3aa6e49aac330` | incomplete | incomplete |
+| `craft-suite-api` | `3f05bac6fbf5fd32fd53ab2e04db96dae6ebd763` | incomplete | incomplete |
+| `data-science-mcp` | `f03b94f79f4097d8153997311547a52ff9cca1e9` | complete | incomplete |
+| `dockerhub-api` | `3bfb7b0471e8fab2d567641a1022d5b8ccf51c36` | incomplete | incomplete |
+| `documentdb-mcp` | `cd5b4759974a002906ef85b5bc3480fbd1dd19c1` | incomplete | incomplete |
+| `egeria-mcp` | `d6c0e954f2c21fcde036a5b5e98535927cf3f3d8` | incomplete | incomplete |
+| `emerald-exchange` | `189fa9ad9eac34275ebfa6e364063d916668c586` | complete | incomplete |
+| `erpnext-agent` | `9109962deb50c72b0315e022d3b4dbccf5a7c4d0` | incomplete | incomplete |
