@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from typing import Any
 from urllib.parse import urlparse, urlsplit
 
+import anyio
 import httpx
 
 __all__ = [
@@ -466,12 +467,18 @@ class _PinState:
         self._origin_hosts: dict[tuple[str, int], str] = {}
         self._lock = threading.Lock()
 
-    def pin(self, request: httpx.Request) -> str:
-        host, pinned_ip, origin = _resolve_pinned_request(
+    def resolve(self, request: httpx.Request) -> tuple[str, str, tuple[str, int]]:
+        return _resolve_pinned_request(
             request,
             allowed_private_hosts=self.allowed_private_hosts,
             allow_loopback=self.allow_loopback,
         )
+
+    def pin(self, request: httpx.Request) -> str:
+        return self.bind(self.resolve(request))
+
+    def bind(self, resolved: tuple[str, str, tuple[str, int]]) -> str:
+        host, pinned_ip, origin = resolved
         key = (f"{origin[0]}:{pinned_ip}", origin[1])
         with self._lock:
             prior = self._origin_hosts.setdefault(key, host)
@@ -538,7 +545,19 @@ class AsyncDnsPinnedEgressTransport(httpx.AsyncBaseTransport):
         )
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
-        pinned_ip = self._state.pin(request)
+        probe = httpx.Request(
+            request.method,
+            request.url,
+            headers=request.headers,
+            extensions=request.extensions.copy(),
+        )
+        resolved = await anyio.to_thread.run_sync(
+            self._state.resolve, probe, abandon_on_cancel=True
+        )
+        pinned_ip = self._state.bind(resolved)
+        request.url = probe.url
+        request.headers["Host"] = probe.headers["Host"]
+        request.extensions = probe.extensions
         response = await self._inner.handle_async_request(request)
         if self._state.verify_peer:
             try:
