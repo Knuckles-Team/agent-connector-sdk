@@ -49,6 +49,15 @@ def _parse_value(raw: str) -> float:
     return float(raw)
 
 
+def _canonical_date(raw: Any) -> date:
+    if not isinstance(raw, str):
+        raise ValueError("FRED observation date must be YYYY-MM-DD")
+    parsed = date.fromisoformat(raw)
+    if parsed.isoformat() != raw:
+        raise ValueError("FRED observation date must be YYYY-MM-DD")
+    return parsed
+
+
 def _observation_event_id(series_id: str, period: str, vintage: str) -> str:
     return f"{series_id}:{period}:{vintage}"
 
@@ -63,22 +72,22 @@ def _macro_observation_from_fred(
     license_tag: str,
     observed_at_utc: datetime,
 ) -> MacroSeriesObservation:
-    period = str(raw["date"])
-    vintage = str(raw["realtime_start"])
-    event_id = _observation_event_id(series_id, period, vintage)
+    period = _canonical_date(raw["date"])
+    vintage = _canonical_date(raw["realtime_start"])
+    event_id = _observation_event_id(series_id, period.isoformat(), vintage.isoformat())
     return MacroSeriesObservation(
         tenant_id=tenant_id,
         source_id=source_id,
         provider=provider,
         instrument_id=series_id,
         source_event_id=event_id,
-        event_time_utc=datetime.fromisoformat(period).replace(tzinfo=UTC),
+        event_time_utc=datetime.combine(period, datetime.min.time(), tzinfo=UTC),
         observed_at_utc=observed_at_utc,
         license_tag=license_tag,
         source_digest=event_id,
         series_id=series_id,
-        observation_date=date.fromisoformat(period),
-        vintage_date=date.fromisoformat(vintage),
+        observation_date=period,
+        vintage_date=vintage,
         value=_parse_value(str(raw["value"])),
     )
 
