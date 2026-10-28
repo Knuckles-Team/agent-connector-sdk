@@ -17,3 +17,19 @@ TCK before they may be served.
 Fixtures must exercise the checks: a source serving at least two pages, and a
 session factory that opens a fresh session per call.
 """
+
+from agent_connector_sdk.testing.major_version import (
+    MajorVersionTransition,
+    PackageCompatibilityReceipt,
+    PackageInventoryEntry,
+    PackageInventorySnapshot,
+    check_receipt_binding,
+)
+
+__all__ = [
+    "MajorVersionTransition",
+    "PackageCompatibilityReceipt",
+    "PackageInventoryEntry",
+    "PackageInventorySnapshot",
+    "check_receipt_binding",
+]

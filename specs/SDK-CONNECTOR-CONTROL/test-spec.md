@@ -130,6 +130,8 @@ Inspect responses and logs for token/code leakage. These acceptance cases have n
 <!-- spec-definition-patch:sdk5-r007-major-version-tests -->
 ## Major-version compatibility and pre-pin rollout acceptance (R007.1-R007.6)
 
+`tests/test_major_version_models.py` checks inventory digests and receipt bindings.
+
 These future tests have not run. The producer, gate, and writer attachments are not implemented; no VERIFIED evidence exists.
 
 - **Model and inventory:** Assert stable canonical sorting and digest. Refuse duplicate, unidentifiable, or incomplete package inventories.
