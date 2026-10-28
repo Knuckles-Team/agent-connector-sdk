@@ -59,6 +59,7 @@
     "SDK-SOURCE-INGEST-R012.4",
     "SDK-SOURCE-INGEST-R012.5",
     "SDK-SOURCE-INGEST-R012.6",
+    "SDK-SOURCE-INGEST-R012.7",
     "SDK-SOURCE-INGEST-R001.1",
     "SDK-SOURCE-INGEST-R001.2",
     "SDK-SOURCE-INGEST-R001.3",
@@ -1074,7 +1075,8 @@
         "SDK-SOURCE-INGEST-R012.3",
         "SDK-SOURCE-INGEST-R012.4",
         "SDK-SOURCE-INGEST-R012.5",
-        "SDK-SOURCE-INGEST-R012.6"
+        "SDK-SOURCE-INGEST-R012.6",
+        "SDK-SOURCE-INGEST-R012.7"
       ]
     },
     {
@@ -1118,6 +1120,17 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R012.7",
+      "title": "Platform contract primitives",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "f052be89d54a"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback_models.py:24"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R001.1",
