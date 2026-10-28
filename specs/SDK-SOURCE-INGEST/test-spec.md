@@ -136,7 +136,7 @@ The planned module is `tests/test_enterprise_adapters_served.py`. Runtime accept
 
 | Requirement | Case | Required assertion |
 |---|---|---|
-| `SDK-SOURCE-INGEST-R006.32` | Model | Validate common schemas and distinguish unsupported operations from empty successful reads. |
+| `SDK-SOURCE-INGEST-R006.32` | Model | `tests/test_enterprise_contract.py` checks operation and capability scope, exact amounts, unsupported outcomes and generated effect receipts. |
 | `SDK-SOURCE-INGEST-R006.33` | Behavior | Swap two separately registered connectors without changing workflow requests or result handling; compare normalized outcomes. |
 | `SDK-SOURCE-INGEST-R006.34` | Wiring | Enter both connectors through tools/call; trace backend requests and governed effects. |
 | `SDK-SOURCE-INGEST-R006.35` | Refusal | Request unsupported operations and denied writes; assert typed reasons and zero effects. |

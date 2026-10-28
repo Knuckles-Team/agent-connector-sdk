@@ -1751,7 +1751,11 @@
       "title": "Model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_enterprise_contract.py:107",
+        "tests/test_enterprise_contract.py:173",
+        "tests/test_enterprise_contract.py:65"
+      ]
     },
     {
       "id": "SDK-SOURCE-INGEST-R006.33",

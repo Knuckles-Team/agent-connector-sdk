@@ -116,7 +116,7 @@
 
 ## Interchangeable enterprise operations
 
-- [ ] `SDK-SOURCE-INGEST-R006.32`: implement and prove model for interchangeable enterprise operations.
+- [x] `SDK-SOURCE-INGEST-R006.32`: implement and prove model for interchangeable enterprise operations.
 - [ ] `SDK-SOURCE-INGEST-R006.33`: implement and prove behavior for interchangeable enterprise operations.
 - [ ] `SDK-SOURCE-INGEST-R006.34`: implement and prove wiring for interchangeable enterprise operations.
 - [ ] `SDK-SOURCE-INGEST-R006.35`: implement and prove refusal for interchangeable enterprise operations.
