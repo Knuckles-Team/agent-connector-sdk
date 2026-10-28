@@ -96,6 +96,7 @@
     "SDK-CONNECTOR-CONTROL-R046.5",
     "SDK-CONNECTOR-CONTROL-R046.6",
     "SDK-CONNECTOR-CONTROL-R046.7",
+    "SDK-CONNECTOR-CONTROL-R046.10",
     "SDK-CONNECTOR-CONTROL-R047",
     "SDK-CONNECTOR-CONTROL-R047.1",
     "SDK-CONNECTOR-CONTROL-R047.2",
@@ -1469,7 +1470,8 @@
         "SDK-CONNECTOR-CONTROL-R046.4",
         "SDK-CONNECTOR-CONTROL-R046.5",
         "SDK-CONNECTOR-CONTROL-R046.6",
-        "SDK-CONNECTOR-CONTROL-R046.7"
+        "SDK-CONNECTOR-CONTROL-R046.7",
+        "SDK-CONNECTOR-CONTROL-R046.10"
       ]
     },
     {
@@ -1523,6 +1525,18 @@
       ],
       "verified_by": [
         "tests/test_oauth_loopback_state.py:23"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R046.10",
+      "title": "Legacy manual callback binding",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2ebf2b9bf860"
+      ],
+      "verified_by": [
+        "tests/test_oauth_manual_state.py:22",
+        "tests/test_oauth_manual_state.py:48"
       ]
     },
     {
