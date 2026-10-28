@@ -128,9 +128,9 @@
         "8f1df59c0536"
       ],
       "verified_by": [
-        "tests/test_event_feeds.py:772",
-        "tests/test_event_feeds.py:798",
-        "tests/test_event_feeds.py:812"
+        "tests/test_event_feeds.py:755",
+        "tests/test_event_feeds.py:781",
+        "tests/test_event_feeds.py:795"
       ]
     }
   ]
