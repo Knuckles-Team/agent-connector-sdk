@@ -22,10 +22,7 @@ from agent_connector_sdk.contracts import (
     RecordPage,
     StreamDescriptor,
 )
-from agent_connector_sdk.finance.stock_image import (
-    GeneratedStockImage,
-    generate_stock_image,
-)
+from agent_connector_sdk.finance.stock_image import _StockImageMixin
 from agent_connector_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
@@ -85,7 +82,7 @@ def _text(data: dict[str, Any], field: str) -> str:
     return value
 
 
-class StockSourceAdapter:
+class StockSourceAdapter(_StockImageMixin):
     """Check source identities and domain fields before a stock page is committed."""
 
     kind = "stock_mcp"
@@ -103,10 +100,6 @@ class StockSourceAdapter:
 
     def describe(self) -> CapabilityDescriptor:
         return self._source.describe().model_copy(update={"kind": self.kind})
-
-    def generated_image(self) -> GeneratedStockImage:
-        """Return an original symbol illustration, not an official company mark."""
-        return generate_stock_image(self._symbol)
 
     async def discover(self, session: McpSession) -> StreamDescriptor:
         return await self._source.discover(session)
