@@ -145,6 +145,12 @@
     "SDK-SOURCE-INGEST-R004.42",
     "SDK-SOURCE-INGEST-R004.43",
     "SDK-SOURCE-INGEST-R004.51",
+    "SDK-SOURCE-INGEST-R004.44",
+    "SDK-SOURCE-INGEST-R004.45",
+    "SDK-SOURCE-INGEST-R004.46",
+    "SDK-SOURCE-INGEST-R004.47",
+    "SDK-SOURCE-INGEST-R004.48",
+    "SDK-SOURCE-INGEST-R004.49",
     "SDK-SOURCE-INGEST-R004.13",
     "SDK-SOURCE-INGEST-R004.14",
     "SDK-SOURCE-INGEST-R004.15",
@@ -353,6 +359,12 @@
         "SDK-SOURCE-INGEST-R004.42",
         "SDK-SOURCE-INGEST-R004.43",
         "SDK-SOURCE-INGEST-R004.51",
+        "SDK-SOURCE-INGEST-R004.44",
+        "SDK-SOURCE-INGEST-R004.45",
+        "SDK-SOURCE-INGEST-R004.46",
+        "SDK-SOURCE-INGEST-R004.47",
+        "SDK-SOURCE-INGEST-R004.48",
+        "SDK-SOURCE-INGEST-R004.49",
         "SDK-SOURCE-INGEST-R004.13",
         "SDK-SOURCE-INGEST-R004.14",
         "SDK-SOURCE-INGEST-R004.15",
@@ -1850,10 +1862,77 @@
       "title": "Check transport status identity before submission",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "0a827f0c0b37"
+        "e517969ca5c4"
       ],
       "verified_by": [
         "tests/test_ingest.py:518"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.44",
+      "title": "Refuse cursor-bearing checkpoint conflicts",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "acb68ec670f0"
+      ],
+      "verified_by": [
+        "tests/test_ingest.py:543"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.45",
+      "title": "Preserve cursor across page chunks",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "417a6886d5f3"
+      ],
+      "verified_by": [
+        "tests/test_ingest.py:567",
+        "tests/test_ingest.py:595"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.46",
+      "title": "Refuse split-stream page sync",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1a64750b2d70"
+      ],
+      "verified_by": [
+        "tests/test_ingest_stream.py:320"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.47",
+      "title": "Bind returned checkpoint identity",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "eb9e2ee87bf0"
+      ],
+      "verified_by": [
+        "tests/test_ingest.py:629"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.48",
+      "title": "Refuse conflicts on all page commits",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "35ae62d6d404"
+      ],
+      "verified_by": [
+        "tests/test_ingest.py:644"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.49",
+      "title": "Stop after a refused page",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "35ae62d6d404"
+      ],
+      "verified_by": [
+        "tests/test_ingest_stream.py:351"
       ]
     },
     {

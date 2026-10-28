@@ -142,6 +142,8 @@ def _checkpoint(
     previous: SourceCheckpoint | None,
     content: Iterable[Any],
     cursor: str | None = None,
+    *,
+    preserve_cursor: bool = False,
 ) -> SourceCheckpoint:
     position = previous.position if previous is not None else None
     sequence = position.get("sequence") if isinstance(position, dict) else None
@@ -162,6 +164,13 @@ def _checkpoint(
         "sequence": (sequence if isinstance(sequence, int) else 0) + 1,
         "batch": hashlib.sha256(encoded.encode("utf-8")).hexdigest(),
     }
+    if preserve_cursor and previous is not None and not isinstance(position, dict):
+        raise IngestError("accepted checkpoint position must be an object")
+    if preserve_cursor and isinstance(position, dict):
+        prior_cursor = position.get("cursor")
+        if prior_cursor is not None and not isinstance(prior_cursor, str):
+            raise IngestError("accepted checkpoint cursor must be a string")
+        cursor = prior_cursor
     if cursor is not None:
         advanced["cursor"] = cursor
     return SourceCheckpoint(stream=binding.stream, position=advanced)
@@ -218,7 +227,11 @@ def build_request(
             records=records,
             relationships=relationships,
             provider_checkpoint=_checkpoint(
-                binding, previous, (*records, *relationships), changes.cursor
+                binding,
+                previous,
+                (*records, *relationships),
+                changes.cursor,
+                preserve_cursor=changes.preserve_cursor,
             ),
             expected_previous_checkpoint=previous,
             authoritative_live_ids=_live_ids(binding, changes),

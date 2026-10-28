@@ -538,3 +538,143 @@ async def test_custom_transport_status_identity_is_checked_before_submission() -
         with pytest.raises(IngestError):
             await KnowledgeIngest(transport).submit(BINDING, _changes())
         assert transport.requests == []
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.44")
+async def test_cursor_conflict_refuses_without_replaying_old_page() -> None:
+    class Racing(_Transport):
+        async def submit(self, request):
+            self.requests.append(request)
+            if len(self.requests) == 1:
+                competing = build_request(
+                    BINDING,
+                    ChangeSet(entities=(Entity("new", "Item"),), cursor="newer"),
+                    previous=request.expected_previous_checkpoint,
+                )
+                await self.sink.submit(competing)
+                raise IngestConflictError("fixture concurrent writer")
+            return await self.sink.submit(request)
+
+    transport = Racing()
+    changes = ChangeSet(entities=(Entity("a", "Item"),), cursor="source-page-2")
+    with pytest.raises(IngestConflictError):
+        await KnowledgeIngest(transport).submit(BINDING, changes)
+    assert len(transport.requests) == 1
+    status = await transport.source_status(BINDING.connector, BINDING.stream)
+    assert status.accepted_checkpoint.position["cursor"] == "newer"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.45")
+async def test_chunk_failure_retains_previous_accepted_source_cursor() -> None:
+    from agent_connector_sdk.ingest import RecordMap, SourceStream
+
+    class FailingTransport(_Transport):
+        async def submit(self, request):
+            if len(self.requests) == 2:
+                raise IngestError("second chunk failed")
+            return await super().submit(request)
+
+    transport = FailingTransport()
+    service = KnowledgeIngest(transport)
+    await service.submit(
+        BINDING, ChangeSet(entities=(Entity("old", "Item"),), cursor="old-page")
+    )
+    stream = SourceStream(
+        BINDING, {"item": RecordMap("Item", "demo:item:{_id}")}, batch_size=1
+    )
+
+    async def fetch(cursor):
+        assert cursor == "old-page"
+        return [{"id": "1"}, {"id": "2"}], "next-page"
+
+    with pytest.raises(IngestError, match="second chunk failed"):
+        await stream.sync("item", fetch, ingest=service)
+    assert await service.accepted_cursor(BINDING) == "old-page"
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.45")
+async def test_chunked_page_advances_only_after_all_chunks_and_clears_at_end() -> None:
+    from agent_connector_sdk.ingest import RecordMap, SourceStream
+
+    transport = _Transport()
+    service = KnowledgeIngest(transport)
+    await service.submit(
+        BINDING, ChangeSet(entities=(Entity("old", "Item"),), cursor="old-page")
+    )
+    stream = SourceStream(
+        BINDING, {"item": RecordMap("Item", "demo:item:{_id}")}, batch_size=1
+    )
+
+    async def fetch(cursor):
+        if cursor == "old-page":
+            return [{"id": "1"}, {"id": "2"}], "next-page"
+        assert cursor == "next-page"
+        return [{"id": "3"}], None
+
+    await stream.sync("item", fetch, ingest=service)
+    checkpoints = [
+        r.provider_checkpoint.position.get("cursor") for r in transport.requests
+    ]
+    assert checkpoints == [
+        "old-page",
+        "old-page",
+        "old-page",
+        "next-page",
+        "next-page",
+        None,
+    ]
+    assert await service.accepted_cursor(BINDING) is None
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.47")
+async def test_generated_status_rejects_checkpoint_for_another_stream() -> None:
+    class WrongCheckpoint(_GeneratedClient):
+        async def _send(self, method, params, graph, *, idempotency_key=None):
+            assert method == "SourceIngestStatus"
+            return {
+                "connector": "demo-mcp",
+                "stream": "demo",
+                "accepted_checkpoint": {"stream": "other", "position": {"cursor": "x"}},
+            }
+
+    with pytest.raises(ValueError, match="checkpoint"):
+        await SourceIngestChannel(WrongCheckpoint()).source_status("demo-mcp", "demo")
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R004.48")
+@pytest.mark.parametrize("batch_size", [None, 1])
+async def test_terminal_source_page_conflict_does_not_retry(batch_size) -> None:
+    from agent_connector_sdk.ingest import RecordMap, SourceStream
+
+    class Racing(_Transport):
+        async def submit(self, request):
+            if not self.requests:
+                return await super().submit(request)
+            self.requests.append(request)
+            if len(self.requests) == 2:
+                competing = build_request(
+                    BINDING,
+                    ChangeSet(entities=(Entity("new", "Item"),), cursor="newer"),
+                    previous=request.expected_previous_checkpoint,
+                )
+                await self.sink.submit(competing)
+                raise IngestConflictError("concurrent writer")
+            return await self.sink.submit(request)
+
+    transport = Racing()
+    service = KnowledgeIngest(transport)
+    await service.submit(
+        BINDING, ChangeSet(entities=(Entity("old", "Item"),), cursor="old")
+    )
+    stream = SourceStream(
+        BINDING, {"item": RecordMap("Item", "demo:item:{_id}")}, batch_size=batch_size
+    )
+
+    async def fetch(cursor):
+        assert cursor == "old"
+        return [{"id": "1"}], None
+
+    with pytest.raises(IngestConflictError):
+        await stream.sync("item", fetch, ingest=service)
+    assert len(transport.requests) == 2
+    assert await service.accepted_cursor(BINDING) == "newer"

@@ -176,7 +176,9 @@ class ChangeSet:
 
     ``mode`` is ``DELTA`` for pushed observations. ``RECONCILE`` requires the
     complete ``live_ids`` snapshot; an empty snapshot also needs
-    ``empty_approval``. ``FULL`` never deletes.
+    ``empty_approval``. ``FULL`` never deletes. ``preserve_cursor`` retains
+    the cursor from the checkpoint read for this commit, for partial work.
+    ``source_page`` marks page work that must not be retried after a conflict.
     """
 
     entities: tuple[Entity, ...] = ()
@@ -188,8 +190,12 @@ class ChangeSet:
     live_ids: tuple[str, ...] | None = None
     empty_approval: str | None = None
     cursor: str | None = None
+    preserve_cursor: bool = False
+    source_page: bool = False
 
     def __post_init__(self) -> None:
+        if self.preserve_cursor and self.cursor is not None:
+            raise ValueError("cannot set and preserve the cursor together")
         if self.mode is SourceIngestionMode.RECONCILE and self.live_ids is None:
             raise ValueError("a reconcile change set needs its complete live_ids")
         if self.mode is not SourceIngestionMode.RECONCILE and self.live_ids:
