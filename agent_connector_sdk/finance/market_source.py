@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from enum import StrEnum
 from typing import Any
 from urllib.parse import urlsplit
@@ -33,6 +34,9 @@ class MarketSourceKind(StrEnum):
     CMC_GLOBAL = "cmc_global"
     FRED = "fred"
     FOMC = "fomc"
+    ETF_FLOW = "etf"
+    SENTIMENT = "sentiment"
+    ONCHAIN_POSITION = "onchain"
 
 
 _IDENTITIES = {
@@ -41,6 +45,9 @@ _IDENTITIES = {
     MarketSourceKind.CMC_GLOBAL: "id",
     MarketSourceKind.FRED: "observation_id",
     MarketSourceKind.FOMC: "id",
+    MarketSourceKind.ETF_FLOW: "record_id",
+    MarketSourceKind.SENTIMENT: "record_id",
+    MarketSourceKind.ONCHAIN_POSITION: "record_id",
 }
 
 
@@ -125,6 +132,27 @@ def _fomc(data: dict[str, Any]) -> None:
         raise ValueError("invalid announcement outcome")
 
 
+def _panel(data: dict[str, Any], kind: MarketSourceKind) -> None:
+    if data.get("dataset") != kind.value or data.get("provider") != "coinglass":
+        raise ValueError("invalid macro source provenance")
+    _text(data, "license_tag")
+    _time(data.get("event_time"))
+    _time(data.get("observed_at"))
+    if kind is MarketSourceKind.ETF_FLOW:
+        _text(data, "ticker")
+        _number(data.get("net_flow_usd"))
+    elif kind is MarketSourceKind.SENTIMENT:
+        _number(data.get("value"))
+    else:
+        wallet = _text(data, "wallet")
+        if not re.fullmatch(r"0x[0-9a-f]{40}", wallet):
+            raise ValueError("invalid on-chain identity")
+        _text(data, "symbol")
+        _number(data.get("position_size"))
+        _number(data.get("entry_price"), nonnegative=True)
+        _number(data.get("mark_price"), nonnegative=True)
+
+
 class MarketSourceAdapter:
     """Validate bound provider records before submission to any sink."""
 
@@ -172,8 +200,10 @@ class MarketSourceAdapter:
                 _cmc(data, listing=False)
             elif self._market_kind is MarketSourceKind.FRED:
                 _fred(data)
-            else:
+            elif self._market_kind is MarketSourceKind.FOMC:
                 _fomc(data)
+            else:
+                _panel(data, self._market_kind)
             return record
         except (ValueError, TypeError, OverflowError, KeyError, AttributeError):
             raise MalformedSourceDataError("invalid market source record") from None
