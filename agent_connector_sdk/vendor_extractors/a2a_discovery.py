@@ -9,14 +9,18 @@ from __future__ import annotations
 
 import json
 import threading
+import time
 from collections import OrderedDict
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from math import isfinite
 from typing import Any, Literal
 
-from agent_connector_sdk.http.bodies import read_bounded
-from agent_connector_sdk.http.client import create_http_client
+import anyio
+from anyio.from_thread import start_blocking_portal
+
+from agent_connector_sdk.http.bodies import aread_bounded
+from agent_connector_sdk.http.client import create_async_http_client
 from agent_connector_sdk.http.egress import EgressPolicyError, PinnedEgressViolation
 from agent_connector_sdk.http.errors import HttpProblemError, ResponseTooLargeError
 from agent_connector_sdk.http.options import HttpClientOptions
@@ -158,16 +162,43 @@ def discover_agent_card(
     if cached and cached.etag:
         headers["If-None-Match"] = cached.etag
 
+    deadline = time.monotonic() + DEFAULT_DISCOVERY_TIMEOUT_SECONDS
     try:
-        options = _client_options(base_url, allow_loopback=allow_loopback)
-        with (
-            create_http_client(options) as client,
+        with start_blocking_portal() as portal:
+            discovered = portal.call(
+                _fetch_card, base_url, key, cached, headers, allow_loopback, deadline
+            )
+    except TimeoutError:
+        return _refused("not_found")
+    except ResponseTooLargeError:
+        return _refused("oversize")
+    except (EgressPolicyError, PinnedEgressViolation, ValueError):
+        return _refused("egress_blocked")
+    except HttpProblemError:
+        return _refused("not_found")
+
+    if isinstance(discovered, DiscoveredAgentCard):
+        _remember(discovered)
+    return discovered
+
+
+async def _fetch_card(
+    base_url: str,
+    key: str,
+    cached: DiscoveredAgentCard | None,
+    headers: dict[str, str],
+    allow_loopback: bool,
+    deadline: float,
+) -> DiscoveredAgentCard | AgentCardRefused:
+    options = _client_options(base_url, allow_loopback=allow_loopback)
+    with anyio.fail_after(max(0.0, deadline - time.monotonic())):
+        async with (
+            create_async_http_client(options) as client,
             client.stream("GET", AGENT_CARD_PATH, headers=headers) as response,
         ):
             if response.status_code == 304:
                 if cached is None:
                     return _refused("not_found")
-                _remember(cached)
                 return cached
             if response.status_code == 404:
                 return _refused("not_found")
@@ -178,7 +209,7 @@ def discover_agent_card(
                 != "identity"
             ):
                 return _refused("not_json")
-            body = read_bounded(response, DEFAULT_MAX_AGENT_CARD_BYTES)
+            body = await aread_bounded(response, DEFAULT_MAX_AGENT_CARD_BYTES)
             try:
                 value = json.loads(
                     body,
@@ -196,12 +227,4 @@ def discover_agent_card(
                 etag=response.headers.get("etag") or None,
                 skills=_skill_ids(value),
             )
-    except ResponseTooLargeError:
-        return _refused("oversize")
-    except (EgressPolicyError, PinnedEgressViolation, ValueError):
-        return _refused("egress_blocked")
-    except HttpProblemError:
-        return _refused("not_found")
-
-    _remember(discovered)
     return discovered

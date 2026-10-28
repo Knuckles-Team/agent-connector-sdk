@@ -113,7 +113,7 @@ refused. Brokered asynchronous input and served persistence remain open.
 
 The in-process card cache uses a named entry limit and least-recently-used
 eviction. Cache hits and insertions detach their nested JSON from callers. The
-absolute discovery deadline remains open under R047.2.
+absolute discovery deadline covers DNS and response streaming.
 
 Data flow: `extract` (`agent_connector_sdk/vendor_extractors/a2a.py:98`) -> `_collect_cards` (`agent_connector_sdk/vendor_extractors/a2a_helpers.py:79`) -> `discover_agent_card` (new) -> governed HTTP client -> `A2AAgentCard` entity with provenance.
 

@@ -74,7 +74,7 @@
 - [x] Bind manual OAuth redirects to their login state (SDK-CONNECTOR-CONTROL-R046.10).
 - [ ] **R047:** Agent-card discovery from the standard well-known path. (SDK-CONNECTOR-CONTROL-R047).
   - [x] **R047.1:** Model row. (SDK-CONNECTOR-CONTROL-R047.1).
-  - [ ] **R047.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R047.2).
+  - [x] **R047.2:** Behavior row. (SDK-CONNECTOR-CONTROL-R047.2).
   - [x] **R047.3:** Wiring row. (SDK-CONNECTOR-CONTROL-R047.3).
   - [x] **R047.4:** Refusal row. (SDK-CONNECTOR-CONTROL-R047.4).
   - [x] **R047.5:** Evidence row. (SDK-CONNECTOR-CONTROL-R047.5).
@@ -327,7 +327,7 @@ quoting and signing-setting paths without changing production behavior.
 
 Loopback discovery is denied unless the host explicitly opts in. Compressed
 responses are refused before decoding to preserve the response size bound.
-The total response deadline remains open under R047.2.
+The total response deadline covers DNS and response streaming.
 - [x] Compute the named byte-based tool schema estimate (SDK-CONNECTOR-CONTROL-R045.3).
 
 - [x] Read explicit trusted release key pins (SDK-CONNECTOR-CONTROL-R650.4).
