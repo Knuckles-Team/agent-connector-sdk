@@ -230,7 +230,8 @@ def test_column_profiles_are_typed_and_disclosure_bounded() -> None:
     assert result.target.target_kind in get_args(ProfileTargetKind.__value__)
     (column,) = result.column_profiles
     assert isinstance(column, ColumnProfile)
-    assert (column.min_value, column.max_value, column.null_count) == (1, 3, 0)
+    assert (column.min_value, column.max_value, column.null_count) == (None, None, 0)
+    assert "stats_suppressed" in column.warning_codes
     assert all(isinstance(q, QuantilePoint) for q in column.quantiles)
     assert all(0.0 <= q.probability <= 1.0 for q in column.quantiles)
     assert all(isinstance(entry, TopKEntry) for entry in column.top_k)
@@ -275,3 +276,23 @@ def test_engine_profile_validation_rejects_the_wrong_authority_or_target() -> No
     assert profile_with_client(client, request) == engine
     assert callable(authority.authorize_profile_evidence)
     assert issubclass(ProfileDeadlineError, ProfileLimitError)
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.9")
+def test_rare_numeric_values_do_not_escape_in_statistics() -> None:
+    limits = ProfileLimits(disclosure_threshold=2)
+    rare = profile_table(
+        pa.table({"value": [1, 1, 987654321]}), _plan().profile, limits=limits
+    )
+    column = rare.column_profiles[0]
+    assert column.min_value is None
+    assert column.max_value is None
+    assert column.mean is None
+    assert column.quantiles == []
+    assert "stats_suppressed" in column.warning_codes
+    assert "987654321" not in rare.model_dump_json()
+    eligible = profile_table(
+        pa.table({"value": [1, 1, 3, 3]}), _plan().profile, limits=limits
+    )
+    assert eligible.column_profiles[0].min_value == 1
+    assert eligible.column_profiles[0].max_value == 3
