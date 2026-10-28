@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from agent_connector_sdk.finance.central_bank_calendar import (
     CentralBankAnnouncement,
     central_bank_calendar_from_source,
@@ -97,3 +99,47 @@ def test_calendar_id_becomes_the_instrument_id() -> None:
 
 def test_empty_events_yields_no_records() -> None:
     assert _calendar(payload={"events": []}) == ()
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.3")
+def test_same_vintage_distinct_announcements_refuse_identity_collision() -> None:
+    from agent_connector_sdk.finance.central_bank_calendar import (
+        CalendarIdentityConflictError,
+    )
+
+    payload = {
+        "events": [
+            {
+                "event_type": "rate_decision",
+                "announcement_time_utc": "2026-03-18T18:00:00+00:00",
+                "vintage_date": "2025-12-01",
+            },
+            {
+                "event_type": "rate_decision",
+                "announcement_time_utc": "2026-04-29T18:00:00+00:00",
+                "vintage_date": "2025-12-01",
+            },
+        ]
+    }
+    with pytest.raises(CalendarIdentityConflictError):
+        _calendar(payload=payload)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.3")
+def test_same_instant_with_equivalent_offsets_does_not_conflict() -> None:
+    payload = {
+        "events": [
+            {
+                "event_type": "rate_decision",
+                "announcement_time_utc": "2026-03-18T18:00:00+00:00",
+                "vintage_date": "2025-12-01",
+            },
+            {
+                "event_type": "rate_decision",
+                "announcement_time_utc": "2026-03-18T14:00:00-04:00",
+                "vintage_date": "2025-12-01",
+            },
+        ]
+    }
+    events = _calendar(payload=payload)
+    assert events[0].source_event_id == events[1].source_event_id

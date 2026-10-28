@@ -97,6 +97,7 @@
     "SDK-CONNECTOR-CONTROL-R046.6",
     "SDK-CONNECTOR-CONTROL-R046.7",
     "SDK-CONNECTOR-CONTROL-R046.8",
+    "SDK-CONNECTOR-CONTROL-R046.9",
     "SDK-CONNECTOR-CONTROL-R046.10",
     "SDK-CONNECTOR-CONTROL-R047",
     "SDK-CONNECTOR-CONTROL-R047.1",
@@ -1475,6 +1476,7 @@
         "SDK-CONNECTOR-CONTROL-R046.6",
         "SDK-CONNECTOR-CONTROL-R046.7",
         "SDK-CONNECTOR-CONTROL-R046.8",
+        "SDK-CONNECTOR-CONTROL-R046.9",
         "SDK-CONNECTOR-CONTROL-R046.10"
       ]
     },
@@ -1542,6 +1544,18 @@
         "tests/test_oauth_token_file_safety.py:10",
         "tests/test_oauth_token_file_safety.py:24",
         "tests/test_oauth_token_file_safety.py:37"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R046.9",
+      "title": "Legacy token-key isolation",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "fe5180b4b5ca"
+      ],
+      "verified_by": [
+        "tests/test_oauth_token_key_identity.py:18",
+        "tests/test_oauth_token_key_identity.py:8"
       ]
     },
     {

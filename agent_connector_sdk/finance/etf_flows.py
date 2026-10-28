@@ -75,7 +75,9 @@ def etf_fund_flows_from_source(
     observed_at_utc: datetime,
 ) -> tuple[EtfFundFlow, ...]:
     """Normalize one fund-flow source page; one record per fund per day."""
-    raw_flows: Sequence[Mapping[str, Any]] = payload.get("flows", ())
+    raw_flows = payload.get("flows")
+    if not isinstance(raw_flows, Sequence) or isinstance(raw_flows, (str, bytes)):
+        raise ValueError("ETF flows must be an array")
     return tuple(
         _flow_from_source(
             raw,

@@ -500,3 +500,5 @@ process settings do not alter the result, and an unknown profile refuses.
 - `SDK-CONNECTOR-CONTROL-R048.7`: `tests/test_readable_form.py` covers finite ratios and refuses non-ratios through both constructors.
 
 - `SDK-CONNECTOR-CONTROL-R048.8`: `tests/test_readable_count_score.py` checks the ratio and refuses invalid grades.
+
+- `SDK-CONNECTOR-CONTROL-R046.9`: `tests/test_oauth_token_key_identity.py` tests key collisions and refuses ambiguous legacy files.

@@ -4,6 +4,7 @@
 - [x] FRED/ALFRED vintage and FOMC calendar plus other market feed sources (SDK-FINANCE-SOURCES-R001).
   - [x] Central-bank announcement calendar (`agent_connector_sdk.finance.central_bank_calendar`): one record per published vintage of a scheduled announcement, so a reschedule is a new record, never an overwrite (SDK-FINANCE-SOURCES-R001).
   - [x] Exchange history retrieval fix and a CoinMarketCap market-data adapter (SDK-FINANCE-SOURCES-R001).
+- [x] Refuse same-page calendar identity collisions (SDK-FINANCE-SOURCES-R001.3).
 - [x] FX, commodity spot/futures and dated real-estate valuation adapters (SDK-FINANCE-SOURCES-R003).
 - [x] Account/position reads and idempotent CSV import with preview (SDK-FINANCE-SOURCES-R004).
 - [x] Macro and liquidity panels: FRED series, ETF flows, sentiment, on-chain, each tagged with source and observation time (SDK-FINANCE-SOURCES-R005).
@@ -27,3 +28,7 @@ These focused tests exercise the existing default crypto egress and finance
 stream-bus imports with deterministic in-memory responses.
 
 - [ ] **SDK-FINANCE-SOURCES-R900.3:** Prove crypto defaults call governed HTTP safety and market feeds default to the SDK stream bus. (`tests/test_finance_crypto.py::test_crypto_default_fetch_uses_governed_http_safety`; `tests/test_finance_feeds.py::test_market_feed_defaults_to_sdk_stream_bus`)
+
+- [x] Refuse non-finite multi-asset prices and inversion overflow (SDK-FINANCE-SOURCES-R003.2).
+
+- [x] Canonicalize FX currency codes before comparing the pair (SDK-FINANCE-SOURCES-R003.3).

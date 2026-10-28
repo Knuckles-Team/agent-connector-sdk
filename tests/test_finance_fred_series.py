@@ -110,3 +110,13 @@ def test_nonfinite_values_are_rejected(value: str) -> None:
     valid["value"] = float(value)
     with pytest.raises(ValidationError, match="finite"):
         MacroSeriesObservation(**valid)
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.4")
+@pytest.mark.parametrize("value", [None, "invalid", {}, 1])
+def test_observation_page_requires_an_array(value: object) -> None:
+    with pytest.raises(ValueError, match="observations must be an array"):
+        _series(payload={"observations": value})
+    with pytest.raises(ValueError, match="observations must be an array"):
+        _series(payload={})
+    assert _series(payload={"observations": []}) == ()
