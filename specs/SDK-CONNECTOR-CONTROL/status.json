@@ -340,7 +340,8 @@
     "SDK-CONNECTOR-CONTROL-R075.4",
     "SDK-CONNECTOR-CONTROL-R075.5",
     "SDK-CONNECTOR-CONTROL-R075.6",
-    "SDK-CONNECTOR-CONTROL-R075.7"
+    "SDK-CONNECTOR-CONTROL-R075.7",
+    "SDK-CONNECTOR-CONTROL-R781.1"
   ],
   "requirements": [
     {
@@ -3759,9 +3760,17 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R781",
       "title": "Training-trajectory recorder helper",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6a04f75ba91e"
+      ],
+      "verified_by": [
+        "tests/test_trajectory_recorder.py:47",
+        "tests/test_trajectory_recorder.py:90"
+      ],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R781.1"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R782",
@@ -4052,6 +4061,18 @@
         "tests/test_eg_pack_entry_kinds.py:68",
         "tests/test_eg_pack_entry_kinds.py:82",
         "tests/test_eg_pack_entry_kinds.py:96"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R781.1",
+      "title": "Route trajectory and training calls",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6a04f75ba91e"
+      ],
+      "verified_by": [
+        "tests/test_trajectory_recorder.py:47",
+        "tests/test_trajectory_recorder.py:90"
       ]
     }
   ]
