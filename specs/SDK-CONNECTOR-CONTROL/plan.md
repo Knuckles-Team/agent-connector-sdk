@@ -814,3 +814,8 @@ authority and served credential binding in R035 remain separate.
 The existing X402 guard starts with zero per-payment and daily limits. A caller
 must set both before it approves a positive challenge. This local guard does
 not establish the served approval or durable accounting required by R049.
+## Amendment: bounded readable rendering (R048.2)
+
+The default renderer formats supplied fitted terms, effects and stated fit quality.
+The caller may replace it, and `render_readable` enforces the declared character
+bound on either renderer. Certification and pack wiring remain open.
