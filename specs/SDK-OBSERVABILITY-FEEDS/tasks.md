@@ -6,3 +6,5 @@
 - [x] Record exact merged commits, CI tests and graph-backed restart receipt before acceptance (SDK-OBSERVABILITY-FEEDS-R001).
 
 - [ ] Register the three event-feed adapter entry points (SDK-OBSERVABILITY-FEEDS-R001.5).
+
+- [x] Check an explicitly bound tenant before event identity deduplication (SDK-OBSERVABILITY-FEEDS-R001.7).

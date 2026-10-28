@@ -36,3 +36,8 @@ event adapter and its feed kind through the served MCP call and sink receipt.
 Discover the three feed-kind bindings. Deny activation without their exact
 identity, then load and construct each binding under the SDK reference policy.
 This is not a runner or durable receipt proof.
+
+## Optional event tenant binding (R001.7)
+
+Supply an expected tenant. Submit another tenant with an existing event ID.
+Require refusal before deduplication. Verify that no sink checkpoint advances.

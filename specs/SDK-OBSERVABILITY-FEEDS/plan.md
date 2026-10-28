@@ -30,3 +30,9 @@ The SDK distribution exposes the three feed bindings through source-adapter
 entry points. Loading each binding requires an activation policy. The generic worker can call an adapter supplied directly. The sync command
 cannot yet construct one from a declared feed kind.
 Registration and certified activation remain open work.
+
+## Optional event tenant binding (R001.7)
+
+The host may construct an adapter with an expected tenant. Each envelope must
+match it before identity deduplication. The host owns tenant authentication.
+The optional parameter does not bind the served runner or an unconfigured host.
