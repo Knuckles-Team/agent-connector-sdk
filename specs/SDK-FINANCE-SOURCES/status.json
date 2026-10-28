@@ -10,6 +10,7 @@
     "SDK-FINANCE-SOURCES-R002",
     "SDK-FINANCE-SOURCES-R002.1",
     "SDK-FINANCE-SOURCES-R003",
+    "SDK-FINANCE-SOURCES-R003.1",
     "SDK-FINANCE-SOURCES-R004",
     "SDK-FINANCE-SOURCES-R005",
     "SDK-FINANCE-SOURCES-R005.1",
@@ -83,7 +84,7 @@
     {
       "id": "SDK-FINANCE-SOURCES-R003",
       "title": "FX, commodities, and real-estate adapters with roll and staleness rules",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "13fcdacb3ff1",
         "6ef04661acc2"
@@ -94,7 +95,17 @@
         "tests/test_finance_records.py:119",
         "tests/test_finance_records.py:130",
         "tests/test_finance_records.py:142"
+      ],
+      "rollup_of": [
+        "SDK-FINANCE-SOURCES-R003.1"
       ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R003.1",
+      "title": "Multi-asset source adapters",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-FINANCE-SOURCES-R004",
