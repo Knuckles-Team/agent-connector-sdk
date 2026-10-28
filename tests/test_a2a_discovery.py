@@ -54,7 +54,7 @@ def test_fetch_uses_well_known_path_and_etag() -> None:
         second = discover_agent_card(server.base_url, allow_loopback=True)
 
     assert isinstance(first, DiscoveredAgentCard)
-    assert second is first
+    assert second == first
     assert [request.path for request in server.requests] == [
         AGENT_CARD_PATH,
         AGENT_CARD_PATH,
@@ -147,9 +147,32 @@ def test_discovery_cache_is_bounded_and_refreshes_hits(monkeypatch) -> None:
     first, second, third = card("first"), card("second"), card("third")
     discovery._remember(first)
     discovery._remember(second)
-    assert discovery._cached(first.base_url, None) is first
+    assert discovery._cached(first.base_url, None) == first
     discovery._remember(third)
     assert discovery._cached(second.base_url, None) is None
-    assert discovery._cached(first.base_url, None) is first
-    assert discovery._cached(third.base_url, None) is third
+    assert discovery._cached(first.base_url, None) == first
+    assert discovery._cached(third.base_url, None) == third
     assert len(discovery._CACHE) == 2
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.8")
+def test_cached_card_is_isolated_from_returned_mutations() -> None:
+    with ScriptedHttpServer(
+        ScriptedResponse(body=_body(), headers={"ETag": '"v1"'}),
+        ScriptedResponse(status=304),
+        ScriptedResponse(status=304),
+    ) as server:
+        first = discover_agent_card(server.base_url, allow_loopback=True)
+        assert isinstance(first, DiscoveredAgentCard)
+        first.card["skills"][0]["id"] = "changed"
+        second = discover_agent_card(server.base_url, allow_loopback=True)
+        assert isinstance(second, DiscoveredAgentCard)
+        assert second.card["skills"][0]["id"] == "search"
+        second.card["skills"].clear()
+        third = discover_agent_card(server.base_url, allow_loopback=True)
+        assert isinstance(third, DiscoveredAgentCard)
+        assert third.card["skills"][0]["id"] == "search"
+        assert all(
+            request.headers.get("if-none-match") == '"v1"'
+            for request in server.requests[1:]
+        )

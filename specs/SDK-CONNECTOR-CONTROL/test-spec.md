@@ -48,6 +48,7 @@ Pull requests run `uv sync`, focused `pytest`, Ruff, mypy, wiring checks, CCCC, 
 | CC-36 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R047.5. (`tests/test_a2a_discovery.py::test_entity_carries_fetch_provenance`) | The evidence row holds as stated. |
 | CC-37 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R047.6. (`tests/test_vendor_extractors_archer_infra_a2a.py::test_extract_discovers_card_from_base_url`) | The hot-path proof row holds as stated. |
 | CC-37A | Fill the card cache, access one card, and insert another. | The least recently used entry is evicted and the cache stays within its bound. (SDK-CONNECTOR-CONTROL-R047.7) |
+| CC-37B | Mutate returned nested card data before a 304 response. | The cached observation retains the original JSON and ETag. (SDK-CONNECTOR-CONTROL-R047.8) |
 | CC-38 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R048.1. (`tests/test_readable_form.py::test_model_is_frozen_and_optional_on_facts`) | The model row holds as stated. |
 | CC-39 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R048.2. (`tests/test_readable_form.py::test_render_is_bounded_plain_text`) | The behavior row holds as stated. |
 | CC-40 | Exercise the behaviour of SDK-CONNECTOR-CONTROL-R048.3. (`tests/test_pack.py::test_tool_entry_carries_readable_form`) | The wiring row holds as stated. |
