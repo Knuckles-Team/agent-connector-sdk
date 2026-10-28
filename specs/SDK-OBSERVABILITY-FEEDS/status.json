@@ -9,7 +9,8 @@
     "SDK-OBSERVABILITY-FEEDS-R001.2",
     "SDK-OBSERVABILITY-FEEDS-R001.3",
     "SDK-OBSERVABILITY-FEEDS-R001.4",
-    "SDK-OBSERVABILITY-FEEDS-R001.5"
+    "SDK-OBSERVABILITY-FEEDS-R001.5",
+    "SDK-OBSERVABILITY-FEEDS-R001.6"
   ],
   "requirements": [
     {
@@ -30,7 +31,8 @@
         "SDK-OBSERVABILITY-FEEDS-R001.2",
         "SDK-OBSERVABILITY-FEEDS-R001.3",
         "SDK-OBSERVABILITY-FEEDS-R001.4",
-        "SDK-OBSERVABILITY-FEEDS-R001.5"
+        "SDK-OBSERVABILITY-FEEDS-R001.5",
+        "SDK-OBSERVABILITY-FEEDS-R001.6"
       ]
     },
     {
@@ -81,6 +83,18 @@
       ],
       "verified_by": [
         "tests/test_event_feed_registration.py:17"
+      ]
+    },
+    {
+      "id": "SDK-OBSERVABILITY-FEEDS-R001.6",
+      "title": "Exact accepted event-page replay",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e6db455aa280"
+      ],
+      "verified_by": [
+        "tests/test_event_replay_checkpoint.py:151",
+        "tests/test_event_replay_checkpoint.py:43"
       ]
     }
   ]

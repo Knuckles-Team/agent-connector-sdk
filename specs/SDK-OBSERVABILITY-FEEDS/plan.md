@@ -30,3 +30,7 @@ The SDK distribution exposes the three feed bindings through source-adapter
 entry points. Loading each binding requires an activation policy. The generic worker can call an adapter supplied directly. The sync command
 cannot yet construct one from a declared feed kind.
 Registration and certified activation remain open work.
+
+## Exact last-page replay (R001.6)
+
+The accepted checkpoint binds a digest of the last raw event page and its adapter identity. A fresh adapter suppresses only the same page when the resulting checkpoint is also unchanged. Different pages with the same watermark still commit. This guard has constant size. It does not store all event identities. R001.3 remains open for process restart and general replay evidence.

@@ -20,6 +20,8 @@ instead (a tombstone stream, or :class:`FeedRetentionExpiredError`).
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Mapping
 from typing import Any
 
@@ -28,6 +30,7 @@ from epistemic_graph.generated.source_ingestion import (
     SourceIngestionMode,
     SourceRecord,
 )
+from pydantic import JsonValue
 
 from agent_connector_sdk.adapters.event_envelope import FeedKind
 from agent_connector_sdk.adapters.event_feed_records import (
@@ -63,6 +66,15 @@ from agent_connector_sdk.ports.errors import SourceContractError
 from agent_connector_sdk.ports.session import McpSession
 
 __all__ = ["EventFeedSourceAdapter"]
+
+
+def _page_digest(raw: list[dict[str, Any]], binding: tuple[str, ...]) -> str:
+    """Bind the complete provider page without retaining its event identities."""
+    digest = hashlib.sha256(b"scion:event-feed-page:v1\0")
+    encoder = json.JSONEncoder(sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    for part in encoder.iterencode([binding, raw]):
+        digest.update(part.encode("utf-8"))
+    return digest.hexdigest()
 
 
 class EventFeedSourceAdapter:
@@ -160,16 +172,40 @@ class EventFeedSourceAdapter:
         records = self._mapped_events(raw, candidate)
         position = current.position if isinstance(current.position, Mapping) else {}
         next_page = next_position(preset, position, result=result, raw=raw)
+        after, records = self._checkpoint_page(current, records, raw, next_page)
         page = RecordPage(
             records=records,
             mode=SourceIngestionMode.DELTA,
             strict_schema=False,
-            checkpoint=checkpoint_after_page(current, records, next_page),
+            checkpoint=after,
             exhausted=next_page is None,
             schema_contract=observed.schema_contract,
         )
         self._identity.stage(page, candidate)
         return page
+
+    def _checkpoint_page(
+        self,
+        current: SourceCheckpoint,
+        records: tuple[SourceRecord, ...],
+        raw: list[dict[str, Any]],
+        next_page: JsonValue,
+    ) -> tuple[SourceCheckpoint, tuple[SourceRecord, ...]]:
+        binding = (
+            self._connector,
+            self.stream,
+            self.kind,
+            self._preset.server,
+            self._preset.tool,
+            self._verified_sha256,
+            self._mapping_reference,
+        )
+        digest = _page_digest(raw, binding) if records else current.content_hash
+        after = checkpoint_after_page(current, records, next_page, content_hash=digest)
+        # Suppress only an exact last-page replay with no checkpoint progress.
+        if records and digest == current.content_hash and after == current:
+            records = ()
+        return after, records
 
     def _mapped_events(
         self, raw: list[dict[str, Any]], tracker: EventIdentityTracker
