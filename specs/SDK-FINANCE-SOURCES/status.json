@@ -8,6 +8,7 @@
     "SDK-FINANCE-SOURCES-R001.1",
     "SDK-FINANCE-SOURCES-R001.2",
     "SDK-FINANCE-SOURCES-R001.3",
+    "SDK-FINANCE-SOURCES-R001.4",
     "SDK-FINANCE-SOURCES-R002",
     "SDK-FINANCE-SOURCES-R002.1",
     "SDK-FINANCE-SOURCES-R003",
@@ -16,6 +17,7 @@
     "SDK-FINANCE-SOURCES-R004.1",
     "SDK-FINANCE-SOURCES-R005",
     "SDK-FINANCE-SOURCES-R005.1",
+    "SDK-FINANCE-SOURCES-R005.3",
     "SDK-FINANCE-SOURCES-R900",
     "SDK-FINANCE-SOURCES-R900.1",
     "SDK-FINANCE-SOURCES-R900.2",
@@ -38,7 +40,8 @@
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R001.1",
         "SDK-FINANCE-SOURCES-R001.2",
-        "SDK-FINANCE-SOURCES-R001.3"
+        "SDK-FINANCE-SOURCES-R001.3",
+        "SDK-FINANCE-SOURCES-R001.4"
       ]
     },
     {
@@ -69,6 +72,17 @@
       "verified_by": [
         "tests/test_finance_central_bank_calendar.py:104",
         "tests/test_finance_central_bank_calendar.py:128"
+      ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R001.4",
+      "title": "FRED page shape",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6207abe94df2"
+      ],
+      "verified_by": [
+        "tests/test_finance_fred_series.py:115"
       ]
     },
     {
@@ -167,7 +181,8 @@
         "tests/test_finance_fred_series.py:40"
       ],
       "rollup_of": [
-        "SDK-FINANCE-SOURCES-R005.1"
+        "SDK-FINANCE-SOURCES-R005.1",
+        "SDK-FINANCE-SOURCES-R005.3"
       ]
     },
     {
@@ -176,6 +191,17 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R005.3",
+      "title": "ETF page shape",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "93a80ac12f39"
+      ],
+      "verified_by": [
+        "tests/test_finance_etf_flows.py:81"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R900",
