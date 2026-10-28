@@ -90,3 +90,9 @@ Read-only ingestion and hydration must still work without any write capability. 
 
 R004.3 checks reservation-before-effect ordering, missing and wrong bindings,
 and durable reservation reuse on a proven-no-effect retry.
+
+## In-flight effect guard (R004.17)
+
+Pause one apply during lookup. A second apply and a reconcile for that key
+must refuse without effect. Release the first call and replay its receipt.
+A failed lookup also releases its claim for a later attempt.

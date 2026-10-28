@@ -213,3 +213,10 @@ digest. External audit adapters must return the same typed binding.
 ## Exact dry-run display
 
 SDK-GOVERNED-WRITEBACK-R004.15 binds each displayed preview to the validated current snapshot and approved patch. Compare JSON values by their serialized type and value, not Python equality that equates booleans and integers. This remains independent of repository provider composition.
+
+## In-flight effect guard (R004.17)
+
+One connector instance claims a tenant and idempotency key before lookup.
+Concurrent apply or reconcile calls for that key refuse until it releases
+the claim. The claim spans durable receipt recording. It is not a fence
+across instances or processes and does not replace durable recovery.
