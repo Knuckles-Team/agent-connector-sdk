@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from anyio import BrokenWorkerProcess, to_process
 from pydantic import ValidationError
 
 from agent_connector_sdk.adapters.bookmark_io import _read_file
@@ -51,8 +52,8 @@ class WorkspaceReader:
     async def read(self, request: WorkspaceRequest) -> tuple[WorkspaceOutcome, ...]:
         """Return one ordered result for each manifest entry.
 
-        Timeouts report unfinished files as cancelled. A Python worker thread
-        already parsing a file can finish after the caller receives that result.
+        Timeouts report unfinished files as cancelled and terminate active
+        parser processes before returning.
         """
         request = WorkspaceRequest.model_validate(request.model_dump())
         if request.root_authority != self._authority:
@@ -61,7 +62,7 @@ class WorkspaceReader:
 
         async def one(file: WorkspaceFile) -> WorkspaceOutcome:
             async with limit:
-                return await asyncio.to_thread(self._read_one, file, request)
+                return await self._run_process(file, request)
 
         tasks = [asyncio.create_task(one(file)) for file in request.files]
         try:
@@ -71,6 +72,22 @@ class WorkspaceReader:
                 task.cancel()
             await asyncio.gather(*tasks, return_exceptions=True)
             raise
+
+    async def _run_process(
+        self, file: WorkspaceFile, request: WorkspaceRequest
+    ) -> WorkspaceOutcome:
+        start = asyncio.get_running_loop().time()
+        try:
+            return await to_process.run_sync(
+                self._read_one, file, request, cancellable=True
+            )
+        except (BrokenWorkerProcess, OSError):
+            return WorkspaceOutcome(
+                file=file,
+                outcome="failed",
+                reason="parser_unavailable",
+                elapsed_seconds=asyncio.get_running_loop().time() - start,
+            )
 
     def _read_one(
         self, file: WorkspaceFile, request: WorkspaceRequest

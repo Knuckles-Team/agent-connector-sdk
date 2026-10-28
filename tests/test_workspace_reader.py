@@ -63,13 +63,8 @@ def _request(files: tuple[WorkspaceFile, ...]) -> WorkspaceRequest:
 async def test_served_workspace_formats_and_immutable_inputs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    import socket
+    from workspace_test_workers import offline_read
 
-    def deny_network(*args, **kwargs):
-        raise AssertionError("workspace parser attempted network access")
-
-    monkeypatch.setattr(socket.socket, "connect", deny_network)
-    monkeypatch.setattr(socket, "create_connection", deny_network)
     word = _zip(
         {
             "[Content_Types].xml": "<Types/>",
@@ -100,9 +95,11 @@ async def test_served_workspace_formats_and_immutable_inputs(
         _entry(tmp_path, "d.xlsx", "xlsx", book),
         _entry(tmp_path, "e.pdf", "pdf", pdf.getvalue()),
     )
-    request = _request(files)
+    request = _request(files).model_copy(update={"root_authority": str(tmp_path)})
     server = FastMCP("workspace")
-    register_workspace_tool(server, WorkspaceReader(tmp_path, authority="root"))
+    reader = WorkspaceReader(tmp_path, authority=str(tmp_path))
+    monkeypatch.setattr(reader, "_read_one", offline_read)
+    register_workspace_tool(server, reader)
     async with Client(server) as client:
         result = await client.call_tool(
             "workspace_read", {"request": request.model_dump(mode="json")}
@@ -186,34 +183,17 @@ async def test_workspace_refuses_changed_digest_and_xml_entities(
 async def test_workspace_reads_overlap_and_respect_task_limit(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    import threading
-    import time
+    from workspace_test_workers import coordinated_read, maximum_parallelism
 
     files = tuple(
         _entry(tmp_path, f"{index}.txt", "text", b"item") for index in range(4)
     )
-    reader = WorkspaceReader(tmp_path, authority="root")
-    read_one = reader._read_one
-    lock = threading.Lock()
-    active = 0
-    maximum = 0
-
-    def tracked(file, request):
-        nonlocal active, maximum
-        with lock:
-            active += 1
-            maximum = max(maximum, active)
-        time.sleep(0.05)
-        try:
-            return read_one(file, request)
-        finally:
-            with lock:
-                active -= 1
-
-    monkeypatch.setattr(reader, "_read_one", tracked)
-    outcomes = await reader.read(_request(files))
+    request = _request(files).model_copy(update={"root_authority": str(tmp_path)})
+    reader = WorkspaceReader(tmp_path, authority=str(tmp_path))
+    monkeypatch.setattr(reader, "_read_one", coordinated_read)
+    outcomes = await reader.read(request)
     assert all(value.outcome == "ok" for value in outcomes)
-    assert 1 < maximum <= 2
+    assert maximum_parallelism(tmp_path, files) == 2
 
 
 @pytest.mark.spec("SDK-SOURCE-INGEST-R005.56")
@@ -227,26 +207,47 @@ async def test_workspace_traversal_is_a_per_file_refusal(tmp_path: Path) -> None
 
 
 @pytest.mark.spec("SDK-SOURCE-INGEST-R005.56")
-async def test_workspace_deadline_reports_cancelled_files(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    import time
-
+async def test_workspace_deadline_reports_cancelled_files(tmp_path: Path) -> None:
     files = tuple(
         _entry(tmp_path, f"{index}.txt", "text", b"item") for index in range(2)
     )
     reader = WorkspaceReader(tmp_path, authority="root")
-    read_one = reader._read_one
-
-    def slow(file, request):
-        time.sleep(0.05)
-        return read_one(file, request)
-
-    monkeypatch.setattr(reader, "_read_one", slow)
     request = _request(files).model_copy(
         update={"deadline_seconds": 0.001, "max_tasks": 1}
     )
     assert all(item.reason == "cancelled" for item in await reader.read(request))
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.57")
+@pytest.mark.parametrize("mode", ["caller", "deadline"])
+async def test_cancel_stops_worker(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mode: str
+) -> None:
+    import asyncio
+    import os
+
+    from workspace_test_workers import blocking_read
+
+    file = _entry(tmp_path, "file.txt", "text", b"item")
+    request = _request((file,)).model_copy(update={"root_authority": str(tmp_path)})
+    reader = WorkspaceReader(tmp_path, authority=str(tmp_path))
+    assert (await reader.read(request))[0].outcome == "ok"
+    request = request.model_copy(update={"deadline_seconds": 3.0})
+    monkeypatch.setattr(reader, "_read_one", blocking_read)
+    task = asyncio.create_task(reader.read(request))
+    marker = tmp_path / "worker.pid"
+    async with asyncio.timeout(20):
+        while not marker.exists():
+            await asyncio.sleep(0.02)
+    pid = int(marker.read_text())
+    if mode == "caller":
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+    else:
+        assert (await task)[0].reason == "cancelled"
+    with pytest.raises(ProcessLookupError):
+        os.kill(pid, 0)
 
 
 def test_parser_public_contract() -> None:
@@ -268,3 +269,26 @@ def test_parser_public_contract() -> None:
         ).reason
         is None
     )
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.57")
+async def test_process_start_failure_is_reported_per_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from agent_connector_sdk.adapters import workspace_reader
+
+    good = _entry(tmp_path, "good.txt", "text", b"good")
+    failed = _entry(tmp_path, "failed.txt", "text", b"failed")
+    original = workspace_reader.to_process.run_sync
+
+    async def run_worker(func, file, request, *, cancellable):
+        if file.relative_path == "failed.txt":
+            raise OSError("private process startup detail")
+        return await original(func, file, request, cancellable=cancellable)
+
+    monkeypatch.setattr(workspace_reader.to_process, "run_sync", run_worker)
+    results = await WorkspaceReader(tmp_path, authority="root").read(
+        _request((good, failed))
+    )
+    assert [item.reason for item in results] == [None, "parser_unavailable"]
+    assert "private process startup detail" not in results[1].model_dump_json()

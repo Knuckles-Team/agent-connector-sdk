@@ -848,3 +848,11 @@ engine-generated source change set; effect receipts use the engine-generated
 write-back receipt. The model binds identities and units but cannot authenticate
 an authority or execute an operation. The served swap and governed write path
 remain open until real connector integrations prove them.
+
+## Workspace parser process cancellation
+
+An admitted workspace read runs each file parser in a cancellable worker
+process. A deadline or caller cancellation stops an active worker before
+returning. The reader retains manifest order and per-request task limits.
+The host still authenticates callers. Certified sync and independent graph
+checkpoints remain outside this local reader.
