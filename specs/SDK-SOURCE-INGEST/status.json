@@ -140,6 +140,10 @@
     "SDK-SOURCE-INGEST-R004.37",
     "SDK-SOURCE-INGEST-R004.38",
     "SDK-SOURCE-INGEST-R004.39",
+    "SDK-SOURCE-INGEST-R004.40",
+    "SDK-SOURCE-INGEST-R004.41",
+    "SDK-SOURCE-INGEST-R004.42",
+    "SDK-SOURCE-INGEST-R004.43",
     "SDK-SOURCE-INGEST-R004.13",
     "SDK-SOURCE-INGEST-R004.14",
     "SDK-SOURCE-INGEST-R004.15",
@@ -322,9 +326,9 @@
         "55bab2b23000"
       ],
       "verified_by": [
-        "tests/test_ingest.py:176",
-        "tests/test_ingest.py:193",
-        "tests/test_ingest.py:221"
+        "tests/test_ingest.py:177",
+        "tests/test_ingest.py:194",
+        "tests/test_ingest.py:222"
       ],
       "rollup_of": [
         "SDK-SOURCE-INGEST-R004.1",
@@ -342,6 +346,10 @@
         "SDK-SOURCE-INGEST-R004.37",
         "SDK-SOURCE-INGEST-R004.38",
         "SDK-SOURCE-INGEST-R004.39",
+        "SDK-SOURCE-INGEST-R004.40",
+        "SDK-SOURCE-INGEST-R004.41",
+        "SDK-SOURCE-INGEST-R004.42",
+        "SDK-SOURCE-INGEST-R004.43",
         "SDK-SOURCE-INGEST-R004.13",
         "SDK-SOURCE-INGEST-R004.14",
         "SDK-SOURCE-INGEST-R004.15",
@@ -1787,6 +1795,53 @@
       ]
     },
     {
+      "id": "SDK-SOURCE-INGEST-R004.40",
+      "title": "Refuse cyclic stream continuations",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "7034a05e4b88"
+      ],
+      "verified_by": [
+        "tests/test_ingest_stream.py:253",
+        "tests/test_ingest_stream.py:282",
+        "tests/test_ingest_stream.py:301"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.41",
+      "title": "Validate durable cursor checkpoints",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "7990ab055ef8"
+      ],
+      "verified_by": [
+        "tests/test_ingest.py:395",
+        "tests/test_ingest.py:445"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.42",
+      "title": "Validate durable checkpoint sequence",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "22f14c128bac"
+      ],
+      "verified_by": [
+        "tests/test_ingest.py:471"
+      ]
+    },
+    {
+      "id": "SDK-SOURCE-INGEST-R004.43",
+      "title": "Bind SourceIngest to a request snapshot",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "976fb92ad5ec"
+      ],
+      "verified_by": [
+        "tests/test_ingest.py:502"
+      ]
+    },
+    {
       "id": "SDK-SOURCE-INGEST-R004.13",
       "title": "Model",
       "delivery_state": "SPECIFIED",
@@ -2548,8 +2603,8 @@
         "05f0db88c98a",
         "075dd1650da3",
         "11366ce437d5",
-        "22044d5f3981",
-        "2c94a2fb2e0c"
+        "1bb27f84e6c3",
+        "22044d5f3981"
       ],
       "verified_by": [
         "tests/data_prep/certification/test_job.py:182",
@@ -2727,7 +2782,7 @@
       "title": "Engine profile boundary validation",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "ccb84e0a998b"
+        "1bb27f84e6c3"
       ],
       "verified_by": [
         "tests/data_prep/test_profiling.py:326"
