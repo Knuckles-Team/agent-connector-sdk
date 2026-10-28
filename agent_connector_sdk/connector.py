@@ -256,6 +256,7 @@ def build_server(
     Raises:
         SystemExit: on ``--help``, a bad flag value or unsafe exposure.
     """
+    from agent_connector_sdk.config import load_config
     from agent_connector_sdk.mcp.content import ConnectorContent
     from agent_connector_sdk.mcp.parser import TRANSPORTS
     from agent_connector_sdk.mcp.server import create_mcp_server
@@ -264,6 +265,7 @@ def build_server(
         register_tool_surface,
     )
 
+    load_config()
     resolved = resolve_connector(package)
     connector = resolved.connector
     args, mcp, middlewares = create_mcp_server(
