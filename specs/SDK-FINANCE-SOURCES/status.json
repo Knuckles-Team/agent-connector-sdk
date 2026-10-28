@@ -256,7 +256,7 @@
         "1b40a9470780"
       ],
       "verified_by": [
-        "tests/test_finance_etf_flows.py:91"
+        "tests/test_finance_etf_flows.py:92"
       ]
     },
     {

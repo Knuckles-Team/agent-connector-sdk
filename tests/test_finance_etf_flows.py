@@ -88,6 +88,7 @@ def test_flow_page_requires_an_array(value: object) -> None:
         _flows(payload={})
     assert _flows(payload={"flows": []}) == ()
 
+
 @pytest.mark.spec("SDK-FINANCE-SOURCES-R005.2")
 @pytest.mark.parametrize("field", ["net_flow_usd", "aum_usd"])
 @pytest.mark.parametrize("value", ["nan", "inf", "-inf", "1e999"])
