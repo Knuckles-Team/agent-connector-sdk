@@ -21,7 +21,10 @@ from agent_connector_sdk.ports.audit_reservation import (
     AuditReservationPort,
 )
 from agent_connector_sdk.ports.authorization_verifier import AuthorizationVerifier
-from agent_connector_sdk.ports.writeback_transport import WriteBackTransport
+from agent_connector_sdk.ports.writeback_transport import (
+    ReservableWriteBackTransport,
+    WriteBackTransport,
+)
 from agent_connector_sdk.writeback.errors import (
     AuditReservationUnavailableError,
     ChangeSetExpiredError,
@@ -107,10 +110,15 @@ class GovernedWriteBack:
 
     async def apply(self, change_set: SourceChangeSet) -> WriteBackAttempt:
         """Apply once, returning uncertainty rather than silently retrying."""
+        change_set = change_set.model_copy(deep=True)
         self._validate(change_set)
         self._require_reconciled(change_set)
+        await self._authorize(change_set)
+        if isinstance(self._transport, ReservableWriteBackTransport):
+            await self._transport.prepare_writeback(change_set)
         prior = await self._transport.prior_effect(change_set)
         if prior is not None:
+            await self._authorize(change_set)
             require_effect(change_set, prior)
             return prior
         current = await self._transport.read_current(change_set)
@@ -140,6 +148,12 @@ class GovernedWriteBack:
         except OutcomeUncertainError:
             self._unresolved[change_set.idempotency_key] = change_set.change_set_digest
             return self._uncertain(change_set, current.source_version)
+
+    async def _authorize(self, change_set: SourceChangeSet) -> None:
+        self._validate(change_set)
+        decision = await self._verifier.verify(change_set)
+        self._validate(change_set)
+        require_authorized(change_set, decision)
 
     async def reconcile(self, change_set: SourceChangeSet) -> ReconciliationObservation:
         """Resolve possible effect; only a proven no-effect permits a retry."""

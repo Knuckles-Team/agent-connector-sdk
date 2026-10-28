@@ -12,7 +12,16 @@ from epistemic_graph.generated.write_back import (
 
 from agent_connector_sdk.writeback.models import DryRunObservation, SourceSnapshot
 
-__all__ = ["WriteBackTransport"]
+__all__ = ["ReservableWriteBackTransport", "WriteBackTransport"]
+
+
+@runtime_checkable
+class ReservableWriteBackTransport(Protocol):
+    """Optional source reservation, made only after verified write approval."""
+
+    async def prepare_writeback(self, change_set: SourceChangeSet) -> None:
+        """Reserve an exact idempotency binding without performing the effect."""
+        ...
 
 
 @runtime_checkable

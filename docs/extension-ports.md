@@ -206,3 +206,11 @@ accepting a page. The model must be importable from its installed module.
 Record validators must be pure and must not perform external calls or spawn
 processes. Validation uses a worker process. Cancellation stops its worker.
 Worker startup counts against the request deadline.
+
+Enterprise connectors can attach an `EnterpriseDispatcher` to the SDK server.
+The host supplies an authority for the authenticated caller and company. A
+connector supplies the read implementation.
+Invoice effects are unavailable unless the host admits a qualified writer.
+The approved patch binds the company and operation. The source transport must
+prove atomic idempotency and recovery. A generic document POST does not supply
+those guarantees.

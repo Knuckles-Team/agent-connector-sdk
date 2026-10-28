@@ -121,7 +121,7 @@ class ToolPreset(BaseModel):
     params_arg: str = "params_json"
     arguments: dict[str, JsonValue] = Field(default_factory=dict)
     records_path: str = ""
-    result_contract: Literal["generic", "platform"] = "generic"
+    result_contract: Literal["generic", "platform", "enterprise"] = "generic"
     records_is_mapping: bool = False
     mapping_key_field: str = "source_key"
     id_field: str = Field(default="id", min_length=1)

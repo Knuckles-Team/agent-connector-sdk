@@ -80,7 +80,8 @@ class DurableWritableConnector:
             return await self._apply(change_set)
 
     async def _apply(self, change_set: SourceChangeSet) -> WriteBackAttempt:
-        durable = await self._authoritative(change_set)
+        durable = (await self._authoritative(change_set)).model_copy(deep=True)
+        await self._governed._authorize(durable)
         state = await _receipt_recovery_state(self._ledger, durable)
         if state is _ReceiptRecoveryState.UNCERTAIN:
             raise ReconciliationRequiredError(
@@ -92,6 +93,7 @@ class DurableWritableConnector:
                 raise WriteBackPersistenceError(
                     "durable applied receipt has no matching source effect"
                 )
+            await self._governed._authorize(durable)
             require_effect(durable, prior)
             return prior
 
