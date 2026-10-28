@@ -243,6 +243,8 @@ public_modules = [
     "agent_connector_sdk.a2a.client",
     "agent_connector_sdk.a2a.models",
     "agent_connector_sdk.access_contract",
+    "agent_connector_sdk.taxonomy.provider",
+    "agent_connector_sdk.taxonomy.stream",
     "agent_connector_sdk.adapters.bookmark_source",
     "agent_connector_sdk.adapters.paper_models",
     "agent_connector_sdk.adapters.paper_download",

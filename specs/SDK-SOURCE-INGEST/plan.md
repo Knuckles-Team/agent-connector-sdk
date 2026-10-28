@@ -956,3 +956,17 @@ TaxonShape validation or bounded delta synchronization.
 These tests remain useful unit evidence; they do not establish R008 or R009.
 Both requirements remain open until their stated source and graph acceptance
 paths run.
+
+## Bounded taxonomy provider reads
+
+A host admits explicit NCBI or GBIF taxon identifiers and a finite batch size.
+The SDK reads each admitted identifier through governed HTTP. NCBI Datasets v2
+returns taxonomy reports; GBIF species returns a backbone usage by key. A
+provider response must match the requested identifier and contain a scientific
+name. NCBI's nearest parent is the final entry in its ordered `parents` list.
+GBIF supplies `parentKey` when present. Neither API result is a deletion
+snapshot or evidence that another provider's identifier denotes the same taxon.
+Failures remain visible and stop the affected page before a graph checkpoint.
+The host owns the request authorization and provider quotas. The generated EG
+checkpoint remains the durable source authority. Parent and rank graph links
+and graph-side TaxonShape validation remain required for R009 acceptance.
