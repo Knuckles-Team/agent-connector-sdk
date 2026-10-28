@@ -404,9 +404,9 @@ or credential fields.
 
 The client keeps the server execution handle and query digest. It keeps the
 expected sequence and cumulative row/byte totals. It uses the smaller
-local/server deadline. Before transport, it asks the existing EG MessagePack
-client codec for the named row-sequence size. It enforces the per-page and
-cumulative row/byte limits. It reaps idle expired handles before admitting a
+local/server deadline. Before transport, it asks the EG MessagePack client
+codec for the named row-sequence size. It enforces per-page and cumulative
+row/byte limits. It reaps idle expired handles before admitting a
 new execution, while retaining only bounded replay tombstones.
 Chunks and exactly one terminal complete/abort are accepted only for the
 opened handle. An explicit cancellation is an abort with the typed
@@ -962,3 +962,14 @@ ERPNext's generic document POST does not supply that proof. The optional
 source guard requires site installation and independent transaction verification.
 This local composition does not complete R006.33 through R006.37 or
 authenticate the host's actor binding.
+
+## Earth observation and taxonomy evidence correction
+
+The existing earth-observation tests validate record models and place/region
+fields. They do not call the GBIF, iNaturalist, NOAA or Open-Meteo sources.
+They do not prove graph ingestion. The taxonomy tests normalize sample records
+and mirror selected shape cardinalities. They do not exercise a live NCBI/GBIF connector, graph-side
+TaxonShape validation or bounded delta synchronization.
+These tests remain useful unit evidence; they do not establish R008 or R009.
+Both requirements remain open until their stated source and graph acceptance
+paths run.

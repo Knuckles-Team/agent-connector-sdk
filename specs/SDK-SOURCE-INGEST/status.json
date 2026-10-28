@@ -1037,32 +1037,24 @@
     {
       "id": "SDK-SOURCE-INGEST-R008",
       "title": "Connectors ingest occurrence and weather observations",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "LANDED",
       "landed_in": [
         "289aadb634d8",
         "3735e4434463",
         "83b7dd3f33eb"
       ],
-      "verified_by": [
-        "tests/test_earth_observation_records.py:38",
-        "tests/test_earth_observation_records.py:54",
-        "tests/test_earth_observation_records.py:66"
-      ]
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R009",
       "title": "Taxonomy connector ingests NCBI/GBIF taxa as kg:Taxon",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "LANDED",
       "landed_in": [
         "3735e4434463",
         "bfe88b9d8521",
         "ff4c1aaafc8a"
       ],
-      "verified_by": [
-        "tests/test_taxonomy_records.py:29",
-        "tests/test_taxonomy_records.py:40",
-        "tests/test_taxonomy_records.py:50"
-      ]
+      "verified_by": []
     },
     {
       "id": "SDK-SOURCE-INGEST-R010",
