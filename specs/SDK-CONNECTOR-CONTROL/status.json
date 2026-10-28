@@ -3348,8 +3348,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R780.13",
       "title": "Explicit TLS selector settings",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8b8ba3ab9cb9"
+      ],
       "verified_by": [
         "tests/test_tls_explicit_settings.py:14",
         "tests/test_tls_explicit_settings.py:28",
