@@ -91,12 +91,14 @@ The planned module is `tests/test_sql_source_served.py`. Runtime acceptance rema
 
 ## Offline bookmark import
 
-The planned module is `tests/test_bookmark_source_served.py`. Runtime acceptance remains unexecuted.
+`tests/test_bookmark_source.py` checks the bounded reader and its MCP tool.
+The planned module `tests/test_bookmark_source_served.py` must still prove
+certified runner and durable graph acceptance.
 
 | Requirement | Case | Required assertion |
 |---|---|---|
-| `SDK-SOURCE-INGEST-R005.7` | Model | Validate identities, supported export shapes and local vocabulary revision. |
-| `SDK-SOURCE-INGEST-R005.8` | Behavior | Import duplicate and unknown-domain fixtures; require stable IDs, deterministic metadata and zero network or model requests. |
+| `SDK-SOURCE-INGEST-R005.7` | Model | `tests/test_bookmark_source.py` validates identities, supported export shapes and local vocabulary revision. |
+| `SDK-SOURCE-INGEST-R005.8` | Behavior | `tests/test_bookmark_source.py` imports duplicate and unknown-domain fixtures and checks stable IDs, deterministic metadata and zero network calls. |
 | `SDK-SOURCE-INGEST-R005.9` | Wiring | Enter connector-sync --once with on-disk JSON; observe discovery, extraction and generated ingestion. |
 | `SDK-SOURCE-INGEST-R005.10` | Refusal | Prove visible failures, zero outbound calls and unchanged checkpoints for malformed input and path escapes. |
 | `SDK-SOURCE-INGEST-R005.11` | Evidence | Read accepted provenance from the graph and reproduce metadata from identical bytes. |

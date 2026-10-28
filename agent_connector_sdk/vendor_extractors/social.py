@@ -24,6 +24,7 @@ on; this port reads the same two shapes with direct dict access instead.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -90,7 +91,9 @@ def _domain(url: str) -> str | None:
     return host[4:] if host.startswith("www.") else host
 
 
-def _resolve_known_tools(urls: list[str]) -> list[str]:
+def _resolve_known_tools(
+    urls: list[str], tool_domains: Mapping[str, str] = KNOWN_TOOL_DOMAINS
+) -> list[str]:
     """Resolve a document's outbound links to known tool/product names."""
     seen: set[str] = set()
     tools: list[str] = []
@@ -98,10 +101,10 @@ def _resolve_known_tools(urls: list[str]) -> list[str]:
         host = _domain(url)
         if not host:
             continue
-        name = KNOWN_TOOL_DOMAINS.get(host)
+        name = tool_domains.get(host)
         if name is None and "." in host:
             _, _, parent = host.partition(".")
-            name = KNOWN_TOOL_DOMAINS.get(parent)
+            name = tool_domains.get(parent)
         if name and name not in seen:
             seen.add(name)
             tools.append(name)
@@ -174,7 +177,7 @@ def extract(config: Any) -> ChangeSet:
     hashtags = _extract_hashtags(record)
     mentions = _extract_mentions(record)
     urls = _extract_urls(record, tuple(exclude_url_hosts))
-    tools = _resolve_known_tools(urls)
+    tools = _resolve_known_tools(urls, _get(config, "tool_domains", KNOWN_TOOL_DOMAINS))
 
     specs = [("Hashtag", f"hashtag:{t}", t, "taggedWithHashtag") for t in hashtags]
     specs += [("Mention", f"mention:{h}", h, "mentionsHandle") for h in mentions]
