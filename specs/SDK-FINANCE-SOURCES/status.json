@@ -12,6 +12,7 @@
     "SDK-FINANCE-SOURCES-R003",
     "SDK-FINANCE-SOURCES-R003.1",
     "SDK-FINANCE-SOURCES-R004",
+    "SDK-FINANCE-SOURCES-R004.1",
     "SDK-FINANCE-SOURCES-R005",
     "SDK-FINANCE-SOURCES-R005.1",
     "SDK-FINANCE-SOURCES-R900",
@@ -110,7 +111,7 @@
     {
       "id": "SDK-FINANCE-SOURCES-R004",
       "title": "Alpaca account reads and idempotent CSV activity import",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "077a14c9f3d3",
         "2ef7ca88d676",
@@ -122,7 +123,17 @@
         "tests/test_finance_account_read.py:54",
         "tests/test_finance_account_read.py:60",
         "tests/test_finance_csv_import.py:76"
+      ],
+      "rollup_of": [
+        "SDK-FINANCE-SOURCES-R004.1"
       ]
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R004.1",
+      "title": "Account source and durable re-import",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SDK-FINANCE-SOURCES-R005",

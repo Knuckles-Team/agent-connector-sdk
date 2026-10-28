@@ -25,3 +25,5 @@ R005.1 remains open: current FRED and ETF normalization tests do not prove the r
 R001.1 tests non-finite FRED values through source normalization and direct model construction, while ordinary finite observations remain accepted.
 
 R003.1 remains open: existing FX, commodity and real-estate model tests do not exercise source adapters.
+
+R004.1 remains open: synthetic mapping and stable identifiers do not prove real source reads or durable re-import.
