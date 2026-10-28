@@ -820,6 +820,12 @@ The default renderer formats supplied fitted terms, effects and stated fit quali
 The caller may replace it, and `render_readable` enforces the declared character
 bound on either renderer. Certification and pack wiring remain open.
 
+## Request-local progress primitive (R050.8)
+
+`OrderedProgress` serializes redacted notifications within the deadline.
+The caller supplies the redactor and sender. Context authentication, request-cache
+isolation and served binding remain the separate R050 obligations.
+
 ## Amendment: canonical release identity (R650.2)
 
 The digest covers the validated live source declaration and the canonical RDF
