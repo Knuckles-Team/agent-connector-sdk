@@ -400,6 +400,8 @@ class SourceStream:
 
         With a ``strategy``, ``fetch_page(cursor)`` returns only the records and
         the strategy decides the next cursor (offset, key-set or time window).
+        A page with documents on a separate binding is refused before submission:
+        the two streams do not have an atomic checkpoint.
         """
         service = ingest
         if service is None:
@@ -432,6 +434,10 @@ class SourceStream:
                     raise IngestError("source continuation history limit exceeded")
                 seen.add(fingerprint)
             mapped = self._mapper(kind, records)
+            if self.document_binding is not None and mapped.documents:
+                raise IngestError(
+                    "source sync cannot checkpoint split document streams"
+                )
             if mapped.entities or mapped.documents:
                 counts = await self.mapped(
                     mapped, cursor=next_cursor, ingest=service, _page_complete=True
