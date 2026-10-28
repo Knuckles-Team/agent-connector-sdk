@@ -6,7 +6,7 @@ writes a lock nor approves a rotation.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Hashable, Mapping
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any
@@ -27,8 +27,8 @@ MAX_RELEASE_LOCK_BYTES = 1024 * 1024
 class _UniqueLoader(yaml.SafeLoader):
     """Do not silently select one of two equal YAML mapping keys."""
 
-    def construct_mapping(self, node: Any, deep: bool = False) -> dict[str, Any]:
-        result: dict[str, Any] = {}
+    def construct_mapping(self, node: Any, deep: bool = False) -> dict[Hashable, Any]:
+        result: dict[Hashable, Any] = {}
         for key_node, value_node in node.value:
             key = self.construct_object(key_node, deep=deep)
             if not isinstance(key, str) or key in result:
@@ -64,7 +64,10 @@ def load_release_key_lock(path: str | Path) -> Mapping[str, bytes]:
         signer = entry.get("signer")
         if not isinstance(signer, str) or not _KEY_ID.fullmatch(signer):
             raise ReleaseSigningError("release lock signer is invalid")
-        public_key = _decode(entry.get("signing_public_key"), 32)
+        encoded_key = entry.get("signing_public_key")
+        if not isinstance(encoded_key, str):
+            raise ReleaseSigningError("release lock public key is invalid")
+        public_key = _decode(encoded_key, 32)
         if signer in keys and keys[signer] != public_key:
             raise ReleaseSigningError("release lock has conflicting signer keys")
         keys[signer] = public_key
