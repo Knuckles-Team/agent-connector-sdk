@@ -231,6 +231,34 @@ async def test_robots_loads_canonical_ipv6_origin() -> None:
         await rules.allowed("http://example.test:invalid/private")
 
 
+@pytest.mark.spec("SDK-SOURCE-INGEST-R005.45")
+async def test_served_robots_refusal_omits_requested_url_and_query() -> None:
+    async def load(_url: str) -> tuple[int, str]:
+        return 200, "User-agent: *\nDisallow: /private\n"
+
+    rules = RobotsRules(load, user_agent="test")
+
+    class Source:
+        async def fetch(self, request: WebFetchRequest) -> WebPageResult:
+            await rules.check(request.url)
+            raise AssertionError("denied URL must not be fetched")
+
+        async def extract(self, request: WebFetchRequest) -> WebPageResult:
+            return await self.fetch(request)
+
+    server = FastMCP("robots-refusal")
+    register_web_source_tools(server, Source())
+    async with Client(server) as client:
+        call = fastmcp_caller(client)
+        refusal = await call(
+            "web_fetch",
+            {"request": {"url": "https://example.test/private?token=secret-value"}},
+        )
+    assert refusal["reason"] == "robots_disallowed"
+    assert "secret-value" not in str(refusal)
+    assert "/private" not in str(refusal)
+
+
 @pytest.mark.spec("SDK-SOURCE-INGEST-R005.40.1")
 async def test_a_refusal_is_a_result_and_a_bad_digest_is_refused() -> None:
     server = FastMCP("fixture-web-source")
