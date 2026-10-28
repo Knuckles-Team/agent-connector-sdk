@@ -54,3 +54,4 @@ Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requireme
 - [x] Bound Link-header parsing work (SDK-CENTRALIZED-CAPABILITIES-R004.3).
 - [x] Refuse a cursor that skips a partial provider page (SDK-CENTRALIZED-CAPABILITIES-R004.5).
 - [x] Stop repeated cursor and since-ID continuation tokens (SDK-CENTRALIZED-CAPABILITIES-R004.8).
+- [x] Refuse overlapping pagination consumers (SDK-CENTRALIZED-CAPABILITIES-R004.7).

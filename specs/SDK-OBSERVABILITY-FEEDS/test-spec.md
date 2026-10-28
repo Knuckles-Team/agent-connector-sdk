@@ -23,8 +23,9 @@ lost. Accept the receipt and verify cross-page duplicates remain idempotent.
 
 ## Durable event receipt proof (R001.3)
 
-Run OF-06 against a graph. Read back the receipt after restart and verify
-that replay retains one logical event. The local in-memory sink is not proof.
+Run OF-06 against an isolated graph. One worker commits and exits. A new worker
+replays the page. Verify the receipt and one graph record. The graph fixture
+uses synthetic credentials. It skips when the optional server binary is absent.
 
 ## Event adapter registration (R001.4)
 
@@ -46,3 +47,8 @@ Accept a page, construct a fresh adapter, replay the identical page, then supply
 Fill the entry and byte limits. Verify duplicates, conflicts and UTF-8 sizes.
 An over-limit page must fail before sink submission or checkpoint advance.
 A stale staged page must not overwrite an accepted identity.
+
+## Optional event tenant binding (R001.7)
+
+Supply an expected tenant. Submit another tenant with an existing event ID.
+Require refusal before deduplication. Verify that no sink checkpoint advances.

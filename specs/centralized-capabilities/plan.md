@@ -125,3 +125,8 @@ Cursor and since-ID walks retain fixed-size fingerprints of issued tokens.
 The page budget bounds their count.
 A repeated token stops the walk and marks it truncated. The cyclic token is
 not a resume cursor. This guard does not deduplicate records already returned.
+## Pagination consumer isolation (R004.7)
+
+An iterator owns one mutable walk and budget. It refuses another active
+consumer. Exhaustion, fetch failure or explicit close releases the claim.
+A caller that stops early must close the active generator before reuse.

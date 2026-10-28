@@ -171,8 +171,8 @@ def _require_pyarrow() -> Any:
         import pyarrow.compute as pc
     except ImportError as exc:  # pragma: no cover - exercised in lean installs
         raise DataPrepDependencyError(
-            "pyarrow is required for the Arrow data-prep kernel; install the "
-            "optional 'pyarrow' extra"
+            "pyarrow is required for the Arrow data-prep kernel; install "
+            "scion-sdk[dataprep]"
         ) from exc
     return pa, pc
 

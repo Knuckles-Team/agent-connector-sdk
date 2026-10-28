@@ -1,8 +1,7 @@
 """SDK-OBSERVABILITY-FEEDS-R001: RUM, security-audit and CI/CD event feeds.
 
 OF-01..OF-05 run offline against a fake in-memory MCP session (no network, no
-production telemetry). OF-06 is opt-in acceptance against a contributor-owned
-graph and is recorded NOT RUN here, per the spec's completion section.
+production telemetry). OF-06 uses a separate isolated graph fixture.
 """
 
 from __future__ import annotations
@@ -590,22 +589,6 @@ async def test_breaking_schema_quarantines_with_zero_writes_and_zero_checkpoint_
 
 
 # ---------------------------------------------------------------------------
-# OF-06: restart after an accepted page with a contributor-owned graph.
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.skip(
-    reason=(
-        "OF-06 is opt-in acceptance against a contributor-owned graph "
-        "(SDK-OBSERVABILITY-FEEDS spec, Portable contribution and completion). "
-        "NOT RUN: no such environment is provisioned in this suite."
-    )
-)
-async def test_restart_replay_against_a_live_graph_is_exactly_once() -> None:
-    raise AssertionError("opt-in acceptance test; never executed offline")
-
-
-# ---------------------------------------------------------------------------
 # Envelope, identity and construction units.
 # ---------------------------------------------------------------------------
 
@@ -767,3 +750,67 @@ def test_event_identity_rejects_stale_staged_pages():
 def test_event_identity_refuses_unbounded_limits(limits):
     with pytest.raises(ValueError, match="positive and bounded"):
         EventIdentityTracker(**limits)
+
+
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.7")
+async def test_bound_tenant_refuses_before_duplicate_classification():
+    preset = _preset("rum-stream", "rum_events")
+    descriptor = _tool_descriptor(preset.tool)
+    adapter = rum_source_adapter(
+        preset,
+        connector=CONNECTOR,
+        tool_schema_sha256=_compatibility_sha256(descriptor),
+        mapping_reference=f"connector:{CONNECTOR}#mappings/Event",
+        expected_tenant="tenant-a",
+    )
+    event = _rum_event("same-id")
+    session = FakeEventSession(
+        descriptor=descriptor,
+        pages=[_page(event), _page({**event, "tenant_id": "tenant-b"}), _page(event)],
+    )
+    await adapter.discover(session)
+    first = await adapter.extract(session, None)
+    adapter.finish_page(first, accepted=True)
+    with pytest.raises(SourceContractError, match="different tenant"):
+        await adapter.extract(session, first.checkpoint)
+    retry = await adapter.extract(session, first.checkpoint)
+    assert retry.records == ()
+    adapter.finish_page(retry, accepted=True)
+
+
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.7")
+@pytest.mark.parametrize("tenant", ["", " ", " tenant-a ", 7])
+def test_bound_tenant_requires_exact_nonblank_identity(tenant):
+    preset = _preset("rum-stream", "rum_events")
+    with pytest.raises(ValueError, match="expected tenant"):
+        rum_source_adapter(
+            preset,
+            connector=CONNECTOR,
+            tool_schema_sha256=_compatibility_sha256(_tool_descriptor(preset.tool)),
+            mapping_reference=f"connector:{CONNECTOR}#mappings/Event",
+            expected_tenant=tenant,
+        )
+
+
+@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.7")
+async def test_bound_tenant_refusal_preserves_sink_checkpoint():
+    preset = _preset("rum-stream", "rum_events")
+    descriptor = _tool_descriptor(preset.tool)
+    adapter = rum_source_adapter(
+        preset,
+        connector=CONNECTOR,
+        tool_schema_sha256=_compatibility_sha256(descriptor),
+        mapping_reference=f"connector:{CONNECTOR}#mappings/Event",
+        expected_tenant="tenant-a",
+    )
+    session = FakeEventSession(
+        descriptor=descriptor,
+        pages=[_page(_rum_event("other-tenant", tenant_id="tenant-b"))],
+    )
+    sink = InMemorySink()
+    with pytest.raises(SourceContractError, match="different tenant"):
+        await sync_stream(session, adapter, SyncTarget(CONNECTOR, sink, max_pages=1))
+    assert not sink.batches
+    assert (
+        await sink.source_status(CONNECTOR, "rum-stream")
+    ).accepted_checkpoint is None
