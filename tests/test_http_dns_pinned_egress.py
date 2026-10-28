@@ -263,3 +263,77 @@ def test_explicit_private_host_still_allows_shared_space(monkeypatch, seen):
     assert client.get("/").status_code == 200
     assert seen[0].url.host == "100.64.0.9"
     assert not egress.egress_ip_is_blocked("::ffff:8.8.8.8", allow_loopback=False)
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.31")
+async def test_async_pinned_dns_is_cancellable_without_transport(monkeypatch):
+    import asyncio
+    import threading
+
+    started = threading.Event()
+    release = threading.Event()
+    finished = threading.Event()
+    seen = []
+    original_resolve = egress._resolve_pinned_request
+
+    def resolve(host, port, *args, **kwargs):
+        if host == "api.example.com":
+            started.set()
+            release.wait(timeout=2)
+        return _answers("93.184.216.34")(host, port, *args, **kwargs)
+
+    def track_resolution(request, **kwargs):
+        host = request.url.host
+        result = original_resolve(request, **kwargs)
+        if host == "api.example.com":
+            finished.set()
+        return result
+
+    async def handler(request):
+        seen.append(request)
+        return httpx.Response(200)
+
+    monkeypatch.setattr(socket, "getaddrinfo", resolve)
+    monkeypatch.setattr(egress, "_resolve_pinned_request", track_resolution)
+    options = HttpClientOptions(
+        base_url="https://api.example.com", pin_egress=True, verify_pinned_peer=False
+    )
+    try:
+        async with create_async_http_client(
+            options, transport=httpx.MockTransport(handler)
+        ) as client:
+            original_request = client.build_request("GET", "/")
+            task = asyncio.create_task(client.send(original_request))
+            assert await asyncio.to_thread(started.wait, 1)
+            task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await asyncio.wait_for(task, timeout=0.5)
+            assert seen == []
+            release.set()
+            assert await asyncio.to_thread(finished.wait, 1)
+            assert original_request.url.host == "api.example.com"
+            assert (await client.get("https://other.example/")).status_code == 200
+    finally:
+        release.set()
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.31")
+async def test_async_pinning_preserves_request_body_and_authority(monkeypatch):
+    monkeypatch.setattr(socket, "getaddrinfo", _answers("93.184.216.34"))
+    seen = []
+
+    async def handler(request):
+        seen.append(request)
+        return httpx.Response(200)
+
+    options = HttpClientOptions(
+        base_url="https://api.example.com", pin_egress=True, verify_pinned_peer=False
+    )
+    async with create_async_http_client(
+        options, transport=httpx.MockTransport(handler)
+    ) as client:
+        assert (await client.post("/items", content=b"payload")).status_code == 200
+    assert seen[0].content == b"payload"
+    assert seen[0].url.host == "93.184.216.34"
+    assert seen[0].headers["host"] == "api.example.com"
+    assert seen[0].extensions["sni_hostname"] == "api.example.com"

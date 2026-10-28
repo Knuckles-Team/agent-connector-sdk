@@ -506,6 +506,7 @@ process settings do not alter the result, and an unknown profile refuses.
 - `SDK-CONNECTOR-CONTROL-R650.5`: `tests/test_release_lock.py` checks lock creation, round-trip and refusal without replacement.
 
 - `SDK-CONNECTOR-CONTROL-R014.30`: `tests/test_http_dns_pinned_egress.py` covers shared-address refusal through the URL guard and governed transports.
+- `SDK-CONNECTOR-CONTROL-R014.31`: `tests/test_http_dns_pinned_egress.py` checks cancellation during blocked DNS without a transport call.
 - `SDK-CONNECTOR-CONTROL-R047.9`: `tests/test_a2a_discovery.py` covers non-finite card refusal through governed fetch and extractor.
 
 ## Retry policy snapshot (R028.6)
