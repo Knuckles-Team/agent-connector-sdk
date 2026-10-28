@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from typing import Any
+from uuid import uuid4
 
 from epistemic_graph.generated.source_ingestion import (
     SourceCheckpoint,
@@ -204,6 +205,16 @@ class McpToolSourceAdapter:
         withdrawals = _source_withdrawals(self._preset, result)
         if mode is not SourceIngestionMode.DELTA and withdrawals:
             raise SourceContractError("only delta ingestion accepts withdrawals")
+        if (
+            mode is not SourceIngestionMode.DELTA
+            and self._preset.pagination == "none"
+            and not self._preset.checkpoint_path
+        ):
+            # Unpaged snapshots have no provider cursor. Each completed sweep
+            # needs a fresh durable position for EG's checkpoint compare-and-set.
+            candidate = candidate.model_copy(
+                update={"position": {"sdk_snapshot": uuid4().hex}}
+            )
         relationships = _mapped_relationships(
             raw_relationships(self._preset, result),
             connector=self._connector,
