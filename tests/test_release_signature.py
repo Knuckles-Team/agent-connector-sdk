@@ -125,3 +125,30 @@ def test_signing_refuses_unversioned_and_untrusted_keys() -> None:
             provider=provider,
             trusted_keys=trusted,
         )
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.2")
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.3")
+def test_invalid_mutated_declaration_is_never_signed_or_verified() -> None:
+    declaration, graph, reference, resolver, provider, trusted = fixture()
+    evidence = sign_release(
+        declaration,
+        graph,
+        key_id="key-1",
+        key_reference=reference,
+        provider=provider,
+        trusted_keys=trusted,
+    )
+    declaration.schema_mappings["bad"] = {"ontology_class": 123}  # type: ignore[assignment]
+    invalid = declaration
+    assert not verify_release(invalid, graph, evidence, trusted_keys=trusted)
+    with pytest.raises(ValueError):
+        sign_release(
+            invalid,
+            graph,
+            key_id="key-1",
+            key_reference=reference,
+            provider=provider,
+            trusted_keys=trusted,
+        )
+    assert resolver.calls == 1

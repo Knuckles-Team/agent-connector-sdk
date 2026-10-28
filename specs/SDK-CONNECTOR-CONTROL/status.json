@@ -2082,12 +2082,15 @@
       "title": "Release identity digest",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "398d4a31f195",
+        "68757f5b77bc",
         "c23ed3429195"
       ],
       "verified_by": [
         "tests/test_release_identity.py:22",
         "tests/test_release_identity.py:39",
-        "tests/test_release_identity.py:48"
+        "tests/test_release_identity.py:48",
+        "tests/test_release_signature.py:130"
       ]
     },
     {
@@ -2095,9 +2098,12 @@
       "title": "Explicit release signing",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "398d4a31f195",
+        "68757f5b77bc",
         "6f6fc3d5fa57"
       ],
       "verified_by": [
+        "tests/test_release_signature.py:131",
         "tests/test_release_signature.py:50",
         "tests/test_release_signature.py:91"
       ]
