@@ -2086,8 +2086,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R650.5",
       "title": "Create a release key lock",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "7b45abdf6424"
+      ],
       "verified_by": [
         "tests/test_release_lock.py:111",
         "tests/test_release_lock.py:84",
