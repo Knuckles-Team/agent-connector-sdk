@@ -865,6 +865,31 @@ partial progress and preserves accepted batches. The runner refuses a page
 that exceeds the remaining record budget. It keeps the prior checkpoint for
 the next run to retry the whole page. A fan-out stops as soon
 as it exceeds its admitted unique-value bound.
+
+## Platform fallback integration
+
+The connector passes a capability snapshot and authenticated actor to the
+fallback client. The owner supplies authorization and backend admission ports.
+Each admitted backend call is one attempt. Its transport disables hidden
+retries. The outer operation owns the total deadline and retry budget.
+A continuation stays on its original backend. The typed reason table determines
+whether a refusal stops the chain. Attempt evidence excludes raw errors and
+query text. MCP registration exposes the client. Source ingestion refuses a
+typed failure before creating a page.
+
+The SDK composes certified platform providers through its extension activation
+policy and offers the tools from the existing server factory. The host must
+bind a verified actor and supply connector authorization and authenticated
+continuation verification. Factory configuration does not itself establish
+those authorities. The controlled served tests exercise the composition, but
+fleet adoption and the delegated-actor producer of SDK-CONNECTOR-CONTROL-R902
+remain separate evidence requirements.
+
+Record validation runs in a worker thread within the attempt deadline. The
+SDK abandons the wait on timeout; it cannot stop a validator already running.
+A certified provider must use pure validators without external calls. Cancellation proof
+for that remaining computation is still open under R012.2 and R012.4.
+
 ## Paper provider model and deterministic merge
 
 The paper models bind tenant, provider identities, revisions, bounds, source

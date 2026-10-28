@@ -15,11 +15,14 @@ import logging
 import sys
 from collections.abc import Callable, Sequence
 from contextlib import AbstractAsyncContextManager
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from fastmcp import FastMCP
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+
+if TYPE_CHECKING:
+    from agent_connector_sdk.adapters.platform_fallback import PlatformFallback
 
 from agent_connector_sdk.config import setting
 from agent_connector_sdk.credentials.resolver import CredentialResolver
@@ -101,6 +104,7 @@ def create_mcp_server(
     server_registry: ServerRegistry | None = None,
     credential_resolver: CredentialResolver | None = None,
     served_security_override: ServedSecurityOverride | None = None,
+    platform_fallback: PlatformFallback | None = None,
 ) -> tuple[argparse.Namespace, FastMCP[Any], list[Any]]:
     """Build a connector FastMCP server.
 
@@ -118,6 +122,7 @@ def create_mcp_server(
         credential_resolver: Resolver for secret references in auth flags.
         served_security_override: Explicit, logged opt-out of the served
             security profile that every network transport otherwise gets.
+        platform_fallback: Optional host-authorized read/search fallback to serve.
 
     Returns:
         ``(args, mcp, middlewares)``; the caller adds the middlewares.
@@ -157,6 +162,10 @@ def create_mcp_server(
     )
     _register_native_primitives(mcp, name)
     serve_change_subscriptions(mcp)
+    if platform_fallback is not None:
+        from agent_connector_sdk.mcp.platform_tools import register_platform_tools
+
+        register_platform_tools(mcp, platform_fallback)
     if content is not None:
         register_connector_content(mcp, content)
     return args, mcp, build_middleware()

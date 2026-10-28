@@ -56,8 +56,23 @@ def tool_arguments(preset: ToolPreset, params: dict[str, Any]) -> dict[str, Any]
     if preset.params_style == "json":
         arguments[preset.params_arg] = json.dumps(params, sort_keys=True)
         return arguments
-    arguments.update(params)
+    if preset.result_contract == "platform":
+        _merge_arguments(arguments, params)
+    else:
+        arguments.update(params)
     return arguments
+
+
+def _merge_arguments(target: dict[str, Any], values: dict[str, Any]) -> None:
+    """Merge nested page values without changing the preset's static arguments."""
+    for key, value in values.items():
+        current = target.get(key)
+        if isinstance(current, dict) and isinstance(value, dict):
+            nested = dict(current)
+            _merge_arguments(nested, value)
+            target[key] = nested
+        else:
+            target[key] = value
 
 
 def page_params(

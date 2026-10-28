@@ -144,3 +144,18 @@ operation asks the connected user to confirm and is cancelled when it cannot.
 `MCP_DISABLED_TAGS` set the server policy. HTTP clients may narrow it with query
 parameters or `x-mcp-*` headers, never widen it. A malformed filter exposes
 nothing.
+
+## Platform read and search fallback
+
+A connector passes a `PlatformFallback` to `create_mcp_server`. It may register
+the same tools through a `register_tool_surface` registrar. The host binds an
+authenticated actor for each call. It supplies an authorizer, certified backend
+admission, and named retry policies. Network hosts use `VerifiedScopeAuthorizer`
+to match the token subject, tenant, and scope. Missing identity or denied
+authorization refuses before an outbound call. The host validates continuations.
+Each continuation stays pinned to its original backend.
+
+`PlatformHttpBackend` uses pinned governed egress. It performs one HTTP attempt
+per call. The fallback client owns the retry budget and total deadline. Status
+is a short-lived observation scoped to the caller and capability. It is not a
+grant. A refused platform result cannot advance source synchronization.
