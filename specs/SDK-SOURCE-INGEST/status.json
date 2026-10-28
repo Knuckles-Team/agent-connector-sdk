@@ -1126,9 +1126,9 @@
       "title": "Platform contract primitives",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "4357f9f96b2f",
-        "5320695b6d9d",
-        "b8c099828b82"
+        "27aa0ca2e9ae",
+        "8d984764c9d8",
+        "8eacf9ba10b6"
       ],
       "verified_by": [
         "tests/test_platform_fallback_models.py:24"
@@ -1888,7 +1888,7 @@
       "title": "Refuse cursor-bearing checkpoint conflicts",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "acb68ec670f0"
+        "cc667d74af34"
       ],
       "verified_by": [
         "tests/test_ingest.py:543"
@@ -1899,7 +1899,7 @@
       "title": "Preserve cursor across page chunks",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "417a6886d5f3"
+        "cc667d74af34"
       ],
       "verified_by": [
         "tests/test_ingest.py:567",
@@ -1911,7 +1911,7 @@
       "title": "Refuse split-stream page sync",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "1a64750b2d70"
+        "cc667d74af34"
       ],
       "verified_by": [
         "tests/test_ingest_stream.py:320"
@@ -1922,7 +1922,7 @@
       "title": "Bind returned checkpoint identity",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "eb9e2ee87bf0"
+        "cc667d74af34"
       ],
       "verified_by": [
         "tests/test_ingest.py:629"
@@ -1933,7 +1933,7 @@
       "title": "Refuse conflicts on all page commits",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "35ae62d6d404"
+        "cc667d74af34"
       ],
       "verified_by": [
         "tests/test_ingest.py:644"
@@ -1944,7 +1944,7 @@
       "title": "Stop after a refused page",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "35ae62d6d404"
+        "cc667d74af34"
       ],
       "verified_by": [
         "tests/test_ingest_stream.py:351"
