@@ -125,9 +125,7 @@ class ResourceDescriptor:
         }
 
 
-def _validate(
-    entry: Mapping[str, Any], classes: frozenset[str] | None
-) -> ResourceDeclarationError | None:
+def _validate_paging(entry: Mapping[str, Any]) -> ResourceDeclarationError | None:
     """The refusal for one merged declaration, or ``None`` when it is sound."""
     name = entry.get("name")
     completion = entry.get("completion")
@@ -138,6 +136,11 @@ def _validate(
         return ResourceDeclarationError(
             "PAGINATION_INVALID", f"{name}: invalid completion"
         )
+    return _validate_paging_paths(entry) or _validate_paging_numbers(entry)
+
+
+def _validate_paging_paths(entry: Mapping[str, Any]) -> ResourceDeclarationError | None:
+    name = entry.get("name")
     for key in (
         "records_path",
         "next_cursor_path",
@@ -155,6 +158,13 @@ def _validate(
             return ResourceDeclarationError(
                 "PAGINATION_INVALID", f"{name}: invalid {key}"
             )
+    return None
+
+
+def _validate_paging_numbers(
+    entry: Mapping[str, Any],
+) -> ResourceDeclarationError | None:
+    name = entry.get("name")
     for key, maximum in (
         ("page_size", 1000),
         ("start_page", 1_000_000),
@@ -171,6 +181,17 @@ def _validate(
             return ResourceDeclarationError(
                 "PAGINATION_INVALID", f"{name}: invalid {key}"
             )
+    return None
+
+
+def _validate(
+    entry: Mapping[str, Any], classes: frozenset[str] | None
+) -> ResourceDeclarationError | None:
+    """The refusal for one merged declaration, or None when it is sound."""
+    name = entry.get("name")
+    paging_refusal = _validate_paging(entry)
+    if paging_refusal is not None:
+        return paging_refusal
     if entry.get("access_kind", "mcp_tool") not in _RESOURCE_ACCESS_KINDS:
         return ResourceDeclarationError(
             "ACCESS_KIND_UNKNOWN", f"{name}: unknown access_kind"

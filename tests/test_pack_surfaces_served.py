@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 from fastmcp import Client
@@ -26,6 +27,35 @@ class Widget(BaseModel):
     serial_number: str
 
 
+def _widget_server(tmp_path: Path) -> tuple[Path, Any]:
+    ontology = tmp_path / "ontology"
+    ontology.mkdir(exist_ok=True)
+    (ontology / "widget.ttl").write_text(
+        "@prefix : <http://knuckles.team/kg#> .\n"
+        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
+        "<http://example.invalid/widget> a owl:Ontology ; "
+        "owl:imports <http://knuckles.team/kg> .\n"
+        ":Widget a owl:Class .\n:serialNumber a owl:DatatypeProperty .\n"
+    )
+    _, server, _ = create_mcp_server(
+        "widget-mcp",
+        version="1.0.0",
+        command_args=[],
+        content=ConnectorContent("widget-mcp", tmp_path, "1.0.0"),
+    )
+    return ontology, server
+
+
+async def _read_descriptors(client: Any) -> tuple[dict[str, Any], dict[str, Any]]:
+    declaration = json.loads(
+        (await client.read_resource("connector://resources"))[0].text
+    )
+    resource = json.loads(
+        (await client.read_resource("data://widget-mcp/widgets"))[0].text
+    )
+    return declaration, resource
+
+
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R074.3")
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R074.4")
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R074.6")
@@ -44,19 +74,7 @@ async def test_factory_serves_and_packs_every_surface_with_a_parseable_contract(
     (tmp_path / "prompts" / "widget.json").write_text(
         json.dumps({"instructions": {"core_directive": "Read widgets."}})
     )
-    (ontology / "widget.ttl").write_text(
-        "@prefix : <http://knuckles.team/kg#> .\n"
-        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
-        "<http://example.invalid/widget> a owl:Ontology ; "
-        "owl:imports <http://knuckles.team/kg> .\n"
-        ":Widget a owl:Class .\n:serialNumber a owl:DatatypeProperty .\n"
-    )
-    _, server, _ = create_mcp_server(
-        "widget-mcp",
-        version="1.0.0",
-        command_args=[],
-        content=ConnectorContent("widget-mcp", tmp_path, "1.0.0"),
-    )
+    _, server = _widget_server(tmp_path)
 
     @server.tool(annotations={"readOnlyHint": True})
     def list_widgets(cursor: str | None = None) -> list[Widget]:
@@ -70,12 +88,7 @@ async def test_factory_serves_and_packs_every_surface_with_a_parseable_contract(
         assert "skill://widget-reader/SKILL.md" in uris
         assert any(item.name == "widget" for item in await client.list_prompts())
         assert any(item.name == "list_widgets" for item in await client.list_tools())
-        declaration = json.loads(
-            (await client.read_resource("connector://resources"))[0].text
-        )
-        resource = json.loads(
-            (await client.read_resource("data://widget-mcp/widgets"))[0].text
-        )
+        declaration, resource = await _read_descriptors(client)
         assert declaration["descriptors"] == [resource]
         surfaces = declaration["surfaces"]
         assert set(surfaces) == {
@@ -147,21 +160,7 @@ async def test_factory_serves_and_packs_every_surface_with_a_parseable_contract(
 async def test_source_metadata_overrides_live_descriptor(tmp_path: Path) -> None:
     from agent_connector_sdk.ingest.live_declaration import source_meta
 
-    ontology = tmp_path / "ontology"
-    ontology.mkdir()
-    (ontology / "widget.ttl").write_text(
-        "@prefix : <http://knuckles.team/kg#> .\n"
-        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
-        "<http://example.invalid/widget> a owl:Ontology ; "
-        "owl:imports <http://knuckles.team/kg> .\n"
-        ":Widget a owl:Class .\n:serialNumber a owl:DatatypeProperty .\n"
-    )
-    _, server, _ = create_mcp_server(
-        "widget-mcp",
-        version="1.0.0",
-        command_args=[],
-        content=ConnectorContent("widget-mcp", tmp_path, "1.0.0"),
-    )
+    _, server = _widget_server(tmp_path)
 
     @server.tool(
         annotations={"readOnlyHint": True},
@@ -182,12 +181,7 @@ async def test_source_metadata_overrides_live_descriptor(tmp_path: Path) -> None
         return []
 
     async with Client(server) as client:
-        declaration = json.loads(
-            (await client.read_resource("connector://resources"))[0].text
-        )
-        resource = json.loads(
-            (await client.read_resource("data://widget-mcp/widgets"))[0].text
-        )
+        declaration, resource = await _read_descriptors(client)
         assert declaration["descriptors"] == [resource]
         assert resource["origin"] == resource["mapping_status"] == "declared"
         assert resource["key_field"] == "serial_number"

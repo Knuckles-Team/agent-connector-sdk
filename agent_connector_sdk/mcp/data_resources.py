@@ -26,14 +26,29 @@ async def _surface_summary(
         members["tools"].append(
             (str(tool.name), json.dumps(body, sort_keys=True).encode())
         )
-    for prompt in await mcp.list_prompts():
-        body = prompt.to_mcp_prompt().model_dump(mode="json")
-        payload = json.dumps(body, sort_keys=True).encode()
-        if re.fullmatch(r"[A-Za-z0-9._-]+", str(prompt.name)):
-            source = root / "prompts" / f"{prompt.name}.json"
-            if source.is_file():
-                payload += b"\0" + source.read_bytes()
-        members["prompts"].append((str(prompt.name), payload))
+    members["prompts"] = [
+        _prompt_member(prompt, root) for prompt in await mcp.list_prompts()
+    ]
+    members.update(await _resource_members(mcp, descriptors))
+    return {kind: _summarize(items) for kind, items in members.items()}
+
+
+def _prompt_member(prompt: Any, root: Path) -> tuple[str, bytes]:
+    body = prompt.to_mcp_prompt().model_dump(mode="json")
+    payload = json.dumps(body, sort_keys=True).encode()
+    if re.fullmatch(r"[A-Za-z0-9._-]+", str(prompt.name)):
+        source = root / "prompts" / f"{prompt.name}.json"
+        if source.is_file():
+            payload += b"\0" + source.read_bytes()
+    return str(prompt.name), payload
+
+
+async def _resource_members(
+    mcp: Any, descriptors: list[dict[str, Any]]
+) -> dict[str, list[tuple[str, bytes]]]:
+    members: dict[str, list[tuple[str, bytes]]] = {
+        name: [] for name in ("skills", "ontology", "shapes", "data")
+    }
     schemes = {
         "skill": "skills",
         "ontology": "ontology",
@@ -61,18 +76,16 @@ async def _surface_summary(
         (uri, json.dumps(item, sort_keys=True).encode())
         for uri, item in expected_data.items()
     ]
-    out: dict[str, dict[str, object]] = {}
-    for kind, items in members.items():
-        manifest = [
-            {"name": name, "sha256": hashlib.sha256(body).hexdigest()}
-            for name, body in sorted(items)
-        ]
-        encoded = json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
-        out[kind] = {
-            "count": len(manifest),
-            "sha256": hashlib.sha256(encoded).hexdigest(),
-        }
-    return out
+    return members
+
+
+def _summarize(items: list[tuple[str, bytes]]) -> dict[str, object]:
+    manifest = [
+        {"name": name, "sha256": hashlib.sha256(body).hexdigest()}
+        for name, body in sorted(items)
+    ]
+    encoded = json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
+    return {"count": len(manifest), "sha256": hashlib.sha256(encoded).hexdigest()}
 
 
 def _descriptor_resource(descriptor: dict[str, Any]) -> FunctionResource:
