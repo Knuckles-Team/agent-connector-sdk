@@ -1595,12 +1595,20 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R047",
       "title": "Agent-card discovery from the standard well-known path",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "54aaac362dcd"
+        "39ed54a0a2c8",
+        "3f69e2f9f627",
+        "54aaac362dcd",
+        "6c1d3630854f",
+        "772eecafdcb1"
       ],
       "verified_by": [
-        "tests/test_vendor_extractors_archer_infra_a2a.py:142"
+        "tests/test_a2a_discovery.py:128",
+        "tests/test_a2a_discovery.py:158",
+        "tests/test_a2a_discovery.py:181",
+        "tests/test_a2a_discovery.py:194",
+        "tests/test_a2a_discovery.py:28"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R047.1",
@@ -1628,10 +1636,14 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R047.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "39ed54a0a2c8"
+      ],
       "verified_by": [
-        "tests/test_a2a_discovery.py:44"
+        "tests/test_a2a_discovery.py:44",
+        "tests/test_a2a_discovery_deadline.py:14",
+        "tests/test_a2a_discovery_deadline.py:52"
       ]
     },
     {
