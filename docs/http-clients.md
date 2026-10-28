@@ -68,6 +68,10 @@ safe to repeat. Timeouts use cooperative cancellation and propagate without
 another call; a coroutine that suppresses cancellation cannot be forcibly
 stopped. Permission, validation and certificate failures also propagate.
 
+`run_with_resilience_sync` applies the same retry rules to blocking callables.
+It refuses a requested timeout because it cannot safely stop arbitrary
+blocking work. Use it outside an event loop.
+
 ## Requests-only SDKs
 
 Install `scion-sdk[requests]` to use
