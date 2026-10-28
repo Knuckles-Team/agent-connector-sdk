@@ -176,3 +176,26 @@ def test_cached_card_is_isolated_from_returned_mutations() -> None:
             request.headers.get("if-none-match") == '"v1"'
             for request in server.requests[1:]
         )
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.9")
+@pytest.mark.parametrize("number", ["NaN", "Infinity", "-Infinity", "1e999"])
+def test_nonfinite_card_refuses_before_extractor_writes(number: str) -> None:
+    payload = ('{"name":"A", "metadata":{"score":' + number + "}}").encode()
+    with ScriptedHttpServer(
+        ScriptedResponse(body=payload), ScriptedResponse(body=payload)
+    ) as server:
+        result = discover_agent_card(server.base_url, allow_loopback=True)
+        changes = extract({"cards": [server.base_url], "allow_loopback": True})
+    assert result == AgentCardRefused("not_json")
+    assert changes.entities == ()
+
+
+@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.9")
+def test_finite_card_numbers_remain_accepted() -> None:
+    with ScriptedHttpServer(
+        ScriptedResponse(body=b'{"name":"A","metadata":{"score":-1.5}}')
+    ) as server:
+        result = discover_agent_card(server.base_url, allow_loopback=True)
+    assert isinstance(result, DiscoveredAgentCard)
+    assert result.card["metadata"]["score"] == -1.5
