@@ -1218,8 +1218,10 @@
     {
       "id": "SDK-CONNECTOR-CONTROL-R035.8",
       "title": "Secret reference object integrity",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5d2fcbc3905a"
+      ],
       "verified_by": [
         "tests/test_reference_invariants.py:12"
       ]
