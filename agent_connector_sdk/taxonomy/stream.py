@@ -15,7 +15,10 @@ require_mcp_extra("agent_connector_sdk.taxonomy.stream")
 from fastmcp import Context  # noqa: E402
 from fastmcp.exceptions import ToolError  # noqa: E402
 
-from agent_connector_sdk.ingest.live_declaration import source_meta  # noqa: E402
+from agent_connector_sdk.ingest.live_declaration import (  # noqa: E402
+    _cursor_delta_preset,
+    source_meta,
+)
 from agent_connector_sdk.taxonomy.provider import (  # noqa: E402
     TaxonomyProvider,
     _valid_identifier_batch,
@@ -110,15 +113,7 @@ def register_taxonomy_stream(
         records_path="records",
         title_field="scientific_name",
         server=connector,
-        preset={
-            "params_style": "args",
-            "params": {"mode": "delta"},
-            "pagination": "cursor",
-            "cursor_param": "cursor",
-            "cursor_path": "next",
-            "updated_since_param": "state",
-            "checkpoint_path": "checkpoint",
-        },
+        preset=_cursor_delta_preset(),
     )
     server.tool(name=name, annotations={"readOnlyHint": True}, meta=metadata)(
         taxonomy_stream
