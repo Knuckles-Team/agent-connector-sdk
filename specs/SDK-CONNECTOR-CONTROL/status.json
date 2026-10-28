@@ -3352,6 +3352,7 @@
       "title": "Explicit TLS selector settings",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "17e99e5e3ed9",
         "8b8ba3ab9cb9"
       ],
       "verified_by": [
