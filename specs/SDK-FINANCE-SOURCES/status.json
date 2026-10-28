@@ -7,6 +7,7 @@
     "SDK-FINANCE-SOURCES-R001",
     "SDK-FINANCE-SOURCES-R001.1",
     "SDK-FINANCE-SOURCES-R001.2",
+    "SDK-FINANCE-SOURCES-R001.3",
     "SDK-FINANCE-SOURCES-R002",
     "SDK-FINANCE-SOURCES-R002.1",
     "SDK-FINANCE-SOURCES-R003",
@@ -34,7 +35,8 @@
       "verified_by": [],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R001.1",
-        "SDK-FINANCE-SOURCES-R001.2"
+        "SDK-FINANCE-SOURCES-R001.2",
+        "SDK-FINANCE-SOURCES-R001.3"
       ]
     },
     {
@@ -54,6 +56,18 @@
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
+    },
+    {
+      "id": "SDK-FINANCE-SOURCES-R001.3",
+      "title": "Refuse same-page calendar identity collisions",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3c4fa7686c22"
+      ],
+      "verified_by": [
+        "tests/test_finance_central_bank_calendar.py:104",
+        "tests/test_finance_central_bank_calendar.py:128"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R002",
