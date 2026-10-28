@@ -1272,7 +1272,7 @@ class CleanPipeline:
     def plan(self) -> CleanPlan:
         """The validated immutable plan used by this pipeline."""
 
-        return self._plan
+        return self._plan.model_copy(deep=True)
 
     def profile(self, table: Any) -> ProfileResult:
         """Return a bounded local profile without applying transformations."""

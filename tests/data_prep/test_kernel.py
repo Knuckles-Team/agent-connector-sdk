@@ -696,3 +696,28 @@ def test_outcome_models_reject_inconsistent_reasons() -> None:
         QuarantineOutcome(reason_code="null_rejected", row_count=0)
     assert issubclass(DataPrepDependencyError, DataPrepError)
     assert issubclass(PlanExecutionError, DataPrepError)
+
+
+@pytest.mark.spec("SDK-SOURCE-INGEST-R803.7")
+def test_public_plan_view_cannot_mutate_execution() -> None:
+    plan = _plan({"verb": "dedupe", "keys": ["value"]})
+    pipeline = CleanPipeline(
+        plan, model_registry=_registry(_row_model("IsolatedRow", value=int))
+    )
+    table = pa.table({"value": [1, 1, 2]})
+    before = pipeline.run(table)
+    exposed = pipeline.plan
+    exposed.steps.clear()
+    assert len(pipeline.plan.steps) == 1
+    after = pipeline.run(table)
+    paged = pipeline.run_paged(table)
+    assert (
+        after.table.to_pylist()
+        == before.table.to_pylist()
+        == [{"value": 1}, {"value": 2}]
+    )
+    assert (
+        after.evidence.plan_digest == before.evidence.plan_digest == paged.plan_digest
+    )
+    assert paged.rows_out == 2
+    assert paged.dropped_rows == 1
