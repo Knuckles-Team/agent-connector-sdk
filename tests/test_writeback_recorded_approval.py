@@ -5,10 +5,12 @@ import time
 import pytest
 
 from agent_connector_sdk.testing.writeback import make_writeback_fixture
-from agent_connector_sdk.writeback import RecordedApprovalResolver
+from agent_connector_sdk.writeback import (
+    RecordedApprovalResolver,
+    write_back_approval_target,
+)
 from agent_connector_sdk.writeback.durable_ledger import FileWriteBackLedger
 from agent_connector_sdk.writeback.errors import AuthorizationDeniedError
-from agent_connector_sdk.writeback.recorded_approval import _approval_target
 from agent_connector_sdk.writeback.service import GovernedWriteBack
 
 
@@ -26,7 +28,7 @@ def _approval(change, now):
     return {
         "change_id": change.authorization.authorization_ref,
         "kind": "governed.write-back",
-        "target": _approval_target(change),
+        "target": write_back_approval_target(change),
         "digest": change.change_set_digest,
         "justification": "approved fixture effect",
         "proposer": change.actor,
@@ -154,3 +156,14 @@ async def test_durable_connector_uses_injected_recorded_approval(tmp_path):
     client.record["status"] = "approved"
     await connector.apply(fixture.change_set)
     assert fixture.transport.attempts == 1
+
+
+def test_approval_target_is_stable_and_unambiguous():
+    change = make_writeback_fixture().change_set
+    assert write_back_approval_target(change) == (
+        "write-back:09a998fb2b7e1a15fbe3359bb3ffd466db8bb972f5e64c016e5e17f54384ff4f"
+    )
+    other = change.model_copy(
+        update={"tenant_id": "tenant-1change", "change_set_id": "-1"}
+    )
+    assert write_back_approval_target(other) != write_back_approval_target(change)

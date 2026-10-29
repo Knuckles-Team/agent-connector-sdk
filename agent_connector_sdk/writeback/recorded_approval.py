@@ -20,7 +20,7 @@ from agent_connector_sdk.writeback.authorization import _require_durable_authori
 from agent_connector_sdk.writeback.errors import AuthorizationDeniedError
 
 
-def _approval_target(change_set: SourceChangeSet) -> str:
+def write_back_approval_target(change_set: SourceChangeSet) -> str:
     """Bind tenant and change-set identity without delimiter ambiguity."""
     encoded = json.dumps(
         [change_set.tenant_id, change_set.change_set_id],
@@ -57,7 +57,7 @@ class RecordedApprovalResolver:
         durable = await self._ledger.get(change_set.tenant_id, change_set.change_set_id)
         decision = _require_durable_authorization(change_set, durable)
         try:
-            target = _approval_target(change_set)
+            target = write_back_approval_target(change_set)
             response = await send_governed_change(
                 self._client,
                 {"op": {"op": "get", "change_id": decision.authorization_ref}},

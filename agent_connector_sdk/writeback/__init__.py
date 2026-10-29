@@ -1,6 +1,9 @@
 """Governed D18 source write-back and engine trajectory helpers."""
 
-from agent_connector_sdk.writeback.recorded_approval import RecordedApprovalResolver
+from agent_connector_sdk.writeback.recorded_approval import (
+    RecordedApprovalResolver,
+    write_back_approval_target,
+)
 from agent_connector_sdk.writeback.repository_effect import (
     RepositorySourceEffectIntent,
     RepositorySourceEffectReceipt,
@@ -34,4 +37,5 @@ __all__ = [
     "WalletProofRequest",
     "WalletProofResult",
     "WalletSignatureVerifier",
+    "write_back_approval_target",
 ]
