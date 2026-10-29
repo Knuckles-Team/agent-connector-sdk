@@ -37,7 +37,7 @@ def _series(**overrides: object) -> tuple[MacroSeriesObservation, ...]:
     return macro_series_from_fred(**fields)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R005")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R005")
 def test_each_observation_preserves_its_own_vintage_date() -> None:
     observations = _series()
 
@@ -96,7 +96,7 @@ def test_vintage_before_its_own_observation_period_is_rejected() -> None:
         )
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.1")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.1")
 @pytest.mark.parametrize("value", ["nan", "inf", "-inf", "1e999"])
 def test_nonfinite_values_are_rejected(value: str) -> None:
     page = {
@@ -112,7 +112,7 @@ def test_nonfinite_values_are_rejected(value: str) -> None:
         MacroSeriesObservation(**valid)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.4")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.4")
 @pytest.mark.parametrize("value", [None, "invalid", {}, 1])
 def test_observation_page_requires_an_array(value: object) -> None:
     with pytest.raises(ValueError, match="observations must be an array"):
@@ -122,7 +122,7 @@ def test_observation_page_requires_an_array(value: object) -> None:
     assert _series(payload={"observations": []}) == ()
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.5")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.5")
 @pytest.mark.parametrize(
     "field,value",
     [
@@ -145,7 +145,7 @@ def test_fred_observation_identity_requires_canonical_dates(
     assert record.event_time_utc == datetime(2025, 11, 1, tzinfo=UTC)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.6")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.6")
 @pytest.mark.parametrize("other_value", ["3.7", "9.1"])
 def test_fred_page_refuses_duplicate_observation_identities(other_value: str) -> None:
     first = dict(_PAGE["observations"][0])

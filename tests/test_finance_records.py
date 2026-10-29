@@ -98,7 +98,7 @@ def test_corporate_action_rejects_ex_date_after_effective_date() -> None:
         )
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003")
 def test_fx_rate_inversion_swaps_base_quote_and_rate() -> None:
     rate = FxRate(**_base_fields(), base_currency="EUR", quote_currency="USD", rate=1.1)
 
@@ -110,13 +110,13 @@ def test_fx_rate_inversion_swaps_base_quote_and_rate() -> None:
     assert inverted.source_event_id == f"{rate.source_event_id}:inverted"
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003")
 def test_fx_rate_rejects_identical_base_and_quote() -> None:
     with pytest.raises(ValidationError, match="must differ"):
         FxRate(**_base_fields(), base_currency="USD", quote_currency="USD", rate=1.0)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003")
 def test_commodity_future_requires_contract_fields() -> None:
     with pytest.raises(ValidationError, match="requires contract_code"):
         CommodityPrice(
@@ -127,7 +127,7 @@ def test_commodity_future_requires_contract_fields() -> None:
         )
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003")
 def test_commodity_spot_rejects_future_only_fields() -> None:
     with pytest.raises(ValidationError, match="must not carry future-only"):
         CommodityPrice(
@@ -139,7 +139,7 @@ def test_commodity_spot_rejects_future_only_fields() -> None:
         )
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003")
 def test_commodity_future_with_full_roll_rule_is_explicit() -> None:
     price = CommodityPrice(
         **_base_fields(),
@@ -153,7 +153,7 @@ def test_commodity_future_with_full_roll_rule_is_explicit() -> None:
     assert price.basis is CommodityPriceBasis.FUTURE
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003")
 def test_real_estate_valuation_reports_staleness_explicitly() -> None:
     fresh = RealEstateValuation(
         **_base_fields(),
@@ -175,7 +175,7 @@ def test_real_estate_valuation_reports_staleness_explicitly() -> None:
     assert stale.staleness_days == 400
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003")
 def test_real_estate_valuation_rejects_same_day_stale_claim() -> None:
     with pytest.raises(ValidationError, match="same-day valuation"):
         RealEstateValuation(
@@ -220,7 +220,7 @@ def test_account_snapshot_rejects_a_foreign_position() -> None:
         )
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.2")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003.2")
 @pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
 def test_multi_asset_refuses_nonfinite_prices(value: float) -> None:
     with pytest.raises(ValidationError):
@@ -234,7 +234,7 @@ def test_multi_asset_refuses_nonfinite_prices(value: float) -> None:
         )
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.2")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003.2")
 def test_fx_inversion_refuses_overflow() -> None:
     rate = FxRate(
         **_base_fields(), base_currency="EUR", quote_currency="USD", rate=1e-320
@@ -243,7 +243,7 @@ def test_fx_inversion_refuses_overflow() -> None:
         rate.inverted()
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.3")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003.3")
 def test_fx_currency_codes_are_canonical_and_distinct() -> None:
     rate = FxRate(**_base_fields(), base_currency="eur", quote_currency="Usd", rate=1.1)
     assert (rate.base_currency, rate.quote_currency) == ("EUR", "USD")
@@ -251,14 +251,14 @@ def test_fx_currency_codes_are_canonical_and_distinct() -> None:
         FxRate(**_base_fields(), base_currency="usd", quote_currency="USD", rate=1.0)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.3")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003.3")
 @pytest.mark.parametrize("currency", ["U1D", "U D", "éUR"])
 def test_fx_currency_rejects_invalid_code(currency: str) -> None:
     with pytest.raises(ValidationError, match="three ASCII letters"):
         FxRate(**_base_fields(), base_currency=currency, quote_currency="EUR", rate=1.0)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R002.2")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R002.2")
 @pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
 @pytest.mark.parametrize("field", ["open", "high", "low", "close", "volume"])
 def test_market_records_reject_nonfinite_values(field: str, value: float) -> None:

@@ -51,7 +51,7 @@ def _check(error: HttpProblemError, status: int) -> None:
     assert _MARKER not in json.dumps(error.problem.to_json())
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R006.1")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R006.1")
 @pytest.mark.parametrize("status", (401, 429, 500))
 def test_sync_governed_error_drops_problem_body(status: int) -> None:
     with (
@@ -62,7 +62,7 @@ def test_sync_governed_error_drops_problem_body(status: int) -> None:
     _check(caught.value, status)
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R006.1")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R006.1")
 @pytest.mark.parametrize("status", (401, 429, 500))
 async def test_async_governed_error_drops_problem_body(status: int) -> None:
     async with create_async_http_client(

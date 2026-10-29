@@ -1,6 +1,6 @@
 """Tests for the R001 isolated-consumer plan and R005 import-graph reproducibility helpers.
 
-SDK-QUALITY-RELEASE-R001 and -R005 (see specs/SDK-QUALITY-RELEASE/requirements.md).
+SCION-QUALITY-RELEASE-R001 and -R005 (see specs/SCION-QUALITY-RELEASE/requirements.md).
 """
 
 from __future__ import annotations
@@ -43,20 +43,20 @@ isolated_install_plan = _compat.isolated_install_plan
 pinned_graph_client_requirement = _compat.pinned_graph_client_requirement
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R001")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R001")
 def test_pinned_graph_client_requirement_reads_the_declared_dependency() -> None:
     requirement = pinned_graph_client_requirement()
     assert requirement.startswith("epistemic-graph")
     assert any(op in requirement for op in (">=", "==", "~="))
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R001")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R001")
 def test_pinned_graph_client_requirement_fails_closed_without_a_dependency() -> None:
     with pytest.raises(CompatibilityGateError):
         pinned_graph_client_requirement('[project]\nname = "x"\ndependencies = []\n')
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R001")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R001")
 def test_isolated_install_plan_never_installs_from_the_source_overlay() -> None:
     plan = isolated_install_plan(
         Path("dist/scion_sdk-1.0.0-py3-none-any.whl"),
@@ -74,7 +74,7 @@ def test_isolated_install_plan_never_installs_from_the_source_overlay() -> None:
         assert "--python dist-consumer-venv" in command
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R001")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R001")
 def test_isolated_install_plan_rejects_a_non_wheel_path() -> None:
     with pytest.raises(CompatibilityGateError):
         isolated_install_plan(
@@ -82,7 +82,7 @@ def test_isolated_install_plan_rejects_a_non_wheel_path() -> None:
         )
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_local_pinned_install_reproduces_hosted_import_graph() -> None:
     """The exact import graph computed under this pinned environment must
     equal the recorded graph committed from an equivalently pinned
@@ -99,14 +99,14 @@ def test_local_pinned_install_reproduces_hosted_import_graph() -> None:
     )
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_recorded_import_graph_is_sorted_and_deduplicated() -> None:
     recorded = read_recorded_graph()
     assert recorded == sorted(set(recorded))
     assert all("==" in entry for entry in recorded)
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_activated_dependency_extras_are_traversed_transitively() -> None:
     packages = _extras_lock_packages()
     installed = _extras_installed_packages()
@@ -120,7 +120,7 @@ def test_activated_dependency_extras_are_traversed_transitively() -> None:
     )
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_missing_activated_extra_dependency_fails_closed() -> None:
     packages = _extras_lock_packages()
     installed = _extras_installed_packages()
@@ -131,7 +131,7 @@ def test_missing_activated_extra_dependency_fails_closed() -> None:
         _walk_extras_graph(packages, installed)
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 @pytest.mark.parametrize(
     ("field", "value", "message"),
     [
@@ -233,7 +233,7 @@ def _walk_extras_graph(
     )
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_tampered_installed_native_file_fails_with_matching_pep610_hash(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -286,7 +286,7 @@ def test_tampered_installed_native_file_fails_with_matching_pep610_hash(
     assert Distribution().read_text("direct_url.json") == receipt_text
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_release_source_pin_rejects_a_different_commit() -> None:
     with pytest.raises(_wheel.ProvenanceError, match="does not match"):
         _wheel.require_source_revision(
@@ -295,7 +295,7 @@ def test_release_source_pin_rejects_a_different_commit() -> None:
         )
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_release_wheel_receipt_rejects_a_different_artifact_hash() -> None:
     manifest = _wheel.EXPECTED
     direct_url = {
@@ -331,14 +331,14 @@ def _eg_lock_package(**over: object) -> dict[str, object]:
     return package
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_locked_eg_is_a_pypi_wheel_and_never_a_source_build() -> None:
     assert _graph._locked_wheels(_eg_lock_package()) == {
         "epistemic_graph-2.27.1-cp39-abi3-manylinux_2_28_x86_64.whl": "a" * 64
     }
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 @pytest.mark.parametrize(
     ("over", "message"),
     [
@@ -357,7 +357,7 @@ def test_locked_eg_rejects_git_or_unhashed_sources(
         _graph._locked_wheels(_eg_lock_package(**over))
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_locked_eg_sdist_beside_wheels_still_installs_the_wheel() -> None:
     package = _eg_lock_package(sdist={"url": "https://x/eg.tar.gz"})
     assert _graph._locked_wheels(package) == {
@@ -365,7 +365,7 @@ def test_locked_eg_sdist_beside_wheels_still_installs_the_wheel() -> None:
     }
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_pyproject_must_forbid_an_eg_source_build() -> None:
     _graph._no_build_configured(_graph._read_toml(_graph.ROOT_PYPROJECT))
     with pytest.raises(_graph.ImportGraphError, match="no-build-package"):
@@ -383,7 +383,7 @@ def test_pyproject_must_forbid_an_eg_source_build() -> None:
         )
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_recorded_graph_provenance_binds_the_installed_pypi_wheel() -> None:
     evidence = compute_import_graph_evidence()
     graph_bytes = _graph._graph_bytes(evidence.graph)
@@ -445,7 +445,7 @@ class _Distribution:
         return self._package.parent / name
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_package_overlay_beyond_the_installed_wheel_is_rejected(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -459,7 +459,7 @@ def test_package_overlay_beyond_the_installed_wheel_is_rejected(
         _graph._verify_import_origins(_Distribution(wheel))
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_consumed_module_outside_the_installed_wheel_is_rejected(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

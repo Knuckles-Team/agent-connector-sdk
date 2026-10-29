@@ -1,5 +1,5 @@
-"""Connector-side decisions through EG ``Decide`` (SDK-CONNECTOR-CONTROL-R006,
-SDK-GOVERNED-WRITEBACK-R001).
+"""Connector-side decisions through EG ``Decide`` (SCION-CONNECTOR-CONTROL-R006,
+SCION-GOVERNED-WRITEBACK-R001).
 
 Ported from agent-utilities' equivalent connector decision consumers rather
 than imported: the SDK must never depend on the agent control plane. All

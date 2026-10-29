@@ -62,7 +62,7 @@ def _receipt() -> WriteBackReceipt:
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.32")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.32")
 def test_request_and_capability_bind_operation_schema_and_scope() -> None:
     listing = EnterpriseOperation(**_base(), parameters=ListAccounts(limit=100))
     assert EnterpriseOperation.model_validate_json(listing.model_dump_json()) == listing
@@ -104,7 +104,7 @@ def test_request_and_capability_bind_operation_schema_and_scope() -> None:
         ListAccounts(limit=0)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.32")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.32")
 def test_results_preserve_units_and_distinguish_empty_from_refusal() -> None:
     common = dict(
         request_id="request-1",
@@ -170,7 +170,7 @@ def test_results_preserve_units_and_distinguish_empty_from_refusal() -> None:
         )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.32")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.32")
 def test_effect_requires_engine_receipt_with_matching_tenant_and_applied_status() -> (
     None
 ):

@@ -13,7 +13,7 @@ from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.transports.mcp import McpTransport
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R048.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R048.4")
 @pytest.mark.parametrize("declared_on_preset", [True, False])
 @pytest.mark.parametrize("question_set_ref", [None, "questions.json"])
 async def test_unscored_form_is_refused(

@@ -1,4 +1,4 @@
-"""Citable public URLs survive the persistence guard (SDK-SOURCE-INGEST-R004.26)."""
+"""Citable public URLs survive the persistence guard (SCION-SOURCE-INGEST-R004.26)."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ def _payload(binding: IngestBinding, source_uri: str) -> dict:
     return dict(request.records[0].payload)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.26")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.26")
 def test_citable_fields_keep_public_urls_and_nothing_else() -> None:
     binding = IngestBinding(
         connector="webarchiver-mcp",
@@ -52,7 +52,7 @@ def test_citable_fields_keep_public_urls_and_nothing_else() -> None:
     assert default["source_uri"] == "[REDACTED_LOCATION]"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.26")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.26")
 @pytest.mark.parametrize(
     "url",
     [
@@ -72,7 +72,7 @@ def test_a_non_public_url_stays_redacted_even_when_citable(url: str) -> None:
     assert report.redactions >= 1
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.26")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.26")
 def test_public_http_url_accepts_public_hosts() -> None:
     assert public_http_url(PAGE)
     assert public_http_url("http://93.184.216.34/page")

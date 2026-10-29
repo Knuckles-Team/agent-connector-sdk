@@ -1,4 +1,4 @@
-"""ArchiMate model vendor extractor (SDK-SOURCE-INGEST-R006.5).
+"""ArchiMate model vendor extractor (SCION-SOURCE-INGEST-R006.5).
 
 Ported from
 ``agent_utilities.knowledge_graph.enrichment.extractors.archimate`` onto this

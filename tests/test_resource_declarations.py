@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R074: default data-resource declarations."""
+"""SCION-CONNECTOR-CONTROL-R074: default data-resource declarations."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ from agent_connector_sdk.artifacts.resource_descriptor import (
 )
 from agent_connector_sdk.mcp.content import ConnectorContent
 
-pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R074.7")
+pytestmark = pytest.mark.spec("SCION-CONNECTOR-CONTROL-R074.7")
 
 GITHUB = Path(__file__).parent / "fixtures" / "github_agent"
 KG = "http://knuckles.team/kg#"

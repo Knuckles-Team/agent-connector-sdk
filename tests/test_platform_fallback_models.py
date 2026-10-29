@@ -21,7 +21,7 @@ from agent_connector_sdk.adapters.platform_models import (
     validate_request_binding,
 )
 
-pytestmark = pytest.mark.spec("SDK-SOURCE-INGEST-R012.7")
+pytestmark = pytest.mark.spec("SCION-SOURCE-INGEST-R012.7")
 DIGEST = "sha256:" + "0" * 64
 
 

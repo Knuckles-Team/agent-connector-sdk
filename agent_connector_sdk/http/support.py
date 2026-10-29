@@ -1,4 +1,4 @@
-"""Class-based API client base and auth strategies (SDK-CONNECTOR-CONTROL-R014.10).
+"""Class-based API client base and auth strategies (SCION-CONNECTOR-CONTROL-R014.10).
 
 Replaces ``agent_utilities.httpsupport`` for connectors that subclass a shared
 client instead of calling :func:`agent_connector_sdk.http.create_http_client`:

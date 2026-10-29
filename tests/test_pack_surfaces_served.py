@@ -56,9 +56,9 @@ async def _read_descriptors(client: Any) -> tuple[dict[str, Any], dict[str, Any]
     return declaration, resource
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R074.3")
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R074.4")
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R074.6")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R074.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R074.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R074.6")
 async def test_factory_serves_and_packs_every_surface_with_a_parseable_contract(
     tmp_path: Path,
 ) -> None:

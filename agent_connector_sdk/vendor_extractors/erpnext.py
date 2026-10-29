@@ -1,4 +1,4 @@
-"""ERPNext/Frappe vendor extractor (SDK-SOURCE-INGEST-R006.25).
+"""ERPNext/Frappe vendor extractor (SCION-SOURCE-INGEST-R006.25).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.erpnext``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

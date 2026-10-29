@@ -1,4 +1,4 @@
-"""SDK-QUALITY-RELEASE-R002: the public-docs privacy scanner catches leaks.
+"""SCION-QUALITY-RELEASE-R002: the public-docs privacy scanner catches leaks.
 
 A planted private IPv4 address and an environment-only (``.arpa``) hostname
 in a published Markdown page must fail ``scripts/check_documentation_privacy.py``;
@@ -25,7 +25,7 @@ def _run(root: Path) -> subprocess.CompletedProcess[str]:
     )
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R002")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R002")
 def test_planted_private_ip_and_environment_hostname_fail_then_clean_tree_passes(
     tmp_path: Path,
 ) -> None:

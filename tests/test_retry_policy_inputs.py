@@ -11,21 +11,21 @@ from agent_connector_sdk.http.retry import RetryPolicy
 from agent_connector_sdk.http.transport import AsyncGovernedTransport, GovernedTransport
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.6")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.6")
 @pytest.mark.parametrize("attempts", [True, False, 2.5, "2", None])
 def test_retry_policy_rejects_non_integer_attempts(attempts):
     with pytest.raises(ValueError, match="attempts must be an integer"):
         RetryPolicy(max_attempts=attempts)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.6")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.6")
 @pytest.mark.parametrize("jitter", [0, 1, "false", None])
 def test_retry_policy_rejects_non_boolean_jitter(jitter):
     with pytest.raises(ValueError, match="jitter must be a boolean"):
         RetryPolicy(jitter=jitter)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.6")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.6")
 def test_mutable_input_cannot_enable_post_retry():
     methods, statuses = {"GET"}, {503}
     policy = RetryPolicy(retry_methods=methods, retry_statuses=statuses, jitter=False)
@@ -47,7 +47,7 @@ def test_mutable_input_cannot_enable_post_retry():
     assert policy.retry_statuses == frozenset({503})
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.6")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.6")
 async def test_async_mutable_input_cannot_enable_post_retry():
     methods = {"GET"}
     policy = RetryPolicy(retry_methods=methods, jitter=False)

@@ -1,6 +1,6 @@
 """Cross-platform advisory file-lock primitives.
 
-SDK-CONNECTOR-CONTROL-R014.2: moved from agent-utilities so connectors depend only on the SDK.
+SCION-CONNECTOR-CONTROL-R014.2: moved from agent-utilities so connectors depend only on the SDK.
 
 THIS IS THE CHOKEPOINT (R-07). Every caller in this ecosystem that needs an
 advisory, cross-process, crash-safe file lock must import from here instead of

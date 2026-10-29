@@ -68,7 +68,7 @@ def test_preview_rejects_a_mapping_naming_two_headers_for_one_field() -> None:
         preview_csv_mapping(_CSV, duplicated)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.6")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004.6")
 def test_preview_rejects_an_unrecognized_currency_code() -> None:
     bad_currency_csv = _CSV.replace(b",USD,", b",us dollars,")
     with pytest.raises(AmbiguousCurrencyError) as preview_error:
@@ -79,7 +79,7 @@ def test_preview_rejects_an_unrecognized_currency_code() -> None:
     assert "us dollars" not in str(import_error.value)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004")
 def test_reimporting_identical_bytes_yields_the_same_activity_identity() -> None:
     first = import_activities(_CSV, _MAPPING, _CONTEXT)
     second = import_activities(_CSV, _MAPPING, _CONTEXT)
@@ -102,7 +102,7 @@ def test_a_changed_file_is_a_new_version_with_a_different_identity() -> None:
     assert first[0].source_event_id != changed[0].source_event_id
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.2")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004.2")
 @pytest.mark.parametrize("value", [b"nan", b"inf", b"-inf", b"1e999"])
 @pytest.mark.parametrize("original", [b"10", b"100.5", b"1.0"])
 def test_nonfinite_csv_amounts_are_rejected(original: bytes, value: bytes) -> None:
@@ -111,7 +111,7 @@ def test_nonfinite_csv_amounts_are_rejected(original: bytes, value: bytes) -> No
         import_activities(invalid, _MAPPING, _CONTEXT)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.3")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004.3")
 @pytest.mark.parametrize("header", [b"Price", b"Unmapped"])
 def test_duplicate_headers_are_rejected(header: bytes) -> None:
     duplicated = _CSV.replace(
@@ -125,7 +125,7 @@ def test_duplicate_headers_are_rejected(header: bytes) -> None:
         import_activities(duplicated, _MAPPING, _CONTEXT)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.4")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004.4")
 @pytest.mark.parametrize(
     "replacement", [b"USD", b"USD,2026-01-04T00:00:00+00:00,EXTRA"]
 )
@@ -137,7 +137,7 @@ def test_ragged_rows_are_rejected(replacement: bytes) -> None:
         import_activities(malformed, _MAPPING, _CONTEXT)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.5")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004.5")
 @pytest.mark.parametrize("currency", ["\uff35\uff33\uff24", "ΑΒΓ"])
 def test_non_ascii_currency_is_rejected(currency: str) -> None:
     invalid = _CSV.replace(b",USD,", b"," + currency.encode("utf-8") + b",", 1)

@@ -31,7 +31,7 @@ class _Source:
         return self.answer
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R805.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R805.7")
 async def test_timeout_denies_the_complete_bounded_batch() -> None:
     source: AccessCheckPort = _Source()
     answer = await BoundedAccessCheck(source, timeout_seconds=0.02).check(
@@ -42,7 +42,7 @@ async def test_timeout_denies_the_complete_bounded_batch() -> None:
     assert answer.checked_at.utcoffset() is not None
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R805.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R805.7")
 async def test_provider_partition_must_match_requested_refs_exactly() -> None:
     now = datetime.now(UTC)
     source = _Source(AccessCheckAnswer(("a",), ("b",), now))
@@ -63,7 +63,7 @@ async def test_provider_partition_must_match_requested_refs_exactly() -> None:
     assert source.calls == calls
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R805.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R805.7")
 def test_source_declaration_exposes_explicit_access_mode() -> None:
     document = {
         "connector": "example",

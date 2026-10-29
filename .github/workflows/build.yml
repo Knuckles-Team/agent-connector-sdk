@@ -59,7 +59,7 @@ jobs:
           sha=$(python3 -c "import json; print(json.load(open('scripts/epistemic_graph_release.json'))['wheel_sha256'])")
           curl --fail --silent --show-error --location --retry 3 --output "dist-engine/$(basename "$url")" "$url"
           echo "$sha  dist-engine/$(basename "$url")" | sha256sum -c -
-      - name: Verify the installed wheel against the published graph-client (SDK-QUALITY-RELEASE-R001)
+      - name: Verify the installed wheel against the published graph-client (SCION-QUALITY-RELEASE-R001)
         run: python3 scripts/check_wheel_consumer_compatibility.py --wheel dist/*.whl --engine-wheel dist-engine/epistemic_graph-*.whl
       - name: Upload the publish candidate
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

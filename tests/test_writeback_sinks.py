@@ -25,7 +25,7 @@ from agent_connector_sdk.writeback_sinks.sinks.capability import push_capabiliti
 
 DOMAIN = "governedfake"
 
-pytestmark = [pytest.mark.spec("SDK-SOURCE-INGEST-R600")]
+pytestmark = [pytest.mark.spec("SCION-SOURCE-INGEST-R600")]
 
 
 class FakeSink:
@@ -107,7 +107,7 @@ def test_change_set_is_canonical_and_drops_private_ops():
     assert change_set.base_source_version == "unversioned"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R600.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R600.1")
 def test_writeback_contract_validates_ids_and_exposes_typed_invocation(fake_sink):
     sink = fake_sink(FakeSink())
     assert isinstance(sink, core.WritebackSink)
@@ -148,7 +148,7 @@ def test_writeback_contract_validates_ids_and_exposes_typed_invocation(fake_sink
         core.register_sink(InvalidSink())
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R600.3")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R600.3")
 def test_writeback_wiring_uses_preflight_and_approval_queue(fake_sink, flag):
     flag(True)
     sink = FakeSink()
@@ -182,7 +182,7 @@ def test_writeback_wiring_uses_preflight_and_approval_queue(fake_sink, flag):
     assert sink.calls == [True]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R600.3")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R600.3")
 def test_writeback_package_has_no_harness_import_or_duplicate_entrypoint():
     package = Path(__file__).parents[1] / "agent_connector_sdk"
     imported_harness_modules = []
@@ -227,7 +227,7 @@ def test_dry_run_proposes_and_writes_no_ledger(fake_sink, ledger, flag):
     assert not ledger.exists()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R600.2")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R600.2")
 def test_live_write_records_change_set_audit_and_receipt(fake_sink, ledger, flag):
     flag(True)
     sink = fake_sink(FakeSink())
@@ -239,7 +239,7 @@ def test_live_write_records_change_set_audit_and_receipt(fake_sink, ledger, flag
     assert [r["receipt"]["effect_status"] for r in receipts] == ["applied"]
 
 
-# spec: SDK-SOURCE-INGEST-R600.4
+# spec: SCION-SOURCE-INGEST-R600.4
 def test_live_write_refused_without_flag(fake_sink, ledger, flag):
     flag(False)
     sink = fake_sink(FakeSink())
@@ -248,7 +248,7 @@ def test_live_write_refused_without_flag(fake_sink, ledger, flag):
     assert sink.calls == [] and not ledger.exists()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R600.5")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R600.5")
 def test_sink_failure_manifest_binds_uncertain_evidence_after_preflight(
     fake_sink, ledger, flag
 ):
@@ -289,7 +289,7 @@ def test_sink_failure_manifest_binds_uncertain_evidence_after_preflight(
     [TimeoutError("sink deadline"), asyncio.CancelledError("sink cancelled")],
     ids=["timeout", "cancel"],
 )
-@pytest.mark.spec("SDK-SOURCE-INGEST-R600.5")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R600.5")
 def test_timeout_and_cancelled_sink_failures_remain_uncertain(
     fake_sink, ledger, flag, failure
 ):

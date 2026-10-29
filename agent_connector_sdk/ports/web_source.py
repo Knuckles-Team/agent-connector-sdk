@@ -1,4 +1,4 @@
-"""The web-source contract a page connector implements (SDK-SOURCE-INGEST-R005.40).
+"""The web-source contract a page connector implements (SCION-SOURCE-INGEST-R005.40).
 
 A connector that fetches and extracts web pages serves two per-operation tools,
 ``web_fetch`` and ``web_extract``, through :func:`register_web_source_tools`.

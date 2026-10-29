@@ -31,7 +31,7 @@ from agent_connector_sdk.mcp.versioning import tool_version
 from agent_connector_sdk.privacy_pii import PiiSanitizer
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.2")
 def test_r014_2_file_lock_exclusive_and_nonblocking(tmp_path):
     target = tmp_path / "lease.lock"
     first = os.open(target, os.O_RDWR | os.O_CREAT)
@@ -50,7 +50,7 @@ def test_r014_2_file_lock_exclusive_and_nonblocking(tmp_path):
         os.close(second)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.3")
 def test_r014_3_tool_version_stamps_async_tool():
     @tool_version("1.2.0")
     async def search(query: str) -> str:
@@ -62,7 +62,7 @@ def test_r014_3_tool_version_stamps_async_tool():
     assert asyncio.run(search("x")) == "x"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.4")
 def test_r014_4_runtime_secret_references(monkeypatch):
     monkeypatch.setenv("ACS_TEST_TOKEN", "s3cret")
     assert resolve_runtime_secret_reference("env://ACS_TEST_TOKEN") == "s3cret"
@@ -80,7 +80,7 @@ def test_r014_4_runtime_secret_references(monkeypatch):
     assert parser.parse_args(["--token", "env://ACS_TEST_TOKEN"]).token == "s3cret"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.5")
 def test_r014_5_validate_base_url():
     assert validate_base_url("https://example.com").allowed
     assert not validate_base_url("ftp://example.com").allowed
@@ -101,14 +101,14 @@ def test_r014_5_validate_base_url():
     ).allowed
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.6")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.6")
 def test_r014_6_pii_sanitizer_redacts():
     sanitizer = PiiSanitizer()
     out = sanitizer.sanitize("mail alice@example.com now")
     assert "alice@example.com" not in str(out)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.7")
 def test_r014_7_paths_honour_overrides(monkeypatch, tmp_path):
     monkeypatch.setenv("CONNECTOR_LOG_DIR", str(tmp_path / "logs"))
     monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
@@ -119,7 +119,7 @@ def test_r014_7_paths_honour_overrides(monkeypatch, tmp_path):
     assert paths.research_dir().is_dir()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.8")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.8")
 def test_r014_8_delegation_helpers():
     assert is_delegation_enabled(DelegationSettings()) is False
     import httpx
@@ -128,7 +128,7 @@ def test_r014_8_delegation_helpers():
         get_delegated_token(http_client=client, settings=DelegationSettings())
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.9")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.9")
 def test_r014_9_no_credential():
     cred = NoCredential()
     assert cred.is_present() and cred.headers() == {} and cred.type_name == "none"

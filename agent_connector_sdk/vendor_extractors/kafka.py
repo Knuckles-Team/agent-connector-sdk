@@ -1,4 +1,4 @@
-"""Kafka vendor extractor (SDK-SOURCE-INGEST-R006.6).
+"""Kafka vendor extractor (SCION-SOURCE-INGEST-R006.6).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.kafka``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

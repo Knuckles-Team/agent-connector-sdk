@@ -1,6 +1,6 @@
 """Default data-resource declarations derived from a connector's tools.
 
-SDK-CONNECTOR-CONTROL-R074. A read-only list or get tool whose output schema
+SCION-CONNECTOR-CONTROL-R074. A read-only list or get tool whose output schema
 describes records yields one :class:`ResourceDescriptor`: the fields come from
 the response schema, the pagination form from the parameters, the access method
 from the tool name and its required arguments, and the identity from the field

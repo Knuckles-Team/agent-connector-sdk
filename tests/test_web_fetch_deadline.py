@@ -11,7 +11,7 @@ import pytest
 from agent_connector_sdk.adapters.web_fetch import fetch_page
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.55")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.55")
 async def test_fetch_deadline_bounds_trickling_body() -> None:
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:
@@ -48,7 +48,7 @@ async def test_fetch_deadline_bounds_trickling_body() -> None:
         thread.join()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.55")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.55")
 async def test_fetch_deadline_bounds_stalled_dns(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -1,4 +1,4 @@
-"""The MCP server is the only place connector metadata is read from (SDK-CONNECTOR-CONTROL-R075)."""
+"""The MCP server is the only place connector metadata is read from (SCION-CONNECTOR-CONTROL-R075)."""
 
 from __future__ import annotations
 
@@ -81,10 +81,10 @@ class _LiveSession:
         return part.text
 
 
-# spec: SDK-CONNECTOR-CONTROL-R075
-# spec: SDK-CONNECTOR-CONTROL-R075.1
-# spec: SDK-CONNECTOR-CONTROL-R075.2
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.3")
+# spec: SCION-CONNECTOR-CONTROL-R075
+# spec: SCION-CONNECTOR-CONTROL-R075.1
+# spec: SCION-CONNECTOR-CONTROL-R075.2
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.3")
 def test_server_serves_declaration_live_and_runner_reads_only_that() -> None:
     async def run() -> None:
         async with Client(_server()) as client:
@@ -99,7 +99,7 @@ def test_server_serves_declaration_live_and_runner_reads_only_that() -> None:
     anyio.run(run)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.3")
 def test_declared_connector_must_match_descriptor() -> None:
     async def run() -> None:
         async with Client(_server("other-mcp")) as client:
@@ -109,7 +109,7 @@ def test_declared_connector_must_match_descriptor() -> None:
     anyio.run(run)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.3")
 def test_server_without_a_sync_preset_is_refused() -> None:
     mcp = FastMCP("demo-mcp")
     register_live_declaration(mcp, "demo-mcp")
@@ -166,7 +166,7 @@ class _Transport:
         return McpTransport().session(TransportEndpoint(in_process=self._mcp))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.11")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.11")
 def test_certify_reads_the_declaration_and_checks_tools_live() -> None:
     async def run() -> None:
         report = await certify_connector(
@@ -227,7 +227,7 @@ def test_certify_exact_predecessor_names_over_live_mcp() -> None:
     anyio.run(run)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R072")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R072")
 def test_checkout_names_exactly_one_server() -> None:
     declaration = build_declaration("demo-mcp", registered_tools(_server()).values())
     checkout = checkout_from_resources(declaration.model_dump_json())
@@ -235,7 +235,7 @@ def test_checkout_names_exactly_one_server() -> None:
     assert checkout.presets_for("demo_reader") == ("demo",)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.4")
 def test_prompt_serves_its_directive_and_carries_metadata_over_mcp(
     tmp_path: Path,
 ) -> None:
@@ -273,7 +273,7 @@ def test_prompt_serves_its_directive_and_carries_metadata_over_mcp(
     anyio.run(run)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.4")
 def test_prompt_carries_declared_title_tags_use_case_and_system_target(
     tmp_path: Path,
 ) -> None:
@@ -337,7 +337,7 @@ def test_prompt_tags_are_declared_tags_plus_surface_kind() -> None:
     assert _prompt_tags({}) == {"prompt"}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.5")
 def test_skill_directory_name_matches_frontmatter_name() -> None:
     for skill in sorted((FIXTURE / "skills").glob("*/SKILL.md")):
         front = yaml.safe_load(skill.read_text(encoding="utf-8").split("---")[1])

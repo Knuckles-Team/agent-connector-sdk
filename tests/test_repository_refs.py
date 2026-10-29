@@ -107,7 +107,7 @@ async def test_ref_walk_rejects_repeated_path_across_pages(
     assert cursors == [None, "1"]
 
 
-@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R006")
+@pytest.mark.spec("SCION-REPOSITORY-TRANSPORT-R006")
 async def test_ref_walk_rejects_oversized_tree_page(tmp_path: Path) -> None:
     revision = _revision().model_copy(
         update={"provider": "local-git", "repository_id": "fixture"}

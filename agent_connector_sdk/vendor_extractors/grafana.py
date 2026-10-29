@@ -1,4 +1,4 @@
-"""Grafana observability vendor extractor (SDK-SOURCE-INGEST-R006.23).
+"""Grafana observability vendor extractor (SCION-SOURCE-INGEST-R006.23).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.grafana``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

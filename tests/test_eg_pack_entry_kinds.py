@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R075.7: the SDK imports and packs against the EG floor.
+"""SCION-CONNECTOR-CONTROL-R075.7: the SDK imports and packs against the EG floor.
 
 A fresh install resolves the lowest ``epistemic-graph`` the SDK declares. Every
 SDK module must import against it, and every pack entry kind the SDK maps must
@@ -42,7 +42,7 @@ def _declared_eg_requirement() -> Requirement:
     raise AssertionError("pyproject.toml declares no epistemic-graph dependency")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.7")
 def test_tested_engine_is_the_declared_floor_or_newer() -> None:
     requirement = _declared_eg_requirement()
     assert min(Version(s.version) for s in requirement.specifier) == EG_FLOOR
@@ -51,7 +51,7 @@ def test_tested_engine_is_the_declared_floor_or_newer() -> None:
     assert installed in requirement.specifier
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.7")
 def test_every_sdk_module_imports_against_the_engine() -> None:
     names = [
         info.name
@@ -65,7 +65,7 @@ def test_every_sdk_module_imports_against_the_engine() -> None:
         importlib.import_module(name)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.7")
 def test_every_mapped_entry_kind_exists_in_the_engine() -> None:
     mapped = {*pack_module._RESOURCE_KINDS.values(), *pack_module._KINDS.values()}
     assert mapped <= set(PackEntryKind)
@@ -80,7 +80,7 @@ def test_every_mapped_entry_kind_exists_in_the_engine() -> None:
     assert not hasattr(PackEntryKind, "MANIFEST")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.7")
 def test_a_manifest_resource_has_no_pack_entry_kind() -> None:
     entry = CapturedArtifact(
         kind="resource",
@@ -94,7 +94,7 @@ def test_a_manifest_resource_has_no_pack_entry_kind() -> None:
         pack_module._entry_content(entry)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.7")
 async def test_a_pack_builds_against_the_engine(sessions: SessionFactory) -> None:
     kinds = (
         ToolArtifactKind(),

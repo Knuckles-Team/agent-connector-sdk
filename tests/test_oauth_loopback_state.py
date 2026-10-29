@@ -20,7 +20,7 @@ def manager() -> BaseBrowserAuthManager:
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R046.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R046.7")
 @pytest.mark.parametrize(
     ("query", "status", "expected"),
     [

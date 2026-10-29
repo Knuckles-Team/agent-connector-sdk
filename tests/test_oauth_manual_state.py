@@ -19,7 +19,7 @@ def manager() -> BaseBrowserAuthManager:
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R046.10")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R046.10")
 @pytest.mark.parametrize("tty", [True, False])
 def test_manual_callback_requires_redirect_and_matching_state(
     monkeypatch, tty: bool
@@ -45,7 +45,7 @@ def test_manual_callback_requires_redirect_and_matching_state(
             auth._get_authorization_code(None, "expected")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R046.10")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R046.10")
 def test_login_does_not_exchange_a_raw_manual_code(monkeypatch) -> None:
     auth = manager()
     monkeypatch.setattr(

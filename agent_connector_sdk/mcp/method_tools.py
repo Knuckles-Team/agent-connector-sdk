@@ -1,6 +1,6 @@
 """One typed, annotated MCP tool per API operation of a connector's client class.
 
-SDK-CONNECTOR-CONTROL-R020 makes this the connector standard: every public
+SCION-CONNECTOR-CONTROL-R020 makes this the connector standard: every public
 operation of the connector's API client (``client_cls``) is served as its own
 MCP tool. A fleet gateway scales the large catalog through lazy ``find`` and
 load, so no operation is folded behind an ``action`` string.
@@ -25,7 +25,7 @@ For each operation the tool carries:
 
 A destructive operation asks the connected caller to confirm through
 :func:`agent_connector_sdk.mcp.context.ctx_confirm_destructive` before the
-client is called (SDK-CONNECTOR-CONTROL-R026.1).
+client is called (SCION-CONNECTOR-CONTROL-R026.1).
 """
 
 from __future__ import annotations

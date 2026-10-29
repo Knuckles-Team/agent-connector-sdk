@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R030.1: the shared GraphQL client."""
+"""SCION-CONNECTOR-CONTROL-R030.1: the shared GraphQL client."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from agent_connector_sdk.transports.graphql import (
     GraphQLExecutionError,
 )
 
-pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R030.1")
+pytestmark = pytest.mark.spec("SCION-CONNECTOR-CONTROL-R030.1")
 
 _QUERY = "query { viewer { login } }"
 
@@ -214,7 +214,7 @@ def test_invalid_configuration_refuses() -> None:
         )
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R006.5")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R006.5")
 def test_close_suppresses_upstream_details_and_cleans_tls(caplog, tmp_path) -> None:
     client, _, _ = _client([])
     material = tmp_path / "key.pem"

@@ -12,7 +12,7 @@ def _shapes(paths=REQUIRED_PROVENANCE_PATHS, classes=("Document",)):
     return body + "".join(f"sh:property [ sh:path :{p} ] ;\n" for p in sorted(paths))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R700")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R700")
 @pytest.mark.parametrize(
     ("paths", "declared", "ok"),
     [

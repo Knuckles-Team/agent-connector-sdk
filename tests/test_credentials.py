@@ -109,7 +109,7 @@ def test_openbao_fails_closed() -> None:
         OpenBaoCredentialResolver("https://bao.example.invalid", "")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R035.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R035.7")
 def test_openbao_ignores_ambient_proxy(monkeypatch: pytest.MonkeyPatch) -> None:
     with (
         ScriptedHttpServer(
@@ -131,7 +131,7 @@ def test_openbao_ignores_ambient_proxy(monkeypatch: pytest.MonkeyPatch) -> None:
         assert proxy.requests == []
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R035.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R035.7")
 @pytest.mark.parametrize("status", [301, 302, 303, 307, 308])
 def test_openbao_never_follows_redirects(status: int) -> None:
     requests: list[httpx.Request] = []
@@ -165,11 +165,11 @@ def test_openbao_from_settings(monkeypatch: pytest.MonkeyPatch) -> None:
     assert resolve_secret_reference("openbao://apps/x#TOKEN", resolver) == "s3cret"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R035")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R035")
 def test_openbao_addr_without_token_ref_falls_back_to_env(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """SDK-CONNECTOR-CONTROL-R035: no token reference means plain env resolution."""
+    """SCION-CONNECTOR-CONTROL-R035: no token reference means plain env resolution."""
     monkeypatch.setenv("OPENBAO_ADDR", "https://bao.example.invalid")
     monkeypatch.setenv("DEMO_VALUE", "from-env")
     for blank in (None, "", "   "):

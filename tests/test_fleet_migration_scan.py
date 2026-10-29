@@ -91,7 +91,7 @@ def test_a_file_that_fails_to_parse_is_skipped_not_fabricated_clean(
     assert not result.migrated
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.28")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.28")
 def test_incomplete_or_ambiguous_fleet_scans_never_prove_migration(
     tmp_path: Path,
 ) -> None:
@@ -137,7 +137,7 @@ def test_traversal_error_prevents_migration(
     assert not result.migrated
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.29")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.29")
 @pytest.mark.parametrize(
     "source",
     [
@@ -167,9 +167,9 @@ def test_fleet_scan_marks_unknown_dynamic_import_incomplete(tmp_path: Path) -> N
     assert scan_for_agent_utilities_imports(root).migrated
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.1")
 def test_scan_many_packages_reports_each_root_by_name(tmp_path: Path) -> None:
-    """SDK-CONNECTOR-CONTROL-R014.1: one call site scans a whole fleet of
+    """SCION-CONNECTOR-CONTROL-R014.1: one call site scans a whole fleet of
     connector package roots and keys each result by package name, so a
     cross-repository census is one function call, not a hand-rolled loop."""
     _write(

@@ -45,7 +45,7 @@ def _paper(provider, record, *, title="Title", doi=None, revision="v1", alias=No
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.1")
 def test_query_continuations_bind_exact_request_and_limits():
     query = _query()
     token = PaperContinuation(
@@ -67,7 +67,7 @@ def test_query_continuations_bind_exact_request_and_limits():
         _query(page_bound=0)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.1")
 def test_provider_outcomes_and_document_receipts_are_explicit():
     source = FieldEvidence(provider_id="first", source_id="1", location="title")
     offer = DocumentOffer(

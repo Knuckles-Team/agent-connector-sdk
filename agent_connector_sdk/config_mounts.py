@@ -1,4 +1,4 @@
-"""Declared configuration mounts of a connector container (SDK-CONNECTOR-CONTROL-R019.3).
+"""Declared configuration mounts of a connector container (SCION-CONNECTOR-CONTROL-R019.3).
 
 A connector that reads a reference-only configuration directory at run time
 declares the mount once, in ``pyproject.toml``, where the shared container

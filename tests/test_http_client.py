@@ -349,7 +349,7 @@ async def test_async_bounded_iteration() -> None:
     assert [chunk async for chunk in aiter_bounded(response, 4)] == [b"ab", b"cd"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.3")
 def test_api_key_client_isolates_cookies_across_response_statuses() -> None:
     seen: list[httpx.Request] = []
     replies = iter(_COOKIE_EXCHANGES)
@@ -371,7 +371,7 @@ def test_api_key_client_isolates_cookies_across_response_statuses() -> None:
     _assert_api_key_requests(client, seen, _COOKIE_PATHS, ordered=True)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.3")
 async def test_async_api_key_client_isolates_cookies_across_response_statuses() -> None:
     seen: list[httpx.Request] = []
     replies = iter(_COOKIE_EXCHANGES)
@@ -393,7 +393,7 @@ async def test_async_api_key_client_isolates_cookies_across_response_statuses() 
     _assert_api_key_requests(client, seen, _COOKIE_PATHS, ordered=True)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.3")
 async def test_async_api_key_client_isolates_concurrent_callers() -> None:
     seen: list[httpx.Request] = []
     both_dispatched = asyncio.Event()
@@ -424,7 +424,7 @@ async def test_async_api_key_client_isolates_concurrent_callers() -> None:
     _assert_api_key_requests(client, seen, ("/caller-a", "/caller-b"), ordered=False)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.3")
 def test_non_api_key_client_preserves_existing_cookie_behavior() -> None:
     seen: list[httpx.Request] = []
 
@@ -569,7 +569,7 @@ def test_link_cursors_stay_on_origin() -> None:
             cursor_target(bad, base_url=base_url)
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.4")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.4")
 @pytest.mark.parametrize("size", [0, -1, 10001, True, 1.5])
 def test_tool_window_and_numbered_preset_reject_invalid_size(size) -> None:
     with pytest.raises(ValueError, match="page size"):
@@ -581,7 +581,7 @@ def test_tool_window_and_numbered_preset_reject_invalid_size(size) -> None:
     assert ToolPage.from_window([{"id": 1}], page_size=1).has_more is True
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.4")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.4")
 async def test_served_tool_refuses_invalid_window_size() -> None:
     from fastmcp import Client, FastMCP
 

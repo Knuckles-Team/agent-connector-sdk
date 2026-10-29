@@ -1,10 +1,10 @@
-"""The per-package import scan SDK-CONNECTOR-CONTROL-R009-R013 verify by.
+"""The per-package import scan SCION-CONNECTOR-CONTROL-R009-R013 verify by.
 
 Each batch requirement's own verification column asks for the same proof:
 "a per-package import scan ... confirming no agent_utilities import
 remains." This module is that scan, reusable across every alphabetical
 batch (A-E, F-J, K-O, P-S, T-Z) rather than re-derived per batch, matching
-the SDK-CONNECTOR-CONTROL-R004 precedent that contract-pin verification is
+the SCION-CONNECTOR-CONTROL-R004 precedent that contract-pin verification is
 owned once by this SDK's own test kit, not recomputed downstream.
 
 A connector package's own migration commit lands in that package's own
@@ -174,7 +174,7 @@ def scan_many_packages(
 ) -> dict[str, PackageScanResult]:
     """Scan several package roots and return each one's result, keyed by name.
 
-    SDK-CONNECTOR-CONTROL-R014 asks for "a cross-repository import scan
+    SCION-CONNECTOR-CONTROL-R014 asks for "a cross-repository import scan
     showing no connector still depends on the superseded implementation".
     This is that scan's one call site: every batch requirement (R009-R013)
     and R014's own fleet-wide census share this function instead of each

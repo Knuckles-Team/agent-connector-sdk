@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Plan an isolated-consumer compatibility check for the built release wheel.
 
-SDK-QUALITY-RELEASE-R001: the release job must verify the installed SDK
+SCION-QUALITY-RELEASE-R001: the release job must verify the installed SDK
 wheel's generated-type and native-kernel compatibility against the published,
 version-compatible graph-client wheel in an isolated installed consumer --
 never a source overlay (the repository checkout on ``sys.path``). A source

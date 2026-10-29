@@ -3,7 +3,7 @@
 This is the typed policy check :func:`check_egress_destination` and the
 pinned-address transport :func:`pinned_egress_transport` that
 :mod:`agent_connector_sdk.http.client` wires into ``create_http_client``
-(SDK-CONNECTOR-CONTROL-R028.2); both are usable on their own by any call site
+(SCION-CONNECTOR-CONTROL-R028.2); both are usable on their own by any call site
 that must decide whether a destination is a permitted egress target, or must
 hold a connection to an already-resolved, already-approved address.
 """
@@ -151,7 +151,7 @@ def pinned_egress_transport(
     return PinnedAddressTransport(inner or httpx.HTTPTransport(), host=host, port=port)
 
 
-# --- Operator-supplied base URL guard (SDK-CONNECTOR-CONTROL-R014.5), moved from agent-utilities ---
+# --- Operator-supplied base URL guard (SCION-CONNECTOR-CONTROL-R014.5), moved from agent-utilities ---
 
 MAX_RESOLVED_ADDRESSES = 64
 
@@ -268,7 +268,7 @@ def validate_base_url_resolved(
     return EgressDecision(True, "all resolved IPs allowed", tuple(ips))
 
 
-# --- Per-request DNS-pinned egress (SDK-CONNECTOR-CONTROL-R014.16), moved from agent-utilities ---
+# --- Per-request DNS-pinned egress (SCION-CONNECTOR-CONTROL-R014.16), moved from agent-utilities ---
 
 _ALLOWED_PRIVATE_NETWORKS = (
     ipaddress.ip_network("10.0.0.0/8"),

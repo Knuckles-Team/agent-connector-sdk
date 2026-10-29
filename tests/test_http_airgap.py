@@ -11,7 +11,7 @@ from agent_connector_sdk.http.client import (
 from agent_connector_sdk.http.options import HttpClientOptions
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.7")
 def test_airgap_governed_client_blocks_external_before_transport(monkeypatch):
     calls = []
     transport = httpx.MockTransport(
@@ -33,7 +33,7 @@ def test_airgap_governed_client_blocks_external_before_transport(monkeypatch):
     assert calls == ["127.0.0.1", "example.com"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.7")
 async def test_airgap_async_client_blocks_external_before_transport(monkeypatch):
     calls = []
     transport = httpx.MockTransport(
@@ -49,7 +49,7 @@ async def test_airgap_async_client_blocks_external_before_transport(monkeypatch)
     assert calls == ["192.168.1.4"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.7")
 def test_airgap_refuses_proxy_even_for_local_destination(monkeypatch):
     from agent_connector_sdk.http.client import default_ssl_context
     from agent_connector_sdk.tls.profile import ResolvedTLSProfile

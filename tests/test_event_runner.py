@@ -22,7 +22,7 @@ from agent_connector_sdk.testing.sinks import InMemorySink
 from agent_connector_sdk.transports.mcp import McpTransport
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.4")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.4")
 async def test_declared_event_feed_reaches_served_worker(tmp_path, monkeypatch):
     server = FastMCP("events")
     calls = []

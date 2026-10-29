@@ -25,7 +25,7 @@ from agent_connector_sdk.credentials.sensitivity import (
         ("LOG_LEVEL", None, False),
     ],
 )
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R900.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R900.5")
 def test_key_sensitivity(key: str, metadata: dict | None, sensitive: bool) -> None:
     assert configuration_key_is_sensitive(key, metadata) is sensitive
 

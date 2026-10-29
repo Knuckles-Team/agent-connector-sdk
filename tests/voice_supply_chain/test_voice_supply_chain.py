@@ -20,7 +20,7 @@ OK = "counsel@example.invalid"
 
 
 pytestmark = [
-    pytest.mark.spec("SDK-SOURCE-INGEST-R804"),
+    pytest.mark.spec("SCION-SOURCE-INGEST-R804"),
 ]
 
 
@@ -45,7 +45,7 @@ def _manifest(**over: object) -> VoiceModelManifest:
     return VoiceModelManifest(**fields)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R804.6")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R804.6")
 def test_thousand_license_decisions_use_one_read_per_lookup(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -75,7 +75,7 @@ def test_thousand_license_decisions_use_one_read_per_lookup(
         assert reads[0].name == f"{decision.asset_manifest_id}.license.json"
 
 
-# spec: SDK-SOURCE-INGEST-R804.4
+# spec: SCION-SOURCE-INGEST-R804.4
 @pytest.mark.parametrize(
     ("over", "match"),
     [
@@ -89,7 +89,7 @@ def test_manifest_requires_immutable_pin_and_valid_digest(over, match):
         _manifest(**over)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R804.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R804.1")
 def test_manifest_normalizes_digest_case_and_defaults_are_fail_closed():
     assert _manifest(sha256="B" * 64).sha256 == SHA
     assert VoiceLicenseDecision(asset_manifest_id=SHA).counsel_decision == "pending"
@@ -97,7 +97,7 @@ def test_manifest_normalizes_digest_case_and_defaults_are_fail_closed():
         VoiceLicenseDecision(asset_manifest_id=SHA, counsel_decision="maybe")
 
 
-# spec: SDK-SOURCE-INGEST-R804.2
+# spec: SCION-SOURCE-INGEST-R804.2
 @pytest.mark.parametrize(
     ("decision", "status", "ready", "reason"),
     [
@@ -135,7 +135,7 @@ def test_manifest_normalizes_digest_case_and_defaults_are_fail_closed():
         ),
     ],
 )
-@pytest.mark.spec("SDK-SOURCE-INGEST-R804.5")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R804.5")
 def test_promotion_handoff_requires_approved_license_and_verified_asset(
     decision, status, ready, reason
 ):
@@ -148,7 +148,7 @@ def test_promotion_handoff_requires_approved_license_and_verified_asset(
     assert reason in got_reason
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R804.3")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R804.3")
 def test_mark_verified_persists_and_refuses_rejected():
     quarantined = _manifest(status=VoiceManifestStatus.QUARANTINED)
     (store.manifest_index_dir() / f"{SHA}.json").write_text(
@@ -204,7 +204,7 @@ def test_provider_is_piper_only_and_config_manifest_pins_its_digest():
         )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R804.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R804.7")
 @pytest.mark.parametrize(
     "bad_id",
     ("../escape", "/tmp/escape", "a/b", "a\\b", ".", "..", "", "x\x00y", "x" * 129),
@@ -224,7 +224,7 @@ def test_manifest_identifiers_refuse_path_escape_before_file_access(bad_id, tmp_
     assert not (tmp_path / "voice-models").exists()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R804.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R804.7")
 def test_foreign_license_approval_cannot_authorize_handoff(tmp_path):
     index = store.manifest_index_dir()
     decision = VoiceLicenseDecision(

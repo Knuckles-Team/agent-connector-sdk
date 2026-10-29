@@ -1,4 +1,4 @@
-"""A2A (Agent-to-Agent) agent-card vendor extractor (SDK-SOURCE-INGEST-R006.22).
+"""A2A (Agent-to-Agent) agent-card vendor extractor (SCION-SOURCE-INGEST-R006.22).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.a2a`` onto
 this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`: maps

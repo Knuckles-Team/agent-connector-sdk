@@ -46,7 +46,7 @@ def _check(error: HttpProblemError, caplog: pytest.LogCaptureFixture) -> None:
     assert error.__context__ is None
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R006.3")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R006.3")
 @pytest.mark.parametrize("handler", (_fail, _invalid))
 def test_sync_diagnostics_omit_path_query_and_cause(handler, caplog) -> None:
     caplog.set_level(logging.INFO, logger=HTTP_LOGGER_NAME)
@@ -60,7 +60,7 @@ def test_sync_diagnostics_omit_path_query_and_cause(handler, caplog) -> None:
     _check(caught.value, caplog)
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R006.3")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R006.3")
 @pytest.mark.parametrize("handler", (_fail, _invalid))
 async def test_async_diagnostics_omit_path_query_and_cause(handler, caplog) -> None:
     caplog.set_level(logging.INFO, logger=HTTP_LOGGER_NAME)
@@ -80,7 +80,7 @@ def test_origin_redaction_keeps_ipv6_port_without_user_information() -> None:
     assert redact_origin("https://example.invalid:bad/path") == "<invalid-url>"
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R006.3")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R006.3")
 def test_body_limit_diagnostic_omits_path() -> None:
     response = httpx.Response(200, content=b"12345", request=httpx.Request("GET", _URL))
     with pytest.raises(ResponseTooLargeError) as caught:

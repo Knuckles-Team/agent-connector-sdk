@@ -1,7 +1,7 @@
 """Connector access contracts: how each ontology class is answered live.
 
 A connector ontology declares ``ac:AccessContract`` subjects with the
-vocabulary in ``ontology/access_contract.ttl`` (SDK-CONNECTOR-CONTROL-R021).
+vocabulary in ``ontology/access_contract.ttl`` (SCION-CONNECTOR-CONTROL-R021).
 :func:`parse_access_contracts` reads them into typed :class:`AccessContract`
 values. It refuses a missing operation, an unknown access kind, pagination
 or pushdown operation, and an ``ac:authRef`` that is not a credential

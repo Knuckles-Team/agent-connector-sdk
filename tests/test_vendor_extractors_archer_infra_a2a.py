@@ -1,4 +1,4 @@
-"""SDK-SOURCE-INGEST-R006.20/21/22: Archer, Infra, A2A vendor extractor ports."""
+"""SCION-SOURCE-INGEST-R006.20/21/22: Archer, Infra, A2A vendor extractor ports."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ class _FakeClient:
 # --- archer ------------------------------------------------------------
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.20")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.20")
 def test_archer_extract_links_controls_to_risks_and_findings_to_controls() -> None:
     client = _FakeClient(
         list_risks=[{"id": "r1", "name": "Data loss"}],
@@ -52,7 +52,7 @@ def test_archer_extract_links_controls_to_risks_and_findings_to_controls() -> No
     assert ARCHER_CATEGORY == "archer"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.20")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.20")
 def test_archer_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert archer_extract({}) == ChangeSet()
 
@@ -60,7 +60,7 @@ def test_archer_extract_returns_an_empty_change_set_without_a_client() -> None:
 # --- infra ------------------------------------------------------------
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.21")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.21")
 def test_infra_extract_maps_ansible_style_inventory_and_docker_services() -> None:
     config = {
         "inventory": {
@@ -84,7 +84,7 @@ def test_infra_extract_maps_ansible_style_inventory_and_docker_services() -> Non
     assert INFRA_CATEGORY == "infra"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.21")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.21")
 def test_infra_extract_returns_an_empty_change_set_for_an_empty_config() -> None:
     assert infra_extract({}) == ChangeSet()
 
@@ -92,7 +92,7 @@ def test_infra_extract_returns_an_empty_change_set_for_an_empty_config() -> None
 # --- a2a ------------------------------------------------------------
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.22")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.22")
 def test_a2a_extract_maps_cards_and_skills() -> None:
     config = {
         "cards": [
@@ -118,12 +118,12 @@ def test_a2a_extract_maps_cards_and_skills() -> None:
     assert A2A_CATEGORY == "a2a"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.22")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.22")
 def test_a2a_extract_returns_an_empty_change_set_for_no_cards() -> None:
     assert a2a_extract({}) == ChangeSet()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.3")
 def test_base_url_entry_is_fetched_into_cards() -> None:
     body = json.dumps({"name": "Remote Agent", "skills": [{"id": "search"}]}).encode()
     with ScriptedHttpServer(
@@ -139,8 +139,8 @@ def test_base_url_entry_is_fetched_into_cards() -> None:
     }
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047")
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.6")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.6")
 def test_extract_discovers_card_from_base_url() -> None:
     body = json.dumps({"name": "Hosted Agent", "skills": [{"id": "delegate"}]}).encode()
     with ScriptedHttpServer(ScriptedResponse(body=body)) as server:

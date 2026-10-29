@@ -11,7 +11,7 @@ import pytest
 from agent_connector_sdk.vendor_extractors import a2a_discovery as discovery
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.2")
 def test_trickling_card_cannot_exceed_total_deadline(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -49,7 +49,7 @@ def test_trickling_card_cannot_exceed_total_deadline(
         thread.join()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.2")
 def test_stalled_dns_is_bounded_and_cannot_cache_late_result(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

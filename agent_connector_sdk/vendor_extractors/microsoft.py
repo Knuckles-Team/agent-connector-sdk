@@ -1,4 +1,4 @@
-"""Microsoft 365 vendor extractor (SDK-SOURCE-INGEST-R006.9).
+"""Microsoft 365 vendor extractor (SCION-SOURCE-INGEST-R006.9).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.microsoft``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

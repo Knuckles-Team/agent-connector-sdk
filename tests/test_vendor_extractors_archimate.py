@@ -1,4 +1,4 @@
-"""SDK-SOURCE-INGEST-R006.5: the ArchiMate model vendor extractor port."""
+"""SCION-SOURCE-INGEST-R006.5: the ArchiMate model vendor extractor port."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ class _FakeClient:
         return self._relationships
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.5")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.5")
 def test_extract_returns_typed_elements_and_relationships() -> None:
     config = {
         "client": _FakeClient(
@@ -54,7 +54,7 @@ def test_extract_returns_typed_elements_and_relationships() -> None:
     assert relationship.relationship == "REL_SERVING_RELATIONSHIP"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.5")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.5")
 def test_extract_skips_elements_and_relationships_missing_required_fields() -> None:
     config = {
         "client": _FakeClient(
@@ -69,12 +69,12 @@ def test_extract_skips_elements_and_relationships_missing_required_fields() -> N
     assert result.relationships == ()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.5")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.5")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.5")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.5")
 def test_extract_returns_an_empty_change_set_when_list_elements_raises() -> None:
     class _BrokenClient:
         def list_elements(self) -> object:
@@ -86,7 +86,7 @@ def test_extract_returns_an_empty_change_set_when_list_elements_raises() -> None
     assert extract({"client": _BrokenClient()}) == ChangeSet()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.5")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.5")
 def test_archimate_self_registers_under_the_vendor_extractor_registry() -> None:
     registered = get_vendor_extractor(CATEGORY)
 

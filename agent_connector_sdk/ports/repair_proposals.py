@@ -3,7 +3,7 @@
 Recording and pause-reading are the entire boundary: no method here
 constructs a candidate graph schema, validates instances, performs a shadow
 ingest, or activates a repair -- those are epistemic-graph's authority alone
-(SDK-SOURCE-INGEST-R003).
+(SCION-SOURCE-INGEST-R003).
 """
 
 from __future__ import annotations

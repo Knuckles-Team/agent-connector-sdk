@@ -59,7 +59,7 @@ def _env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("DEMO_TOKEN", _SECRET)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_bearer_and_api_key_and_basic_headers(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("DEMO_USER", "svc")
     ok = ScriptedResponse(body=b"{}", headers=_JSON)
@@ -86,7 +86,7 @@ def test_bearer_and_api_key_and_basic_headers(monkeypatch: pytest.MonkeyPatch) -
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_static_credential_retries_once_after_rotation(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -103,7 +103,7 @@ def test_static_credential_retries_once_after_rotation(
     ]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_unchanged_credential_is_not_retried() -> None:
     with ScriptedHttpServer(ScriptedResponse(status=401)) as server:
         with _open(server, Bearer(env="DEMO_TOKEN")) as managed:
@@ -111,7 +111,7 @@ def test_unchanged_credential_is_not_retried() -> None:
         assert len(server.requests) == 1
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_client_credentials_refreshes_and_retries_on_401(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -142,7 +142,7 @@ def test_client_credentials_refreshes_and_retries_on_401(
     ]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_token_refreshed_before_expiry() -> None:
     with ScriptedHttpServer() as server:
         ok = ScriptedResponse(body=b"{}", headers=_JSON)
@@ -162,7 +162,7 @@ def test_token_refreshed_before_expiry() -> None:
     ]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_refresh_token_grant_rotates_the_refresh_token(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -189,7 +189,7 @@ def test_refresh_token_grant_rotates_the_refresh_token(
     assert seen[3].headers["authorization"] == "Bearer a2"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_failed_token_request_is_typed_and_leaks_nothing() -> None:
     with ScriptedHttpServer(
         ScriptedResponse(status=400, body=_SECRET.encode())
@@ -207,7 +207,7 @@ def test_failed_token_request_is_typed_and_leaks_nothing() -> None:
     assert _SECRET not in str(info.value) and _SECRET not in repr(info.value)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_session_login_reuses_cookie_and_relogs_once(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -233,7 +233,7 @@ def test_session_login_reuses_cookie_and_relogs_once(
     assert seen[5].headers["cookie"] == "SID=two"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.5")
 def test_session_cookies_respect_path_and_auth_is_bound_to_origin() -> None:
     from agent_connector_sdk.auth.rotating import SessionLoginAuth
     from agent_connector_sdk.http.client import create_http_client
@@ -374,7 +374,7 @@ def test_guarded_request_cannot_be_reused_with_plain_httpx(without_auth: bool) -
     assert len(requests) == (1 if without_auth else 2)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_ca_bundle_comes_from_the_declared_tls_name(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -398,7 +398,7 @@ def test_ca_bundle_comes_from_the_declared_tls_name(
             assert trusted.client.get("/x").status_code == 200
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_declarations_and_errors_never_expose_secrets(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
@@ -413,7 +413,7 @@ def test_declarations_and_errors_never_expose_secrets(
     assert _SECRET not in repr(Bearer(env="DEMO_TOKEN"))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_misdeclared_auth_fails_with_a_typed_error(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -427,7 +427,7 @@ def test_misdeclared_auth_fails_with_a_typed_error(
         client_factory(url_env="DEMO_URL", auth=ApiKey(env="DEMO_TOKEN"), tls="demo")()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_client_factory_builds_once_and_closes(monkeypatch: pytest.MonkeyPatch) -> None:
     with ScriptedHttpServer() as server:
         monkeypatch.setenv("DEMO_URL", server.base_url)
@@ -442,7 +442,7 @@ def test_client_factory_builds_once_and_closes(monkeypatch: pytest.MonkeyPatch) 
         get_client.close()  # type: ignore[attr-defined]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.4")
 def test_no_auth_and_the_building_blocks_are_public(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

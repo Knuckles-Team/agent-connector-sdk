@@ -1,4 +1,4 @@
-"""Per-parent fan-out of declared sources (SDK-SOURCE-INGEST-R004.28)."""
+"""Per-parent fan-out of declared sources (SCION-SOURCE-INGEST-R004.28)."""
 
 from __future__ import annotations
 
@@ -102,7 +102,7 @@ def _runner(session: _Session, ingest: _Ingest, **kw: Any) -> SourceSyncRunner:
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.28")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.28")
 async def test_child_runs_once_per_parent_record() -> None:
     projects, items = _declaration()
     session, ingest = _Session(), _Ingest()
@@ -119,7 +119,7 @@ async def test_child_runs_once_per_parent_record() -> None:
     ]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.28")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.28")
 async def test_missing_parent_and_cycle_are_typed_refusals() -> None:
     _, items = _declaration()
     run = await _runner(_Session(), _Ingest()).sync(items, sources={"items": items})
@@ -137,7 +137,7 @@ async def test_missing_parent_and_cycle_are_typed_refusals() -> None:
     assert cyclic.state == "failed" and cyclic.reason == "for_each_cycle"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.28")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.28")
 async def test_fan_out_is_capped() -> None:
     projects, items = _declaration()
     session = _Session([{"id": f"p{i}"} for i in range(6)])
@@ -149,7 +149,7 @@ async def test_fan_out_is_capped() -> None:
     assert SyncBudget().max_fan_out == MAX_FAN_OUT
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.28")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.28")
 def test_for_each_is_in_the_served_schema() -> None:
     schema = IngestSourceDeclaration.model_json_schema()
     spec = schema["$defs"]["IngestSourceSpec"]["properties"]["for_each"]
@@ -177,7 +177,7 @@ def _fan_server() -> FastMCP:
     return mcp
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.28")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.28")
 async def test_preset_adapter_fans_out_and_pages_each_parent() -> None:
     sources = (
         _source(
@@ -230,7 +230,7 @@ async def test_preset_adapter_fans_out_and_pages_each_parent() -> None:
     assert page.checkpoint.position == {}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.28")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.28")
 def test_preset_adapter_refuses_unknown_parent() -> None:
     items = _source("items", "list_items", for_each=LINK, preset={"doc_type": "item"})
     from agent_connector_sdk.manifest.declaration import _sync_spec
@@ -245,7 +245,7 @@ def test_preset_adapter_refuses_unknown_parent() -> None:
         )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.28")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.28")
 def test_check_for_each_and_parent_presets_refuse_by_code() -> None:
     from agent_connector_sdk.adapters import mcp_tool_fanout
     from agent_connector_sdk.ingest.for_each import ForEachRefusal, check_for_each
@@ -270,7 +270,7 @@ def test_check_for_each_and_parent_presets_refuse_by_code() -> None:
     assert callable(mcp_tool_fanout.extract_fanned)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.53")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.53")
 async def test_fan_out_limit_refuses_before_requesting_another_parent_page() -> None:
     projects = _source(
         "projects", "list_projects", pagination="page", page_param="page", page_size=2

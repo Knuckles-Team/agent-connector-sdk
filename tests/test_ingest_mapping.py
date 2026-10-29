@@ -38,7 +38,7 @@ CONTACT = RecordMap(
 )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.30")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.30")
 def test_record_map_builds_entities_and_edges() -> None:
     mapped = CONTACT(
         [
@@ -69,21 +69,21 @@ def test_record_map_builds_entities_and_edges() -> None:
     ]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.30")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.30")
 def test_strict_record_map_refuses_a_record_without_id() -> None:
     strict = RecordMap("Item", "x:{_id}", strict=True)
     with pytest.raises(IngestError):
         strict([{"name": "n"}])
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.30")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.30")
 def test_mapped_keeps_each_entity_once() -> None:
     mapped = Mapped().entity("a", "T", x=1).entity("a", "T", x=2).edge("a", "b", "r")
     assert len(mapped.entities) == 1
     assert mapped.relationships[0].properties is None
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.30")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.30")
 def test_validated_reads_raise_ingest_error() -> None:
     assert read_field({"a": 5}, "a") == "5"
     assert read_field({}, "a", required=False) is None
@@ -99,7 +99,7 @@ def test_validated_reads_raise_ingest_error() -> None:
         document_from_record({"id": "1"})
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.30")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.30")
 def test_record_helpers() -> None:
     entity = entity_from_record({"id": "1", "node_type": "T", "k": "v"})
     assert entity.properties == {"k": "v"}

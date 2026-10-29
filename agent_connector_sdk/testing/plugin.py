@@ -4,7 +4,7 @@ Registered as the ``pytest11`` entry point ``agent_connector_sdk``. When the
 repository under test declares an ``agent_connector_sdk.connector`` entry point
 in its ``pyproject.toml``, the plugin adds one test per
 :data:`~agent_connector_sdk.testing.conformance.CHECKS` item, so the repository
-copies none of them (SDK-QUALITY-RELEASE-R005.1). A repository without the
+copies none of them (SCION-QUALITY-RELEASE-R005.1). A repository without the
 declaration, and a run that names explicit test node ids, get nothing added.
 Disable with ``-p no:agent_connector_sdk``.
 """

@@ -102,7 +102,7 @@ def _sources(repo: Path, pack: DomainPack) -> GitMarkdownDocumentSource:
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.37")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.37")
 def test_two_domain_packs_ingested_with_lineage(corpora: Path) -> None:
     ingest, sink = _ingest()
     sha = _git(corpora, "rev-parse", "HEAD")
@@ -140,7 +140,7 @@ def test_two_domain_packs_ingested_with_lineage(corpora: Path) -> None:
     assert all(s.accepted_checkpoint.position["cursor"] == sha for s in statuses)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.37")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.37")
 def test_incremental_change_updates_only_the_touched_file(corpora: Path) -> None:
     ingest, sink = _ingest()
     binding = IngestBinding(connector="docs-mcp", stream="pillars")
@@ -176,7 +176,7 @@ def test_incremental_change_updates_only_the_touched_file(corpora: Path) -> None
     assert before["docs/pillars/KG-1-Memory.md"]["git_commit"] == sha1
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.38")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.38")
 def test_filesystem_connector_ingestion_live_path(tmp_path: Path) -> None:
     root = tmp_path / "root"
     (root / "sub").mkdir(parents=True)
@@ -213,7 +213,7 @@ def test_filesystem_connector_ingestion_live_path(tmp_path: Path) -> None:
     assert third.documents == 1
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.15")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.15")
 def test_connector_ingestion_syncs_external_acl(tmp_path: Path) -> None:
     (tmp_path / "secret.md").write_text("restricted content\n")
     restricted = ExternalAccess(
@@ -255,7 +255,7 @@ class _OneDocument:
         )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.39")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.39")
 def test_governed_connector_applies_envelope_before_embedding() -> None:
     ingest, sink = _ingest()
     seen: list[str] = []
@@ -293,7 +293,7 @@ def _refuse(_document: Document) -> ExternalAccess:
     raise GovernanceRefusedError("no envelope")
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.39")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.39")
 def test_governed_connector_failure_blocks_document_and_checkpoint() -> None:
     ingest, sink = _ingest()
     report = asyncio.run(
@@ -310,7 +310,7 @@ def test_governed_connector_failure_blocks_document_and_checkpoint() -> None:
     assert sink.batches == {} and sink.statuses == {}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.39")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.39")
 def test_governance_failure_leaves_real_engine_checkpoint(
     live_ingest: KnowledgeIngest,  # noqa: F811 - pytest fixture
 ) -> None:

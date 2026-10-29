@@ -119,7 +119,7 @@ def _runner(session: _Session, ingest: _Ingest, checkpoints: _Checkpoints, **kw:
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.19")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.19")
 def test_declaration_validates_sources(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="cursor_field"):
         _spec(cursor_field=None)
@@ -131,7 +131,7 @@ def test_declaration_validates_sources(tmp_path: Path) -> None:
     assert declaration.source("items") is not None
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.20")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.20")
 async def test_runner_submits_typed_batches_once() -> None:
     session, ingest, checkpoints = _Session(ITEMS), _Ingest(), _Checkpoints()
     runner = _runner(session, ingest, checkpoints)
@@ -156,7 +156,7 @@ async def test_runner_submits_typed_batches_once() -> None:
     assert state.last_job_id is None and state.state == "completed"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.21")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.21")
 async def test_tool_surface_serves_declarations(tmp_path: Path) -> None:
     mcp = FastMCP("fixture")
 
@@ -181,7 +181,7 @@ async def test_tool_surface_serves_declarations(tmp_path: Path) -> None:
     assert checkpoint_key("fixture-mcp", "items") == "ingest-source/fixture-mcp/items"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.22")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.22")
 async def test_runner_refusals_and_budgets() -> None:
     ingest, checkpoints = _Ingest(), _Checkpoints()
     with pytest.raises(SourceSyncError, match="not_read_only"):
@@ -206,7 +206,7 @@ async def test_runner_refusals_and_budgets() -> None:
         await _runner(_Session(ITEMS), _Ingest(), conflicted).sync(_spec())
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.22")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.22")
 @pytest.mark.parametrize(
     "result",
     [
@@ -239,7 +239,7 @@ async def test_malformed_pages_do_not_advance(result: Any) -> None:
     assert ingest.batches == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.22")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.22")
 async def test_empty_list_is_a_valid_source_page() -> None:
     ingest, checkpoints = _Ingest(), _Checkpoints()
     report = await _runner(_Session([]), ingest, checkpoints).sync(_spec())
@@ -247,7 +247,7 @@ async def test_empty_list_is_a_valid_source_page() -> None:
     assert ingest.batches == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.22")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.22")
 async def test_failed_page_keeps_the_last_accepted_checkpoint() -> None:
     class Session(_Session):
         async def call_tool(self, name: str, arguments: Mapping[str, Any]) -> Any:
@@ -265,7 +265,7 @@ async def test_failed_page_keeps_the_last_accepted_checkpoint() -> None:
     assert set(state.digests) == {"1", "2"}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.23")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.23")
 async def test_report_binds_receipts() -> None:
     ingest = _Ingest()
     report = await _runner(
@@ -297,7 +297,7 @@ class _KvClient:
         return {"swapped": True, "version": version + 1}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.21")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.21")
 async def test_kv_checkpoints_use_the_shared_scope() -> None:
     client = _KvClient()
     store = KvSourceCheckpoints(client)
@@ -321,7 +321,7 @@ async def test_kv_checkpoints_use_the_shared_scope() -> None:
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.25")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.25")
 async def test_tool_surface_serves_one_declaration_resource(tmp_path: Path) -> None:
     mcp = FastMCP("fixture")
     register_tool_surface(mcp, service="fixture-mcp", package_root=tmp_path)

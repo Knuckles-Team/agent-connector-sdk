@@ -17,17 +17,17 @@ value::
 :func:`run` resolves that declaration and serves the connector: transport
 flags, authentication, health, middleware, fleet registration and the package's
 skills, prompts, ontology, shapes and ``connector://resources`` all come from
-the SDK (SDK-CONNECTOR-CONTROL-R019.1). The package holds no server bootstrap,
+the SDK (SCION-CONNECTOR-CONTROL-R019.1). The package holds no server bootstrap,
 no ``__version__`` and no ``__main__`` logic.
 
 Content is found by convention under the package named by the entry point:
 ``skills/``, ``prompts/``, ``ontology/``, ``connectors/`` and
-``connector_sources`` (SDK-CONNECTOR-CONTROL-R071.1). No provider entry points
+``connector_sources`` (SCION-CONNECTOR-CONTROL-R071.1). No provider entry points
 are needed; ``content_root`` names a package-relative directory instead.
 
 A server that did more than the plain bootstrap declares it on ``Connector``
 with the typed hooks of :mod:`agent_connector_sdk.connector_hooks`
-(SDK-CONNECTOR-CONTROL-R019.2).
+(SCION-CONNECTOR-CONTROL-R019.2).
 """
 
 from __future__ import annotations

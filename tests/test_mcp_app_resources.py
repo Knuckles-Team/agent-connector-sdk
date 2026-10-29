@@ -34,7 +34,7 @@ def _entry(
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R073")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R073")
 async def test_mcp_app_resource_is_captured_by_the_existing_pack_path() -> None:
     """A real in-process MCP resource survives listing and pack capture."""
     mcp = FastMCP(SERVER.name, version=SERVER.version)
@@ -77,7 +77,7 @@ async def test_mcp_app_resource_is_captured_by_the_existing_pack_path() -> None:
         (APP_URI, "application/json"),
     ),
 )
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R073")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R073")
 def test_mcp_app_resource_rejects_unknown_uri_or_type(
     uri: str, media_type: str
 ) -> None:
@@ -85,7 +85,7 @@ def test_mcp_app_resource_rejects_unknown_uri_or_type(
         ResourceArtifactKind().validate(_entry(uri=uri, media_type=media_type))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R073")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R073")
 def test_mcp_app_resource_rejects_missing_server_provenance() -> None:
     malformed = _entry().model_copy(update={"server": None})
     with pytest.raises(MalformedArtifactError, match="provenance"):
@@ -93,14 +93,14 @@ def test_mcp_app_resource_rejects_missing_server_provenance() -> None:
 
 
 @pytest.mark.parametrize("media_type", ("text/html", "text/html;profile=mcp-app"))
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R073")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R073")
 def test_mcp_app_resource_accepts_both_standard_html_media_types(
     media_type: str,
 ) -> None:
     ResourceArtifactKind().validate(_entry(media_type=media_type))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R073")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R073")
 def test_mcp_app_resource_rejects_a_non_resource_artifact_type() -> None:
     malformed = _entry().model_copy(update={"kind": "mcp-app"})
     with pytest.raises(MalformedArtifactError):

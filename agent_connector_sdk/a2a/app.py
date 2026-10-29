@@ -1,6 +1,6 @@
 """Server-side A2A application factory (needs the ``a2a`` extra).
 
-CONCEPT:SDK-CONNECTOR-CONTROL-R014.21
+CONCEPT:SCION-CONNECTOR-CONTROL-R014.21
 
 Builds a fasta2a ASGI app for a pydantic-ai agent. The caller supplies the
 broker and storage; this SDK holds no task store. A host mounts the returned

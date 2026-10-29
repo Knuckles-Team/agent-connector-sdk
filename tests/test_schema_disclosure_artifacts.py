@@ -19,7 +19,7 @@ from agent_connector_sdk.mcp.schema_disclosure import (
 ROOT = Path(__file__).resolve().parents[1]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045")
 def test_schema_artifacts_are_generated_from_current_models():
     generator = runpy.run_path(str(ROOT / "scripts/generate_schema_disclosure.py"))
     for name, schema in generator["schema_documents"]().items():

@@ -12,7 +12,7 @@ from agent_connector_sdk.http.retry import RetryPolicy
 from agent_connector_sdk.tls.resolve import resolve_tls_profile
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.1")
 def test_actor_type_members_match_the_retired_enum() -> None:
     members = {member.name: member.value for member in identity.ActorType}
     assert members == {
@@ -24,7 +24,7 @@ def test_actor_type_members_match_the_retired_enum() -> None:
     }
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.2")
 def test_all_six_exceptions_keep_their_hierarchy() -> None:
     names = [
         "AuthError",
@@ -39,7 +39,7 @@ def test_all_six_exceptions_keep_their_hierarchy() -> None:
     assert issubclass(exceptions.UnauthorizedError, exceptions.AuthError)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.3")
 def test_governed_client_retries_an_idempotent_request() -> None:
     calls: list[int] = []
 
@@ -58,12 +58,12 @@ def test_governed_client_retries_an_idempotent_request() -> None:
         RetryPolicy(max_attempts=0)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.4")
 def test_tls_profile_resolver_is_exported() -> None:
     assert callable(resolve_tls_profile)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.5")
 def test_value_coercions_and_logger() -> None:
     assert utilities.to_boolean("Yes") is True
     assert utilities.to_boolean("") is False

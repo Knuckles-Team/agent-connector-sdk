@@ -5,7 +5,7 @@ import pytest
 from agent_connector_sdk.artifacts import ReadableScore, score_readable_answers
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R048.8")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R048.8")
 def test_score_is_derived_from_graded_question_counts() -> None:
     result = score_readable_answers([True, False, True, True])
     assert isinstance(result, ReadableScore)
@@ -16,7 +16,7 @@ def test_score_is_derived_from_graded_question_counts() -> None:
     assert score_readable_answers([True]).score == 1.0
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R048.8")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R048.8")
 def test_invalid_counts_and_ungraded_answers_refuse() -> None:
     for counts in ((0, 0), (2, -1), (2, 3), (True, 0), (2, False)):
         with pytest.raises(ValueError):

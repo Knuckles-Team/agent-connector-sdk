@@ -1,4 +1,4 @@
-"""ARIS process/EA vendor extractor (SDK-SOURCE-INGEST-R006.29).
+"""ARIS process/EA vendor extractor (SCION-SOURCE-INGEST-R006.29).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.aris``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

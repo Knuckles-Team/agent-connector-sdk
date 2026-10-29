@@ -1,4 +1,4 @@
-"""Uptime Kuma vendor extractor (SDK-SOURCE-INGEST-R006.1).
+"""Uptime Kuma vendor extractor (SCION-SOURCE-INGEST-R006.1).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.uptime_kuma``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

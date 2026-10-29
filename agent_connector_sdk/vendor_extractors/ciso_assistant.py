@@ -1,4 +1,4 @@
-"""CISO Assistant GRC vendor extractor (SDK-SOURCE-INGEST-R006.27).
+"""CISO Assistant GRC vendor extractor (SCION-SOURCE-INGEST-R006.27).
 
 Ported from
 ``agent_utilities.knowledge_graph.enrichment.extractors.ciso_assistant`` onto

@@ -1,4 +1,4 @@
-"""Bounded generic foreign-read receiver (SDK-SOURCE-INGEST-R004.37)."""
+"""Bounded generic foreign-read receiver (SCION-SOURCE-INGEST-R004.37)."""
 
 from __future__ import annotations
 
@@ -106,7 +106,7 @@ async def test_generated_foreign_read_adapter_hides_sender_transport_failure(
     assert "secret.example" not in str(caught.value)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.37")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.37")
 @pytest.mark.asyncio
 async def test_generated_foreign_read_adapter_uses_published_eg_client_sender() -> None:
     """Exercise the generated sender against the canonical client's ``_send`` seam."""
@@ -281,8 +281,8 @@ class _Adapter:
         return next(self.responses)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.37")
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.38")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.37")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.38")
 @pytest.mark.asyncio
 async def test_foreign_read_lifecycle_uses_exact_methods_and_binds_digest() -> None:
     execution = {"execution_id": 7, "query_digest": _DIGEST}
@@ -354,8 +354,8 @@ async def test_foreign_read_lifecycle_uses_exact_methods_and_binds_digest() -> N
     assert chunk_params["rows"][0]["id"] == "row-1"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.38")
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.39")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.38")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.39")
 @pytest.mark.asyncio
 async def test_foreign_read_refuses_sequence_digest_and_terminal_replay() -> None:
     execution = {"execution_id": 9, "query_digest": _DIGEST}
@@ -428,8 +428,8 @@ async def test_foreign_read_refuses_sequence_digest_and_terminal_replay() -> Non
     ]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.38")
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.39")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.38")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.39")
 @pytest.mark.parametrize("phase", ["chunk", "complete", "abort"])
 @pytest.mark.asyncio
 async def test_foreign_read_cancelled_phase_terminalizes_handle(phase: str) -> None:
@@ -499,7 +499,7 @@ async def test_foreign_read_cancelled_phase_terminalizes_handle(phase: str) -> N
     assert adapter.calls == expected_calls
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.38")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.38")
 @pytest.mark.asyncio
 async def test_foreign_read_open_reserves_concurrent_capacity(monkeypatch: Any) -> None:
     monkeypatch.setattr(foreign_read_module, "_MAX_EXECUTIONS", 1)
@@ -534,7 +534,7 @@ async def test_foreign_read_open_reserves_concurrent_capacity(monkeypatch: Any) 
     await first
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.38")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.38")
 @pytest.mark.asyncio
 async def test_foreign_read_reaps_expired_handle_before_capacity(
     monkeypatch: Any,
@@ -574,7 +574,7 @@ async def test_foreign_read_reaps_expired_handle_before_capacity(
     ]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.39")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.39")
 @pytest.mark.asyncio
 async def test_foreign_read_timeout_and_malformed_response_fail_closed() -> None:
     class _Slow:
@@ -593,8 +593,8 @@ async def test_foreign_read_timeout_and_malformed_response_fail_closed() -> None
         await ForeignReadClient(_Malformed()).open(_open())
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.38")
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.39")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.38")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.39")
 @pytest.mark.asyncio
 async def test_foreign_read_phase_timeout_aborts_remote_handle() -> None:
     execution = {"execution_id": 18, "query_digest": _DIGEST}
@@ -643,8 +643,8 @@ async def test_foreign_read_phase_timeout_aborts_remote_handle() -> None:
     assert not client._executions
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.38")
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.39")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.38")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.39")
 @pytest.mark.asyncio
 async def test_foreign_read_enforces_per_chunk_bytes() -> None:
     execution = {"execution_id": 11, "query_digest": _DIGEST}
@@ -700,8 +700,8 @@ async def test_foreign_read_enforces_per_chunk_bytes() -> None:
     assert len(adapter.calls) == 3
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.38")
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.39")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.38")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.39")
 @pytest.mark.asyncio
 async def test_foreign_read_checks_cumulative_limits_before_transport() -> None:
     execution = {"execution_id": 16, "query_digest": _DIGEST}
@@ -772,7 +772,7 @@ async def test_foreign_read_checks_cumulative_limits_before_transport() -> None:
     assert len(byte_adapter.calls) == 1
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.39")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.39")
 @pytest.mark.asyncio
 async def test_foreign_read_transport_errors_are_closed_and_unlinked() -> None:
     class _Leaky:
@@ -790,8 +790,8 @@ async def test_foreign_read_transport_errors_are_closed_and_unlinked() -> None:
     assert "secret-payload" not in "".join(traceback.format_exception(error))
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.37")
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.39")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.37")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.39")
 def test_foreign_read_dto_rejects_oversized_or_non_json_cells() -> None:
     with pytest.raises(ValueError, match="column value"):
         ForeignReadRow(id="row", columns={"value": "x" * (64 * 1024)})

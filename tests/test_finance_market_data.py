@@ -48,7 +48,7 @@ BARS = pd.DataFrame(
 )
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.2")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R900.2")
 def test_first_non_empty_provider_wins_and_failures_become_warnings() -> None:
     registry = DataRegistry(
         providers=[

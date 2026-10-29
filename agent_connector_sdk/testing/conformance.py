@@ -4,7 +4,7 @@ Each check takes the :class:`~agent_connector_sdk.connector.ResolvedConnector`
 and raises ``ConformanceFailure`` (an ``AssertionError``) on a violation. The pytest plugin
 (:mod:`agent_connector_sdk.testing.plugin`) runs them for any repository whose
 ``pyproject.toml`` declares an ``agent_connector_sdk.connector`` entry point, so
-a connector repository copies no conformance test (SDK-QUALITY-RELEASE-R005.1).
+a connector repository copies no conformance test (SCION-QUALITY-RELEASE-R005.1).
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ REMOVED_PROVIDER_GROUPS = (
     "agent_connector_sdk.ontology_providers",
     "agent_connector_sdk.source_connector_providers",
 )
-_ROW = "SDK-QUALITY-RELEASE-R005.1"
+_ROW = "SCION-QUALITY-RELEASE-R005.1"
 
 
 class ConformanceFailure(AssertionError):
@@ -278,7 +278,7 @@ CHECKS: tuple[Check, ...] = (
     Check("ontology_rollup", _ROW, check_ontology_rollup),
     Check("kg_ingest", _ROW, check_kg_ingest),
     Check("one_entry_point", _ROW, check_one_entry_point),
-    Check("config_mounts", "SDK-CONNECTOR-CONTROL-R019.3", check_config_mounts),
+    Check("config_mounts", "SCION-CONNECTOR-CONTROL-R019.3", check_config_mounts),
 )
 
 

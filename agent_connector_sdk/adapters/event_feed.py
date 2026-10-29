@@ -1,7 +1,7 @@
 """The event feed engine: one ``SourceAdapter`` for every feed kind.
 
 One engine serves RUM, security-audit and CI/CD events alike
-(SDK-OBSERVABILITY-FEEDS-R001): the wire shape (server, tool, pagination) is a
+(SCION-OBSERVABILITY-FEEDS-R001): the wire shape (server, tool, pagination) is a
 :class:`ToolPreset` like any other ``mcp_tool`` source, and the event envelope
 (identity, time basis, privacy label, digest) is validated the same way
 regardless of which feed kind is read. Per-record validation and identity

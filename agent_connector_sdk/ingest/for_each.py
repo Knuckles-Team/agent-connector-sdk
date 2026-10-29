@@ -1,4 +1,4 @@
-"""Per-parent fan-out of a declared source (SDK-SOURCE-INGEST-R004.28).
+"""Per-parent fan-out of a declared source (SCION-SOURCE-INGEST-R004.28).
 
 A source that reads something owned by another record (the work items of a
 project) declares ``for_each``: the parent source it follows, the tool

@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R019.1, R071.1, R071.2: the SDK runs a declared connector."""
+"""SCION-CONNECTOR-CONTROL-R019.1, R071.1, R071.2: the SDK runs a declared connector."""
 
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ async def _read(mcp):
     return tools, resources, prompts
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.1")
 def test_build_server_registers_tools_and_content_from_the_declaration(
     democonn,
 ) -> None:
@@ -61,7 +61,7 @@ def test_build_server_registers_tools_and_content_from_the_declaration(
     assert {"demo", "connector-status"} <= prompts
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.1")
 def test_server_version_is_the_metadata_version(democonn) -> None:
     _, mcp = build_server("democonn", command_args=["--transport", "stdio"])
     assert str(mcp.version) == "1.2.3"
@@ -90,7 +90,7 @@ def _patched(monkeypatch, transport: str) -> _FakeServer:
     return fake
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.1")
 @pytest.mark.parametrize("transport", ["streamable-http", "sse"])
 def test_run_serves_network_transports_with_host_and_port(
     democonn, monkeypatch, capsys, transport
@@ -101,7 +101,7 @@ def test_run_serves_network_transports_with_host_and_port(
     assert "demo-mcp MCP v1.2.3" in capsys.readouterr().err
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.1")
 def test_run_refuses_an_unknown_transport(democonn, monkeypatch) -> None:
     fake = _patched(monkeypatch, "carrier-pigeon")
     with pytest.raises(SystemExit) as exit_:
@@ -110,7 +110,7 @@ def test_run_refuses_an_unknown_transport(democonn, monkeypatch) -> None:
     assert fake.calls == []
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.1")
 def test_run_defaults_to_the_calling_package(democonn, monkeypatch) -> None:
     from fastmcp import FastMCP
 
@@ -123,13 +123,13 @@ def test_run_defaults_to_the_calling_package(democonn, monkeypatch) -> None:
     assert served == ["stdio"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.1")
 def test_connector_declares_client_and_factory_together() -> None:
     with pytest.raises(ValueError, match="declared together"):
         Connector(api=object)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.1")
 def test_package_root_exports_run_and_connector_lazily() -> None:
     assert agent_connector_sdk.run is run
     assert agent_connector_sdk.Connector is Connector
@@ -137,7 +137,7 @@ def test_package_root_exports_run_and_connector_lazily() -> None:
         agent_connector_sdk.missing  # noqa: B018
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R071.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R071.1")
 def test_content_is_found_by_convention_with_one_entry_point(democonn) -> None:
     dirs = content_dirs("democonn")
     assert dirs.skills == democonn / "democonn" / "skills"
@@ -149,7 +149,7 @@ def test_content_is_found_by_convention_with_one_entry_point(democonn) -> None:
     ]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R071.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R071.1")
 def test_attribute_must_be_a_connector(tmp_path, monkeypatch) -> None:
     build(tmp_path, init="connector = 5\n")
     monkeypatch.syspath_prepend(str(tmp_path))
@@ -158,7 +158,7 @@ def test_attribute_must_be_a_connector(tmp_path, monkeypatch) -> None:
         resolve_connector("democonn")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R071.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R071.2")
 def test_versions_come_from_package_metadata(democonn) -> None:
     assert connector_version("democonn") == "1.2.3"
     assert connector_distribution("democonn") == "democonn"
@@ -167,7 +167,7 @@ def test_versions_come_from_package_metadata(democonn) -> None:
         distribution_version("no-such-distribution-xyz")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R071.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R071.1")
 def test_resolution_returns_typed_values(democonn) -> None:
     from agent_connector_sdk.connector import ConnectorContentDirs, ResolvedConnector
     from agent_connector_sdk.connector_identity import ConnectorPoint, connector_point
@@ -184,7 +184,7 @@ def test_resolution_returns_typed_values(democonn) -> None:
     assert isinstance(resolved.dirs, ConnectorContentDirs)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.1")
 def test_connector_forwards_every_tool_surface_keyword(democonn, monkeypatch) -> None:
     import agent_connector_sdk.mcp.tool_surface as surface
 

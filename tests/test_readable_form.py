@@ -14,7 +14,7 @@ from agent_connector_sdk.artifacts.readable_form import (
 from agent_connector_sdk.artifacts.tool_facts import SideEffect, ToolContractFacts
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R048.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R048.2")
 def test_render_is_bounded_plain_text() -> None:
     result = FittedAnalysis(
         (FittedTerm("age", "+0.5"), FittedTerm("cost", "-2")), "R2=0.8"
@@ -32,7 +32,7 @@ def test_render_is_bounded_plain_text() -> None:
         ReadableForm("default", max_chars=-1)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R048.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R048.1")
 def test_model_is_frozen_and_optional_on_facts() -> None:
     base = {
         "read_only": True,
@@ -51,7 +51,7 @@ def test_model_is_frozen_and_optional_on_facts() -> None:
         form.__setattr__("score", 0.5)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R048.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R048.7")
 @pytest.mark.parametrize("score", [-0.1, 1.1, float("nan"), float("inf"), True])
 def test_readable_score_refuses_non_ratios(score: float) -> None:
     from pydantic import ValidationError
@@ -70,7 +70,7 @@ def test_readable_score_refuses_non_ratios(score: float) -> None:
         ToolContractFacts.model_validate(base)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R048.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R048.7")
 @pytest.mark.parametrize("score", [0.0, 0.5, 1.0])
 def test_readable_score_accepts_finite_ratio(score: float) -> None:
     assert ReadableForm("default", score=score).score == score

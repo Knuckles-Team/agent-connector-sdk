@@ -1,4 +1,4 @@
-"""SDK-QUALITY-RELEASE-R005.1: the pytest plugin generates connector conformance tests."""
+"""SCION-QUALITY-RELEASE-R005.1: the pytest plugin generates connector conformance tests."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ def _install(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, **kwargs):
     return resolve_connector("democonn")
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005.1")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005.1")
 def test_every_check_passes_for_a_conforming_connector(tmp_path, monkeypatch) -> None:
     resolved = _install(tmp_path, monkeypatch)
     for check in CHECKS:
@@ -37,7 +37,7 @@ def test_every_check_passes_for_a_conforming_connector(tmp_path, monkeypatch) ->
         sys.modules.pop(name)
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005.1")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005.1")
 @pytest.mark.parametrize(
     ("check", "kwargs", "message"),
     [
@@ -87,26 +87,26 @@ def test_breaking_one_property_fails_its_named_check(
         sys.modules.pop(name)
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005.1")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005.1")
 def test_removed_groups_are_the_three_provider_groups() -> None:
     assert len(REMOVED_PROVIDER_GROUPS) == 3
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005.1")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005.1")
 def test_orphan_classes_reads_transitive_parents(tmp_path) -> None:
     path = tmp_path / "o.ttl"
     path.write_text(ORPHAN)
     assert orphan_classes(path) == {"https://example.invalid/ontology/demo#Lonely"}
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005.1")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005.1")
 def test_declared_package_reads_the_pyproject(tmp_path) -> None:
     assert declared_package(tmp_path) is None
     build(tmp_path)
     assert declared_package(tmp_path) == "democonn"
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005.1")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005.1")
 def test_plugin_generates_one_test_per_check_in_a_connector_repository(
     pytester, monkeypatch
 ) -> None:
@@ -116,7 +116,7 @@ def test_plugin_generates_one_test_per_check_in_a_connector_repository(
     result.assert_outcomes(passed=len(CHECKS))
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005.1")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005.1")
 def test_plugin_is_inert_without_a_declaration_and_for_explicit_node_ids(
     pytester, monkeypatch
 ) -> None:
@@ -131,7 +131,7 @@ def test_plugin_is_inert_without_a_declaration_and_for_explicit_node_ids(
     result.assert_outcomes(passed=1)
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005.1")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005.1")
 def test_ontology_parser_and_namespace(tmp_path) -> None:
     from agent_connector_sdk.testing.ontology_rollup import (
         CORE_NAMESPACE,
@@ -142,7 +142,7 @@ def test_ontology_parser_and_namespace(tmp_path) -> None:
     assert any(o == CORE_NAMESPACE + "Document" for _, _, o in triples)
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005.1")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005.1")
 def test_generated_items_carry_the_check_and_spec_marker(tmp_path, monkeypatch) -> None:
     from agent_connector_sdk.testing.conformance import Check
     from agent_connector_sdk.testing.plugin import ConformanceItem
@@ -151,7 +151,7 @@ def test_generated_items_carry_the_check_and_spec_marker(tmp_path, monkeypatch) 
     assert ConformanceItem.__mro__[1] is pytest.Item
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005.1")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005.1")
 def test_startup_check_requires_the_health_route_to_answer(
     tmp_path, monkeypatch
 ) -> None:

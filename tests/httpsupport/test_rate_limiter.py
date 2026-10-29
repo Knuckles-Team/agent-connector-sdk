@@ -10,7 +10,7 @@ import pytest
 from agent_connector_sdk.httpsupport import RateLimiter as ExportedRateLimiter
 from agent_connector_sdk.httpsupport.rate_limit import RateLimiter
 
-pytestmark = [pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R005")]
+pytestmark = [pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R005")]
 
 
 class FakeClock:

@@ -55,7 +55,7 @@ def test_unused_session_satisfies_the_mcp_session_protocol() -> None:
     assert isinstance(_SESSION, McpSession)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005")
 def test_describe_declares_pagination_and_the_seam_schema_version() -> None:
     adapter = WebFetchSourceAdapter(
         ("http://example.invalid",), connector="test-connector", mapping_reference="v1"
@@ -67,7 +67,7 @@ def test_describe_declares_pagination_and_the_seam_schema_version() -> None:
     assert descriptor.pagination
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005")
 async def test_sweeping_two_urls_recovers_from_a_checkpoint() -> None:
     with (
         ScriptedHttpServer(ScriptedResponse(status=200, body=_PAGE_A)) as server_a,
@@ -128,7 +128,7 @@ async def test_a_failed_fetch_refuses_the_page(bad_status: int) -> None:
             await adapter.extract(_SESSION, None)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.41")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.41")
 async def test_failed_fetch_preserves_accepted_checkpoint() -> None:
     checkpoint = SourceCheckpoint(stream="web_fetch", position={"index": 1})
 
@@ -154,7 +154,7 @@ async def test_failed_fetch_preserves_accepted_checkpoint() -> None:
     assert checkpoint.position == {"index": 1}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.42")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.42")
 async def test_blocked_web_fetch_never_submits_or_advances_checkpoint() -> None:
     checkpoint = SourceCheckpoint(stream="web_fetch", position={"index": 1})
 
@@ -178,7 +178,7 @@ async def test_blocked_web_fetch_never_submits_or_advances_checkpoint() -> None:
     assert checkpoint.position == {"index": 1}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.49")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.49")
 async def test_invalid_checkpoint_refuses_before_fetch(monkeypatch) -> None:
     from agent_connector_sdk.adapters import web_fetch
 
@@ -213,7 +213,7 @@ async def test_invalid_checkpoint_refuses_before_fetch(monkeypatch) -> None:
     assert calls == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.50")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.50")
 async def test_checkpoint_binds_ordered_url_list(monkeypatch) -> None:
     from agent_connector_sdk.adapters import web_fetch
 
@@ -245,7 +245,7 @@ async def test_checkpoint_binds_ordered_url_list(monkeypatch) -> None:
 
 
 @pytest.mark.timeout(30)
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.54")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.54")
 async def test_legacy_fetch_handles_adversarial_html() -> None:
     body = ("<meta " * 50_000 + "<title>" * 50_000 + "<" * 100_000).encode()
     with ScriptedHttpServer(

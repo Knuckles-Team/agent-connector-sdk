@@ -1,4 +1,4 @@
-"""SDK-SOURCE-INGEST-R006.3: the Caddy reverse-proxy vendor extractor port."""
+"""SCION-SOURCE-INGEST-R006.3: the Caddy reverse-proxy vendor extractor port."""
 
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ class _FakeClient:
         return self._config
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.3")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.3")
 def test_extract_returns_a_change_set_of_service_entities() -> None:
     result = extract({"client": _FakeClient(_CONFIG)})
 
@@ -53,17 +53,17 @@ def test_extract_returns_a_change_set_of_service_entities() -> None:
     assert result.relationships == ()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.3")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.3")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.3")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.3")
 def test_extract_returns_an_empty_change_set_when_config_is_not_a_dict() -> None:
     assert extract({"client": _FakeClient(None)}) == ChangeSet()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.3")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.3")
 def test_extract_returns_an_empty_change_set_when_get_config_raises() -> None:
     class _BrokenClient:
         def get_config(self, path: str) -> object:
@@ -72,7 +72,7 @@ def test_extract_returns_an_empty_change_set_when_get_config_raises() -> None:
     assert extract({"client": _BrokenClient()}) == ChangeSet()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.3")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.3")
 def test_caddy_self_registers_under_the_vendor_extractor_registry() -> None:
     registered = get_vendor_extractor(CATEGORY)
 

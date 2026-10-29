@@ -1,4 +1,4 @@
-"""ServiceNow ITSM + CMDB + TRM vendor extractor (SDK-SOURCE-INGEST-R006.26).
+"""ServiceNow ITSM + CMDB + TRM vendor extractor (SCION-SOURCE-INGEST-R006.26).
 
 Ported from
 ``agent_utilities.knowledge_graph.enrichment.extractors.servicenow`` onto

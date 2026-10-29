@@ -1,4 +1,4 @@
-"""Unit coverage for splitting action-routed tools (SDK-CONNECTOR-CONTROL-R020)."""
+"""Unit coverage for splitting action-routed tools (SCION-CONNECTOR-CONTROL-R020)."""
 
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ def _register_router_proof(mcp: FastMCP[Any]) -> None:
         return action
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.3")
 async def test_router_actions_remain_served() -> None:
     mcp: FastMCP[Any] = FastMCP("router-proof")
     register_tool_surface(
@@ -87,12 +87,12 @@ def _tools(mcp: FastMCP[Any]) -> dict[str, Any]:
     return {tool.name: tool for tool in asyncio.run(mcp.local_provider.list_tools())}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020")
 def test_tool_actions_reads_literal_and_branches() -> None:
     assert tool_actions(_tools(_server())["demo"]) == ["status", "purge"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020")
 def test_split_trims_parameters_and_tags_tools() -> None:
     mcp = _server()
     added = split_action_tool(mcp, "demo", _tools(mcp)["demo"], operations={})
@@ -111,7 +111,7 @@ def _split_server() -> FastMCP[Any]:
     return mcp
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.5")
 def test_split_tools_inherit_parent_and_per_action_class() -> None:
     from agent_connector_sdk.mcp.action_split import split_tool_classes
 
@@ -127,7 +127,7 @@ def test_split_tools_inherit_parent_and_per_action_class() -> None:
     }
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.5")
 def test_mutating_split_never_inherits_a_read_class() -> None:
     from agent_connector_sdk.mcp.action_split import (
         assert_tools_classified,
@@ -141,7 +141,7 @@ def test_mutating_split_never_inherits_a_read_class() -> None:
         assert_tools_classified(mcp, set(), {"demo": "read"}, read_classes={"read"})
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.5")
 def test_unknown_and_undeclared_tools_stay_unclassified() -> None:
     from agent_connector_sdk.mcp.action_split import (
         assert_tools_classified,
@@ -161,7 +161,7 @@ def test_unknown_and_undeclared_tools_stay_unclassified() -> None:
         assert_tools_classified(mcp, set())
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.5")
 def test_parent_read_only_hint_does_not_classify_unknown_actions() -> None:
     from agent_connector_sdk.mcp.action_split import split_tool_classes
 
@@ -181,7 +181,7 @@ def test_parent_read_only_hint_does_not_classify_unknown_actions() -> None:
     assert got == {}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.5")
 def test_mixed_read_and_mutation_verbs_never_inherit_read() -> None:
     from agent_connector_sdk.mcp.action_split import split_tool_classes
 

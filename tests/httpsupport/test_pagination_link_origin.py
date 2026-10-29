@@ -10,7 +10,7 @@ from agent_connector_sdk.httpsupport.pagination import (
     PaginationOriginError,
 )
 
-pytestmark = pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.2")
+pytestmark = pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.2")
 
 
 @pytest.mark.parametrize(

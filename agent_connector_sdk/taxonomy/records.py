@@ -1,6 +1,6 @@
 """Normalized ``Taxon`` record and its NCBI/GBIF source mappings.
 
-``SDK-SOURCE-INGEST-R009`` calls for a taxonomy connector that ingests NCBI
+``SCION-SOURCE-INGEST-R009`` calls for a taxonomy connector that ingests NCBI
 Taxonomy and GBIF backbone taxa as ``kg:Taxon`` individuals carrying rank,
 parent, scientific name, NCBI and GBIF identifiers, and a term CURIE,
 validated against the world_model-v1 ``TaxonShape``

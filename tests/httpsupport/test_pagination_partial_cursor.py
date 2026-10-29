@@ -13,7 +13,7 @@ def _page(params):
     return {"items": list(range(start, start + 3)), "next_cursor": str(start + 3)}, {}
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.5")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.5")
 async def test_async_partial_page_never_reports_later_cursor():
     calls = []
 
@@ -31,7 +31,7 @@ async def test_async_partial_page_never_reports_later_cursor():
     assert len(calls) == 2
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.5")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.5")
 def test_complete_page_budget_keeps_provider_cursor():
     def fetch(url, params):
         return _page(params)

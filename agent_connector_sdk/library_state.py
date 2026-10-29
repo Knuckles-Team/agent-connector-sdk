@@ -1,7 +1,7 @@
 """Shared on-disk library/state file path resolution and cross-process locking.
 
 A connector that persists local state or library data outside the graph
-(SDK-CONNECTOR-CONTROL-R034) resolves one path from configuration with
+(SCION-CONNECTOR-CONTROL-R034) resolves one path from configuration with
 :func:`get_library_file_path` and guards a read-modify-write of it with
 :func:`file_lock`, instead of each connector hand-rolling its own path
 convention and locking primitive.

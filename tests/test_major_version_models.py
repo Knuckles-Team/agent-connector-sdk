@@ -69,7 +69,7 @@ def _values() -> tuple[
     return transition, inventory, receipt
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R007.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R007.1")
 def test_inventory_digest_and_major_transition_are_checked() -> None:
     transition, inventory, _ = _values()
     assert (
@@ -95,7 +95,7 @@ def test_inventory_digest_and_major_transition_are_checked() -> None:
         )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R007.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R007.1")
 def test_receipt_is_immutable_and_rejects_mismatched_bindings() -> None:
     transition, inventory, receipt = _values()
     check_receipt_binding(transition, inventory, receipt)

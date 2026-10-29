@@ -36,7 +36,7 @@ def encoded_public() -> str:
     return base64.urlsafe_b64encode(public).decode().rstrip("=")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R650.4")
 def test_explicit_lock_pins_signing_and_verification(tmp_path) -> None:
     lock = tmp_path / "ontology.lock"
     lock.write_text(
@@ -60,7 +60,7 @@ def test_explicit_lock_pins_signing_and_verification(tmp_path) -> None:
         trusted["new"] = bytes(32)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R650.4")
 def test_ambiguous_or_untrusted_locks_refuse(tmp_path) -> None:
     lock = tmp_path / "ontology.lock"
     first = encoded_public()
@@ -81,7 +81,7 @@ def test_ambiguous_or_untrusted_locks_refuse(tmp_path) -> None:
         load_release_key_lock(lock)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R650.5")
 def test_create_release_lock_round_trips_without_overwriting(tmp_path) -> None:
     lock = tmp_path / "ontology.lock"
     key = base64.urlsafe_b64decode(encoded_public() + "=")
@@ -94,7 +94,7 @@ def test_create_release_lock_round_trips_without_overwriting(tmp_path) -> None:
     assert list(tmp_path.iterdir()) == [lock]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R650.5")
 def test_create_release_lock_refuses_invalid_inputs_without_a_file(tmp_path) -> None:
     lock = tmp_path / "ontology.lock"
     for artifacts in (
@@ -108,7 +108,7 @@ def test_create_release_lock_refuses_invalid_inputs_without_a_file(tmp_path) -> 
         assert not lock.exists()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R650.5")
 def test_create_release_lock_refuses_symlink_without_touching_target(tmp_path) -> None:
     target = tmp_path / "existing"
     target.write_text("keep")

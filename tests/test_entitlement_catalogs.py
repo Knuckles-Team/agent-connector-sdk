@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R036: entitlements over connector resource catalogs."""
+"""SCION-CONNECTOR-CONTROL-R036: entitlements over connector resource catalogs."""
 
 from __future__ import annotations
 

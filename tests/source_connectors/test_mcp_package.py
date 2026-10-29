@@ -26,7 +26,7 @@ def _caller(*pages: Any) -> tuple[list[tuple[str, dict[str, Any]]], CallToolFn]:
     return calls, call_tool
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R902.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R902.1")
 def test_explicit_mapping_yields_documents_with_neutral_metadata() -> None:
     calls, call_tool = _caller(
         {
@@ -61,7 +61,7 @@ def test_package_preset_fills_the_tool_contract() -> None:
     assert source.tool == preset["tool"] and source.name == "mcp:scholarx"
 
 
-# spec: SDK-SOURCE-INGEST-R902.2
+# spec: SCION-SOURCE-INGEST-R902.2
 def test_cursor_poll_pages_then_dedups() -> None:
     calls, call_tool = _caller(
         {"items": [{"id": "a", "text": "one"}], "next": "c2"},
@@ -103,7 +103,7 @@ def test_tool_is_required() -> None:
         ("github-agent", "github-mcp"),
     ],
 )
-@pytest.mark.spec("SDK-SOURCE-INGEST-R902.5")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R902.5")
 def test_server_resolution_uses_declared_names_only(
     requested: str, configured: str
 ) -> None:
@@ -115,7 +115,7 @@ def test_server_resolution_uses_declared_names_only(
     assert mcp_package.configured_mcp_server({}, requested) is None
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R902.4")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R902.4")
 def test_stdio_is_refused_when_prohibited(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MCP_STDIO_PROHIBITED", "true")
     source = build_connector("mcp", {"server": "s", "tool": "t"})
@@ -135,7 +135,7 @@ def test_unconfigured_server_names_the_offline_option(
         list(build_connector("mcp", {"server": "s", "tool": "t"}).load())
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R902.3")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R902.3")
 def test_mcp_catalog_falls_back_to_the_platform_config_file(
     monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:
@@ -153,7 +153,7 @@ def test_mcp_catalog_falls_back_to_the_platform_config_file(
     assert seen == ["mcp_config.json"]
 
 
-# spec: SDK-SOURCE-INGEST-R902.6
+# spec: SCION-SOURCE-INGEST-R902.6
 async def test_run_sync_works_inside_a_running_loop() -> None:
     async def answer() -> int:
         return 42

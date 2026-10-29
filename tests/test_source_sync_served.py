@@ -1,4 +1,4 @@
-"""The source sync runner against a real engine (SDK-SOURCE-INGEST-R004.24).
+"""The source sync runner against a real engine (SCION-SOURCE-INGEST-R004.24).
 
 A fixture connector serves the declared ``fixture_list_items`` tool in process.
 The runner calls it through a real MCP client session, submits to the real
@@ -93,7 +93,7 @@ async def _run(ingest: KnowledgeIngest) -> tuple[Any, Any, list[dict[str, Any]],
     return first, second, rows, state
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.24")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.24")
 def test_sync_runner_against_real_engine(
     live_ingest: KnowledgeIngest,  # noqa: F811 - pytest fixture
 ) -> None:

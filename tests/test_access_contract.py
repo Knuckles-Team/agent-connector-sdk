@@ -1,4 +1,4 @@
-"""Access-contract parsing and refusal (SDK-CONNECTOR-CONTROL-R021, CC-11)."""
+"""Access-contract parsing and refusal (SCION-CONNECTOR-CONTROL-R021, CC-11)."""
 
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ def _variant(old: str, new: str) -> str:
     return _FAKE.replace(old, new)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R021")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R021")
 def test_parses_typed_contract_from_fake_connector() -> None:
     (contract,) = parse_access_contracts(_FAKE)
     assert isinstance(contract, AccessContract)
@@ -85,11 +85,11 @@ def test_optional_hints_default_to_unknown() -> None:
     assert contract.rate_limit_per_minute is None
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R040")
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R041")
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R042")
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R043")
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R044")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R040")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R041")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R042")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R043")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R044")
 @pytest.mark.parametrize(
     "kind", ("mcp_tool", "a2a_skill", "http_endpoint", "graphql_query", "virtual_graph")
 )
@@ -103,7 +103,7 @@ def test_access_kinds_parse_with_source_mapping(kind: str) -> None:
     assert contract.predicates == (("https://example.invalid/fake#title", "summary"),)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R044")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R044")
 def test_virtual_graph_refuses_unknown_kind_and_literal_credential() -> None:
     virtual = _variant('"mcp_tool"', '"virtual_graph"')
     with pytest.raises(AccessContractError, match="unknown ac:accessKind"):

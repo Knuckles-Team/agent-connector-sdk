@@ -23,7 +23,7 @@ from agent_connector_sdk.data_prep import (
 )
 
 pytestmark = [
-    pytest.mark.spec("SDK-SOURCE-INGEST-R803"),
+    pytest.mark.spec("SCION-SOURCE-INGEST-R803"),
 ]
 
 
@@ -61,7 +61,7 @@ def _registry(row_model: type) -> RowModelRegistry:
     return RowModelRegistry({"model:test:v1": row_model})
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.1")
 def test_plan_gate_is_strict_and_allowlisted() -> None:
     with pytest.raises(ValidationError):
         CleanPipeline(
@@ -132,7 +132,7 @@ def test_profile_limits_are_enforced_before_execution(
         ).run(table)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.4")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.4")
 def test_lossy_casts_are_denied_and_lossless_widening_uses_safe_cast() -> None:
     narrowing = _plan(
         {
@@ -413,7 +413,7 @@ def test_paged_quarantine_evidence_matches_existing_result() -> None:
     assert paged.content_checkpoint_eligible is False
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.6")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.6")
 def test_million_row_plan_produces_bounded_paged_evidence(record_property) -> None:
     plan = _plan(
         {"verb": "dedupe", "keys": ["key"]},
@@ -459,7 +459,7 @@ def test_dedupe_treats_null_keys_deterministically() -> None:
     }
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.2")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.2")
 def test_replay_is_deterministic_and_plan_is_not_mutated() -> None:
     plan = _plan(
         {"verb": "canonical_names"},
@@ -698,7 +698,7 @@ def test_outcome_models_reject_inconsistent_reasons() -> None:
     assert issubclass(PlanExecutionError, DataPrepError)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.7")
 def test_public_plan_view_cannot_mutate_execution() -> None:
     plan = _plan({"verb": "dedupe", "keys": ["value"]})
     pipeline = CleanPipeline(
@@ -723,7 +723,7 @@ def test_public_plan_view_cannot_mutate_execution() -> None:
     assert paged.dropped_rows == 1
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.8")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.8")
 def test_duplicate_schema_fields_are_rejected() -> None:
     table = pa.Table.from_arrays(
         [pa.array(["not an integer"]), pa.array([7])], names=["value", "value"]
@@ -738,7 +738,7 @@ def test_duplicate_schema_fields_are_rejected() -> None:
         pipeline.run_paged(table)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.13")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.13")
 def test_missing_arrow_names_the_declared_extra(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

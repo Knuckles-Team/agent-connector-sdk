@@ -1,4 +1,4 @@
-"""Per-parent fan-out for ``mcp_tool`` presets (SDK-SOURCE-INGEST-R004.28).
+"""Per-parent fan-out for ``mcp_tool`` presets (SCION-SOURCE-INGEST-R004.28).
 
 A preset with ``for_each`` is extracted once per record of its parent preset:
 the parent's ``field`` value is passed as the preset's ``argument``. The

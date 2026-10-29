@@ -12,7 +12,7 @@ from agent_connector_sdk.httpsupport.pagination import (
     PaginationOriginError,
 )
 
-pytestmark = [pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004")]
+pytestmark = [pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004")]
 
 BASE = "https://tower.test/api/v2/"
 
@@ -98,7 +98,7 @@ def test_rejects_cross_origin_next(next_url: str):
     assert fetched == ["hosts/"]
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.1")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.1")
 @pytest.mark.parametrize(
     "next_url",
     [
@@ -118,7 +118,7 @@ def test_rejects_unsafe_next_without_exposing_credentials(next_url: str):
     assert "secret" not in caught.value.problem.model_dump_json()
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.1")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.1")
 @pytest.mark.parametrize(
     "endpoint", ["https://reader:secret@tower.test/", "https://tower.test:secret/"]
 )
@@ -132,7 +132,7 @@ def test_rejects_unsafe_initial_url_before_fetch(endpoint: str):
     assert "secret" not in caught.value.problem.model_dump_json()
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.1")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.1")
 @pytest.mark.parametrize(
     "next_url",
     [
@@ -158,7 +158,7 @@ async def test_async_rejects_unsafe_next_before_fetch(next_url: str):
     assert "secret" not in caught.value.problem.model_dump_json()
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.1")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.1")
 async def test_async_rejects_unsafe_initial_url_before_fetch():
     fetched: list[str] = []
 

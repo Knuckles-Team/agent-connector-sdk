@@ -87,7 +87,7 @@ def test_gates_job_is_the_shared_diff_scoped_workflow() -> None:
     assert gates["with"]["timeout-minutes"] == 45
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_gates_uv_cache_is_workspace_local_and_job_scoped() -> None:
     gates = _yaml(GATES)["jobs"]["gates"]
     assert gates["with"]["uv-cache-local-path"] == (
@@ -147,7 +147,7 @@ def test_release_publishes_only_for_a_tag_or_dispatch() -> None:
     assert "[skip ci]" not in RELEASE.read_text(encoding="utf-8")
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R003")
 def test_release_builds_and_downloads_the_old_name_forwarder() -> None:
     build = _yaml(BUILD)["jobs"]["build-compat"]
     assert any(
@@ -194,7 +194,7 @@ def test_ci_setup_bootstraps_the_contract_and_identity_catalog() -> None:
     assert "PROHIBITED_IDENTITY_CATALOG" in script
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R005")
 def test_bootstrap_installs_eg_from_its_pypi_wheel_only() -> None:
     bootstrap = BOOTSTRAP.read_text(encoding="utf-8")
     contract = CONTRACT.read_text(encoding="utf-8")
@@ -217,7 +217,7 @@ def test_bootstrap_installs_eg_from_its_pypi_wheel_only() -> None:
     assert "uv run --frozen python" not in script
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R003")
 def test_bootstrap_python_floor_uses_root_project_metadata(tmp_path: Path) -> None:
     pyproject = tmp_path / "pyproject.toml"
     pyproject.write_text(
@@ -252,7 +252,7 @@ def test_every_pre_commit_invocation_uses_the_relocated_config() -> None:
                 assert "--config .config/pre-commit.yaml" in line, (path, line)
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R003")
 def test_build_job_pins_the_managed_python_not_the_system_one() -> None:
     """Both build jobs share one pinned setup action after checkout."""
     workflow = _yaml(BUILD)
@@ -292,7 +292,7 @@ def test_build_job_pins_the_managed_python_not_the_system_one() -> None:
         assert len(setup_steps) == 1, f"{job_name} must use the shared toolchain action"
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R001")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R001")
 def test_build_job_verifies_installed_wheel_against_graph_client() -> None:
     """The release job must check the built wheel in an isolated installed
     consumer against the published graph-client wheel, not rely on the
@@ -387,7 +387,7 @@ def test_publish_requires_the_dependency_floor_on_the_public_index() -> None:
     assert commands.index("uv lock --check") < min(index for index, _ in publishes)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R018")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R018")
 def test_main_gate_runs_full_suite_types_and_docs() -> None:
     gates = _yaml(GATES)["jobs"]["main-gates"]
     assert gates["with"]["all-files"] is True

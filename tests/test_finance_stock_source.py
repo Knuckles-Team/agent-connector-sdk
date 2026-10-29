@@ -138,7 +138,7 @@ def _adapter(kind, *, mode="delta"):
     )
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R002.1")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R002.1")
 @pytest.mark.parametrize("kind", list(StockSourceKind))
 async def test_served_stock_records_reach_sink(kind):
     sink = InMemorySink()
@@ -198,7 +198,7 @@ async def test_bounded_source_refuses_full_mode_before_sink():
     assert not sink.batches
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R002.1")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R002.1")
 @pytest.mark.parametrize("adjustment", ["raw", "split", "dividend", "spin-off", "all"])
 @pytest.mark.parametrize(
     "session_label", ["pre_market", "regular", "post_market", "outside_session"]

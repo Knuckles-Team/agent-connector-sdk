@@ -1,4 +1,4 @@
-"""Salesforce CRM vendor extractor (SDK-SOURCE-INGEST-R006.7).
+"""Salesforce CRM vendor extractor (SCION-SOURCE-INGEST-R006.7).
 
 Ported from
 ``agent_utilities.knowledge_graph.enrichment.extractors.salesforce`` onto this

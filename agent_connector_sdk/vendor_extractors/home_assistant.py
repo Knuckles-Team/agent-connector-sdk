@@ -1,4 +1,4 @@
-"""Home Assistant vendor extractor (SDK-SOURCE-INGEST-R006.4).
+"""Home Assistant vendor extractor (SCION-SOURCE-INGEST-R006.4).
 
 Ported from
 ``agent_utilities.knowledge_graph.enrichment.extractors.home_assistant`` onto

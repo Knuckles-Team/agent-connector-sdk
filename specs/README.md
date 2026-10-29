@@ -55,12 +55,12 @@ bootstrap skill, together with the [SDD full lifecycle](https://github.com/Knuck
 
 ## Local specifications
 
-- [`SDK-CENTRALIZED-CAPABILITIES`](centralized-capabilities/spec.md) — index of every capability connectors take from the SDK.
-- [`SDK-CONNECTOR-CONTROL`](SDK-CONNECTOR-CONTROL/spec.md) — connector control and certification.
-- [`SDK-FINANCE-SOURCES`](SDK-FINANCE-SOURCES/spec.md) — finance source contracts.
-- [`SDK-GOVERNED-WRITEBACK`](SDK-GOVERNED-WRITEBACK/spec.md) — governed effects and write-back.
-- [`SDK-OBSERVABILITY-FEEDS`](SDK-OBSERVABILITY-FEEDS/spec.md) — telemetry and observability feeds.
-- [`SDK-QUALITY-RELEASE`](SDK-QUALITY-RELEASE/spec.md) — package and release proof.
-- [`SDK-REPOSITORY-TRANSPORT`](SDK-REPOSITORY-TRANSPORT/spec.md) — repository transport contract.
-- [`SDK-SCM`](SDK-SCM/spec.md) — source client and virtual workspace.
-- [`SDK-SOURCE-INGEST`](SDK-SOURCE-INGEST/spec.md) — source ingestion contracts.
+- [`SCION-CENTRALIZED-CAPABILITIES`](centralized-capabilities/spec.md) — index of every capability connectors take from the SDK.
+- [`SCION-CONNECTOR-CONTROL`](SCION-CONNECTOR-CONTROL/spec.md) — connector control and certification.
+- [`SCION-FINANCE-SOURCES`](SCION-FINANCE-SOURCES/spec.md) — finance source contracts.
+- [`SCION-GOVERNED-WRITEBACK`](SCION-GOVERNED-WRITEBACK/spec.md) — governed effects and write-back.
+- [`SCION-OBSERVABILITY-FEEDS`](SCION-OBSERVABILITY-FEEDS/spec.md) — telemetry and observability feeds.
+- [`SCION-QUALITY-RELEASE`](SCION-QUALITY-RELEASE/spec.md) — package and release proof.
+- [`SCION-REPOSITORY-TRANSPORT`](SCION-REPOSITORY-TRANSPORT/spec.md) — repository transport contract.
+- [`SCION-SCM`](SCION-SCM/spec.md) — source client and virtual workspace.
+- [`SCION-SOURCE-INGEST`](SCION-SOURCE-INGEST/spec.md) — source ingestion contracts.
