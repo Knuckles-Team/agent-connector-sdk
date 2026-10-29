@@ -38,6 +38,10 @@
     "SDK-CONNECTOR-CONTROL-R023",
     "SDK-CONNECTOR-CONTROL-R024",
     "SDK-CONNECTOR-CONTROL-R025",
+    "SDK-CONNECTOR-CONTROL-R025.1",
+    "SDK-CONNECTOR-CONTROL-R025.2",
+    "SDK-CONNECTOR-CONTROL-R025.3",
+    "SDK-CONNECTOR-CONTROL-R025.4",
     "SDK-CONNECTOR-CONTROL-R020.1",
     "SDK-CONNECTOR-CONTROL-R020.2",
     "SDK-CONNECTOR-CONTROL-R020.3",
@@ -847,14 +851,66 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "5a476653a386",
+        "d7d1ff0fb276",
         "e266bf988bb9"
       ],
       "verified_by": [
-        "tests/test_entitlements.py:34",
-        "tests/test_entitlements.py:39",
-        "tests/test_entitlements.py:44",
-        "tests/test_entitlements.py:52",
-        "tests/test_entitlements.py:61"
+        "tests/test_actor_binding_served.py:117",
+        "tests/test_actor_binding_served.py:129",
+        "tests/test_actor_binding_served.py:165",
+        "tests/test_actor_binding_served.py:178",
+        "tests/test_actor_binding_served.py:188"
+      ],
+      "rollup_of": [
+        "SDK-CONNECTOR-CONTROL-R025.1",
+        "SDK-CONNECTOR-CONTROL-R025.2",
+        "SDK-CONNECTOR-CONTROL-R025.3",
+        "SDK-CONNECTOR-CONTROL-R025.4"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R025.1",
+      "title": "A local transport binds the SYSTEM actor",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d7d1ff0fb276"
+      ],
+      "verified_by": [
+        "tests/test_actor_binding_served.py:117"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R025.2",
+      "title": "Authenticated HTTP binds the token's actor with inherited IdP roles",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d7d1ff0fb276"
+      ],
+      "verified_by": [
+        "tests/test_actor_binding_served.py:129"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R025.3",
+      "title": "Unauthenticated HTTP binds the ANONYMOUS actor with zero entitlements",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d7d1ff0fb276"
+      ],
+      "verified_by": [
+        "tests/test_actor_binding_served.py:165"
+      ]
+    },
+    {
+      "id": "SDK-CONNECTOR-CONTROL-R025.4",
+      "title": "Work that needs an authenticated principal refuses typed",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d7d1ff0fb276"
+      ],
+      "verified_by": [
+        "tests/test_actor_binding_served.py:178",
+        "tests/test_actor_binding_served.py:188"
       ]
     },
     {
@@ -3629,7 +3685,8 @@
       "title": "Actor type",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "889be6e354c7"
+        "889be6e354c7",
+        "d7d1ff0fb276"
       ],
       "verified_by": [
         "tests/test_au_helper_parity.py:15"
@@ -3643,7 +3700,7 @@
         "889be6e354c7"
       ],
       "verified_by": [
-        "tests/test_au_helper_parity.py:27"
+        "tests/test_au_helper_parity.py:28"
       ]
     },
     {
@@ -3655,7 +3712,7 @@
         "889be6e354c7"
       ],
       "verified_by": [
-        "tests/test_au_helper_parity.py:42"
+        "tests/test_au_helper_parity.py:43"
       ]
     },
     {
@@ -3666,7 +3723,7 @@
         "889be6e354c7"
       ],
       "verified_by": [
-        "tests/test_au_helper_parity.py:61"
+        "tests/test_au_helper_parity.py:62"
       ]
     },
     {
@@ -3677,7 +3734,7 @@
         "889be6e354c7"
       ],
       "verified_by": [
-        "tests/test_au_helper_parity.py:66"
+        "tests/test_au_helper_parity.py:67"
       ]
     },
     {

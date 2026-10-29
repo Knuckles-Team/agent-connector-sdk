@@ -75,7 +75,7 @@ def test_create_mcp_server_serves_health_and_content(package_root: Path) -> None
     args, mcp, middlewares = create_mcp_server(
         "demo-mcp", version="1.0.0", command_args=[], content=content
     )
-    assert args.transport == "stdio" and len(middlewares) == 2
+    assert args.transport == "stdio" and len(middlewares) == 3
     with TestClient(mcp.http_app()) as client:
         assert client.get("/health").json() == {"status": "ok"}
 

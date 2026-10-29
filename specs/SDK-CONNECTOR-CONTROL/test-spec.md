@@ -192,6 +192,15 @@ These are required future tests. None ran during definition authoring.
 <!-- /spec-definition-patch -->
 
 <!-- spec-definition-patch:sdk-confirmation-r026-1 -->
+## Request actor binding (SDK-CONNECTOR-CONTROL-R025.1-R025.4)
+
+- `SDK-CONNECTOR-CONTROL-R025.1`: `tests/test_actor_binding_served.py::test_local_transport_binds_the_system_actor`.
+- `SDK-CONNECTOR-CONTROL-R025.2`: `tests/test_actor_binding_served.py::test_authenticated_http_binds_the_token_actor_with_inherited_roles`.
+- `SDK-CONNECTOR-CONTROL-R025.3`: `tests/test_actor_binding_served.py::test_unauthenticated_http_binds_the_anonymous_actor`.
+- `SDK-CONNECTOR-CONTROL-R025.4`: `tests/test_actor_binding_served.py::test_a_mutation_without_authentication_is_a_typed_refusal` and `::test_current_actor_stays_strict_outside_the_served_binding`.
+
+All five tests serve a real `create_mcp_server` server. A fastmcp client calls it in memory or over streamable HTTP. No test fakes the identity layer.
+
 ## One tool per API operation (SDK-CONNECTOR-CONTROL-R020, R026, R032)
 
 - SDK-CONNECTOR-CONTROL-R020: `tests/test_operation_tools.py::test_default_surface_is_one_typed_annotated_tool_per_operation` serves a sample client with GET, POST, PUT and DELETE operations through `tools/list`. It checks the tool count, names, typed required fields, descriptions and verb annotations. `test_action_dispatch_is_opt_in_compatibility` proves only the opt-in keeps action-dispatch tools. `tests/test_tool_surface.py::test_client_registers_operations_and_retires_action_tools` proves the default drops them. `test_manifest_supplies_schema_name_description_and_verb` covers the OpenAPI manifest path.
