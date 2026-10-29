@@ -10,9 +10,28 @@ from epistemic_graph.generated.write_back import (
     WriteBackAttempt,
 )
 
+from agent_connector_sdk.ports.audit_reservation import AuditReservation
 from agent_connector_sdk.writeback.models import DryRunObservation, SourceSnapshot
 
-__all__ = ["ReservableWriteBackTransport", "WriteBackTransport"]
+__all__ = [
+    "AuditBoundWriteBackTransport",
+    "ReservableWriteBackTransport",
+    "WriteBackTransport",
+]
+
+
+@runtime_checkable
+class AuditBoundWriteBackTransport(Protocol):
+    """A transport whose effect receipt must include the actual audit binding."""
+
+    async def apply_reserved(
+        self,
+        change_set: SourceChangeSet,
+        expected_version: str,
+        reservation: AuditReservation,
+    ) -> WriteBackAttempt:
+        """Apply with the verified durable reservation, without reserving anew."""
+        ...
 
 
 @runtime_checkable

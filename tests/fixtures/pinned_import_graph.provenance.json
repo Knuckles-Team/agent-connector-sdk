@@ -38,7 +38,9 @@
         "epistemic_graph.generated.coordination": "epistemic_graph/generated/coordination.py",
         "epistemic_graph.generated.index_repository": "epistemic_graph/generated/index_repository.py",
         "epistemic_graph.generated.ingestion": "epistemic_graph/generated/ingestion.py",
+        "epistemic_graph.generated.models": "epistemic_graph/generated/models.py",
         "epistemic_graph.generated.query": "epistemic_graph/generated/query.py",
+        "epistemic_graph.generated.security": "epistemic_graph/generated/security.py",
         "epistemic_graph.generated.source_ingestion": "epistemic_graph/generated/source_ingestion.py",
         "epistemic_graph.generated.storage": "epistemic_graph/generated/storage.py",
         "epistemic_graph.generated.write_back": "epistemic_graph/generated/write_back.py"

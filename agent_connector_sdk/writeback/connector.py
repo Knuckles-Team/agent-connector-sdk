@@ -9,6 +9,7 @@ from epistemic_graph.generated.write_back import (
 )
 
 from agent_connector_sdk.ports.audit_reservation import AuditReservationPort
+from agent_connector_sdk.ports.authorization_verifier import AuthorizationVerifier
 from agent_connector_sdk.ports.writeback_ledger import WriteBackLedger
 from agent_connector_sdk.ports.writeback_transport import WriteBackTransport
 from agent_connector_sdk.writeback.authorization import DurableAuthorizationResolver
@@ -45,6 +46,7 @@ class DurableWritableConnector:
         ledger: WriteBackLedger,
         *,
         audit: AuditReservationPort,
+        authorization_verifier: AuthorizationVerifier | None = None,
     ) -> None:
         if not connector_id:
             raise ValueError("connector_id must not be empty")
@@ -53,7 +55,9 @@ class DurableWritableConnector:
         self._ledger = ledger
         self._inflight = _InFlight()
         self._governed = GovernedWriteBack(
-            transport, DurableAuthorizationResolver(ledger), audit
+            transport,
+            authorization_verifier or DurableAuthorizationResolver(ledger),
+            audit,
         )
 
     async def register(self, change_set: SourceChangeSet) -> SourceChangeSet:
