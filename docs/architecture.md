@@ -4,7 +4,7 @@ The Agent Connector SDK is the connector transport and lifecycle layer between
 MCP clients, vendor systems, Arbora, and epistemic-graph. It keeps vendor `I/O`
 replaceable while one generated graph contract owns durable identity and state.
 
-[![Agent ecosystem runtime architecture](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
+[![Agent ecosystem runtime architecture](https://raw.githubusercontent.com/Knuckles-Team/medulla/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
 
 [Explore the live architecture](https://knuckles-team.github.io/.github/architecture/#sdk)
 
