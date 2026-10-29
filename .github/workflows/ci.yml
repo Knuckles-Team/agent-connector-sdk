@@ -54,7 +54,8 @@ jobs:
       runner: '["self-hosted", "homelab"]'
       all-files: true
       timeout-minutes: 60
-      test-scope: tests
+      # Tests run once, in `full`; this job keeps the hook, wheel and docs checks.
+      test-scope: ''
       src-root: agent_connector_sdk
       setup-command: bash scripts/ci_setup.sh
       uv-cache-local-path: .ci/uv-cache-${{ github.run_id }}-${{ github.run_attempt }}
@@ -68,8 +69,9 @@ jobs:
     uses: Knuckles-Team/pipelines/.github/workflows/main_pipeline.yml@main
     with:
       backward-python: "3.12"
+      backward-module: agent_connector_sdk
       runner: '["self-hosted", "homelab"]'
-      setup-command: bash scripts/ci_setup.sh
+      setup-command: bash scripts/ci_full_setup.sh
 
   scanner-quality:
     name: scanner-quality

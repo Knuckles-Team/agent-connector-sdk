@@ -391,7 +391,11 @@ def test_publish_requires_the_dependency_floor_on_the_public_index() -> None:
 def test_main_gate_runs_full_suite_types_and_docs() -> None:
     gates = _yaml(GATES)["jobs"]["main-gates"]
     assert gates["with"]["all-files"] is True
-    assert gates["with"]["test-scope"] == "tests"
+    # The suite runs once, in the `full` job; main-gates keeps hooks, wheel and docs.
+    assert gates["with"]["test-scope"] == ""
+    full = _yaml(GATES)["jobs"]["full"]["with"]
+    assert full["setup-command"] == "bash scripts/ci_full_setup.sh"
+    assert full["backward-module"] == "agent_connector_sdk"
     assert "mkdocs-build" in gates["with"]["extra-manual-hooks"]
     hooks = _yaml(PRE_COMMIT)["repos"]
     local_hooks = [
