@@ -18,10 +18,10 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "090e32ceb671",
+        "0eda6d39c8e9",
         "3d9f268c4a6b",
         "3edcf05bc64a",
-        "42b930057c3e",
-        "42d95428aad4"
+        "42b930057c3e"
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:295",
