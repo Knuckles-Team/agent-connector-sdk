@@ -1099,7 +1099,7 @@
         "f5de79afc1e0"
       ],
       "verified_by": [
-        "tests/test_graphql_client.py:20",
+        "tests/test_graphql_client.py:21",
         "tests/test_mcp_graphql_context.py:67",
         "tests/test_mcp_graphql_context.py:74",
         "tests/test_mcp_graphql_context.py:90"
@@ -1116,7 +1116,7 @@
         "f5de79afc1e0"
       ],
       "verified_by": [
-        "tests/test_graphql_client.py:20"
+        "tests/test_graphql_client.py:21"
       ]
     },
     {
