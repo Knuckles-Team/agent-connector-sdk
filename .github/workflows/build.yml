@@ -1,7 +1,7 @@
 name: Build
 
 # Reproducible wheel build, source distribution and installed-wheel compatibility check. Reusable:
-# gates.yml calls it on a push to main (no upload beyond the 7-day candidate
+# ci.yml calls it on a push to main (no upload beyond the 7-day candidate
 # artifact); release.yml calls it for a v* tag or dispatch, then publishes.
 
 on:

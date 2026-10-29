@@ -22,7 +22,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
-GATES = ROOT / ".github" / "workflows" / "gates.yml"
+GATES = ROOT / ".github" / "workflows" / "ci.yml"
 BUILD = ROOT / ".github" / "workflows" / "build.yml"
 SETUP_UV_ACTION = ROOT / ".github" / "actions" / "setup-uv" / "action.yml"
 CI_SETUP = ROOT / "scripts" / "ci_setup.sh"
@@ -83,10 +83,8 @@ def test_gates_job_is_the_shared_diff_scoped_workflow() -> None:
     )
     assert "steps" not in gates
     assert gates["with"]["setup-command"] == "bash scripts/ci_setup.sh"
-    assert gates["with"]["all-files"] == "${{ github.event_name == 'push' }}"
-    assert gates["with"]["timeout-minutes"] == (
-        "${{ github.event_name == 'push' && 60 || 45 }}"
-    )
+    assert gates["if"] == "github.event_name == 'pull_request'"
+    assert gates["with"]["timeout-minutes"] == 45
 
 
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R005")
@@ -103,20 +101,31 @@ def test_gates_uv_cache_is_workspace_local_and_job_scoped() -> None:
     assert ignored.returncode == 0
 
 
-def test_gates_trigger_standard_and_cancel_superseded_runs() -> None:
+def test_ci_triggers_follow_the_fleet_standard_and_cancel_superseded_runs() -> None:
     workflow = _yaml(GATES)
     triggers = workflow[True]
-    ignore = ["specs/**", "docs/**", "**/*.md", "plans/**", "LICENSE"]
 
     # Pull requests always run the one `gates / gates` check; the job detects a
     # docs-only diff itself, so no same-named skip companion exists.
-    assert triggers["pull_request"] is None
+    assert triggers["pull_request"] == {"branches": ["main"]}
+    assert triggers["push"] == {"branches": ["main"]}
+    assert "schedule" in triggers
+    assert "workflow_dispatch" in triggers
     assert not (GATES.parent / "gates-skip.yml").exists()
     patterns = workflow["jobs"]["gates"]["with"]["docs-only-paths"].split()
     assert patterns == ["specs/*", "docs/*", "*.md", "plans/*", "LICENSE"]
-    assert triggers["push"]["paths-ignore"] == ignore
-    assert triggers["push"]["branches"] == ["main"]
     assert workflow["concurrency"]["cancel-in-progress"] is True
+
+
+def test_ci_required_aggregates_every_blocking_job() -> None:
+    jobs = _yaml(GATES)["jobs"]
+    required = jobs["ci-required"]
+
+    assert required["name"] == "CI required"
+    assert required["if"] == "always()"
+    assert set(required["needs"]) == {"gates", "main-gates", "full", "build"}
+    assert jobs["full"]["if"] == "github.event_name != 'pull_request'"
+    assert jobs["full"]["with"]["backward-python"] == "3.12"
 
 
 def test_release_publishes_only_for_a_tag_or_dispatch() -> None:
@@ -380,8 +389,8 @@ def test_publish_requires_the_dependency_floor_on_the_public_index() -> None:
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R018")
 def test_main_gate_runs_full_suite_types_and_docs() -> None:
-    gates = _yaml(GATES)["jobs"]["gates"]
-    assert gates["with"]["all-files"] == "${{ github.event_name == 'push' }}"
+    gates = _yaml(GATES)["jobs"]["main-gates"]
+    assert gates["with"]["all-files"] is True
     assert gates["with"]["test-scope"] == "tests"
     assert "mkdocs-build" in gates["with"]["extra-manual-hooks"]
     hooks = _yaml(PRE_COMMIT)["repos"]

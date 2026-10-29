@@ -1,48 +1,79 @@
-name: Gates
+name: CI
 
-# Pull request: the one diff-scoped `gates` job (shared pipelines workflow) --
-# the full pre-commit and pre-push stages over the changed files plus the
-# affected-test subset. Push to main: the same job over every file with the full
-# test suite, the advisory scanner-quality job, and the reproducible build. Never
-# publishes (release.yml, v* tag only). Every pull request runs this workflow:
-# the job itself detects a docs/spec-only diff (`docs-only-paths`) and passes in
-# seconds, so a pull request has exactly one `gates / gates` check and no skip
-# companion can mask a failing real run. A docs-only push to main skips it.
+# The fleet fast-PR standard (pipelines reference/ci-standard.md). A pull request
+# runs one diff-scoped `gates` job (Python 3.14, affected tests); the caller
+# aggregate `CI required` is the one required status check. Main and nightly run
+# the full suite, supply-chain audit, Python 3.12 backward smoke, the full-tree
+# gates, the advisory scanner-quality job and the reproducible build. Never
+# publishes (release.yml, v* tag only).
 
 on:
   pull_request:
+    branches: [main]
   push:
     branches: [main]
-    paths-ignore: [specs/**, docs/**, '**/*.md', plans/**, LICENSE]
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}-{1}', github.workflow, github.event.pull_request.number) || format('main-{0}-{1}', github.workflow, github.ref) }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
-concurrency:
-  group: ${{ github.event_name == 'pull_request' && format('pr-{0}-{1}', github.workflow, github.event.pull_request.number) || format('main-{0}', github.workflow) }}
-  cancel-in-progress: true
-
 jobs:
   gates:
-    # Homelab runner for same-repo traffic; a fork PR lands on a hosted runner.
+    # Kept as `gates` so the `gates / gates` check keeps reporting until the ruleset requires `CI required`.
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
     uses: Knuckles-Team/pipelines/.github/workflows/gates_pipeline.yml@main
     with:
-      runner: ${{ (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && '["self-hosted", "homelab"]' || '"ubuntu-latest"' }}
-      all-files: ${{ github.event_name == 'push' }}
-      timeout-minutes: ${{ github.event_name == 'push' && 60 || 45 }}
+      # Homelab runner for same-repo traffic; a fork PR lands on a hosted runner.
+      runner: ${{ github.event.pull_request.head.repo.full_name == github.repository && '["self-hosted", "homelab"]' || '"ubuntu-latest"' }}
+      timeout-minutes: 45
       test-scope: tests
       src-root: agent_connector_sdk
       setup-command: bash scripts/ci_setup.sh
       uv-cache-local-path: .ci/uv-cache-${{ github.run_id }}-${{ github.run_attempt }}
       # fast-tests duplicates the shared affected-test step; a fork cannot read the identity catalog.
       skip-hooks: ${{ github.event.pull_request.head.repo.fork && 'fast-tests,tracked-privacy' || 'fast-tests' }}
-      extra-manual-hooks: ${{ github.event_name == 'push' && 'tracked-privacy wheel-build mkdocs-build' || 'tracked-privacy' }}
-      # Bash patterns (`*` crosses `/`); the same set as the push paths-ignore.
+      extra-manual-hooks: tracked-privacy
+      # Bash patterns (`*` crosses `/`).
       docs-only-paths: 'specs/* docs/* *.md plans/* LICENSE'
+
+  main-gates:
+    # Full-tree gates on main and nightly: every file, wheel build and docs build.
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+    uses: Knuckles-Team/pipelines/.github/workflows/gates_pipeline.yml@main
+    with:
+      runner: '["self-hosted", "homelab"]'
+      all-files: true
+      timeout-minutes: 60
+      test-scope: tests
+      src-root: agent_connector_sdk
+      setup-command: bash scripts/ci_setup.sh
+      uv-cache-local-path: .ci/uv-cache-${{ github.run_id }}-${{ github.run_attempt }}
+      skip-hooks: fast-tests
+      extra-manual-hooks: tracked-privacy wheel-build mkdocs-build
+
+  full:
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+    uses: Knuckles-Team/pipelines/.github/workflows/main_pipeline.yml@main
+    with:
+      backward-python: "3.12"
+      runner: '["self-hosted", "homelab"]'
+      setup-command: bash scripts/ci_setup.sh
 
   scanner-quality:
     name: scanner-quality
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     continue-on-error: true
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -99,6 +130,22 @@ jobs:
           fi
 
   build:
-    needs: [gates]
-    if: github.event_name == 'push'
+    needs: [main-gates]
+    if: github.event_name != 'pull_request'
     uses: ./.github/workflows/build.yml
+
+  ci-required:
+    name: CI required
+    if: always()
+    needs: [gates, main-gates, full, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fail on any failed or cancelled job (skipped is fine)
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "needed job results: $RESULTS"
+          for r in $RESULTS; do
+            case "$r" in failure|cancelled) echo "::error::a required job ended $r"; exit 1;; esac
+          done
