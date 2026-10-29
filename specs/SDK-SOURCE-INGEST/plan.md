@@ -1029,3 +1029,13 @@ source coordinates must match the admitted Place before the page is returned.
 The stream emits typed weather, Place and Region records and the declared
 `occurredAt` and `locatedIn` relationships. It never infers a region from
 coordinates. The graph must approve both entity mappings and relation entries.
+
+## Inspecting an accepted stream
+
+Expose the engine's typed source-ingest status for a bound connector and stream.
+The SDK validates the returned connector and stream before returning it. This
+lets a migration distinguish an absent checkpoint from an accepted checkpoint
+without a cursor. A cursor alone cannot establish that a legacy stream is empty.
+The status read does not move a checkpoint or authorize an identity transition.
+The migration owner must fence concurrent legacy writes before relying on the
+observation. It must account for existing source records and checkpoints.

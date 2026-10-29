@@ -2,18 +2,22 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 import uuid
 from collections.abc import Awaitable, Callable, Sequence
 from typing import Any
 
 from agent_connector_sdk._extras import require_mcp_extra
 from agent_connector_sdk.earth_observations._stream_policy import (
-    _checkpoint_offset,
+    _authorized_offset,
+    _stream_binding,
     _validate_stream_policy,
 )
 from agent_connector_sdk.earth_observations.occurrence import OccurrenceProvider
+from agent_connector_sdk.earth_observations.occurrence_context import (
+    OccurrenceContext,
+    _context_identity,
+    _occurrence_entities,
+)
 from agent_connector_sdk.ingest.live_declaration import source_meta
 
 require_mcp_extra("agent_connector_sdk.earth_observations.stream")
@@ -33,6 +37,7 @@ def register_occurrence_stream(
     authorize: Callable[[str, Any], Awaitable[bool]],
     name: str,
     connector: str,
+    context: OccurrenceContext | None = None,
 ) -> None:
     """Publish only a host-admitted tenant, provider and bounded ID set."""
     identifiers = tuple(identifiers)
@@ -44,28 +49,33 @@ def register_occurrence_stream(
         identifiers=identifiers,
         batch_size=batch_size,
     )
-    digest = hashlib.sha256(
-        json.dumps(
-            [
-                tenant,
-                name,
-                policy_revision,
-                provider.provider,
-                provider.http.base_url,
-                batch_size,
-                identifiers,
-            ],
-            separators=(",", ":"),
-        ).encode()
-    ).hexdigest()
+    if context is not None and batch_size > 256:
+        raise ValueError("occurrence graph page exceeds source batch bound")
+    digest = _stream_binding(
+        [
+            tenant,
+            name,
+            policy_revision,
+            provider.provider,
+            provider.http.base_url,
+            batch_size,
+            identifiers,
+        ]
+        + ([] if context is None else [_context_identity(context)])
+    )
 
     async def _serve(
         ctx: Context, mode: str, state: dict[str, Any] | None
     ) -> dict[str, Any]:
-        if mode != "delta" or not await authorize(tenant, ctx):
-            raise ValueError("access refused")
-        offset = _checkpoint_offset(
-            state, key="digest", binding=digest, size=len(identifiers)
+        offset = await _authorized_offset(
+            authorize,
+            tenant=tenant,
+            context=ctx,
+            mode=mode,
+            state=state,
+            key="digest",
+            binding=digest,
+            size=len(identifiers),
         )
         page_ids = identifiers[offset : offset + batch_size]
         rows = await provider.read(
@@ -73,14 +83,19 @@ def register_occurrence_stream(
         )
         next_offset = offset + len(page_ids)
         more = next_offset < len(identifiers)
-        return {
-            "records": [
+        relationships: list[dict[str, str]] = []
+        if context is None:
+            records = [
                 dict(
                     row.model_dump(mode="json", exclude_none=True),
                     id=f"{provider.provider}:{row.source_event_id}",
                 )
                 for row in rows
-            ],
+            ]
+        else:
+            records, relationships = _occurrence_entities(rows, context)
+        result: dict[str, Any] = {
+            "records": records,
             "next": str(next_offset) if more else None,
             "checkpoint": {
                 "digest": digest,
@@ -88,6 +103,9 @@ def register_occurrence_stream(
                 "generation": uuid.uuid4().hex,
             },
         }
+        if context is not None:
+            result["relationships"] = relationships
+        return result
 
     async def occurrence_stream(
         ctx: Context, mode: str = "delta", state: dict[str, Any] | None = None
@@ -98,6 +116,23 @@ def register_occurrence_stream(
         except Exception:
             raise ToolError("occurrence source page refused") from None
 
+    preset: dict[str, Any] = {
+        "params_style": "args",
+        "params": {"mode": "delta"},
+        "pagination": "cursor",
+        "cursor_param": "cursor",
+        "cursor_path": "next",
+        "updated_since_param": "state",
+        "checkpoint_path": "checkpoint",
+    }
+    if context is not None:
+        preset.update(
+            {
+                "record_mode": "typed_entities",
+                "node_type_field": "node_type",
+                "relationships_path": "relationships",
+            }
+        )
     metadata = source_meta(
         source_id=name,
         record_type="OrganismObservation",
@@ -105,15 +140,7 @@ def register_occurrence_stream(
         records_path="records",
         title_field="scientific_name",
         server=connector,
-        preset={
-            "params_style": "args",
-            "params": {"mode": "delta"},
-            "pagination": "cursor",
-            "cursor_param": "cursor",
-            "cursor_path": "next",
-            "updated_since_param": "state",
-            "checkpoint_path": "checkpoint",
-        },
+        preset=preset,
     )
     server.tool(name=name, annotations={"readOnlyHint": True}, meta=metadata)(
         occurrence_stream

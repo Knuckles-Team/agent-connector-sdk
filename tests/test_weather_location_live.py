@@ -2,18 +2,21 @@
 
 import asyncio
 import json
-from contextlib import asynccontextmanager
+import os
 
+import pytest
 from fastmcp import FastMCP
 from live_engine import live_ingest, scoped_client  # noqa: F401
-from source_graph_helpers import import_source_mapping, sync_failure_cycle
-from test_contracts_and_sink import _catalog
+from source_graph_helpers import admitted_source_fixture, sync_failure_cycle
 from test_event_feeds import CONNECTOR
 from weather_test_helpers import weather_provider, weather_request
 
 from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from agent_connector_sdk.earth_observations.records import Place, Region
-from agent_connector_sdk.earth_observations.weather_location import WeatherLocation
+from agent_connector_sdk.earth_observations.weather_location import (
+    WeatherLocation,
+    WeatherQuality,
+)
 from agent_connector_sdk.earth_observations.weather_stream import (
     register_weather_stream,
 )
@@ -27,7 +30,7 @@ from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
 from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
-async def exercise(url):
+async def exercise(url, with_quality):
     engine = await scoped_client(["*"])
     try:
         mappings = {
@@ -38,20 +41,26 @@ async def exercise(url):
             "Place": {"ontology_class": "Place", "fields": {"name": "name"}},
             "Region": {"ontology_class": "Region", "fields": {"name": "name"}},
         }
+        if with_quality:
+            mappings["WeatherObservation"] = {
+                "ontology_class": "WeatherObservation",
+                "fields": {
+                    "value": "quantityValue",
+                    "event_time_utc": "observationTime",
+                    "unit_code": "unitCode",
+                },
+                "datatypes": {"value": "xsd:decimal", "event_time_utc": "xsd:dateTime"},
+            }
+            mappings["QualityTerm"] = {
+                "ontology_class": "QualityTerm",
+                "fields": {"name": "name"},
+            }
         ontology = b"@prefix : <http://knuckles.team/kg#> . @prefix owl: <http://www.w3.org/2002/07/owl#> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . :occurredAt a owl:ObjectProperty ; rdfs:domain :WeatherObservation ; rdfs:range :Place . :locatedIn a owl:ObjectProperty ; rdfs:domain :Place ; rdfs:range :Region ."
-        context = await import_source_mapping(
+        if with_quality:
+            ontology += b" :observedQuality a owl:ObjectProperty ; rdfs:domain :WeatherObservation ; rdfs:range :QualityTerm ."
+        authority, authorize, quota = await admitted_source_fixture(
             engine, CONNECTOR, mappings, ontology=ontology
         )
-
-        async def authority(_connector):
-            return _catalog(), context
-
-        @asynccontextmanager
-        async def quota(name):
-            yield
-
-        async def authorize(tenant, ctx):
-            return tenant == "allowed" and ctx is not None
 
         provider = weather_provider(url, "noaa_hourly", quota)
         request = weather_request(tenant="allowed", hours=2, max_records=2)
@@ -73,6 +82,15 @@ async def exercise(url):
             name="weather",
             connector=CONNECTOR,
             location=WeatherLocation(place, region),
+            quality=WeatherQuality(
+                quality_id="air-temperature",
+                name="Air temperature",
+                variable="temperature",
+                source_unit="°C",
+                unit_code="Cel",
+            )
+            if with_quality
+            else None,
         )
         preset = ToolPreset(
             name="weather",
@@ -101,6 +119,12 @@ async def exercise(url):
             ResourceSpec(name="Region"),
         ]
 
+        if with_quality:
+            resources[0].relations.append(
+                ResourceRelation(name="observedQuality", target="QualityTerm")
+            )
+            resources.append(ResourceSpec(name="QualityTerm"))
+
         def adapter():
             return McpToolSourceAdapter(
                 preset,
@@ -117,12 +141,26 @@ async def exercise(url):
         edges = await engine.query.cypher_read(
             "MATCH (a)-[r]->(b) RETURN a, r, b LIMIT 100"
         )
-        return first, before, failed, repeated, edges
+        shapes = None
+        if with_quality:
+            query = (
+                "MATCH (:WeatherObservation) |> VALIDATE SHAPE "
+                "<http://knuckles.team/kg#WeatherObservationShape> PROJECT 'http://knuckles.team/kg#'"
+            )
+            shapes = (
+                await engine.query.uql(query + " KEEP CONFORMING"),
+                await engine.query.uql(query + " KEEP VIOLATING"),
+            )
+        return first, before, failed, repeated, edges, shapes
     finally:
         await engine.close()
 
 
-def test_located_weather_refusal_and_repeat(live_ingest):  # noqa: F811
+@pytest.mark.parametrize("with_quality", [False, True])
+def test_located_weather_refusal_and_repeat(live_ingest, with_quality):  # noqa: F811
+    if with_quality and os.environ.get("EG_TEST_SOURCE_SHAPES") != "1":
+        pytest.skip("requires the graph source datatype and shape projection candidate")
+
     def body(latitude):
         rows = [
             {
@@ -141,13 +179,20 @@ def test_located_weather_refusal_and_repeat(live_ingest):  # noqa: F811
         ScriptedResponse(body=body(46.0)),
         ScriptedResponse(body=body(45.1)),
     ) as server:
-        first, before, failed, repeated, edges = asyncio.run_coroutine_threadsafe(
-            exercise(server.base_url), live_ingest._loop
-        ).result(30)
-    assert first.accepted == 7
+        first, before, failed, repeated, edges, shapes = (
+            asyncio.run_coroutine_threadsafe(
+                exercise(server.base_url, with_quality), live_ingest._loop
+            ).result(30)
+        )
+    assert first.accepted == (10 if with_quality else 7)
     assert before.accepted_checkpoint == failed.accepted_checkpoint
-    assert repeated.accepted == 7
-    assert len(edges) == 3, edges
+    assert repeated.accepted == (10 if with_quality else 7)
+    assert len(edges) == (5 if with_quality else 3), edges
+    if with_quality:
+        valid, invalid = shapes
+        assert len(valid["rows"]) == 2
+        assert invalid["rows"] == []
+        assert [row["r"]["relationship"] for row in edges].count("observedQuality") == 2
     assert [row["r"]["relationship"] for row in edges].count("occurredAt") == 2
     assert [row["r"]["relationship"] for row in edges].count("locatedIn") == 1
     assert {

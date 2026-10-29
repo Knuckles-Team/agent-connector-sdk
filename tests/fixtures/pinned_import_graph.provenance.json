@@ -1,9 +1,9 @@
 {
-  "graph_sha256": "5b957d49a700e04a560c388d839a9b47f161cb16766914fe6555cdb53463a99c",
+  "graph_sha256": "7b332722863ed4d0f44ced6c745e9cb843f7209d0e360e47a36e253f59853821",
   "installed_distributions": [
     "annotated-types==0.8.0",
     "anyio==4.15.1",
-    "certifi==2026.7.22",
+    "certifi==2026.10.23",
     "cffi==2.1.1",
     "cryptography==50.0.2",
     "defusedxml==0.7.1",
@@ -38,7 +38,9 @@
         "epistemic_graph.generated.coordination": "epistemic_graph/generated/coordination.py",
         "epistemic_graph.generated.index_repository": "epistemic_graph/generated/index_repository.py",
         "epistemic_graph.generated.ingestion": "epistemic_graph/generated/ingestion.py",
+        "epistemic_graph.generated.models": "epistemic_graph/generated/models.py",
         "epistemic_graph.generated.query": "epistemic_graph/generated/query.py",
+        "epistemic_graph.generated.security": "epistemic_graph/generated/security.py",
         "epistemic_graph.generated.source_ingestion": "epistemic_graph/generated/source_ingestion.py",
         "epistemic_graph.generated.storage": "epistemic_graph/generated/storage.py",
         "epistemic_graph.generated.write_back": "epistemic_graph/generated/write_back.py"

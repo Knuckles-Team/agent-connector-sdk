@@ -15,8 +15,10 @@ from agent_connector_sdk.earth_observations.weather import (
 )
 from agent_connector_sdk.earth_observations.weather_location import (
     WeatherLocation,
+    WeatherQuality,
     _located_records,
 )
+from agent_connector_sdk.ingest._stream_checkpoint import _authorize_generation
 from agent_connector_sdk.ingest.live_declaration import source_meta
 
 require_mcp_extra("agent_connector_sdk.earth_observations.weather_stream")
@@ -25,28 +27,16 @@ from fastmcp import Context  # noqa: E402
 from fastmcp.exceptions import ToolError  # noqa: E402
 
 
-def register_weather_stream(
-    server: Any,
+def _weather_binding(
     provider: WeatherProvider,
     request: WeatherRequest,
     *,
     name: str,
-    connector: str,
     policy_revision: str,
-    authorize: Callable[[str, Any], Awaitable[bool]],
-    location: WeatherLocation | None = None,
-) -> None:
-    """Publish a host-admitted bounded query with graph-owned checkpoints."""
-    if (
-        not name
-        or not connector
-        or not policy_revision
-        or request.source != name
-        or (location is not None and location.place.place_id != request.place_id)
-    ):
-        raise ValueError("invalid weather stream binding")
-
-    binding = hashlib.sha256(
+    location: WeatherLocation | None,
+    quality: WeatherQuality | None,
+) -> str:
+    return hashlib.sha256(
         json.dumps(
             [
                 request.tenant,
@@ -68,25 +58,71 @@ def register_weather_stream(
                     location.place.model_dump(mode="json"),
                     location.region.model_dump(mode="json"),
                 ],
-            ],
+            ]
+            + (
+                []
+                if quality is None
+                else [
+                    [
+                        quality.quality_id,
+                        quality.name,
+                        quality.variable,
+                        quality.source_unit,
+                        quality.unit_code,
+                    ]
+                ]
+            ),
             separators=(",", ":"),
         ).encode()
     ).hexdigest()
 
+
+def register_weather_stream(
+    server: Any,
+    provider: WeatherProvider,
+    request: WeatherRequest,
+    *,
+    name: str,
+    connector: str,
+    policy_revision: str,
+    authorize: Callable[[str, Any], Awaitable[bool]],
+    location: WeatherLocation | None = None,
+    quality: WeatherQuality | None = None,
+) -> None:
+    """Publish a host-admitted bounded query with graph-owned checkpoints."""
+    if (
+        not name
+        or not connector
+        or not policy_revision
+        or request.source != name
+        or (location is not None and location.place.place_id != request.place_id)
+        or (quality is not None and location is None)
+    ):
+        raise ValueError("invalid weather stream binding")
+
+    binding = _weather_binding(
+        provider,
+        request,
+        name=name,
+        policy_revision=policy_revision,
+        location=location,
+        quality=quality,
+    )
+
     async def _serve(
         ctx: Context, mode: str, state: dict[str, Any] | None
     ) -> dict[str, Any]:
-        if mode != "delta" or not await authorize(request.tenant, ctx):
-            raise ValueError("access refused")
-        if state is not None and (
-            set(state) != {"binding", "generation"}
-            or state["binding"] != binding
-            or not isinstance(state["generation"], str)
-        ):
-            raise ValueError("invalid weather checkpoint")
+        await _authorize_generation(
+            authorize,
+            tenant=request.tenant,
+            context=ctx,
+            mode=mode,
+            state=state,
+            binding=binding,
+        )
         rows = await provider.read(request)
         if location is not None:
-            records, relationships = _located_records(rows, location)
+            records, relationships = _located_records(rows, location, quality)
             return {
                 "records": records,
                 "relationships": relationships,

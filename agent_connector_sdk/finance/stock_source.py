@@ -22,6 +22,7 @@ from agent_connector_sdk.contracts import (
     RecordPage,
     StreamDescriptor,
 )
+from agent_connector_sdk.finance.stock_image import _StockImageMixin
 from agent_connector_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
@@ -81,7 +82,7 @@ def _text(data: dict[str, Any], field: str) -> str:
     return value
 
 
-class StockSourceAdapter:
+class StockSourceAdapter(_StockImageMixin):
     """Check source identities and domain fields before a stock page is committed."""
 
     kind = "stock_mcp"

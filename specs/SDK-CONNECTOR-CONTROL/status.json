@@ -682,7 +682,7 @@
         "b0c376748245"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:381"
+        "tests/gates/test_workflow_contract.py:390"
       ]
     },
     {
@@ -1099,7 +1099,7 @@
         "f5de79afc1e0"
       ],
       "verified_by": [
-        "tests/test_graphql_client.py:20",
+        "tests/test_graphql_client.py:21",
         "tests/test_mcp_graphql_context.py:67",
         "tests/test_mcp_graphql_context.py:74",
         "tests/test_mcp_graphql_context.py:90"
@@ -1116,7 +1116,7 @@
         "f5de79afc1e0"
       ],
       "verified_by": [
-        "tests/test_graphql_client.py:20"
+        "tests/test_graphql_client.py:21"
       ]
     },
     {
@@ -3931,14 +3931,18 @@
       "title": "Behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_pack_surfaces_served.py:59"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R074.4",
       "title": "Wiring",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_pack_surfaces_served.py:60"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R074.5",
@@ -3957,7 +3961,9 @@
       "title": "Hot-path proof",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_pack_surfaces_served.py:61"
+      ]
     },
     {
       "id": "SDK-CONNECTOR-CONTROL-R074.7",
@@ -3985,8 +3991,8 @@
         "tests/test_eg_pack_entry_kinds.py:45",
         "tests/test_eg_pack_entry_kinds.py:54",
         "tests/test_eg_pack_entry_kinds.py:68",
-        "tests/test_eg_pack_entry_kinds.py:82",
-        "tests/test_eg_pack_entry_kinds.py:96"
+        "tests/test_eg_pack_entry_kinds.py:83",
+        "tests/test_eg_pack_entry_kinds.py:97"
       ],
       "rollup_of": [
         "SDK-CONNECTOR-CONTROL-R075.1",
@@ -4082,8 +4088,8 @@
         "tests/test_eg_pack_entry_kinds.py:45",
         "tests/test_eg_pack_entry_kinds.py:54",
         "tests/test_eg_pack_entry_kinds.py:68",
-        "tests/test_eg_pack_entry_kinds.py:82",
-        "tests/test_eg_pack_entry_kinds.py:96"
+        "tests/test_eg_pack_entry_kinds.py:83",
+        "tests/test_eg_pack_entry_kinds.py:97"
       ]
     },
     {

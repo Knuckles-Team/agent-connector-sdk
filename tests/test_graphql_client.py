@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+from dataclasses import replace
 from typing import Any
 
 import pytest
@@ -211,3 +212,26 @@ def test_invalid_configuration_refuses() -> None:
             max_retries=99,
             tls_profile=resolve_tls_profile("graphql"),
         )
+
+
+@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R006.5")
+def test_close_suppresses_upstream_details_and_cleans_tls(caplog, tmp_path) -> None:
+    client, _, _ = _client([])
+    material = tmp_path / "key.pem"
+    material.write_text("private runtime key")
+    client.tls_profile = replace(client.tls_profile, materialized=(material,))
+
+    class BrokenClient:
+        session = object()
+
+        def close_sync(self) -> None:
+            raise RuntimeError("private bearer-token and response-body")
+
+    client._client = BrokenClient()
+    with caplog.at_level("DEBUG", logger="agent_connector_sdk.transports.graphql"):
+        client.close()
+    assert not material.exists()
+    assert "GraphQL client close failed" in caplog.text
+    assert "private" not in caplog.text
+    assert "bearer-token" not in caplog.text
+    assert all(record.exc_info is None for record in caplog.records)

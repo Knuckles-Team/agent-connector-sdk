@@ -104,6 +104,11 @@ class _SourceBudgetMixin:
         decode: Callable[[Any, Any], list[Mapping[str, Any]]],
     ) -> bool:
         spec = run.spec
+        if spec.pagination not in {"none", "page"}:
+            raise self._source_error(
+                "pagination_unsupported",
+                "source sync cannot consume this pagination form",
+            )
         page = spec.start_page
         while True:
             if self._exhausted(run):
@@ -130,6 +135,11 @@ class _SourceBudgetMixin:
         values: list[Any],
         decode: Callable[[Any, Any], list[Mapping[str, Any]]],
     ) -> None:
+        if parent.pagination not in {"none", "page"}:
+            raise self._source_error(
+                "pagination_unsupported",
+                "source sync cannot consume this pagination form",
+            )
         page = parent.start_page
         while True:
             if self._exhausted(run):

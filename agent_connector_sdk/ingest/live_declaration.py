@@ -12,11 +12,16 @@ from __future__ import annotations
 import importlib
 import importlib.util
 import json
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Awaitable, Callable, Iterable, Mapping
 from pathlib import Path
 from typing import Any
 
 from agent_connector_sdk.artifacts.resource_descriptor import RESOURCES_URI
+from agent_connector_sdk.ingest.source_metadata import (
+    META_KEY,
+    SOURCES_MODULE,
+    source_meta,
+)
 from agent_connector_sdk.ingest.sources import (
     IngestSourceDeclaration,
     IngestSourceSpec,
@@ -37,50 +42,18 @@ __all__ = [
     "source_meta",
 ]
 
-#: The tool ``meta`` key holding a tool's source declarations.
-META_KEY = "connector_sources"
-#: The generated module a package may ship to declare sources by tool name.
-SOURCES_MODULE = "connector_sources"
 
-
-def source_meta(
-    *,
-    source_id: str,
-    record_type: str,
-    id_field: str,
-    ontology_class: str | None = None,
-    fields: Mapping[str, str] | None = None,
-    tool: str | None = None,
-    **options: Any,
-) -> dict[str, Any]:
-    """The ``meta=`` argument that declares a read tool as an ingestible source.
-
-    ``options`` are the other :class:`IngestSourceSpec` fields (records path,
-    title/text/cursor fields, paging) and ``preset`` (extra runner extraction
-    fields). ``ontology_class`` and ``fields`` map the record type onto the
-    connector ontology. Pass ``mcp.tool(..., meta=source_meta(...))``; combine
-    several with :func:`merge_meta`-style dict update on ``META_KEY`` lists.
-    ``tool`` names the read tool when the declaration lives in a module that
-    does not decorate the tool (``<package>.connector_sources.SOURCES``).
-    """
-    entry: dict[str, Any] = {
-        "source_id": source_id,
-        "record_type": record_type,
-        "id_field": id_field,
-        **options,
+def _cursor_delta_preset() -> dict[str, Any]:
+    """Describe the shared checkpointed cursor stream contract."""
+    return {
+        "params_style": "args",
+        "params": {"mode": "delta"},
+        "pagination": "cursor",
+        "cursor_param": "cursor",
+        "cursor_path": "next",
+        "updated_since_param": "state",
+        "checkpoint_path": "checkpoint",
     }
-    if ontology_class is not None or fields:
-        entry["mapping"] = {
-            "ontology_class": ontology_class,
-            "fields": dict(fields or {}),
-        }
-    IngestSourceSpec.model_validate(
-        {**{k: v for k, v in entry.items() if k != "mapping"}, "tools": ("x",)}
-    )
-    entry.setdefault("preset", {})
-    if tool is not None:
-        entry["tool"] = tool
-    return {META_KEY: [entry]}
 
 
 def _entries(tool: Any) -> list[dict[str, Any]]:
@@ -265,6 +238,8 @@ def register_live_declaration(
     connector: str,
     descriptors: Callable[[], list[dict[str, Any]]] | None = None,
     declared: Mapping[str, Any] | None = None,
+    surface_summary: Callable[[list[dict[str, Any]]], Awaitable[dict[str, Any]]]
+    | None = None,
 ) -> None:
     """Serve ``connector://resources``, computed when read.
 
@@ -278,14 +253,22 @@ def register_live_declaration(
     if any(RESOURCES_URI in str(key) for key in served):
         return
 
-    def resources() -> str:
+    async def resources() -> str:
         """The data sources and resources this connector declares, as JSON."""
+        current_descriptors = descriptors() if descriptors is not None else []
         declaration = build_declaration(
             connector,
             registered_tools(mcp).values(),
-            descriptors() if descriptors is not None else (),
+            current_descriptors,
             declared,
         )
+        if surface_summary is not None:
+            declaration = IngestSourceDeclaration.model_validate(
+                {
+                    **declaration.model_dump(),
+                    "surfaces": await surface_summary(current_descriptors),
+                }
+            )
         return json.dumps(
             declaration.model_dump(mode="json", exclude_unset=True), sort_keys=True
         )

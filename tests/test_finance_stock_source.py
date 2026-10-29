@@ -138,6 +138,7 @@ def _adapter(kind, *, mode="delta"):
     )
 
 
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R002.1")
 @pytest.mark.parametrize("kind", list(StockSourceKind))
 async def test_served_stock_records_reach_sink(kind):
     sink = InMemorySink()
@@ -195,3 +196,30 @@ async def test_bounded_source_refuses_full_mode_before_sink():
                 SyncTarget("finance", sink, max_pages=1),
             )
     assert not sink.batches
+
+
+@pytest.mark.spec("SDK-FINANCE-SOURCES-R002.1")
+@pytest.mark.parametrize("adjustment", ["raw", "split", "dividend", "spin-off", "all"])
+@pytest.mark.parametrize(
+    "session_label", ["pre_market", "regular", "post_market", "outside_session"]
+)
+async def test_stock_source_preserves_adjustment_and_calendar_session(
+    adjustment, session_label
+):
+    record = {
+        **CASES[StockSourceKind.BAR],
+        "adjustment": adjustment,
+        "session": session_label,
+    }
+    sink = InMemorySink()
+    async with McpTransport().session(
+        TransportEndpoint(in_process=_server(record))
+    ) as session:
+        outcome = await sync_stream(
+            session,
+            _adapter(StockSourceKind.BAR),
+            SyncTarget("finance", sink, max_pages=1),
+        )
+    assert outcome.accepted == 1
+    actual = next(iter(sink.batches.values())).records[0].payload
+    assert (actual["adjustment"], actual["session"]) == (adjustment, session_label)

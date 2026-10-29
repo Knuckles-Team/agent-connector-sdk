@@ -31,9 +31,14 @@ async def test_pack_refuses_invalid_served_resource_descriptors(override, reason
     server = FastMCP("test-connector")
     descriptor = {
         "name": "items",
+        "uri": "data://test-connector/items",
         "kind": "data",
+        "origin": "declared",
+        "mapping_status": "declared",
         "ontology_class": "urn:test:Item",
         "access_kind": "mcp_tool",
+        "operation": "list_items",
+        "key_field": "id",
         "pagination": "cursor",
         **override,
     }
@@ -45,6 +50,10 @@ async def test_pack_refuses_invalid_served_resource_descriptors(override, reason
     @server.resource("connector://resources")
     def declaration() -> str:
         return json.dumps({"connector": "test-connector", "descriptors": [descriptor]})
+
+    @server.resource("data://test-connector/items")
+    def data() -> str:
+        return json.dumps(descriptor)
 
     async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
         if reason is None:

@@ -6,9 +6,9 @@ one runner sync declaration.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 __all__ = [
     "ResourceRelation",
@@ -36,6 +36,33 @@ class SchemaMapping(_Strict):
 
     ontology_class: str | None = None
     fields: dict[str, str] = Field(default_factory=dict)
+    datatypes: dict[str, str] = Field(
+        default_factory=dict, exclude_if=lambda value: not value
+    )
+
+    @model_validator(mode="after")
+    def _datatype_targets_are_declared(self) -> Self:
+        supported = {
+            "xsd:string",
+            "xsd:date",
+            "xsd:dateTime",
+            "xsd:anyURI",
+            "xsd:boolean",
+            "xsd:integer",
+            "xsd:int",
+            "xsd:long",
+            "xsd:nonNegativeInteger",
+            "xsd:decimal",
+            "xsd:double",
+            "xsd:float",
+        }
+        for field, datatype in self.datatypes.items():
+            target = self.fields.get(field)
+            if datatype not in supported or not target or target.startswith("xsd:"):
+                raise ValueError(
+                    "datatype requires a supported type and explicit target"
+                )
+        return self
 
 
 class ResourceSpec(_Strict):

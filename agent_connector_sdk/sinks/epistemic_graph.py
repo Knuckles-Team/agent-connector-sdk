@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Awaitable, Callable
 from typing import Any
 
@@ -62,6 +63,45 @@ def _validate_pack_result(result: PackImportResult, expected_digest: str) -> Non
         actual = result.pack_digest
     if actual is not None and actual != expected_digest:
         raise ValueError("ConnectorPack result does not bind the submitted pack")
+
+
+def _unique_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("connector resource declaration has duplicate keys")
+        result[key] = value
+    return result
+
+
+def _require_supported_mapping_contract(pack: CapturedConnectorPack) -> None:
+    """Refuse typed mappings until the connected engine can attest support."""
+    for entry in pack.archive.entries:
+        if entry.uri != "connector://resources":
+            continue
+        section = entry.body
+        end = section.offset + section.length
+        if end > len(pack.archive.data):
+            raise ValueError("connector resource declaration is truncated")
+        try:
+            declaration = json.loads(
+                pack.archive.data[section.offset : end],
+                object_pairs_hook=_unique_json_object,
+            )
+        except (UnicodeDecodeError, ValueError) as exc:
+            raise ValueError("connector resource declaration is invalid") from exc
+        if not isinstance(declaration, dict):
+            raise ValueError("connector resource declaration must be an object")
+        mappings = declaration.get("schema_mappings", {})
+        if not isinstance(mappings, dict):
+            raise ValueError("connector schema mappings must be an object")
+        for mapping in mappings.values():
+            if not isinstance(mapping, dict):
+                raise ValueError("connector schema mapping must be an object")
+            if "datatypes" in mapping and mapping["datatypes"] != {}:
+                raise ValueError(
+                    "typed source mappings require engine capability negotiation"
+                )
 
 
 async def _probe_commit_capabilities(client: Any) -> SinkReadiness:
@@ -129,6 +169,7 @@ class EpistemicGraphSink:
     async def _import_pack(
         self, pack: CapturedConnectorPack, *, allow_mass_withdrawal: bool
     ) -> PackImportResult:
+        _require_supported_mapping_contract(pack)
         catalog, context = await self._pack_import_authority(pack.connector)
         status = await self._packs.status(
             tenant_id=context.tenant_id, connector=pack.connector

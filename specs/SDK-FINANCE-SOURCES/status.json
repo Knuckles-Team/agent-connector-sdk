@@ -149,16 +149,20 @@
     {
       "id": "SDK-FINANCE-SOURCES-R002",
       "title": "Alpaca stocks adapter: history, quotes, fundamentals, calendars",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "077a14c9f3d3",
+        "461c05ae92f7",
         "823197633ebb",
-        "fad5328aee62"
+        "9b6142797c31",
+        "c6c8658a8771"
       ],
       "verified_by": [
+        "tests/test_finance_alpaca_stocks.py:115",
         "tests/test_finance_alpaca_stocks.py:56",
         "tests/test_finance_alpaca_stocks.py:69",
-        "tests/test_finance_alpaca_stocks.py:75"
+        "tests/test_finance_alpaca_stocks.py:75",
+        "tests/test_finance_alpaca_stocks.py:93"
       ],
       "rollup_of": [
         "SDK-FINANCE-SOURCES-R002.1",
@@ -169,9 +173,15 @@
     {
       "id": "SDK-FINANCE-SOURCES-R002.1",
       "title": "Complete Alpaca source coverage",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "dc072b5ee97c"
+      ],
+      "verified_by": [
+        "tests/test_finance_stock_image.py:17",
+        "tests/test_finance_stock_source.py:141",
+        "tests/test_finance_stock_source.py:201"
+      ]
     },
     {
       "id": "SDK-FINANCE-SOURCES-R002.2",
