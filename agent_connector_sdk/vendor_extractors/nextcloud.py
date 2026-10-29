@@ -1,4 +1,4 @@
-"""Nextcloud vendor extractor -- calendar events + contacts (SDK-SOURCE-INGEST-R006.16).
+"""Nextcloud vendor extractor -- calendar events + contacts (SCION-SOURCE-INGEST-R006.16).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.nextcloud``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

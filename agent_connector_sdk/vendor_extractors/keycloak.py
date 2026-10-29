@@ -1,4 +1,4 @@
-"""Keycloak vendor extractor (SDK-SOURCE-INGEST-R006.14).
+"""Keycloak vendor extractor (SCION-SOURCE-INGEST-R006.14).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.keycloak``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

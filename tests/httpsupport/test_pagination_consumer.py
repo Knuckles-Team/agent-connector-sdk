@@ -10,7 +10,7 @@ from agent_connector_sdk.httpsupport.pagination import (
 )
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.7")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.7")
 def test_sync_iterator_refuses_overlapping_consumer_and_can_reuse():
     def fetch(_url, _params):
         return [1, 2], {}
@@ -25,7 +25,7 @@ def test_sync_iterator_refuses_overlapping_consumer_and_can_reuse():
     assert list(iterator) == [1, 2]
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.7")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.7")
 async def test_async_iterator_refuses_overlap_and_releases_on_close():
     async def fetch(_url, _params):
         return [1, 2], {}
@@ -40,7 +40,7 @@ async def test_async_iterator_refuses_overlap_and_releases_on_close():
     assert [item async for item in iterator] == [1, 2]
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.7")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.7")
 def test_failed_fetch_releases_consumer_claim():
     attempts = 0
 

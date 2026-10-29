@@ -7,7 +7,7 @@ from agent_connector_sdk.http.client import create_http_client, standard_headers
 from agent_connector_sdk.http.options import HttpClientOptions
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.8")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.8")
 def test_standard_headers_and_case_insensitive_override():
     assert standard_headers()["User-Agent"].startswith("agent-connector-sdk/")
     observed = []

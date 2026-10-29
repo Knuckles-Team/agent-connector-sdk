@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R014.10-R014.14: the remaining connector runtime moved from agent-utilities."""
+"""SCION-CONNECTOR-CONTROL-R014.10-R014.14: the remaining connector runtime moved from agent-utilities."""
 
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ def _client(handler, **kwargs) -> BaseApiClient:
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.10")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.10")
 def test_r014_10_token_auth_envelope_and_error_mapping():
     seen: list[httpx.Request] = []
 
@@ -76,7 +76,7 @@ def test_r014_10_token_auth_envelope_and_error_mapping():
             client.guard_destructive("delete stack")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.10")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.10")
 def test_r014_10_auth_strategies_and_retries(monkeypatch):
     monkeypatch.setattr(time, "sleep", lambda _s: None)
     assert AuthHeaderInjector().headers() == {}
@@ -126,7 +126,7 @@ def test_r014_10_auth_strategies_and_retries(monkeypatch):
         BaseApiClient("https://x.test", verify=False)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.11")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.11")
 def test_r014_11_browser_auth_pkce_store_and_refresh(tmp_path, monkeypatch):
     verifier, challenge = generate_pkce()
     digest = hashlib.sha256(verifier.encode()).digest()
@@ -176,7 +176,7 @@ def test_r014_11_browser_auth_pkce_store_and_refresh(tmp_path, monkeypatch):
     assert keyed.resolve_credentials() == "direct"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.12")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.12")
 def test_r014_12_graphql_helpers_sync_async_and_failure():
     async def run():
         async def execute_async(query, variables=None):
@@ -202,7 +202,7 @@ def test_r014_12_graphql_helpers_sync_async_and_failure():
     assert "secret-detail" not in json.dumps(failure)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.13")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.13")
 def test_r014_13_external_access_descriptor():
     access = ExternalAccess(read_roles=["kg:read"])
     assert access.model_dump() == {
@@ -219,7 +219,7 @@ def test_r014_13_external_access_descriptor():
         ExternalAccess(unknown=True)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.14")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.14")
 def test_r014_14_env_drift_against_declarations(tmp_path, capsys):
     pkg = tmp_path / "demo_connector"
     pkg.mkdir()
@@ -266,7 +266,7 @@ def test_r014_14_env_drift_against_declarations(tmp_path, capsys):
     assert "AGENT_UTILITIES" not in " ".join(env_drift.framework_reads())
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.25")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.25")
 def test_r014_25_sdk_consumed_env_not_dead(tmp_path):
     pkg = tmp_path / "demo_connector"
     pkg.mkdir()
@@ -283,7 +283,7 @@ def test_r014_25_sdk_consumed_env_not_dead(tmp_path):
     assert env_drift.SDK_CONSUMED_ENV_PATTERNS
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.26")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.26")
 def test_r014_26_parser_settings_not_dead(tmp_path):
     pkg = tmp_path / "demo_connector"
     pkg.mkdir()

@@ -1,4 +1,4 @@
-"""Tool version metadata for MCP tools (SDK-CONNECTOR-CONTROL-R014.3).
+"""Tool version metadata for MCP tools (SCION-CONNECTOR-CONTROL-R014.3).
 
 Moved from agent-utilities so connectors stamp tool versions without the harness.
 """

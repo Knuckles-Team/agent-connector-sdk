@@ -25,7 +25,7 @@ from agent_connector_sdk.transports.mcp_session import (
 SERVER = ServerIdentity(name="demo-mcp", version="1.4.0")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R023")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R023")
 async def test_whole_content_pack_retains_rendered_prompt(
     sessions: SessionFactory,
 ) -> None:
@@ -127,7 +127,7 @@ async def test_prompt_capture_preserves_order_types_and_content_identity() -> No
     assert changed.archive.data != pack.archive.data
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R023")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R023")
 async def test_prompt_capture_binds_required_arguments_as_template() -> None:
     prompt = mcp_types.Prompt(
         name="demo",
@@ -163,7 +163,7 @@ async def test_prompt_capture_binds_required_arguments_as_template() -> None:
     }
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R024")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R024")
 async def test_prompt_capture_falls_back_to_template_when_server_rejects_bound_argument() -> (
     None
 ):
@@ -206,7 +206,7 @@ async def test_prompt_capture_falls_back_to_template_when_server_rejects_bound_a
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R024")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R024")
 async def test_prompt_capture_still_fails_when_rejected_with_no_required_argument() -> (
     None
 ):
@@ -222,7 +222,7 @@ async def test_prompt_capture_still_fails_when_rejected_with_no_required_argumen
         await kind.list_entries(session, SERVER)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R024")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R024")
 async def test_prompt_capture_propagates_genuine_transport_failures() -> None:
     """A server-unreachable failure must still fail the capture, never fall back."""
     session = SimpleNamespace(

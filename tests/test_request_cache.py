@@ -24,7 +24,7 @@ def _context(request: str, *, expired: bool = False) -> ToolExecutionContext:
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R050.9")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R050.9")
 def test_request_cache_is_bounded_scoped_and_expires() -> None:
     assert DEFAULT_REQUEST_CACHE_ENTRIES == 128
     first = RequestCache(

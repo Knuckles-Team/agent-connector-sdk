@@ -1,4 +1,4 @@
-"""SDK-SOURCE-INGEST-R006.7: the Salesforce CRM vendor extractor port."""
+"""SCION-SOURCE-INGEST-R006.7: the Salesforce CRM vendor extractor port."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ class _FakeClient:
         return {"records": []}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.7")
 def test_extract_returns_customer_contact_and_order_entities_with_relationships() -> (
     None
 ):
@@ -56,12 +56,12 @@ def test_extract_returns_customer_contact_and_order_entities_with_relationships(
     assert opp_rel.relationship == "PLACED_BY"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.7")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.7")
 def test_extract_returns_an_empty_change_set_when_query_raises() -> None:
     class _BrokenClient:
         def query(self, soql: str) -> object:
@@ -70,7 +70,7 @@ def test_extract_returns_an_empty_change_set_when_query_raises() -> None:
     assert extract({"client": _BrokenClient()}) == ChangeSet()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.7")
 def test_salesforce_self_registers_under_the_vendor_extractor_registry() -> None:
     registered = get_vendor_extractor(CATEGORY)
 

@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R014.21: the reusable A2A protocol pieces."""
+"""SCION-CONNECTOR-CONTROL-R014.21: the reusable A2A protocol pieces."""
 
 from __future__ import annotations
 
@@ -77,7 +77,7 @@ async def test_r014_21_client_sends_then_polls_until_completed() -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.21.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.21.3")
 @pytest.mark.parametrize("violation", ["id", "version", "task", "both"])
 async def test_a2a_poll_rejects_uncorrelated_response(violation):
     def handler(request):
@@ -115,7 +115,7 @@ async def test_a2a_poll_rejects_uncorrelated_response(violation):
 
 
 @pytest.mark.asyncio
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.21.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.21.3")
 async def test_a2a_send_rejects_boolean_response_id():
     transport = _transport(
         lambda _request: httpx.Response(
@@ -206,7 +206,7 @@ def test_r014_21_app_factory_builds_with_the_extra() -> None:
     assert callable(create_a2a_app)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.21.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.21.1")
 @pytest.mark.parametrize("path", ("card", "send", "poll"))
 async def test_streaming_response_stops_at_bound(path: str) -> None:
     from agent_connector_sdk.a2a.client import _MAX_RESPONSE_BYTES
@@ -249,7 +249,7 @@ async def test_streaming_response_stops_at_bound(path: str) -> None:
     assert stream.closed
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.21.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.21.1")
 async def test_compressed_response_is_refused_without_reading() -> None:
     class Compressed(httpx.AsyncByteStream):
         def __init__(self) -> None:
@@ -276,7 +276,7 @@ async def test_compressed_response_is_refused_without_reading() -> None:
     assert not stream.read and stream.closed
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.21.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.21.2")
 def test_a2a_app_serves_tasks_using_caller_broker_and_storage() -> None:
     import time
 

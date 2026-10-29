@@ -1,4 +1,4 @@
-"""The web-source contract and its conformance kit (SDK-SOURCE-INGEST-R005.40)."""
+"""The web-source contract and its conformance kit (SCION-SOURCE-INGEST-R005.40)."""
 
 from __future__ import annotations
 
@@ -122,7 +122,7 @@ async def _report(source: FixtureSource) -> Any:
             )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.40.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.40.1")
 def test_models_round_trip() -> None:
     page = WebPageResult(
         url="https://example.org/a",
@@ -164,7 +164,7 @@ def test_models_round_trip() -> None:
         WebSourceRefused("nope")
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.40.2")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.40.2")
 async def test_conformance_kit_flags_each_obligation() -> None:
     good = await _report(FixtureSource())
     assert good.ok, good.results
@@ -178,7 +178,7 @@ async def test_conformance_kit_flags_each_obligation() -> None:
     }, bad.results
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.43")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.43")
 async def test_domain_rate_limit_shares_host_across_schemes_and_ports() -> None:
     now = 0.0
     waits: list[float] = []
@@ -211,7 +211,7 @@ async def test_domain_rate_limit_shares_host_across_schemes_and_ports() -> None:
         await limiter.acquire("https://example.test:invalid/")
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.44")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.44")
 async def test_robots_loads_canonical_ipv6_origin() -> None:
     loaded: list[str] = []
 
@@ -231,7 +231,7 @@ async def test_robots_loads_canonical_ipv6_origin() -> None:
         await rules.allowed("http://example.test:invalid/private")
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.45")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.45")
 async def test_served_robots_refusal_omits_requested_url_and_query() -> None:
     async def load(_url: str) -> tuple[int, str]:
         return 200, "User-agent: *\nDisallow: /private\n"
@@ -259,7 +259,7 @@ async def test_served_robots_refusal_omits_requested_url_and_query() -> None:
     assert "/private" not in str(refusal)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.46")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.46")
 @pytest.mark.parametrize("expired", [False, True])
 async def test_robots_concurrent_checks_share_one_origin_fetch(expired: bool) -> None:
     calls: list[str] = []
@@ -297,7 +297,7 @@ async def test_robots_concurrent_checks_share_one_origin_fetch(expired: bool) ->
     assert len(calls) == 2
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.40.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.40.1")
 async def test_a_refusal_is_a_result_and_a_bad_digest_is_refused() -> None:
     server = FastMCP("fixture-web-source")
 
@@ -328,7 +328,7 @@ async def test_a_refusal_is_a_result_and_a_bad_digest_is_refused() -> None:
     assert tampered["kind"] == "refusal" and tampered["reason"] == "upstream_failed"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.40.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.40.1")
 async def test_contract_defaults_protocol_and_kit_surface() -> None:
     from typing import get_args
 

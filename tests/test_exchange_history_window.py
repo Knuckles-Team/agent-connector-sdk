@@ -43,7 +43,7 @@ def _install(monkeypatch: pytest.MonkeyPatch, exchange: _Exchange) -> tuple[int,
     )
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.7")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.7")
 def test_exchange_provider_honors_history_window_and_reads_multiple_pages(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -59,7 +59,7 @@ def test_exchange_provider_honors_history_window_and_reads_multiple_pages(
     ]
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.7")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.7")
 def test_exchange_provider_refuses_invalid_requests_and_nonadvancing_pages(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -74,7 +74,7 @@ def test_exchange_provider_refuses_invalid_requests_and_nonadvancing_pages(
         CryptoProvider().fetch("BTC/USDT", period="5y", interval="1d")
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.7")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.7")
 def test_exchange_history_refuses_incomplete_or_nonfinite_data(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

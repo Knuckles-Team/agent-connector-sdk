@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R047.4 refusal exclusion at the extractor boundary."""
+"""SCION-CONNECTOR-CONTROL-R047.4 refusal exclusion at the extractor boundary."""
 
 from __future__ import annotations
 

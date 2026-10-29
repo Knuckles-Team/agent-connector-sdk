@@ -2,7 +2,7 @@
 
 A connector whose server did more than the plain bootstrap declares what it did
 as data on its ``Connector`` value, and ``build_server`` applies it through
-fastmcp's own registration API (SDK-CONNECTOR-CONTROL-R019.2):
+fastmcp's own registration API (SCION-CONNECTOR-CONTROL-R019.2):
 
 - ``tool_registry``: explicit ``(tag, toggle_setting, registrar)`` entries, for
   registrars whose tag or toggle is not derived from a ``register_<tag>_tools``

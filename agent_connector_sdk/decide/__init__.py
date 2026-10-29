@@ -1,5 +1,5 @@
-"""The SDK's own consumers of EG's ``Decide`` layer (SDK-CONNECTOR-CONTROL-R006,
-SDK-GOVERNED-WRITEBACK-R001).
+"""The SDK's own consumers of EG's ``Decide`` layer (SCION-CONNECTOR-CONTROL-R006,
+SCION-GOVERNED-WRITEBACK-R001).
 
 Every decision point here used to be, and remains, an ad-hoc rule. It now
 asks EG first and keeps that rule as the deterministic fallback::

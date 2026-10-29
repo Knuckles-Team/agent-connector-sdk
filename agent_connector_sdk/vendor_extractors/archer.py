@@ -1,4 +1,4 @@
-"""RSA Archer GRC vendor extractor (SDK-SOURCE-INGEST-R006.20).
+"""RSA Archer GRC vendor extractor (SCION-SOURCE-INGEST-R006.20).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.archer``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

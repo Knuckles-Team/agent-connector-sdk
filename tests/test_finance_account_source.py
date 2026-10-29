@@ -79,7 +79,7 @@ def _adapter(kind, id_field):
     )
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.1")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004.1")
 async def test_snapshot_and_position_validate_before_sink():
     position_id = hashlib.sha256(json.dumps(["acct-1", "ABC"]).encode()).hexdigest()
     for kind, record, field in (
@@ -107,7 +107,7 @@ async def test_snapshot_and_position_validate_before_sink():
         assert next(iter(sink.batches.values())).records[0].record_id == record[field]
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.1")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004.1")
 async def test_wrong_account_and_nonfinite_position_refuse_before_sink():
     for record in (
         {**ACCOUNT, "account_id": "other"},
@@ -127,7 +127,7 @@ async def test_wrong_account_and_nonfinite_position_refuse_before_sink():
         assert not sink.batches
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.1")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004.1")
 async def test_csv_source_reimport_preserves_scoped_activity_ids():
     server = FastMCP("finance")
     context = replace(_CONTEXT, provider="alpaca", source_id="alpaca-csv-activities")

@@ -18,7 +18,7 @@ README = ROOT / "README.md"
 MKDOCS = ROOT / "mkdocs.yml"
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R004")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R004")
 def test_readme_follows_the_task_first_section_order() -> None:
     text = README.read_text(encoding="utf-8")
     headings = re.findall(r"^## (.+)$", text, re.MULTILINE)
@@ -37,7 +37,7 @@ def test_readme_follows_the_task_first_section_order() -> None:
     assert "```" in quick_start
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R004")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R004")
 def test_site_nav_presents_the_task_first_tutorial_and_architecture() -> None:
     nav = yaml.safe_load(MKDOCS.read_text(encoding="utf-8"))["nav"]
 

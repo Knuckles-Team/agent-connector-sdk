@@ -51,7 +51,7 @@ def _target(
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R001.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R001.1")
 def test_stage_graph_validates_authority_bounds_and_dependencies() -> None:
     first = _stage("first")
     second = _stage(
@@ -96,7 +96,7 @@ def test_stage_graph_validates_authority_bounds_and_dependencies() -> None:
         _target((cyclic, second))
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R001.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R001.1")
 def test_stage_target_refuses_before_sequential_discovery() -> None:
     target = _target((_stage("first"),))
     adapter = AsyncMock()

@@ -32,7 +32,7 @@ def _client() -> GraphQLClient:
     return client
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R006.4")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R006.4")
 def test_graphql_sync_failure_does_not_expose_error(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
@@ -46,7 +46,7 @@ def test_graphql_sync_failure_does_not_expose_error(
     assert caught.value.payload()["error_class"] == "RuntimeError"
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R006.4")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R006.4")
 async def test_graphql_async_and_introspection_hide_exception(
     caplog: pytest.LogCaptureFixture,
 ) -> None:

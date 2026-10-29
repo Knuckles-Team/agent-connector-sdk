@@ -1,4 +1,4 @@
-"""Twenty CRM vendor extractor (SDK-SOURCE-INGEST-R006.19).
+"""Twenty CRM vendor extractor (SCION-SOURCE-INGEST-R006.19).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.twenty``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

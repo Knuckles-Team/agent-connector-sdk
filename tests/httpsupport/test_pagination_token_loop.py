@@ -10,7 +10,7 @@ from agent_connector_sdk.httpsupport.pagination import (
 )
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.8")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.8")
 def test_cursor_cycle_stops_before_repeating_request():
     calls = []
 
@@ -30,7 +30,7 @@ def test_cursor_cycle_stops_before_repeating_request():
     assert result["truncated"] is True and result["next_cursor"] is None
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.8")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.8")
 async def test_async_cursor_repeat_preserves_initial_request_bound():
     calls = []
 
@@ -46,7 +46,7 @@ async def test_async_cursor_repeat_preserves_initial_request_bound():
     assert result["truncated"] is True and result["next_cursor"] is None
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.8")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.8")
 def test_since_id_repeat_stops_without_next_cursor():
     calls = []
 

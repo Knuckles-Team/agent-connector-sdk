@@ -69,7 +69,7 @@ def _run(coro: Any) -> Any:
     return anyio.run(main)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.31")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.31")
 def test_entities_documents_and_kinds_return_counts() -> None:
     sink = _Ingest()
     stream = _stream()
@@ -92,7 +92,7 @@ def test_entities_documents_and_kinds_return_counts() -> None:
     assert _run(stream.records("pair", [{}], ingest=sink)) == {"nodes": 1, "edges": 1}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.31")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.31")
 def test_empty_and_unknown_input_is_refused() -> None:
     sink = _Ingest()
     stream = _stream()
@@ -107,7 +107,7 @@ def test_empty_and_unknown_input_is_refused() -> None:
     assert not sink.submitted
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.31")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.31")
 def test_sync_pages_commit_each_cursor_and_resume() -> None:
     sink = _Ingest()
     stream = _stream()
@@ -138,7 +138,7 @@ def test_sync_pages_commit_each_cursor_and_resume() -> None:
     assert seen == [None]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.31")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.31")
 def test_open_client_closes_sync_and_async_clients() -> None:
     closed: list[str] = []
 
@@ -175,7 +175,7 @@ class _Refusing(_Ingest):
 DOCS = IngestBinding(connector="demo-mcp", stream="demo-documents")
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.32")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.32")
 def test_best_effort_never_raises_and_drops_incomplete_records() -> None:
     stream = SourceStream(
         BINDING, {"item": RecordMap("Item", "x:{_id}")}, best_effort=True
@@ -207,7 +207,7 @@ def test_best_effort_never_raises_and_drops_incomplete_records() -> None:
         )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.32")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.32")
 def test_documents_land_in_their_own_stream_when_declared() -> None:
     stream = SourceStream(
         BINDING,
@@ -224,7 +224,7 @@ def test_documents_land_in_their_own_stream_when_declared() -> None:
     assert not sink.submitted[0].documents and sink.submitted[1].documents
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.32")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.32")
 def test_batch_media_and_raw_submit_share_one_path() -> None:
     stream = _stream()
     sink = _Ingest()
@@ -250,7 +250,7 @@ def test_batch_media_and_raw_submit_share_one_path() -> None:
     assert sink.bindings[-1] is other
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.40")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.40")
 def test_sync_rejects_continuation_cycle_before_offending_page(monkeypatch) -> None:
     import agent_connector_sdk.ingest.stream as module
 
@@ -279,7 +279,7 @@ def test_sync_rejects_continuation_cycle_before_offending_page(monkeypatch) -> N
     assert [page.cursor for page in sink.submitted] == ["a"]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.40")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.40")
 def test_sync_rejects_immediate_or_invalid_continuation_before_submission() -> None:
     sink = _Ingest(cursor="a")
 
@@ -298,7 +298,7 @@ def test_sync_rejects_immediate_or_invalid_continuation_before_submission() -> N
     assert sink.submitted == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.40")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.40")
 def test_strategy_continuation_cycle_refuses_before_submission() -> None:
     sink = _Ingest()
 
@@ -317,7 +317,7 @@ def test_strategy_continuation_cycle_refuses_before_submission() -> None:
     assert [page.cursor for page in sink.submitted] == ["b"]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.46")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.46")
 def test_sync_refuses_split_document_pages_before_any_submission() -> None:
     sink = _Ingest(cursor="old")
 
@@ -348,7 +348,7 @@ def test_sync_refuses_split_document_pages_before_any_submission() -> None:
     assert sink.cursor == "next"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.49")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.49")
 def test_best_effort_sync_does_not_skip_a_refused_page() -> None:
     class Refusing(_Ingest):
         async def submit(self, binding, changes):

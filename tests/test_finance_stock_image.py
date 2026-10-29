@@ -14,7 +14,7 @@ from agent_connector_sdk.finance.stock_source import StockSourceAdapter, StockSo
 from agent_connector_sdk.manifest.presets import ToolPreset
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R002.1")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R002.1")
 def test_stock_adapter_returns_generated_nonofficial_image():
     preset = ToolPreset(
         name="stock", server="finance", tool="read", id_field="record_id"

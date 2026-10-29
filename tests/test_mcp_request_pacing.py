@@ -16,7 +16,7 @@ from agent_connector_sdk.transports import mcp as mcp_transport
 from agent_connector_sdk.transports.mcp_changes import ChangeFeed
 from agent_connector_sdk.transports.mcp_session import McpClientSession
 
-pytestmark = pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R005")
+pytestmark = pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R005")
 
 
 class _Clock:

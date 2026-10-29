@@ -16,7 +16,7 @@ from agent_connector_sdk.artifacts.tools import _tool_entry
 from agent_connector_sdk.contracts import ServerIdentity
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.3")
 def test_schema_tokens_uses_canonical_body_and_named_divisor() -> None:
     assert DEFAULT_SCHEMA_BYTES_PER_TOKEN == 4
     assert [schema_tokens("x" * n) for n in range(9)] == [0, 1, 1, 1, 1, 2, 2, 2, 2]
@@ -33,7 +33,7 @@ def test_schema_tokens_uses_canonical_body_and_named_divisor() -> None:
     assert schema_tokens(entry.body) == (len(entry.body.encode("utf-8")) + 3) // 4
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.1")
 def test_facts_model_is_frozen_and_typed() -> None:
     facts = ToolContractFacts(
         read_only=True,
@@ -52,7 +52,7 @@ def test_facts_model_is_frozen_and_typed() -> None:
         )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.2")
 def test_side_effect_set_is_closed_and_read_only_is_consistent() -> None:
     assert {effect.value for effect in SideEffect} == {
         "none",
@@ -82,7 +82,7 @@ def test_side_effect_set_is_closed_and_read_only_is_consistent() -> None:
     ).read_only
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.4")
 def test_undeclared_tool_defaults_to_not_read_only() -> None:
     tool = SimpleNamespace(
         name="read_users", inputSchema={"type": "object"}, annotations=None
@@ -95,7 +95,7 @@ def test_undeclared_tool_defaults_to_not_read_only() -> None:
     assert facts.schema_tokens == schema_tokens(entry.body)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.5")
 def test_mcp_read_only_hint_is_recorded_as_self_declared() -> None:
     from agent_connector_sdk.ports.errors import MalformedArtifactError
 
@@ -121,7 +121,7 @@ def test_mcp_read_only_hint_is_recorded_as_self_declared() -> None:
         facts_from_declaration(tool)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.7")
 def test_destructive_action_is_never_read_only() -> None:
     tool = {
         "name": "delete_user",

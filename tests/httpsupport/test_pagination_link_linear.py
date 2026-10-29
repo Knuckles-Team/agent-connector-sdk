@@ -11,7 +11,7 @@ from agent_connector_sdk.httpsupport.pagination import PaginationIterator
 from agent_connector_sdk.httpsupport.pagination_link import next_link
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.3")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.3")
 def test_link_parser_matches_existing_grammar():
     original = re.compile(r'<(?P<url>[^>]+)>\s*;[^,]*\brel="?next"?')
     rng = random.Random(4)
@@ -28,7 +28,7 @@ def test_link_parser_matches_existing_grammar():
         assert next_link(raw) == (match.group("url") if match else None)
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.3")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.3")
 @pytest.mark.parametrize("header", ["<" * 100_000, "<x>; a=1 " * 20_000])
 def test_link_parser_handles_large_malformed_header(header):
     calls = []

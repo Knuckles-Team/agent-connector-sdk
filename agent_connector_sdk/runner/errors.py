@@ -43,7 +43,7 @@ class SchemaDriftQuarantined(SourceContractError):
 class StreamPaused(SourceContractError):
     """A proposed schema repair is unresolved; the sync loop takes no action.
 
-    Raised before any page is extracted or submitted (SDK-SOURCE-INGEST-R003):
+    Raised before any page is extracted or submitted (SCION-SOURCE-INGEST-R003):
     pausing never constructs a candidate schema, validates instances, performs
     a shadow ingest, or activates a repair.
     """

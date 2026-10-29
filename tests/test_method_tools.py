@@ -1,4 +1,4 @@
-"""Per-client-method MCP tool derivation (SDK-CONNECTOR-CONTROL-R026)."""
+"""Per-client-method MCP tool derivation (SCION-CONNECTOR-CONTROL-R026)."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ class _ElicitationContext:
         return self._result
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R026")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R026")
 def test_registers_one_tool_per_public_method_with_domain_tags() -> None:
     mcp: FastMCP[Any] = FastMCP("demo")
     names = register_method_tools(mcp, DemoApiUsers, get_client, prefix="demo")
@@ -34,7 +34,7 @@ def test_registers_one_tool_per_public_method_with_domain_tags() -> None:
     assert {GRANULAR_TAG, "users"} <= tools["demo_list_users"].tags
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R026")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R026")
 def test_base_infrastructure_method_is_excluded() -> None:
     mcp: FastMCP[Any] = FastMCP("demo")
     register_method_tools(mcp, DemoApiUsers, get_client, prefix="demo")
@@ -54,7 +54,7 @@ def test_no_doubled_prefix_when_method_already_carries_it() -> None:
     assert names == ["postiz_create_post"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R026")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R026")
 async def test_non_destructive_tool_dispatches_to_the_client() -> None:
     mcp: FastMCP[Any] = FastMCP("demo")
     register_method_tools(mcp, DemoApiUsers, get_client, prefix="demo")
@@ -63,7 +63,7 @@ async def test_non_destructive_tool_dispatches_to_the_client() -> None:
     assert json.loads(result.content[0].text) == {"id": "abc"}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R026")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R026")
 async def test_destructive_tool_requires_confirmation() -> None:
     mcp: FastMCP[Any] = FastMCP("demo")
     register_method_tools(mcp, DemoApiUsers, get_client, prefix="demo")
@@ -76,7 +76,7 @@ async def test_destructive_tool_requires_confirmation() -> None:
     assert unattended == {"cancelled": True, "operation": "delete_item"}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R026")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R026")
 async def test_async_get_client_is_awaited() -> None:
     mcp: FastMCP[Any] = FastMCP("demo")
     register_method_tools(mcp, DemoApiUsers, get_client_async, prefix="demo")

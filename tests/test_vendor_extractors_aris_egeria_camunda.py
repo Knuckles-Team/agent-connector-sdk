@@ -1,4 +1,4 @@
-"""SDK-SOURCE-INGEST-R006.29/30/31: ARIS, Egeria, Camunda vendor extractor ports."""
+"""SCION-SOURCE-INGEST-R006.29/30/31: ARIS, Egeria, Camunda vendor extractor ports."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ class _FakeClient:
 # --- aris ------------------------------------------------------------
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.29")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.29")
 def test_aris_extract_distinguishes_process_and_architecture_models() -> None:
     client = _FakeClient(
         list_models=[
@@ -51,7 +51,7 @@ def test_aris_extract_distinguishes_process_and_architecture_models() -> None:
     assert ARIS_CATEGORY == "aris"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.29")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.29")
 def test_aris_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert aris_extract({}) == ChangeSet()
 
@@ -59,7 +59,7 @@ def test_aris_extract_returns_an_empty_change_set_without_a_client() -> None:
 # --- egeria ------------------------------------------------------------
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.30")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.30")
 def test_egeria_extract_links_lineage_data_flows_through_a_process() -> None:
     client = _FakeClient(
         list_assets=[{"guid": "a1", "typeName": "RelationalTable", "name": "orders"}],
@@ -90,7 +90,7 @@ def test_egeria_extract_links_lineage_data_flows_through_a_process() -> None:
     assert asset.properties["domain"] == EGERIA_CATEGORY
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.30")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.30")
 def test_egeria_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert egeria_extract({}) == ChangeSet()
 
@@ -98,7 +98,7 @@ def test_egeria_extract_returns_an_empty_change_set_without_a_client() -> None:
 # --- camunda ------------------------------------------------------------
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.31")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.31")
 def test_camunda_extract_links_tasks_and_incidents_to_their_process() -> None:
     client = _FakeClient(
         list_process_definitions=[
@@ -119,6 +119,6 @@ def test_camunda_extract_links_tasks_and_incidents_to_their_process() -> None:
     assert CAMUNDA_CATEGORY == "camunda"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.31")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.31")
 def test_camunda_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert camunda_extract({}) == ChangeSet()

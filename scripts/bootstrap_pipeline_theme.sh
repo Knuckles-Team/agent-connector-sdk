@@ -5,7 +5,7 @@ set -euo pipefail
 # operates on the SDK repository instead of the nested theme checkout.
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR GIT_PREFIX
 
-# The shared Pages theme the mkdocs-build gate inherits (SDK-CONNECTOR-CONTROL-R018):
+# The shared Pages theme the mkdocs-build gate inherits (SCION-CONNECTOR-CONTROL-R018):
 # the same templates/mkdocs-theme the Pages workflow vendors via
 # pages_pipeline.yml, so a local or CI docs build sees the identical base
 # config a merged push to main would render with. pipelines is referenced at

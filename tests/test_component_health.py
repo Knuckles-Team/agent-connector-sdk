@@ -22,7 +22,7 @@ def _health(**changes: object) -> ComponentHealthState:
     return ComponentHealthState.model_validate(values)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R065.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R065.1")
 def test_health_model_rejects_invalid_and_contradictory_states() -> None:
     observation = _health()
     assert (
@@ -53,7 +53,7 @@ def test_health_model_rejects_invalid_and_contradictory_states() -> None:
             _health(**changes)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R065.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R065.2")
 def test_alerts_only_for_enabled_initialized_degraded_or_unavailable() -> None:
     assert not should_alert(_health())
     assert should_alert(_health(state="degraded"))

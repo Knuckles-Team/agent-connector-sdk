@@ -9,7 +9,7 @@ from agent_connector_sdk.credentials.references import (
 )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R035.8")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R035.8")
 @pytest.mark.parametrize(
     "fields",
     [

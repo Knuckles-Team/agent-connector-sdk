@@ -30,7 +30,7 @@ from agent_connector_sdk.data_prep.certification import (  # noqa: E402
 )
 
 pytestmark = [
-    pytest.mark.spec("SDK-SOURCE-INGEST-R803"),
+    pytest.mark.spec("SCION-SOURCE-INGEST-R803"),
 ]
 
 
@@ -179,7 +179,7 @@ def test_expired_authorization_and_unsafe_references_fail_closed() -> None:
         _policy(tenant_ref="https://provider.example/query?token=secret")
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.3")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.3")
 def test_optional_provider_wrappers_are_lazy_and_do_not_run_without_provider() -> None:
     # A clean interpreter proves the certification package itself does not pull
     # optional provider runtimes into the base import path.
@@ -270,7 +270,7 @@ def test_reference_aliases_reject_unsafe_values_and_pandera_is_lazy() -> None:
     assert PanderaAdapter(lambda _table, _authorization: {}).backend == "pandera"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.10")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.10")
 def test_empty_pass_is_refused() -> None:
     empty = {
         "schema_version": "data-quality-observation.v1",
@@ -306,7 +306,7 @@ def test_empty_pass_is_refused() -> None:
         SignedResultSummary.model_validate(forged)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.11")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.11")
 @pytest.mark.parametrize("state", ["passed", "failed"])
 def test_result_rejects_mismatched_signed_status(state: str) -> None:
     job = _job()
@@ -344,7 +344,7 @@ def test_result_rejects_mismatched_signed_status(state: str) -> None:
         )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.12")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.12")
 @pytest.mark.parametrize("field", ["signer_id", "algorithm", "signature"])
 @pytest.mark.parametrize("value", [None, 123, b"signature"])
 def test_nonstring_signer_output_is_refused(field: str, value: object) -> None:

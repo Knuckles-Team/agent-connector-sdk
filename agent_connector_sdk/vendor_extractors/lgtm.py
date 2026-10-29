@@ -1,4 +1,4 @@
-"""LGTM (Grafana/Loki/Tempo/Mimir) vendor extractor (SDK-SOURCE-INGEST-R006.8).
+"""LGTM (Grafana/Loki/Tempo/Mimir) vendor extractor (SCION-SOURCE-INGEST-R006.8).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.lgtm``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

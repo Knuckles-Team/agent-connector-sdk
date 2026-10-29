@@ -3,7 +3,7 @@
 :func:`create_http_client` governs the client-wide transport (timeouts, TLS,
 retries); :func:`safe_post_json` adds a per-call destination check for a
 connector that must POST to a self-hosted or private-network endpoint
-(SDK-CONNECTOR-CONTROL-R033), mirroring the private-host allowance a GET-style
+(SCION-CONNECTOR-CONTROL-R033), mirroring the private-host allowance a GET-style
 call already has, instead of dropping to an unchecked client.
 """
 

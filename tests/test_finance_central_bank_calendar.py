@@ -1,5 +1,5 @@
 """Central-bank announcement calendar preserves vintage and announcement time
-(SDK-FINANCE-SOURCES-R001)."""
+(SCION-FINANCE-SOURCES-R001)."""
 
 from __future__ import annotations
 
@@ -101,7 +101,7 @@ def test_empty_events_yields_no_records() -> None:
     assert _calendar(payload={"events": []}) == ()
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.3")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.3")
 def test_same_vintage_distinct_announcements_refuse_identity_collision() -> None:
     from agent_connector_sdk.finance.central_bank_calendar import (
         CalendarIdentityConflictError,
@@ -125,7 +125,7 @@ def test_same_vintage_distinct_announcements_refuse_identity_collision() -> None
         _calendar(payload=payload)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.3")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.3")
 def test_same_instant_with_equivalent_offsets_does_not_conflict() -> None:
     payload = {
         "events": [
@@ -145,7 +145,7 @@ def test_same_instant_with_equivalent_offsets_does_not_conflict() -> None:
     assert events[0].source_event_id == events[1].source_event_id
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.9")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.9")
 @pytest.mark.parametrize("events", [None, {}, "private-calendar-value", [None]])
 def test_calendar_rejects_missing_or_malformed_event_arrays(events) -> None:
     with pytest.raises(ValueError) as error:
@@ -156,7 +156,7 @@ def test_calendar_rejects_missing_or_malformed_event_arrays(events) -> None:
     assert _calendar(payload={"events": []}) == ()
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.9")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.9")
 @pytest.mark.parametrize(
     ("field", "value"),
     [
@@ -176,7 +176,7 @@ def test_calendar_refuses_ambiguous_identity_and_time(field, value) -> None:
     assert "private-calendar-value" not in str(error.value)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.9")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.9")
 def test_calendar_normalizes_offsets_without_changing_instant() -> None:
     record = {
         **_PAGE["events"][0],

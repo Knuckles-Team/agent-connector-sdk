@@ -1,4 +1,4 @@
-"""Camunda BPMN vendor extractor (SDK-SOURCE-INGEST-R006.31).
+"""Camunda BPMN vendor extractor (SCION-SOURCE-INGEST-R006.31).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.camunda``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

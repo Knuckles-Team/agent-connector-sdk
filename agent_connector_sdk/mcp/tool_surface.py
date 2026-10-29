@@ -1,7 +1,7 @@
 """Register a connector's MCP tool surface: one tool per API operation.
 
 The one entry point a connector's server module calls
-(SDK-CONNECTOR-CONTROL-R020). Given the connector's API client (``client_cls``
+(SCION-CONNECTOR-CONTROL-R020). Given the connector's API client (``client_cls``
 and ``get_client``, plus one ``verbose_targets`` entry per further client),
 it registers one typed, annotated tool per client operation through
 :func:`agent_connector_sdk.mcp.method_tools.register_method_tools`. A fleet
@@ -283,7 +283,7 @@ def _declared_connector(root: Path, fallback: str) -> str:
 
 
 def _register_declared_sources(mcp: Any, prefix: str, root: Path | None) -> None:
-    """Serve the connector's live source declaration (SDK-CONNECTOR-CONTROL-R075).
+    """Serve the connector's live source declaration (SCION-CONNECTOR-CONTROL-R075).
 
     ``connector://resources`` is built from the read tools' ``meta``.
     """
@@ -343,10 +343,10 @@ def register_tool_surface(
 
     A package that ships ``ontology/ingest_sources.json`` also serves its
     declared sources as the read-only ``<prefix>_ingest_sources`` tool
-    (SDK-SOURCE-INGEST-R004.21). ``package_root`` names that package; it
+    (SCION-SOURCE-INGEST-R004.21). ``package_root`` names that package; it
     defaults to the top-level package of ``client_cls`` or ``tools_module``.
 
-    ``verbose_register``, when given, runs last (SDK-CONNECTOR-CONTROL-R032)
+    ``verbose_register``, when given, runs last (SCION-CONNECTOR-CONTROL-R032)
     and must not replace a registered name. ``action_providers`` is accepted
     and ignored.
 
@@ -412,7 +412,7 @@ def register_action_tools(
     """Run action-routed registrars and serve each action as its own typed tool.
 
     Each ``(tag, toggle_setting, registrar)`` entry runs unless its setting is
-    false (SDK-CONNECTOR-CONTROL-R019.2). Every tool it adds that routes an
+    false (SCION-CONNECTOR-CONTROL-R019.2). Every tool it adds that routes an
     ``action`` input is split into ``<prefix>_<action>`` tools, with or without
     an operation client; ``prefixes`` maps a routed tool name to its prefix,
     which defaults to the tool name. A split name already served is covered

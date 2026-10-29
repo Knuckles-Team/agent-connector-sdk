@@ -230,7 +230,7 @@ class DelegatedTokenAuth(httpx.Auth):
 
 
 def is_delegation_enabled(settings: DelegationSettings | None = None) -> bool:
-    """Whether OIDC token delegation is on (SDK-CONNECTOR-CONTROL-R014.8)."""
+    """Whether OIDC token delegation is on (SCION-CONNECTOR-CONTROL-R014.8)."""
     return (settings or DelegationSettings.from_settings()).enabled
 
 
@@ -245,7 +245,7 @@ def get_delegated_token(
     """Exchange the served caller's token for a downstream token string.
 
     Replaces agent-utilities ``mcp.delegated_auth.get_delegated_token``
-    (SDK-CONNECTOR-CONTROL-R014.8). Raises :class:`LoginRequiredError` when no
+    (SCION-CONNECTOR-CONTROL-R014.8). Raises :class:`LoginRequiredError` when no
     caller token is in context and :class:`TokenRequestError` on exchange failure.
     """
     base = settings or DelegationSettings.from_settings()

@@ -1,6 +1,6 @@
 """Normalized occurrence, weather and place/region record shapes.
 
-``SDK-SOURCE-INGEST-R008`` calls for adapters that ingest GBIF and
+``SCION-SOURCE-INGEST-R008`` calls for adapters that ingest GBIF and
 iNaturalist occurrence records as ``OrganismObservation``, NOAA GHCN/ISD and
 Open-Meteo data as ``WeatherObservation``, and NOAA storm events as
 ``WeatherEvent`` occurring in a ``WeatherSystem``, with weather stations

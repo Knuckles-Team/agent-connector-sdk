@@ -1,7 +1,7 @@
 """The requests-floor web-fetch backend: one URL fetched as markdown.
 
 Ported from ``agent_utilities.knowledge_graph.ingestion.web_fetch``
-(SDK-SOURCE-INGEST-R005) onto this SDK's own governed HTTP client
+(SCION-SOURCE-INGEST-R005) onto this SDK's own governed HTTP client
 (:mod:`agent_connector_sdk.http.client`) instead of agent-utilities' bespoke
 HTTP policy, since agent-utilities is not a dependency of this package.
 
@@ -10,7 +10,7 @@ Open Graph/Twitter Card metadata extraction, and markdown normalization. The
 ArchiveBox and crawl4ai backends stay in agent-utilities for now (they call
 back into agent-utilities-owned infrastructure: the MCP tool fleet and the
 skill-graph crawler subprocess); both remain as open lines in
-``specs/SDK-SOURCE-INGEST/tasks.md``.
+``specs/SCION-SOURCE-INGEST/tasks.md``.
 
 :class:`WebFetchSourceAdapter` wires ``fetch_page`` behind ``ports.SourceAdapter``:
 its stream is a fixed, ordered list of URLs declared at construction (not a

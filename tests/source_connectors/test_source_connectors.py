@@ -42,21 +42,21 @@ ATOM = """<?xml version="1.0" encoding="utf-8"?>
 
 
 pytestmark = [
-    pytest.mark.spec("SDK-SOURCE-INGEST-R800"),
-    pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.5"),
-    pytest.mark.spec("SDK-SOURCE-INGEST-R801"),
+    pytest.mark.spec("SCION-SOURCE-INGEST-R800"),
+    pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.5"),
+    pytest.mark.spec("SCION-SOURCE-INGEST-R801"),
 ]
 
 
-# spec: SDK-SOURCE-INGEST-R800.4
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.1")
+# spec: SCION-SOURCE-INGEST-R800.4
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.1")
 def test_registry_lists_builtin_sources_and_rejects_unknown():
     assert {"web", "rest", "rss", "arxiv"} <= set(list_sources())
     with pytest.raises(KeyError, match="Available"):
         build_connector("nope", {})
 
 
-# spec: SDK-SOURCE-INGEST-R800.4
+# spec: SCION-SOURCE-INGEST-R800.4
 @pytest.mark.parametrize("gate", [None, lambda _source: False])
 def test_activation_is_refused_without_a_certifying_gate(gate):
     set_activation_gate(gate)
@@ -64,7 +64,7 @@ def test_activation_is_refused_without_a_certifying_gate(gate):
         build_connector("rss", {"feed_urls": "http://f/"})
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.5")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.5")
 def test_checkpoint_round_trips_and_bad_input_is_none():
     cp = ConnectorCheckpoint(
         has_more=True, cursor="c", watermark="w", seen_ids=["a"], state={"k": 1}
@@ -74,7 +74,7 @@ def test_checkpoint_round_trips_and_bad_input_is_none():
     assert ConnectorCheckpoint.from_json("not-json") is None
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.3")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.3")
 def test_web_connector_crawls_to_depth_and_polls_incrementally():
     pages = {
         "http://x/": "<title>Home</title><a href='/a'>a</a>",
@@ -122,7 +122,7 @@ def test_rest_connector_follows_cursor_and_refuses_cross_host_next_url():
         list(hostile.load())
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.9")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.9")
 @pytest.mark.parametrize(
     "items",
     [
@@ -152,7 +152,7 @@ def test_rest_malformed_page_cannot_advance_checkpoint(items):
     assert prior.cursor == "old"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.9")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.9")
 def test_rest_empty_page_can_continue():
     conn = build_connector(
         "rest",
@@ -169,7 +169,7 @@ def test_rest_empty_page_can_continue():
     assert batch.checkpoint.has_more
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.11")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.11")
 @pytest.mark.parametrize("placement", ["top", "last_record"])
 def test_rest_numeric_zero_cursor_is_followed(placement):
     requests = []
@@ -201,7 +201,7 @@ def test_rest_numeric_zero_cursor_is_followed(placement):
     assert [doc.id for doc in second.documents] == ["2"]
 
 
-# spec: SDK-SOURCE-INGEST-R800.2
+# spec: SCION-SOURCE-INGEST-R800.2
 def test_rss_connector_parses_rss_and_atom_and_polls_by_watermark():
     feeds = {"http://f/rss": RSS, "http://f/atom": ATOM.replace("2601.00090v1", "x")}
     conn = build_connector("rss", {"feed_urls": list(feeds), "fetch_fn": feeds.get})
@@ -224,7 +224,7 @@ def _boom(*_args):
     raise RuntimeError("network down")
 
 
-# spec: SDK-SOURCE-INGEST-R800.2, SDK-SOURCE-INGEST-R800.6
+# spec: SCION-SOURCE-INGEST-R800.2, SCION-SOURCE-INGEST-R800.6
 @pytest.mark.parametrize(
     ("kind", "config"),
     [("rss", {"feed_urls": "http://dead/"}), ("arxiv", {"categories": ["cs.AI"]})],
@@ -250,7 +250,7 @@ def test_arxiv_connector_shapes_records_dedups_categories_and_polls():
         build_connector("arxiv", {"fetch_fn": lambda *_: ATOM})
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.8")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.8")
 @pytest.mark.parametrize("failure", ["network", "malformed"])
 def test_rss_partial_sweep_does_not_advance_watermark(failure):
     prior = ConnectorCheckpoint(watermark="2025-06-16T00:00:00Z")
@@ -284,7 +284,7 @@ def test_rss_partial_sweep_does_not_advance_watermark(failure):
     assert recovered.checkpoint.watermark == "2025-06-19T10:00:00Z"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.7")
 @pytest.mark.parametrize("failure", ["network", "malformed"])
 def test_arxiv_partial_sweep_does_not_advance_watermark(failure):
     prior = ConnectorCheckpoint(watermark="2026-01-01T00:00:00Z")

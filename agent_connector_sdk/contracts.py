@@ -114,7 +114,7 @@ CONNECTOR_UNCONFIGURED_MARKING = "connector-unconfigured-acl"
 
 
 class ExternalAccess(BaseModel):
-    """The access-control facts a source reports for one record (SDK-CONNECTOR-CONTROL-R014.13).
+    """The access-control facts a source reports for one record (SCION-CONNECTOR-CONTROL-R014.13).
 
     A per-record ACL a connector stamps onto an ingested payload: either
     world-public, or readable by explicit users, groups or provider-neutral

@@ -20,7 +20,7 @@ class RepositoryRefWalkProvider(Protocol):
     This is the walk phase a connector-owned provider implements so the SDK can
     traverse a repository's refs, visiting each distinct Git tree only once and
     reading objects in batches rather than one call per object
-    (SDK-REPOSITORY-TRANSPORT-R003).
+    (SCION-REPOSITORY-TRANSPORT-R003).
     """
 
     name: str

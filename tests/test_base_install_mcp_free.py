@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R014.17: the base install imports without fastmcp or mcp."""
+"""SCION-CONNECTOR-CONTROL-R014.17: the base install imports without fastmcp or mcp."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def _run(body: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.17")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.17")
 def test_base_modules_import_without_the_mcp_extra() -> None:
     result = _run(
         """
@@ -55,7 +55,7 @@ def test_base_modules_import_without_the_mcp_extra() -> None:
     assert result.returncode == 0, result.stderr
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.17")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.17")
 def test_mcp_surface_names_the_extra_when_missing() -> None:
     result = _run(
         """
@@ -72,7 +72,7 @@ def test_mcp_surface_names_the_extra_when_missing() -> None:
     assert result.returncode == 0, result.stderr
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.17")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.17")
 def test_current_user_token_needs_the_extra() -> None:
     result = _run(
         """

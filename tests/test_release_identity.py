@@ -19,7 +19,7 @@ def graph(reverse: bool = False) -> Graph:
     return result
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R650.2")
 def test_release_digest_binds_live_declaration_and_graph() -> None:
     first = IngestSourceDeclaration.model_validate(
         {"connector": "example", "descriptors": [{"a": 1, "b": 2}]}
@@ -36,7 +36,7 @@ def test_release_digest_binds_live_declaration_and_graph() -> None:
     assert digest != release_identity_digest(first, altered_graph)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R650.2")
 def test_release_digest_rejects_nonfinite_declaration_numbers() -> None:
     invalid = IngestSourceDeclaration.model_validate(
         {"connector": "example", "descriptors": [{"value": float("nan")}]}
@@ -45,7 +45,7 @@ def test_release_digest_rejects_nonfinite_declaration_numbers() -> None:
         release_identity_digest(invalid, graph())
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R650.2")
 def test_release_digest_refuses_nonstring_keys() -> None:
     invalid = IngestSourceDeclaration.model_validate(
         {"connector": "example", "descriptors": [{"nested": {1: "value"}}]}

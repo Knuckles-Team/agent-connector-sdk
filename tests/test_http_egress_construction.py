@@ -13,7 +13,7 @@ from agent_connector_sdk.http.options import HttpClientOptions
 from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.2")
 @pytest.mark.parametrize("factory", (create_http_client, create_async_http_client))
 @pytest.mark.parametrize("host", ("10.1.2.3", "127.0.0.1", "100.64.0.1"))
 def test_pinned_private_literal_refuses_before_transport_creation(
@@ -28,7 +28,7 @@ def test_pinned_private_literal_refuses_before_transport_creation(
         factory(options)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.2")
 def test_allowed_private_literal_uses_real_pinned_transport() -> None:
     with ScriptedHttpServer(ScriptedResponse(body=b"ok")) as server:
         options = HttpClientOptions(
@@ -42,7 +42,7 @@ def test_allowed_private_literal_uses_real_pinned_transport() -> None:
     assert len(server.requests) == 1
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.2")
 async def test_hostname_resolution_is_request_scoped_for_both_clients(monkeypatch):
     answers = [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))]
     calls = []

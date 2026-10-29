@@ -14,7 +14,7 @@ from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.transports.mcp import McpTransport
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R074.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R074.5")
 @pytest.mark.parametrize(
     ("override", "reason"),
     [

@@ -76,7 +76,7 @@ def _stream(**options: Any) -> SourceStream:
     return SourceStream(BINDING, {"row": RecordMap("Row", "demo:{_id}")}, **options)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.33")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.33")
 def test_page_and_batch_limits_refuse_invalid_values_before_effects() -> None:
     calls: list[str | None] = []
 
@@ -99,7 +99,7 @@ def test_page_and_batch_limits_refuse_invalid_values_before_effects() -> None:
         assert sink.submitted == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.33")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.33")
 def test_offset_keyset_and_window_strategies_advance_and_stop() -> None:
     offset: CursorStrategy = OffsetCursor(2)
     assert offset.first() == "0"
@@ -125,7 +125,7 @@ def test_offset_keyset_and_window_strategies_advance_and_stop() -> None:
         TimeWindowCursor(start, timedelta(0))
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.33")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.33")
 def test_sync_with_a_strategy_checkpoints_each_window_and_resumes() -> None:
     rows = [{"id": str(n)} for n in range(5)]
     seen: list[str | None] = []
@@ -149,7 +149,7 @@ def test_sync_with_a_strategy_checkpoints_each_window_and_resumes() -> None:
 KEY = b"k" * 32
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.34")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.34")
 def test_projection_pseudonymizes_ids_edges_and_redacts_properties() -> None:
     pseudo = Pseudonymizer("demo-mcp", "demo", KEY, frozenset({"email"}))
     stream = _stream(projection=pseudo.project)
@@ -175,7 +175,7 @@ def test_projection_pseudonymizes_ids_edges_and_redacts_properties() -> None:
     ).opaque_id("Person", "u1")
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.34")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.34")
 def test_pseudonymizer_refuses_a_short_key_and_an_empty_id(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -188,7 +188,7 @@ def test_pseudonymizer_refuses_a_short_key_and_an_empty_id(
     assert made.key == KEY and made.redact == {"x"}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.34")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.34")
 def test_guard_size_limit_scope_and_receipt() -> None:
     guarded: list[ChangeSet] = []
 
@@ -218,7 +218,7 @@ def test_guard_size_limit_scope_and_receipt() -> None:
     assert sink.bindings[-1].strict_schema is True
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.33")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.33")
 def test_batch_size_commits_entities_then_edges_in_batches() -> None:
     mapped = Mapped()
     for n in range(5):
@@ -232,7 +232,7 @@ def test_batch_size_commits_entities_then_edges_in_batches() -> None:
     assert shapes == [(2, 0), (2, 0), (1, 0), (1, 2), (1, 2)]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.35")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.35")
 def test_ingest_tools_register_with_standard_annotations_and_run() -> None:
     clients: list[str] = []
 
@@ -310,7 +310,7 @@ def test_ingest_tools_register_with_standard_annotations_and_run() -> None:
     assert clients == ["closed"] * 3
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.35")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.35")
 def test_a_paged_tool_without_a_kind_is_refused() -> None:
     async def pages(client: Any, cursor: str | None) -> list[dict[str, Any]]:
         return []
@@ -319,7 +319,7 @@ def test_a_paged_tool_without_a_kind_is_refused() -> None:
         ingest_registration(_stream(), [IngestTool("t", "T", pages, paged=True)], dict)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.33")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.33")
 def test_high_water_cursor_reads_only_changes_since_the_accepted_mark() -> None:
     mark = HighWaterCursor("rev")
     assert mark.first() is None
@@ -341,7 +341,7 @@ def test_high_water_cursor_reads_only_changes_since_the_accepted_mark() -> None:
     }
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.35")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.35")
 def test_a_records_tool_without_a_kind_fails_at_call_time() -> None:
     def records(client: Any) -> list[dict[str, Any]]:
         return [{"id": "1"}]

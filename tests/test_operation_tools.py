@@ -1,4 +1,4 @@
-"""One typed, annotated MCP tool per API operation (SDK-CONNECTOR-CONTROL-R020)."""
+"""One typed, annotated MCP tool per API operation (SCION-CONNECTOR-CONTROL-R020)."""
 
 from __future__ import annotations
 
@@ -97,7 +97,7 @@ async def _listed(mcp: FastMCP[Any]) -> dict[str, Any]:
         return {tool.name: tool for tool in await client.list_tools()}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020")
 async def test_default_surface_is_one_typed_annotated_tool_per_operation() -> None:
     mcp: FastMCP[Any] = FastMCP("sample")
     register_tool_surface(
@@ -127,7 +127,7 @@ async def test_default_surface_is_one_typed_annotated_tool_per_operation() -> No
     assert getattr(mcp, UNTYPED_TOOLS_ATTRIBUTE) == set()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020")
 async def test_operation_tool_calls_the_client_with_typed_arguments() -> None:
     mcp: FastMCP[Any] = FastMCP("sample")
     register_tool_surface(
@@ -138,7 +138,7 @@ async def test_operation_tool_calls_the_client_with_typed_arguments() -> None:
     assert result.data == {"method": "GET", "path": "/widgets/w1", "expand": None}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020")
 async def test_action_dispatch_is_opt_in_compatibility() -> None:
     mcp: FastMCP[Any] = FastMCP("sample")
     register_tool_surface(
@@ -157,7 +157,7 @@ async def test_action_dispatch_is_opt_in_compatibility() -> None:
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020")
 async def test_registrars_alone_are_the_surface_without_a_client() -> None:
     mcp: FastMCP[Any] = FastMCP("sample")
     register_tool_surface(
@@ -166,7 +166,7 @@ async def test_registrars_alone_are_the_surface_without_a_client() -> None:
     assert set(await _listed(mcp)) == {"sample_widgets"}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020")
 async def test_manifest_supplies_schema_name_description_and_verb() -> None:
     manifest = [
         {
@@ -208,7 +208,7 @@ async def test_manifest_supplies_schema_name_description_and_verb() -> None:
     assert result.data == {"query": "q", "limit": 10}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020")
 async def test_operation_may_reuse_a_retired_action_tool_name() -> None:
     class WidgetsApi:
         def widgets(self) -> list[str]:
@@ -295,7 +295,7 @@ def test_default_result_coercion_is_json_ready() -> None:
     assert jsonable_result(inspect) == str(inspect)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020")
 async def test_plain_json_return_hint_becomes_the_output_schema() -> None:
     class StatusApi:
         def get_status(self) -> dict[str, Any]:
@@ -346,7 +346,7 @@ def register_analytic_tools(mcp: FastMCP[Any]) -> None:
         return value
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020")
 async def test_action_tools_are_split_never_dropped() -> None:
     mcp: FastMCP[Any] = FastMCP("sample")
     register_tool_surface(
@@ -377,7 +377,7 @@ async def test_action_tools_are_split_never_dropped() -> None:
     assert result.data == {"fraction": pytest.approx(0.4)}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R026.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R026.2")
 async def test_keyword_field_is_exposed_under_its_wire_name() -> None:
     class LogsApi:
         def search_logs(self, **kwargs: Any) -> dict[str, Any]:

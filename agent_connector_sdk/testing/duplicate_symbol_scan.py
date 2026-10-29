@@ -1,6 +1,6 @@
 """Detect a connector package re-implementing SDK manifest/certify symbols.
 
-SDK-CONNECTOR-CONTROL-R015 makes the SDK's ``manifest`` and ``certify``
+SCION-CONNECTOR-CONTROL-R015 makes the SDK's ``manifest`` and ``certify``
 packages the sole owner of connector manifest parsing, live-contract
 validation, tool-schema normalization, and certification; "equivalent logic
 kept in a duplicate location is retired." A package that *imports*
@@ -29,7 +29,7 @@ __all__ = [
     "scan_for_duplicate_manifest_or_certify_definitions",
 ]
 
-#: The SDK's own public manifest/certify symbols (SDK-CONNECTOR-CONTROL-R015).
+#: The SDK's own public manifest/certify symbols (SCION-CONNECTOR-CONTROL-R015).
 #: A connector package defining one of these itself, rather than importing it
 #: from ``agent_connector_sdk``, is the duplicate-location case this
 #: requirement retires.

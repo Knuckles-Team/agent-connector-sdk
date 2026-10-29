@@ -31,7 +31,7 @@ class _Adapter(BaseAdapter):
         pass
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.9")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.9")
 def test_requests_session_default_timeout_verify_and_override() -> None:
     adapter = _Adapter()
     with create_requests_session(headers={"user-agent": "consumer/1"}) as session:
@@ -53,7 +53,7 @@ def test_requests_session_default_timeout_verify_and_override() -> None:
         create_requests_session(headers={"Authorization": "synthetic"})
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.9")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.9")
 def test_requests_session_airgap_blocks_redirect_and_proxy(monkeypatch: Any) -> None:
     monkeypatch.setenv("AIRGAP_MODE", "true")
     adapter = _Adapter(redirect=True)

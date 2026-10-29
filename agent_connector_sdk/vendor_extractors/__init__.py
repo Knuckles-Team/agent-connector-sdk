@@ -1,4 +1,4 @@
-"""Vendor enrichment extractors (SDK-SOURCE-INGEST-R006).
+"""Vendor enrichment extractors (SCION-SOURCE-INGEST-R006).
 
 Each module under this package ports one vendor-specific enrichment extractor
 from ``agent_utilities.knowledge_graph.enrichment.extractors`` onto this SDK's
@@ -10,8 +10,8 @@ records instead of agent-utilities' ``ExtractionBatch`` of
 :func:`~agent_connector_sdk.vendor_extractors.contract.register_vendor_extractor`,
 so porting one vendor touches no shared hub file.
 
-``specs/SDK-SOURCE-INGEST/requirements.md`` tracks one child requirement
-(``SDK-SOURCE-INGEST-R006.<n>``) per vendor module; ``uptime_kuma`` is the
+``specs/SCION-SOURCE-INGEST/requirements.md`` tracks one child requirement
+(``SCION-SOURCE-INGEST-R006.<n>``) per vendor module; ``uptime_kuma`` is the
 first ported (``R006.1``), alongside this contract.
 """
 

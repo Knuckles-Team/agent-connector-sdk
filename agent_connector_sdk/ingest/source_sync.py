@@ -1,4 +1,4 @@
-"""Sync one declared connector source into epistemic-graph (SDK-SOURCE-INGEST-R004.20-R004.23).
+"""Sync one declared connector source into epistemic-graph (SCION-SOURCE-INGEST-R004.20-R004.23).
 
 :class:`SourceSyncRunner` calls a source's declared read-only tools page by
 page through a :class:`SourceSession`, maps each record to a typed

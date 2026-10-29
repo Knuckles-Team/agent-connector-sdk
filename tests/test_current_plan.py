@@ -13,7 +13,7 @@ from agent_connector_sdk.current_plan import (
     PlanItem,
 )
 
-pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R070")
+pytestmark = pytest.mark.spec("SCION-CONNECTOR-CONTROL-R070")
 
 
 def snapshot(**changes):

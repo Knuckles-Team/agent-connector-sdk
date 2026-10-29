@@ -1,4 +1,4 @@
-"""SDK-SOURCE-INGEST-R006.15: the Odoo CRM vendor extractor port."""
+"""SCION-SOURCE-INGEST-R006.15: the Odoo CRM vendor extractor port."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ class _FakeClient:
         return self._leads
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.15")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.15")
 def test_extract_returns_customer_and_lead_entities_with_belongs_to() -> None:
     config = {
         "client": _FakeClient(
@@ -52,12 +52,12 @@ def test_extract_returns_customer_and_lead_entities_with_belongs_to() -> None:
     assert relationship.relationship == "BELONGS_TO"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.15")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.15")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.15")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.15")
 def test_extract_returns_an_empty_change_set_when_list_partners_raises() -> None:
     class _BrokenClient:
         def list_partners(self) -> object:
@@ -69,7 +69,7 @@ def test_extract_returns_an_empty_change_set_when_list_partners_raises() -> None
     assert extract({"client": _BrokenClient()}) == ChangeSet()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.15")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.15")
 def test_odoo_self_registers_under_the_vendor_extractor_registry() -> None:
     registered = get_vendor_extractor(CATEGORY)
 

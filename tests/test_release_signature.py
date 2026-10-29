@@ -47,7 +47,7 @@ def fixture():
     return declaration, graph, reference, resolver, provider, {"key-1": public}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R650.3")
 def test_release_signing_binds_declaration_graph_and_trusted_key() -> None:
     declaration, graph, reference, resolver, provider, trusted = fixture()
     evidence = sign_release(
@@ -88,7 +88,7 @@ def test_release_signing_binds_declaration_graph_and_trusted_key() -> None:
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R650.3")
 def test_signing_refuses_unversioned_and_untrusted_keys() -> None:
     declaration, graph, _, resolver, provider, trusted = fixture()
     for reference in ("env://RELEASE_SEED", "openbao://apps/example/signing#seed"):
@@ -127,8 +127,8 @@ def test_signing_refuses_unversioned_and_untrusted_keys() -> None:
         )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.2")
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R650.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R650.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R650.3")
 def test_invalid_mutated_declaration_is_never_signed_or_verified() -> None:
     declaration, graph, reference, resolver, provider, trusted = fixture()
     evidence = sign_release(

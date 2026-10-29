@@ -11,7 +11,7 @@ from agent_connector_sdk.tls.errors import TransportSecurityError
 from agent_connector_sdk.tls.resolve import resolve_tls_profile
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.13")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.13")
 def test_explicit_tls_settings_are_isolated_from_process(monkeypatch):
     monkeypatch.setenv("TLS_SYSTEM_TRUST", "false")
     monkeypatch.setenv("TLS_TRUST_ENV", "true")
@@ -25,7 +25,7 @@ def test_explicit_tls_settings_are_isolated_from_process(monkeypatch):
     assert os.environ["TLS_SYSTEM_TRUST"] == "false"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.13")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.13")
 def test_explicit_tls_settings_select_service_profile_and_refuse_missing():
     config = {
         "DEMO_TLS_PROFILE": "custom",
@@ -39,13 +39,13 @@ def test_explicit_tls_settings_select_service_profile_and_refuse_missing():
         resolve_tls_profile("other", profile_name="missing", settings=config)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.13")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.13")
 def test_explicit_tls_settings_refuse_non_string_values():
     with pytest.raises(TransportSecurityError, match="tls_setting_invalid"):
         resolve_tls_profile("demo", settings={"TLS_TRUST_ENV": False})
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.13")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.13")
 def test_explicit_settings_delegate_secret_reference_to_resolver(monkeypatch):
     monkeypatch.setenv("TLS_PROFILES_REF", "env://UNTRUSTED_PROCESS_VALUE")
     calls = []

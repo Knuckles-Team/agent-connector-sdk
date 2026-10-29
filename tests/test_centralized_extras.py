@@ -24,17 +24,17 @@ def _row(row_id: str) -> str:
     raise AssertionError(f"row {row_id} missing")
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R040")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R040")
 def test_every_extra_has_a_row() -> None:
     listed = set(
-        re.findall(r"`([a-z0-9-]+)`", _row("SDK-CENTRALIZED-CAPABILITIES-R040"))
+        re.findall(r"`([a-z0-9-]+)`", _row("SCION-CENTRALIZED-CAPABILITIES-R040"))
     )
     missing = sorted(set(_extras()) - listed)
     assert missing == []
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R025")
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R040")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R025")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R040")
 def test_vector_extras_share_db_floors() -> None:
     extras = _extras()
     names = {

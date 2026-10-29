@@ -76,7 +76,7 @@ async def _sync(kind, records, *, age=None):
     return sink, outcome
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.1")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003.1")
 async def test_served_sources_preserve_fx_direction_futures_and_staleness():
     fx = {**_base("fx-1"), "base_currency": "usd", "quote_currency": "eur", "rate": 0.9}
     spot = {**_base("spot-1"), "basis": "spot", "price": 2000, "currency": "USD"}
@@ -133,7 +133,7 @@ async def test_served_sources_preserve_fx_direction_futures_and_staleness():
     ) == (500000, 30, True, "2026-01-01T00:00:00Z")
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.1")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003.1")
 @pytest.mark.parametrize(
     ("kind", "record", "age"),
     [
@@ -199,7 +199,7 @@ async def test_bad_domain_records_refuse_before_sink(kind, record, age):
     assert not sink.batches
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.1")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003.1")
 async def test_duplicate_page_identity_refuses_before_sink():
     record = {
         **_base("same"),
@@ -219,7 +219,7 @@ async def test_duplicate_page_identity_refuses_before_sink():
     assert not sink.batches
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.1")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003.1")
 async def test_reconciliation_validates_source_before_comparing_ids():
     record = {
         **_base("fx-1"),
@@ -242,7 +242,7 @@ async def test_reconciliation_validates_source_before_comparing_ids():
             await adapter.reconcile(session, frozenset({"old"}))
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.4")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003.4")
 async def test_provider_records_cross_the_sdk_source_boundary():
     """The owner pack separately exercises provider transport and graph replay."""
     fx = {
@@ -299,7 +299,7 @@ async def test_provider_records_cross_the_sdk_source_boundary():
     )
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R003.4")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R003.4")
 async def test_bounded_provider_source_cannot_reconcile():
     """A single provider observation is not a complete live set."""
     from agent_connector_sdk.ports.errors import SourceContractError

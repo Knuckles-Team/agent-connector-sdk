@@ -40,7 +40,7 @@ async def _sync(sink, event):
     return await sync_stream(session, adapter, SyncTarget(CONNECTOR, sink, max_pages=1))
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.6")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.6")
 async def test_exact_page_replay_keeps_distinct_same_time_event():
     sink = InMemorySink()
     first = _rum_event("first")
@@ -148,7 +148,7 @@ async def _exercise_graph():
         await client.close()
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.6")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.6")
 def test_fresh_worker_replays_against_real_graph(live_ingest):  # noqa: F811
     result = asyncio.run_coroutine_threadsafe(
         _exercise_graph(), live_ingest._loop
@@ -186,7 +186,7 @@ async def _read_restart_graph():
         await client.close()
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.3")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.3")
 def test_restart_worker_process_against_real_graph(live_ingest):  # noqa: F811
     import json
     import subprocess

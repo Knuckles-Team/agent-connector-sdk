@@ -76,7 +76,7 @@ async def test_public_writeback_contracts_are_live() -> None:
     require_reconciliation(fixture.change_set, reconciled)
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.15")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.15")
 @pytest.mark.parametrize(
     "alteration",
     [
@@ -108,7 +108,7 @@ async def test_dry_run_rejects_mismatched_preview(
     assert fixture.transport.attempts == 0
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.15")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.15")
 async def test_dry_run_rejects_snapshot_mutation(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -125,7 +125,7 @@ async def test_dry_run_rejects_snapshot_mutation(
     assert fixture.transport.attempts == 0
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.14")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.14")
 async def test_uncertain_reconciliation_cannot_allow_retry(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -218,7 +218,7 @@ async def test_idempotency_key_cannot_name_a_different_digest() -> None:
         await fixture.port.apply(changed)
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.16")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.16")
 async def test_mutated_change_set_after_audit_cannot_apply(monkeypatch):
     fixture = make_writeback_fixture()
     reserve = fixture.audit.reserve
@@ -238,7 +238,7 @@ async def test_mutated_change_set_after_audit_cannot_apply(monkeypatch):
     )
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.16")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.16")
 async def test_caller_mutation_during_apply_cannot_change_effect(monkeypatch):
     fixture = make_writeback_fixture()
     apply = fixture.transport.apply
@@ -256,7 +256,7 @@ async def test_caller_mutation_during_apply_cannot_change_effect(monkeypatch):
     )
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.16")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.16")
 async def test_expiry_during_reservation_cannot_apply(monkeypatch):
     fixture = make_writeback_fixture()
     reserve = fixture.audit.reserve

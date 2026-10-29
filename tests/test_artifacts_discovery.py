@@ -99,7 +99,7 @@ async def test_artifact_kinds_pass_the_conformance_kit(
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R002")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R002")
 async def test_contract_pin_normalization_passes_for_a_real_tool(
     sessions: SessionFactory,
 ) -> None:
@@ -108,7 +108,7 @@ async def test_contract_pin_normalization_passes_for_a_real_tool(
     assert result.passed, result.detail
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R004")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R004")
 async def test_contract_pin_normalization_catches_a_drifted_pin(
     sessions: SessionFactory,
 ) -> None:
@@ -140,7 +140,7 @@ async def test_contract_pin_normalization_catches_a_drifted_pin(
     assert "recomputed D18 fingerprint" in result.detail
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R004.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R004.1")
 @pytest.mark.parametrize("case", ["empty", "missing", "extra", "duplicate"])
 async def test_contract_pin_normalization_rejects_incomplete_tool_sets(
     sessions: SessionFactory, case: str
@@ -176,7 +176,7 @@ async def test_contract_pin_normalization_rejects_incomplete_tool_sets(
     assert "no tool pins" in result.detail or "expected one live tool" in result.detail
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R004.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R004.1")
 async def test_contract_pin_normalization_rejects_duplicate_live_names(
     sessions: SessionFactory,
 ) -> None:
@@ -422,7 +422,7 @@ async def test_tool_annotation_conflict_fails_closed() -> None:
         await ToolArtifactKind().list_entries(session, SERVER)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R008")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R008")
 async def test_tool_cost_and_latency_annotations_reach_generated_pack() -> None:
     annotations = await _annotated_tool_pack(
         "priced",
@@ -439,7 +439,7 @@ async def test_tool_cost_and_latency_annotations_reach_generated_pack() -> None:
 
 
 @pytest.mark.parametrize("currency", ["usd", "US", "USDD", "US1", "", "  USD"])
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R008")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R008")
 async def test_tool_cost_rejects_non_iso4217_currency(currency: str) -> None:
     tool = mcp_types.Tool.model_validate(
         {
@@ -455,7 +455,7 @@ async def test_tool_cost_rejects_non_iso4217_currency(currency: str) -> None:
         await ToolArtifactKind().list_entries(session, SERVER)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R008")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R008")
 async def test_tool_latency_rejects_p50_above_p95() -> None:
     tool = mcp_types.Tool.model_validate(
         {

@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R071: one declared connector identity, the fleet name."""
+"""SCION-CONNECTOR-CONTROL-R071: one declared connector identity, the fleet name."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from agent_connector_sdk.connector_identity import (
 from agent_connector_sdk.ingest.model import IngestBinding
 from agent_connector_sdk.mcp.content import ConnectorContent
 
-pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R071")
+pytestmark = pytest.mark.spec("SCION-CONNECTOR-CONTROL-R071")
 
 
 def _points(*pairs: tuple[str, str]):

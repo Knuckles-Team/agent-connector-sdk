@@ -1,7 +1,7 @@
-"""Declared ingestible sources of a connector (SDK-SOURCE-INGEST-R004.19, R004.21).
+"""Declared ingestible sources of a connector (SCION-SOURCE-INGEST-R004.19, R004.21).
 
 A connector declares one source per ingestible record type with
-``source_meta`` on the read tool that pages it (SDK-CONNECTOR-CONTROL-R075.2).
+``source_meta`` on the read tool that pages it (SCION-CONNECTOR-CONTROL-R075.2).
 A source names the read-only tool, where the records are in each result, the
 record identity and the cursor field. The server serves the assembled
 declaration as the resource ``connector://resources``.
@@ -29,7 +29,7 @@ class EdgeSpec(_Strict):
     """A relationship from each record to the record one of its fields names.
 
     The declarative form of :class:`~agent_connector_sdk.ingest.mapping.EdgeMap`
-    for declared sources (SDK-SOURCE-INGEST-R004.36). ``target_field`` is a
+    for declared sources (SCION-SOURCE-INGEST-R004.36). ``target_field`` is a
     dotted path into the record; it may resolve to a scalar id, a mapping (a
     reference such as ServiceNow's ``{"value": sys_id}``) or a list of either.
     For a mapping, ``target_id_key`` names the key that holds the id.

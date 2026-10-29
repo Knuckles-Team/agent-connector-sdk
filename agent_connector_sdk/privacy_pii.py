@@ -1,4 +1,4 @@
-"""PII sanitization for connector payloads (SDK-CONNECTOR-CONTROL-R014.6).
+"""PII sanitization for connector payloads (SCION-CONNECTOR-CONTROL-R014.6).
 
 Moved from agent-utilities so MCP-only connectors redact PII without the harness.
 """

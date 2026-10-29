@@ -1,4 +1,4 @@
-"""The operational event envelope (SDK-OBSERVABILITY-FEEDS-R001).
+"""The operational event envelope (SCION-OBSERVABILITY-FEEDS-R001).
 
 RUM, security-audit and CI/CD events carry one standard envelope before they
 are mapped into a generated ``SourceRecord``: stable identity, a three-point
@@ -33,7 +33,7 @@ __all__ = [
 
 
 class FeedKind(StrEnum):
-    """The three operational feed kinds SDK-OBSERVABILITY-FEEDS-R001 admits."""
+    """The three operational feed kinds SCION-OBSERVABILITY-FEEDS-R001 admits."""
 
     RUM = "rum"
     SECURITY_AUDIT = "security_audit"

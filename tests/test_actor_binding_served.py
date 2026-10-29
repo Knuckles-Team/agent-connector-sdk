@@ -1,4 +1,4 @@
-"""The served MCP stack binds one actor per request, by transport (SDK-CONNECTOR-CONTROL-R025.1-R025.4).
+"""The served MCP stack binds one actor per request, by transport (SCION-CONNECTOR-CONTROL-R025.1-R025.4).
 
 Each test builds a real connector server with ``create_mcp_server`` and calls an
 actor-gated tool through a real fastmcp client: in memory (the stdio-equivalent
@@ -114,7 +114,7 @@ async def _anonymous_http() -> AsyncIterator[Client[Any]]:
             yield client
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R025.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.1")
 async def test_local_transport_binds_the_system_actor() -> None:
     async with Client(_server("--transport", "stdio")) as client:
         who = await client.call_tool("whoami", {})
@@ -126,7 +126,7 @@ async def test_local_transport_binds_the_system_actor() -> None:
         assert added.data == "system added new"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R025.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.2")
 async def test_authenticated_http_binds_the_token_actor_with_inherited_roles() -> None:
     keys = RSAKeyPair.generate()
     mcp = _server(
@@ -162,7 +162,7 @@ async def test_authenticated_http_binds_the_token_actor_with_inherited_roles() -
             assert added.data == "operator-1 added new"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R025.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.3")
 async def test_unauthenticated_http_binds_the_anonymous_actor() -> None:
     async with _anonymous_http() as client:
         who = await client.call_tool("whoami", {})
@@ -175,7 +175,7 @@ async def test_unauthenticated_http_binds_the_anonymous_actor() -> None:
         assert "Internal error" not in denied.value.message
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R025.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.4")
 async def test_a_mutation_without_authentication_is_a_typed_refusal() -> None:
     async with _anonymous_http() as client:
         with pytest.raises(MCPError) as refused:
@@ -185,7 +185,7 @@ async def test_a_mutation_without_authentication_is_a_typed_refusal() -> None:
     assert refused.value.data == {"reason": AuthenticationRequiredError.reason}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R025.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.4")
 async def test_current_actor_stays_strict_outside_the_served_binding() -> None:
     bare: FastMCP[Any] = FastMCP("bare")
 

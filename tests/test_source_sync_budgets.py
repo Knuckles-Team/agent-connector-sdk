@@ -12,7 +12,7 @@ from agent_connector_sdk.ingest.source_sync import SourceCheckpointState, SyncBu
 from agent_connector_sdk.runner.backoff import Backoff
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.53")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.53")
 @pytest.mark.parametrize(
     "field", ["max_pages", "max_records", "batch_size", "attempts", "max_fan_out"]
 )
@@ -22,7 +22,7 @@ def test_count_budgets_require_positive_integers(field: str, value: Any) -> None
         SyncBudget(**{field: value})
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.53")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.53")
 @pytest.mark.parametrize(
     "value", [0, -1, True, float("nan"), float("inf"), 10**1000, "1"]
 )
@@ -35,7 +35,7 @@ def test_time_budget_and_backoff_are_finite(value: Any) -> None:
         Backoff(1.0, value)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.53")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.53")
 async def test_hung_source_call_returns_partial_without_progress() -> None:
     class HungSession(_Session):
         async def call_tool(self, name, arguments):
@@ -60,7 +60,7 @@ async def test_hung_source_call_returns_partial_without_progress() -> None:
     assert len(session.calls) == 1 and ingest.batches == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.53")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.53")
 async def test_deadline_keeps_prior_page_and_correct_tool_provenance() -> None:
     class TwoToolSession(_Session):
         async def call_tool(self, name, arguments):
@@ -83,7 +83,7 @@ async def test_deadline_keeps_prior_page_and_correct_tool_provenance() -> None:
     assert len(ingest.batches) == 1 and ingest.batches[0][0].tool == "second"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.53")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.53")
 async def test_record_limit_never_partially_applies_a_page() -> None:
     session, ingest, checkpoints = _Session(ITEMS), _Ingest(), _Checkpoints()
     report = await _runner(
@@ -96,7 +96,7 @@ async def test_record_limit_never_partially_applies_a_page() -> None:
     assert [entity.id for entity in ingest.batches[0][1].entities] == ["1", "2"]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.53")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.53")
 async def test_retry_sleep_respects_remaining_source_deadline() -> None:
     from agent_connector_sdk.ingest.source_sync import SourceSyncRunner
 
@@ -115,7 +115,7 @@ async def test_retry_sleep_respects_remaining_source_deadline() -> None:
     assert len(session.calls) == 1 and ingest.batches == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.53")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.53")
 async def test_partial_flush_refusal_does_not_advance_checkpoint() -> None:
     from agent_connector_sdk.ingest.errors import IngestError
 

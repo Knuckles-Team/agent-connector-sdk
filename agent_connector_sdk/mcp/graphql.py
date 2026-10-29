@@ -1,4 +1,4 @@
-"""GraphQL schema-discovery helpers over a connector's own executor (SDK-CONNECTOR-CONTROL-R014.12).
+"""GraphQL schema-discovery helpers over a connector's own executor (SCION-CONNECTOR-CONTROL-R014.12).
 
 Replaces ``agent_utilities.mcp.context_helpers.ctx_graphql_list_types`` and
 ``ctx_graphql_get_type_details`` for connectors (gitlab-api, twenty-mcp) that

@@ -1,4 +1,4 @@
-"""Emerald-Exchange vendor extractor (SDK-SOURCE-INGEST-R006.12).
+"""Emerald-Exchange vendor extractor (SCION-SOURCE-INGEST-R006.12).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.emerald``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

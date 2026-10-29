@@ -11,7 +11,7 @@ from agent_connector_sdk.httpsupport.pagination import (
 )
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.6")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.6")
 @pytest.mark.parametrize(
     "body", [{}, {"items": None}, {"items": {"secret": "private"}}]
 )
@@ -27,7 +27,7 @@ def test_malformed_record_collection_refuses_without_leaking_body(body):
     assert iterator.next_cursor is None
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.6")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.6")
 async def test_async_malformed_page_does_not_advance_cursor():
     calls = []
 
@@ -50,7 +50,7 @@ async def test_async_malformed_page_does_not_advance_cursor():
     assert iterator.pages_fetched == 1
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.6")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.6")
 def test_empty_list_remains_valid():
     def fetch(_url, _params):
         return {"items": []}, {}

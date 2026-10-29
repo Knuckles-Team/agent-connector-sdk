@@ -1,6 +1,6 @@
 """Bounded JSON-RPC client for one A2A exchange.
 
-CONCEPT:SDK-CONNECTOR-CONTROL-R014.21
+CONCEPT:SCION-CONNECTOR-CONTROL-R014.21
 
 ``message/send`` then ``tasks/get`` polling until the task leaves a pending
 state or the deadline passes. Failures come back as an :class:`A2AResult` with

@@ -19,7 +19,7 @@ from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
 from agent_connector_sdk.testing.sinks import InMemorySink
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.50")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.50")
 @pytest.mark.parametrize("kind", ["event", "generic"])
 async def test_repeated_cursor_refuses_page_before_checkpoint(kind):
     secret_cursor = "cursor-private-fixture"  # sanitizer:ignore - synthetic cursor

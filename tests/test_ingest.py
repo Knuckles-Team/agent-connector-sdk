@@ -53,7 +53,7 @@ from agent_connector_sdk.testing.sinks import InMemorySink
 BINDING = IngestBinding(connector="demo-mcp", stream="demo")
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.33")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.33")
 async def test_empty_source_page_is_checkpointed_before_next_fetch() -> None:
     from agent_connector_sdk.ingest import RecordMap, SourceStream
 
@@ -86,7 +86,7 @@ async def test_empty_source_page_is_checkpointed_before_next_fetch() -> None:
     assert await service.accepted_cursor(BINDING) == "window-2"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.33")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.33")
 async def test_nonempty_page_with_empty_mapping_does_not_advance() -> None:
     from agent_connector_sdk.ingest import Mapped, SourceStream
 
@@ -141,7 +141,7 @@ def uninstalled() -> Iterator[None]:
     install_ingest(None)
 
 
-# spec: SDK-CONNECTOR-CONTROL-R075.6
+# spec: SCION-CONNECTOR-CONTROL-R075.6
 def test_change_set_maps_to_exact_declared_references() -> None:
     request = build_request(BINDING, _changes(), previous=None)
     assert [r.mapping_reference for r in request.records] == [
@@ -222,7 +222,7 @@ def test_malformed_change_sets_fail_before_io() -> None:
         IngestBinding(connector="demo-mcp", stream=" ")
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004")
 def test_reconcile_and_withdrawals_are_explicit() -> None:
     reconcile = ChangeSet(
         entities=(Entity("a", "T"),),
@@ -239,7 +239,7 @@ def test_reconcile_and_withdrawals_are_explicit() -> None:
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004")
 async def test_submissions_chain_the_durable_checkpoint() -> None:
     transport = _Transport()
     service = KnowledgeIngest(transport)
@@ -267,7 +267,7 @@ async def test_media_bytes_go_to_blob_storage_first() -> None:
         )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004")
 async def test_checkpoint_races_retry_then_give_up() -> None:
     transport = _Transport(conflicts=DEFAULT_ATTEMPTS - 1)
     receipt = await KnowledgeIngest(transport).submit(BINDING, _changes())
@@ -440,7 +440,7 @@ async def test_epistemic_graph_transport_stores_media_via_the_client_blob_api() 
     assert record.record_id == f"blob:{digest}"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.41")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.41")
 async def test_accepted_cursor_refuses_malformed_or_mismatched_checkpoints() -> None:
     class Transport(_Transport):
         def __init__(self, status):
@@ -517,7 +517,7 @@ async def test_source_status_distinguishes_cursorless_checkpoint_from_empty() ->
         )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.41")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.41")
 async def test_stream_never_fetches_after_invalid_accepted_cursor() -> None:
     from agent_connector_sdk.ingest import RecordMap, SourceStream
 
@@ -543,7 +543,7 @@ async def test_stream_never_fetches_after_invalid_accepted_cursor() -> None:
     assert calls == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.42")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.42")
 async def test_invalid_durable_sequence_refuses_before_submit() -> None:
     class Transport(_Transport):
         def __init__(self, position):
@@ -574,7 +574,7 @@ async def test_invalid_durable_sequence_refuses_before_submit() -> None:
         assert request.provider_checkpoint.position["sequence"] == expected
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.43")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.43")
 async def test_source_ingest_uses_snapshot_when_caller_mutates_checkpoint() -> None:
     request = build_request(BINDING, _changes(), previous=None)
 
@@ -590,7 +590,7 @@ async def test_source_ingest_uses_snapshot_when_caller_mutates_checkpoint() -> N
     assert request.provider_checkpoint.position["sequence"] == 99
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.51")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.51")
 async def test_custom_transport_status_identity_is_checked_before_submission() -> None:
     class WrongStatus(_Transport):
         def __init__(self, status):
@@ -615,7 +615,7 @@ async def test_custom_transport_status_identity_is_checked_before_submission() -
         assert transport.requests == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.44")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.44")
 async def test_cursor_conflict_refuses_without_replaying_old_page() -> None:
     class Racing(_Transport):
         async def submit(self, request):
@@ -639,7 +639,7 @@ async def test_cursor_conflict_refuses_without_replaying_old_page() -> None:
     assert status.accepted_checkpoint.position["cursor"] == "newer"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.45")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.45")
 async def test_chunk_failure_retains_previous_accepted_source_cursor() -> None:
     from agent_connector_sdk.ingest import RecordMap, SourceStream
 
@@ -667,7 +667,7 @@ async def test_chunk_failure_retains_previous_accepted_source_cursor() -> None:
     assert await service.accepted_cursor(BINDING) == "old-page"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.45")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.45")
 async def test_chunked_page_advances_only_after_all_chunks_and_clears_at_end() -> None:
     from agent_connector_sdk.ingest import RecordMap, SourceStream
 
@@ -701,7 +701,7 @@ async def test_chunked_page_advances_only_after_all_chunks_and_clears_at_end() -
     assert await service.accepted_cursor(BINDING) is None
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.47")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.47")
 async def test_generated_status_rejects_checkpoint_for_another_stream() -> None:
     class WrongCheckpoint(_GeneratedClient):
         async def _send(self, method, params, graph, *, idempotency_key=None):
@@ -716,7 +716,7 @@ async def test_generated_status_rejects_checkpoint_for_another_stream() -> None:
         await SourceIngestChannel(WrongCheckpoint()).source_status("demo-mcp", "demo")
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.48")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.48")
 @pytest.mark.parametrize("batch_size", [None, 1])
 async def test_terminal_source_page_conflict_does_not_retry(batch_size) -> None:
     from agent_connector_sdk.ingest import RecordMap, SourceStream
@@ -755,7 +755,7 @@ async def test_terminal_source_page_conflict_does_not_retry(batch_size) -> None:
     assert await service.accepted_cursor(BINDING) == "newer"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.52")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.52")
 async def test_non_page_write_preserves_existing_source_cursor() -> None:
     transport = _Transport()
     service = KnowledgeIngest(transport)

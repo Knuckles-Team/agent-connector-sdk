@@ -83,7 +83,7 @@ def test_og_metadata_decodes_html_entities() -> None:
     assert metadata["title"] == "Rock & Roll's Best"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.42")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.42")
 async def test_fetch_rejects_loopback_without_explicit_allowlist() -> None:
     with ScriptedHttpServer(ScriptedResponse(body=_HTML)) as server:
         assert await fetch_page(server.base_url) is None
@@ -95,7 +95,7 @@ async def test_fetch_rejects_loopback_without_explicit_allowlist() -> None:
         assert server.requests == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.42")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.42")
 async def test_fetch_rejects_public_hostname_resolving_to_private(monkeypatch) -> None:
     from agent_connector_sdk.adapters import web_fetch
     from agent_connector_sdk.http.client import create_async_http_client
@@ -120,7 +120,7 @@ async def test_fetch_rejects_public_hostname_resolving_to_private(monkeypatch) -
     assert seen == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.42")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.42")
 async def test_explicit_private_host_allowlist_permits_local_fetch() -> None:
     with ScriptedHttpServer(ScriptedResponse(body=_HTML)) as server:
         page = await fetch_page(server.base_url, allowed_private_hosts=("127.0.0.1",))
@@ -128,7 +128,7 @@ async def test_explicit_private_host_allowlist_permits_local_fetch() -> None:
         assert len(server.requests) == 1
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.48")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.48")
 async def test_legacy_fetch_stops_on_oversized_or_compressed_response(
     monkeypatch,
 ) -> None:
@@ -194,7 +194,7 @@ async def test_legacy_fetch_stops_on_oversized_or_compressed_response(
 
 
 @pytest.mark.timeout(10)
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.51")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.51")
 def test_legacy_tag_strip_handles_unclosed_input() -> None:
     import random
     import re
@@ -210,7 +210,7 @@ def test_legacy_tag_strip_handles_unclosed_input() -> None:
 
 
 @pytest.mark.timeout(30)
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.52")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.52")
 def test_metadata_scanning_is_linear_on_unclosed_tags() -> None:
     import random
     import re
@@ -268,7 +268,7 @@ def test_metadata_scanning_is_linear_on_unclosed_tags() -> None:
 
 
 @pytest.mark.timeout(10)
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.53")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.53")
 def test_title_scanning_is_linear_and_matches_prior_behavior() -> None:
     import random
     import re

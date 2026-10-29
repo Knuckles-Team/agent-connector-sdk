@@ -1,4 +1,4 @@
-"""SDK-SOURCE-INGEST-R004.29: declarations are typed data the SDK reads."""
+"""SCION-SOURCE-INGEST-R004.29: declarations are typed data the SDK reads."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def _load(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, **kwargs):
             sys.modules.pop(name)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.29")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.29")
 def test_shared_field_sets_expand_once_per_mapping(tmp_path, monkeypatch) -> None:
     declaration = _load(tmp_path, monkeypatch)
     assert declaration.connector == "demo-mcp"
@@ -45,13 +45,13 @@ def test_shared_field_sets_expand_once_per_mapping(tmp_path, monkeypatch) -> Non
     }
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.29")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.29")
 def test_previous_schema_version_still_reads(tmp_path, monkeypatch) -> None:
     declaration = _load(tmp_path, monkeypatch, sources=V1)
     assert declaration.schema_mappings["DemoItem"].fields == {"name": "xsd:string"}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.29")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.29")
 def test_inline_fields_win_over_a_shared_set() -> None:
     merged = expand_field_sets(
         {"field_sets": ["a"], "fields": {"x": "xsd:long"}},
@@ -60,7 +60,7 @@ def test_inline_fields_win_over_a_shared_set() -> None:
     assert merged == {"fields": {"x": "xsd:long", "y": "xsd:int"}}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.29")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.29")
 def test_unknown_field_set_and_unsupported_version_are_refused(
     tmp_path, monkeypatch
 ) -> None:
@@ -70,13 +70,13 @@ def test_unknown_field_set_and_unsupported_version_are_refused(
         _load(tmp_path, monkeypatch, sources="SCHEMA_VERSION = 3\n")
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.29")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.29")
 def test_a_package_without_sources_is_refused(tmp_path, monkeypatch) -> None:
     with pytest.raises(DeclarationError, match="ships no connector_sources"):
         _load(tmp_path, monkeypatch, sources=None)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.29")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.29")
 def test_reader_accepts_schema_versions_one_and_two() -> None:
     from agent_connector_sdk.ingest.live_declaration import DECLARATION_SCHEMA_VERSIONS
 

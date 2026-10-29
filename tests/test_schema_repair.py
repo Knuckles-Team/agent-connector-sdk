@@ -1,4 +1,4 @@
-"""SDK-SOURCE-INGEST-R003: a proposed repair is recorded and pauses its stream.
+"""SCION-SOURCE-INGEST-R003: a proposed repair is recorded and pauses its stream.
 
 The SDK's whole job here is recording a proposal and reading a pause: it never
 constructs a candidate graph schema, validates instances, performs a shadow
@@ -135,7 +135,7 @@ def test_propose_repair_needs_a_noncompatible_report_and_full_identity() -> None
     assert proposal.proposed_mapping == {"id": "identifier"}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R003")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R003")
 async def test_a_recorded_proposal_pauses_the_stream_before_any_extract_or_submit(
     sessions: SessionFactory,
 ) -> None:

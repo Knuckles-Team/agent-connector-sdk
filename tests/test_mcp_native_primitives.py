@@ -44,7 +44,7 @@ async def test_create_mcp_server_serves_native_prompts_resources_and_templates()
         assert read_template[0].text and "search" in read_template[0].text
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R005")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R005")
 async def test_native_status_does_not_block_packaged_content_capture(
     package_root: Path,
 ) -> None:
@@ -75,7 +75,7 @@ async def test_native_status_does_not_block_packaged_content_capture(
     assert {entry.uri for entry in pack.archive.entries} == pack.resource_uris
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R005")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R005")
 @pytest.mark.parametrize(
     "uri",
     [

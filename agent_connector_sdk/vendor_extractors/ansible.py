@@ -1,4 +1,4 @@
-"""Ansible Tower/AWX vendor extractor (SDK-SOURCE-INGEST-R006.2).
+"""Ansible Tower/AWX vendor extractor (SCION-SOURCE-INGEST-R006.2).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.ansible``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

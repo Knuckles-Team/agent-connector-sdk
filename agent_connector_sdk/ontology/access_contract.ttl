@@ -1,4 +1,4 @@
-# Access-contract vocabulary (SDK-CONNECTOR-CONTROL-R021).
+# Access-contract vocabulary (SCION-CONNECTOR-CONTROL-R021).
 #
 # A connector ontology declares, per ontology class, how a consumer reads it
 # live. Field names align with agent-utilities VirtualMapping:

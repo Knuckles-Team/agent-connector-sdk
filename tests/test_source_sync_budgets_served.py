@@ -60,7 +60,7 @@ async def _exercise(ingest):
         await engine.close()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.53")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.53")
 def test_served_timeout_keeps_graph_progress(live_ingest):  # noqa: F811
     report, state, rows = asyncio.run_coroutine_threadsafe(
         _exercise(live_ingest), live_ingest._loop

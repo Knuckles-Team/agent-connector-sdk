@@ -1,4 +1,4 @@
-"""SDK-owned current-plan wire models (SDK-CONNECTOR-CONTROL-R070).
+"""SDK-owned current-plan wire models (SCION-CONNECTOR-CONTROL-R070).
 
 These values assert shape only. The serving owner verifies caller authority,
 run ownership, freshness and the live lease before returning a snapshot.

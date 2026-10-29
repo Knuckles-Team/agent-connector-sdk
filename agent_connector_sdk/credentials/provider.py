@@ -2,7 +2,7 @@
 
 :class:`~agent_connector_sdk.credentials.resolver.CredentialResolver` resolves
 a parsed reference to its value with no notion of *who* is asking.
-:class:`CredentialProvider` (SDK-CONNECTOR-CONTROL-R035) wraps a resolver with
+:class:`CredentialProvider` (SCION-CONNECTOR-CONTROL-R035) wraps a resolver with
 the requesting connector's own identity: an ``openbao://`` reference whose
 path is not that connector's own is refused before any resolver call, and the
 resolved value is returned once per call -- never retained, logged, or
@@ -57,7 +57,7 @@ class CredentialProvider:
 
 @dataclass(frozen=True)
 class NoCredential:
-    """Keyless sentinel: present, contributes no auth material (SDK-CONNECTOR-CONTROL-R014.9)."""
+    """Keyless sentinel: present, contributes no auth material (SCION-CONNECTOR-CONTROL-R014.9)."""
 
     type_name: str = "none"
 

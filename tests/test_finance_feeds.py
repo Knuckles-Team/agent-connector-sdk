@@ -44,7 +44,7 @@ async def test_ticks_fan_out_by_symbol() -> None:
     assert bus.total_ticks == 2
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.3")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R900.3")
 async def test_market_feed_defaults_to_sdk_stream_bus(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -74,7 +74,7 @@ async def test_bar_subscription_tracks_the_symbol() -> None:
     assert bus.active_symbols == ["AAPL"]
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.7")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R900.7")
 async def test_bar_subscriptions_use_independent_intervals(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -127,7 +127,7 @@ async def test_price_alert_fires_once_when_crossed(
     assert len(alerts) == fired
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.9")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R900.9")
 @pytest.mark.parametrize("size", [0, -1, True, 0.5])
 def test_invalid_bar_interval_refuses_without_subscribing(size: int) -> None:
     bus = MarketFeedBus()
@@ -139,7 +139,7 @@ def test_invalid_bar_interval_refuses_without_subscribing(size: int) -> None:
         TickAggregator("AAPL", size)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.10")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R900.10")
 @pytest.mark.parametrize("field", ["price", "volume", "bid", "ask"])
 @pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
 async def test_nonfinite_ticks_are_rejected_before_any_effect(
@@ -167,7 +167,7 @@ async def test_nonfinite_ticks_are_rejected_before_any_effect(
     assert bar.is_empty
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.10")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R900.10")
 @pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
 def test_nonfinite_alert_threshold_is_rejected(value: float) -> None:
     bus = MarketFeedBus()

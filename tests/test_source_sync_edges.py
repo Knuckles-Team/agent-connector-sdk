@@ -1,4 +1,4 @@
-"""Declared source edges: owner, steward and assignment references (SDK-SOURCE-INGEST-R004.36)."""
+"""Declared source edges: owner, steward and assignment references (SCION-SOURCE-INGEST-R004.36)."""
 
 from __future__ import annotations
 
@@ -70,7 +70,7 @@ def _spec(edges: Any = EDGES) -> IngestSourceSpec:
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.36")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.36")
 def test_source_meta_declares_edges_and_refuses_bad_ones() -> None:
     meta = source_meta(
         source_id="incidents",
@@ -90,7 +90,7 @@ def test_source_meta_declares_edges_and_refuses_bad_ones() -> None:
         _spec([{**EDGES[0], "unknown": 1}])
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.36")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.36")
 async def test_runner_emits_reference_targets_and_relationships() -> None:
     session, ingest, checkpoints = _Session(INCIDENTS), _Ingest(), _Checkpoints()
     report = await _runner(session, ingest, checkpoints).sync(_spec(), mode="full")
@@ -122,7 +122,7 @@ async def test_runner_emits_reference_targets_and_relationships() -> None:
     assert again.submitted == 0 and len(ingest.batches) == 1
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.36")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.36")
 async def test_scalar_and_dotted_references_and_the_wire_reference() -> None:
     records = [
         {"sys_id": "ci-1", "owned_by": "usr-ann", "sys_updated_on": "1"},
@@ -173,7 +173,7 @@ async def test_scalar_and_dotted_references_and_the_wire_reference() -> None:
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.36")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.36")
 async def test_target_stream_names_the_other_sources_record_without_a_stub() -> None:
     records = [{"sys_id": "rel-1", "parent": "ci-app", "child": "ci-db"}]
     spec = IngestSourceSpec.model_validate(

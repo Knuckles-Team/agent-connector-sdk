@@ -127,7 +127,7 @@ def distribution_version(distribution: str) -> str:
 
     This is the one place a version is read. A package spells its version once,
     in ``pyproject.toml``; ``__version__``, the server version and the health
-    report all come from here (SDK-CONNECTOR-CONTROL-R071.2).
+    report all come from here (SCION-CONNECTOR-CONTROL-R071.2).
 
     Raises:
         ConnectorIdentityError: the distribution is not installed.

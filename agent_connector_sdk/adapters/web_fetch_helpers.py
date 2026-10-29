@@ -39,7 +39,7 @@ def _markdown_from_html(html: str) -> str:
     The original agent-utilities backend also tries ``markitdown`` first and
     falls back to this same tag strip when it is absent; that richer HTML to
     markdown conversion is deferred to the next slice (see
-    ``specs/SDK-SOURCE-INGEST/tasks.md``) rather than adding an unvetted,
+    ``specs/SCION-SOURCE-INGEST/tasks.md``) rather than adding an unvetted,
     unpinned dependency to this port.
     """
     return _strip_tags(html)

@@ -92,12 +92,12 @@ async def test_condensed_tool_is_callable() -> None:
     assert result.content[0].text == "get_item"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020")
 def test_client_registers_operations_and_retires_action_tools() -> None:
     """``client_cls``/``get_client`` register one tool per client operation.
 
     A registrar's ``action``-routed tool leaves the served surface when the
-    operation tools register (SDK-CONNECTOR-CONTROL-R020).
+    operation tools register (SCION-CONNECTOR-CONTROL-R020).
     """
     mcp: FastMCP[Any] = FastMCP("demo")
     register_tool_surface(
@@ -121,9 +121,9 @@ def test_invalid_surface_declarations() -> None:
         register_tool_surface(mcp, service="demo", registrars=["not callable"])
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R032")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R032")
 def test_verbose_register_runs_alongside_condensed() -> None:
-    """SDK-CONNECTOR-CONTROL-R032: an opt-in verbose registrar runs too."""
+    """SCION-CONNECTOR-CONTROL-R032: an opt-in verbose registrar runs too."""
     mcp: FastMCP[Any] = FastMCP("demo")
 
     def register_verbose(server: FastMCP[Any]) -> None:
@@ -144,7 +144,7 @@ def test_verbose_register_runs_alongside_condensed() -> None:
     assert gated_tool_names(mcp) == {"demo_items"}  # no client: registrars only
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R032")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R032")
 def test_verbose_register_name_collision_with_condensed_rejected() -> None:
     """A verbose tool reusing a condensed tool's name is refused."""
     mcp: FastMCP[Any] = FastMCP("demo")
@@ -164,7 +164,7 @@ def test_verbose_register_name_collision_with_condensed_rejected() -> None:
         )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020")
 def test_no_mode_parameter_or_environment_toggle() -> None:
     """No ``MCP_TOOL_MODE``/mode parameter or environment branch selects the surface.
 

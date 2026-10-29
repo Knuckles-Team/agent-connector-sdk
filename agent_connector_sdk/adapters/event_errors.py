@@ -1,4 +1,4 @@
-"""Typed failures specific to operational event feeds (SDK-OBSERVABILITY-FEEDS-R001).
+"""Typed failures specific to operational event feeds (SCION-OBSERVABILITY-FEEDS-R001).
 
 These sit beside the generic :mod:`agent_connector_sdk.ports.errors` taxonomy:
 a conflicting duplicate is still malformed source data, and backpressure or an
