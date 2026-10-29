@@ -20,7 +20,10 @@ from agent_connector_sdk.adapters.paper_models import (  # noqa: E402
     PaperRecord,
 )
 from agent_connector_sdk.adapters.paper_search import PaperSearchService  # noqa: E402
-from agent_connector_sdk.ingest.live_declaration import source_meta  # noqa: E402
+from agent_connector_sdk.ingest.live_declaration import (  # noqa: E402
+    _cursor_delta_preset,
+    source_meta,
+)
 
 
 def register_paper_provider_stream(
@@ -57,15 +60,7 @@ def register_paper_provider_stream(
         title_field="title",
         text_field="abstract",
         server=connector,
-        preset={
-            "params_style": "args",
-            "params": {"mode": "delta"},
-            "pagination": "cursor",
-            "cursor_param": "cursor",
-            "cursor_path": "next",
-            "updated_since_param": "state",
-            "checkpoint_path": "checkpoint",
-        },
+        preset=_cursor_delta_preset(),
     )
     server.tool(name=name, annotations={"readOnlyHint": True}, meta=metadata)(
         paper_provider_stream

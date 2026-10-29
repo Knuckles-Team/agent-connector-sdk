@@ -74,6 +74,15 @@ async def import_source_mapping(client, connector, mappings, *, ontology=None):
     return context
 
 
+def assert_shape_cycle(cycle, valid, invalid):
+    """Verify replay, rejection and both sides of shape validation."""
+    first, before, failed, second, replay = cycle[:5]
+    assert first.accepted == second.accepted == replay.accepted == 7
+    assert before.accepted_checkpoint == failed.accepted_checkpoint
+    assert len(valid["rows"]) == 2
+    assert invalid["rows"] == []
+
+
 async def sync_failure_cycle(
     server,
     sink,
@@ -181,3 +190,38 @@ def scripted_page_cycle(exercise, body, provider, loop):
     nodes = [row["n"] for row in rows if row["n"].get("source_stream") == "taxa"]
     assert len(nodes) == 2, nodes
     return nodes
+
+
+async def graph_shape_results(engine, node_type):
+    """Read conforming and violating nodes plus source relationships."""
+    query = (
+        f"MATCH (:{node_type}) |> VALIDATE SHAPE "
+        f"<http://knuckles.team/kg#{node_type}Shape> PROJECT 'http://knuckles.team/kg#'"
+    )
+    valid = await engine.query.uql(query + " KEEP CONFORMING")
+    invalid = await engine.query.uql(query + " KEEP VIOLATING")
+    edges = await engine.query.cypher_read(
+        "MATCH (a)-[r]->(b) RETURN a, r, b LIMIT 100"
+    )
+    return valid, invalid, edges
+
+
+async def admitted_source_fixture(engine, connector, mappings, *, ontology=None):
+    """Bind a fixture pack and provide the shared authorization and quota."""
+    from contextlib import asynccontextmanager
+
+    context = await import_source_mapping(
+        engine, connector, mappings, ontology=ontology
+    )
+
+    async def authority(_connector):
+        return _catalog(), context
+
+    async def authorize(tenant, ctx):
+        return tenant == "allowed" and ctx is not None
+
+    @asynccontextmanager
+    async def quota(_name):
+        yield
+
+    return authority, authorize, quota
