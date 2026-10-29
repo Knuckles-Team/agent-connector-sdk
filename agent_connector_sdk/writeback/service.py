@@ -142,6 +142,11 @@ class GovernedWriteBack:
         # mutation while the transport is running.
         change_set = change_set.model_copy(deep=True)
         self._validate(change_set)
+        # An approval can expire or be revoked while audit reservation awaits.
+        # Verify it again on the isolated copy immediately before the effect.
+        decision = await self._verifier.verify(change_set)
+        self._validate(change_set)
+        require_authorized(change_set, decision)
         try:
             if isinstance(self._transport, AuditBoundWriteBackTransport):
                 result = await self._transport.apply_reserved(
