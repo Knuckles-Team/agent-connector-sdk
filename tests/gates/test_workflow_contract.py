@@ -209,8 +209,8 @@ def test_bootstrap_installs_eg_from_its_pypi_wheel_only() -> None:
 
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     uv = pyproject["tool"]["uv"]
-    assert "epistemic-graph" in uv["no-build-package"]
-    assert "epistemic-graph" not in uv.get("sources", {})
+    assert "medulla" in uv["no-build-package"]
+    assert "medulla" not in uv.get("sources", {})
     assert "dependency-metadata" not in uv
 
     script = CI_SETUP.read_text(encoding="utf-8")
@@ -225,7 +225,7 @@ def test_bootstrap_python_floor_uses_root_project_metadata(tmp_path: Path) -> No
         'name = "test-sdk"\n'
         'requires-python = ">=3.12,<3.15"\n'
         "[tool.uv]\n"
-        'no-build-package = ["epistemic-graph"]\n',
+        'no-build-package = ["medulla"]\n',
         encoding="utf-8",
     )
     result = subprocess.run(

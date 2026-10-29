@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Reproduce CI's lock-resolved import graph with explicit registry provenance.
 
-epistemic-graph installs from PyPI only: uv.lock pins it to registry wheels by
+medulla installs from PyPI only: uv.lock pins it to registry wheels by
 hash (``[tool.uv] no-build-package`` forbids a source build), and
 the SDK's generated-contract imports must resolve inside that installed wheel.
 Every node of the graph, EG included, is verified from real installed
@@ -40,7 +40,7 @@ RELEASE_MANIFEST = ROOT / "scripts" / "epistemic_graph_release.json"
 LOCK_FILE = ROOT / "uv.lock"
 ROOT_PYPROJECT = ROOT / "pyproject.toml"
 ROOT_DISTRIBUTION = "scion-sdk"
-SOURCE_DISTRIBUTION = "epistemic-graph"
+SOURCE_DISTRIBUTION = "medulla"
 REGISTRY = "https://pypi.org/simple"
 EVIDENCE_KIND = "pypi-registry-wheel"
 # These imports are deliberately dynamic in DecideTransport._generated.
@@ -267,7 +267,7 @@ def _find_sdk_imports() -> list[str]:
                 modules.update(
                     alias.name
                     for alias in node.names
-                    if alias.name == SOURCE_DISTRIBUTION.replace("-", "_")
+                    if alias.name == "epistemic_graph"
                     or alias.name.startswith("epistemic_graph.")
                 )
             elif (
@@ -323,7 +323,7 @@ def _locked_wheels(package: Mapping[str, object]) -> dict[str, str]:
     source = package.get("source", {})
     registry = source.get("registry") if isinstance(source, dict) else None
     if registry != REGISTRY:
-        _raise(f"uv.lock must pin epistemic-graph to {REGISTRY}, not {source}")
+        _raise(f"uv.lock must pin medulla to {REGISTRY}, not {source}")
     # A release may publish an sdist beside its wheels and uv records both;
     # [tool.uv] no-build-package (checked by _no_build_configured) is what
     # forbids a source build. A verified wheel must exist.
@@ -336,19 +336,19 @@ def _locked_wheels(package: Mapping[str, object]) -> dict[str, str]:
         if not filename.endswith(".whl") or not re.fullmatch(
             r"sha256:[0-9a-f]{64}", digest
         ):
-            _raise(f"uv.lock has an unverifiable epistemic-graph wheel: {wheel}")
+            _raise(f"uv.lock has an unverifiable medulla wheel: {wheel}")
         found[filename] = digest.removeprefix("sha256:")
     if not found:
-        _raise("uv.lock pins no epistemic-graph wheel")
+        _raise("uv.lock pins no medulla wheel")
     return found
 
 
 def _no_build_configured(pyproject: Mapping[str, object]) -> None:
     uv = pyproject.get("tool", {}).get("uv", {})  # type: ignore[union-attr]
     if SOURCE_DISTRIBUTION not in uv.get("no-build-package", []):  # type: ignore[union-attr]
-        _raise("pyproject.toml must list epistemic-graph in [tool.uv] no-build-package")
+        _raise("pyproject.toml must list medulla in [tool.uv] no-build-package")
     if SOURCE_DISTRIBUTION in uv.get("sources", {}):  # type: ignore[union-attr]
-        _raise("pyproject.toml must not override the epistemic-graph source")
+        _raise("pyproject.toml must not override the medulla source")
 
 
 def _registry_declaration(
@@ -357,7 +357,7 @@ def _registry_declaration(
     installed: metadata.Distribution | None,
 ) -> RegistryDeclaration:
     if installed is None:
-        _raise("epistemic-graph is not installed; run scripts/bootstrap.sh")
+        _raise("medulla is not installed; run scripts/bootstrap.sh")
     _no_build_configured(_read_toml(ROOT_PYPROJECT))
     packages = _lock_packages(lock_data)
     (package,) = [
@@ -369,7 +369,7 @@ def _registry_declaration(
     lock_package = _lock_entry(SOURCE_DISTRIBUTION, packages, environment)
     if installed.version != lock_package.version:
         _raise(
-            f"installed epistemic-graph {installed.version} differs from uv.lock "
+            f"installed medulla {installed.version} differs from uv.lock "
             f"{lock_package.version}"
         )
     manifest = eg_wheel.read_manifest(RELEASE_MANIFEST)

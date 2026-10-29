@@ -1041,24 +1041,6 @@ wheels = [
 ]
 
 [[package]]
-name = "epistemic-graph"
-version = "2.27.6"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "httpx" },
-    { name = "msgpack" },
-    { name = "pydantic" },
-    { name = "pyoxigraph" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/f1/08/83f983d4d1ee8e3528b8c42d34e4d5e6dbc0f8c3bc640b6411f44fa98dfe/epistemic_graph-2.27.6.tar.gz", hash = "sha256:293e52aeba236e084152cea1134085c2005679c8b90c92743a562ef50b955dfb", size = 7612971, upload-time = "2026-10-24T07:30:54.343Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a6/9e/a3a1462c52a2467a0728280faaac19b5a6f6f07d2272e3d1ab6e5b6b6d0e/epistemic_graph-2.27.6-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:593de94dc202bf5d6a5b49451d64b1ac1feac089cdfc59bb381a94a6ece1cdc0", size = 7756065, upload-time = "2026-10-24T08:05:52.494Z" },
-    { url = "https://files.pythonhosted.org/packages/55/4e/241f8aa528bfc025c521af175bcad3825ac873df237002ab56cfdee7c9a3/epistemic_graph-2.27.6-cp39-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:f43c9977cfd76148f76397852984f225159cf41e441ce0887e258f9e10810e88", size = 7948451, upload-time = "2026-10-24T07:59:27.291Z" },
-    { url = "https://files.pythonhosted.org/packages/76/bd/d1b57aa370fda9e15c5f1a57372954fc086e25fc56c87d659830395de888/epistemic_graph-2.27.6-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:85c57dbeaad1e5142322e360f44a6fe8032e6cf75882c8293859a84fab5bea0a", size = 8601573, upload-time = "2026-10-24T07:46:55.507Z" },
-    { url = "https://files.pythonhosted.org/packages/2f/0c/de1d0101418167476cca7ff8ef6aa56637a03c738c8a5b3b37d5b8a57c0b/epistemic_graph-2.27.6-cp39-abi3-win_amd64.whl", hash = "sha256:15fcd3f87807a838a96148d62be021039c87430ce820023b57e5c531e60b1f40", size = 9410257, upload-time = "2026-10-24T07:50:22.253Z" },
-]
-
-[[package]]
 name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2390,6 +2372,24 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d6/54/cfe61301667036ec958cb99bd3efefba235e65cdeb9c84d24a8293ba1d90/mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba", size = 8729, upload-time = "2022-08-14T12:40:10.846Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8", size = 9979, upload-time = "2022-08-14T12:40:09.779Z" },
+]
+
+[[package]]
+name = "medulla"
+version = "2.27.10"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+    { name = "msgpack" },
+    { name = "pydantic" },
+    { name = "pyoxigraph" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9b/85/c0970a7dbbcf4decbe5f4f5e423e585879d795459b06a72eb44c3c286156/medulla-2.27.10.tar.gz", hash = "sha256:f2aa04d9368c519434a985bb1de7906cc32de2746867db024efdab6b67f4e484", size = 8218986, upload-time = "2026-10-29T14:02:59.299Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/66/ca/9de892de59063ba17d100a429b7aed900b1a51cb0406df2136fdafb9a557/medulla-2.27.10-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:6a2464440aa022b096f4c5e2cff529f6bca32853d933b87d18e4902b943f88c1", size = 8248210, upload-time = "2026-10-29T14:49:57.797Z" },
+    { url = "https://files.pythonhosted.org/packages/46/22/8791361946604899c2b2af09771ab3912586f7e8f6c352bf3290dae37ad3/medulla-2.27.10-cp39-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:4ae475226934aa1f5449c82cf1983d99a9ea7943f8fa2d2e22c6ef364e2e1391", size = 8441428, upload-time = "2026-10-29T14:31:51.914Z" },
+    { url = "https://files.pythonhosted.org/packages/f1/12/38d3ee0babbc94cdd18b90db6a7f6fc0e54b360317fb3bbf14f2bde8b4dd/medulla-2.27.10-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:d6b82ad4d94a4813d24c34cb312408a1587d484fafc35e5665f36c26a5d82090", size = 9107200, upload-time = "2026-10-29T14:52:48.323Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/d5/edfa00325c0efaae3d711e42785205fc8a004d1cdcaf1b0d923383a4d7bd/medulla-2.27.10-cp39-abi3-win_amd64.whl", hash = "sha256:01200899b0ab872fb7ccb9b1cab7035de851a5dc961ad17b38842769482a9e43", size = 9945068, upload-time = "2026-10-29T14:30:57.179Z" },
 ]
 
 [[package]]
@@ -4882,10 +4882,10 @@ dependencies = [
     { name = "anyio" },
     { name = "cryptography" },
     { name = "defusedxml" },
-    { name = "epistemic-graph" },
     { name = "httpx" },
     { name = "httpx2" },
     { name = "mcp-types" },
+    { name = "medulla" },
     { name = "pydantic" },
     { name = "pyyaml" },
 ]
@@ -4971,7 +4971,6 @@ requires-dist = [
     { name = "chromadb", marker = "extra == 'vector-chroma'", specifier = ">=1.5.0" },
     { name = "cryptography", specifier = ">=50.0.2" },
     { name = "defusedxml", specifier = ">=0.7.1,<1" },
-    { name = "epistemic-graph", specifier = ">=2.27.6,<3.0.0" },
     { name = "fasta2a", extras = ["pydantic-ai"], marker = "extra == 'a2a'", specifier = ">=0.6.1,<1.0.0" },
     { name = "fastmcp", marker = "extra == 'mcp'", specifier = ">=4.1.0,<5" },
     { name = "feedparser", marker = "extra == 'feeds'", specifier = ">=6.0.12" },
@@ -4982,6 +4981,7 @@ requires-dist = [
     { name = "llama-index-vector-stores-chroma", marker = "extra == 'vector-chroma'", specifier = ">=0.5.0" },
     { name = "mcp", marker = "extra == 'mcp'", specifier = ">=2.3.0,<3" },
     { name = "mcp-types", specifier = ">=2.3.0,<3" },
+    { name = "medulla", specifier = ">=2.27.10,<3.0.0" },
     { name = "oracledb", marker = "extra == 'db'", specifier = ">=2.5.0" },
     { name = "pandas", marker = "extra == 'market'", specifier = ">=2.2.0" },
     { name = "psycopg", extras = ["binary"], marker = "extra == 'db'", specifier = ">=3.2.0" },

@@ -1,5 +1,5 @@
 {
-  "graph_sha256": "7b332722863ed4d0f44ced6c745e9cb843f7209d0e360e47a36e253f59853821",
+  "graph_sha256": "583f4beb95b6c55c36824e49371e3c4912d89e6f19e71c6ada3e7aa39bd5b3f1",
   "installed_distributions": [
     "annotated-types==0.8.0",
     "anyio==4.15.1",
@@ -7,7 +7,6 @@
     "cffi==2.1.1",
     "cryptography==50.0.2",
     "defusedxml==0.7.1",
-    "epistemic-graph==2.27.6",
     "h11==0.16.0",
     "httpcore2==2.13.1",
     "httpcore==1.0.9",
@@ -15,6 +14,7 @@
     "httpx==0.28.1",
     "idna==3.20",
     "mcp-types==2.3.0",
+    "medulla==2.27.10",
     "msgpack==1.2.3",
     "pycparser==3.11",
     "pydantic-core==2.50.1",
@@ -46,10 +46,10 @@
         "epistemic_graph.generated.write_back": "epistemic_graph/generated/write_back.py"
       },
       "declared_dependencies": [
-        "epistemic-graph-server==2.27.6 ; extra == 'server'",
         "httpx>=0.28.1",
         "httpx>=0.28.1 ; extra == 'lmcache'",
         "maturin>=1.15.0,<2.0 ; extra == 'test'",
+        "medulla-stem==2.27.10 ; extra == 'server'",
         "msgpack>=1.2.3",
         "pydantic>=2.14.1,<3",
         "pyoxigraph>=0.5.11",
@@ -69,16 +69,16 @@
         "pyoxigraph==0.5.11"
       ],
       "locked_wheels": {
-        "epistemic_graph-2.27.6-cp39-abi3-macosx_11_0_arm64.whl": "593de94dc202bf5d6a5b49451d64b1ac1feac089cdfc59bb381a94a6ece1cdc0",
-        "epistemic_graph-2.27.6-cp39-abi3-manylinux_2_28_aarch64.whl": "f43c9977cfd76148f76397852984f225159cf41e441ce0887e258f9e10810e88",
-        "epistemic_graph-2.27.6-cp39-abi3-manylinux_2_28_x86_64.whl": "85c57dbeaad1e5142322e360f44a6fe8032e6cf75882c8293859a84fab5bea0a",
-        "epistemic_graph-2.27.6-cp39-abi3-win_amd64.whl": "15fcd3f87807a838a96148d62be021039c87430ce820023b57e5c531e60b1f40"
+        "medulla-2.27.10-cp39-abi3-macosx_11_0_arm64.whl": "6a2464440aa022b096f4c5e2cff529f6bca32853d933b87d18e4902b943f88c1",
+        "medulla-2.27.10-cp39-abi3-manylinux_2_28_aarch64.whl": "4ae475226934aa1f5449c82cf1983d99a9ea7943f8fa2d2e22c6ef364e2e1391",
+        "medulla-2.27.10-cp39-abi3-manylinux_2_28_x86_64.whl": "d6b82ad4d94a4813d24c34cb312408a1587d484fafc35e5665f36c26a5d82090",
+        "medulla-2.27.10-cp39-abi3-win_amd64.whl": "01200899b0ab872fb7ccb9b1cab7035de851a5dc961ad17b38842769482a9e43"
       },
-      "name": "epistemic-graph",
+      "name": "medulla",
       "registry": "https://pypi.org/simple",
-      "release_wheel_filename": "epistemic_graph-2.27.6-cp39-abi3-manylinux_2_28_x86_64.whl",
-      "release_wheel_sha256": "85c57dbeaad1e5142322e360f44a6fe8032e6cf75882c8293859a84fab5bea0a",
-      "version": "2.27.6"
+      "release_wheel_filename": "medulla-2.27.10-cp39-abi3-manylinux_2_28_x86_64.whl",
+      "release_wheel_sha256": "d6b82ad4d94a4813d24c34cb312408a1587d484fafc35e5665f36c26a5d82090",
+      "version": "2.27.10"
     }
   ],
   "schema_version": 2
