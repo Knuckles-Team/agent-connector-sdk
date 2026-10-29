@@ -11,8 +11,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "specs/centralized-capabilities/plan.md"
 PACKAGE = ROOT / "agent_connector_sdk"
-ROW_ID = re.compile(r"SDK-CENTRALIZED-CAPABILITIES-R\d{3}")
-OWNER_ID = re.compile(r"SDK-[A-Z-]+-R\d+(?:\.\d+)?\Z")
+ROW_ID = re.compile(r"SCION-CENTRALIZED-CAPABILITIES-R\d{3}")
+OWNER_ID = re.compile(r"SCION-[A-Z-]+-R\d+(?:\.\d+)?\Z")
 
 
 def _index_rows(text: str) -> dict[str, tuple[str, str]]:
@@ -109,9 +109,9 @@ def _validate_row(owner_cell: str, module_cell: str, owners: set[str]) -> None:
 @pytest.mark.parametrize("number", range(1, 41), ids=lambda number: f"R{number:03d}")
 def test_index_row_modules_and_owners_exist(number: int) -> None:
     rows = _index_rows(INDEX.read_text())
-    expected = {f"SDK-CENTRALIZED-CAPABILITIES-R{i:03d}" for i in range(1, 41)}
+    expected = {f"SCION-CENTRALIZED-CAPABILITIES-R{i:03d}" for i in range(1, 41)}
     assert set(rows) == expected
-    _validate_row(*rows[f"SDK-CENTRALIZED-CAPABILITIES-R{number:03d}"], _owner_ids())
+    _validate_row(*rows[f"SCION-CENTRALIZED-CAPABILITIES-R{number:03d}"], _owner_ids())
 
 
 def test_index_rejects_missing_module_and_unknown_owner() -> None:
@@ -119,7 +119,7 @@ def test_index_rejects_missing_module_and_unknown_owner() -> None:
         _validate_row("`SCION-CONNECTOR-CONTROL-R028`", "`absent.py`", _owner_ids())
     with pytest.raises(ValueError, match="unknown owner row"):
         _validate_row(
-            "`SDK-CONNECTOR-CONTROL-R999999`", "`http/client.py`", _owner_ids()
+            "`SCION-CONNECTOR-CONTROL-R999999`", "`http/client.py`", _owner_ids()
         )
 
 

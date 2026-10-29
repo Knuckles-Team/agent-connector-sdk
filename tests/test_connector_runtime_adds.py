@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R014.10-R014.14: the remaining connector runtime moved from agent-utilities."""
+"""SCION-CONNECTOR-CONTROL-R014.10-R014.14: the remaining connector runtime moved from agent-utilities."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R014.18-R014.20: served security, provider profiles, plugin groups."""
+"""SCION-CONNECTOR-CONTROL-R014.18-R014.20: served security, provider profiles, plugin groups."""
 
 from __future__ import annotations
 

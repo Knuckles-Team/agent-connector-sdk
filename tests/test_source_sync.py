@@ -1,4 +1,4 @@
-"""Declared connector sources and the source sync runner (SDK-SOURCE-INGEST-R004.19-R004.23)."""
+"""Declared connector sources and the source sync runner (SCION-SOURCE-INGEST-R004.19-R004.23)."""
 
 from __future__ import annotations
 
