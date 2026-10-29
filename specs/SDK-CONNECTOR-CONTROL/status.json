@@ -682,7 +682,7 @@
         "b0c376748245"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:381"
+        "tests/gates/test_workflow_contract.py:390"
       ]
     },
     {
