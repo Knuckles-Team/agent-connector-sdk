@@ -2,7 +2,7 @@ name: Release
 
 # Publish only: a v* tag or a manual dispatch. An ordinary push to main never
 # reaches this workflow (CI-STANDARD). Gates and the
-# main-push build live in gates.yml; the same reproducible build runs here
+# main-push build live in ci.yml; the same reproducible build runs here
 # before upload.
 
 on:
