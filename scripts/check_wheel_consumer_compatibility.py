@@ -66,10 +66,10 @@ def pinned_graph_client_requirement(pyproject_text: str | None = None) -> str:
     for extra_deps in data.get("project", {}).get("optional-dependencies", {}).values():
         candidates.extend(extra_deps)
     for requirement in candidates:
-        if re.match(r"^epistemic-graph(\[[^\]]*\])?\s*[=<>!~]", requirement):
+        if re.match(r"^medulla(\[[^\]]*\])?\s*[=<>!~]", requirement):
             return requirement
     raise CompatibilityGateError(
-        "pyproject.toml declares no epistemic-graph (graph-client) requirement to pin against"
+        "pyproject.toml declares no medulla (graph-client) requirement to pin against"
     )
 
 

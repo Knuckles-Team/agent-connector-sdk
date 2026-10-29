@@ -46,7 +46,7 @@ pinned_graph_client_requirement = _compat.pinned_graph_client_requirement
 @pytest.mark.spec("SDK-QUALITY-RELEASE-R001")
 def test_pinned_graph_client_requirement_reads_the_declared_dependency() -> None:
     requirement = pinned_graph_client_requirement()
-    assert requirement.startswith("epistemic-graph")
+    assert requirement.startswith("medulla")
     assert any(op in requirement for op in (">=", "==", "~="))
 
 
@@ -60,7 +60,7 @@ def test_pinned_graph_client_requirement_fails_closed_without_a_dependency() -> 
 def test_isolated_install_plan_never_installs_from_the_source_overlay() -> None:
     plan = isolated_install_plan(
         Path("dist/scion_sdk-1.0.0-py3-none-any.whl"),
-        "epistemic-graph>=2.27.0,<3",
+        "medulla>=2.27.0,<3",
         Path("dist-consumer-venv"),
     )
     flat = [" ".join(command) for command in plan]
@@ -70,7 +70,7 @@ def test_isolated_install_plan_never_installs_from_the_source_overlay() -> None:
     for command in install_commands:
         assert "-e ." not in command
         assert "scion_sdk-1.0.0-py3-none-any.whl" in command
-        assert "epistemic-graph>=2.27.0,<3" in command
+        assert "medulla>=2.27.0,<3" in command
         assert "--python dist-consumer-venv" in command
 
 
@@ -78,7 +78,7 @@ def test_isolated_install_plan_never_installs_from_the_source_overlay() -> None:
 def test_isolated_install_plan_rejects_a_non_wheel_path() -> None:
     with pytest.raises(CompatibilityGateError):
         isolated_install_plan(
-            Path("dist/not-a-wheel.tar.gz"), "epistemic-graph>=2.27.0,<3", Path("venv")
+            Path("dist/not-a-wheel.tar.gz"), "medulla>=2.27.0,<3", Path("venv")
         )
 
 
@@ -241,12 +241,12 @@ def test_tampered_installed_native_file_fails_with_matching_pep610_hash(
     wheel = tmp_path / manifest["wheel_filename"]
     native = manifest["native_member"]
     members = {
-        "epistemic_graph/__init__.py": b"__version__ = '2.27.6'\n",
+        "epistemic_graph/__init__.py": b"__version__ = '2.27.10'\n",
         native: b"trusted native engine",
-        "epistemic_graph-2.27.6.dist-info/METADATA": (
-            b"Metadata-Version: 2.3\nName: epistemic-graph\nVersion: 2.27.6\n"
+        "medulla-2.27.10.dist-info/METADATA": (
+            b"Metadata-Version: 2.3\nName: medulla\nVersion: 2.27.10\n"
         ),
-        "epistemic_graph-2.27.6.dist-info/WHEEL": (
+        "medulla-2.27.10.dist-info/WHEEL": (
             b"Wheel-Version: 1.0\nRoot-Is-Purelib: false\n"
             b"Tag: cp39-abi3-manylinux_2_28_x86_64\n"
         ),
@@ -317,7 +317,7 @@ def test_release_wheel_receipt_rejects_a_different_artifact_hash() -> None:
 
 def _eg_lock_package(**over: object) -> dict[str, object]:
     package: dict[str, object] = {
-        "name": "epistemic-graph",
+        "name": "medulla",
         "version": "2.27.1",
         "source": {"registry": _graph.REGISTRY},
         "wheels": [
@@ -343,10 +343,10 @@ def test_locked_eg_is_a_pypi_wheel_and_never_a_source_build() -> None:
     ("over", "message"),
     [
         (
-            {"source": {"git": "https://github.com/Knuckles-Team/epistemic-graph.git"}},
-            "must pin epistemic-graph to",
+            {"source": {"git": "https://github.com/Knuckles-Team/medulla.git"}},
+            "must pin medulla to",
         ),
-        ({"wheels": []}, "pins no epistemic-graph wheel"),
+        ({"wheels": []}, "pins no medulla wheel"),
         ({"wheels": [{"url": "https://x/eg.whl", "hash": "md5:0"}]}, "unverifiable"),
     ],
 )
@@ -375,8 +375,8 @@ def test_pyproject_must_forbid_an_eg_source_build() -> None:
             {
                 "tool": {
                     "uv": {
-                        "no-build-package": ["epistemic-graph"],
-                        "sources": {"epistemic-graph": {"git": "x"}},
+                        "no-build-package": ["medulla"],
+                        "sources": {"medulla": {"git": "x"}},
                     }
                 }
             }
@@ -394,7 +394,7 @@ def test_recorded_graph_provenance_binds_the_installed_pypi_wheel() -> None:
     )
     (declaration,) = evidence.registry_declarations
     assert (declaration.name, declaration.registry) == (
-        "epistemic-graph",
+        "medulla",
         "https://pypi.org/simple",
     )
     manifest = _wheel.read_manifest(_graph.RELEASE_MANIFEST)
@@ -421,7 +421,7 @@ def test_recorded_graph_provenance_binds_the_installed_pypi_wheel() -> None:
     }
     assert graph_names == installed_names
     assert {
-        "epistemic-graph",
+        "medulla",
         "pyoxigraph",
         "mcp-types",
         "httpx2",

@@ -1,6 +1,6 @@
 """SDK-CONNECTOR-CONTROL-R075.7: the SDK imports and packs against the EG floor.
 
-A fresh install resolves the lowest ``epistemic-graph`` the SDK declares. Every
+A fresh install resolves the lowest ``medulla`` the SDK declares. Every
 SDK module must import against it, and every pack entry kind the SDK maps must
 exist in its generated ``PackEntryKind``.
 """
@@ -30,23 +30,23 @@ from agent_connector_sdk.ports.errors import MalformedArtifactError
 from agent_connector_sdk.testing.results import SessionFactory
 
 ROOT = Path(__file__).resolve().parent.parent
-EG_FLOOR = Version("2.27.6")
+EG_FLOOR = Version("2.27.10")
 
 
 def _declared_eg_requirement() -> Requirement:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     for line in project["project"]["dependencies"]:
         requirement = Requirement(line)
-        if requirement.name == "epistemic-graph":
+        if requirement.name == "medulla":
             return requirement
-    raise AssertionError("pyproject.toml declares no epistemic-graph dependency")
+    raise AssertionError("pyproject.toml declares no medulla dependency")
 
 
 @pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.7")
 def test_tested_engine_is_the_declared_floor_or_newer() -> None:
     requirement = _declared_eg_requirement()
     assert min(Version(s.version) for s in requirement.specifier) == EG_FLOOR
-    installed = Version(metadata.version("epistemic-graph"))
+    installed = Version(metadata.version("medulla"))
     assert installed >= EG_FLOOR
     assert installed in requirement.specifier
 

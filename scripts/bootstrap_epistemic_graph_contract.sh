@@ -15,7 +15,7 @@ import epistemic_graph
 import epistemic_graph.generated.source_ingestion as source
 
 lock = tomllib.loads(Path("uv.lock").read_text(encoding="utf-8"))
-(locked,) = [p for p in lock["package"] if p["name"] == "epistemic-graph"]
+(locked,) = [p for p in lock["package"] if p["name"] == "medulla"]
 if not str(locked.get("source", {}).get("registry", "")).startswith("https://pypi.org/"):
     raise SystemExit(f"uv.lock does not pin epistemic-graph to PyPI: {locked.get('source')}")
 # A release may publish an sdist beside its wheels; uv records both. The
@@ -23,14 +23,14 @@ if not str(locked.get("source", {}).get("registry", "")).startswith("https://pyp
 # [tool.uv] no-build-package forbids building epistemic-graph from source.
 if not locked.get("wheels"):
     raise SystemExit("uv.lock pins no published epistemic-graph wheel")
-dist = metadata.distribution("epistemic-graph")
+dist = metadata.distribution("medulla")
 if dist.version != locked["version"]:
-    raise SystemExit(f"installed epistemic-graph {dist.version} != uv.lock {locked['version']}")
+    raise SystemExit(f"installed medulla {dist.version} != uv.lock {locked['version']}")
 package = Path(str(dist.locate_file("epistemic_graph"))).resolve()
 paths = {Path(p).resolve() for p in epistemic_graph.__path__}
 if paths != {package}:
     raise SystemExit(f"epistemic_graph has a package overlay: {sorted(map(str, paths))}")
 if not Path(source.__file__).resolve().is_relative_to(package):
     raise SystemExit(f"generated contract resolves outside the wheel: {source.__file__}")
-print(f"epistemic-graph {dist.version} contract: installed PyPI wheel at {package}")
+print(f"medulla {dist.version} contract: installed PyPI wheel at {package}")
 PY
