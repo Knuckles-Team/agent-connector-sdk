@@ -325,6 +325,6 @@ class GraphQLClient:
         if client is not None and hasattr(client, "session"):
             try:
                 client.close_sync()
-            except Exception:  # pragma: no cover - best-effort release
-                _logger.debug("GraphQL client close failed", exc_info=True)
+            except Exception:  # best-effort release; upstream details may be secret
+                _logger.debug("GraphQL client close failed")
         self.tls_profile.cleanup()

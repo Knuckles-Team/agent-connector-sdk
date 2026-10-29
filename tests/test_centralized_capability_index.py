@@ -23,6 +23,8 @@ def _index_rows(text: str) -> dict[str, tuple[str, str]]:
             continue
         row = parts[1].strip().strip("`")
         if ROW_ID.fullmatch(row):
+            if len(parts) < 7 or not parts[2].strip() or not parts[5].strip():
+                raise ValueError(f"capability or conformance method missing: {row}")
             if row in rows:
                 raise ValueError(f"duplicate capability row: {row}")
             rows[row] = (parts[3], parts[4])
@@ -64,6 +66,46 @@ def _validate_row(owner_cell: str, module_cell: str, owners: set[str]) -> None:
             raise ValueError(f"missing module: {candidate}")
 
 
+# spec: SDK-CENTRALIZED-CAPABILITIES-R001
+# spec: SDK-CENTRALIZED-CAPABILITIES-R002
+# spec: SDK-CENTRALIZED-CAPABILITIES-R003
+# spec: SDK-CENTRALIZED-CAPABILITIES-R004
+# spec: SDK-CENTRALIZED-CAPABILITIES-R005
+# spec: SDK-CENTRALIZED-CAPABILITIES-R006
+# spec: SDK-CENTRALIZED-CAPABILITIES-R007
+# spec: SDK-CENTRALIZED-CAPABILITIES-R008
+# spec: SDK-CENTRALIZED-CAPABILITIES-R009
+# spec: SDK-CENTRALIZED-CAPABILITIES-R010
+# spec: SDK-CENTRALIZED-CAPABILITIES-R011
+# spec: SDK-CENTRALIZED-CAPABILITIES-R012
+# spec: SDK-CENTRALIZED-CAPABILITIES-R013
+# spec: SDK-CENTRALIZED-CAPABILITIES-R014
+# spec: SDK-CENTRALIZED-CAPABILITIES-R015
+# spec: SDK-CENTRALIZED-CAPABILITIES-R016
+# spec: SDK-CENTRALIZED-CAPABILITIES-R017
+# spec: SDK-CENTRALIZED-CAPABILITIES-R018
+# spec: SDK-CENTRALIZED-CAPABILITIES-R019
+# spec: SDK-CENTRALIZED-CAPABILITIES-R020
+# spec: SDK-CENTRALIZED-CAPABILITIES-R021
+# spec: SDK-CENTRALIZED-CAPABILITIES-R022
+# spec: SDK-CENTRALIZED-CAPABILITIES-R023
+# spec: SDK-CENTRALIZED-CAPABILITIES-R024
+# spec: SDK-CENTRALIZED-CAPABILITIES-R025
+# spec: SDK-CENTRALIZED-CAPABILITIES-R026
+# spec: SDK-CENTRALIZED-CAPABILITIES-R027
+# spec: SDK-CENTRALIZED-CAPABILITIES-R028
+# spec: SDK-CENTRALIZED-CAPABILITIES-R029
+# spec: SDK-CENTRALIZED-CAPABILITIES-R030
+# spec: SDK-CENTRALIZED-CAPABILITIES-R031
+# spec: SDK-CENTRALIZED-CAPABILITIES-R032
+# spec: SDK-CENTRALIZED-CAPABILITIES-R033
+# spec: SDK-CENTRALIZED-CAPABILITIES-R034
+# spec: SDK-CENTRALIZED-CAPABILITIES-R035
+# spec: SDK-CENTRALIZED-CAPABILITIES-R036
+# spec: SDK-CENTRALIZED-CAPABILITIES-R037
+# spec: SDK-CENTRALIZED-CAPABILITIES-R038
+# spec: SDK-CENTRALIZED-CAPABILITIES-R039
+# spec: SDK-CENTRALIZED-CAPABILITIES-R040
 @pytest.mark.parametrize("number", range(1, 41), ids=lambda number: f"R{number:03d}")
 def test_index_row_modules_and_owners_exist(number: int) -> None:
     rows = _index_rows(INDEX.read_text())
@@ -79,3 +121,12 @@ def test_index_rejects_missing_module_and_unknown_owner() -> None:
         _validate_row(
             "`SDK-CONNECTOR-CONTROL-R999999`", "`http/client.py`", _owner_ids()
         )
+
+
+def test_index_rejects_missing_capability_or_conformance() -> None:
+    row = "SDK-CENTRALIZED-CAPABILITIES-R001"
+    for capability, method in (("", "unchecked"), ("HTTP", "")):
+        with pytest.raises(
+            ValueError, match="capability or conformance method missing"
+        ):
+            _index_rows(f"| `{row}` | {capability} | owner | module | {method} |")

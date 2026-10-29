@@ -64,21 +64,27 @@
       "title": "Governed HTTP client and retry",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:69"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R002",
       "title": "Egress guard and pinned addresses",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:70"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R003",
       "title": "API client base and auth strategies",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:71"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R004",
@@ -156,6 +162,7 @@
       ],
       "verified_by": [
         "tests/httpsupport/test_rate_limiter.py:13",
+        "tests/test_centralized_capability_index.py:73",
         "tests/test_mcp_request_pacing.py:19"
       ]
     },
@@ -164,7 +171,9 @@
       "title": "Error redaction and typed problems",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": [],
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:74"
+      ],
       "rollup_of": [
         "SDK-CENTRALIZED-CAPABILITIES-R006.1",
         "SDK-CENTRALIZED-CAPABILITIES-R006.2",
@@ -222,133 +231,171 @@
       "title": "Protect GraphQL close diagnostics",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_graphql_client.py:217"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R007",
       "title": "Payment challenge handling",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:75"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R008",
       "title": "TLS profiles",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:76"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R009",
       "title": "Credential and secret-reference resolution",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:77"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R010",
       "title": "Selected-provider credential profile",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:78"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R011",
       "title": "Token providers and source credentials",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:79"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R012",
       "title": "OIDC delegation and actor identity",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:80"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R013",
       "title": "Browser OAuth with PKCE",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:81"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R014",
       "title": "MCP server factory and served security",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:82"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R015",
       "title": "Tool surface and tool context",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:83"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R016",
       "title": "GraphQL",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:84"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R017",
       "title": "A2A protocol",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:85"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R018",
       "title": "Engine client adapter and compute",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:86"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R019",
       "title": "Ingest bindings and source adapters",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:87"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R020",
       "title": "Database sources",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:88"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R021",
       "title": "Feed and document sources",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:89"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R022",
       "title": "Message streams",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:90"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R023",
       "title": "Market data",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:91"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R024",
       "title": "Data preparation",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:92"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R025",
@@ -358,6 +405,7 @@
         "fb85cad4b0ba"
       ],
       "verified_by": [
+        "tests/test_centralized_capability_index.py:93",
         "tests/test_centralized_extras.py:36"
       ]
     },
@@ -366,98 +414,126 @@
       "title": "Vendor extractors",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:94"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R027",
       "title": "Ontology and content packs",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:95"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R028",
       "title": "Connector declaration and fingerprints",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:96"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R029",
       "title": "Certification and fingerprints",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:97"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R030",
       "title": "Connector identity",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:98"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R031",
       "title": "Governed write-back",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:99"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R032",
       "title": "Runner and CLI bootstrap",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:100"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R033",
       "title": "Health and observability",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:101"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R034",
       "title": "Configuration, paths, and locks",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:102"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R035",
       "title": "Privacy, entitlements, and external access",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:103"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R036",
       "title": "Source client and repository transport",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:104"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R037",
       "title": "Plugin entry-point groups",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:105"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R038",
       "title": "Connector test kit",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:106"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R039",
       "title": "Domain record models",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_centralized_capability_index.py:107"
+      ]
     },
     {
       "id": "SDK-CENTRALIZED-CAPABILITIES-R040",
@@ -468,6 +544,7 @@
         "fb85cad4b0ba"
       ],
       "verified_by": [
+        "tests/test_centralized_capability_index.py:108",
         "tests/test_centralized_extras.py:27",
         "tests/test_centralized_extras.py:37"
       ]
