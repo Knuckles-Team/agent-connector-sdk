@@ -33,6 +33,7 @@
 - [x] **R014.23:** Typed epistemic-graph compute adapter with ontology-driven algorithm selection (`agent_connector_sdk.compute`). Replaces connector-local finance computation imported from agent-utilities.
 - [ ] **R015.1:** Add `scan_for_duplicate_manifest_or_certify_definitions` to `agent_connector_sdk.testing.duplicate_symbol_scan` — flags a connector package that locally defines `ConnectorManifest`/`CertificationReport`/`certify_connector` instead of importing them from the SDK.
   - [x] Port `agent_utilities.security.entitlements.identity_scoped_resources` to `agent_connector_sdk.entitlements`, over the SDK's own `identity.ActorContext` (SDK-CONNECTOR-CONTROL-R025). A fleet consumer (`vector-mcp`, `documentdb-mcp`, `sql-mcp`, `dockerhub-api`, `keycloak-agent`, `openbao-mcp`, `portainer-agent`, `tunnel-manager`, `systems-manager`, `container-manager-mcp` and others) can now swap its import with no call-site change.
+  - [x] Bind the request actor in the standard middleware (SDK-CONNECTOR-CONTROL-R025.1 to R025.4). A local transport gets SYSTEM. Authenticated HTTP gets the token actor. Unauthenticated HTTP gets ANONYMOUS. Work that needs authentication refuses typed.
 - [ ] **R020.1:** Extend `scan_many_packages` to inventory JSON tag loaders and prove parity across source and replacement registration.
 - [ ] **R050.9:** Add the bounded request-local cache primitive (SDK-CONNECTOR-CONTROL-R050.9).
 - [ ] **R050.7:** Add visual observation transport between ordered steps within a run, with frame provenance and ordered reference passing.

@@ -21,6 +21,7 @@ def test_actor_type_members_match_the_retired_enum() -> None:
         "AUTOMATED_SERVICE": "automated_service",
         "HYBRID_TEAM": "hybrid_team",
         "SYSTEM": "system",
+        "ANONYMOUS": "anonymous",
     }
 
 

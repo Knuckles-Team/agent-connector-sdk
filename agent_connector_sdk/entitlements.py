@@ -34,7 +34,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass
 
-from agent_connector_sdk.identity import ActorContext, current_actor
+from agent_connector_sdk.identity import ActorContext, current_actor, is_anonymous
 
 __all__ = [
     "DEFAULT_SUPER_CAPS",
@@ -156,12 +156,14 @@ def identity_scoped_resources(
 
     The actor must be authenticated and tenant-bound. Missing or
     caller-supplied identity fails closed before any resource catalog is
-    exposed.
+    exposed. The anonymous actor holds no entitlements and resolves empty.
 
     Raises:
         PermissionError: the actor is unauthenticated or lacks a tenant.
     """
     ctx = actor if actor is not None else current_actor()
+    if isinstance(ctx, ActorContext) and is_anonymous(ctx):
+        return ()
     actor_id = str(getattr(ctx, "actor_id", "") or "").strip()
     tenant_id = str(getattr(ctx, "tenant_id", "") or "").strip()
     if not getattr(ctx, "authenticated", False) or not actor_id or not tenant_id:

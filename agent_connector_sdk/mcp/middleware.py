@@ -15,6 +15,8 @@ from fastmcp.server.dependencies import get_access_token
 from fastmcp.server.middleware.error_handling import ErrorHandlingMiddleware
 from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
 
+from agent_connector_sdk.mcp.actor_binding import ActorBindingMiddleware
+
 __all__ = ["build_middleware", "caller_bucket", "rate_limit_client_id"]
 
 
@@ -40,7 +42,7 @@ def rate_limit_client_id(_context: Any) -> str:
 
 
 def build_middleware() -> list[Any]:
-    """Error handling without tracebacks, then 10 requests/s per caller (burst 20)."""
+    """Error handling without tracebacks, 10 requests/s per caller (burst 20), then the actor binding."""
     return [
         ErrorHandlingMiddleware(include_traceback=False, transform_errors=True),
         RateLimitingMiddleware(
@@ -48,4 +50,5 @@ def build_middleware() -> list[Any]:
             burst_capacity=20,
             get_client_id=rate_limit_client_id,
         ),
+        ActorBindingMiddleware(),
     ]
