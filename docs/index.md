@@ -41,7 +41,7 @@ ConnectorPack, and WriteBack models and clients are the sole graph boundary.
 Connector packages keep vendor logic local; durable identity, mapping,
 checkpoints, provenance, and receipts stay authoritative in epistemic-graph.
 
-[![Agent ecosystem runtime architecture](https://raw.githubusercontent.com/Knuckles-Team/epistemic-graph/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
+[![Agent ecosystem runtime architecture](https://raw.githubusercontent.com/Knuckles-Team/medulla/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
 
 [Explore the live architecture](https://knuckles-team.github.io/.github/architecture/#sdk)
 
