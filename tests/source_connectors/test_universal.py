@@ -8,7 +8,10 @@ from typing import Any
 
 import pytest
 
-from scion_sdk.source_connectors import universal
+from scion_sdk.source_connectors import (
+    _universal_connect,
+    _universal_introspect,
+)
 from scion_sdk.source_connectors.universal import (
     UniversalConnector,
     infer_kind,
@@ -100,13 +103,13 @@ def test_sqlite_introspection_quotes_each_table_identifier(
     sqlite_dsn: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     calls: list[tuple[str, str]] = []
-    real_quote = universal.quote_sql_identifier
+    real_quote = _universal_introspect.quote_sql_identifier
 
     def quote(name: str, *, kind: str = "identifier") -> str:
         calls.append((name, kind))
         return real_quote(name, kind=kind)
 
-    monkeypatch.setattr(universal, "quote_sql_identifier", quote)
+    monkeypatch.setattr(_universal_introspect, "quote_sql_identifier", quote)
     changes = UniversalConnector(sqlite_dsn).introspect()
 
     tables = {
@@ -151,7 +154,7 @@ def test_networked_connection_uses_the_tls_profile(
     driver = SimpleNamespace(
         connect=lambda dsn, **kw: calls.setdefault("connect", (dsn, kw))
     )
-    monkeypatch.setattr(universal, "resolve_tls_profile", resolve)
+    monkeypatch.setattr(_universal_connect, "resolve_tls_profile", resolve)
     conn = UniversalConnector(
         "postgresql://u@db.example.test/d", tls_profile_ref="env://TLS"
     )

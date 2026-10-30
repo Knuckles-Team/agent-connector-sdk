@@ -10,8 +10,8 @@ import pytest
 
 from scion_sdk.source_connectors import (
     ConnectorCheckpoint,
+    _universal_connect,
     build_connector,
-    universal,
 )
 from scion_sdk.source_connectors.connectors import _database_watermark, database
 from scion_sdk.source_connectors.connectors.database import (
@@ -233,7 +233,7 @@ def test_database_profile_resolution_reaches_the_tls_governed_connection(
     driver = SimpleNamespace(connect=lambda dsn, **kwargs: (dsn, kwargs))
     monkeypatch.setattr(database, "default_credential_resolver", lambda: resolver)
     monkeypatch.setattr(database, "resolve_secret_reference", resolve_secret)
-    monkeypatch.setattr(universal, "resolve_tls_profile", resolve_tls)
+    monkeypatch.setattr(_universal_connect, "resolve_tls_profile", resolve_tls)
 
     source = build_connector(
         "database",
