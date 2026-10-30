@@ -61,6 +61,50 @@ def check_parents(preset: ToolPreset, parents: Mapping[str, ToolPreset]) -> None
         link = parent.for_each
 
 
+async def _scan_scope(
+    session: McpSession,
+    parent: ToolPreset,
+    scope: dict[str, Any],
+    *,
+    field: str,
+    values: list[Any],
+    limit: int,
+) -> None:
+    """Page through one parent scope, appending distinct ``field`` values."""
+    scoped = parent.model_copy(
+        update={"arguments": {**parent.arguments, **scope}, "for_each": None}
+    )
+    position: dict[str, Any] = {}
+    for _ in range(parent.max_pages):
+        params = page_params(scoped, position, None)
+        arguments = tool_arguments(scoped, params)
+        result = await session.call_tool(scoped.tool, arguments)
+        await _validate_platform_binding(scoped, arguments, result)
+        raw = raw_records(scoped, result)
+        values.extend(_new_values(raw, field, values))
+        if len(values) > limit:
+            raise SourceContractError(
+                f"fan_out_exceeded: {parent.name!r} has more than {limit} "
+                "records to fan out over"
+            )
+        following = next_position(scoped, position, result=result, raw=raw)
+        if following is None:
+            return
+        position = following
+    raise SourceContractError(
+        f"parent_budget_exhausted: {parent.name!r} exceeded max_pages"
+    )
+
+
+def _new_values(raw: list[dict[str, Any]], field: str, seen: list[Any]) -> list[Any]:
+    fresh: list[Any] = []
+    for record in raw:
+        value = record.get(field)
+        if value is not None and value not in seen and value not in fresh:
+            fresh.append(value)
+    return fresh
+
+
 async def parent_values(
     session: McpSession,
     preset: ToolPreset,
@@ -82,38 +126,18 @@ async def parent_values(
         ]
     values: list[Any] = []
     for scope in scopes:
-        scoped = parent.model_copy(
-            update={"arguments": {**parent.arguments, **scope}, "for_each": None}
+        await _scan_scope(
+            session, parent, scope, field=link.field, values=values, limit=limit
         )
-        position: dict[str, Any] = {}
-        for _ in range(parent.max_pages):
-            params = page_params(scoped, position, None)
-            arguments = tool_arguments(scoped, params)
-            result = await session.call_tool(scoped.tool, arguments)
-            await _validate_platform_binding(scoped, arguments, result)
-            raw = raw_records(scoped, result)
-            for record in raw:
-                value = record.get(link.field)
-                if value is not None and value not in values:
-                    values.append(value)
-            if len(values) > limit:
-                raise SourceContractError(
-                    f"fan_out_exceeded: {parent.name!r} has more than {limit} "
-                    "records to fan out over"
-                )
-            following = next_position(scoped, position, result=result, raw=raw)
-            if following is None:
-                break
-            position = following
-        else:
-            raise SourceContractError(
-                f"parent_budget_exhausted: {parent.name!r} exceeded max_pages"
-            )
     return values
 
 
 def _hold(
-    stream: str, position: dict[str, Any], held: SourceCheckpoint, pending: str | None
+    stream: str,
+    position: dict[str, Any],
+    *,
+    held: SourceCheckpoint,
+    pending: str | None,
 ) -> SourceCheckpoint:
     return SourceCheckpoint(
         stream=stream,
@@ -123,10 +147,26 @@ def _hold(
     )
 
 
+def _fan_exhausted_page(preset: ToolPreset, checkpoint: SourceCheckpoint) -> RecordPage:
+    watermarks = (checkpoint.pending_watermark, checkpoint.watermark)
+    return RecordPage(
+        records=(),
+        mode=SourceIngestionMode.DELTA,
+        strict_schema=preset.strict_schema,
+        checkpoint=SourceCheckpoint(
+            stream=checkpoint.stream,
+            position={},
+            watermark=max((m for m in watermarks if m), default=None),
+        ),
+        exhausted=True,
+    )
+
+
 async def extract_fanned(
     adapter: Any,
     session: McpSession,
     checkpoint: SourceCheckpoint,
+    *,
     values: list[Any],
 ) -> RecordPage:
     """One page of ``adapter``'s preset for the parent value the checkpoint is at.
@@ -142,24 +182,7 @@ async def extract_fanned(
     position = checkpoint.position if isinstance(checkpoint.position, Mapping) else {}
     index = int(position.get(FAN_KEY, 0))
     if index >= len(values):
-        return RecordPage(
-            records=(),
-            mode=SourceIngestionMode.DELTA,
-            strict_schema=preset.strict_schema,
-            checkpoint=SourceCheckpoint(
-                stream=checkpoint.stream,
-                position={},
-                watermark=max(
-                    (
-                        m
-                        for m in (checkpoint.pending_watermark, checkpoint.watermark)
-                        if m
-                    ),
-                    default=None,
-                ),
-            ),
-            exhausted=True,
-        )
+        return _fan_exhausted_page(preset, checkpoint)
     inner = adapter.derive(
         preset.model_copy(
             update={
@@ -193,8 +216,8 @@ async def extract_fanned(
                 "checkpoint": _hold(
                     checkpoint.stream,
                     {FAN_KEY: index + 1},
-                    checkpoint,
-                    inner_checkpoint.watermark or checkpoint.pending_watermark,
+                    held=checkpoint,
+                    pending=inner_checkpoint.watermark or checkpoint.pending_watermark,
                 ),
             }
         )

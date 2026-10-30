@@ -172,7 +172,7 @@ class McpToolSourceAdapter:
             ):
                 self._fan_values = None  # a new sweep re-reads the parents
             values = await self._fan_out_values(session)
-            return await extract_fanned(self, session, current, values)
+            return await extract_fanned(self, session, current, values=values)
         since: Any = (
             current.position if self._preset.checkpoint_path else current.watermark
         )
@@ -185,33 +185,41 @@ class McpToolSourceAdapter:
             tool_name=self._preset.tool,
             presets=(self._preset,),
         )
-        raw = raw_records(self._preset, result)
+        return self._page(result, observed, current=current, checkpoint=checkpoint)
+
+    def _page(
+        self,
+        result: Any,
+        observed: Any,
+        *,
+        current: SourceCheckpoint,
+        checkpoint: SourceCheckpoint | None,
+    ) -> RecordPage:
+        preset = self._preset
+        raw = raw_records(preset, result)
         records, references = _mapped_records(
             raw,
             connector=self._connector,
-            preset=self._preset,
+            preset=preset,
             configured_mapping=self._mapping_reference,
             mappings=self._schema_mappings,
             schema_sha256=self._verified_sha256,
             since=current.watermark,
         )
         candidate, exhausted = _page_checkpoint(
-            self._preset, current, records, result=result, raw=raw
+            preset, current, records, result=result, raw=raw
         )
-        live_ids = authoritative_live_ids(self._preset, result)
+        live_ids = authoritative_live_ids(preset, result)
         mode = _ingestion_mode(
-            self._preset,
-            result=result,
-            live_ids=live_ids,
-            checkpoint=checkpoint,
+            preset, result=result, live_ids=live_ids, checkpoint=checkpoint
         )
-        withdrawals = _source_withdrawals(self._preset, result)
+        withdrawals = _source_withdrawals(preset, result)
         if mode is not SourceIngestionMode.DELTA and withdrawals:
             raise SourceContractError("only delta ingestion accepts withdrawals")
         if (
             mode is not SourceIngestionMode.DELTA
-            and self._preset.pagination == "none"
-            and not self._preset.checkpoint_path
+            and preset.pagination == "none"
+            and not preset.checkpoint_path
         ):
             # Unpaged snapshots have no provider cursor. Each completed sweep
             # needs a fresh durable position for EG's checkpoint compare-and-set.
@@ -219,9 +227,9 @@ class McpToolSourceAdapter:
                 update={"position": {"sdk_snapshot": uuid4().hex}}
             )
         relationships = _mapped_relationships(
-            raw_relationships(self._preset, result),
+            raw_relationships(preset, result),
             connector=self._connector,
-            preset=self._preset,
+            preset=preset,
             mappings=self._schema_mappings,
             resources=self._resources,
             mappings_by_id=references,
@@ -231,13 +239,13 @@ class McpToolSourceAdapter:
             records=records,
             relationships=relationships,
             mode=mode,
-            strict_schema=self._preset.strict_schema,
+            strict_schema=preset.strict_schema,
             checkpoint=candidate,
             authoritative_live_ids=live_ids,
             withdrawals=withdrawals,
             exhausted=exhausted,
             schema_contract=observed.schema_contract.model_copy(
-                update={"identifier_fields": (self._preset.id_field,)}
+                update={"identifier_fields": (preset.id_field,)}
             ),
         )
 

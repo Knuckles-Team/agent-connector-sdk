@@ -98,35 +98,38 @@ def _validate_enterprise_source(
         raise ValueError("enterprise binding mismatch")
 
 
+def _check_platform_result(result: Any) -> None:
+    try:
+        platform_result = PlatformResult.model_validate_json(
+            json.dumps(result, allow_nan=False)
+        )
+    except (TypeError, ValueError):
+        raise MalformedSourceDataError("platform result is malformed") from None
+    if platform_result.outcome == "refused":
+        raise SourceContractError(f"platform result refused: {platform_result.reason}")
+    if platform_result.tenant_id is None or platform_result.policy_revision is None:
+        raise MalformedSourceDataError(
+            "platform result is missing authority or policy binding"
+        )
+
+
+def _check_enterprise_result(result: Any) -> None:
+    try:
+        enterprise = EnterpriseResult.model_validate_json(_bounded_json(result))
+    except (TypeError, ValueError):
+        raise MalformedSourceDataError("enterprise result is malformed") from None
+    if enterprise.outcome != "ok":
+        raise SourceContractError(f"enterprise result refused: {enterprise.reason}")
+    if not enterprise.operation_digest or not enterprise.backend_receipt:
+        raise MalformedSourceDataError("enterprise result lacks source evidence")
+
+
 def raw_records(preset: ToolPreset, result: Any) -> list[dict[str, Any]]:
     """Return the object records selected by the preset."""
     if preset.result_contract == "platform":
-        platform_result = None
-        try:
-            platform_result = PlatformResult.model_validate_json(
-                json.dumps(result, allow_nan=False)
-            )
-        except (TypeError, ValueError):
-            platform_result = None
-        if platform_result is None:
-            raise MalformedSourceDataError("platform result is malformed")
-        if platform_result.outcome == "refused":
-            raise SourceContractError(
-                f"platform result refused: {platform_result.reason}"
-            )
-        if platform_result.tenant_id is None or platform_result.policy_revision is None:
-            raise MalformedSourceDataError(
-                "platform result is missing authority or policy binding"
-            )
+        _check_platform_result(result)
     if preset.result_contract == "enterprise":
-        try:
-            enterprise = EnterpriseResult.model_validate_json(_bounded_json(result))
-        except (TypeError, ValueError):
-            raise MalformedSourceDataError("enterprise result is malformed") from None
-        if enterprise.outcome != "ok":
-            raise SourceContractError(f"enterprise result refused: {enterprise.reason}")
-        if not enterprise.operation_digest or not enterprise.backend_receipt:
-            raise MalformedSourceDataError("enterprise result lacks source evidence")
+        _check_enterprise_result(result)
     data = dig_path(result, preset.records_path) if preset.records_path else result
     if isinstance(data, Mapping) and preset.records_is_mapping:
         return _mapping_records(preset, data)
