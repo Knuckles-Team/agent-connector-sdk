@@ -30,6 +30,56 @@ def write_back_approval_target(change_set: SourceChangeSet) -> str:
     return "write-back:" + hashlib.sha256(encoded).hexdigest()
 
 
+def _approval_binds(
+    approval: GovernedChange,
+    decision: WriteBackAuthorizationDecision,
+    change_set: SourceChangeSet,
+    target: str,
+    now: int,
+) -> bool:
+    """True when the approval is active, independent and bound to this change."""
+    return (
+        _approval_identity_matches(approval, decision, change_set, target)
+        and _approval_is_independent(approval, change_set)
+        and _approval_is_live(approval, change_set, now)
+    )
+
+
+def _approval_identity_matches(
+    approval: GovernedChange,
+    decision: WriteBackAuthorizationDecision,
+    change_set: SourceChangeSet,
+    target: str,
+) -> bool:
+    return (
+        approval.change_id == decision.authorization_ref
+        and approval.kind == "governed.write-back"
+        and approval.target == target
+        and approval.digest == change_set.change_set_digest
+    )
+
+
+def _approval_is_independent(
+    approval: GovernedChange, change_set: SourceChangeSet
+) -> bool:
+    return (
+        approval.status is GovernedStatus.APPROVED
+        and bool(approval.approver)
+        and approval.approver != approval.proposer
+        and approval.proposer == change_set.actor
+    )
+
+
+def _approval_is_live(
+    approval: GovernedChange, change_set: SourceChangeSet, now: int
+) -> bool:
+    return (
+        approval.approved_until_ms is not None
+        and now < approval.approved_until_ms
+        and now < change_set.expires_at_ms
+    )
+
+
 class RecordedApprovalResolver:
     """Require a separately approved EG governed-change record.
 
@@ -56,6 +106,16 @@ class RecordedApprovalResolver:
         """Refuse unless EG records an active approval of this exact digest."""
         durable = await self._ledger.get(change_set.tenant_id, change_set.change_set_id)
         decision = _require_durable_authorization(change_set, durable)
+        approval, target = await self._load_approval(change_set, decision)
+        if not _approval_binds(
+            approval, decision, change_set, target, self._clock_ms()
+        ):
+            raise AuthorizationDeniedError("recorded approval binding mismatch")
+        return decision
+
+    async def _load_approval(
+        self, change_set: SourceChangeSet, decision: WriteBackAuthorizationDecision
+    ) -> tuple[GovernedChange, str]:
         try:
             target = write_back_approval_target(change_set)
             response = await send_governed_change(
@@ -63,22 +123,6 @@ class RecordedApprovalResolver:
                 {"op": {"op": "get", "change_id": decision.authorization_ref}},
                 self._graph,
             )
-            approval = GovernedChange.model_validate(response.payload)
+            return GovernedChange.model_validate(response.payload), target
         except Exception:
             raise AuthorizationDeniedError("recorded approval unavailable") from None
-        now = self._clock_ms()
-        if (
-            approval.change_id != decision.authorization_ref
-            or approval.kind != "governed.write-back"
-            or approval.target != target
-            or approval.digest != change_set.change_set_digest
-            or approval.status is not GovernedStatus.APPROVED
-            or not approval.approver
-            or approval.approver == approval.proposer
-            or approval.proposer != change_set.actor
-            or approval.approved_until_ms is None
-            or now >= approval.approved_until_ms
-            or now >= change_set.expires_at_ms
-        ):
-            raise AuthorizationDeniedError("recorded approval binding mismatch")
-        return decision

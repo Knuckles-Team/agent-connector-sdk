@@ -2,20 +2,23 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 from enum import StrEnum
 
 from epistemic_graph.generated.write_back import (
     ReconciliationObservation,
     SourceChangeSet,
     WriteBackAttempt,
-    WriteBackAttemptKind,
     WriteBackEffectStatus,
-    WriteBackOutcome,
 )
 from pydantic import JsonValue
 
+from scion_sdk.writeback._transport_common import (
+    applied_attempt,
+    check_prior_effect,
+    digest,
+    preview_observation,
+    reconciliation_observation,
+)
 from scion_sdk.writeback.errors import (
     IdempotencyConflictError,
     OutcomeUncertainError,
@@ -24,11 +27,6 @@ from scion_sdk.writeback.errors import (
 from scion_sdk.writeback.models import DryRunObservation, SourceSnapshot
 
 __all__ = ["FixtureUncertainty", "InMemoryWriteBackTransport"]
-
-
-def _fixture_digest(value: object) -> str:
-    encoded = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
-    return hashlib.sha256(encoded).hexdigest()
 
 
 class FixtureUncertainty(StrEnum):
@@ -70,20 +68,7 @@ class InMemoryWriteBackTransport:
         self, change_set: SourceChangeSet, current: SourceSnapshot
     ) -> DryRunObservation:
         """Return the scoped before/after values without mutation."""
-        before = {name: current.fields.get(name) for name in change_set.field_scope}
-        after = dict(before)
-        after.update(change_set.desired_patch)
-        changed = tuple(
-            name for name in change_set.field_scope if before[name] != after[name]
-        )
-        return DryRunObservation(
-            change_set_digest=change_set.change_set_digest,
-            source_version=current.source_version,
-            desired_patch_digest=change_set.patch_digest(),
-            changed_fields=changed,
-            before=before,
-            after=after,
-        )
+        return preview_observation(change_set, current)
 
     async def prior_effect(
         self, change_set: SourceChangeSet
@@ -92,14 +77,7 @@ class InMemoryWriteBackTransport:
         effect = self.effects.get(change_set.idempotency_key)
         if effect is None:
             return None
-        if (
-            effect.change_set_digest != change_set.change_set_digest
-            or effect.applied_field_digest != change_set.patch_digest()
-        ):
-            raise IdempotencyConflictError(
-                "idempotency key is bound to a different effect"
-            )
-        return effect
+        return check_prior_effect(effect, change_set)
 
     async def apply(
         self, change_set: SourceChangeSet, expected_version: str
@@ -138,22 +116,7 @@ class InMemoryWriteBackTransport:
         if uncertainty is not FixtureUncertainty.UNRESOLVED:
             self._uncertainty.pop(change_set.idempotency_key, None)
         current = self.entities[change_set.entity_id]
-        evidence = {
-            "effect_status": status.value,
-            "source_version": current.source_version,
-        }
-        return ReconciliationObservation(
-            tenant_id=change_set.tenant_id,
-            change_set_id=change_set.change_set_id,
-            change_set_digest=change_set.change_set_digest,
-            idempotency_key=change_set.idempotency_key,
-            observed_source_version=current.source_version,
-            effect_status=status,
-            retry_allowed=status is WriteBackEffectStatus.NO_EFFECT,
-            evidence_digest=_fixture_digest(evidence),
-            connector_observation_digest=_fixture_digest(current.model_dump()),
-            provenance_digest=_fixture_digest(change_set.field_provenance),
-        )
+        return reconciliation_observation(change_set, current, status)
 
     def _commit(
         self, change_set: SourceChangeSet, current: SourceSnapshot
@@ -163,22 +126,11 @@ class InMemoryWriteBackTransport:
         post_version = f"{current.source_version}+1"
         snapshot = SourceSnapshot(source_version=post_version, fields=fields)
         self.entities[change_set.entity_id] = snapshot
-        authorization = change_set.authorization
-        observation = WriteBackAttempt(
-            tenant_id=change_set.tenant_id,
-            change_set_id=change_set.change_set_id,
-            change_set_digest=change_set.change_set_digest,
-            idempotency_key=change_set.idempotency_key,
-            kind=WriteBackAttemptKind.APPLY,
-            input_digest=authorization.input_digest,
-            output_digest=authorization.output_digest,
-            pre_source_version=current.source_version,
-            post_source_version=post_version,
-            applied_field_digest=change_set.patch_digest(),
-            outcome=WriteBackOutcome.APPLIED,
-            effect_status=WriteBackEffectStatus.APPLIED,
-            connector_observation_digest=_fixture_digest(snapshot.model_dump()),
-            provenance_digest=_fixture_digest(change_set.field_provenance),
+        observation = applied_attempt(
+            change_set,
+            pre_version=current.source_version,
+            post_version=post_version,
+            observation_digest=digest(snapshot.model_dump()),
         )
         self.effects[change_set.idempotency_key] = observation
         return observation

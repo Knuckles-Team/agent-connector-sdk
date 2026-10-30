@@ -19,6 +19,19 @@ from scion_sdk.writeback._contract_json import _decode_contract_json
 _MAX_JSON_INTEGER = 2**53 - 1
 _SIGNATURE = re.compile(r"[A-Za-z0-9_-]{86}\Z")
 _DIGEST = re.compile(r"[0-9a-f]{64}\Z")
+_BOUND_FIELDS = (
+    "tenant_id",
+    "actor_id",
+    "connector_id",
+    "operation_id",
+    "account_id",
+    "wallet_id",
+    "network_id",
+    "key_id",
+    "plan_digest",
+    "change_set_digest",
+    "idempotency_key",
+)
 
 
 class WalletProofRequest(BaseModel):
@@ -191,57 +204,19 @@ class WalletSignatureVerifier:
             request = WalletProofRequest.model_validate(request.model_dump())
             payload = request.signed_bytes()
         except (ValueError, TypeError, UnicodeError):
-            return WalletProofResult(outcome="refused", reason="invalid_payload")
-        if request.scheme != "ed25519_jcs":
-            return WalletProofResult(outcome="refused", reason="unsupported_scheme")
-        if type(now) is not int or not (
-            request.issued_at <= now < request.expires_at
-            and request.expires_at - request.issued_at <= self._max_lifetime
-        ):
-            return WalletProofResult(outcome="refused", reason="expired")
-        fields = (
-            "tenant_id",
-            "actor_id",
-            "connector_id",
-            "operation_id",
-            "account_id",
-            "wallet_id",
-            "network_id",
-            "key_id",
-            "plan_digest",
-            "change_set_digest",
-            "idempotency_key",
-        )
-        if any(getattr(request, name) != getattr(binding, name) for name in fields) or (
-            request.nonce != binding.change_set_id
-        ):
-            return WalletProofResult(outcome="refused", reason="scope_mismatch")
+            return _refused("invalid_payload")
+        reason = self._request_refusal(request, binding, now)
+        if reason is not None:
+            return _refused(reason)
         try:
             trusted = await self._resolver.resolve(binding)
         except Exception:
-            return WalletProofResult(
-                outcome="refused", reason="verification_unavailable"
-            )
-        if trusted is None or trusted.binding != binding:
-            return WalletProofResult(outcome="refused", reason="untrusted_key")
-        if trusted.revoked:
-            return WalletProofResult(outcome="refused", reason="revoked_key")
-        if not (
-            trusted.signer_ref
-            and trusted.trust_revision
-            and len(trusted.public_key) == 32
-            and trusted.valid_from <= now < trusted.valid_until
-        ):
-            return WalletProofResult(
-                outcome="refused", reason="verification_unavailable"
-            )
-        try:
-            signature = base64.urlsafe_b64decode(request.signature + "==")
-            Ed25519PublicKey.from_public_bytes(trusted.public_key).verify(
-                signature, payload
-            )
-        except (ValueError, InvalidSignature):
-            return WalletProofResult(outcome="refused", reason="invalid_signature")
+            return _refused("verification_unavailable")
+        reason = _trust_refusal(trusted, binding, now)
+        if reason is not None or trusted is None:
+            return _refused(reason or "untrusted_key")
+        if not _signature_valid(request, trusted, payload):
+            return _refused("invalid_signature")
         return WalletProofResult(
             outcome="verified",
             reason="verified",
@@ -251,3 +226,53 @@ class WalletSignatureVerifier:
             valid_from=max(request.issued_at, trusted.valid_from),
             valid_until=min(request.expires_at, trusted.valid_until),
         )
+
+    def _request_refusal(
+        self, request: WalletProofRequest, binding: WalletProofBinding, now: int
+    ) -> str | None:
+        if request.scheme != "ed25519_jcs":
+            return "unsupported_scheme"
+        if type(now) is not int or not (
+            request.issued_at <= now < request.expires_at
+            and request.expires_at - request.issued_at <= self._max_lifetime
+        ):
+            return "expired"
+        if any(
+            getattr(request, name) != getattr(binding, name) for name in _BOUND_FIELDS
+        ) or (request.nonce != binding.change_set_id):
+            return "scope_mismatch"
+        return None
+
+
+def _refused(reason: str) -> WalletProofResult:
+    return WalletProofResult(outcome="refused", reason=reason)
+
+
+def _trust_refusal(
+    trusted: WalletKeyTrust | None, binding: WalletProofBinding, now: int
+) -> str | None:
+    if trusted is None or trusted.binding != binding:
+        return "untrusted_key"
+    if trusted.revoked:
+        return "revoked_key"
+    if not (
+        trusted.signer_ref
+        and trusted.trust_revision
+        and len(trusted.public_key) == 32
+        and trusted.valid_from <= now < trusted.valid_until
+    ):
+        return "verification_unavailable"
+    return None
+
+
+def _signature_valid(
+    request: WalletProofRequest, trusted: WalletKeyTrust, payload: bytes
+) -> bool:
+    try:
+        signature = base64.urlsafe_b64decode(request.signature + "==")
+        Ed25519PublicKey.from_public_bytes(trusted.public_key).verify(
+            signature, payload
+        )
+    except (ValueError, InvalidSignature):
+        return False
+    return True

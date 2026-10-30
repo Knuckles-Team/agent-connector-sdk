@@ -25,6 +25,7 @@ from scion_sdk.testing.writeback import (
     make_writeback_fixture,
 )
 from scion_sdk.testing.writeback_audit import InMemoryAuditReservation
+from scion_sdk.writeback._transport_common import receipt_page
 from scion_sdk.writeback.authorization import DurableAuthorizationResolver
 from scion_sdk.writeback.connector import DurableWritableConnector
 from scion_sdk.writeback.epistemic_graph import (
@@ -107,15 +108,7 @@ class MemoryLedger:
         limit: int = 256,
     ) -> WriteBackReceiptPage:
         self._change_set()
-        after = after_sequence or 0
-        remaining = [
-            record for record in self.records if record.receipt.sequence > after
-        ]
-        selected = remaining[:limit]
-        next_sequence = (
-            selected[-1].receipt.sequence if len(remaining) > limit else None
-        )
-        return WriteBackReceiptPage(receipts=selected, next_sequence=next_sequence)
+        return receipt_page(self.records, after_sequence=after_sequence, limit=limit)
 
     def _change_set(self) -> SourceChangeSet:
         if self.change_set is None:
