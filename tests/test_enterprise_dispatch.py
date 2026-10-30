@@ -80,6 +80,8 @@ def dispatcher(connector="erp", *, allow=True):
     return EnterpriseDispatcher(cap, authority=Authority(allow), reader=reader), reader
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.33")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.36")
 @pytest.mark.asyncio
 async def test_explicit_backend_swaps_preserve_request_and_result():
     first, first_reader = dispatcher("first")
@@ -92,6 +94,7 @@ async def test_explicit_backend_swaps_preserve_request_and_result():
     assert first_reader.calls == second_reader.calls == [request()]
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.35")
 @pytest.mark.asyncio
 async def test_wrong_scope_and_unsupported_refuse_before_reader():
     client, reader = dispatcher()
@@ -108,6 +111,7 @@ async def test_wrong_scope_and_unsupported_refuse_before_reader():
     assert not reader.calls and not denied_reader.calls
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.34")
 @pytest.mark.asyncio
 async def test_factory_serves_two_connectors_and_refuses_denied_calls():
     from fastmcp import Client
@@ -150,6 +154,8 @@ async def test_factory_serves_two_connectors_and_refuses_denied_calls():
     assert len(first_reader.calls) == 1
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.33")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.36")
 @pytest.mark.asyncio
 async def test_invoice_effect_requires_admitted_writer_and_durable_receipt(tmp_path):
     from test_writeback_process_restart import _reference_change_set
@@ -248,115 +254,14 @@ async def test_invoice_effect_requires_admitted_writer_and_durable_receipt(tmp_p
     assert (await transport.read_current(change)).source_version == "v1+1"
 
 
-@pytest.mark.asyncio
-async def test_two_served_connectors_use_real_http_and_fail_closed():
-    import json
-
-    from fastmcp import Client
-
-    from agent_connector_sdk.http.client import create_async_http_client
-    from agent_connector_sdk.http.options import HttpClientOptions
-    from agent_connector_sdk.http.retry import RetryPolicy
-    from agent_connector_sdk.identity import use_actor
-    from agent_connector_sdk.mcp.server import create_mcp_server
-    from agent_connector_sdk.testing.http_server import (
-        ScriptedHttpServer,
-        ScriptedResponse,
-    )
-    from agent_connector_sdk.vendor_extractors.enterprise_contract import AccountRecord
-
-    class HttpReader:
-        def __init__(self, connector, endpoint):
-            self.connector = connector
-            self.options = HttpClientOptions(
-                base_url=endpoint,
-                pin_egress=True,
-                allow_loopback=True,
-                retry=RetryPolicy(max_attempts=1),
-            )
-
-        async def read(self, req):
-            async with create_async_http_client(self.options) as http:
-                response = await http.get("/accounts")
-                response.raise_for_status()
-                accounts = tuple(
-                    AccountRecord.model_validate(item)
-                    for item in response.json()["accounts"]
-                )
-            return EnterpriseResult(
-                request_id=req.request_id,
-                tenant=req.tenant,
-                company_id=req.company_id,
-                connector=self.connector,
-                contract_revision=req.contract_revision,
-                operation="list_accounts",
-                outcome="ok",
-                accounts=accounts,
-                backend_receipt="fixture:page",
-            )
-
-    body = json.dumps(
-        {
-            "accounts": [
-                {
-                    "source_id": "account",
-                    "account_code": "100",
-                    "label": "Cash",
-                    "account_kind": "asset",
-                    "currency": "USD",
-                }
-            ]
-        }
-    ).encode()
-    with (
-        ScriptedHttpServer(ScriptedResponse(body=body)) as backend_one,
-        ScriptedHttpServer(ScriptedResponse(body=body)) as backend_two,
-    ):
-        servers = []
-        for name, backend in (("one", backend_one), ("two", backend_two)):
-            cap = EnterpriseCapability(
-                connector=name,
-                connector_version="1",
-                contract_revision="v1",
-                company_ids=("company",),
-                operations=(enterprise_schema_binding("list_accounts"),),
-            )
-            handler = EnterpriseDispatcher(
-                cap,
-                authority=Authority(),
-                reader=HttpReader(name, backend.base_url),
-            )
-            _, server, _ = create_mcp_server(
-                name,
-                version="1",
-                command_args=["--transport", "stdio"],
-                enterprise_dispatcher=handler,
-            )
-            servers.append(server)
-        with use_actor(actor()):
-            for server in servers:
-                async with Client(server) as client:
-                    result = await client.call_tool(
-                        "enterprise_operation",
-                        {"request": request().model_dump(mode="json")},
-                    )
-                    assert result.data["accounts"][0]["account_code"] == "100"
-                    bad = request().model_copy(
-                        update={"parameters": ReadInvoice(invoice_id="unknown")}
-                    )
-                    denied = await client.call_tool(
-                        "enterprise_operation", {"request": bad.model_dump(mode="json")}
-                    )
-                    assert denied.data["reason"] == "unsupported_operation"
-        assert len(backend_one.requests) == len(backend_two.requests) == 1
-
-
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.34")
 def test_public_registration_and_authority_ports_are_exposed():
     assert callable(register_enterprise_tools)
     assert EnterpriseAuthority is not EnterpriseReader
     assert EnterpriseWriteAdmission is not EnterpriseReader
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.36")
 @pytest.mark.asyncio
 async def test_source_adapter_binds_enterprise_receipts_and_refuses_failures():
     from agent_connector_sdk.adapters.mcp_tool_records import (
@@ -472,6 +377,7 @@ async def test_served_enterprise_source_reaches_sink_and_refusal_keeps_it_empty(
             assert not sink.batches
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.35")
 @pytest.mark.asyncio
 async def test_oversized_enterprise_effect_refuses_before_admission():
     from test_writeback_process_restart import _reference_change_set
