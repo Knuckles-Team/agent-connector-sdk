@@ -8,24 +8,30 @@ _IMPORT_MODULES = {"importlib", "builtins"}
 _IMPORT_FUNCTIONS = {"import_module", "__import__"}
 
 
-def _import_spellings(tree: ast.AST) -> tuple[set[str], set[str]]:
-    """Return the names bound to the import functions and to their modules."""
-    nodes = list(ast.walk(tree))
-    module_aliases = {
+def _module_aliases(nodes: list[ast.AST]) -> set[str]:
+    return {
         alias.asname or alias.name
         for node in nodes
         if isinstance(node, ast.Import)
         for alias in node.names
         if alias.name in _IMPORT_MODULES
     }
-    import_functions = {"__import__"} | {
+
+
+def _import_function_names(nodes: list[ast.AST]) -> set[str]:
+    return {"__import__"} | {
         alias.asname or alias.name
         for node in nodes
         if isinstance(node, ast.ImportFrom) and node.module in _IMPORT_MODULES
         for alias in node.names
         if alias.name in _IMPORT_FUNCTIONS
     }
-    return import_functions, module_aliases
+
+
+def _import_spellings(tree: ast.AST) -> tuple[set[str], set[str]]:
+    """Return the names bound to the import functions and to their modules."""
+    nodes = list(ast.walk(tree))
+    return _import_function_names(nodes), _module_aliases(nodes)
 
 
 def _static_import_is_legacy(node: ast.AST) -> bool:
