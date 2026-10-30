@@ -152,7 +152,7 @@ class ServiceNowSink(WritebackClientMixin):
         response = self._attempt(
             result,
             "create_cmdb_instance",
-            client.create_cmdb_instance,  # type: ignore[union-attr]
+            client.create_cmdb_instance,
             className=class_name,
             attributes=attrs,
             source=_SOURCE,
@@ -192,7 +192,7 @@ class ServiceNowSink(WritebackClientMixin):
         response = self._attempt(
             result,
             "patch_cmdb_instance",
-            client.patch_cmdb_instance,  # type: ignore[union-attr]
+            client.patch_cmdb_instance,
             className=class_name,
             sys_id=sys_id,
             attributes=attrs,
@@ -233,7 +233,7 @@ class ServiceNowSink(WritebackClientMixin):
         response = self._attempt(
             result,
             "create_cmdb_relation",
-            client.create_cmdb_relation,  # type: ignore[union-attr]
+            client.create_cmdb_relation,
             className=class_name,
             sys_id=src,
             outbound_relations=[{"type": rel, "target": tgt}],
@@ -273,7 +273,7 @@ class ServiceNowSink(WritebackClientMixin):
         response = self._attempt(
             result,
             "work_notes patch",
-            client.patch_table_record,  # type: ignore[union-attr]
+            client.patch_table_record,
             table=table,
             table_record_sys_id=sys_id,
             data={"work_notes": note},
@@ -305,7 +305,7 @@ class ServiceNowSink(WritebackClientMixin):
         response = self._attempt(
             result,
             "retire",
-            client.patch_cmdb_instance,  # type: ignore[union-attr]
+            client.patch_cmdb_instance,
             className=class_name,
             sys_id=sys_id,
             attributes={"install_status": "7"},

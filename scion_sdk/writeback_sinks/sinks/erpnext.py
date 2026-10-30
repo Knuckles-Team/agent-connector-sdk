@@ -100,7 +100,7 @@ class ErpNextSink(WritebackClientMixin):
             )
             return
         try:
-            res = client.create_document(doctype, data)  # type: ignore[union-attr]
+            res = client.create_document(doctype, data)
             result.created += 1
             ctx.stamp_external_id(
                 c.get("node"),
@@ -135,7 +135,7 @@ class ErpNextSink(WritebackClientMixin):
             )
             return
         try:
-            client.update_document(doctype, doc_name, attrs)  # type: ignore[union-attr]
+            client.update_document(doctype, doc_name, attrs)
             result.enriched += 1
         except Exception:
             logger.debug("erpnext update_document failed", exc_info=True)
@@ -163,7 +163,7 @@ class ErpNextSink(WritebackClientMixin):
             )
             return
         try:
-            client.update_document(doctype, doc_name, {"disabled": 1})  # type: ignore[union-attr]
+            client.update_document(doctype, doc_name, {"disabled": 1})
             result.retired += 1
         except Exception:
             logger.debug("erpnext retire failed", exc_info=True)
