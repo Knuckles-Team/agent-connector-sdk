@@ -65,19 +65,23 @@ def is_configured() -> bool:
     return bool(_configured_seed())
 
 
+def _seed_bytes(seed: bytes | None) -> bytes:
+    if seed is not None:
+        return seed
+    configured = _configured_seed()
+    if not configured:
+        return _PROCESS_SEED
+    try:
+        return _b64d(configured)
+    except ValueError as exc:
+        raise SigningKeyError("signing seed is not base64") from exc
+
+
 def _private_key(seed: bytes | None) -> ed25519.Ed25519PrivateKey:
-    if seed is None:
-        configured = _configured_seed()
-        if configured:
-            try:
-                seed = _b64d(configured)
-            except ValueError as exc:
-                raise SigningKeyError("signing seed is not base64") from exc
-        else:
-            seed = _PROCESS_SEED
-    if len(seed) != 32:
+    resolved = _seed_bytes(seed)
+    if len(resolved) != 32:
         raise SigningKeyError("signing seed must be 32 bytes")
-    return ed25519.Ed25519PrivateKey.from_private_bytes(seed)
+    return ed25519.Ed25519PrivateKey.from_private_bytes(resolved)
 
 
 def public_key_b64(seed: bytes | None = None) -> str:
