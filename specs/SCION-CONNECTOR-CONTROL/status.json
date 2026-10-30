@@ -969,7 +969,7 @@
       "title": "A successor release keeps every predecessor tool",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "0f5dd1174541"
+        "55e450970977"
       ],
       "verified_by": [
         "tests/test_successor_tool_parity.py:13",

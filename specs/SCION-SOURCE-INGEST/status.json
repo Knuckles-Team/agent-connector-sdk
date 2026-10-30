@@ -1083,7 +1083,7 @@
       "title": "SDK ships the ingest worker runner `run_ingest_worker` (unblocks `MEDULLA-INGEST-WORKER-R001.14`)",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "a9b596c2869f"
+        "e02d323a3394"
       ],
       "verified_by": [
         "tests/runner/test_ingest_worker.py:45",
@@ -1096,7 +1096,7 @@
       "title": "SDK ships the `ingest-worker` command (unblocks `MEDULLA-INGEST-WORKER-R001.15`)",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "a9b596c2869f"
+        "e02d323a3394"
       ],
       "verified_by": [
         "tests/runner/test_ingest_worker_cli.py:14"
