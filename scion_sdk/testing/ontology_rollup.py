@@ -72,25 +72,33 @@ def _statement_triples(
     return triples
 
 
-def orphan_classes(path: Path) -> set[str]:
-    """Classes declared in ``path`` that do not reach the core namespace."""
-    triples = parse_triples(path.read_text(encoding="utf-8"))
-    declared = {s for s, p, o in triples if p == _RDF_TYPE and o == _OWL_CLASS}
+def _superclasses(triples: list[tuple[str, str, str]]) -> dict[str, set[str]]:
     supers: dict[str, set[str]] = {}
     for s, p, o in triples:
         if p == _SUBCLASS:
             supers.setdefault(s, set()).add(o)
+    return supers
+
+
+def _reaches_core(cls: str, ups: set[str], linked: set[str]) -> bool:
+    if cls.startswith(CORE_NAMESPACE):
+        return False
+    return any(u.startswith(CORE_NAMESPACE) or u in linked for u in ups)
+
+
+def orphan_classes(path: Path) -> set[str]:
+    """Classes declared in ``path`` that do not reach the core namespace."""
+    triples = parse_triples(path.read_text(encoding="utf-8"))
+    declared = {s for s, p, o in triples if p == _RDF_TYPE and o == _OWL_CLASS}
+    supers = _superclasses(triples)
     linked: set[str] = set()
-    changed = True
-    while changed:
+    while True:
         newly = {
             cls
             for cls in declared - linked
-            if not cls.startswith(CORE_NAMESPACE)
-            and any(
-                u.startswith(CORE_NAMESPACE) or u in linked for u in supers.get(cls, ())
-            )
+            if _reaches_core(cls, supers.get(cls, set()), linked)
         }
+        if not newly:
+            break
         linked |= newly
-        changed = bool(newly)
     return {c for c in declared - linked if not c.startswith(CORE_NAMESPACE)}

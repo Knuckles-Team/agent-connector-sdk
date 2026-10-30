@@ -61,32 +61,43 @@ def _scan_file(
         return "unscanned"
 
 
+def _file_outcome(
+    path: Path, relative: str, predicate: Callable[[str], bool | None]
+) -> str:
+    """One of ``skip``, ``unscanned``, ``offending`` or ``clean``."""
+    if path.is_symlink():
+        return "unscanned"
+    if not relative.endswith(".py"):
+        return "skip"
+    verdict = _scan_file(path, predicate)
+    if verdict == "unscanned" or verdict is None:
+        return "unscanned"
+    return "offending" if verdict else "clean"
+
+
 def _scan_files(
     base: Path,
     files: list[str],
+    *,
     root: Path,
     predicate: Callable[[str], bool | None],
 ) -> tuple[list[str], list[str], int]:
     """Return ``(offending, unscanned, scanned)`` for one directory's files."""
-    offending: list[str] = []
-    unscanned: list[str] = []
-    scanned = 0
+    outcomes: dict[str, list[str]] = {
+        "skip": [],
+        "unscanned": [],
+        "offending": [],
+        "clean": [],
+    }
     for name in sorted(files):
         path = base / name
         relative = str(path.relative_to(root))
-        if path.is_symlink():
-            unscanned.append(relative)
-        elif name.endswith(".py"):
-            verdict = _scan_file(path, predicate)
-            if verdict == "unscanned":
-                unscanned.append(relative)
-                continue
-            scanned += 1
-            if verdict is None:
-                unscanned.append(relative)
-            elif verdict:
-                offending.append(relative)
-    return offending, unscanned, scanned
+        outcomes[_file_outcome(path, relative, predicate)].append(relative)
+    return (
+        outcomes["offending"],
+        outcomes["unscanned"],
+        len(outcomes["offending"]) + len(outcomes["clean"]),
+    )
 
 
 def _scan_python_sources(
@@ -111,7 +122,9 @@ def _scan_python_sources(
         dirs[:] = _retained_dirs(
             base, dirs, root=package_root, exclude=exclude_dirs, unscanned=unscanned
         )
-        found, missed, count = _scan_files(base, files, package_root, predicate)
+        found, missed, count = _scan_files(
+            base, files, root=package_root, predicate=predicate
+        )
         offending += found
         unscanned += missed
         scanned += count

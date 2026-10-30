@@ -10,21 +10,21 @@ _IMPORT_FUNCTIONS = {"import_module", "__import__"}
 
 def _import_spellings(tree: ast.AST) -> tuple[set[str], set[str]]:
     """Return the names bound to the import functions and to their modules."""
-    import_functions = {"__import__"}
-    module_aliases: set[str] = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            module_aliases.update(
-                alias.asname or alias.name
-                for alias in node.names
-                if alias.name in _IMPORT_MODULES
-            )
-        elif isinstance(node, ast.ImportFrom) and node.module in _IMPORT_MODULES:
-            import_functions.update(
-                alias.asname or alias.name
-                for alias in node.names
-                if alias.name in _IMPORT_FUNCTIONS
-            )
+    nodes = list(ast.walk(tree))
+    module_aliases = {
+        alias.asname or alias.name
+        for node in nodes
+        if isinstance(node, ast.Import)
+        for alias in node.names
+        if alias.name in _IMPORT_MODULES
+    }
+    import_functions = {"__import__"} | {
+        alias.asname or alias.name
+        for node in nodes
+        if isinstance(node, ast.ImportFrom) and node.module in _IMPORT_MODULES
+        for alias in node.names
+        if alias.name in _IMPORT_FUNCTIONS
+    }
     return import_functions, module_aliases
 
 
