@@ -53,7 +53,6 @@ from agent_connector_sdk.testing.http_server import ScriptedHttpServer, Scripted
         ),
     ],
 )
-@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 async def test_hourly_sources_preserve_units_and_grid_coordinates(
     provider, body, unit, expected
 ):
