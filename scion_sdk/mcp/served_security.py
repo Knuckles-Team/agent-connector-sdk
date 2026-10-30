@@ -88,15 +88,17 @@ class ServedSecurityMiddleware(Middleware):
         if token is None:
             return "authenticated identity is required"
         claims = _claims(token)
-        if not str(claims.get("sub") or getattr(token, "client_id", "") or "").strip():
-            return "the token carries no subject"
-        if not any(str(claims.get(key) or "").strip() for key in _TENANT_CLAIMS):
-            return "the token carries no tenant"
-        if not self._required <= _scopes(token):
-            return "the token lacks a required scope"
-        if not _session_id(context):
-            return "an active session is required"
-        return None
+        subject = claims.get("sub") or getattr(token, "client_id", "") or ""
+        checks = (
+            (str(subject).strip(), "the token carries no subject"),
+            (
+                any(str(claims.get(key) or "").strip() for key in _TENANT_CLAIMS),
+                "the token carries no tenant",
+            ),
+            (self._required <= _scopes(token), "the token lacks a required scope"),
+            (_session_id(context), "an active session is required"),
+        )
+        return next((reason for ok, reason in checks if not ok), None)
 
     async def on_request(self, context: MiddlewareContext[Any], call_next: Any) -> Any:
         reason = self._refusal(context)

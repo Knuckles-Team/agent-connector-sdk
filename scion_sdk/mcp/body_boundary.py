@@ -6,7 +6,8 @@ from typing import Any, cast
 
 import anyio
 
-from scion_sdk.mcp.http_boundary import _header_values, _json_response
+from scion_sdk.mcp._http_reply import _json_response
+from scion_sdk.mcp.http_boundary import _header_values
 
 
 class _BodyBoundaryError(Exception):

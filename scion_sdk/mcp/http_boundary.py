@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import ipaddress
-import json
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
+from scion_sdk.mcp._http_reply import _reject
 from scion_sdk.mcp.network_validation import (
     normalize_cidrs,
     normalize_host_authorities,
@@ -27,100 +27,79 @@ def _header_values(scope: Mapping[str, Any], name: bytes) -> list[bytes]:
     ]
 
 
-async def _json_response(send: Any, status: int, error: str) -> None:
-    body = json.dumps({"error": error}, separators=(",", ":")).encode("utf-8")
-    await send(
-        {
-            "type": "http.response.start",
-            "status": status,
-            "headers": [
-                (b"content-type", b"application/json"),
-                (b"content-length", str(len(body)).encode("ascii")),
-                (b"cache-control", b"no-store"),
-            ],
-        }
-    )
-    await send({"type": "http.response.body", "body": body})
-
-
-def _normalized_header(value: bytes, normalizer: Callable[[object], str]) -> str | None:
+def _normalized_header(
+    values: list[bytes], normalizer: Callable[[object], str]
+) -> str | None:
+    """The normalised value of a single, bounded header; ``None`` otherwise."""
+    if len(values) != 1 or len(values[0]) > _MAX_HEADER_VALUE_BYTES:
+        return None
     try:
-        return normalizer(value.decode("ascii"))
+        return normalizer(values[0].decode("ascii"))
     except (UnicodeDecodeError, ValueError):
         return None
 
 
-class _ExactHostAuthorityMiddleware:
+def _peer_admitted(networks: tuple[Any, ...], scope: Any) -> bool:
+    try:
+        peer = ipaddress.ip_address(str(scope.get("client")[0]))
+    except (IndexError, TypeError, ValueError):
+        return False
+    return any(peer in network for network in networks)
+
+
+class _BoundaryMiddleware:
+    """Admit non-HTTP scopes and requests ``admits`` accepts; reject the rest."""
+
+    def __init__(
+        self, app: Any, admits: Callable[[Any], bool], *, status: int, reason: str
+    ) -> None:
+        self.app = app
+        self._admits = admits
+        self._status = status
+        self._reason = reason
+
+    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
+        if scope.get("type") not in {"http", "websocket"} or self._admits(scope):
+            await self.app(scope, receive, send)
+            return
+        await _reject(scope, send, status=self._status, reason=self._reason)
+
+
+class _ExactHostAuthorityMiddleware(_BoundaryMiddleware):
     def __init__(self, app: Any, allowed_hosts: Iterable[str]) -> None:
-        self.app = app
-        self.allowed_hosts = frozenset(normalize_host_authorities(allowed_hosts))
-
-    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
-        if scope.get("type") not in {"http", "websocket"}:
-            await self.app(scope, receive, send)
-            return
-        values = _header_values(scope, b"host")
-        candidate = (
-            _normalized_header(values[0], normalize_host_authority)
-            if len(values) == 1 and len(values[0]) <= _MAX_HEADER_VALUE_BYTES
-            else None
+        hosts = frozenset(normalize_host_authorities(allowed_hosts))
+        super().__init__(
+            app,
+            lambda scope: (
+                _normalized_header(
+                    _header_values(scope, b"host"), normalize_host_authority
+                )
+                in hosts
+            ),
+            status=400,
+            reason="host rejected",
         )
-        if candidate in self.allowed_hosts:
-            await self.app(scope, receive, send)
-            return
-        await _reject(scope, send, status=400, reason="host rejected")
 
 
-class _OriginPolicyMiddleware:
+class _OriginPolicyMiddleware(_BoundaryMiddleware):
     def __init__(self, app: Any, allowed_origins: Iterable[str] = ()) -> None:
-        self.app = app
-        self.allowed_origins = frozenset(normalize_origins(allowed_origins))
+        origins = frozenset(normalize_origins(allowed_origins))
 
-    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
-        if scope.get("type") not in {"http", "websocket"}:
-            await self.app(scope, receive, send)
-            return
-        values = _header_values(scope, b"origin")
-        if not values:
-            await self.app(scope, receive, send)
-            return
-        candidate = (
-            _normalized_header(values[0], normalize_origin)
-            if len(values) == 1 and len(values[0]) <= _MAX_HEADER_VALUE_BYTES
-            else None
-        )
-        if candidate in self.allowed_origins:
-            await self.app(scope, receive, send)
-            return
-        await _reject(scope, send, status=403, reason="origin rejected")
+        def admits(scope: Any) -> bool:
+            values = _header_values(scope, b"origin")
+            return not values or _normalized_header(values, normalize_origin) in origins
+
+        super().__init__(app, admits, status=403, reason="origin rejected")
 
 
-class _TrustedProxyPeerMiddleware:
+class _TrustedProxyPeerMiddleware(_BoundaryMiddleware):
     def __init__(self, app: Any, trusted_cidrs: Iterable[str]) -> None:
-        self.app = app
-        self.networks = tuple(
+        networks = tuple(
             ipaddress.ip_network(value) for value in normalize_cidrs(trusted_cidrs)
         )
-
-    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
-        if scope.get("type") not in {"http", "websocket"}:
-            await self.app(scope, receive, send)
-            return
-        client = scope.get("client")
-        try:
-            peer = ipaddress.ip_address(str(client[0]))
-        except (IndexError, TypeError, ValueError):
-            allowed = False
-        else:
-            allowed = any(peer in network for network in self.networks)
-        if allowed:
-            await self.app(scope, receive, send)
-            return
-        await _reject(scope, send, status=403, reason="peer rejected")
-
-
-async def _reject(scope: Any, send: Any, *, status: int, reason: str) -> None:
-    if scope.get("type") == "websocket":
-        await send({"type": "websocket.close", "code": 4403, "reason": reason})
-        return
-    await _json_response(send, status, reason)
+        super().__init__(
+            app,
+            lambda scope: _peer_admitted(networks, scope),
+            status=403,
+            reason="peer rejected",
+        )

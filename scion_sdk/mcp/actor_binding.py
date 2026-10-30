@@ -114,19 +114,23 @@ def _identity_error(error: BaseException) -> IdentityRequiredError | None:
     return None
 
 
+async def _call_typed(context: MiddlewareContext[Any], call_next: Any) -> Any:
+    try:
+        return await call_next(context)
+    except Exception as error:
+        refusal = _identity_error(error)
+        if refusal is None:
+            raise
+        raise MCPError(
+            IDENTITY_REFUSAL_CODE,
+            f"{refusal.reason}: {refusal}",
+            {"reason": refusal.reason},
+        ) from error
+
+
 class ActorBindingMiddleware(Middleware):
     """Bind :func:`request_actor` around every request; refuse identity errors typed."""
 
     async def on_request(self, context: MiddlewareContext[Any], call_next: Any) -> Any:
         with use_actor(request_actor()):
-            try:
-                return await call_next(context)
-            except Exception as error:
-                refusal = _identity_error(error)
-                if refusal is None:
-                    raise
-                raise MCPError(
-                    IDENTITY_REFUSAL_CODE,
-                    f"{refusal.reason}: {refusal}",
-                    {"reason": refusal.reason},
-                ) from error
+            return await _call_typed(context, call_next)
