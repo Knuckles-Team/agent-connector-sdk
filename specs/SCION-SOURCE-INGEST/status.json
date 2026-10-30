@@ -287,7 +287,8 @@
     "SCION-SOURCE-INGEST-R805.5",
     "SCION-SOURCE-INGEST-R805.6",
     "SCION-SOURCE-INGEST-R805.7",
-    "SCION-SOURCE-INGEST-R004.50"
+    "SCION-SOURCE-INGEST-R004.50",
+    "SCION-SOURCE-INGEST-R903"
   ],
   "requirements": [
     {
@@ -3667,6 +3668,13 @@
       "verified_by": [
         "tests/test_mcp_cursor_refusal.py:22"
       ]
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R903",
+      "title": "Raw-corpus search operations",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
