@@ -16,6 +16,7 @@ than guessed.
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from ..core import (
     WritebackClientMixin,
@@ -47,49 +48,61 @@ class CisoAssistantSink(WritebackClientMixin):
 
     def _run(self, invocation: WritebackInvocation) -> WritebackResult:
         _, ops, client, result, dry_run = invocation.unpack()
-
         default_folder = ops.get("folder")
         for c in ops.get("creations") or []:
-            name = c.get("name")
-            kind = (c.get("type") or "").lower()
-            spec = _CREATE.get(kind)
-            if not name or spec is None:
-                result.skipped += 1
-                continue
-            method_name, label = spec
-            folder = c.get("folder") or default_folder
-            if dry_run:
-                result.proposals.append(
-                    {"op": f"create_{label.replace(' ', '_')}", "name": name}
-                )
-                continue
-            if not folder:
-                # CISO objects must belong to a folder; never guess one.
-                result.skipped += 1
-                continue
-            payload = {
-                "name": name,
-                "folder": folder,
-                "description": c.get("description", "KG-derived governance object."),
-            }
-            if c.get("ref_id"):
-                payload["ref_id"] = c["ref_id"]
-            method = getattr(client, method_name, None)
-            if not callable(method):
-                result.skipped += 1
-                continue
-            try:
-                res = method(body=payload)
-                data = getattr(res, "data", res)
-                if isinstance(data, dict) and (data.get("id") or data.get("uuid")):
-                    result.created += 1
-                else:
-                    result.errors += 1
-            except Exception:
-                logger.debug("ciso_assistant create failed", exc_info=True)
-                result.errors += 1
-
+            self._create(client, result, c, default_folder, dry_run=dry_run)
         return result
+
+    def _create(
+        self,
+        client: Any,
+        result: WritebackResult,
+        c: dict[str, Any],
+        default_folder: Any,
+        *,
+        dry_run: bool,
+    ) -> None:
+        name = c.get("name")
+        spec = _CREATE.get((c.get("type") or "").lower())
+        if not name or spec is None:
+            result.skipped += 1
+            return
+        method_name, label = spec
+        if dry_run:
+            result.proposals.append(
+                {"op": f"create_{label.replace(' ', '_')}", "name": name}
+            )
+            return
+        folder = c.get("folder") or default_folder
+        method = getattr(client, method_name, None)
+        if not folder or not callable(method):
+            # CISO objects must belong to a folder; never guess one.
+            result.skipped += 1
+            return
+        payload = _payload(c, name, folder)
+        try:
+            res = method(body=payload)
+            data = getattr(res, "data", res)
+            created = isinstance(data, dict) and (data.get("id") or data.get("uuid"))
+        except Exception:
+            logger.debug("ciso_assistant create failed", exc_info=True)
+            result.errors += 1
+            return
+        if created:
+            result.created += 1
+        else:
+            result.errors += 1
+
+
+def _payload(c: dict[str, Any], name: str, folder: Any) -> dict[str, Any]:
+    payload = {
+        "name": name,
+        "folder": folder,
+        "description": c.get("description", "KG-derived governance object."),
+    }
+    if c.get("ref_id"):
+        payload["ref_id"] = c["ref_id"]
+    return payload
 
 
 register_sink(CisoAssistantSink())
