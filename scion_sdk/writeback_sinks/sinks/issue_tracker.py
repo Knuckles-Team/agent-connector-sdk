@@ -89,20 +89,24 @@ class PlaneIssueSink(_IssueSinkBase):
         )
 
 
+def _jira_client(ops: Any) -> Any:
+    if ops.get("client") is not None:
+        return ops["client"]
+    try:
+        from atlassian_agent.auth import get_jira_cloud_client
+
+        return get_jira_cloud_client()
+    except Exception:
+        return None
+
+
 class JiraIssueSink(_IssueSinkBase):
     domain = "jira"
     enable_flag = "JIRA_ENABLE_WRITE"
     client_module = "atlassian_agent"
 
     def _client(self, ops: Any) -> Any:
-        if ops.get("client") is not None:
-            return ops["client"]
-        try:
-            from atlassian_agent.auth import get_jira_cloud_client
-
-            return get_jira_cloud_client()
-        except Exception:
-            return None
+        return _jira_client(ops)
 
     def _create(self, client: Any, title: Any, body: Any, c: Any) -> Any:
         client.jira_cloud_create_issue(
@@ -164,23 +168,45 @@ class _TransitionSinkBase(ABC):
             result.skipped += len(items)
             return result
         for item in items:
-            ref = item.get("key") or item.get("work_item_id") or item.get("id")
-            target = item.get("status") or item.get("state")
-            if not ref or not target:
-                result.skipped += 1
-                continue
-            if dry_run:
-                result.proposals.append(
-                    {"op": "transition", "ticket": str(ref), "to": str(target)}
-                )
-                continue
-            try:
-                self._apply(client, item)
-                result.enriched += 1
-            except Exception:
-                logger.debug("%s transition failed", self.domain, exc_info=True)
-                result.errors += 1
+            self._transition_one(client, item, result, dry_run=dry_run)
         return result
+
+    def _transition_one(
+        self,
+        client: Any,
+        item: dict[str, Any],
+        result: WritebackResult,
+        *,
+        dry_run: bool,
+    ) -> None:
+        ref = item.get("key") or item.get("work_item_id") or item.get("id")
+        target = item.get("status") or item.get("state")
+        if not ref or not target:
+            result.skipped += 1
+            return
+        if dry_run:
+            result.proposals.append(
+                {"op": "transition", "ticket": str(ref), "to": str(target)}
+            )
+            return
+        try:
+            self._apply(client, item)
+            result.enriched += 1
+        except Exception:
+            logger.debug("%s transition failed", self.domain, exc_info=True)
+            result.errors += 1
+
+
+def _transition_id(data: Any, target: str) -> Any:
+    wanted = target.lower()
+    for t in data.get("transitions") or []:
+        names = {
+            str(t.get("name") or "").lower(),
+            str((t.get("to") or {}).get("name") or "").lower(),
+        }
+        if wanted in names:
+            return t.get("id")
+    return None
 
 
 class JiraTransitionSink(_TransitionSinkBase):
@@ -188,30 +214,14 @@ class JiraTransitionSink(_TransitionSinkBase):
     enable_flag = "JIRA_ENABLE_WRITE"
 
     def _client(self, ops: Any) -> Any:
-        if ops.get("client") is not None:
-            return ops["client"]
-        try:
-            from atlassian_agent.auth import get_jira_cloud_client
-
-            return get_jira_cloud_client()
-        except Exception:
-            return None
+        return _jira_client(ops)
 
     def _apply(self, client: Any, item: Any) -> Any:
         key = item.get("key") or item.get("id")
         target = str(item.get("status") or item.get("state") or "")
         resp = client.jira_cloud_get_transitions(issue_id_or_key=key)
         data = getattr(resp, "data", resp) or {}
-        wanted = target.lower()
-        tid = None
-        for t in data.get("transitions") or []:
-            names = {
-                str(t.get("name") or "").lower(),
-                str((t.get("to") or {}).get("name") or "").lower(),
-            }
-            if wanted in names:
-                tid = t.get("id")
-                break
+        tid = _transition_id(data, target)
         if tid is None:
             raise ValueError(f"no transition to {target!r} available for {key}")
         client.jira_cloud_do_transition(

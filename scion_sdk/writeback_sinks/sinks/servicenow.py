@@ -114,158 +114,205 @@ class ServiceNowSink(WritebackClientMixin):
 
     def _run(self, invocation: WritebackInvocation) -> WritebackResult:
         ctx, ops, client, result, dry_run = invocation.unpack()
-
         resolve = ctx.resolver("servicenow")
-
-        # creations — new inventory CIs/products.
         for c in ops.get("creations") or []:
-            name = c.get("name")
-            if not name:
-                continue
-            class_name = c.get("className") or _class_for(c.get("type", ""))
-            attrs = {"name": name, **(c.get("attributes") or {})}
-            if dry_run:
-                result.proposals.append(
-                    {"op": "create_cmdb_instance", "class": class_name, "name": name}
-                )
-                continue
-
-            response = self._attempt(
-                result,
-                "create_cmdb_instance",
-                client.create_cmdb_instance,  # type: ignore[union-attr]
-                className=class_name,
-                attributes=attrs,
-                source=_SOURCE,
-            )
-            if response is not _ATTEMPT_FAILED:
-                result.created += 1
-                # Round-trip the sys_id back onto the source node → idempotent re-runs.
-                ctx.stamp_external_id(
-                    c.get("node"),
-                    self.domain,
-                    _extract_sys_id(response),
-                    node_type=c.get("type", ""),
-                )
-
-        # enrichments — patch attributes onto existing CIs.
+            self._create(ctx, client, result, c, resolve, dry_run=dry_run)
         for item in ops.get("enrichments") or []:
-            sys_id = resolve(item.get("node"))
-            attrs = item.get("attributes") or {}
-            if not (sys_id and attrs):
-                result.skipped += 1
-                continue
-            class_name = item.get("className") or "cmdb_ci"
-            if dry_run:
-                result.proposals.append(
-                    {"op": "patch_cmdb_instance", "class": class_name, "sys_id": sys_id}
-                )
-                continue
-            response = self._attempt(
-                result,
-                "patch_cmdb_instance",
-                client.patch_cmdb_instance,  # type: ignore[union-attr]
-                className=class_name,
-                sys_id=sys_id,
-                attributes=attrs,
-                source=_SOURCE,
-            )
-            if response is not _ATTEMPT_FAILED:
-                result.enriched += 1
-
-        # inferred relations — between existing CIs.
+            self._enrich(ctx, client, result, item, resolve, dry_run=dry_run)
         for edge in ops.get("inferences") or []:
-            src = resolve(edge.get("source"))
-            tgt = resolve(edge.get("target"))
-            rel = edge.get("rel_type") or edge.get("type")
-            if not (src and tgt and rel):
-                result.skipped += 1
-                continue
-            class_name = edge.get("className") or "cmdb_ci"
-            if dry_run:
-                result.proposals.append(
-                    {
-                        "op": "create_cmdb_relation",
-                        "sys_id": src,
-                        "type": rel,
-                        "target": tgt,
-                        "provenance": PROVENANCE_TAG,
-                    }
-                )
-                continue
-            response = self._attempt(
-                result,
-                "create_cmdb_relation",
-                client.create_cmdb_relation,  # type: ignore[union-attr]
-                className=class_name,
-                sys_id=src,
-                outbound_relations=[{"type": rel, "target": tgt}],
-                source=_SOURCE,
-            )
-            if response is not _ATTEMPT_FAILED:
-                result.relations_written += 1
-
-        # work_notes — append a review note to an existing ticket/demand record
-        # (e.g. a TRM u_trm_request, an incident) WITHOUT touching CMDB CI
-        # fields — a ticket is a different table than a CI, so this reuses the
-        # generic table-patch surface (matching incident_router.ServiceNowAdapter's
-        # update_ticket) rather than the CMDB-only create/patch_cmdb_instance
-        # calls above. Portfolio-intelligence's TRM recommendation writeback is
-        # the first consumer (CONCEPT:AU-KG.enrichment.portfolio-intelligence).
+            self._relate(ctx, client, result, edge, resolve, dry_run=dry_run)
         for item in ops.get("work_notes") or []:
-            sys_id = item.get("sys_id") or resolve(item.get("node"))
-            note = item.get("note")
-            table = item.get("table") or "task"
-            if not (sys_id and note):
-                result.skipped += 1
-                continue
-            # X5 (CONCEPT:AU-KG.temporal.bi-temporal-memory-layers): work_notes IS the
-            # ServiceNow-native audit-trail field, so the KG-state instant this
-            # recommendation derived from is appended directly into the note text
-            # sent to ServiceNow — not just our own returned proposal/manifest.
-            if ctx.as_of:
-                note = f"{note}\n\n(KG state as of {ctx.as_of})"
-            if dry_run:
-                result.proposals.append(
-                    {"op": "work_notes", "table": table, "sys_id": sys_id, "note": note}
-                )
-                continue
-            response = self._attempt(
-                result,
-                "work_notes patch",
-                client.patch_table_record,  # type: ignore[union-attr]
-                table=table,
-                table_record_sys_id=sys_id,
-                data={"work_notes": note},
-            )
-            if response is not _ATTEMPT_FAILED:
-                result.enriched += 1
-
-        # retirements — mark CIs retired (install_status=7).
+            self._work_note(ctx, client, result, item, resolve, dry_run=dry_run)
         for item in ops.get("retirements") or []:
-            sys_id = resolve(item.get("node"))
-            if not sys_id:
-                result.skipped += 1
-                continue
-            class_name = item.get("className") or "cmdb_ci"
-            if dry_run:
-                result.proposals.append(
-                    {"op": "retire", "class": class_name, "sys_id": sys_id}
-                )
-                continue
-            response = self._attempt(
-                result,
-                "retire",
-                client.patch_cmdb_instance,  # type: ignore[union-attr]
-                className=class_name,
-                sys_id=sys_id,
-                attributes={"install_status": "7"},
-                source=_SOURCE,
-            )
-            if response is not _ATTEMPT_FAILED:
-                result.retired += 1
-
+            self._retire(ctx, client, result, item, resolve, dry_run=dry_run)
         return result
+
+    def _create(
+        self,
+        ctx: Any,
+        client: Any,
+        result: WritebackResult,
+        c: dict[str, Any],
+        resolve: Any,
+        *,
+        dry_run: bool,
+    ) -> None:
+        """creations — new inventory CIs/products."""
+        name = c.get("name")
+        if not name:
+            return
+        class_name = c.get("className") or _class_for(c.get("type", ""))
+        attrs = {"name": name, **(c.get("attributes") or {})}
+        if dry_run:
+            result.proposals.append(
+                {"op": "create_cmdb_instance", "class": class_name, "name": name}
+            )
+            return
+
+        response = self._attempt(
+            result,
+            "create_cmdb_instance",
+            client.create_cmdb_instance,  # type: ignore[union-attr]
+            className=class_name,
+            attributes=attrs,
+            source=_SOURCE,
+        )
+        if response is not _ATTEMPT_FAILED:
+            result.created += 1
+            # Round-trip the sys_id back onto the source node → idempotent re-runs.
+            ctx.stamp_external_id(
+                c.get("node"),
+                self.domain,
+                _extract_sys_id(response),
+                node_type=c.get("type", ""),
+            )
+
+    def _enrich(
+        self,
+        ctx: Any,
+        client: Any,
+        result: WritebackResult,
+        item: dict[str, Any],
+        resolve: Any,
+        *,
+        dry_run: bool,
+    ) -> None:
+        """enrichments — patch attributes onto existing CIs."""
+        sys_id = resolve(item.get("node"))
+        attrs = item.get("attributes") or {}
+        if not (sys_id and attrs):
+            result.skipped += 1
+            return
+        class_name = item.get("className") or "cmdb_ci"
+        if dry_run:
+            result.proposals.append(
+                {"op": "patch_cmdb_instance", "class": class_name, "sys_id": sys_id}
+            )
+            return
+        response = self._attempt(
+            result,
+            "patch_cmdb_instance",
+            client.patch_cmdb_instance,  # type: ignore[union-attr]
+            className=class_name,
+            sys_id=sys_id,
+            attributes=attrs,
+            source=_SOURCE,
+        )
+        if response is not _ATTEMPT_FAILED:
+            result.enriched += 1
+
+    def _relate(
+        self,
+        ctx: Any,
+        client: Any,
+        result: WritebackResult,
+        edge: dict[str, Any],
+        resolve: Any,
+        *,
+        dry_run: bool,
+    ) -> None:
+        """inferred relations — between existing CIs."""
+        src = resolve(edge.get("source"))
+        tgt = resolve(edge.get("target"))
+        rel = edge.get("rel_type") or edge.get("type")
+        if not (src and tgt and rel):
+            result.skipped += 1
+            return
+        class_name = edge.get("className") or "cmdb_ci"
+        if dry_run:
+            result.proposals.append(
+                {
+                    "op": "create_cmdb_relation",
+                    "sys_id": src,
+                    "type": rel,
+                    "target": tgt,
+                    "provenance": PROVENANCE_TAG,
+                }
+            )
+            return
+        response = self._attempt(
+            result,
+            "create_cmdb_relation",
+            client.create_cmdb_relation,  # type: ignore[union-attr]
+            className=class_name,
+            sys_id=src,
+            outbound_relations=[{"type": rel, "target": tgt}],
+            source=_SOURCE,
+        )
+        if response is not _ATTEMPT_FAILED:
+            result.relations_written += 1
+
+    def _work_note(
+        self,
+        ctx: Any,
+        client: Any,
+        result: WritebackResult,
+        item: dict[str, Any],
+        resolve: Any,
+        *,
+        dry_run: bool,
+    ) -> None:
+        """Append a review note to an existing ticket via the table-patch surface."""
+        sys_id = item.get("sys_id") or resolve(item.get("node"))
+        note = item.get("note")
+        table = item.get("table") or "task"
+        if not (sys_id and note):
+            result.skipped += 1
+            return
+        # X5 (CONCEPT:AU-KG.temporal.bi-temporal-memory-layers): work_notes IS the
+        # ServiceNow-native audit-trail field, so the KG-state instant this
+        # recommendation derived from is appended directly into the note text
+        # sent to ServiceNow — not just our own returned proposal/manifest.
+        if ctx.as_of:
+            note = f"{note}\n\n(KG state as of {ctx.as_of})"
+        if dry_run:
+            result.proposals.append(
+                {"op": "work_notes", "table": table, "sys_id": sys_id, "note": note}
+            )
+            return
+        response = self._attempt(
+            result,
+            "work_notes patch",
+            client.patch_table_record,  # type: ignore[union-attr]
+            table=table,
+            table_record_sys_id=sys_id,
+            data={"work_notes": note},
+        )
+        if response is not _ATTEMPT_FAILED:
+            result.enriched += 1
+
+    def _retire(
+        self,
+        ctx: Any,
+        client: Any,
+        result: WritebackResult,
+        item: dict[str, Any],
+        resolve: Any,
+        *,
+        dry_run: bool,
+    ) -> None:
+        """retirements — mark CIs retired (install_status=7)."""
+        sys_id = resolve(item.get("node"))
+        if not sys_id:
+            result.skipped += 1
+            return
+        class_name = item.get("className") or "cmdb_ci"
+        if dry_run:
+            result.proposals.append(
+                {"op": "retire", "class": class_name, "sys_id": sys_id}
+            )
+            return
+        response = self._attempt(
+            result,
+            "retire",
+            client.patch_cmdb_instance,  # type: ignore[union-attr]
+            className=class_name,
+            sys_id=sys_id,
+            attributes={"install_status": "7"},
+            source=_SOURCE,
+        )
+        if response is not _ATTEMPT_FAILED:
+            result.retired += 1
 
 
 register_sink(ServiceNowSink())
