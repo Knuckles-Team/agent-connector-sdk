@@ -2559,12 +2559,20 @@
     {
       "id": "SCION-SOURCE-INGEST-R600",
       "title": "Vendor write-back sinks run through one governed, fail-closed, dry-run-first entry point (rollup)",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "ec8d36a076f4"
+        "25e1d47263ea",
+        "2ebd61c4c0b5",
+        "4b003b24ce55",
+        "7f1902255745",
+        "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:28"
+        "tests/test_writeback_sinks.py:110",
+        "tests/test_writeback_sinks.py:151",
+        "tests/test_writeback_sinks.py:185",
+        "tests/test_writeback_sinks.py:230",
+        "tests/test_writeback_sinks.py:242"
       ],
       "rollup_of": [
         "SCION-SOURCE-INGEST-R600.1",
@@ -2635,9 +2643,13 @@
     {
       "id": "SCION-SOURCE-INGEST-R600.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "25e1d47263ea"
+      ],
+      "verified_by": [
+        "tests/test_writeback_sinks.py:351"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R800",
