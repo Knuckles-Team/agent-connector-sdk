@@ -255,9 +255,10 @@ class BasicAuthCredential(SourceCredential):
 
 def _post_form(
     trust: Any,
-    timeout: float,
     url: str,
     form: dict[str, str],
+    *,
+    timeout: float,
     auth: tuple[str, str] | None,
 ) -> Mapping[str, Any]:
     with httpx.Client(timeout=timeout, **trust.httpx_kwargs()) as client:
@@ -279,7 +280,7 @@ def _default_token_poster(tls_service: str, timeout: float) -> TokenPoster:
 
         trust = resolve_tls_profile(tls_service)
         try:
-            return _post_form(trust, timeout, url, form, auth)
+            return _post_form(trust, url, form, timeout=timeout, auth=auth)
         finally:
             trust.cleanup()
 

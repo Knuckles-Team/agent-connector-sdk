@@ -118,22 +118,23 @@ def _references(raw: Any) -> dict[str, str]:
     return out
 
 
-def _check_consistency(profile: ProviderProfile) -> None:
-    invalid = (
-        (profile.tls_profile and profile.tls_profile_ref)
-        or (
-            profile.endpoint_ref
-            and not (profile.tls_profile or profile.tls_profile_ref)
-        )
-        or (set(profile.credential_refs) & set(profile.selector_refs))
-        or (
-            profile.enabled
-            and not (
-                profile.endpoint_ref or profile.credential_refs or profile.selector_refs
-            )
-        )
+def _inconsistencies(profile: ProviderProfile) -> tuple[object, ...]:
+    return (
+        profile.tls_profile and profile.tls_profile_ref,
+        profile.endpoint_ref and not (profile.tls_profile or profile.tls_profile_ref),
+        set(profile.credential_refs) & set(profile.selector_refs),
+        profile.enabled and not _has_reference(profile),
     )
-    if invalid:
+
+
+def _has_reference(profile: ProviderProfile) -> bool:
+    return bool(
+        profile.endpoint_ref or profile.credential_refs or profile.selector_refs
+    )
+
+
+def _check_consistency(profile: ProviderProfile) -> None:
+    if any(_inconsistencies(profile)):
         raise ProviderProfileError("provider_profiles_invalid")
 
 
