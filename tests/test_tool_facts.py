@@ -136,3 +136,36 @@ def test_destructive_action_is_never_read_only() -> None:
     safe_name = {**tool, "name": "list_users"}
     explicit = facts_from_declaration(safe_name, operation={"destructive": True})
     assert not explicit.read_only and SideEffect.EXTERNAL_WRITE in explicit.side_effects
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.8")
+def test_tool_entry_pack_carries_contract_facts() -> None:
+    tool = SimpleNamespace(
+        name="read_users", inputSchema={"type": "object"}, annotations=None
+    )
+    entry = _tool_entry(tool, ServerIdentity(name="example", version="1"))
+    facts = facts_from_declaration(tool)
+    assert entry.annotations.schema_tokens == facts.schema_tokens
+    assert entry.annotations.side_effects == "external_write"
+    read_only = SimpleNamespace(
+        name="read_users",
+        inputSchema={"type": "object"},
+        annotations={"readOnlyHint": True},
+    )
+    quiet = _tool_entry(read_only, ServerIdentity(name="example", version="1"))
+    assert quiet.annotations.side_effects == "none"
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.6")
+def test_side_effects_round_trip_through_generated_pack_annotations() -> None:
+    tool = SimpleNamespace(
+        name="sync",
+        inputSchema={"type": "object"},
+        annotations=None,
+        meta={"eg.annotations": {"side_effects": "network", "schema_tokens": 7}},
+    )
+    entry = _tool_entry(tool, ServerIdentity(name="example", version="1"))
+    assert entry.annotations.side_effects == "network"
+    assert entry.annotations.schema_tokens == 7
+    again = type(entry.annotations).model_validate(entry.annotations.model_dump())
+    assert again == entry.annotations
