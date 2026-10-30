@@ -918,7 +918,12 @@
       "title": "JSON tag-loader migration inventory and parity gate",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_json_tag_loader_parity.py:45",
+        "tests/test_json_tag_loader_parity.py:50",
+        "tests/test_json_tag_loader_parity.py:56",
+        "tests/test_json_tag_loader_parity.py:73"
+      ]
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R020.2",
@@ -969,7 +974,13 @@
       "title": "A successor release keeps every predecessor tool",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_successor_tool_parity.py:13",
+        "tests/test_successor_tool_parity.py:26",
+        "tests/test_successor_tool_parity.py:33",
+        "tests/test_successor_tool_parity.py:40",
+        "tests/test_successor_tool_parity.py:45"
+      ]
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R026",
