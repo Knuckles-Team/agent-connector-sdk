@@ -268,38 +268,48 @@ class PrepEvidence(ProtocolModel):
 
     @model_validator(mode="after")
     def checkpoint_follows_outcome(self) -> PrepEvidence:
-        counted = sum(item.row_count for item in self.quarantine)
-        if counted != self.quarantined_rows:
-            raise ValueError("quarantine counts must equal quarantined_rows")
-        if self.rows_out + self.dropped_rows + self.quarantined_rows != self.rows_in:
-            raise ValueError("terminal row counts must cover every input row")
-        row_indexes = [item.row_index for item in self.row_outcomes]
-        if len(row_indexes) != self.rows_in or sorted(row_indexes) != list(
-            range(self.rows_in)
-        ):
-            raise ValueError("row outcomes must cover each input ordinal exactly once")
-        counted_accepted = sum(item.status == "accepted" for item in self.row_outcomes)
-        if counted_accepted != self.rows_out:
-            raise ValueError("accepted outcomes must equal rows_out")
-        counted_dropped = sum(item.status == "dropped" for item in self.row_outcomes)
-        if counted_dropped != self.dropped_rows:
-            raise ValueError("dropped outcomes must equal dropped_rows")
-        counted_outcomes = sum(
-            item.status == "quarantined" for item in self.row_outcomes
-        )
-        if counted_outcomes != self.quarantined_rows:
-            raise ValueError("row outcomes must account for every quarantined row")
-        counted_model_rejections = sum(
-            item.reason_code == "model_rejected" for item in self.row_outcomes
-        )
-        if counted_model_rejections != self.model_rejected_rows:
-            raise ValueError("model rejection count must match row outcomes")
-        if self.outcome == "quarantined":
-            if self.quarantined_rows < 1 or self.checkpoint_eligible:
-                raise ValueError("quarantined preparation is never checkpoint-eligible")
-        elif self.quarantined_rows != 0 or not self.checkpoint_eligible:
-            raise ValueError("complete preparation cannot contain quarantine outcomes")
+        _check_evidence_counts(self)
+        _check_row_outcomes(self)
+        _check_checkpoint_eligibility(self)
         return self
+
+
+def _check_evidence_counts(evidence: PrepEvidence) -> None:
+    counted = sum(item.row_count for item in evidence.quarantine)
+    if counted != evidence.quarantined_rows:
+        raise ValueError("quarantine counts must equal quarantined_rows")
+    terminal = evidence.rows_out + evidence.dropped_rows + evidence.quarantined_rows
+    if terminal != evidence.rows_in:
+        raise ValueError("terminal row counts must cover every input row")
+
+
+def _check_row_outcomes(evidence: PrepEvidence) -> None:
+    outcomes = evidence.row_outcomes
+    row_indexes = [item.row_index for item in outcomes]
+    if len(row_indexes) != evidence.rows_in or sorted(row_indexes) != list(
+        range(evidence.rows_in)
+    ):
+        raise ValueError("row outcomes must cover each input ordinal exactly once")
+    if sum(item.status == "accepted" for item in outcomes) != evidence.rows_out:
+        raise ValueError("accepted outcomes must equal rows_out")
+    if sum(item.status == "dropped" for item in outcomes) != evidence.dropped_rows:
+        raise ValueError("dropped outcomes must equal dropped_rows")
+    if (
+        sum(item.status == "quarantined" for item in outcomes)
+        != evidence.quarantined_rows
+    ):
+        raise ValueError("row outcomes must account for every quarantined row")
+    rejected = sum(item.reason_code == "model_rejected" for item in outcomes)
+    if rejected != evidence.model_rejected_rows:
+        raise ValueError("model rejection count must match row outcomes")
+
+
+def _check_checkpoint_eligibility(evidence: PrepEvidence) -> None:
+    if evidence.outcome == "quarantined":
+        if evidence.quarantined_rows < 1 or evidence.checkpoint_eligible:
+            raise ValueError("quarantined preparation is never checkpoint-eligible")
+    elif evidence.quarantined_rows != 0 or not evidence.checkpoint_eligible:
+        raise ValueError("complete preparation cannot contain quarantine outcomes")
 
 
 class ProfileTarget(ProtocolModel):
@@ -431,26 +441,32 @@ class ProfileResult(ProtocolModel):
         if self.null_cells != sum(item.null_count for item in self.column_profiles):
             raise ValueError("profile null cells do not match column profiles")
         for column in self.column_profiles:
-            if column.null_count > self.rows:
-                raise ValueError("profile null count exceeds row count")
-            expected_null_rate = column.null_count / self.rows if self.rows else 0.0
-            if abs(column.null_rate - expected_null_rate) > 1e-6:
-                raise ValueError("profile null rate does not match null count")
-            if column.distinct_count is not None and column.distinct_count > (
-                self.rows - column.null_count
-            ):
-                raise ValueError("profile cardinality exceeds non-null rows")
-            if any(entry.count < self.disclosure_threshold for entry in column.top_k):
-                raise ValueError("profile top-k contains a below-threshold value")
-            if self.rows - column.null_count < self.disclosure_threshold and (
-                column.min_value is not None
-                or column.max_value is not None
-                or column.mean is not None
-                or column.quantiles
-                or column.top_k
-            ):
-                raise ValueError("profile discloses a small-group statistic")
+            _check_column_profile(column, self.rows, self.disclosure_threshold)
         return self
+
+
+def _check_column_profile(
+    column: ColumnProfile, rows: int, disclosure_threshold: int
+) -> None:
+    if column.null_count > rows:
+        raise ValueError("profile null count exceeds row count")
+    expected_null_rate = column.null_count / rows if rows else 0.0
+    if abs(column.null_rate - expected_null_rate) > 1e-6:
+        raise ValueError("profile null rate does not match null count")
+    non_null = rows - column.null_count
+    if column.distinct_count is not None and column.distinct_count > non_null:
+        raise ValueError("profile cardinality exceeds non-null rows")
+    if any(entry.count < disclosure_threshold for entry in column.top_k):
+        raise ValueError("profile top-k contains a below-threshold value")
+    discloses = (
+        column.min_value is not None
+        or column.max_value is not None
+        or column.mean is not None
+        or column.quantiles
+        or column.top_k
+    )
+    if non_null < disclosure_threshold and discloses:
+        raise ValueError("profile discloses a small-group statistic")
 
 
 class ProfileRequest(ProtocolModel):

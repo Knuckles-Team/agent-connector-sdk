@@ -240,8 +240,20 @@ class SourceStream:
         if not entities and not documents:
             self._refuse("ingest needs at least one entity or document")
             return None
+        change_set = self._change_set(entities, relationships, documents)
+        if change_set is None:
+            return None
+        use = self.document_binding if not entities else None
+        return await self.submit(change_set, binding=use, ingest=ingest)
+
+    def _change_set(
+        self,
+        entities: Sequence[Mapping[str, Any]],
+        relationships: Sequence[Mapping[str, Any]] | None,
+        documents: Sequence[Mapping[str, Any]],
+    ) -> ChangeSet | None:
         try:
-            change_set = ChangeSet(
+            return ChangeSet(
                 entities=tuple(entity_from_record(e) for e in entities),
                 relationships=tuple(
                     relationship_from_record(r) for r in relationships or ()
@@ -253,8 +265,6 @@ class SourceStream:
                 raise
             _LOG.debug("knowledge ingest skipped: %s", exc)
             return None
-        use = self.document_binding if not entities else None
-        return await self.submit(change_set, binding=use, ingest=ingest)
 
     async def media(
         self,
@@ -289,7 +299,11 @@ class SourceStream:
         totals = {"nodes": 0, "edges": 0}
         if mapped.entities or not split:
             counts = await self._commit_entities(
-                mapped, split, cursor, ingest, _page_complete
+                mapped,
+                documents=() if split else tuple(mapped.documents),
+                cursor=cursor,
+                ingest=ingest,
+                page_complete=_page_complete,
             )
             if counts is None:
                 return None
@@ -308,12 +322,12 @@ class SourceStream:
     async def _commit_entities(
         self,
         mapped: Mapped,
-        split: bool,
+        *,
+        documents: tuple[Any, ...],
         cursor: str | None,
         ingest: KnowledgeIngest | None,
         page_complete: bool,
     ) -> dict[str, int] | None:
-        documents = () if split else tuple(mapped.documents)
         size = self.batch_size
         if size is None or not mapped.entities:
             return await self.submit(
@@ -326,8 +340,9 @@ class SourceStream:
                 ),
                 ingest=ingest,
             )
-        totals = {"nodes": 0, "edges": 0}
         entities, edges = mapped.entities, mapped.relationships
+        anchor = (entities[0],)
+        totals = {"nodes": 0, "edges": 0}
         for start in range(0, len(entities), size):
             counts = await self.submit(
                 ChangeSet(
@@ -340,7 +355,6 @@ class SourceStream:
             if counts is None:
                 return None
             totals = _add(totals, counts)
-        anchor = (entities[0],)
         for start in range(0, len(edges), size):
             counts = await self.submit(
                 ChangeSet(
@@ -357,6 +371,7 @@ class SourceStream:
                 "nodes": totals["nodes"],
                 "edges": totals["edges"] + counts["edges"],
             }
+        split = bool(mapped.documents) and not documents
         if documents or cursor or (page_complete and not split):
             counts = await self.submit(
                 ChangeSet(
@@ -428,7 +443,7 @@ class SourceStream:
         totals = {"nodes": 0, "edges": 0}
         seen: set[bytes] = set()
         if cursor is not None:
-            seen.add(hashlib.sha256(cursor.encode("utf-8")).digest())
+            seen.add(_fingerprint(cursor))
         pages = 0
         while max_pages is None or pages < max_pages:
             fetched = await fetch_page(cursor)
@@ -438,41 +453,60 @@ class SourceStream:
                 records = fetched
                 next_cursor = strategy.advance(records, cursor)
             pages += 1
-            if next_cursor is not None:
-                if not isinstance(next_cursor, str):
-                    raise IngestError("source continuation must be a string")
-                fingerprint = hashlib.sha256(next_cursor.encode("utf-8")).digest()
-                if fingerprint in seen:
-                    raise IngestError("source continuation repeated")
-                if len(seen) >= _MAX_CURSOR_HISTORY:
-                    raise IngestError("source continuation history limit exceeded")
-                seen.add(fingerprint)
-            mapped = self._mapper(kind, records)
-            if self.document_binding is not None and mapped.documents:
-                raise IngestError(
-                    "source sync cannot checkpoint split document streams"
-                )
-            if mapped.entities or mapped.documents:
-                counts = await self.mapped(
-                    mapped, cursor=next_cursor, ingest=service, _page_complete=True
-                )
-                if counts is None:
-                    raise IngestError("source page was not accepted")
+            _remember_cursor(seen, next_cursor)
+            counts = await self._sync_page(kind, records, next_cursor, service)
+            if counts is not None:
                 totals = _add(totals, counts)
-            elif records:
-                raise IngestError("source page mapping produced no records")
-            elif next_cursor is not None:
-                # Empty windows still represent accepted source progress.  Do
-                # not advance in memory until the checkpoint is durable.
-                counts = await self.submit(
-                    ChangeSet(cursor=next_cursor, source_page=True), ingest=service
-                )
-                if counts is None:
-                    raise IngestError("source page was not accepted")
             if next_cursor is None:
                 break
             cursor = next_cursor
         return totals
+
+    async def _sync_page(
+        self,
+        kind: str,
+        records: Sequence[Mapping[str, Any]],
+        next_cursor: str | None,
+        service: KnowledgeIngest,
+    ) -> dict[str, int] | None:
+        mapped = self._mapper(kind, records)
+        if self.document_binding is not None and mapped.documents:
+            raise IngestError("source sync cannot checkpoint split document streams")
+        if mapped.entities or mapped.documents:
+            counts = await self.mapped(
+                mapped, cursor=next_cursor, ingest=service, _page_complete=True
+            )
+            if counts is None:
+                raise IngestError("source page was not accepted")
+            return counts
+        if records:
+            raise IngestError("source page mapping produced no records")
+        if next_cursor is not None:
+            # Empty windows still represent accepted source progress.  Do
+            # not advance in memory until the checkpoint is durable.
+            counts = await self.submit(
+                ChangeSet(cursor=next_cursor, source_page=True), ingest=service
+            )
+            if counts is None:
+                raise IngestError("source page was not accepted")
+        return None
+
+
+def _fingerprint(cursor: str) -> bytes:
+    return hashlib.sha256(cursor.encode("utf-8")).digest()
+
+
+def _remember_cursor(seen: set[bytes], next_cursor: object) -> None:
+    if next_cursor is None:
+        return
+    if not isinstance(next_cursor, str):
+        raise IngestError("source continuation must be a string")
+    fingerprint = _fingerprint(next_cursor)
+    if fingerprint in seen:
+        raise IngestError("source continuation repeated")
+    if len(seen) >= _MAX_CURSOR_HISTORY:
+        raise IngestError("source continuation history limit exceeded")
+    seen.add(fingerprint)
 
 
 def _add(left: dict[str, int], right: dict[str, int]) -> dict[str, int]:

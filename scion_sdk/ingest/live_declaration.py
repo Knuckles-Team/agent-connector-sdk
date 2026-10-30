@@ -144,6 +144,42 @@ def load_sources_module(package_root: Path | str | None) -> Mapping[str, Any] | 
     }
 
 
+def _collect_declared_sources(
+    items: Iterable[Mapping[str, Any]],
+) -> tuple[dict[str, IngestSourceSpec], dict[str, SchemaMapping]]:
+    sources: dict[str, IngestSourceSpec] = {}
+    mappings: dict[str, SchemaMapping] = {}
+    for item in items:
+        for entry in item.get(META_KEY, ()):
+            body = {k: v for k, v in entry.items() if k not in ("tool", "mapping")}
+            spec_ = IngestSourceSpec.model_validate({**body, "tools": (entry["tool"],)})
+            if spec_.source_id in sources:
+                raise DeclarationError(f"duplicate source_id {spec_.source_id!r}")
+            sources[spec_.source_id] = spec_
+            if entry.get("mapping"):
+                mappings[spec_.record_type] = SchemaMapping.model_validate(
+                    entry["mapping"]
+                )
+    return sources, mappings
+
+
+def _declared_pairs(
+    tool_list: list[Any], declared: Mapping[str, Any]
+) -> list[tuple[str, dict[str, Any]]]:
+    names = {str(getattr(t, "name", "")) for t in tool_list}
+    pairs: list[tuple[str, dict[str, Any]]] = []
+    for tool in sorted(tool_list, key=lambda t: str(getattr(t, "name", ""))):
+        pairs += [(tool.name, entry) for entry in _entries(tool)]
+    for item in declared.get("SOURCES", ()):
+        for entry in item.get(META_KEY, ()):
+            if entry.get("tool") not in names:
+                raise ValueError(
+                    f"connector_sources declares unknown tool {entry.get('tool')!r}"
+                )
+            pairs.append((entry["tool"], entry))
+    return pairs
+
+
 def load_declaration(package: str) -> IngestSourceDeclaration:
     """Build ``package``'s ingest declaration from its ``connector_sources`` data.
 
@@ -164,19 +200,7 @@ def load_declaration(package: str) -> IngestSourceDeclaration:
     declared = load_sources_module(Path(locations[0])) if locations else None
     if declared is None:
         raise DeclarationError(f"{top} ships no {SOURCES_MODULE} module")
-    sources: dict[str, IngestSourceSpec] = {}
-    mappings: dict[str, SchemaMapping] = {}
-    for item in declared["SOURCES"]:
-        for entry in item.get(META_KEY, ()):
-            body = {k: v for k, v in entry.items() if k not in ("tool", "mapping")}
-            spec_ = IngestSourceSpec.model_validate({**body, "tools": (entry["tool"],)})
-            if spec_.source_id in sources:
-                raise DeclarationError(f"duplicate source_id {spec_.source_id!r}")
-            sources[spec_.source_id] = spec_
-            if entry.get("mapping"):
-                mappings[spec_.record_type] = SchemaMapping.model_validate(
-                    entry["mapping"]
-                )
+    sources, mappings = _collect_declared_sources(declared["SOURCES"])
     for key, mapping in declared["SCHEMA_MAPPINGS"].items():
         mappings[key] = SchemaMapping.model_validate(mapping)
     return IngestSourceDeclaration(
@@ -198,18 +222,8 @@ def build_declaration(
     Raises:
         ValueError: the sources module names a tool the server does not register.
     """
-    tool_list = list(tools)
-    names = {str(getattr(t, "name", "")) for t in tool_list}
-    pairs: list[tuple[str, dict[str, Any]]] = []
-    for tool in sorted(tool_list, key=lambda t: str(getattr(t, "name", ""))):
-        pairs += [(tool.name, entry) for entry in _entries(tool)]
-    for item in (declared or {}).get("SOURCES", ()):
-        for entry in item.get(META_KEY, ()):
-            if entry.get("tool") not in names:
-                raise ValueError(
-                    f"connector_sources declares unknown tool {entry.get('tool')!r}"
-                )
-            pairs.append((entry["tool"], entry))
+    declared = declared or {}
+    pairs = _declared_pairs(list(tools), declared)
     sources: dict[str, IngestSourceSpec] = {}
     mappings: dict[str, SchemaMapping] = {}
     for name, entry in pairs:
@@ -219,15 +233,14 @@ def build_declaration(
         sources[spec.source_id] = spec
         if mapping:
             mappings[spec.record_type] = SchemaMapping.model_validate(mapping)
-    for key, mapping in (declared or {}).get("SCHEMA_MAPPINGS", {}).items():
+    for key, mapping in declared.get("SCHEMA_MAPPINGS", {}).items():
         mappings.setdefault(key, SchemaMapping.model_validate(mapping))
     return IngestSourceDeclaration(
         connector=connector,
         sources=tuple(sources.values()),
         schema_mappings=mappings,
         resources=tuple(
-            ResourceSpec.model_validate(r)
-            for r in (declared or {}).get("RESOURCES", ())
+            ResourceSpec.model_validate(r) for r in declared.get("RESOURCES", ())
         ),
         descriptors=tuple(descriptors),
     )

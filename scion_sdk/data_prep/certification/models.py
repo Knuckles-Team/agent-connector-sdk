@@ -175,21 +175,28 @@ class SignedResultSummary(ProtocolModel):
     def counts_and_status_are_consistent(self) -> SignedResultSummary:
         if self.checks_total != self.checks_passed + self.checks_failed:
             raise ValueError("signed quality check counts must reconcile")
-        if self.status == "passed" and self.checks_total == 0:
-            raise ValueError("a passed result must contain at least one check")
-        if self.status == "passed" and (self.checks_failed or self.failure_codes):
-            raise ValueError("a signed passed result cannot contain failures")
-        if self.status == "failed" and not (self.checks_failed or self.failure_codes):
-            raise ValueError("a signed failed result must identify a bounded failure")
-        if self.report_artifact_ref is None and (
-            self.report_content_digest is not None or self.report_byte_size is not None
-        ):
-            raise ValueError("report digest/size requires a report reference")
-        if self.report_artifact_ref is not None and (
-            self.report_content_digest is None or self.report_byte_size is None
-        ):
-            raise ValueError("report reference requires its digest and byte size")
+        _check_status_failures(self)
+        _check_report_fields(self)
         return self
+
+
+def _check_status_failures(summary: SignedResultSummary) -> None:
+    has_failures = bool(summary.checks_failed or summary.failure_codes)
+    if summary.status == "passed" and summary.checks_total == 0:
+        raise ValueError("a passed result must contain at least one check")
+    if summary.status == "passed" and has_failures:
+        raise ValueError("a signed passed result cannot contain failures")
+    if summary.status == "failed" and not has_failures:
+        raise ValueError("a signed failed result must identify a bounded failure")
+
+
+def _check_report_fields(summary: SignedResultSummary) -> None:
+    has_digest = summary.report_content_digest is not None
+    has_size = summary.report_byte_size is not None
+    if summary.report_artifact_ref is None and (has_digest or has_size):
+        raise ValueError("report digest/size requires a report reference")
+    if summary.report_artifact_ref is not None and not (has_digest and has_size):
+        raise ValueError("report reference requires its digest and byte size")
 
 
 class CertificationResult(ProtocolModel):
@@ -207,21 +214,7 @@ class CertificationResult(ProtocolModel):
         if self.report is not None and self.signed_summary is None:
             raise ValueError("a report reference requires a signed summary")
         if self.signed_summary is not None:
-            if self.state not in {"failed", "passed"}:
-                raise ValueError("only executed states may carry a signed summary")
-            if self.state != self.signed_summary.status:
-                raise ValueError("certification state must match signed summary status")
-            if self.report is not None and (
-                self.report.artifact_ref != self.signed_summary.report_artifact_ref
-            ):
-                raise ValueError("report and signed summary references differ")
-            if self.report is not None and (
-                self.report.content_digest != self.signed_summary.report_content_digest
-                or self.report.byte_size != self.signed_summary.report_byte_size
-            ):
-                raise ValueError("report and signed summary digests differ")
-            if self.signed_summary.job_ref != self.job_ref:
-                raise ValueError("signed summary job reference differs")
+            _check_signed_summary_links(self, self.signed_summary)
         if self.state == "passed" and self.signed_summary is None:
             raise ValueError("passed certification requires a signed summary")
         if self.state in {"not_requested", "unavailable", "denied"} and (
@@ -229,6 +222,25 @@ class CertificationResult(ProtocolModel):
         ):
             raise ValueError("non-executed certification cannot publish artifacts")
         return self
+
+
+def _check_signed_summary_links(
+    result: CertificationResult, summary: SignedResultSummary
+) -> None:
+    if result.state not in {"failed", "passed"}:
+        raise ValueError("only executed states may carry a signed summary")
+    if result.state != summary.status:
+        raise ValueError("certification state must match signed summary status")
+    report = result.report
+    if report is not None and report.artifact_ref != summary.report_artifact_ref:
+        raise ValueError("report and signed summary references differ")
+    if report is not None and (
+        report.content_digest != summary.report_content_digest
+        or report.byte_size != summary.report_byte_size
+    ):
+        raise ValueError("report and signed summary digests differ")
+    if summary.job_ref != result.job_ref:
+        raise ValueError("signed summary job reference differs")
 
 
 __all__ = [
