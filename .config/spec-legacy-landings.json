@@ -1,0 +1,445 @@
+{
+  "SCION-CENTRALIZED-CAPABILITIES-R004": [
+    "7b53705c0c45",
+    "a0e4fdd71f64",
+    "a328e462721a",
+    "aa62b25d68af"
+  ],
+  "SCION-CONNECTOR-CONTROL-R003": [
+    "0f826d4ca6db",
+    "93afc6b075df"
+  ],
+  "SCION-CONNECTOR-CONTROL-R004": [
+    "043914e6c9cb"
+  ],
+  "SCION-CONNECTOR-CONTROL-R005": [
+    "584fb45cdf24",
+    "602215e2ddd8"
+  ],
+  "SCION-CONNECTOR-CONTROL-R006": [
+    "0f826d4ca6db",
+    "91801315ccaf",
+    "daeb199f91c0"
+  ],
+  "SCION-CONNECTOR-CONTROL-R007": [
+    "0f826d4ca6db",
+    "93afc6b075df"
+  ],
+  "SCION-CONNECTOR-CONTROL-R008": [
+    "e444b35a4c21"
+  ],
+  "SCION-CONNECTOR-CONTROL-R009": [
+    "5e1bd9257555",
+    "d3617301012c"
+  ],
+  "SCION-CONNECTOR-CONTROL-R010": [
+    "5e1bd9257555"
+  ],
+  "SCION-CONNECTOR-CONTROL-R011": [
+    "5e1bd9257555"
+  ],
+  "SCION-CONNECTOR-CONTROL-R012": [
+    "5e1bd9257555"
+  ],
+  "SCION-CONNECTOR-CONTROL-R013": [
+    "5e1bd9257555"
+  ],
+  "SCION-CONNECTOR-CONTROL-R014": [
+    "04a50086718c",
+    "077a14c9f3d3",
+    "15b099abed9d",
+    "16cb53774404"
+  ],
+  "SCION-CONNECTOR-CONTROL-R014.1": [
+    "ab73ea5005a0"
+  ],
+  "SCION-CONNECTOR-CONTROL-R014.21": [
+    "04a50086718c",
+    "0744e3514186",
+    "4549ac7babc9"
+  ],
+  "SCION-CONNECTOR-CONTROL-R015": [
+    "061f9b58abb2",
+    "077a14c9f3d3",
+    "5e1bd9257555",
+    "9cec9cea7d37",
+    "b3d7982de139"
+  ],
+  "SCION-CONNECTOR-CONTROL-R015.1": [
+    "061f9b58abb2",
+    "9cec9cea7d37"
+  ],
+  "SCION-CONNECTOR-CONTROL-R016": [
+    "584fb45cdf24",
+    "602215e2ddd8"
+  ],
+  "SCION-CONNECTOR-CONTROL-R018": [
+    "b0c376748245"
+  ],
+  "SCION-CONNECTOR-CONTROL-R019": [
+    "045ba48df230",
+    "434185d3a820",
+    "8f36880f39a7"
+  ],
+  "SCION-CONNECTOR-CONTROL-R020": [
+    "3fd28fa8b883",
+    "92210596714c"
+  ],
+  "SCION-CONNECTOR-CONTROL-R021": [
+    "0a10559775ea"
+  ],
+  "SCION-CONNECTOR-CONTROL-R022": [
+    "e6b835dcad49"
+  ],
+  "SCION-CONNECTOR-CONTROL-R023": [
+    "713782e7901c",
+    "b9a9652c0135"
+  ],
+  "SCION-CONNECTOR-CONTROL-R024": [
+    "713782e7901c"
+  ],
+  "SCION-CONNECTOR-CONTROL-R025": [
+    "5a476653a386",
+    "c1a0f0b11a29",
+    "d7d1ff0fb276"
+  ],
+  "SCION-CONNECTOR-CONTROL-R026": [
+    "851969957034",
+    "c529b133556b",
+    "d3617301012c"
+  ],
+  "SCION-CONNECTOR-CONTROL-R027": [
+    "284fb12a19ed",
+    "584fb45cdf24",
+    "602215e2ddd8"
+  ],
+  "SCION-CONNECTOR-CONTROL-R028": [
+    "0388c2c0fbac",
+    "0481308202ca",
+    "19ca24046d12",
+    "284fb12a19ed",
+    "459897c19da8"
+  ],
+  "SCION-CONNECTOR-CONTROL-R028.1": [
+    "284fb12a19ed"
+  ],
+  "SCION-CONNECTOR-CONTROL-R029": [
+    "284fb12a19ed"
+  ],
+  "SCION-CONNECTOR-CONTROL-R030": [
+    "284fb12a19ed",
+    "f5de79afc1e0"
+  ],
+  "SCION-CONNECTOR-CONTROL-R031": [
+    "284fb12a19ed"
+  ],
+  "SCION-CONNECTOR-CONTROL-R032": [
+    "629ef53c29f0",
+    "bac65b612ced"
+  ],
+  "SCION-CONNECTOR-CONTROL-R033": [
+    "629ef53c29f0",
+    "bac65b612ced"
+  ],
+  "SCION-CONNECTOR-CONTROL-R034": [
+    "629ef53c29f0",
+    "bac65b612ced"
+  ],
+  "SCION-CONNECTOR-CONTROL-R035": [
+    "629ef53c29f0",
+    "bac65b612ced"
+  ],
+  "SCION-CONNECTOR-CONTROL-R036": [
+    "629ef53c29f0",
+    "bac65b612ced"
+  ],
+  "SCION-CONNECTOR-CONTROL-R045": [
+    "2907b584635e",
+    "483f2e61beed",
+    "4c468642a56b",
+    "5d4848e2ff0f"
+  ],
+  "SCION-CONNECTOR-CONTROL-R047": [
+    "39ed54a0a2c8",
+    "3f69e2f9f627",
+    "6c1d3630854f",
+    "772eecafdcb1"
+  ],
+  "SCION-CONNECTOR-CONTROL-R071": [
+    "aa58c5dd6858"
+  ],
+  "SCION-CONNECTOR-CONTROL-R074": [
+    "1ac640f88ad4",
+    "4faad30ebcd9",
+    "52111adb6bf2",
+    "5a0965f9c2e8",
+    "9571c94146e2"
+  ],
+  "SCION-CONNECTOR-CONTROL-R075": [
+    "0d150cf96fd8",
+    "2078ee0208c5",
+    "2487b614c171",
+    "647f3de98067",
+    "95f251043be1"
+  ],
+  "SCION-CONNECTOR-CONTROL-R781": [
+    "6a04f75ba91e"
+  ],
+  "SCION-CONNECTOR-CONTROL-R900": [
+    "4b003b24ce55",
+    "8c6dcfdd27e8",
+    "be6035bc97e5"
+  ],
+  "SCION-CONNECTOR-CONTROL-R901": [
+    "4b003b24ce55",
+    "8c6dcfdd27e8",
+    "be6035bc97e5"
+  ],
+  "SCION-FINANCE-SOURCES-R001": [
+    "02b449199739",
+    "3c4fa7686c22",
+    "44c6cb0bf7be",
+    "6207abe94df2",
+    "80dde9bd6f91"
+  ],
+  "SCION-FINANCE-SOURCES-R002": [
+    "461c05ae92f7",
+    "823197633ebb",
+    "9b6142797c31",
+    "c6c8658a8771"
+  ],
+  "SCION-FINANCE-SOURCES-R003": [
+    "08979a040365",
+    "16691cb89ea9",
+    "6ef04661acc2",
+    "a386922d65f8"
+  ],
+  "SCION-FINANCE-SOURCES-R004": [
+    "19e0189b0e7b",
+    "2ef7ca88d676",
+    "6ef04661acc2",
+    "8247d7cce977"
+  ],
+  "SCION-FINANCE-SOURCES-R005": [
+    "1499fb6075af",
+    "1a4bb4a2d385",
+    "36f3c76a370c",
+    "840bd894c581"
+  ],
+  "SCION-FINANCE-SOURCES-R900": [
+    "0567e6db2c3d",
+    "341a4a3478e7",
+    "48551e89426a",
+    "4b003b24ce55",
+    "69ec5b2bf18f"
+  ],
+  "SCION-GOVERNED-WRITEBACK-R001": [
+    "daeb199f91c0"
+  ],
+  "SCION-GOVERNED-WRITEBACK-R004": [
+    "6ef04661acc2"
+  ],
+  "SCION-OBSERVABILITY-FEEDS-R001": [
+    "083be3f609e4",
+    "123c6ecbe31b",
+    "1bb27f84e6c3",
+    "79c2eb26af34"
+  ],
+  "SCION-QUALITY-RELEASE-R002": [
+    "fad5328aee62"
+  ],
+  "SCION-QUALITY-RELEASE-R004": [
+    "cbbf859a5c38",
+    "fad5328aee62"
+  ],
+  "SCION-REPOSITORY-TRANSPORT-R001": [
+    "acf470ac4906"
+  ],
+  "SCION-REPOSITORY-TRANSPORT-R003": [
+    "9a6fe1ddcf26"
+  ],
+  "SCION-REPOSITORY-TRANSPORT-R004": [
+    "acf470ac4906"
+  ],
+  "SCION-REPOSITORY-TRANSPORT-R005": [
+    "acf470ac4906"
+  ],
+  "SCION-SCM-R001": [
+    "6bca045bd474"
+  ],
+  "SCION-SOURCE-INGEST-R003": [
+    "23f241b07560"
+  ],
+  "SCION-SOURCE-INGEST-R004": [
+    "23f241b07560",
+    "4ce2308afe64",
+    "55bab2b23000"
+  ],
+  "SCION-SOURCE-INGEST-R005": [
+    "45c6c7c1fd37",
+    "8e87ef9675f0"
+  ],
+  "SCION-SOURCE-INGEST-R006": [
+    "10376b1e9728",
+    "1cbd1de01d83",
+    "35871f3b2b8e",
+    "36d2c92e439c",
+    "3735e4434463"
+  ],
+  "SCION-SOURCE-INGEST-R006.1": [
+    "10376b1e9728",
+    "1cbd1de01d83",
+    "36d2c92e439c",
+    "9511ab38c04c"
+  ],
+  "SCION-SOURCE-INGEST-R006.10": [
+    "bbf11894fed5"
+  ],
+  "SCION-SOURCE-INGEST-R006.11": [
+    "e4f6426897ba"
+  ],
+  "SCION-SOURCE-INGEST-R006.12": [
+    "e4f6426897ba"
+  ],
+  "SCION-SOURCE-INGEST-R006.13": [
+    "e4f6426897ba"
+  ],
+  "SCION-SOURCE-INGEST-R006.14": [
+    "bd6e0d836c92"
+  ],
+  "SCION-SOURCE-INGEST-R006.15": [
+    "bd6e0d836c92"
+  ],
+  "SCION-SOURCE-INGEST-R006.16": [
+    "bd6e0d836c92"
+  ],
+  "SCION-SOURCE-INGEST-R006.17": [
+    "10376b1e9728",
+    "a41cc47d27d3"
+  ],
+  "SCION-SOURCE-INGEST-R006.18": [
+    "7f190c51f090",
+    "a41cc47d27d3"
+  ],
+  "SCION-SOURCE-INGEST-R006.19": [
+    "7f190c51f090",
+    "a41cc47d27d3"
+  ],
+  "SCION-SOURCE-INGEST-R006.2": [
+    "9511ab38c04c",
+    "bd6e0d836c92"
+  ],
+  "SCION-SOURCE-INGEST-R006.20": [
+    "e626b457bb1d"
+  ],
+  "SCION-SOURCE-INGEST-R006.21": [
+    "e626b457bb1d"
+  ],
+  "SCION-SOURCE-INGEST-R006.22": [
+    "e626b457bb1d"
+  ],
+  "SCION-SOURCE-INGEST-R006.23": [
+    "1cbd1de01d83"
+  ],
+  "SCION-SOURCE-INGEST-R006.24": [
+    "1cbd1de01d83"
+  ],
+  "SCION-SOURCE-INGEST-R006.25": [
+    "1cbd1de01d83"
+  ],
+  "SCION-SOURCE-INGEST-R006.26": [
+    "9d8b3f7f89f1"
+  ],
+  "SCION-SOURCE-INGEST-R006.27": [
+    "9d8b3f7f89f1"
+  ],
+  "SCION-SOURCE-INGEST-R006.28": [
+    "9d8b3f7f89f1"
+  ],
+  "SCION-SOURCE-INGEST-R006.29": [
+    "10376b1e9728"
+  ],
+  "SCION-SOURCE-INGEST-R006.3": [
+    "9511ab38c04c"
+  ],
+  "SCION-SOURCE-INGEST-R006.30": [
+    "10376b1e9728"
+  ],
+  "SCION-SOURCE-INGEST-R006.31": [
+    "10376b1e9728"
+  ],
+  "SCION-SOURCE-INGEST-R006.4": [
+    "9511ab38c04c"
+  ],
+  "SCION-SOURCE-INGEST-R006.5": [
+    "36d2c92e439c"
+  ],
+  "SCION-SOURCE-INGEST-R006.6": [
+    "36d2c92e439c"
+  ],
+  "SCION-SOURCE-INGEST-R006.7": [
+    "36d2c92e439c"
+  ],
+  "SCION-SOURCE-INGEST-R006.8": [
+    "bbf11894fed5"
+  ],
+  "SCION-SOURCE-INGEST-R006.9": [
+    "bbf11894fed5"
+  ],
+  "SCION-SOURCE-INGEST-R008": [
+    "289aadb634d8",
+    "83b7dd3f33eb"
+  ],
+  "SCION-SOURCE-INGEST-R009": [
+    "bfe88b9d8521",
+    "ff4c1aaafc8a"
+  ],
+  "SCION-SOURCE-INGEST-R012": [
+    "27aa0ca2e9ae",
+    "5436800bcc12",
+    "8d984764c9d8",
+    "8eacf9ba10b6"
+  ],
+  "SCION-SOURCE-INGEST-R600": [
+    "25e1d47263ea",
+    "2ebd61c4c0b5",
+    "4b003b24ce55",
+    "7f1902255745",
+    "8c6dcfdd27e8"
+  ],
+  "SCION-SOURCE-INGEST-R800": [
+    "1fef6e28fd79",
+    "23b5ecce8a59",
+    "2d68f7c80246",
+    "4b003b24ce55"
+  ],
+  "SCION-SOURCE-INGEST-R803": [
+    "05f0db88c98a",
+    "075dd1650da3",
+    "1bb27f84e6c3",
+    "22044d5f3981"
+  ],
+  "SCION-SOURCE-INGEST-R804": [
+    "09cb7fb3989e",
+    "34f19683dc5a",
+    "4b003b24ce55",
+    "739c341c2595"
+  ],
+  "SCION-SOURCE-INGEST-R900": [
+    "120154b4ffd4",
+    "490b74f6bf04",
+    "4b003b24ce55",
+    "7aa27bbd799e",
+    "7fe6d4b6b49e"
+  ],
+  "SCION-SOURCE-INGEST-R901": [
+    "4b003b24ce55",
+    "8c6dcfdd27e8",
+    "be6035bc97e5"
+  ],
+  "SCION-SOURCE-INGEST-R902": [
+    "4b003b24ce55",
+    "7aa27bbd799e",
+    "8c6dcfdd27e8"
+  ]
+}
