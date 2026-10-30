@@ -53,6 +53,7 @@ def _context():
     )
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 def test_occurrence_graph_entities_use_admitted_taxon_and_place():
     records, edges = _occurrence_entities([_row()], _context())
     assert {record["node_type"] for record in records} == {
@@ -68,6 +69,7 @@ def test_occurrence_graph_entities_use_admitted_taxon_and_place():
     }
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 def test_occurrence_refuses_unapproved_identity_or_coordinates():
     context = _context()
     for row in (
