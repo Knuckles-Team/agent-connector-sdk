@@ -66,79 +66,121 @@ class ErpNextSink(WritebackClientMixin):
 
     def _run(self, invocation: WritebackInvocation) -> WritebackResult:
         ctx, ops, client, result, dry_run = invocation.unpack()
-
         resolve = ctx.resolver("erpnext")
-
-        # creations — new Items / Assets.
         for c in ops.get("creations") or []:
-            name = c.get("name")
-            if not name:
-                continue
-            doctype, name_field = _doctype_for(c.get("type", ""))
-            doctype = c.get("doctype") or doctype
-            data = {name_field: name, **(c.get("attributes") or {})}
-            if dry_run:
-                result.proposals.append(
-                    {"op": "create_document", "doctype": doctype, "name": name}
-                )
-                continue
-            try:
-                res = client.create_document(doctype, data)  # type: ignore[union-attr]
-                result.created += 1
-                ctx.stamp_external_id(
-                    c.get("node"),
-                    self.domain,
-                    _extract_doc_name(res, fallback=name),
-                    node_type=c.get("type", ""),
-                )
-            except Exception:
-                logger.debug("erpnext create_document failed", exc_info=True)
-                result.errors += 1
-
-        # enrichments — update fields on existing docs.
+            self._op_creations(ctx, client, result, c, resolve, dry_run=dry_run)
         for item in ops.get("enrichments") or []:
-            doc_name = resolve(item.get("node"))
-            attrs = item.get("attributes") or {}
-            doctype = item.get("doctype") or "Item"
-            if not (doc_name and attrs):
-                result.skipped += 1
-                continue
-            if dry_run:
-                result.proposals.append(
-                    {"op": "update_document", "doctype": doctype, "name": doc_name}
-                )
-                continue
-            try:
-                client.update_document(doctype, doc_name, attrs)  # type: ignore[union-attr]
-                result.enriched += 1
-            except Exception:
-                logger.debug("erpnext update_document failed", exc_info=True)
-                result.errors += 1
-
-        # retirements — disable the doc.
+            self._op_enrichments(ctx, client, result, item, resolve, dry_run=dry_run)
         for item in ops.get("retirements") or []:
-            doc_name = resolve(item.get("node"))
-            doctype = item.get("doctype") or "Item"
-            if not doc_name:
-                result.skipped += 1
-                continue
-            if dry_run:
-                result.proposals.append(
-                    {"op": "retire", "doctype": doctype, "name": doc_name}
-                )
-                continue
-            try:
-                client.update_document(doctype, doc_name, {"disabled": 1})  # type: ignore[union-attr]
-                result.retired += 1
-            except Exception:
-                logger.debug("erpnext retire failed", exc_info=True)
-                result.errors += 1
-
-        # ERPNext has no generic relation table — inferred relations are skipped.
+            self._op_retirements(ctx, client, result, item, resolve, dry_run=dry_run)
         for _edge in ops.get("inferences") or []:
-            result.skipped += 1
-
+            self._op_inferences(ctx, client, result, _edge, resolve, dry_run=dry_run)
         return result
+
+    def _op_creations(
+        self,
+        ctx: Any,
+        client: Any,
+        result: WritebackResult,
+        c: dict[str, Any],
+        resolve: Any,
+        *,
+        dry_run: bool,
+    ) -> None:
+        """creations — new Items / Assets.."""
+        name = c.get("name")
+        if not name:
+            return
+        doctype, name_field = _doctype_for(c.get("type", ""))
+        doctype = c.get("doctype") or doctype
+        data = {name_field: name, **(c.get("attributes") or {})}
+        if dry_run:
+            result.proposals.append(
+                {"op": "create_document", "doctype": doctype, "name": name}
+            )
+            return
+        try:
+            res = client.create_document(doctype, data)  # type: ignore[union-attr]
+            result.created += 1
+            ctx.stamp_external_id(
+                c.get("node"),
+                self.domain,
+                _extract_doc_name(res, fallback=name),
+                node_type=c.get("type", ""),
+            )
+        except Exception:
+            logger.debug("erpnext create_document failed", exc_info=True)
+            result.errors += 1
+
+    def _op_enrichments(
+        self,
+        ctx: Any,
+        client: Any,
+        result: WritebackResult,
+        item: dict[str, Any],
+        resolve: Any,
+        *,
+        dry_run: bool,
+    ) -> None:
+        """enrichments — update fields on existing docs.."""
+        doc_name = resolve(item.get("node"))
+        attrs = item.get("attributes") or {}
+        doctype = item.get("doctype") or "Item"
+        if not (doc_name and attrs):
+            result.skipped += 1
+            return
+        if dry_run:
+            result.proposals.append(
+                {"op": "update_document", "doctype": doctype, "name": doc_name}
+            )
+            return
+        try:
+            client.update_document(doctype, doc_name, attrs)  # type: ignore[union-attr]
+            result.enriched += 1
+        except Exception:
+            logger.debug("erpnext update_document failed", exc_info=True)
+            result.errors += 1
+
+    def _op_retirements(
+        self,
+        ctx: Any,
+        client: Any,
+        result: WritebackResult,
+        item: dict[str, Any],
+        resolve: Any,
+        *,
+        dry_run: bool,
+    ) -> None:
+        """retirements — disable the doc.."""
+        doc_name = resolve(item.get("node"))
+        doctype = item.get("doctype") or "Item"
+        if not doc_name:
+            result.skipped += 1
+            return
+        if dry_run:
+            result.proposals.append(
+                {"op": "retire", "doctype": doctype, "name": doc_name}
+            )
+            return
+        try:
+            client.update_document(doctype, doc_name, {"disabled": 1})  # type: ignore[union-attr]
+            result.retired += 1
+        except Exception:
+            logger.debug("erpnext retire failed", exc_info=True)
+            result.errors += 1
+
+    def _op_inferences(
+        self,
+        ctx: Any,
+        client: Any,
+        result: WritebackResult,
+        _edge: dict[str, Any],
+        resolve: Any,
+        *,
+        dry_run: bool,
+    ) -> None:
+        """ERPNext has no generic relation table — inferred relations are skipped.."""
+        result.skipped += 1
 
 
 register_sink(ErpNextSink())
