@@ -40,41 +40,90 @@ class _UniqueLoader(yaml.SafeLoader):
         return result
 
 
+def _read_lock_bytes(path: str | Path) -> bytes:
+    try:
+        with Path(path).open("rb") as handle:
+            raw = handle.read(MAX_RELEASE_LOCK_BYTES + 1)
+    except OSError as exc:
+        raise ReleaseSigningError("release lock is unreadable or malformed") from exc
+    if len(raw) > MAX_RELEASE_LOCK_BYTES:
+        raise ReleaseSigningError("release lock exceeds the size limit")
+    return raw
+
+
+def _parse_lock_document(raw: bytes) -> object:
+    loader = _UniqueLoader(raw)
+    try:
+        return loader.get_single_data()
+    except yaml.YAMLError as exc:
+        raise ReleaseSigningError("release lock is unreadable or malformed") from exc
+    finally:
+        loader.dispose()
+
+
+def _check_signer(signer: object) -> str:
+    if not isinstance(signer, str) or not _KEY_ID.fullmatch(signer):
+        raise ReleaseSigningError("release lock signer is invalid")
+    return signer
+
+
+def _pin_signer(keys: dict[str, bytes], signer: str, public_key: bytes) -> None:
+    if signer in keys and keys[signer] != public_key:
+        raise ReleaseSigningError("release lock has conflicting signer keys")
+    keys[signer] = public_key
+
+
 def load_release_key_lock(path: str | Path) -> Mapping[str, bytes]:
     """Load named Ed25519 pins; missing, ambiguous or malformed locks refuse.
 
     Each artifact entry must name `signer` and `signing_public_key`. All entries
     for a signer must pin the same canonical unpadded base64url public key.
     """
-    try:
-        with Path(path).open("rb") as handle:
-            raw = handle.read(MAX_RELEASE_LOCK_BYTES + 1)
-        if len(raw) > MAX_RELEASE_LOCK_BYTES:
-            raise ReleaseSigningError("release lock exceeds the size limit")
-        loader = _UniqueLoader(raw)
-        try:
-            document = loader.get_single_data()
-        finally:
-            loader.dispose()
-    except (OSError, yaml.YAMLError) as exc:
-        raise ReleaseSigningError("release lock is unreadable or malformed") from exc
+    document = _parse_lock_document(_read_lock_bytes(path))
     if not isinstance(document, dict) or not document:
         raise ReleaseSigningError("release lock has no pinned artifacts")
     keys: dict[str, bytes] = {}
     for entry in document.values():
         if not isinstance(entry, dict):
             raise ReleaseSigningError("release lock entry is malformed")
-        signer = entry.get("signer")
-        if not isinstance(signer, str) or not _KEY_ID.fullmatch(signer):
-            raise ReleaseSigningError("release lock signer is invalid")
+        signer = _check_signer(entry.get("signer"))
         encoded_key = entry.get("signing_public_key")
         if not isinstance(encoded_key, str):
             raise ReleaseSigningError("release lock public key is invalid")
-        public_key = _decode(encoded_key, 32)
-        if signer in keys and keys[signer] != public_key:
-            raise ReleaseSigningError("release lock has conflicting signer keys")
-        keys[signer] = public_key
+        _pin_signer(keys, signer, _decode(encoded_key, 32))
     return MappingProxyType(keys)
+
+
+def _lock_bytes(artifacts: Mapping[str, tuple[str, bytes]]) -> bytes:
+    document: dict[str, dict[str, str]] = {}
+    keys: dict[str, bytes] = {}
+    for artifact, (signer, public_key) in artifacts.items():
+        if not isinstance(artifact, str) or not artifact:
+            raise ReleaseSigningError("release lock artifact is invalid")
+        _check_signer(signer)
+        if not isinstance(public_key, bytes) or len(public_key) != 32:
+            raise ReleaseSigningError("release lock public key is invalid")
+        _pin_signer(keys, signer, public_key)
+        document[artifact] = {
+            "signer": signer,
+            "signing_public_key": _encode(public_key),
+        }
+    raw = yaml.safe_dump(document, sort_keys=True).encode("utf-8")
+    if len(raw) > MAX_RELEASE_LOCK_BYTES:
+        raise ReleaseSigningError("release lock exceeds the size limit")
+    return raw
+
+
+def _write_temporary(directory: Path, raw: bytes) -> str:
+    with tempfile.NamedTemporaryFile(dir=directory, delete=False) as handle:
+        try:
+            handle.write(raw)
+            handle.flush()
+            os.fsync(handle.fileno())
+        except OSError:
+            Path(handle.name).unlink(missing_ok=True)
+            raise
+    return handle.name
 
 
 def create_release_key_lock(
@@ -83,33 +132,11 @@ def create_release_key_lock(
     """Create a new pin lock without replacing existing files or authorizing rotation."""
     if not artifacts:
         raise ReleaseSigningError("release lock has no pinned artifacts")
-    document: dict[str, dict[str, str]] = {}
-    keys: dict[str, bytes] = {}
-    for artifact, (signer, public_key) in artifacts.items():
-        if not isinstance(artifact, str) or not artifact:
-            raise ReleaseSigningError("release lock artifact is invalid")
-        if not isinstance(signer, str) or not _KEY_ID.fullmatch(signer):
-            raise ReleaseSigningError("release lock signer is invalid")
-        if not isinstance(public_key, bytes) or len(public_key) != 32:
-            raise ReleaseSigningError("release lock public key is invalid")
-        if signer in keys and keys[signer] != public_key:
-            raise ReleaseSigningError("release lock has conflicting signer keys")
-        keys[signer] = public_key
-        document[artifact] = {
-            "signer": signer,
-            "signing_public_key": _encode(public_key),
-        }
-    raw = yaml.safe_dump(document, sort_keys=True).encode("utf-8")
-    if len(raw) > MAX_RELEASE_LOCK_BYTES:
-        raise ReleaseSigningError("release lock exceeds the size limit")
+    raw = _lock_bytes(artifacts)
     target = Path(path)
     temporary: str | None = None
     try:
-        with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as handle:
-            temporary = handle.name
-            handle.write(raw)
-            handle.flush()
-            os.fsync(handle.fileno())
+        temporary = _write_temporary(target.parent, raw)
         os.link(temporary, target)
     except OSError as exc:
         raise ReleaseSigningError("release lock could not be created") from exc

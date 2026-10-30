@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 import time
 from collections.abc import Awaitable, Callable
+from typing import cast
 
 import anyio
 
@@ -16,6 +17,7 @@ __all__ = ["run_with_resilience", "run_with_resilience_sync"]
 def _validate(
     policy: RetryPolicy,
     retry_on: tuple[type[Exception], ...],
+    *,
     retry_safe: bool,
     fallback_count: int,
 ) -> None:
@@ -44,6 +46,44 @@ def _retryable(error: Exception, retry_on: tuple[type[Exception], ...]) -> bool:
     return isinstance(error, retry_on) and not is_tls_verification_failure(error)
 
 
+def _validate_timeout(timeout_seconds: float | None) -> None:
+    if timeout_seconds is not None and (
+        isinstance(timeout_seconds, bool)
+        or not math.isfinite(timeout_seconds)
+        or timeout_seconds <= 0
+    ):
+        raise ValueError("timeout must be finite and positive")
+
+
+async def _attempt[T](
+    call: Callable[[], Awaitable[T]],
+    timeout_seconds: float | None,
+    *,
+    last: bool,
+    retry_on: tuple[type[Exception], ...],
+) -> tuple[bool, T | None]:
+    try:
+        if timeout_seconds is None:
+            return True, await call()
+        with anyio.fail_after(timeout_seconds):
+            return True, await call()
+    except Exception as exc:
+        if last or not _retryable(exc, retry_on):
+            raise
+    return False, None
+
+
+def _attempt_sync[T](
+    call: Callable[[], T], *, last: bool, retry_on: tuple[type[Exception], ...]
+) -> tuple[bool, T | None]:
+    try:
+        return True, call()
+    except Exception as exc:
+        if last or not _retryable(exc, retry_on):
+            raise
+    return False, None
+
+
 async def run_with_resilience[T](
     primary: Callable[[], Awaitable[T]],
     *,
@@ -61,25 +101,17 @@ async def run_with_resilience[T](
     a coroutine that suppresses cancellation cannot be forcibly stopped.
     """
     selected = policy or RetryPolicy(max_attempts=1)
-    _validate(selected, retry_on, retry_safe, len(fallbacks))
-    if timeout_seconds is not None and (
-        isinstance(timeout_seconds, bool)
-        or not math.isfinite(timeout_seconds)
-        or timeout_seconds <= 0
-    ):
-        raise ValueError("timeout must be finite and positive")
+    _validate(selected, retry_on, retry_safe=retry_safe, fallback_count=len(fallbacks))
+    _validate_timeout(timeout_seconds)
     calls = _plan(primary, fallbacks, selected)
     for index, call in enumerate(calls):
         if 0 < index < selected.max_attempts:
             await anyio.sleep(selected.backoff(index))
-        try:
-            if timeout_seconds is None:
-                return await call()
-            with anyio.fail_after(timeout_seconds):
-                return await call()
-        except Exception as exc:
-            if index == len(calls) - 1 or not _retryable(exc, retry_on):
-                raise
+        done, value = await _attempt(
+            call, timeout_seconds, last=index == len(calls) - 1, retry_on=retry_on
+        )
+        if done:
+            return cast("T", value)
     raise RuntimeError("resilience policy exhausted without a result")
 
 
@@ -99,16 +131,16 @@ def run_with_resilience_sync[T](
     loop; use the async runner for cancellable async operations.
     """
     selected = policy or RetryPolicy(max_attempts=1)
-    _validate(selected, retry_on, retry_safe, len(fallbacks))
+    _validate(selected, retry_on, retry_safe=retry_safe, fallback_count=len(fallbacks))
     if timeout_seconds is not None:
         raise ValueError("timeouts are unavailable for blocking callables")
     calls = _plan(primary, fallbacks, selected)
     for index, call in enumerate(calls):
         if 0 < index < selected.max_attempts:
             time.sleep(selected.backoff(index))
-        try:
-            return call()
-        except Exception as exc:
-            if index == len(calls) - 1 or not _retryable(exc, retry_on):
-                raise
+        done, value = _attempt_sync(
+            call, last=index == len(calls) - 1, retry_on=retry_on
+        )
+        if done:
+            return cast("T", value)
     raise RuntimeError("resilience policy exhausted without a result")

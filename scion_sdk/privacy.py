@@ -20,7 +20,7 @@ import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import SplitResult, urlsplit
 
 from scion_sdk.privacy_reference import persistence_reference
 from scion_sdk.privacy_rules import (
@@ -61,34 +61,43 @@ class PrivacyReport:
         }
 
 
-def public_http_url(value: Any) -> bool:
-    """Whether ``value`` is an absolute ``http(s)`` URL to a public host.
+_NON_PUBLIC_SUFFIXES = (".local", ".localhost", ".internal", ".arpa", ".lan", ".home")
 
-    A URL with credentials, or one naming a loopback, private, link-local or
-    single-label host, is not public and stays redacted.
-    """
-    if not isinstance(value, str) or any(c in value for c in "\r\n\t "):
-        return False
-    try:
-        parts = urlsplit(value)
-    except ValueError:
-        return False
-    host = (parts.hostname or "").lower()
-    if parts.scheme not in {"http", "https"} or not host:
-        return False
-    if parts.username is not None or parts.password is not None:
-        return False
+
+def _public_hostname(host: str) -> bool:
     try:
         address = ipaddress.ip_address(host)
     except ValueError:
         return (
             "." in host
             and host not in {"localhost"}
-            and not host.endswith(
-                (".local", ".localhost", ".internal", ".arpa", ".lan", ".home")
-            )
+            and not host.endswith(_NON_PUBLIC_SUFFIXES)
         )
     return address.is_global
+
+
+def _split_http_url(value: Any) -> SplitResult | None:
+    if not isinstance(value, str) or any(c in value for c in "\r\n\t "):
+        return None
+    try:
+        return urlsplit(value)
+    except ValueError:
+        return None
+
+
+def public_http_url(value: Any) -> bool:
+    """Whether ``value`` is an absolute ``http(s)`` URL to a public host.
+
+    A URL with credentials, or one naming a loopback, private, link-local or
+    single-label host, is not public and stays redacted.
+    """
+    parts = _split_http_url(value)
+    if parts is None or parts.scheme not in {"http", "https"}:
+        return False
+    host = (parts.hostname or "").lower()
+    if not host or parts.username is not None or parts.password is not None:
+        return False
+    return _public_hostname(host)
 
 
 class PersistencePrivacyGuard:

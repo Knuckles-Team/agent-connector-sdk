@@ -52,16 +52,7 @@ class BoundedAccessCheck:
     ) -> AccessCheckAnswer:
         """Refuse ambiguous inputs and incomplete, contradictory provider replies."""
         refs = tuple(record_refs)
-        if (
-            not isinstance(principal, str)
-            or not principal.strip()
-            or len(refs) > MAX_RECORD_REFS
-        ):
-            raise ValueError("invalid access-check request")
-        if any(not isinstance(ref, str) or not ref.strip() for ref in refs) or len(
-            set(refs)
-        ) != len(refs):
-            raise ValueError("invalid access-check record references")
+        _validate_request(principal, refs)
         try:
             with anyio.fail_after(self._timeout):
                 answer = await self._provider.check(principal, refs)
@@ -69,23 +60,38 @@ class BoundedAccessCheck:
             return AccessCheckAnswer(
                 allowed=(), denied=refs, checked_at=datetime.now(UTC)
             )
-        if not isinstance(answer, AccessCheckAnswer):
-            raise ValueError("invalid access-check answer")
-        if (
-            not isinstance(answer.allowed, tuple)
-            or not isinstance(answer.denied, tuple)
-            or not isinstance(answer.checked_at, datetime)
-            or any(
-                not isinstance(ref, str) for ref in (*answer.allowed, *answer.denied)
-            )
-        ):
-            raise ValueError("invalid access-check answer")
-        all_refs = (*answer.allowed, *answer.denied)
-        if (
-            answer.checked_at.utcoffset() is None
-            or len(all_refs) != len(refs)
-            or len(set(all_refs)) != len(all_refs)
-            or set(all_refs) != set(refs)
-        ):
-            raise ValueError("incomplete or contradictory access-check answer")
+        _validate_answer(answer, refs)
         return answer
+
+
+def _validate_request(principal: str, refs: tuple[str, ...]) -> None:
+    if (
+        not isinstance(principal, str)
+        or not principal.strip()
+        or len(refs) > MAX_RECORD_REFS
+    ):
+        raise ValueError("invalid access-check request")
+    if any(not isinstance(ref, str) or not ref.strip() for ref in refs) or len(
+        set(refs)
+    ) != len(refs):
+        raise ValueError("invalid access-check record references")
+
+
+def _validate_answer(answer: AccessCheckAnswer, refs: tuple[str, ...]) -> None:
+    if not isinstance(answer, AccessCheckAnswer):
+        raise ValueError("invalid access-check answer")
+    if (
+        not isinstance(answer.allowed, tuple)
+        or not isinstance(answer.denied, tuple)
+        or not isinstance(answer.checked_at, datetime)
+        or any(not isinstance(ref, str) for ref in (*answer.allowed, *answer.denied))
+    ):
+        raise ValueError("invalid access-check answer")
+    all_refs = (*answer.allowed, *answer.denied)
+    if (
+        answer.checked_at.utcoffset() is None
+        or len(all_refs) != len(refs)
+        or len(set(all_refs)) != len(all_refs)
+        or set(all_refs) != set(refs)
+    ):
+        raise ValueError("incomplete or contradictory access-check answer")

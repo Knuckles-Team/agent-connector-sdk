@@ -125,9 +125,9 @@ def test_report_and_verdict_documents() -> None:
 
 def test_exact_name_check_refuses_ambiguous_listings() -> None:
     old = (TOOL,)
-    assert _exact_names("c", (TOOL, TOOL), "c", old)[0] is False
-    assert _exact_names("c", (TOOL,), "c", ())[0] is False
-    assert _exact_names("c", (TOOL,), "other", old)[0] is False
+    assert _exact_names("c", (TOOL, TOOL), old_connector="c", old_tools=old)[0] is False
+    assert _exact_names("c", (TOOL,), old_connector="c", old_tools=())[0] is False
+    assert _exact_names("c", (TOOL,), old_connector="other", old_tools=old)[0] is False
 
 
 def test_resource_relation_and_canonical_json() -> None:

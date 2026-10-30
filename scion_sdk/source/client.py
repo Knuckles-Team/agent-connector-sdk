@@ -405,15 +405,22 @@ class SourceClient:
     async def revert(self, request: RevertRequest) -> Receipt:
         return await self._write("revert", request)
 
+    def _cursor(
+        self, continuation: str, binding: str, operation: str, operation_id: str
+    ) -> str:
+        prefix, _, cursor = continuation.partition(":")
+        if prefix != binding[:16] or not cursor:
+            raise self._refusal("conflict", operation, operation_id)
+        return cursor
+
     async def _page(self, operation: str, request: _Request, model: type[_T]) -> _T:
         payload = request.model_dump(mode="json")
         binding = _digest({k: v for k, v in payload.items() if k != "continuation"})
         operation_id = f"{operation}-{binding[:32]}"
         if request.continuation is not None:
-            prefix, _, cursor = request.continuation.partition(":")
-            if prefix != binding[:16] or not cursor:
-                raise self._refusal("conflict", operation, operation_id)
-            payload["continuation"] = cursor
+            payload["continuation"] = self._cursor(
+                request.continuation, binding, operation, operation_id
+            )
         body = await self._invoke(operation, payload, operation_id)
         entries = body.get("entries", body.get("lines", ()))
         if not isinstance(entries, list) or len(entries) > request.page_size:

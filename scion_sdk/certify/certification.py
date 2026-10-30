@@ -146,14 +146,53 @@ async def _certification_inputs(
     )
     old_checkout = checkout_from_resources(old.resources)
     result, reason = _exact_names(
-        checkout.connector, listing.tools, old_checkout.connector, old.tools
+        checkout.connector,
+        listing.tools,
+        old_connector=old_checkout.connector,
+        old_tools=old.tools,
     )
     return listing, checkout, (result, reason)
+
+
+def _name_problem(current: list[str], previous: list[str]) -> str | None:
+    if not previous or not all(previous) or not all(current):
+        return "tool listing has no names"
+    if len(set(previous)) != len(previous) or len(set(current)) != len(current):
+        return "tool listing contains duplicate names"
+    return None
+
+
+def _dispatch_tools(tools: tuple[Any, ...]) -> list[str] | None:
+    """Names of action-dispatch tools, or ``None`` when a schema is invalid."""
+    dispatch: list[str] = []
+    for tool in tools:
+        try:
+            schema = canonical_input_schema(tool, include_presentation=False)
+        except ToolSchemaContractError:
+            return None
+        properties = schema.get("properties", {})
+        if not isinstance(properties, dict):
+            return None
+        if "action" in properties:
+            dispatch.append(tool_name(tool))
+    return dispatch
+
+
+def _parity_problem(
+    previous: list[str], current: list[str], dispatch: list[str]
+) -> str | None:
+    parity = compare_successor_tools(previous, current, dispatch_tools=dispatch)
+    if parity.lost:
+        return f"predecessor tool name is missing: {', '.join(parity.lost)}"
+    if parity.dispatch_remaining:
+        return "successor contains an action-dispatch tool"
+    return None
 
 
 def _exact_names(
     connector: str,
     tools: tuple[Any, ...],
+    *,
     old_connector: str,
     old_tools: tuple[Any, ...],
 ) -> tuple[bool, str]:
@@ -161,24 +200,12 @@ def _exact_names(
         return False, "predecessor connector identity differs"
     current = [tool_name(tool) for tool in tools]
     previous = [tool_name(tool) for tool in old_tools]
-    if not previous or not all(previous) or not all(current):
-        return False, "tool listing has no names"
-    if len(set(previous)) != len(previous) or len(set(current)) != len(current):
-        return False, "tool listing contains duplicate names"
-    dispatch: list[str] = []
-    for tool in tools:
-        try:
-            schema = canonical_input_schema(tool, include_presentation=False)
-        except ToolSchemaContractError:
-            return False, "successor tool schema is invalid"
-        properties = schema.get("properties", {})
-        if not isinstance(properties, dict):
-            return False, "successor tool schema is invalid"
-        if "action" in properties:
-            dispatch.append(tool_name(tool))
-    parity = compare_successor_tools(previous, current, dispatch_tools=dispatch)
-    if parity.lost:
-        return False, f"predecessor tool name is missing: {', '.join(parity.lost)}"
-    if parity.dispatch_remaining:
-        return False, "successor contains an action-dispatch tool"
+    problem = _name_problem(current, previous)
+    dispatch = None if problem else _dispatch_tools(tools)
+    if problem is None and dispatch is None:
+        problem = "successor tool schema is invalid"
+    if problem is None and dispatch is not None:
+        problem = _parity_problem(previous, current, dispatch)
+    if problem is not None:
+        return False, problem
     return True, "kept or split; per-operation coverage is not checked"
