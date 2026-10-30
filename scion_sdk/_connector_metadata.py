@@ -33,8 +33,9 @@ def distribution_version(distribution: str) -> str:
 
 def _entry_point_group(document: dict[str, Any]) -> dict[str, Any]:
     """The connector entry-point table of a parsed ``pyproject.toml``."""
-    return (
+    group: dict[str, Any] = (
         document.get("project", {})
         .get("entry-points", {})
         .get(CONNECTOR_ENTRY_POINT_GROUP, {})
     )
+    return group
