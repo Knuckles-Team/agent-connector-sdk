@@ -22,6 +22,7 @@ from epistemic_graph.generated.source_ingestion import (
     SourceIngestStatus,
 )
 
+from agent_connector_sdk.ingest.contract import require_accepted
 from agent_connector_sdk.ingest.errors import (
     IngestConflictError,
     IngestError,
@@ -189,6 +190,7 @@ class KnowledgeIngest:
     async def _attempt(
         self, binding: IngestBinding, changes: ChangeSet, media: tuple[Entity, ...]
     ) -> SourceIngestionReceipt:
+        await self._guard(require_accepted(self._transport, binding))
         status = await self._guard(
             self._transport.source_status(binding.connector, binding.stream)
         )

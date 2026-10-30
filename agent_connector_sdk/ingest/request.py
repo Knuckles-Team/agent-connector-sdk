@@ -25,7 +25,7 @@ from epistemic_graph.generated.source_ingestion import (
 )
 from pydantic import JsonValue, TypeAdapter, ValidationError
 
-from agent_connector_sdk.ingest.errors import IngestError
+from agent_connector_sdk.ingest.errors import IngestError, UndeclaredNestedValueError
 from agent_connector_sdk.ingest.model import (
     ChangeSet,
     Entity,
@@ -78,9 +78,7 @@ def _record(
     return SourceRecord(
         stream=binding.stream,
         record_id=entity.id,
-        mapping_reference=(
-            f"connector:{binding.connector}#mappings/{entity.node_type}"
-        ),
+        mapping_reference=binding.mapping_reference(entity.node_type),
         payload=_json_object(
             entity.properties, what=f"entity {entity.id!r}", guard=guard
         ),
@@ -173,7 +171,53 @@ def _checkpoint(
         cursor = prior_cursor
     if cursor is not None:
         advanced["cursor"] = cursor
+    if binding.cursor_policy_iri:
+        advanced["cursor_policy"] = binding.cursor_policy_iri
     return SourceCheckpoint(stream=binding.stream, position=advanced)
+
+
+def expand_nested(
+    binding: IngestBinding, entities: tuple[Entity, ...]
+) -> tuple[tuple[Entity, ...], tuple[Relationship, ...]]:
+    """Turn nested dictionary values into declared entities and relationships.
+
+    Only under a contract binding. A nested value without a declared mapping
+    raises ``UndeclaredNestedValueError``; nothing is flattened silently.
+    """
+    if not binding.contract_iri:
+        return entities, ()
+    out: list[Entity] = []
+    edges: list[Relationship] = []
+    for entity in entities:
+        kept: dict[str, Any] = {}
+        for name, value in entity.properties.items():
+            if not isinstance(value, Mapping):
+                kept[name] = value
+                continue
+            declared = binding.nested.get(f"{entity.node_type}.{name}")
+            if declared is None:
+                raise UndeclaredNestedValueError(
+                    f"undeclared_nested_value: {entity.node_type}.{name}"
+                )
+            child = Entity(
+                id=f"{entity.id}/{name}",
+                node_type=declared.node_type,
+                properties=dict(value),
+                updated_at=entity.updated_at,
+                source_uri=entity.source_uri,
+            )
+            out.append(child)
+            edges.append(Relationship(entity.id, child.id, declared.relationship))
+        out.append(
+            Entity(
+                entity.id,
+                entity.node_type,
+                kept,
+                entity.updated_at,
+                entity.source_uri,
+            )
+        )
+    return tuple(out), tuple(edges)
 
 
 def _live_ids(
@@ -208,6 +252,7 @@ def build_request(
         *(document_entity(binding, item) for item in changes.documents),
         *extra_entities,
     )
+    entities, nested_edges = expand_nested(binding, tuple(entities))
     types = {entity.id: entity.node_type for entity in entities}
     guard = (
         PersistencePrivacyGuard(citable_fields=binding.citable_fields)
@@ -218,7 +263,7 @@ def build_request(
         records = [_record(binding, entity, guard) for entity in entities]
         relationships = [
             _relationship(binding, item, types=types, guard=guard)
-            for item in changes.relationships
+            for item in (*changes.relationships, *nested_edges)
         ]
         return SourceIngestionRequest(
             connector=binding.connector,

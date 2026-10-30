@@ -23,11 +23,25 @@ __all__ = [
     "EntityRef",
     "IngestBinding",
     "MediaAsset",
+    "NestedMapping",
     "Relationship",
     "Withdrawal",
 ]
 
 _ADAPTER_KIND = "connector_push"
+
+
+@dataclass(frozen=True)
+class NestedMapping:
+    """How one nested dictionary value becomes an entity plus a relationship.
+
+    Attributes:
+        node_type: The declared manifest resource of the nested entity.
+        relationship: The declared relation from the parent to that entity.
+    """
+
+    node_type: str
+    relationship: str
 
 
 @dataclass(frozen=True)
@@ -51,6 +65,19 @@ class IngestBinding:
             URL the record cites, such as a public web page's ``source_uri``.
             The guard keeps such a value; any other value of the field, and
             every other location field, is still redacted.
+        contract_iri: The ingest contract the engine accepted, of the form
+            ``contract:<connector>``. When set, ingest runs only under it:
+            records reference ``<contract_iri>#<object>`` and a submit is
+            refused with ``contract_not_accepted`` unless the engine's accepted
+            digest equals ``contract_digest``. Empty keeps the legacy manifest
+            mapping references (no contract check).
+        contract_revision: The accepted revision named in run evidence.
+        contract_digest: Digest of the local declaration, compared with the
+            engine's accepted digest before the first batch.
+        cursor_policy_iri: The declared cursor policy named in the checkpoint.
+        nested: ``"<node_type>.<field>"`` to the mapping that turns a nested
+            dictionary value into an entity and a relationship. A nested value
+            without an entry is refused with ``undeclared_nested_value``.
     """
 
     connector: str
@@ -62,11 +89,23 @@ class IngestBinding:
     strict_schema: bool = False
     sanitize: bool = True
     citable_fields: frozenset[str] = frozenset()
+    contract_iri: str = ""
+    contract_revision: str = ""
+    contract_digest: str = ""
+    cursor_policy_iri: str = ""
+    nested: Mapping[str, NestedMapping] = field(
+        default_factory=dict, hash=False, compare=False
+    )
 
     def __post_init__(self) -> None:
         for name in ("connector", "stream", "tool", "document_type", "media_type"):
             if not str(getattr(self, name)).strip():
                 raise ValueError(f"ingest binding {name} is required")
+        if self.contract_iri:
+            if self.contract_iri != f"contract:{self.connector}":
+                raise ValueError("contract_iri must be contract:<connector>")
+            if not self.contract_digest:
+                raise ValueError("a contract binding needs its contract_digest")
 
     @classmethod
     def for_package(cls, package: str, stream: str, **fields: Any) -> IngestBinding:
@@ -79,6 +118,12 @@ class IngestBinding:
         from agent_connector_sdk.connector_identity import connector_name
 
         return cls(connector=connector_name(package), stream=stream, **fields)
+
+    def mapping_reference(self, node_type: str) -> str:
+        """The mapping reference a record of ``node_type`` carries."""
+        if self.contract_iri:
+            return f"{self.contract_iri}#{node_type}"
+        return f"connector:{self.connector}#mappings/{node_type}"
 
     @property
     def server_name(self) -> str:
