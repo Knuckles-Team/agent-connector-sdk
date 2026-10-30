@@ -9,21 +9,21 @@ from epistemic_graph.generated.write_back import (
 )
 from pydantic import ValidationError
 
-from agent_connector_sdk.ports.audit_reservation import AuditReservationPort
-from agent_connector_sdk.ports.authorization_verifier import AuthorizationVerifier
-from agent_connector_sdk.ports.writeback import WriteBackPort
-from agent_connector_sdk.ports.writeback_transport import WriteBackTransport
-from agent_connector_sdk.testing.results import assert_conformant
-from agent_connector_sdk.testing.writeback import (
+from scion_sdk.ports.audit_reservation import AuditReservationPort
+from scion_sdk.ports.authorization_verifier import AuthorizationVerifier
+from scion_sdk.ports.writeback import WriteBackPort
+from scion_sdk.ports.writeback_transport import WriteBackTransport
+from scion_sdk.testing.results import assert_conformant
+from scion_sdk.testing.writeback import (
     WriteBackFixture,
     WriteBackFixtureFactory,
     make_writeback_fixture,
     run_writeback_suite,
 )
-from agent_connector_sdk.writeback.authorization import (
+from scion_sdk.writeback.authorization import (
     DeterministicAuthorizationVerifier,
 )
-from agent_connector_sdk.writeback.errors import (
+from scion_sdk.writeback.errors import (
     AuthorizationDeniedError,
     ChangeSetExpiredError,
     ChangeSetValidationError,
@@ -33,13 +33,13 @@ from agent_connector_sdk.writeback.errors import (
     SourceVersionConflictError,
     WriteBackError,
 )
-from agent_connector_sdk.writeback.memory import (
+from scion_sdk.writeback.memory import (
     FixtureUncertainty,
     InMemoryWriteBackTransport,
 )
-from agent_connector_sdk.writeback.models import DryRunObservation, SourceSnapshot
-from agent_connector_sdk.writeback.service import GovernedWriteBack
-from agent_connector_sdk.writeback.validation import (
+from scion_sdk.writeback.models import DryRunObservation, SourceSnapshot
+from scion_sdk.writeback.service import GovernedWriteBack
+from scion_sdk.writeback.validation import (
     require_authorized,
     require_base,
     require_effect,

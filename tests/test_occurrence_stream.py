@@ -7,11 +7,11 @@ import pytest
 from fastmcp import Client, FastMCP
 from fastmcp.exceptions import ToolError
 
-from agent_connector_sdk.earth_observations.occurrence import OccurrenceProvider
-from agent_connector_sdk.earth_observations.stream import register_occurrence_stream
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.earth_observations.occurrence import OccurrenceProvider
+from scion_sdk.earth_observations.stream import register_occurrence_stream
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 @pytest.mark.asyncio

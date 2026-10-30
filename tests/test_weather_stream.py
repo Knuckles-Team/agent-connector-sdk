@@ -6,10 +6,10 @@ from fastmcp import Client, FastMCP
 from fastmcp.exceptions import ToolError
 from weather_test_helpers import weather_provider, weather_request
 
-from agent_connector_sdk.earth_observations.weather_stream import (
+from scion_sdk.earth_observations.weather_stream import (
     register_weather_stream,
 )
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 @pytest.mark.asyncio

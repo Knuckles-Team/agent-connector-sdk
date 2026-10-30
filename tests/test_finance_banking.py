@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.finance.banking import (
+from scion_sdk.finance.banking import (
     AMLAlertNode,
     AMLAlertSeverity,
     BankAccountNode,

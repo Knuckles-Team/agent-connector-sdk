@@ -6,20 +6,20 @@ import anyio
 import pytest
 from fastmcp import FastMCP
 
-from agent_connector_sdk.discovery import CertifiedExtensions, sdk_reference_extensions
-from agent_connector_sdk.ingest.live_declaration import source_meta
-from agent_connector_sdk.mcp.tool_surface import register_tool_surface
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.runner import cli
-from agent_connector_sdk.runner.descriptors import (
+from scion_sdk.discovery import CertifiedExtensions, sdk_reference_extensions
+from scion_sdk.ingest.live_declaration import source_meta
+from scion_sdk.mcp.tool_surface import register_tool_surface
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.runner import cli
+from scion_sdk.runner.descriptors import (
     ConnectorDescriptor,
     EndpointSpec,
     RunnerSettings,
 )
-from agent_connector_sdk.runner.services import RunnerServices
-from agent_connector_sdk.runner.worker import ConnectorWorker
-from agent_connector_sdk.testing.sinks import InMemorySink
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.runner.services import RunnerServices
+from scion_sdk.runner.worker import ConnectorWorker
+from scion_sdk.testing.sinks import InMemorySink
+from scion_sdk.transports.mcp import McpTransport
 
 
 @pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.4")

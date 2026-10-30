@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.entitlements import (
+from scion_sdk.entitlements import (
     DEFAULT_SUPER_CAPS,
     entitled_resources,
     grants_all_in_namespace,
     identity_scoped_resources,
     is_entitled,
 )
-from agent_connector_sdk.identity import ActorContext, ActorType
+from scion_sdk.identity import ActorContext, ActorType
 
 
 def _actor(

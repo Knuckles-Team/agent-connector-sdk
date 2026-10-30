@@ -11,8 +11,8 @@ from typing import Any
 import pytest
 from fastmcp import Client, FastMCP
 
-from agent_connector_sdk.ingest.live_declaration import source_meta
-from agent_connector_sdk.ingest.source_sync import (
+from scion_sdk.ingest.live_declaration import source_meta
+from scion_sdk.ingest.source_sync import (
     CHECKPOINT_NAMESPACE,
     KvSourceCheckpoints,
     SourceCheckpointState,
@@ -24,11 +24,11 @@ from agent_connector_sdk.ingest.source_sync import (
     checkpoint_key,
     record_digest,
 )
-from agent_connector_sdk.ingest.sources import (
+from scion_sdk.ingest.sources import (
     IngestSourceDeclaration,
     IngestSourceSpec,
 )
-from agent_connector_sdk.mcp.tool_surface import register_tool_surface
+from scion_sdk.mcp.tool_surface import register_tool_surface
 
 ITEMS = [
     {"id": i, "name": f"item-{i}", "updated": f"2026-01-0{i}", "nested": {"x": 1}}

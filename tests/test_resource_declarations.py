@@ -12,13 +12,13 @@ import pytest
 from fastmcp import Client
 from pydantic import BaseModel
 
-from agent_connector_sdk.artifacts.pack import build_connector_content_pack
-from agent_connector_sdk.artifacts.resource_derivation import (
+from scion_sdk.artifacts.pack import build_connector_content_pack
+from scion_sdk.artifacts.resource_derivation import (
     OntologyTerms,
     derive_descriptors,
     scan_ontology,
 )
-from agent_connector_sdk.artifacts.resource_descriptor import (
+from scion_sdk.artifacts.resource_descriptor import (
     RESOURCES_URI,
     FieldBinding,
     ResourceDeclarationError,
@@ -27,7 +27,7 @@ from agent_connector_sdk.artifacts.resource_descriptor import (
     merge_declarations,
     render_resources_document,
 )
-from agent_connector_sdk.mcp.content import ConnectorContent
+from scion_sdk.mcp.content import ConnectorContent
 
 pytestmark = pytest.mark.spec("SCION-CONNECTOR-CONTROL-R074.7")
 
@@ -35,8 +35,8 @@ GITHUB = Path(__file__).parent / "fixtures" / "github_agent"
 KG = "http://knuckles.team/kg#"
 SERVER = (
     "from pathlib import Path\n"
-    "from agent_connector_sdk.mcp.content import ConnectorContent\n"
-    "from agent_connector_sdk.mcp.server import create_mcp_server\n"
+    "from scion_sdk.mcp.content import ConnectorContent\n"
+    "from scion_sdk.mcp.server import create_mcp_server\n"
     "def build(**kw):\n"
     "    kw.setdefault('content', ConnectorContent('scaffold-mcp', Path(__file__).parent, '1.2.3'))\n"
     "    return create_mcp_server('scaffold-mcp', version='1.2.3', command_args=[], **kw)\n"
@@ -185,7 +185,7 @@ def _scaffold(tmp_path: Path, monkeypatch):
     (package / "ontology" / "scaffold.ttl").write_text(ONTOLOGY, encoding="utf-8")
     (root / "pyproject.toml").write_text(
         '[project]\nname = "scaffold-mcp"\nversion = "1.2.3"\n'
-        '[project.entry-points."agent_connector_sdk.connector"]\n'
+        '[project.entry-points."scion_sdk.connector"]\n'
         'scaffold-mcp = "scaffold_mcp"\n',
         encoding="utf-8",
     )

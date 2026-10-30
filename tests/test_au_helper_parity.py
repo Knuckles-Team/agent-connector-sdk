@@ -5,11 +5,11 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from agent_connector_sdk import exceptions, identity, utilities
-from agent_connector_sdk.http.client import create_http_client
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.tls.resolve import resolve_tls_profile
+from scion_sdk import exceptions, identity, utilities
+from scion_sdk.http.client import create_http_client
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.tls.resolve import resolve_tls_profile
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.1")

@@ -8,13 +8,13 @@ from typing import Any, Literal
 import pytest
 from fastmcp import Client, FastMCP
 
-from agent_connector_sdk.mcp.action_split import (
+from scion_sdk.mcp.action_split import (
     SPLIT_ACTION_TAG,
     action_split_report,
     split_action_tool,
     tool_actions,
 )
-from agent_connector_sdk.mcp.tool_surface import register_tool_surface
+from scion_sdk.mcp.tool_surface import register_tool_surface
 
 
 class _RouterProofClient:
@@ -113,7 +113,7 @@ def _split_server() -> FastMCP[Any]:
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.5")
 def test_split_tools_inherit_parent_and_per_action_class() -> None:
-    from agent_connector_sdk.mcp.action_split import split_tool_classes
+    from scion_sdk.mcp.action_split import split_tool_classes
 
     mcp = _split_server()
     assert split_tool_classes(mcp, {"demo": "op"}) == {
@@ -129,7 +129,7 @@ def test_split_tools_inherit_parent_and_per_action_class() -> None:
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.5")
 def test_mutating_split_never_inherits_a_read_class() -> None:
-    from agent_connector_sdk.mcp.action_split import (
+    from scion_sdk.mcp.action_split import (
         assert_tools_classified,
         split_tool_classes,
     )
@@ -143,7 +143,7 @@ def test_mutating_split_never_inherits_a_read_class() -> None:
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.5")
 def test_unknown_and_undeclared_tools_stay_unclassified() -> None:
-    from agent_connector_sdk.mcp.action_split import (
+    from scion_sdk.mcp.action_split import (
         assert_tools_classified,
         unclassified_tools,
     )
@@ -163,7 +163,7 @@ def test_unknown_and_undeclared_tools_stay_unclassified() -> None:
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.5")
 def test_parent_read_only_hint_does_not_classify_unknown_actions() -> None:
-    from agent_connector_sdk.mcp.action_split import split_tool_classes
+    from scion_sdk.mcp.action_split import split_tool_classes
 
     mcp: FastMCP[Any] = FastMCP("ro")
 
@@ -183,7 +183,7 @@ def test_parent_read_only_hint_does_not_classify_unknown_actions() -> None:
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.5")
 def test_mixed_read_and_mutation_verbs_never_inherit_read() -> None:
-    from agent_connector_sdk.mcp.action_split import split_tool_classes
+    from scion_sdk.mcp.action_split import split_tool_classes
 
     mcp: FastMCP[Any] = FastMCP("mixed")
 

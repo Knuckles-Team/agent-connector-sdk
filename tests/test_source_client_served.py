@@ -9,8 +9,8 @@ from typing import Any
 import pytest
 from fastmcp import Client, FastMCP
 
-from agent_connector_sdk.mcp.tool_surface import register_tool_surface
-from agent_connector_sdk.source import (
+from scion_sdk.mcp.tool_surface import register_tool_surface
+from scion_sdk.source import (
     BlobRequest,
     ChangeEntry,
     CommitRequest,

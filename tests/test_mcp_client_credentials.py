@@ -19,22 +19,22 @@ from fastmcp.server.auth import AccessToken, TokenVerifier
 from mcp.shared.exceptions import MCPError
 from pydantic import ValidationError
 
-from agent_connector_sdk.auth.client_credentials import ClientCredentialsTokenProvider
-from agent_connector_sdk.auth.oidc import (
+from scion_sdk.auth.client_credentials import ClientCredentialsTokenProvider
+from scion_sdk.auth.oidc import (
     ClientCredentialsConfig,
     client_credentials_auth,
     discover_token_endpoint,
 )
-from agent_connector_sdk.auth.tokens import TokenRequestError
-from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
-from agent_connector_sdk.http.client import create_http_client
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.runner.descriptors import ConnectorDescriptor, EndpointSpec
-from agent_connector_sdk.runner.endpoints import CredentialEndpoints
-from agent_connector_sdk.runner.errors import CredentialResolutionError
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.auth.tokens import TokenRequestError
+from scion_sdk.credentials.resolver import EnvironmentCredentialResolver
+from scion_sdk.http.client import create_http_client
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.runner.descriptors import ConnectorDescriptor, EndpointSpec
+from scion_sdk.runner.endpoints import CredentialEndpoints
+from scion_sdk.runner.errors import CredentialResolutionError
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.transports.mcp import McpTransport
 
 _CLIENT_CREDENTIAL = "fleet-client-credential-value"
 _JSON = {"Content-Type": "application/json"}

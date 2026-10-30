@@ -148,41 +148,20 @@ def test_release_publishes_only_for_a_tag_or_dispatch() -> None:
 
 
 @pytest.mark.spec("SCION-QUALITY-RELEASE-R003")
-def test_release_builds_and_downloads_the_old_name_forwarder() -> None:
-    build = _yaml(BUILD)["jobs"]["build-compat"]
-    assert any(
-        "check_compatibility_distribution.py" in command for command in _runs(build)
-    )
-    upload = next(
-        step
-        for step in build["steps"]
-        if step.get("name") == "Upload the compatibility publish candidate"
-    )
-    assert upload["with"]["name"] == "agent-connector-sdk-compat"
-    assert "dist-compat/*.whl" in upload["with"]["path"]
-    assert "dist-compat/*.tar.gz" in upload["with"]["path"]
-
+def test_release_publishes_only_the_scion_distribution() -> None:
+    assert "build-compat" not in _yaml(BUILD)["jobs"]
     publish = _yaml(RELEASE)["jobs"]["publish-pypi"]
     downloads = [
         step.get("with", {}).get("name")
         for step in publish["steps"]
         if "actions/download-artifact@" in str(step.get("uses", ""))
     ]
-    assert downloads == ["scion-sdk-wheel", "agent-connector-sdk-compat"]
-    publish_commands = _runs(publish)
-    scion_publish = next(
-        command for command in publish_commands if "dist/scion_sdk-" in command
-    )
-    alias_publish = next(
-        command
-        for command in publish_commands
-        if "dist/agent_connector_sdk-" in command
-    )
-    assert "dist/scion_sdk-*.whl" in scion_publish
-    assert "dist/scion_sdk-*.tar.gz" in scion_publish
-    assert "dist/agent_connector_sdk-*.whl" in alias_publish
-    assert "dist/agent_connector_sdk-*.tar.gz" in alias_publish
-    assert publish_commands.index(scion_publish) < publish_commands.index(alias_publish)
+    assert downloads == ["scion-sdk-wheel"]
+    publish_commands = [c for c in _runs(publish) if "uv publish" in c]
+    assert len(publish_commands) == 1
+    assert "dist/scion_sdk-*.whl" in publish_commands[0]
+    assert "dist/scion_sdk-*.tar.gz" in publish_commands[0]
+    assert not (ROOT / "compat").exists()
 
 
 def test_ci_setup_bootstraps_the_contract_and_identity_catalog() -> None:
@@ -269,7 +248,7 @@ def test_build_job_pins_the_managed_python_not_the_system_one() -> None:
     assert len(uv_setup_steps) == 1
     assert uv_setup_steps[0]["with"]["python-version"] == pinned_version
 
-    for job_name in ("build", "build-compat"):
+    for job_name in ("build",):
         job = workflow["jobs"][job_name]
         checkout_steps = [
             step
@@ -382,8 +361,8 @@ def test_publish_requires_the_dependency_floor_on_the_public_index() -> None:
         for index, command in enumerate(commands)
         if "uv publish --check-url https://pypi.org/simple/" in command
     ]
-    # Both package pairs publish only after the dependency lock check.
-    assert len(publishes) == 2
+    # The one package pair publishes only after the dependency lock check.
+    assert len(publishes) == 1
     assert commands.index("uv lock --check") < min(index for index, _ in publishes)
 
 
@@ -395,7 +374,7 @@ def test_main_gate_runs_full_suite_types_and_docs() -> None:
     assert gates["with"]["test-scope"] == ""
     full = _yaml(GATES)["jobs"]["full"]["with"]
     assert full["setup-command"] == "bash scripts/ci_full_setup.sh"
-    assert full["backward-module"] == "agent_connector_sdk"
+    assert full["backward-module"] == "scion_sdk"
     assert "mkdocs-build" in gates["with"]["extra-manual-hooks"]
     hooks = _yaml(PRE_COMMIT)["repos"]
     local_hooks = [
@@ -403,4 +382,4 @@ def test_main_gate_runs_full_suite_types_and_docs() -> None:
     ]
     mypy = next(hook for hook in local_hooks if hook["id"] == "mypy")
     assert "pre-push" in mypy["stages"]
-    assert "mypy agent_connector_sdk" in mypy["entry"]
+    assert "mypy scion_sdk" in mypy["entry"]

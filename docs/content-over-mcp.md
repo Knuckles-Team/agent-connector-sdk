@@ -37,7 +37,7 @@ and the current catalog snapshot, so the SDK never carries a second digest
 implementation. Two entries with one URI, an unknown resource scheme, or a
 malformed body are rejected.
 
-`agent_connector_sdk.artifacts.tool_facts.schema_tokens(body)` estimates the
+`scion_sdk.artifacts.tool_facts.schema_tokens(body)` estimates the
 token count of a canonical captured tool body. It rounds the UTF-8 byte count up
 by four. This is an estimate, not a tokenizer measurement. It does not publish
 the count in a pack annotation.

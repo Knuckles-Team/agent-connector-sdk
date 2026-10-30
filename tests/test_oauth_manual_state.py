@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from agent_connector_sdk.auth.browser import BaseBrowserAuthManager
+from scion_sdk.auth.browser import BaseBrowserAuthManager
 
 
 def manager() -> BaseBrowserAuthManager:

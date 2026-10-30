@@ -9,8 +9,8 @@ from datetime import UTC, datetime
 import httpx
 import pytest
 
-from agent_connector_sdk.exceptions import ApiError, UnauthorizedError
-from agent_connector_sdk.http.errors import (
+from scion_sdk.exceptions import ApiError, UnauthorizedError
+from scion_sdk.http.errors import (
     HttpProblemError,
     HttpRateLimitedError,
     HttpUnauthorizedError,
@@ -21,7 +21,7 @@ from agent_connector_sdk.http.errors import (
     error_for_response,
     error_for_transport_failure,
 )
-from agent_connector_sdk.http.flow import (
+from scion_sdk.http.flow import (
     AttemptFlow,
     Done,
     Outcome,
@@ -29,19 +29,19 @@ from agent_connector_sdk.http.flow import (
     advance,
     attempt_flow,
 )
-from agent_connector_sdk.http.problems import (
+from scion_sdk.http.problems import (
     PROBLEM_JSON,
     SDK_PROBLEM_TYPE_PREFIX,
     ProblemDetails,
     problem_from_response,
 )
-from agent_connector_sdk.http.redaction import (
+from scion_sdk.http.redaction import (
     REDACTED,
     is_sensitive_name,
     redact_headers,
     redact_url,
 )
-from agent_connector_sdk.http.retry import (
+from scion_sdk.http.retry import (
     IDEMPOTENT_METHODS,
     RETRYABLE_STATUSES,
     RetryPolicy,

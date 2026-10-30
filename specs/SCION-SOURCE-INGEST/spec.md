@@ -1,7 +1,7 @@
 # SCION-SOURCE-INGEST — SDK source sync, drift quarantine, and adapter migration
 
 **Requirement IDs:** SCION-SOURCE-INGEST-R001, SCION-SOURCE-INGEST-R002, SCION-SOURCE-INGEST-R003, SCION-SOURCE-INGEST-R004, SCION-SOURCE-INGEST-R005, SCION-SOURCE-INGEST-R006, SCION-SOURCE-INGEST-R007, SCION-SOURCE-INGEST-R008, SCION-SOURCE-INGEST-R009.
-**Owner:** agent-connector-sdk.
+**Owner:** scion-sdk.
 
 ## Outcome and authority
 
@@ -105,7 +105,7 @@ the generated methods and Arbora composes its fleet executor.
 
 Source: open-source-libraries/agentsview/README.md. Original record SHA-256: 38936b5f2136263c40c29fe639c984243fed8be6dbb9a6d836f40d7b7672116e. The original acceptance stays unchanged in its source record.
 
-The producer reuses connector-sync --once, agent_connector_sdk/runner/worker.py, McpToolSourceAdapter.extract, and generated SourceIngest. Owners must approve a versioned manifest. It must cover every supported harness. Each entry must name its actual repository, registered operation, revision, and authority.
+The producer reuses connector-sync --once, scion_sdk/runner/worker.py, McpToolSourceAdapter.extract, and generated SourceIngest. Owners must approve a versioned manifest. It must cover every supported harness. Each entry must name its actual repository, registered operation, revision, and authority.
 
 The SDK emits session identity, tenant, source revision, cursor, coverage, and per-source outcome. Retries preserve receipt identity. Restart resumes accepted cursors. A denial remains visible as partial coverage.
 

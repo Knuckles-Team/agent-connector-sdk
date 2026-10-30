@@ -12,7 +12,7 @@ from epistemic_graph.generated.write_back import (
 from pydantic import ValidationError
 from test_writeback_process_restart import _reference_change_set
 
-from agent_connector_sdk.vendor_extractors.enterprise_contract import (
+from scion_sdk.vendor_extractors.enterprise_contract import (
     AccountRecord,
     CapabilityOperation,
     CreateInvoice,

@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 from source_graph_helpers import loopback_options
 
-from agent_connector_sdk.earth_observations.weather import (
+from scion_sdk.earth_observations.weather import (
     WeatherProvider,
     WeatherRequest,
 )

@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.ingest import ChangeSet
-from agent_connector_sdk.vendor_extractors.aris import CATEGORY as ARIS_CATEGORY
-from agent_connector_sdk.vendor_extractors.aris import extract as aris_extract
-from agent_connector_sdk.vendor_extractors.camunda import CATEGORY as CAMUNDA_CATEGORY
-from agent_connector_sdk.vendor_extractors.camunda import extract as camunda_extract
-from agent_connector_sdk.vendor_extractors.egeria import CATEGORY as EGERIA_CATEGORY
-from agent_connector_sdk.vendor_extractors.egeria import extract as egeria_extract
+from scion_sdk.ingest import ChangeSet
+from scion_sdk.vendor_extractors.aris import CATEGORY as ARIS_CATEGORY
+from scion_sdk.vendor_extractors.aris import extract as aris_extract
+from scion_sdk.vendor_extractors.camunda import CATEGORY as CAMUNDA_CATEGORY
+from scion_sdk.vendor_extractors.camunda import extract as camunda_extract
+from scion_sdk.vendor_extractors.egeria import CATEGORY as EGERIA_CATEGORY
+from scion_sdk.vendor_extractors.egeria import extract as egeria_extract
 
 
 class _FakeClient:

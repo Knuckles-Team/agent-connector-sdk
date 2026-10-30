@@ -6,8 +6,8 @@ from datetime import UTC, datetime
 
 import pytest
 
-from agent_connector_sdk.finance.alpaca_stocks import ohlcv_bars_from_alpaca
-from agent_connector_sdk.finance.records import AdjustmentMode, Completeness
+from scion_sdk.finance.alpaca_stocks import ohlcv_bars_from_alpaca
+from scion_sdk.finance.records import AdjustmentMode, Completeness
 
 _OBSERVED = datetime(2026, 1, 2, 0, 5, tzinfo=UTC)
 

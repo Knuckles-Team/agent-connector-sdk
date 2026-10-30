@@ -8,7 +8,7 @@ import pytest
 @pytest.mark.spec("SCION-FINANCE-SOURCES-R001.8")
 def test_market_extra_supplies_real_exchange_client() -> None:
     ccxt = pytest.importorskip("ccxt")
-    from agent_connector_sdk.finance.market_data import CryptoProvider
+    from scion_sdk.finance.market_data import CryptoProvider
 
     exchange = ccxt.binance({"enableRateLimit": True})
     assert callable(exchange.fetch_ohlcv)

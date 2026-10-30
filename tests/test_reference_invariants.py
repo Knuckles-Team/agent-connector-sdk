@@ -2,8 +2,8 @@
 
 import pytest
 
-from agent_connector_sdk.credentials.provider import CredentialProvider
-from agent_connector_sdk.credentials.references import (
+from scion_sdk.credentials.provider import CredentialProvider
+from scion_sdk.credentials.references import (
     SecretReference,
     SecretReferenceError,
 )

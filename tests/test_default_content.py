@@ -5,9 +5,9 @@ from __future__ import annotations
 import pytest
 from fastmcp import Client
 
-from agent_connector_sdk.connector import content_dirs
-from agent_connector_sdk.mcp.content import ConnectorContent
-from agent_connector_sdk.mcp.server import create_mcp_server
+from scion_sdk.connector import content_dirs
+from scion_sdk.mcp.content import ConnectorContent
+from scion_sdk.mcp.server import create_mcp_server
 
 pytestmark = pytest.mark.spec("SCION-CONNECTOR-CONTROL-R073")
 
@@ -46,5 +46,5 @@ async def test_explicit_content_is_served_under_its_name() -> None:
 
 
 def test_content_dirs_names_the_conventional_directories() -> None:
-    dirs = content_dirs("agent_connector_sdk")
+    dirs = content_dirs("scion_sdk")
     assert dirs.skills.name == "skills" and dirs.ontology.name == "ontology"

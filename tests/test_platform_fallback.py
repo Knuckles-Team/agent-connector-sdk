@@ -6,7 +6,7 @@ import json
 import pytest
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from agent_connector_sdk.adapters.platform_backend import (
+from scion_sdk.adapters.platform_backend import (
     AdmittedPlatformBackend,
     BackendAdmissionRefusal,
     BackendFailure,
@@ -15,24 +15,24 @@ from agent_connector_sdk.adapters.platform_backend import (
     PlatformBackendAdmission,
     platform_record_schema_digest,
 )
-from agent_connector_sdk.adapters.platform_fallback import (
+from scion_sdk.adapters.platform_fallback import (
     PlatformFallback,
     PlatformStatusError,
 )
-from agent_connector_sdk.adapters.platform_models import (
+from scion_sdk.adapters.platform_models import (
     BackendAttempt,
     BackendPolicy,
     EquivalenceContract,
     PlatformCapability,
     PlatformRequest,
 )
-from agent_connector_sdk.adapters.platform_status import (
+from scion_sdk.adapters.platform_status import (
     DEFAULT_STATUS_ENTRIES,
     DEFAULT_STATUS_TTL_SECONDS,
     PlatformStatusStore,
 )
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.identity import ActorContext, ActorType
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.identity import ActorContext, ActorType
 
 
 class FixtureRecord(BaseModel):
@@ -222,9 +222,9 @@ async def test_denied_and_terminal_failure_do_not_fallback():
 @pytest.mark.spec("SCION-SOURCE-INGEST-R012.4")
 @pytest.mark.asyncio
 async def test_governed_http_backends_fallback_and_stop_on_denial():
-    from agent_connector_sdk.adapters.platform_http import PlatformHttpBackend
-    from agent_connector_sdk.http.options import HttpClientOptions
-    from agent_connector_sdk.testing.http_server import (
+    from scion_sdk.adapters.platform_http import PlatformHttpBackend
+    from scion_sdk.http.options import HttpClientOptions
+    from scion_sdk.testing.http_server import (
         ScriptedHttpServer,
         ScriptedResponse,
     )
@@ -280,12 +280,12 @@ async def test_governed_http_backends_fallback_and_stop_on_denial():
 async def test_platform_refusal_never_becomes_an_accepted_empty_page():
     from test_event_feeds import CONNECTOR, FakeEventSession, _tool_descriptor
 
-    from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-    from agent_connector_sdk.adapters.platform_fallback import _refused
-    from agent_connector_sdk.manifest.presets import ToolPreset
-    from agent_connector_sdk.ports.errors import SourceContractError
-    from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-    from agent_connector_sdk.testing.sinks import InMemorySink
+    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+    from scion_sdk.adapters.platform_fallback import _refused
+    from scion_sdk.manifest.presets import ToolPreset
+    from scion_sdk.ports.errors import SourceContractError
+    from scion_sdk.runner.syncing import SyncTarget, sync_stream
+    from scion_sdk.testing.sinks import InMemorySink
 
     preset = ToolPreset(
         name="stream",
@@ -417,9 +417,9 @@ async def test_status_is_isolated_from_other_principal():
 
 @pytest.mark.asyncio
 async def test_rate_limit_waits_then_retries_same_backend_without_fallback():
-    from agent_connector_sdk.adapters.platform_http import PlatformHttpBackend
-    from agent_connector_sdk.http.options import HttpClientOptions
-    from agent_connector_sdk.testing.http_server import (
+    from scion_sdk.adapters.platform_http import PlatformHttpBackend
+    from scion_sdk.http.options import HttpClientOptions
+    from scion_sdk.testing.http_server import (
         ScriptedHttpServer,
         ScriptedResponse,
     )
@@ -476,7 +476,7 @@ async def test_rate_limit_waits_then_retries_same_backend_without_fallback():
 async def test_status_expires_without_reusing_stale_backend_health(monkeypatch):
     from types import SimpleNamespace
 
-    from agent_connector_sdk.adapters import platform_status
+    from scion_sdk.adapters import platform_status
 
     now = [1000]
     monkeypatch.setattr(
@@ -548,12 +548,12 @@ def test_status_store_bounds_and_unknown_observations():
 
 @pytest.mark.asyncio
 async def test_governed_http_refuses_oversized_response_without_fallback():
-    from agent_connector_sdk.adapters.platform_http import (
+    from scion_sdk.adapters.platform_http import (
         MAX_PLATFORM_RESPONSE_BYTES,
         PlatformHttpBackend,
     )
-    from agent_connector_sdk.http.options import HttpClientOptions
-    from agent_connector_sdk.testing.http_server import (
+    from scion_sdk.http.options import HttpClientOptions
+    from scion_sdk.testing.http_server import (
         ScriptedHttpServer,
         ScriptedResponse,
     )
@@ -600,20 +600,20 @@ async def test_served_fallback_result_reaches_source_sync_sink(monkeypatch, tmp_
     import hashlib
     import json
 
-    from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-    from agent_connector_sdk.adapters.platform_http import PlatformHttpBackend
-    from agent_connector_sdk.http.options import HttpClientOptions
-    from agent_connector_sdk.identity import use_actor
-    from agent_connector_sdk.manifest.presets import ToolPreset
-    from agent_connector_sdk.mcp.server import create_mcp_server
-    from agent_connector_sdk.ports.session import TransportEndpoint
-    from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-    from agent_connector_sdk.testing.http_server import (
+    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+    from scion_sdk.adapters.platform_http import PlatformHttpBackend
+    from scion_sdk.http.options import HttpClientOptions
+    from scion_sdk.identity import use_actor
+    from scion_sdk.manifest.presets import ToolPreset
+    from scion_sdk.mcp.server import create_mcp_server
+    from scion_sdk.ports.session import TransportEndpoint
+    from scion_sdk.runner.syncing import SyncTarget, sync_stream
+    from scion_sdk.testing.http_server import (
         ScriptedHttpServer,
         ScriptedResponse,
     )
-    from agent_connector_sdk.testing.sinks import InMemorySink
-    from agent_connector_sdk.transports.mcp import McpTransport
+    from scion_sdk.testing.sinks import InMemorySink
+    from scion_sdk.transports.mcp import McpTransport
 
     content = {"id": "item-1", "title": "Synthetic item"}
     raw = json.dumps(
@@ -740,7 +740,7 @@ async def test_served_fallback_result_reaches_source_sync_sink(monkeypatch, tmp_
 async def test_unverified_continuation_refuses_before_backend():
     import hashlib
 
-    from agent_connector_sdk.adapters.platform_models import Continuation
+    from scion_sdk.adapters.platform_models import Continuation
 
     req = request()
     cursor = Continuation(
@@ -773,8 +773,8 @@ async def test_unverified_continuation_refuses_before_backend():
 
 
 def test_nested_page_arguments_preserve_static_request_without_mutation():
-    from agent_connector_sdk.adapters.mcp_tool_paging import tool_arguments
-    from agent_connector_sdk.manifest.presets import ToolPreset
+    from scion_sdk.adapters.mcp_tool_paging import tool_arguments
+    from scion_sdk.manifest.presets import ToolPreset
 
     preset = ToolPreset(
         name="demo",
@@ -823,12 +823,12 @@ async def test_unconfigured_backend_is_skipped_and_reported_without_attempt():
 async def test_certified_admission_loads_only_pinned_authorized_entrypoint(monkeypatch):
     from types import SimpleNamespace
 
-    from agent_connector_sdk import discovery
-    from agent_connector_sdk.adapters.platform_admission import (
+    from scion_sdk import discovery
+    from scion_sdk.adapters.platform_admission import (
         CertifiedPlatformAdmission,
         PlatformBackendFactory,
     )
-    from agent_connector_sdk.discovery import (
+    from scion_sdk.discovery import (
         PLATFORM_BACKEND_GROUP,
         CertifiedExtensions,
     )
@@ -882,10 +882,10 @@ def certified_http_admission(monkeypatch, tmp_path, backends):
     import sys
     from types import ModuleType
 
-    from agent_connector_sdk.adapters.platform_admission import (
+    from scion_sdk.adapters.platform_admission import (
         CertifiedPlatformAdmission,
     )
-    from agent_connector_sdk.discovery import (
+    from scion_sdk.discovery import (
         PLATFORM_BACKEND_GROUP,
         CertifiedExtensions,
     )
@@ -958,7 +958,7 @@ async def test_verified_scope_authorizer_requires_matching_token_scope_and_tenan
 
     from fastmcp.server import dependencies
 
-    from agent_connector_sdk.mcp.platform_tools import VerifiedScopeAuthorizer
+    from scion_sdk.mcp.platform_tools import VerifiedScopeAuthorizer
 
     token = SimpleNamespace(
         client_id="actor",
@@ -993,7 +993,7 @@ async def test_verified_scope_authorizer_requires_matching_token_scope_and_tenan
 def test_platform_result_rejects_partial_or_mismatched_scope():
     from pydantic import ValidationError
 
-    from agent_connector_sdk.adapters.platform_models import PlatformResult
+    from scion_sdk.adapters.platform_models import PlatformResult
 
     data = {
         "request_id": "request",
@@ -1011,8 +1011,8 @@ def test_platform_result_rejects_partial_or_mismatched_scope():
 def test_platform_registration_refuses_collisions_before_adding_any_tools():
     from fastmcp import FastMCP
 
-    from agent_connector_sdk.mcp.platform_tools import register_platform_tools
-    from agent_connector_sdk.mcp.tool_surface import registered_tools
+    from scion_sdk.mcp.platform_tools import register_platform_tools
+    from scion_sdk.mcp.tool_surface import registered_tools
 
     server = FastMCP("demo")
 
@@ -1037,9 +1037,9 @@ def test_platform_registration_refuses_collisions_before_adding_any_tools():
 
 @pytest.mark.asyncio
 async def test_http_backend_snapshots_headers_before_caller_mutation():
-    from agent_connector_sdk.adapters.platform_http import PlatformHttpBackend
-    from agent_connector_sdk.http.options import HttpClientOptions
-    from agent_connector_sdk.testing.http_server import (
+    from scion_sdk.adapters.platform_http import PlatformHttpBackend
+    from scion_sdk.http.options import HttpClientOptions
+    from scion_sdk.testing.http_server import (
         ScriptedHttpServer,
         ScriptedResponse,
     )
@@ -1155,7 +1155,7 @@ async def test_validation_worker_startup_uses_request_deadline(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_invalid_record_schema_refuses_without_trying_another_backend():
-    from agent_connector_sdk.adapters.platform_models import PlatformRecord, Provenance
+    from scion_sdk.adapters.platform_models import PlatformRecord, Provenance
 
     content = {"id": 9, "secret": "private-fixture"}
     digest = (
@@ -1192,9 +1192,9 @@ async def test_invalid_record_schema_refuses_without_trying_another_backend():
 
 
 def test_platform_source_preset_refuses_missing_envelope_fields():
-    from agent_connector_sdk.adapters.mcp_tool_records import raw_records
-    from agent_connector_sdk.manifest.presets import ToolPreset
-    from agent_connector_sdk.ports.errors import MalformedSourceDataError
+    from scion_sdk.adapters.mcp_tool_records import raw_records
+    from scion_sdk.manifest.presets import ToolPreset
+    from scion_sdk.ports.errors import MalformedSourceDataError
 
     preset = ToolPreset.from_mapping(
         "items",
@@ -1287,12 +1287,12 @@ async def test_external_cancellation_stops_current_attempt_and_never_falls_back(
 async def test_source_rejects_platform_result_for_a_different_request():
     from test_event_feeds import CONNECTOR, FakeEventSession, _tool_descriptor
 
-    from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-    from agent_connector_sdk.adapters.platform_fallback import _refused
-    from agent_connector_sdk.manifest.presets import ToolPreset
-    from agent_connector_sdk.ports.errors import SourceContractError
-    from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-    from agent_connector_sdk.testing.sinks import InMemorySink
+    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+    from scion_sdk.adapters.platform_fallback import _refused
+    from scion_sdk.manifest.presets import ToolPreset
+    from scion_sdk.ports.errors import SourceContractError
+    from scion_sdk.runner.syncing import SyncTarget, sync_stream
+    from scion_sdk.testing.sinks import InMemorySink
 
     preset = ToolPreset(
         name="stream",
@@ -1327,12 +1327,12 @@ async def test_source_rejects_platform_result_for_a_different_request():
 async def test_source_refuses_oversized_platform_envelope_before_submission():
     from test_event_feeds import CONNECTOR, FakeEventSession, _tool_descriptor
 
-    from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-    from agent_connector_sdk.adapters.platform_http import MAX_PLATFORM_RESPONSE_BYTES
-    from agent_connector_sdk.manifest.presets import ToolPreset
-    from agent_connector_sdk.ports.errors import SourceContractError
-    from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-    from agent_connector_sdk.testing.sinks import InMemorySink
+    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+    from scion_sdk.adapters.platform_http import MAX_PLATFORM_RESPONSE_BYTES
+    from scion_sdk.manifest.presets import ToolPreset
+    from scion_sdk.ports.errors import SourceContractError
+    from scion_sdk.runner.syncing import SyncTarget, sync_stream
+    from scion_sdk.testing.sinks import InMemorySink
 
     preset = ToolPreset(
         name="stream",
@@ -1361,8 +1361,8 @@ async def test_source_refuses_oversized_platform_envelope_before_submission():
 
 
 def test_generic_source_response_is_not_reinterpreted_as_platform_envelope():
-    from agent_connector_sdk.adapters.mcp_tool_records import raw_records
-    from agent_connector_sdk.manifest.presets import ToolPreset
+    from scion_sdk.adapters.mcp_tool_records import raw_records
+    from scion_sdk.manifest.presets import ToolPreset
 
     preset = ToolPreset(
         name="items", server="demo", tool="search", records_path="records"
@@ -1384,7 +1384,7 @@ async def test_record_validation_respects_backend_attempt_timeout(
 
     marker = tmp_path / "validator.finished"
     monkeypatch.setenv("SCION_TEST_VALIDATOR_MARKER", str(marker))
-    from agent_connector_sdk.adapters.platform_models import PlatformRecord, Provenance
+    from scion_sdk.adapters.platform_models import PlatformRecord, Provenance
 
     digest = platform_record_schema_digest(SlowRecord)
     base = capability()

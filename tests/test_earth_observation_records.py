@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.earth_observations.records import (
+from scion_sdk.earth_observations.records import (
     EARTH_OBSERVATION_SCHEMA_VERSION,
     EarthObservationRecordBase,
     OrganismObservation,

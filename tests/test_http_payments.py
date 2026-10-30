@@ -7,7 +7,7 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.http.payments import (
+from scion_sdk.http.payments import (
     PaymentBudget,
     PaymentChallenge,
     PaymentDecision,

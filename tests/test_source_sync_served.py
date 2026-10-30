@@ -18,12 +18,12 @@ import pytest
 from fastmcp import Client, FastMCP
 from live_engine import live_ingest, scoped_client  # noqa: F401 - pytest fixture
 
-from agent_connector_sdk.ingest.service import KnowledgeIngest
-from agent_connector_sdk.ingest.source_sync import (
+from scion_sdk.ingest.service import KnowledgeIngest
+from scion_sdk.ingest.source_sync import (
     KvSourceCheckpoints,
     SourceSyncRunner,
 )
-from agent_connector_sdk.ingest.sources import IngestSourceSpec
+from scion_sdk.ingest.sources import IngestSourceSpec
 
 ITEMS = [{"id": f"item-{i}", "name": f"Item {i}", "rank": i} for i in range(1, 4)]
 SPEC = IngestSourceSpec(

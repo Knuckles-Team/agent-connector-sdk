@@ -17,19 +17,19 @@ from source_graph_helpers import (
 from test_contracts_and_sink import _catalog
 from test_event_feeds import CONNECTOR
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.manifest.model import (
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.manifest.model import (
     ResourceRelation,
     ResourceSpec,
     SchemaMapping,
 )
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
-from agent_connector_sdk.taxonomy.graph_stream import register_taxonomy_graph_stream
-from agent_connector_sdk.taxonomy.provider import TaxonomyProvider
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.taxonomy.graph_stream import register_taxonomy_graph_stream
+from scion_sdk.taxonomy.provider import TaxonomyProvider
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("EG_TEST_SOURCE_SHAPES") != "1",

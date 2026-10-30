@@ -8,19 +8,19 @@ from fastmcp import FastMCP
 from live_engine import live_ingest, scoped_client  # noqa: F401
 from test_event_feeds import CONNECTOR
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.earth_observations.occurrence import OccurrenceProvider
-from agent_connector_sdk.earth_observations.occurrence_context import OccurrenceContext
-from agent_connector_sdk.earth_observations.records import Place, Region
-from agent_connector_sdk.earth_observations.stream import register_occurrence_stream
-from agent_connector_sdk.manifest.model import (
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.earth_observations.occurrence import OccurrenceProvider
+from scion_sdk.earth_observations.occurrence_context import OccurrenceContext
+from scion_sdk.earth_observations.records import Place, Region
+from scion_sdk.earth_observations.stream import register_occurrence_stream
+from scion_sdk.manifest.model import (
     ResourceRelation,
     ResourceSpec,
     SchemaMapping,
 )
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
-from agent_connector_sdk.taxonomy.records import TaxonRecord
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.taxonomy.records import TaxonRecord
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 async def exercise(url, provider_name, with_context=False):

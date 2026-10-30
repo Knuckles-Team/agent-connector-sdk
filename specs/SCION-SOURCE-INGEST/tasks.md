@@ -4,10 +4,10 @@
 - [x] Implement pure normalized drift classifier, quarantine report, and declared evolution policy (SCION-SOURCE-INGEST-R002, SCION-SOURCE-INGEST-R007).
 - [x] Implement proposal-only repair handoff and graph-owned activation proof (SCION-SOURCE-INGEST-R003).
 - [x] Port enterprise, document/session/feed, and enrichment adapters through SDK ports (SCION-SOURCE-INGEST-R004–SCION-SOURCE-INGEST-R006).
-  - [x] Web-fetch requests-floor backend ported to `agent_connector_sdk.adapters.web_fetch` (HTTP GET via the SDK's own governed client, OG/Twitter Card metadata, tag-strip text normalization) (SCION-SOURCE-INGEST-R005).
+  - [x] Web-fetch requests-floor backend ported to `scion_sdk.adapters.web_fetch` (HTTP GET via the SDK's own governed client, OG/Twitter Card metadata, tag-strip text normalization) (SCION-SOURCE-INGEST-R005).
   - [x] Web-fetch: ArchiveBox and crawl4ai backends (still call agent-utilities-owned MCP fleet / crawler subprocess infrastructure) (SCION-SOURCE-INGEST-R005).
   - [x] Web-fetch: richer HTML-to-markdown conversion (markitdown or equivalent) in place of the tag-strip floor (SCION-SOURCE-INGEST-R005).
-  - [x] Web-fetch: wrapped as `WebFetchSourceAdapter` (`ports.SourceAdapter`), registered via the `agent_connector_sdk.source_adapters` entry-point group; one URL per extracted page, checkpoint-recoverable, reconcile against a fixed URL set (SCION-SOURCE-INGEST-R005).
+  - [x] Web-fetch: wrapped as `WebFetchSourceAdapter` (`ports.SourceAdapter`), registered via the `scion_sdk.source_adapters` entry-point group; one URL per extracted page, checkpoint-recoverable, reconcile against a fixed URL set (SCION-SOURCE-INGEST-R005).
   - [x] Package-install ingestion and repository-related transport adapters (SCION-SOURCE-INGEST-R005).
 - [ ] Record exact merged commit, CI run, fixture results, and graph-backed restart receipt before acceptance.
 - [x] Add occurrence/weather adapters (GBIF, iNaturalist, NOAA GHCN/ISD, Open-Meteo, NOAA storm events) and the NCBI/GBIF taxonomy connector validated against `TaxonShape` (SCION-SOURCE-INGEST-R008, SCION-SOURCE-INGEST-R009).

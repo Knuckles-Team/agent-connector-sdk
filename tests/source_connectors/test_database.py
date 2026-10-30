@@ -8,17 +8,17 @@ from types import SimpleNamespace
 
 import pytest
 
-from agent_connector_sdk.source_connectors import (
+from scion_sdk.source_connectors import (
     ConnectorCheckpoint,
     build_connector,
     universal,
 )
-from agent_connector_sdk.source_connectors.connectors import database
-from agent_connector_sdk.source_connectors.connectors.database import (
+from scion_sdk.source_connectors.connectors import database
+from scion_sdk.source_connectors.connectors.database import (
     DatabaseConnector,
     RowVersionEvidenceUnavailable,
 )
-from agent_connector_sdk.source_connectors.universal import UniversalConnector
+from scion_sdk.source_connectors.universal import UniversalConnector
 
 QUERY = "SELECT id, name AS title, name AS text, id AS updated FROM authors"
 

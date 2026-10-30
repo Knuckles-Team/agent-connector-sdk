@@ -1,6 +1,6 @@
 # Implementation design: source client and virtual workspace
 
-1. Add the typed source client module under `agent_connector_sdk/` with one
+1. Add the typed source client module under `scion_sdk/` with one
    frozen method per served `source.*` operation and the bounded digest-keyed
    blob cache.
 2. Add the virtual workspace mount module over the client, sparse by declared
@@ -16,20 +16,20 @@ deployment for ordinary pull-request validation.
 
 ## Existing system and reuse
 
-- `create_http_client` at `agent_connector_sdk/http/client.py:92` and
-  `create_async_http_client` at `agent_connector_sdk/http/client.py:117`
+- `create_http_client` at `scion_sdk/http/client.py:92` and
+  `create_async_http_client` at `scion_sdk/http/client.py:117`
   supply the governed outbound transport and TLS policy. The client reuses
   them; no second transport is introduced.
-- `agent_connector_sdk/credentials/` resolves `env://` and `openbao://`
+- `scion_sdk/credentials/` resolves `env://` and `openbao://`
   references. The client accepts credential references only; resolved values
   never enter logs, receipts, or cache entries.
-- `register_tool_surface` at `agent_connector_sdk/mcp/tool_surface.py:305`
+- `register_tool_surface` at `scion_sdk/mcp/tool_surface.py:305`
   is where the connector's served development tools register. `dispatch_async`
-  at `agent_connector_sdk/mcp/action_dispatch.py:196` invokes their methods.
+  at `scion_sdk/mcp/action_dispatch.py:196` invokes their methods.
   The served side already exists in the SDK. This spec adds the client and
   the mount. The served side composes both. The SDK adds no new serving
   path.
-- `SourceAdapter` at `agent_connector_sdk/ports/source_adapter.py:21` is the
+- `SourceAdapter` at `scion_sdk/ports/source_adapter.py:21` is the
   ingestion-side port. This spec does not reuse it. It extracts records from
   external sources into the graph service. The source client reads and
   commits development changesets.
@@ -106,7 +106,7 @@ ID, no SDK reimplementation is permitted):
 ## Quality and release gates
 
 Focused: `uv run --frozen python -m pytest -q tests/test_source_client* tests/test_source_mount*`.
-Type check: strict mypy over `agent_connector_sdk`.
+Type check: strict mypy over `scion_sdk`.
 Lint: Ruff check and format over changed files.
 Spec gates: `pipelines-hook spec-standard`, `spec-decomposition`, `spec-status`, and `spec-trailers`.
 Release: the repository's standard wheel build and gate suite; no new dependency is introduced by this spec.

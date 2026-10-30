@@ -6,7 +6,7 @@ import base64
 
 import pytest
 
-from agent_connector_sdk import signing
+from scion_sdk import signing
 
 SEED = bytes(range(32))
 

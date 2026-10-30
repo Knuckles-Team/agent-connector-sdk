@@ -1,7 +1,7 @@
 # SCION-QUALITY-RELEASE — Portable SDK quality, Pages, and release
 
 **Requirement IDs:** SCION-QUALITY-RELEASE-R001, SCION-QUALITY-RELEASE-R002, SCION-QUALITY-RELEASE-R003, SCION-QUALITY-RELEASE-R004, SCION-QUALITY-RELEASE-R005.
-**Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
+**Owner:** scion-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 
 ## Outcome
 

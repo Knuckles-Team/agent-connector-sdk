@@ -2,7 +2,7 @@
 
 import pytest
 
-from agent_connector_sdk.artifacts.resource_descriptor import (
+from scion_sdk.artifacts.resource_descriptor import (
     FieldBinding,
     ResourceDeclarationError,
     ResourceDescriptor,

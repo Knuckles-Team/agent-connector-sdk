@@ -7,14 +7,14 @@ import socket
 import httpx
 import pytest
 
-from agent_connector_sdk.http import egress
-from agent_connector_sdk.http.client import create_async_http_client, create_http_client
-from agent_connector_sdk.http.egress import (
+from scion_sdk.http import egress
+from scion_sdk.http.client import create_async_http_client, create_http_client
+from scion_sdk.http.egress import (
     PinnedEgressViolation,
     normalize_private_hosts,
 )
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
 
 
 def _answers(*ips: str):

@@ -7,12 +7,12 @@ import hashlib
 import pytest
 from pydantic import BaseModel, ValidationError
 
-from agent_connector_sdk.repository import (
+from scion_sdk.repository import (
     RepositoryManifestFile,
     RepositorySnapshotManifest,
     RepositoryTreeEntry,
 )
-from agent_connector_sdk.repository.models import (
+from scion_sdk.repository.models import (
     RepositoryAuthentication,
     RepositoryBatchLimits,
     RepositoryFile,

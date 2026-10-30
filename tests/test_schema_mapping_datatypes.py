@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.manifest.model import SchemaMapping
+from scion_sdk.manifest.model import SchemaMapping
 
 
 def test_mapping_preserves_legacy_shape_and_explicit_datetime():

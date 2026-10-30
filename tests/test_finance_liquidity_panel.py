@@ -5,8 +5,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from agent_connector_sdk.finance.liquidity_panel import read_liquidity_panel
-from agent_connector_sdk.ports.errors import SourceContractError
+from scion_sdk.finance.liquidity_panel import read_liquidity_panel
+from scion_sdk.ports.errors import SourceContractError
 
 
 def node(stream, series, value, text):

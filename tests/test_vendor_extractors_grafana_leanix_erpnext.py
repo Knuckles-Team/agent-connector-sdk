@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.ingest import ChangeSet
-from agent_connector_sdk.vendor_extractors.erpnext import CATEGORY as ERPNEXT_CATEGORY
-from agent_connector_sdk.vendor_extractors.erpnext import extract as erpnext_extract
-from agent_connector_sdk.vendor_extractors.grafana import CATEGORY as GRAFANA_CATEGORY
-from agent_connector_sdk.vendor_extractors.grafana import extract as grafana_extract
-from agent_connector_sdk.vendor_extractors.leanix import CATEGORY as LEANIX_CATEGORY
-from agent_connector_sdk.vendor_extractors.leanix import extract as leanix_extract
+from scion_sdk.ingest import ChangeSet
+from scion_sdk.vendor_extractors.erpnext import CATEGORY as ERPNEXT_CATEGORY
+from scion_sdk.vendor_extractors.erpnext import extract as erpnext_extract
+from scion_sdk.vendor_extractors.grafana import CATEGORY as GRAFANA_CATEGORY
+from scion_sdk.vendor_extractors.grafana import extract as grafana_extract
+from scion_sdk.vendor_extractors.leanix import CATEGORY as LEANIX_CATEGORY
+from scion_sdk.vendor_extractors.leanix import extract as leanix_extract
 
 
 class _FakeClient:

@@ -18,21 +18,22 @@ import pytest
 import uvicorn
 from fastmcp import Client, FastMCP
 from fastmcp.exceptions import ToolError
-from fastmcp.server.auth.providers.jwt import RSAKeyPair
+from fastmcp.server.auth.providers.jwt import JWTVerifier, RSAKeyPair
 from mcp.shared.exceptions import MCPError
 
-from agent_connector_sdk.entitlements import identity_scoped_resources
-from agent_connector_sdk.identity import (
+from scion_sdk.entitlements import identity_scoped_resources
+from scion_sdk.identity import (
     ANONYMOUS_ACTOR,
     SYSTEM_ACTOR,
     AuthenticationRequiredError,
+    IdentityRequiredError,
     current_actor,
     is_anonymous,
     require_authenticated_actor,
 )
-from agent_connector_sdk.mcp.actor_binding import ActorBindingMiddleware
-from agent_connector_sdk.mcp.served_security import ServedSecurityOverride
-from agent_connector_sdk.mcp.server import create_mcp_server
+from scion_sdk.mcp.actor_binding import ActorBindingMiddleware, request_actor
+from scion_sdk.mcp.served_security import ServedSecurityOverride
+from scion_sdk.mcp.server import create_mcp_server
 
 INVENTORY = ("prod-a", "prod-b", "lab", "edge")
 ISSUER = "https://idp.example.invalid/realms/demo"
@@ -185,8 +186,50 @@ async def test_a_mutation_without_authentication_is_a_typed_refusal() -> None:
     assert refused.value.data == {"reason": AuthenticationRequiredError.reason}
 
 
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.5")
+def test_current_actor_resolves_system_outside_any_request() -> None:
+    # Process startup / background work: nothing called use_actor, nothing raises.
+    assert current_actor() is SYSTEM_ACTOR
+    assert request_actor() is SYSTEM_ACTOR
+    # The refusal family stays for unmet requirements, not for a missing binding.
+    assert issubclass(AuthenticationRequiredError, IdentityRequiredError)
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.5")
+async def test_a_bare_no_auth_server_serves_without_use_actor() -> None:
+    bare: FastMCP[Any] = FastMCP("bare")
+    _register_host_tools(bare)
+    async with Client(bare) as client:
+        who = await client.call_tool("whoami", {})
+        assert who.data == {"actor_id": SYSTEM_ACTOR.actor_id, "anonymous": False}
+        assert (await client.call_tool("list_hosts", {})).data == list(INVENTORY)
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.5")
+async def test_a_bare_authenticated_server_uses_the_token_identity_and_denies() -> None:
+    keys = RSAKeyPair.generate()
+    bare: FastMCP[Any] = FastMCP(
+        "bare",
+        auth=JWTVerifier(public_key=keys.public_key, issuer=ISSUER, audience=AUDIENCE),
+    )
+    _register_host_tools(bare)
+    token = keys.create_token(
+        subject="operator-2",
+        issuer=ISSUER,
+        audience=AUDIENCE,
+        additional_claims={"tenant_id": "tenant-1", "roles": ["ssh:lab"]},
+    )
+    with _serving(bare) as endpoint:
+        async with Client(endpoint, auth=token) as client:
+            who = await client.call_tool("whoami", {})
+            assert who.data == {"actor_id": "operator-2", "anonymous": False}
+            assert (await client.call_tool("list_hosts", {})).data == ["lab"]
+            with pytest.raises((ToolError, MCPError), match="not entitled"):
+                await client.call_tool("get_host", {"alias": "prod-a"})
+
+
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.4")
-async def test_current_actor_stays_strict_outside_the_served_binding() -> None:
+async def test_the_binding_middleware_refuses_typed_on_a_bare_server() -> None:
     bare: FastMCP[Any] = FastMCP("bare")
 
     @bare.tool
@@ -194,8 +237,7 @@ async def test_current_actor_stays_strict_outside_the_served_binding() -> None:
         return current_actor().actor_id
 
     async with Client(bare) as client:
-        with pytest.raises(ToolError, match="an actor context is required"):
-            await client.call_tool("whoami", {})
+        assert (await client.call_tool("whoami", {})).data == SYSTEM_ACTOR.actor_id
     bare.add_middleware(ActorBindingMiddleware())
     async with Client(bare) as client:
         assert (await client.call_tool("whoami", {})).data == SYSTEM_ACTOR.actor_id

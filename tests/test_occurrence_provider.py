@@ -6,13 +6,13 @@ from datetime import UTC, datetime
 
 import pytest
 
-from agent_connector_sdk.earth_observations.occurrence import (
+from scion_sdk.earth_observations.occurrence import (
     OccurrenceProvider,
     OccurrenceProviderError,
 )
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 @pytest.mark.asyncio

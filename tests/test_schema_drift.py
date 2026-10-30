@@ -14,26 +14,26 @@ from epistemic_graph.generated.source_ingestion import (
     SourceRecordProvenance,
 )
 
-import agent_connector_sdk
-from agent_connector_sdk.contracts import (
+import scion_sdk
+from scion_sdk.contracts import (
     CapabilityDescriptor,
     ReconciliationReport,
     RecordPage,
     StreamDescriptor,
 )
-from agent_connector_sdk.manifest.live_contract import validate_live_tool_contract
-from agent_connector_sdk.ports.session import McpSession
-from agent_connector_sdk.runner.errors import SchemaDriftQuarantined
-from agent_connector_sdk.runner.syncing import SyncTarget, commit_page, sync_stream
-from agent_connector_sdk.schema_drift import (
+from scion_sdk.manifest.live_contract import validate_live_tool_contract
+from scion_sdk.ports.session import McpSession
+from scion_sdk.runner.errors import SchemaDriftQuarantined
+from scion_sdk.runner.syncing import SyncTarget, commit_page, sync_stream
+from scion_sdk.schema_drift import (
     DriftClassification,
     EvolutionPolicy,
     SchemaContract,
     SchemaDriftReport,
     classify_schema_drift,
 )
-from agent_connector_sdk.testing.results import SessionFactory
-from agent_connector_sdk.testing.sinks import InMemorySink
+from scion_sdk.testing.results import SessionFactory
+from scion_sdk.testing.sinks import InMemorySink
 
 SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -217,7 +217,7 @@ async def test_drift_gate_runs_between_drain_and_apply_with_no_shacl_or_activati
     assert sink.batches == {}, "the page was never applied (submitted)"
     # Scope: the ingest package owns the drift gate. Other packages may name
     # SHACL as a content kind they serve (``mcp/content.py``).
-    ingest_root = Path(agent_connector_sdk.__file__).resolve().parent / "ingest"
+    ingest_root = Path(scion_sdk.__file__).resolve().parent / "ingest"
     source_text = "\n".join(
         path.read_text(encoding="utf-8") for path in ingest_root.rglob("*.py")
     ).lower()

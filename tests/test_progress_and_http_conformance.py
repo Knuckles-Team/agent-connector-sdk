@@ -7,11 +7,11 @@ import logging
 import httpx
 import pytest
 
-from agent_connector_sdk.http.client import create_http_client
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.progress import ctx_progress
-from agent_connector_sdk.testing.http_clients import (
+from scion_sdk.http.client import create_http_client
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.progress import ctx_progress
+from scion_sdk.testing.http_clients import (
     HttpClientFactory,
     check_finite_timeout,
     check_problem_mapping,
@@ -20,7 +20,7 @@ from agent_connector_sdk.testing.http_clients import (
     check_tls_verification,
     run_http_client_suite,
 )
-from agent_connector_sdk.testing.results import ConformanceFailure, assert_conformant
+from scion_sdk.testing.results import ConformanceFailure, assert_conformant
 
 
 class _Context:

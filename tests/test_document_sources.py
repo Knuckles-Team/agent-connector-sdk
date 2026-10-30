@@ -19,7 +19,7 @@ from typing import Any
 import pytest
 from live_engine import live_ingest  # noqa: F401 - pytest fixture
 
-from agent_connector_sdk.adapters.document_sources import (
+from scion_sdk.adapters.document_sources import (
     DocumentBatch,
     DomainPack,
     FilesystemDocumentSource,
@@ -29,10 +29,10 @@ from agent_connector_sdk.adapters.document_sources import (
     apply_access,
     ingest_documents,
 )
-from agent_connector_sdk.contracts import CONNECTOR_UNCONFIGURED_MARKING, ExternalAccess
-from agent_connector_sdk.ingest.model import Document, IngestBinding
-from agent_connector_sdk.ingest.service import KnowledgeIngest
-from agent_connector_sdk.testing.sinks import InMemorySink
+from scion_sdk.contracts import CONNECTOR_UNCONFIGURED_MARKING, ExternalAccess
+from scion_sdk.ingest.model import Document, IngestBinding
+from scion_sdk.ingest.service import KnowledgeIngest
+from scion_sdk.testing.sinks import InMemorySink
 
 _HEX64 = re.compile(r"^[0-9a-f]{64}$")
 PILLARS = DomainPack("pillars", ("docs/pillars/*.md",), "pillar-doc")

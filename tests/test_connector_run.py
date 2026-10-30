@@ -10,8 +10,8 @@ import pytest
 from connector_dist import build
 from fastmcp import Client
 
-import agent_connector_sdk
-from agent_connector_sdk.connector import (
+import scion_sdk
+from scion_sdk.connector import (
     Connector,
     build_server,
     content_dirs,
@@ -19,7 +19,7 @@ from agent_connector_sdk.connector import (
     resolve_connector,
     run,
 )
-from agent_connector_sdk.connector_identity import (
+from scion_sdk.connector_identity import (
     ConnectorIdentityError,
     connector_distribution,
     connector_version,
@@ -78,7 +78,7 @@ class _FakeServer:
 def _patched(monkeypatch, transport: str) -> _FakeServer:
     from types import SimpleNamespace
 
-    import agent_connector_sdk.connector as module
+    import scion_sdk.connector as module
 
     fake = _FakeServer()
     args = SimpleNamespace(
@@ -131,10 +131,10 @@ def test_connector_declares_client_and_factory_together() -> None:
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.1")
 def test_package_root_exports_run_and_connector_lazily() -> None:
-    assert agent_connector_sdk.run is run
-    assert agent_connector_sdk.Connector is Connector
+    assert scion_sdk.run is run
+    assert scion_sdk.Connector is Connector
     with pytest.raises(AttributeError):
-        agent_connector_sdk.missing  # noqa: B018
+        scion_sdk.missing  # noqa: B018
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R071.1")
@@ -162,15 +162,15 @@ def test_attribute_must_be_a_connector(tmp_path, monkeypatch) -> None:
 def test_versions_come_from_package_metadata(democonn) -> None:
     assert connector_version("democonn") == "1.2.3"
     assert connector_distribution("democonn") == "democonn"
-    assert distribution_version("scion-sdk") == agent_connector_sdk.__version__
+    assert distribution_version("scion-sdk") == scion_sdk.__version__
     with pytest.raises(ConnectorIdentityError, match="not installed"):
         distribution_version("no-such-distribution-xyz")
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R071.1")
 def test_resolution_returns_typed_values(democonn) -> None:
-    from agent_connector_sdk.connector import ConnectorContentDirs, ResolvedConnector
-    from agent_connector_sdk.connector_identity import ConnectorPoint, connector_point
+    from scion_sdk.connector import ConnectorContentDirs, ResolvedConnector
+    from scion_sdk.connector_identity import ConnectorPoint, connector_point
 
     point = connector_point("democonn")
     assert isinstance(point, ConnectorPoint)
@@ -186,7 +186,7 @@ def test_resolution_returns_typed_values(democonn) -> None:
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.1")
 def test_connector_forwards_every_tool_surface_keyword(democonn, monkeypatch) -> None:
-    import agent_connector_sdk.mcp.tool_surface as surface
+    import scion_sdk.mcp.tool_surface as surface
 
     seen: dict = {}
     real = surface.register_tool_surface
@@ -261,7 +261,7 @@ def test_build_server_config_keeps_explicit_environment_precedence(
 def test_build_server_refuses_invalid_config_before_starting(
     democonn, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from agent_connector_sdk.config import ConfigurationError
+    from scion_sdk.config import ConfigurationError
 
     config = tmp_path / "invalid-config.json"
     config.write_text("{")

@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.mcp.context import (
+from scion_sdk.mcp.context import (
     MAX_PROGRESS_MESSAGE_BYTES,
     ToolExecutionContext,
     ToolExecutionResult,

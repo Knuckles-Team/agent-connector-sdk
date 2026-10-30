@@ -1,11 +1,11 @@
 # Schema disclosure
 
-The public `agent_connector_sdk.mcp.schema_disclosure` module transports schemas in bounded fragments.
+The public `scion_sdk.mcp.schema_disclosure` module transports schemas in bounded fragments.
 It exports `SchemaManifest`, `SchemaFragment`, `SchemaDisclosure`, `build_schema_disclosure`,
 `read_schema_fragment` and `reconstruct_schema`. Producers and consumers use this SDK implementation.
 They need no skill checkout at runtime.
 
-The `agent_connector_sdk.mcp.schema_disclosure_provider` module exports
+The `scion_sdk.mcp.schema_disclosure_provider` module exports
 `register_schema_resources(server, catalog, disclosures)` and `describe_schema_tools`.
 Use `describe_schema_tools` as the serializer for FastMCP's existing `RegexSearchTransform`.
 Attach that transform to the server. Pass the same instance to the resource registrar.

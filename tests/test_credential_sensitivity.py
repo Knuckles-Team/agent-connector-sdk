@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.credentials.sensitivity import (
+from scion_sdk.credentials.sensitivity import (
     configuration_key_is_sensitive,
     runtime_reference,
 )

@@ -15,11 +15,11 @@ from fixture_server import (
     build_reader_server,
 )
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.manifest.model import ResourceSpec, SchemaMapping, SyncSpec
-from agent_connector_sdk.ports.session import McpSession, TransportEndpoint
-from agent_connector_sdk.testing.results import SessionFactory
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.manifest.model import ResourceSpec, SchemaMapping, SyncSpec
+from scion_sdk.ports.session import McpSession, TransportEndpoint
+from scion_sdk.testing.results import SessionFactory
+from scion_sdk.transports.mcp import McpTransport
 
 
 def _factory(build: Callable[[], object]) -> SessionFactory:

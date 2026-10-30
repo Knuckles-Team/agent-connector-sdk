@@ -8,12 +8,12 @@ from types import SimpleNamespace
 import pandas as pd
 import pytest
 
-from agent_connector_sdk.finance import crypto_history
-from agent_connector_sdk.finance.errors import (
+from scion_sdk.finance import crypto_history
+from scion_sdk.finance.errors import (
     InvalidIntervalError,
     ProviderRequestError,
 )
-from agent_connector_sdk.finance.market_data import CryptoProvider
+from scion_sdk.finance.market_data import CryptoProvider
 
 
 class _Exchange:

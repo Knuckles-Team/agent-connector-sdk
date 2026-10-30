@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 from epistemic_graph.generated import models
 
-from agent_connector_sdk.writeback import (
+from scion_sdk.writeback import (
     TrajectoryRecorder,
     TrajectoryStep,
     TrajectoryWriteUncertainError,

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from agent_connector_sdk.paths import get_mcp_config_path
+from scion_sdk.paths import get_mcp_config_path
 
 
 def test_missing_config_returns_none(

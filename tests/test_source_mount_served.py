@@ -9,7 +9,7 @@ import pytest
 from fastmcp import Client, FastMCP
 from source_backend_helpers import SourceBackend
 
-from agent_connector_sdk.source import (
+from scion_sdk.source import (
     McpSourceTransport,
     MountRefusedError,
     SourceClient,

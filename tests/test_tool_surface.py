@@ -9,7 +9,7 @@ from typing import Any, Literal
 import pytest
 from fastmcp import Client, FastMCP
 
-from agent_connector_sdk.mcp.tool_surface import (
+from scion_sdk.mcp.tool_surface import (
     GATED_TAG,
     GATED_TOOLS_ATTRIBUTE,
     GRANULAR_TAG,
@@ -181,7 +181,7 @@ def test_no_mode_parameter_or_environment_toggle() -> None:
     assert gated_tool_names(mcp) == {"demo_items"}
     assert "mode" not in inspect.signature(register_tool_surface).parameters
 
-    root = Path(__file__).resolve().parents[1] / "agent_connector_sdk"
+    root = Path(__file__).resolve().parents[1] / "scion_sdk"
     for path in root.rglob("*.py"):
         text = path.read_text(encoding="utf-8")
         tree = ast.parse(text)

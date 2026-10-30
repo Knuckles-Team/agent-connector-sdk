@@ -5,8 +5,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from agent_connector_sdk.mcp.context import ToolExecutionContext
-from agent_connector_sdk.mcp.progress import PROGRESS_SEND_TIMEOUT, OrderedProgress
+from scion_sdk.mcp.context import ToolExecutionContext
+from scion_sdk.mcp.progress import PROGRESS_SEND_TIMEOUT, OrderedProgress
 
 
 def _context(token: str | None) -> ToolExecutionContext:

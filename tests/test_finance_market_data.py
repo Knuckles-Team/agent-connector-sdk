@@ -8,7 +8,7 @@ import pytest
 
 pd = pytest.importorskip("pandas")
 
-from agent_connector_sdk.finance.market_data import (  # noqa: E402
+from scion_sdk.finance.market_data import (  # noqa: E402
     AKShareProvider,
     CryptoProvider,
     DataFetchResult,

@@ -7,11 +7,11 @@ import pytest
 from fastmcp import Client, FastMCP
 from fastmcp.exceptions import ToolError
 
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.taxonomy.provider import TaxonomyProvider
-from agent_connector_sdk.taxonomy.stream import register_taxonomy_stream
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.taxonomy.provider import TaxonomyProvider
+from scion_sdk.taxonomy.stream import register_taxonomy_stream
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R009")

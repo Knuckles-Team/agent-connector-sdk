@@ -1,7 +1,7 @@
 # SCION-FINANCE-SOURCES — Qualified finance source adapters
 
 **Requirement IDs:** SCION-FINANCE-SOURCES-R001, SCION-FINANCE-SOURCES-R002, SCION-FINANCE-SOURCES-R003, SCION-FINANCE-SOURCES-R004, SCION-FINANCE-SOURCES-R005.
-**Owner:** agent-connector-sdk contract and source adapter APIs; each vendor connector owns its credentials and API implementation. **Delivery state:** SPECIFIED. **Acceptance state:** OPEN.
+**Owner:** scion-sdk contract and source adapter APIs; each vendor connector owns its credentials and API implementation. **Delivery state:** SPECIFIED. **Acceptance state:** OPEN.
 
 ## Outcome
 

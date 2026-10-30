@@ -7,12 +7,12 @@ import socket
 import httpx
 import pytest
 
-from agent_connector_sdk.adapters.web_fetch import (
+from scion_sdk.adapters.web_fetch import (
     FetchedPage,
     extract_og_metadata,
     fetch_page,
 )
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 _HTML = b"""
 <html>
@@ -90,8 +90,8 @@ async def test_fetch_rejects_loopback_without_explicit_allowlist() -> None:
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R005.42")
 async def test_fetch_rejects_public_hostname_resolving_to_private(monkeypatch) -> None:
-    from agent_connector_sdk.adapters import web_fetch
-    from agent_connector_sdk.http.client import create_async_http_client
+    from scion_sdk.adapters import web_fetch
+    from scion_sdk.http.client import create_async_http_client
 
     seen: list[httpx.Request] = []
     monkeypatch.setattr(
@@ -125,8 +125,8 @@ async def test_explicit_private_host_allowlist_permits_local_fetch() -> None:
 async def test_legacy_fetch_stops_on_oversized_or_compressed_response(
     monkeypatch,
 ) -> None:
-    from agent_connector_sdk.adapters import web_fetch
-    from agent_connector_sdk.http.client import create_async_http_client
+    from scion_sdk.adapters import web_fetch
+    from scion_sdk.http.client import create_async_http_client
 
     class Chunks(httpx.AsyncByteStream):
         def __init__(self) -> None:
@@ -185,7 +185,7 @@ def test_legacy_tag_strip_handles_unclosed_input() -> None:
     import random
     import re
 
-    from agent_connector_sdk.adapters.web_fetch_helpers import _markdown_from_html
+    from scion_sdk.adapters.web_fetch_helpers import _markdown_from_html
 
     rng = random.Random(21)
     for _ in range(1000):
@@ -201,7 +201,7 @@ def test_metadata_scanning_is_linear_on_unclosed_tags() -> None:
     import random
     import re
 
-    from agent_connector_sdk.adapters.web_fetch_helpers import _decode_entities
+    from scion_sdk.adapters.web_fetch_helpers import _decode_entities
 
     def old_title(html: str) -> str:
         for key in ("og:title", "twitter:title"):
@@ -259,7 +259,7 @@ def test_title_scanning_is_linear_and_matches_prior_behavior() -> None:
     import random
     import re
 
-    from agent_connector_sdk.adapters.web_html_text import _title_from_html
+    from scion_sdk.adapters.web_html_text import _title_from_html
 
     old = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
     rng = random.Random(53)

@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from agent_connector_sdk import __version__
-from agent_connector_sdk.config import (
+from scion_sdk import __version__
+from scion_sdk.config import (
     CONFIG_FILE_SETTING,
     ConfigurationError,
     config_file_path,
@@ -18,7 +18,7 @@ from agent_connector_sdk.config import (
     load_config,
     setting,
 )
-from agent_connector_sdk.exceptions import (
+from scion_sdk.exceptions import (
     ApiError,
     AuthError,
     LoginRequiredError,
@@ -27,14 +27,14 @@ from agent_connector_sdk.exceptions import (
     UnauthorizedError,
     require_auth,
 )
-from agent_connector_sdk.identity import (
+from scion_sdk.identity import (
+    SYSTEM_ACTOR,
     ActorContext,
     ActorType,
-    IdentityRequiredError,
     current_actor,
     use_actor,
 )
-from agent_connector_sdk.utilities import (
+from scion_sdk.utilities import (
     get_logger,
     to_boolean,
     to_dict,
@@ -88,7 +88,7 @@ def test_list_and_dict_coercions() -> None:
 
 
 def test_get_logger_writes_to_stderr() -> None:
-    logger = get_logger("agent-connector-sdk-test")
+    logger = get_logger("scion-sdk-test")
     assert logger.level == logging.INFO
     assert any(getattr(h, "stream", None) is sys.stderr for h in logger.handlers)
 
@@ -131,7 +131,7 @@ def test_setting_infers_casts(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_config_file_path(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.delenv(CONFIG_FILE_SETTING, raising=False)
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
-    assert config_file_path() == tmp_path / "agent-connector-sdk" / "config.json"
+    assert config_file_path() == tmp_path / "scion-sdk" / "config.json"
     monkeypatch.setenv(CONFIG_FILE_SETTING, str(tmp_path / "explicit.json"))
     assert config_file_path() == tmp_path / "explicit.json"
 
@@ -167,14 +167,12 @@ def test_load_config_rejects_invalid_documents(tmp_path: Path, payload: str) -> 
 
 
 def test_identity_is_bound_per_context() -> None:
-    with pytest.raises(IdentityRequiredError):
-        current_actor()
+    assert current_actor() is SYSTEM_ACTOR
     actor = ActorContext(
         actor_id="service:sync", actor_type=ActorType.AUTOMATED_SERVICE
     )
     with use_actor(actor):
         assert current_actor() is actor
-    with pytest.raises(IdentityRequiredError):
-        current_actor()
+    assert current_actor() is SYSTEM_ACTOR
     with pytest.raises(ValueError):
         ActorContext(actor_id="", actor_type=ActorType.HUMAN)

@@ -8,14 +8,14 @@ import json
 import pytest
 from fastmcp import FastMCP
 
-from agent_connector_sdk.artifacts.pack import (
+from scion_sdk.artifacts.pack import (
     _validate_resource_descriptors,
     build_content_pack,
 )
-from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
-from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.artifacts.resources import ResourceArtifactKind
+from scion_sdk.contracts import CapturedArtifact, ServerIdentity
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.transports.mcp import McpTransport
 
 
 def _without_rdflib(monkeypatch):

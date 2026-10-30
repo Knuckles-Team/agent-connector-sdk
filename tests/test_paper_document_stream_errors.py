@@ -8,8 +8,8 @@ import os
 import httpx
 import pytest
 
-from agent_connector_sdk.adapters.paper_document_errors import DocumentRefusal
-from agent_connector_sdk.adapters.paper_download_http import _copy_response
+from scion_sdk.adapters.paper_document_errors import DocumentRefusal
+from scion_sdk.adapters.paper_download_http import _copy_response
 
 
 class _Stream(httpx.AsyncByteStream):

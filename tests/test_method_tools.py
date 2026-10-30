@@ -9,8 +9,8 @@ from typing import Any
 import pytest
 from fastmcp import Client, FastMCP
 
-from agent_connector_sdk.mcp.method_tools import register_method_tools
-from agent_connector_sdk.mcp.tool_surface import GRANULAR_TAG, registered_tools
+from scion_sdk.mcp.method_tools import register_method_tools
+from scion_sdk.mcp.tool_surface import GRANULAR_TAG, registered_tools
 from tests.demo_api_fixture import DemoApiUsers, get_client, get_client_async
 
 

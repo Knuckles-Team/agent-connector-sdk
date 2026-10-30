@@ -2,8 +2,8 @@
 
 import pytest
 
-from agent_connector_sdk.adapters.event_feed import EventFeedSourceAdapter
-from agent_connector_sdk.discovery import (
+from scion_sdk.adapters.event_feed import EventFeedSourceAdapter
+from scion_sdk.discovery import (
     SOURCE_ADAPTER_GROUP,
     CertifiedExtensions,
     ExtensionActivationError,
@@ -11,7 +11,7 @@ from agent_connector_sdk.discovery import (
     load_extension,
     sdk_reference_extensions,
 )
-from agent_connector_sdk.manifest.presets import ToolPreset
+from scion_sdk.manifest.presets import ToolPreset
 
 
 @pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.5")

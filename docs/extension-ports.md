@@ -5,12 +5,12 @@ distribution and declares an entry point; nothing in the SDK changes.
 
 | Port | Module | Entry-point group | Reference implementation |
 |---|---|---|---|
-| `SourceAdapter` | `ports.source_adapter` | `agent_connector_sdk.source_adapters` | `mcp_tool` |
-| `ArtifactKind` | `ports.artifact_kind` | `agent_connector_sdk.artifact_kinds` | `tools`, `skills`, `prompts`, `resources` |
-| `Transport` | `ports.transport` | `agent_connector_sdk.transports` | `mcp` |
-| `Sink` | `ports.sink` | `agent_connector_sdk.sinks` | `epistemic_graph` |
+| `SourceAdapter` | `ports.source_adapter` | `scion_sdk.source_adapters` | `mcp_tool` |
+| `ArtifactKind` | `ports.artifact_kind` | `scion_sdk.artifact_kinds` | `tools`, `skills`, `prompts`, `resources` |
+| `Transport` | `ports.transport` | `scion_sdk.transports` | `mcp` |
+| `Sink` | `ports.sink` | `scion_sdk.sinks` | `epistemic_graph` |
 | `WriteBackPort` | `ports.writeback` | generated connector binding | `GovernedWriteBack` + fixture transport |
-| `PlatformBackendFactory` | `adapters.platform_admission` | `agent_connector_sdk.platform_backends` | connector-owned provider |
+| `PlatformBackendFactory` | `adapters.platform_admission` | `scion_sdk.platform_backends` | connector-owned provider |
 
 ## SourceAdapter
 
@@ -188,14 +188,14 @@ digest.
 
 ## Current-plan values
 
-`agent_connector_sdk.current_plan` exports `CurrentPlanRequest`, `PlanItem`, `CurrentPlanSnapshot` and `CurrentPlanRead`. The request selects only a run ID. Snapshots carry a nonnegative revision, UTC observation and expiry, and ordered immutable items. An available read contains a snapshot, which can have no items. An unavailable read has no snapshot. All models reject unknown fields and coercion. Use `model_validate_json` for JSON input and `model_dump_json` for output.
+`scion_sdk.current_plan` exports `CurrentPlanRequest`, `PlanItem`, `CurrentPlanSnapshot` and `CurrentPlanRead`. The request selects only a run ID. Snapshots carry a nonnegative revision, UTC observation and expiry, and ordered immutable items. An available read contains a snapshot, which can have no items. An unavailable read has no snapshot. All models reject unknown fields and coercion. Use `model_validate_json` for JSON input and `model_dump_json` for output.
 
 The models validate shape and the timestamp interval. They do not establish caller authority, run ownership, current freshness or a live lease. The serving owner must verify those conditions before returning an available read.
 
 ## Platform backend activation
 
 A platform provider publishes a `PlatformBackendFactory` under
-`agent_connector_sdk.platform_backends`. `CertifiedPlatformAdmission` loads it
+`scion_sdk.platform_backends`. `CertifiedPlatformAdmission` loads it
 only when the installed entry point's name, distribution and version are
 covered by the host's extension activation policy and its version matches the
 capability policy. The provider returns one backend bound to that policy;

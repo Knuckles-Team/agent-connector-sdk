@@ -1,7 +1,7 @@
 # Fleet connector migration evidence (2026-10-09)
 
 Per-connector merged pull requests migrating each package off `agent_utilities`
-onto `agent_connector_sdk`, grouped by the alphabetical batch requirement each
+onto `scion_sdk`, grouped by the alphabetical batch requirement each
 connector package name falls into. Batches are assigned by the first letter of
 the connector repository name, per `spec.md`'s batch definition: A-E
 (SCION-CONNECTOR-CONTROL-R009), F-J (SCION-CONNECTOR-CONTROL-R010), K-O

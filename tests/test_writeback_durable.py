@@ -19,23 +19,23 @@ from epistemic_graph.generated.write_back import (
     WriteBackReceiptRecordReconciliation,
 )
 
-from agent_connector_sdk.ports.writeback_ledger import WriteBackLedger
-from agent_connector_sdk.testing.writeback import (
+from scion_sdk.ports.writeback_ledger import WriteBackLedger
+from scion_sdk.testing.writeback import (
     WriteBackFixture,
     make_writeback_fixture,
 )
-from agent_connector_sdk.testing.writeback_audit import InMemoryAuditReservation
-from agent_connector_sdk.writeback.authorization import DurableAuthorizationResolver
-from agent_connector_sdk.writeback.connector import DurableWritableConnector
-from agent_connector_sdk.writeback.epistemic_graph import (
+from scion_sdk.testing.writeback_audit import InMemoryAuditReservation
+from scion_sdk.writeback.authorization import DurableAuthorizationResolver
+from scion_sdk.writeback.connector import DurableWritableConnector
+from scion_sdk.writeback.epistemic_graph import (
     EpistemicGraphWriteBackLedger,
 )
-from agent_connector_sdk.writeback.errors import (
+from scion_sdk.writeback.errors import (
     AuthorizationDeniedError,
     ReconciliationRequiredError,
     WriteBackPersistenceError,
 )
-from agent_connector_sdk.writeback.memory import FixtureUncertainty
+from scion_sdk.writeback.memory import FixtureUncertainty
 
 
 class MemoryLedger:
@@ -359,7 +359,7 @@ async def test_writable_connector_rejects_noncanonical_or_wrong_connector() -> N
 async def test_connector_refuses_overlapping_effects(monkeypatch):
     import asyncio
 
-    from agent_connector_sdk.writeback.errors import WriteBackError
+    from scion_sdk.writeback.errors import WriteBackError
 
     fixture = make_writeback_fixture()
     ledger = MemoryLedger()

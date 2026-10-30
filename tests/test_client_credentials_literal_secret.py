@@ -7,7 +7,7 @@ import base64
 import httpx
 import pytest
 
-from agent_connector_sdk.auth.client_credentials import ClientCredentialsTokenProvider
+from scion_sdk.auth.client_credentials import ClientCredentialsTokenProvider
 
 _LITERAL_SECRET = "s3cr3t-value"
 

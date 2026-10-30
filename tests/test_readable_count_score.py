@@ -2,7 +2,7 @@
 
 import pytest
 
-from agent_connector_sdk.artifacts import ReadableScore, score_readable_answers
+from scion_sdk.artifacts import ReadableScore, score_readable_answers
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R048.8")

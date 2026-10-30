@@ -17,23 +17,23 @@ from mcp.server.subscriptions import (
     ToolsListChanged,
 )
 
-from agent_connector_sdk.mcp.change_events import (
+from scion_sdk.mcp.change_events import (
     announce_content_changed,
     announce_resource_updated,
     change_bus,
     serve_change_subscriptions,
 )
-from agent_connector_sdk.mcp.server import create_mcp_server
-from agent_connector_sdk.ports.change_source import ChangeEvent, ChangeSource
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.transports.mcp import McpTransport
-from agent_connector_sdk.transports.mcp_changes import (
+from scion_sdk.mcp.server import create_mcp_server
+from scion_sdk.ports.change_source import ChangeEvent, ChangeSource
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.transports.mcp import McpTransport
+from scion_sdk.transports.mcp_changes import (
     ChangeFeed,
     forward_listen_events,
     notification_event,
     server_event,
 )
-from agent_connector_sdk.transports.mcp_session import McpClientSession
+from scion_sdk.transports.mcp_session import McpClientSession
 
 LISTS = {ChangeEvent("tools"), ChangeEvent("prompts"), ChangeEvent("resources")}
 

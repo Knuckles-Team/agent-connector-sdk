@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.source_connectors import ConnectorCheckpoint, build_connector
+from scion_sdk.source_connectors import ConnectorCheckpoint, build_connector
 
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R800.10")
@@ -67,7 +67,7 @@ def test_web_poll_refuses_wrong_source_frontier_before_fetch():
 @pytest.mark.spec("SCION-SOURCE-INGEST-R800.10")
 def test_web_frontier_overflow_refuses_without_checkpoint(monkeypatch):
     monkeypatch.setattr(
-        "agent_connector_sdk.source_connectors.connectors.web_frontier._FRONTIER_LIMIT",
+        "scion_sdk.source_connectors.connectors.web_frontier._FRONTIER_LIMIT",
         1,
     )
     conn = build_connector(

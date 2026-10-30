@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-command contributor setup for agent-connector-sdk.
+# One-command contributor setup for scion-sdk.
 #
 #   scripts/bootstrap.sh              pinned Python, locked env (EG from PyPI), git hooks
 #   scripts/bootstrap.sh --scanners   additionally the pinned native scanners

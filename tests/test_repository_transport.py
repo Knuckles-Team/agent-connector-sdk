@@ -10,7 +10,7 @@ from typing import cast
 import pytest
 from epistemic_graph.client import EpistemicGraphClient
 
-from agent_connector_sdk.repository import (
+from scion_sdk.repository import (
     RepositoryAuthentication,
     RepositoryBatchLimits,
     RepositoryBatchReceipt,

@@ -7,12 +7,12 @@ from test_enterprise_dispatch import (
     request,
 )
 
-from agent_connector_sdk.vendor_extractors.enterprise_contract import (
+from scion_sdk.vendor_extractors.enterprise_contract import (
     EnterpriseCapability,
     EnterpriseResult,
     ReadInvoice,
 )
-from agent_connector_sdk.vendor_extractors.enterprise_dispatch import (
+from scion_sdk.vendor_extractors.enterprise_dispatch import (
     EnterpriseDispatcher,
     enterprise_schema_binding,
 )
@@ -25,16 +25,16 @@ async def test_backend_swap_and_unsupported():
 
     from fastmcp import Client
 
-    from agent_connector_sdk.http.client import create_async_http_client
-    from agent_connector_sdk.http.options import HttpClientOptions
-    from agent_connector_sdk.http.retry import RetryPolicy
-    from agent_connector_sdk.identity import use_actor
-    from agent_connector_sdk.mcp.server import create_mcp_server
-    from agent_connector_sdk.testing.http_server import (
+    from scion_sdk.http.client import create_async_http_client
+    from scion_sdk.http.options import HttpClientOptions
+    from scion_sdk.http.retry import RetryPolicy
+    from scion_sdk.identity import use_actor
+    from scion_sdk.mcp.server import create_mcp_server
+    from scion_sdk.testing.http_server import (
         ScriptedHttpServer,
         ScriptedResponse,
     )
-    from agent_connector_sdk.vendor_extractors.enterprise_contract import AccountRecord
+    from scion_sdk.vendor_extractors.enterprise_contract import AccountRecord
 
     class HttpReader:
         def __init__(self, connector, endpoint):

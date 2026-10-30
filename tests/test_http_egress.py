@@ -8,15 +8,15 @@ from pathlib import Path
 import httpx
 import pytest
 
-from agent_connector_sdk.http.egress import (
+from scion_sdk.http.egress import (
     EgressOptions,
     EgressPolicyError,
     PinnedAddressTransport,
     check_egress_destination,
     pinned_egress_transport,
 )
-from agent_connector_sdk.testing.certificates import issue_test_certificates
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.testing.certificates import issue_test_certificates
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.1")

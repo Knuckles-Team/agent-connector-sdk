@@ -11,23 +11,23 @@ from source_graph_helpers import admitted_source_fixture, sync_failure_cycle
 from test_event_feeds import CONNECTOR
 from weather_test_helpers import weather_provider, weather_request
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.earth_observations.records import Place, Region
-from agent_connector_sdk.earth_observations.weather_location import (
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.earth_observations.records import Place, Region
+from scion_sdk.earth_observations.weather_location import (
     WeatherLocation,
     WeatherQuality,
 )
-from agent_connector_sdk.earth_observations.weather_stream import (
+from scion_sdk.earth_observations.weather_stream import (
     register_weather_stream,
 )
-from agent_connector_sdk.manifest.model import (
+from scion_sdk.manifest.model import (
     ResourceRelation,
     ResourceSpec,
     SchemaMapping,
 )
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 async def exercise(url, with_quality):

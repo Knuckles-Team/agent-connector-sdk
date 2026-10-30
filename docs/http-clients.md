@@ -8,14 +8,14 @@ only what is specific to its vendor: paths, payloads and models.
 ## A governed client and a tool that calls it
 
 ```python
-from agent_connector_sdk.auth.static import bearer_auth
-from agent_connector_sdk.config import setting
-from agent_connector_sdk.http.client import create_async_http_client
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.pagination import ToolPage
-from agent_connector_sdk.http.responses import arequest_json
-from agent_connector_sdk.progress import ctx_progress
-from agent_connector_sdk.tls.resolve import resolve_tls_profile
+from scion_sdk.auth.static import bearer_auth
+from scion_sdk.config import setting
+from scion_sdk.http.client import create_async_http_client
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.pagination import ToolPage
+from scion_sdk.http.responses import arequest_json
+from scion_sdk.progress import ctx_progress
+from scion_sdk.tls.resolve import resolve_tls_profile
 
 
 def build_client():
@@ -56,12 +56,12 @@ exactly what the tool returns.
 | Retries | `RetryPolicy`: 3 attempts, exponential backoff with jitter, idempotent methods only; a connection never established is retried for any method; certificate failures are never retried |
 | Rate limits | `Retry-After` (seconds or HTTP date) is honoured up to `max_retry_after`; beyond that, or for a non-idempotent request, the caller gets `HttpRateLimitedError.retry_after` |
 | Bodies | `request_json`, `read_bounded` and `iter_bounded` bound the size (16 MiB by default) |
-| Logging | one record per attempt on `agent_connector_sdk.http`: method, origin only, status or error class, attempt, elapsed time |
+| Logging | one record per attempt on `scion_sdk.http`: method, origin only, status or error class, attempt, elapsed time |
 | Credentials | never in `headers` or `base_url`; always through `auth` |
 
 ## Retrying async callables
 
-`agent_connector_sdk.resilience.run_with_resilience` runs an async callable
+`scion_sdk.resilience.run_with_resilience` runs an async callable
 with explicit retryable exception types and a `RetryPolicy`. Repeated calls
 and fallbacks require `retry_safe=True`. The caller must know those calls are
 safe to repeat. Timeouts use cooperative cancellation and propagate without
@@ -75,7 +75,7 @@ blocking work. Use it outside an event loop.
 ## Requests-only SDKs
 
 Install `scion-sdk[requests]` to use
-`agent_connector_sdk.http.requests.create_requests_session`. This factory
+`scion_sdk.http.requests.create_requests_session`. This factory
 returns a `requests.Session` for libraries that require Requests. It enforces
 TLS verification, finite timeouts and the SDK air-gap policy on every send,
 including redirects. It ignores ambient proxy settings by default. A resolved
@@ -117,7 +117,7 @@ global fallback, and `SSL_CERT_FILE`/`SSL_CERT_DIR`.
 - `verify` and `allow_insecure` are rejected. Verification cannot be turned off.
 - `minimum_version` is `TLSv1.2` (default) or `TLSv1.3`.
 - Material from a reference is written to mode-0600 files under
-  `$XDG_RUNTIME_DIR/agent-connector-sdk/tls` and removed by `cleanup()` or at exit.
+  `$XDG_RUNTIME_DIR/scion-sdk/tls` and removed by `cleanup()` or at exit.
 - A key or key password value is accepted only inside a document read from a
   secret reference; inline configuration must use `_ref` keys.
 
@@ -162,7 +162,7 @@ endpoint:
 
 ## Conformance
 
-`agent_connector_sdk.testing.http_clients.run_http_client_suite(factory)` checks a
+`scion_sdk.testing.http_clients.run_http_client_suite(factory)` checks a
 connector's client factory against a local server: finite timeouts, `Retry-After`
 retry, problem mapping, secret redaction and certificate verification.
 `ScriptedHttpServer` and `issue_test_certificates()` are available for a

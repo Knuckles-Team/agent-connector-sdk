@@ -17,16 +17,16 @@ from test_platform_fallback import (
     request,
 )
 
-from agent_connector_sdk.adapters.platform_fallback import PlatformFallback
-from agent_connector_sdk.adapters.platform_http import PlatformHttpBackend
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.identity import ActorContext, ActorType, use_actor
-from agent_connector_sdk.mcp.platform_tools import (
+from scion_sdk.adapters.platform_fallback import PlatformFallback
+from scion_sdk.adapters.platform_http import PlatformHttpBackend
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.identity import ActorContext, ActorType, use_actor
+from scion_sdk.mcp.platform_tools import (
     VerifiedScopeAuthorizer,
     register_platform_tools,
 )
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 class FixtureVerifier(TokenVerifier):

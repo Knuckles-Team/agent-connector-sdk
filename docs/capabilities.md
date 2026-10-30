@@ -1,6 +1,6 @@
 # Capabilities
 
-Agent Connector SDK provides one governed connector lifecycle from MCP serving
+Scion SDK provides one governed connector lifecycle from MCP serving
 through source synchronization and source-side effects. These capabilities are
 part of the current public package.
 

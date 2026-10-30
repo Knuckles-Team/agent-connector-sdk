@@ -11,28 +11,28 @@ import pytest
 import yaml
 from fastmcp import Client, FastMCP
 
-from agent_connector_sdk.certify.certification import certify_connector
-from agent_connector_sdk.certify.checkout import checkout_from_resources
-from agent_connector_sdk.ingest.live_declaration import (
+from scion_sdk.certify.certification import certify_connector
+from scion_sdk.certify.checkout import checkout_from_resources
+from scion_sdk.ingest.live_declaration import (
     META_KEY,
     RESOURCES_URI,
     build_declaration,
     register_live_declaration,
     source_meta,
 )
-from agent_connector_sdk.manifest.declaration import (
+from scion_sdk.manifest.declaration import (
     ContractError,
     SyncContract,
     contract_from_declaration,
     contract_from_document,
 )
-from agent_connector_sdk.mcp.content import PROMPT_META_KEY, _register_prompt
-from agent_connector_sdk.mcp.tool_surface import registered_tools
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.runner.descriptors import ConnectorDescriptor, EndpointSpec
-from agent_connector_sdk.runner.errors import RunnerConfigurationError
-from agent_connector_sdk.runner.plans import load_sync_adapters
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.mcp.content import PROMPT_META_KEY, _register_prompt
+from scion_sdk.mcp.tool_surface import registered_tools
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.runner.descriptors import ConnectorDescriptor, EndpointSpec
+from scion_sdk.runner.errors import RunnerConfigurationError
+from scion_sdk.runner.plans import load_sync_adapters
+from scion_sdk.transports.mcp import McpTransport
 
 FIXTURE = Path(__file__).parent / "fixture_package"
 
@@ -140,7 +140,7 @@ def test_invalid_declaration_is_refused() -> None:
     with pytest.raises(ContractError):
         contract_from_declaration(
             __import__(
-                "agent_connector_sdk.ingest.sources", fromlist=["x"]
+                "scion_sdk.ingest.sources", fromlist=["x"]
             ).IngestSourceDeclaration.model_validate(bad)
         )
 
@@ -360,7 +360,7 @@ def test_prompt_carries_declared_title_tags_use_case_and_system_target(
 
 
 def test_prompt_tags_are_declared_tags_plus_surface_kind() -> None:
-    from agent_connector_sdk.mcp.content import _prompt_tags
+    from scion_sdk.mcp.content import _prompt_tags
 
     assert _prompt_tags({"tags": ["a", "b"]}) == {"a", "b", "prompt"}
     assert _prompt_tags({"tags": ["a"], "serves": "x:Y"}) == {"a", "prompt", "system"}
@@ -377,7 +377,7 @@ def test_skill_directory_name_matches_frontmatter_name() -> None:
 def test_connector_sources_module_declares_by_tool_name(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from agent_connector_sdk.ingest.live_declaration import (
+    from scion_sdk.ingest.live_declaration import (
         SOURCES_MODULE,
         load_sources_module,
     )
@@ -386,7 +386,7 @@ def test_connector_sources_module_declares_by_tool_name(
     pkg.mkdir()
     (pkg / "__init__.py").write_text("", encoding="utf-8")
     (pkg / "connector_sources.py").write_text(
-        "from agent_connector_sdk.ingest.live_declaration import source_meta\n"
+        "from scion_sdk.ingest.live_declaration import source_meta\n"
         "SOURCES = (source_meta(tool='demo_reader', source_id='by-name',"
         " record_type='Thing', id_field='id', ontology_class='demo:Thing'),)\n"
         "SCHEMA_MAPPINGS = {'Other': {'ontology_class': 'demo:Other', 'fields': {}}}\n"

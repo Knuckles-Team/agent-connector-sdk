@@ -5,11 +5,11 @@ from fastmcp import Client, FastMCP
 from fastmcp.exceptions import ToolError
 from storm_test_helpers import archive_policy
 
-from agent_connector_sdk.earth_observations.storm import (
+from scion_sdk.earth_observations.storm import (
     NoaaStormArchive,
     StormAdmission,
 )
-from agent_connector_sdk.earth_observations.storm_stream import register_storm_stream
+from scion_sdk.earth_observations.storm_stream import register_storm_stream
 
 
 @pytest.mark.asyncio

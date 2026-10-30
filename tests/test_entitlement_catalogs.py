@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.entitlements import CatalogResource, catalog_entitled_resources
+from scion_sdk.entitlements import CatalogResource, catalog_entitled_resources
 
 _KEYCLOAK_CATALOG = (
     CatalogResource(identifier="realm-prod", namespace="keycloak-realm"),
@@ -69,7 +69,7 @@ def test_sdk_entitlements_do_not_import_agent_utilities() -> None:
     import ast
     import inspect
 
-    import agent_connector_sdk.entitlements as module
+    import scion_sdk.entitlements as module
 
     imported = {
         node.module or alias.name

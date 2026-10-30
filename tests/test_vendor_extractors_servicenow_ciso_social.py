@@ -4,21 +4,21 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.ingest import ChangeSet
-from agent_connector_sdk.vendor_extractors.ciso_assistant import (
+from scion_sdk.ingest import ChangeSet
+from scion_sdk.vendor_extractors.ciso_assistant import (
     CATEGORY as CISO_CATEGORY,
 )
-from agent_connector_sdk.vendor_extractors.ciso_assistant import (
+from scion_sdk.vendor_extractors.ciso_assistant import (
     extract as ciso_extract,
 )
-from agent_connector_sdk.vendor_extractors.servicenow import (
+from scion_sdk.vendor_extractors.servicenow import (
     CATEGORY as SERVICENOW_CATEGORY,
 )
-from agent_connector_sdk.vendor_extractors.servicenow import (
+from scion_sdk.vendor_extractors.servicenow import (
     extract as servicenow_extract,
 )
-from agent_connector_sdk.vendor_extractors.social import CATEGORY as SOCIAL_CATEGORY
-from agent_connector_sdk.vendor_extractors.social import extract as social_extract
+from scion_sdk.vendor_extractors.social import CATEGORY as SOCIAL_CATEGORY
+from scion_sdk.vendor_extractors.social import extract as social_extract
 
 
 class _FakeClient:

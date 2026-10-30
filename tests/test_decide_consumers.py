@@ -12,22 +12,22 @@ from typing import Any
 
 import pytest
 
-from agent_connector_sdk import decide
-from agent_connector_sdk.decide import Choice, DecisionRunner, Option
-from agent_connector_sdk.decide.consumers import (
+from scion_sdk import decide
+from scion_sdk.decide import Choice, DecisionRunner, Option
+from scion_sdk.decide.consumers import (
     NO_WRITE,
     connector_tool,
     propose_writeback,
     triage_event,
 )
-from agent_connector_sdk.decide.options import (
+from scion_sdk.decide.options import (
     Q32_ONE,
     declared_source,
     q32,
     text_param,
     unique_sorted,
 )
-from agent_connector_sdk.ports.decide_runner import Fallback
+from scion_sdk.ports.decide_runner import Fallback
 
 
 @dataclass

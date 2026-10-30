@@ -6,14 +6,14 @@ import importlib
 
 
 def test_writeback_sinks_exports() -> None:
-    module = importlib.import_module("agent_connector_sdk.writeback_sinks")
+    module = importlib.import_module("scion_sdk.writeback_sinks")
     exported = (module.WritebackInvocation,)
     assert len(exported) == 1
     assert all(item is not None for item in exported)
 
 
 def test_writeback_sinks__env_exports() -> None:
-    module = importlib.import_module("agent_connector_sdk.writeback_sinks._env")
+    module = importlib.import_module("scion_sdk.writeback_sinks._env")
     exported = (
         module.runtime_dir,
         module.run_sync_isolated,
@@ -24,7 +24,7 @@ def test_writeback_sinks__env_exports() -> None:
 
 
 def test_writeback_sinks_core_exports() -> None:
-    module = importlib.import_module("agent_connector_sdk.writeback_sinks.core")
+    module = importlib.import_module("scion_sdk.writeback_sinks.core")
     exported = (
         module.resolve_writeback_client,
         module.WritebackClientMixin,
@@ -35,7 +35,7 @@ def test_writeback_sinks_core_exports() -> None:
 
 
 def test_writeback_sinks_governed_exports() -> None:
-    module = importlib.import_module("agent_connector_sdk.writeback_sinks.governed")
+    module = importlib.import_module("scion_sdk.writeback_sinks.governed")
     exported = (
         module.GovernedOutcome,
         module.SinkWriteBackTransport,
@@ -46,9 +46,7 @@ def test_writeback_sinks_governed_exports() -> None:
 
 
 def test_writeback_sinks_sinks_capability_exports() -> None:
-    module = importlib.import_module(
-        "agent_connector_sdk.writeback_sinks.sinks.capability"
-    )
+    module = importlib.import_module("scion_sdk.writeback_sinks.sinks.capability")
     exported = (
         module.make_writeback_fn,
         module.resolve_writeback_fn,
@@ -58,7 +56,7 @@ def test_writeback_sinks_sinks_capability_exports() -> None:
 
 
 def test_writeback_sinks_sinks_leanix_exports() -> None:
-    module = importlib.import_module("agent_connector_sdk.writeback_sinks.sinks.leanix")
+    module = importlib.import_module("scion_sdk.writeback_sinks.sinks.leanix")
     exported = (module.build_relation_field_resolver,)
     assert len(exported) == 1
     assert all(item is not None for item in exported)

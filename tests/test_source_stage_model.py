@@ -9,13 +9,13 @@ import anyio
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.runner.errors import RunnerConfigurationError
-from agent_connector_sdk.runner.stages import (
+from scion_sdk.runner.errors import RunnerConfigurationError
+from scion_sdk.runner.stages import (
     StageDependency,
     StageDescriptor,
     StageLimits,
 )
-from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
+from scion_sdk.runner.syncing import SyncTarget, sync_stream
 
 
 def _stage(stage_id: str, **overrides: Any) -> StageDescriptor:

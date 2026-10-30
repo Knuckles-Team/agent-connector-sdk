@@ -1,4 +1,4 @@
-"""Tests for agent_connector_sdk.httpsupport.pagination (CONCEPT:AU-ECO.ui.fleet-http-client-library).
+"""Tests for scion_sdk.httpsupport.pagination (CONCEPT:AU-ECO.ui.fleet-http-client-library).
 
 Drives the iterators with fake page fetchers across all five dialects:
 cursor, page/page_size, offset, Link-header, since-id.
@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.httpsupport.pagination import (
+from scion_sdk.httpsupport.pagination import (
     AsyncPaginationIterator,
     PaginationIterator,
     PaginationPageError,

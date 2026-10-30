@@ -3,13 +3,13 @@
 import httpx
 import pytest
 
-from agent_connector_sdk.http.client import create_http_client, standard_headers
-from agent_connector_sdk.http.options import HttpClientOptions
+from scion_sdk.http.client import create_http_client, standard_headers
+from scion_sdk.http.options import HttpClientOptions
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.8")
 def test_standard_headers_and_case_insensitive_override():
-    assert standard_headers()["User-Agent"].startswith("agent-connector-sdk/")
+    assert standard_headers()["User-Agent"].startswith("scion-sdk/")
     observed = []
     transport = httpx.MockTransport(
         lambda request: (

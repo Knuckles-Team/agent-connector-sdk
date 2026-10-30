@@ -17,7 +17,7 @@ from epistemic_graph.generated.source_ingestion import (
     SourceIngestStatus,
 )
 
-from agent_connector_sdk.ingest import (
+from scion_sdk.ingest import (
     ChangeSet,
     Document,
     Entity,
@@ -35,27 +35,27 @@ from agent_connector_sdk.ingest import (
     ingest_changes,
     install_ingest,
 )
-from agent_connector_sdk.ingest.channel import SourceIngestChannel
-from agent_connector_sdk.ingest.engine import (
+from scion_sdk.ingest.channel import SourceIngestChannel
+from scion_sdk.ingest.engine import (
     INGEST_SCOPES,
     EngineSettings,
     connect_ingest,
 )
-from agent_connector_sdk.ingest.records import document_entity, media_entity
-from agent_connector_sdk.ingest.request import build_request
-from agent_connector_sdk.ingest.service import DEFAULT_ATTEMPTS, DEFAULT_SYNC_TIMEOUT_S
-from agent_connector_sdk.ingest.transport import (
+from scion_sdk.ingest.records import document_entity, media_entity
+from scion_sdk.ingest.request import build_request
+from scion_sdk.ingest.service import DEFAULT_ATTEMPTS, DEFAULT_SYNC_TIMEOUT_S
+from scion_sdk.ingest.transport import (
     EpistemicGraphIngestTransport,
     IngestTransport,
 )
-from agent_connector_sdk.testing.sinks import InMemorySink
+from scion_sdk.testing.sinks import InMemorySink
 
 BINDING = IngestBinding(connector="demo-mcp", stream="demo")
 
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.33")
 async def test_empty_source_page_is_checkpointed_before_next_fetch() -> None:
-    from agent_connector_sdk.ingest import RecordMap, SourceStream
+    from scion_sdk.ingest import RecordMap, SourceStream
 
     transport = _Transport()
     service = KnowledgeIngest(transport)
@@ -88,7 +88,7 @@ async def test_empty_source_page_is_checkpointed_before_next_fetch() -> None:
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.33")
 async def test_nonempty_page_with_empty_mapping_does_not_advance() -> None:
-    from agent_connector_sdk.ingest import Mapped, SourceStream
+    from scion_sdk.ingest import Mapped, SourceStream
 
     transport = _Transport()
     stream = SourceStream(BINDING, {"item": lambda records: Mapped()})
@@ -519,7 +519,7 @@ async def test_source_status_distinguishes_cursorless_checkpoint_from_empty() ->
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.41")
 async def test_stream_never_fetches_after_invalid_accepted_cursor() -> None:
-    from agent_connector_sdk.ingest import RecordMap, SourceStream
+    from scion_sdk.ingest import RecordMap, SourceStream
 
     class Transport(_Transport):
         async def source_status(self, connector, stream):
@@ -641,7 +641,7 @@ async def test_cursor_conflict_refuses_without_replaying_old_page() -> None:
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.45")
 async def test_chunk_failure_retains_previous_accepted_source_cursor() -> None:
-    from agent_connector_sdk.ingest import RecordMap, SourceStream
+    from scion_sdk.ingest import RecordMap, SourceStream
 
     class FailingTransport(_Transport):
         async def submit(self, request):
@@ -669,7 +669,7 @@ async def test_chunk_failure_retains_previous_accepted_source_cursor() -> None:
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.45")
 async def test_chunked_page_advances_only_after_all_chunks_and_clears_at_end() -> None:
-    from agent_connector_sdk.ingest import RecordMap, SourceStream
+    from scion_sdk.ingest import RecordMap, SourceStream
 
     transport = _Transport()
     service = KnowledgeIngest(transport)
@@ -719,7 +719,7 @@ async def test_generated_status_rejects_checkpoint_for_another_stream() -> None:
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.48")
 @pytest.mark.parametrize("batch_size", [None, 1])
 async def test_terminal_source_page_conflict_does_not_retry(batch_size) -> None:
-    from agent_connector_sdk.ingest import RecordMap, SourceStream
+    from scion_sdk.ingest import RecordMap, SourceStream
 
     class Racing(_Transport):
         async def submit(self, request):

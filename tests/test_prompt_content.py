@@ -9,15 +9,15 @@ from unittest.mock import AsyncMock
 import mcp_types
 import pytest
 
-from agent_connector_sdk.artifacts.pack import build_content_pack
-from agent_connector_sdk.artifacts.prompts import PromptArtifactKind
-from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
-from agent_connector_sdk.artifacts.skills import SkillArtifactKind
-from agent_connector_sdk.artifacts.tools import ToolArtifactKind
-from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
-from agent_connector_sdk.ports.errors import MalformedArtifactError
-from agent_connector_sdk.testing.results import SessionFactory
-from agent_connector_sdk.transports.mcp_session import (
+from scion_sdk.artifacts.pack import build_content_pack
+from scion_sdk.artifacts.prompts import PromptArtifactKind
+from scion_sdk.artifacts.resources import ResourceArtifactKind
+from scion_sdk.artifacts.skills import SkillArtifactKind
+from scion_sdk.artifacts.tools import ToolArtifactKind
+from scion_sdk.contracts import CapturedArtifact, ServerIdentity
+from scion_sdk.ports.errors import MalformedArtifactError
+from scion_sdk.testing.results import SessionFactory
+from scion_sdk.transports.mcp_session import (
     McpPromptRejectedError,
     McpTransportError,
 )
@@ -280,7 +280,7 @@ async def test_prompt_capture_fails_closed(
             prompt.model_copy(update={"name": "other"}),
         ]
         monkeypatch.setattr(
-            "agent_connector_sdk.artifacts.prompts.DEFAULT_MAX_RESPONSE_BYTES",
+            "scion_sdk.artifacts.prompts.DEFAULT_MAX_RESPONSE_BYTES",
             len(single[0].body),
         )
     kind = PromptArtifactKind()

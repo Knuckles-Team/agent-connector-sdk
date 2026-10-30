@@ -10,7 +10,7 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.source import (
+from scion_sdk.source import (
     BlobCache,
     BlobRequest,
     ChangeEntry,
@@ -19,7 +19,7 @@ from agent_connector_sdk.source import (
     SourceRefusedError,
     TreeRequest,
 )
-from agent_connector_sdk.source.client import REFUSAL_REASONS
+from scion_sdk.source.client import REFUSAL_REASONS
 
 BLOB = b"hello world\n"
 DIGEST = hashlib.sha256(BLOB).hexdigest()

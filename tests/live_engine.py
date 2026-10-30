@@ -3,7 +3,7 @@
 Starts the ``epistemic-graph-server`` binary from the ``epistemic-graph[server]``
 extra on a private Unix socket with test-only credentials, enrolls the test
 signer, creates one graph, and returns a connected
-:class:`~agent_connector_sdk.ingest.service.KnowledgeIngest`. Tests skip when
+:class:`~scion_sdk.ingest.service.KnowledgeIngest`. Tests skip when
 the server package is not installed.
 """
 
@@ -19,8 +19,8 @@ from typing import Any
 
 import pytest
 
-from agent_connector_sdk.ingest.engine import EngineSettings, connect_ingest
-from agent_connector_sdk.ingest.service import KnowledgeIngest
+from scion_sdk.ingest.engine import EngineSettings, connect_ingest
+from scion_sdk.ingest.service import KnowledgeIngest
 
 AUDIENCE = "epistemic-graph"
 TENANT = "tenant:sdk-test"

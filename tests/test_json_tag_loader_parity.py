@@ -6,7 +6,7 @@ import dataclasses
 
 import pytest
 
-from agent_connector_sdk.testing.fleet_migration import (
+from scion_sdk.testing.fleet_migration import (
     JsonTagLoaderEntry,
     OperationMapping,
     loader_parity_problems,

@@ -8,7 +8,7 @@ from datetime import UTC, date, datetime
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.finance.etf_flows import (
+from scion_sdk.finance.etf_flows import (
     EtfFundFlow,
     etf_fund_flows_from_source,
 )

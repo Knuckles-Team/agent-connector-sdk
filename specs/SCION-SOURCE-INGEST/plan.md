@@ -29,13 +29,13 @@ missing.
 Data flow: authenticated connector `tools/call` -> shared paper contract -> provider adapters -> governed HTTP -> normalized results or document receipt.
 Ingestion flow: `connector-sync --once` -> certified MCP session -> provider stream -> generated SourceIngest -> accepted checkpoint.
 
-Existing code: `McpToolSourceAdapter.discover` at `agent_connector_sdk/adapters/mcp_tool.py:107` verifies the live schema pin.
+Existing code: `McpToolSourceAdapter.discover` at `scion_sdk/adapters/mcp_tool.py:107` verifies the live schema pin.
 Its `extract` at line 118 calls the connector tool and maps records into generated source types.
-`ConnectorWorker._sync` at `agent_connector_sdk/runner/worker.py:180` calls the existing sync lifecycle.
-The command entry point is `agent_connector_sdk/runner/cli.py:153`.
-`fetch_page` at `agent_connector_sdk/adapters/web_fetch.py:86` fetches HTML through governed HTTP and extracts page metadata.
+`ConnectorWorker._sync` at `scion_sdk/runner/worker.py:180` calls the existing sync lifecycle.
+The command entry point is `scion_sdk/runner/cli.py:153`.
+`fetch_page` at `scion_sdk/adapters/web_fetch.py:86` fetches HTML through governed HTTP and extracts page metadata.
 `WebFetchSourceAdapter.extract` at line 182 supplies checkpointed URL pages.
-`create_async_http_client` at `agent_connector_sdk/http/client.py:97` supplies transport and TLS policy.
+`create_async_http_client` at `scion_sdk/http/client.py:97` supplies transport and TLS policy.
 
 Reachable today: no. The MCP and web-fetch paths are reachable, but no shared paper-provider contract is present.
 The web-fetch helper returns normalized HTML or `None`; it does not supply complete binary downloads or typed provider failures.
@@ -149,14 +149,14 @@ An identical read retry retains request identity but may observe changed content
 Existing SourceIngest owns accepted records and checkpoints. A refused read must not be mapped to an empty accepted page or deletion snapshot.
 
 Production call sites: register_tool_surface at mcp/tool_surface.py:121 installs connector registrars; it does not itself implement fallback.
-`dispatch_async` at `agent_connector_sdk/mcp/action_dispatch.py:194` invokes the resolved method through `invoke_client_method`. It currently returns that method's result.
+`dispatch_async` at `scion_sdk/mcp/action_dispatch.py:194` invokes the resolved method through `invoke_client_method`. It currently returns that method's result.
 McpToolSourceAdapter.extract at adapters/mcp_tool.py:118 receives session.call_tool results at line 131 before record mapping.
 Its pinned tool schema and raw-record mapping must preserve successful records and reject a PlatformResult refusal before page construction.
 ConnectorWorker._sync at runner/worker.py:180 remains the ingestion caller; no new runner or checkpoint store is needed.
-`fetch_page` at `agent_connector_sdk/adapters/web_fetch.py:86` is a governed read backend. It collapses HTTP and empty-content failures to None.
+`fetch_page` at `scion_sdk/adapters/web_fetch.py:86` is a governed read backend. It collapses HTTP and empty-content failures to None.
 Extend that adapter boundary with typed outcomes rather than guessing a reason from None or duplicating its HTTP implementation.
-Reuse `create_async_http_client` at `agent_connector_sdk/http/client.py:97` for HTTP. Compose `RetryPolicy` at `agent_connector_sdk/http/retry.py:71` for retries.
-Add shared platform models and fallback composition under `agent_connector_sdk/adapters`. Register connector-owned read/search/status methods through existing registrars.
+Reuse `create_async_http_client` at `scion_sdk/http/client.py:97` for HTTP. Compose `RetryPolicy` at `scion_sdk/http/retry.py:71` for retries.
+Add shared platform models and fallback composition under `scion_sdk/adapters`. Register connector-owned read/search/status methods through existing registrars.
 The authenticated MCP client receives PlatformResult; the source adapter consumes it only after success and schema validation.
 Reachable today: generic dispatch and one web reader exist. Platform inventory, equivalent-backend fallback, status composition and refusal mapping are missing.
 All R012 rows require actual connector registration and served acceptance.
@@ -179,8 +179,8 @@ Component: Source ingestion
 Depends-on: SCION-GOVERNED-WRITEBACK-R001, SCION-CONNECTOR-CONTROL-R021
 Depends-on: [Source ingestion authority](https://github.com/Knuckles-Team/epistemic-graph/blob/fe6982b29d0b60ad2a10092c959c238eeb74e919/specs/repository-index-and-ingestion/requirements.md)
 Depends-on: [Approved query execution](https://github.com/Knuckles-Team/epistemic-graph/blob/fe6982b29d0b60ad2a10092c959c238eeb74e919/specs/federated-query-and-reasoning/requirements.md)
-Code: `../../agent_connector_sdk/runner/worker.py:150` `../../agent_connector_sdk/runner/syncing.py:200`
-Code: `../../agent_connector_sdk/mcp/action_dispatch.py:194` `../../agent_connector_sdk/ports/source_adapter.py:21`
+Code: `../../scion_sdk/runner/worker.py:150` `../../scion_sdk/runner/syncing.py:200`
+Code: `../../scion_sdk/mcp/action_dispatch.py:194` `../../scion_sdk/ports/source_adapter.py:21`
 
 ```mermaid
 flowchart LR
@@ -197,14 +197,14 @@ flowchart LR
 ```
 
 Data flow: connector tools/call -> register_tool_surface -> dispatch_async -> connector-owned source method -> typed adapter -> generated ingestion.
-The ingestion entry is connector-sync --once at `agent_connector_sdk/runner/cli.py:153`.
-ConnectorWorker._sync at `agent_connector_sdk/runner/worker.py:180` calls sync_stream at `agent_connector_sdk/runner/syncing.py:200`.
+The ingestion entry is connector-sync --once at `scion_sdk/runner/cli.py:153`.
+ConnectorWorker._sync at `scion_sdk/runner/worker.py:180` calls sync_stream at `scion_sdk/runner/syncing.py:200`.
 sync_stream reads source_status before extraction and submits each page through commit_page at line 106.
-EpistemicGraphSink at `agent_connector_sdk/sinks/epistemic_graph.py:91` bridges the generated source contract.
-SourceAdapter at `agent_connector_sdk/ports/source_adapter.py:21` remains the common discovery, extraction and reconciliation interface.
-Connector registrars attach tools through `agent_connector_sdk/mcp/tool_surface.py:121`.
-Their handlers use dispatch_async at `agent_connector_sdk/mcp/action_dispatch.py:194`.
-McpToolSourceAdapter.extract at `agent_connector_sdk/adapters/mcp_tool.py:118` calls the source tool before mapping records.
+EpistemicGraphSink at `scion_sdk/sinks/epistemic_graph.py:91` bridges the generated source contract.
+SourceAdapter at `scion_sdk/ports/source_adapter.py:21` remains the common discovery, extraction and reconciliation interface.
+Connector registrars attach tools through `scion_sdk/mcp/tool_surface.py:121`.
+Their handlers use dispatch_async at `scion_sdk/mcp/action_dispatch.py:194`.
+McpToolSourceAdapter.extract at `scion_sdk/adapters/mcp_tool.py:118` calls the source tool before mapping records.
 The implementations must preserve typed refusals across that boundary instead of mapping them into empty successful pages.
 Arbora offers authenticated hosting and admission. AU consumes typed results and runs received harness calls.
 EG alone owns durable checkpoints, graph interpretation, ontology and semantic query decisions.
@@ -234,9 +234,9 @@ Concurrency values come from admitted configuration. SDK enforces them without c
 
 ### Concurrent stage resume: R001.1 through R001.6
 
-Existing code: ConnectorSyncRunner.run_once at `agent_connector_sdk/runner/supervisor.py:62` already runs separate connectors concurrently.
-ConnectorWorker._cycle at `agent_connector_sdk/runner/worker.py:150` still runs one connector's presets sequentially.
-sync_stream at `agent_connector_sdk/runner/syncing.py:200` already reads the accepted durable checkpoint for each stream.
+Existing code: ConnectorSyncRunner.run_once at `scion_sdk/runner/supervisor.py:62` already runs separate connectors concurrently.
+ConnectorWorker._cycle at `scion_sdk/runner/worker.py:150` still runs one connector's presets sequentially.
+sync_stream at `scion_sdk/runner/syncing.py:200` already reads the accepted durable checkpoint for each stream.
 Reachable today: no. Concurrent connector cycles exist; independently resumable concurrent stages within a source remain missing.
 
 StageDescriptor fields are stage_id, tenant, connector, source, stream, manifest_digest, dependencies and admitted_limits.
@@ -284,7 +284,7 @@ Rejected alternative: treating graph submission as SQL execution or returning a 
 
 ### Offline bookmark JSON: R005.7 through R005.12
 
-Existing code: `agent_connector_sdk/vendor_extractors/social.py:160` extracts hashtags, mentions and known tools from structured records.
+Existing code: `scion_sdk/vendor_extractors/social.py:160` extracts hashtags, mentions and known tools from structured records.
 Its URL helper at line 143 reads embedded URL fields; its domain helper at line 82 performs local hostname parsing.
 The extractor returns an empty ChangeSet for missing record identity; the new adapter must visibly refuse that malformed input.
 The SDK reader accepts a bounded social-v1 JSON array or `bookmarks` object under
@@ -308,9 +308,9 @@ Rejected alternative: a network enrichment service or duplicate metadata extract
 
 ### JSON-RPC chain logs: R005.13 through R005.18
 
-Existing code: EventFeedSourceAdapter.extract at `agent_connector_sdk/adapters/event_feed.py:133` reads tool pages and validates event envelopes.
+Existing code: EventFeedSourceAdapter.extract at `scion_sdk/adapters/event_feed.py:133` reads tool pages and validates event envelopes.
 Reachable today: no. Envelope validation does not decode node transaction logs or establish a registered JSON-RPC node method.
-Reuse create_async_http_client at `agent_connector_sdk/http/client.py:97` for governed transport.
+Reuse create_async_http_client at `scion_sdk/http/client.py:97` for governed transport.
 Connector packages own chain-specific event schemas and node calls; the SDK owns the typed extraction and refusal contract.
 
 ChainLogRequest binds chain_id, contract_id, event_signature, decoder_revision, from_block, to_block, authority and limits.
@@ -329,7 +329,7 @@ Rejected alternative: treating generic event envelopes or finance reads as proof
 ### Workspace format reads: R005.19 through R005.24
 
 Existing code: McpToolSourceAdapter.extract and the worker offer tool calls and typed source-page acceptance.
-WebFetchSourceAdapter at `agent_connector_sdk/adapters/web_fetch.py:182` handles URL pages, not these local binary formats.
+WebFetchSourceAdapter at `scion_sdk/adapters/web_fetch.py:182` handles URL pages, not these local binary formats.
 Searches for document, transcript and PDF found no bounded parallel workspace reader in the adapter package.
 Reachable today: no. The declared format reader and concrete connector registration are missing.
 
@@ -352,7 +352,7 @@ Rejected alternative: AU-owned source schemas, a duplicate progress token store 
 
 ### Enterprise operation interchange: R006.32 through R006.37
 
-Existing code: `agent_connector_sdk/vendor_extractors/odoo.py:74` and `agent_connector_sdk/vendor_extractors/erpnext.py:91` normalize read extraction.
+Existing code: `scion_sdk/vendor_extractors/odoo.py:74` and `scion_sdk/vendor_extractors/erpnext.py:91` normalize read extraction.
 Reachable today: no. These readers do not expose one interchangeable enterprise operation port or its served methods.
 Reuse vendor extraction types, certified registration and the governed write-back port; keep backend APIs in separate connectors.
 
@@ -393,7 +393,7 @@ The producer and receiver implementations remain absent; definition agreement do
 
 The SQL receiver above remains SQL-specific. The generic connector path uses the
 same SDK owner boundary but a separate `ForeignReadClient` in
-`agent_connector_sdk/adapters/foreign_read.py`. Its typed port matches the EG
+`scion_sdk/adapters/foreign_read.py`. Its typed port matches the EG
 `ForeignReadOpen`, `ForeignReadChunk`, `ForeignReadComplete` and
 `ForeignReadAbort` request/result shapes. The EG-owned approval record remains
 opaque. `NativeRequestResponseAdapter` resolves the published generated EG
@@ -418,7 +418,7 @@ adapter remain cross-owner acceptance work.
 
 ### Exact receiving methods
 
-The planned class is `SqlQuerySourceClient` in `agent_connector_sdk/adapters/sql_source.py`.
+The planned class is `SqlQuerySourceClient` in `scion_sdk/adapters/sql_source.py`.
 Its asynchronous execute_approved_query(approved_query: `ApprovedSourceQuery`, continuation: `SqlQueryContinuation` | None = None) returns `SqlQueryPage`.
 Its asynchronous cancel_approved_query(approved_query: `ApprovedSourceQuery`, continuation: `SqlQueryContinuation`) returns a terminal `SqlQueryPage`.
 An active execution returns failed with reason cancelled; a finished execution returns its recorded terminal outcome.
@@ -498,11 +498,11 @@ Failure after three published chunks remains failure with an incomplete identity
 
 ### Production attachment and checkpoint consumption
 
-Existing code: register_tool_surface at `agent_connector_sdk/mcp/tool_surface.py:121` installs connector registrars.
-dispatch_async at `agent_connector_sdk/mcp/action_dispatch.py:194` invokes their asynchronous client methods.
-McpToolSourceAdapter.extract at `agent_connector_sdk/adapters/mcp_tool.py:118` calls the registered tool and maps its result.
-ConnectorWorker._sync at `agent_connector_sdk/runner/worker.py:180` calls sync_stream at `agent_connector_sdk/runner/syncing.py:200`.
-commit_page at `agent_connector_sdk/runner/syncing.py:106` remains the generated SourceIngest commit path.
+Existing code: register_tool_surface at `scion_sdk/mcp/tool_surface.py:121` installs connector registrars.
+dispatch_async at `scion_sdk/mcp/action_dispatch.py:194` invokes their asynchronous client methods.
+McpToolSourceAdapter.extract at `scion_sdk/adapters/mcp_tool.py:118` calls the registered tool and maps its result.
+ConnectorWorker._sync at `scion_sdk/runner/worker.py:180` calls sync_stream at `scion_sdk/runner/syncing.py:200`.
+commit_page at `scion_sdk/runner/syncing.py:106` remains the generated SourceIngest commit path.
 Reachable today: no. Approval-aware SQL methods, the page bridge and the generated EG approval operations are not implemented.
 
 The adapter bridge must distinguish chunk, complete and failed pages before constructing any RecordPage.
@@ -608,15 +608,15 @@ EG and Arbora owners supply their operation IDs. No runtime work is authorized i
 
 ## Ingest under an accepted contract (R017)
 
-The runner ingests only under the contract revision that the engine accepted (`MEDULLA-TYPED-PACKS-R101`). Call path: sync runner → `ingest_documents` (`agent_connector_sdk/adapters/document_sources.py:402`) → `submit` (`agent_connector_sdk/ingest/service.py:74`) → accepted-contract digest comparison → entity request creation (`agent_connector_sdk/ingest/request.py:85`) → engine `SourceIngest`. Nested source values become declared entities and relationships, not nested properties. The pack is generated from the connector's typed declaration (`SCION-CONNECTOR-CONTROL-R067`).
+The runner ingests only under the contract revision that the engine accepted (`MEDULLA-TYPED-PACKS-R101`). Call path: sync runner → `ingest_documents` (`scion_sdk/adapters/document_sources.py:402`) → `submit` (`scion_sdk/ingest/service.py:74`) → accepted-contract digest comparison → entity request creation (`scion_sdk/ingest/request.py:85`) → engine `SourceIngest`. Nested source values become declared entities and relationships, not nested properties. The pack is generated from the connector's typed declaration (`SCION-CONNECTOR-CONTROL-R067`).
 
 ## Web-source fetch contract (R005.40)
 
 The SDK owns the contract only. A connector owns the fetch, the `robots.txt` rule, the rate limit and the extraction. The primary connector is `webarchiver` (`CONN-WEBARCHIVER-WEB-SOURCE`). The secondary connector is `archivebox-api` (`CONN-ARCHIVEBOX-API-WEB-SOURCE`).
 
-Call path: engine `WebPage` work item -> ingest worker runner (`SCION-SOURCE-INGEST-R010`) -> `WebFetchSourceAdapter.extract` (`agent_connector_sdk/adapters/web_fetch.py:182`) -> connector `web_extract` tool -> `SourceSyncRunner.sync` -> engine `SourceIngest`.
+Call path: engine `WebPage` work item -> ingest worker runner (`SCION-SOURCE-INGEST-R010`) -> `WebFetchSourceAdapter.extract` (`scion_sdk/adapters/web_fetch.py:182`) -> connector `web_extract` tool -> `SourceSyncRunner.sync` -> engine `SourceIngest`.
 
-Reuse: `fetch_page` (`agent_connector_sdk/adapters/web_fetch.py:86`) stops issuing HTTP requests. The conformance kit reuses the fixture server in `agent_connector_sdk/testing/http_server.py`. Enrichment belongs to `MEDULLA-UNIFIED-DATA-PLANE-R651.7`; the SDK transports records only.
+Reuse: `fetch_page` (`scion_sdk/adapters/web_fetch.py:86`) stops issuing HTTP requests. The conformance kit reuses the fixture server in `scion_sdk/testing/http_server.py`. Enrichment belongs to `MEDULLA-UNIFIED-DATA-PLANE-R651.7`; the SDK transports records only.
 
 Budget: 5 MiB default `max_bytes` and 1 request per second per domain. These are starting defaults. A measurement on this platform replaces them.
 
@@ -664,11 +664,11 @@ Until those producers and bindings exist, R005.40.3 through R005.40.6 stay open.
 
 A connector declares each ingestible source with `source_meta` on its read tool. The SDK assembles `IngestSourceDeclaration`. `register_tool_surface` serves it as the resource `connector://resources`. A host reads the declarations through that resource. The host needs no engine listing method.
 
-Call path: host → `SourceSyncRunner.sync` → `McpSession.call_tool` for each declared tool → record mapping → `KnowledgeIngest.submit` (`agent_connector_sdk/ingest/service.py`) → engine `SourceIngest`. After each accepted batch, the runner writes the checkpoint through `KvSourceCheckpoints`.
+Call path: host → `SourceSyncRunner.sync` → `McpSession.call_tool` for each declared tool → record mapping → `KnowledgeIngest.submit` (`scion_sdk/ingest/service.py`) → engine `SourceIngest`. After each accepted batch, the runner writes the checkpoint through `KvSourceCheckpoints`.
 
 The checkpoint holds the cursor, the record digests, the last report and the state. It lives in engine KV under the shared scope. The key is `ingest-source/<connector>/<source>`. A shared key lets every admitted host resume the same source. A digest match skips the record, so a repeated run is idempotent.
 
-Budgets bound each run: pages, records, batch size and seconds. A tool call retries with the existing `Backoff` (`agent_connector_sdk/runner/backoff.py`). The host owns admission and scheduling. The engine owns storage, the durable `SourceIngest` checkpoint and KV.
+Budgets bound each run: pages, records, batch size and seconds. A tool call retries with the existing `Backoff` (`scion_sdk/runner/backoff.py`). The host owns admission and scheduling. The engine owns storage, the durable `SourceIngest` checkpoint and KV.
 
 The engine admits a source record only under an imported connector pack mapping. The mapping reference is `connector:<connector>#mappings/<record type>`. Without that pack, the engine answers `UNKNOWN_MAPPING_REFERENCE`, and the runner reports `ingest_refused`. A declared record type therefore names a manifest `schema_mappings` entry (R004.25). The engine needs no change.
 

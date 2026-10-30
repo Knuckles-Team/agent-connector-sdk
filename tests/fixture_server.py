@@ -14,7 +14,7 @@ from typing import Any, Literal
 
 from fastmcp import FastMCP
 
-from agent_connector_sdk.mcp.content import ConnectorContent, register_connector_content
+from scion_sdk.mcp.content import ConnectorContent, register_connector_content
 
 PACKAGE_ROOT = Path(__file__).parent / "fixture_package"
 CONNECTOR = "demo-agent"

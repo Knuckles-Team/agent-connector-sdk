@@ -7,9 +7,9 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
-from agent_connector_sdk.vendor_extractors.a2a import extract
-from agent_connector_sdk.vendor_extractors.a2a_discovery import (
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.vendor_extractors.a2a import extract
+from scion_sdk.vendor_extractors.a2a_discovery import (
     AGENT_CARD_PATH,
     DEFAULT_DISCOVERY_TIMEOUT_SECONDS,
     DEFAULT_MAX_AGENT_CARD_BYTES,
@@ -129,7 +129,7 @@ def test_compressed_card_is_refused_before_decoding() -> None:
 def test_discovery_cache_is_bounded_and_refreshes_hits(monkeypatch) -> None:
     from collections import OrderedDict
 
-    from agent_connector_sdk.vendor_extractors import a2a_discovery as discovery
+    from scion_sdk.vendor_extractors import a2a_discovery as discovery
 
     assert discovery.DEFAULT_AGENT_CARD_CACHE_ENTRIES == 64
     monkeypatch.setattr(discovery, "DEFAULT_AGENT_CARD_CACHE_ENTRIES", 2)

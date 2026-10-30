@@ -2,7 +2,7 @@
 
 ## Building a server
 
-`agent_connector_sdk.mcp.server.create_mcp_server(name, *, version, ...)` parses
+`scion_sdk.mcp.server.create_mcp_server(name, *, version, ...)` parses
 the standard command line, refuses unsafe exposure, configures authentication,
 and returns `(args, mcp, middlewares)`. The caller adds the middlewares.
 
@@ -19,7 +19,7 @@ handling that never returns tracebacks.
 ## Declared connectors
 
 A connector package declares a `Connector` value and calls
-`agent_connector_sdk.run()`; the SDK builds the server above from it. Anything
+`scion_sdk.run()`; the SDK builds the server above from it. Anything
 the server does beyond the plain bootstrap is a typed `Connector` field, applied
 through fastmcp's own API:
 
@@ -36,7 +36,7 @@ through fastmcp's own API:
 A container that reads a reference-only configuration directory declares it in
 `pyproject.toml`. The shared container renderer adds a read-only bind mount. The
 conformance plugin checks the table against `CONFIG_MOUNTS_SCHEMA` from
-`agent_connector_sdk.config_mounts`:
+`scion_sdk.config_mounts`:
 
 ```toml
 [[tool.pipelines.container.config_mounts]]
@@ -48,7 +48,7 @@ target = "/etc/connector"
 
 Every server built by `create_mcp_server` serves `subscriptions/listen`, so
 clients such as the connector-sync runner learn about changes without polling.
-`agent_connector_sdk.mcp.change_events` publishes them:
+`scion_sdk.mcp.change_events` publishes them:
 
 | Function | Publishes |
 |---|---|
@@ -70,7 +70,7 @@ exact `--allowed-hosts` list.
 Build the serving boundary once and pass it intact to FastMCP:
 
 ```python
-from agent_connector_sdk.mcp.network import build_network_serving_config
+from scion_sdk.mcp.network import build_network_serving_config
 
 serving = build_network_serving_config(args)
 if serving is None:
@@ -159,3 +159,20 @@ Each continuation stays pinned to its original backend.
 per call. The fallback client owns the retry budget and total deadline. Status
 is a short-lived observation scoped to the caller and capability. It is not a
 grant. A refused platform result cannot advance source synchronization.
+
+## Caller identity
+
+A connector never binds an actor at startup. Call `scion_sdk.identity.current_actor()`
+inside a tool and it resolves the caller per request from the transport:
+
+| transport | actor |
+|---|---|
+| no HTTP request: stdio, in-process client, startup, background work | `SYSTEM_ACTOR` |
+| HTTP with a valid signed token | the token's subject, tenant, roles and groups |
+| HTTP without a token, including a no-auth HTTP server | `ANONYMOUS_ACTOR` (no entitlements) |
+
+The factory installs `ActorBindingMiddleware`. The middleware turns identity refusals
+into typed JSON-RPC errors. Actor resolution works without the middleware too.
+An entitlement rule still denies an authenticated caller who lacks the entitlement.
+Use `use_actor(...)` only as an explicit override in tests or embedding code.
+A connector removes any `use_actor(SYSTEM_ACTOR)` bootstrap.

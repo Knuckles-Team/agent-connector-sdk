@@ -2,16 +2,16 @@
 
 import pytest
 
-from agent_connector_sdk.identity import ActorContext, ActorType
-from agent_connector_sdk.mcp.enterprise_tools import register_enterprise_tools
-from agent_connector_sdk.vendor_extractors.enterprise_contract import (
+from scion_sdk.identity import ActorContext, ActorType
+from scion_sdk.mcp.enterprise_tools import register_enterprise_tools
+from scion_sdk.vendor_extractors.enterprise_contract import (
     EnterpriseCapability,
     EnterpriseOperation,
     EnterpriseResult,
     ListAccounts,
     ReadInvoice,
 )
-from agent_connector_sdk.vendor_extractors.enterprise_dispatch import (
+from scion_sdk.vendor_extractors.enterprise_dispatch import (
     EnterpriseAuthority,
     EnterpriseDispatcher,
     EnterpriseReader,
@@ -116,8 +116,8 @@ async def test_wrong_scope_and_unsupported_refuse_before_reader():
 async def test_factory_serves_two_connectors_and_refuses_denied_calls():
     from fastmcp import Client
 
-    from agent_connector_sdk.identity import use_actor
-    from agent_connector_sdk.mcp.server import create_mcp_server
+    from scion_sdk.identity import use_actor
+    from scion_sdk.mcp.server import create_mcp_server
 
     first, first_reader = dispatcher("first")
     second, second_reader = dispatcher("second")
@@ -160,11 +160,11 @@ async def test_factory_serves_two_connectors_and_refuses_denied_calls():
 async def test_invoice_effect_requires_admitted_writer_and_durable_receipt(tmp_path):
     from test_writeback_process_restart import _reference_change_set
 
-    from agent_connector_sdk.testing.writeback_audit import InMemoryAuditReservation
-    from agent_connector_sdk.vendor_extractors.enterprise_contract import CreateInvoice
-    from agent_connector_sdk.writeback.connector import DurableWritableConnector
-    from agent_connector_sdk.writeback.durable_ledger import FileWriteBackLedger
-    from agent_connector_sdk.writeback.durable_transport import FileWriteBackTransport
+    from scion_sdk.testing.writeback_audit import InMemoryAuditReservation
+    from scion_sdk.vendor_extractors.enterprise_contract import CreateInvoice
+    from scion_sdk.writeback.connector import DurableWritableConnector
+    from scion_sdk.writeback.durable_ledger import FileWriteBackLedger
+    from scion_sdk.writeback.durable_transport import FileWriteBackTransport
 
     patch = {
         "operation": "create_invoice",
@@ -264,12 +264,12 @@ def test_public_registration_and_authority_ports_are_exposed():
 @pytest.mark.spec("SCION-SOURCE-INGEST-R006.36")
 @pytest.mark.asyncio
 async def test_source_adapter_binds_enterprise_receipts_and_refuses_failures():
-    from agent_connector_sdk.adapters.mcp_tool_records import (
+    from scion_sdk.adapters.mcp_tool_records import (
         _validate_platform_binding,
         raw_records,
     )
-    from agent_connector_sdk.manifest.presets import ToolPreset
-    from agent_connector_sdk.ports.errors import SourceContractError
+    from scion_sdk.manifest.presets import ToolPreset
+    from scion_sdk.ports.errors import SourceContractError
 
     handler, _ = dispatcher()
     result = (await handler.execute(actor(), request())).model_dump(mode="json")
@@ -298,16 +298,16 @@ async def test_source_adapter_binds_enterprise_receipts_and_refuses_failures():
 
 @pytest.mark.asyncio
 async def test_served_enterprise_source_reaches_sink_and_refusal_keeps_it_empty():
-    from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-    from agent_connector_sdk.identity import use_actor
-    from agent_connector_sdk.manifest.presets import ToolPreset
-    from agent_connector_sdk.mcp.server import create_mcp_server
-    from agent_connector_sdk.ports.errors import SourceContractError
-    from agent_connector_sdk.ports.session import TransportEndpoint
-    from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-    from agent_connector_sdk.testing.sinks import InMemorySink
-    from agent_connector_sdk.transports.mcp import McpTransport
-    from agent_connector_sdk.vendor_extractors.enterprise_contract import AccountRecord
+    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+    from scion_sdk.identity import use_actor
+    from scion_sdk.manifest.presets import ToolPreset
+    from scion_sdk.mcp.server import create_mcp_server
+    from scion_sdk.ports.errors import SourceContractError
+    from scion_sdk.ports.session import TransportEndpoint
+    from scion_sdk.runner.syncing import SyncTarget, sync_stream
+    from scion_sdk.testing.sinks import InMemorySink
+    from scion_sdk.transports.mcp import McpTransport
+    from scion_sdk.vendor_extractors.enterprise_contract import AccountRecord
 
     class AccountReader(Reader):
         async def read(self, req):
@@ -382,7 +382,7 @@ async def test_served_enterprise_source_reaches_sink_and_refusal_keeps_it_empty(
 async def test_oversized_enterprise_effect_refuses_before_admission():
     from test_writeback_process_restart import _reference_change_set
 
-    from agent_connector_sdk.vendor_extractors.enterprise_contract import CreateInvoice
+    from scion_sdk.vendor_extractors.enterprise_contract import CreateInvoice
 
     change = _reference_change_set().model_copy(
         update={

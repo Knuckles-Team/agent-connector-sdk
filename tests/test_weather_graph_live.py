@@ -11,12 +11,12 @@ from test_contracts_and_sink import _catalog
 from test_event_feeds import CONNECTOR
 from weather_test_helpers import weather_provider, weather_request
 
-from agent_connector_sdk.earth_observations.weather_stream import (
+from scion_sdk.earth_observations.weather_stream import (
     register_weather_stream,
 )
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 async def exercise(url, provider_name):

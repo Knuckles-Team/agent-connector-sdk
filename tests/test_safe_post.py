@@ -5,7 +5,7 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from agent_connector_sdk.http.safe_post import (
+from scion_sdk.http.safe_post import (
     NonJsonResponseError,
     SsrfBlockedError,
     safe_post_json,

@@ -5,15 +5,15 @@ from types import SimpleNamespace
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.artifacts.tool_facts import (
+from scion_sdk.artifacts.tool_facts import (
     DEFAULT_SCHEMA_BYTES_PER_TOKEN,
     SideEffect,
     ToolContractFacts,
     facts_from_declaration,
     schema_tokens,
 )
-from agent_connector_sdk.artifacts.tools import _tool_entry
-from agent_connector_sdk.contracts import ServerIdentity
+from scion_sdk.artifacts.tools import _tool_entry
+from scion_sdk.contracts import ServerIdentity
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.3")
@@ -97,7 +97,7 @@ def test_undeclared_tool_defaults_to_not_read_only() -> None:
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.5")
 def test_mcp_read_only_hint_is_recorded_as_self_declared() -> None:
-    from agent_connector_sdk.ports.errors import MalformedArtifactError
+    from scion_sdk.ports.errors import MalformedArtifactError
 
     tool = SimpleNamespace(
         name="write",

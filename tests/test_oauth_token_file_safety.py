@@ -4,7 +4,7 @@ import stat
 
 import pytest
 
-from agent_connector_sdk.auth.browser import FileTokenStore
+from scion_sdk.auth.browser import FileTokenStore
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R046.8")

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.identifiers import (
+from scion_sdk.identifiers import (
     InvalidIdentifierError,
     quote_sql_identifier,
     validate_identifier,

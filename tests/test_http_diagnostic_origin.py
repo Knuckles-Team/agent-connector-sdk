@@ -8,17 +8,17 @@ import traceback
 import httpx
 import pytest
 
-from agent_connector_sdk.http.bodies import read_bounded
-from agent_connector_sdk.http.client import (
+from scion_sdk.http.bodies import read_bounded
+from scion_sdk.http.client import (
     HTTP_LOGGER_NAME,
     create_async_http_client,
     create_http_client,
 )
-from agent_connector_sdk.http.errors import HttpProblemError, ResponseTooLargeError
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.redaction import redact_origin
-from agent_connector_sdk.http.responses import arequest_json, request_json
-from agent_connector_sdk.http.retry import RetryPolicy
+from scion_sdk.http.errors import HttpProblemError, ResponseTooLargeError
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.redaction import redact_origin
+from scion_sdk.http.responses import arequest_json, request_json
+from scion_sdk.http.retry import RetryPolicy
 
 _MARK = "sensitive-marker"
 _URL = f"https://example.invalid/{_MARK}?item={_MARK}"

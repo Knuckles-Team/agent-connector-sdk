@@ -8,8 +8,8 @@ from typing import Any
 
 import pytest
 
-from agent_connector_sdk.source_connectors import universal
-from agent_connector_sdk.source_connectors.universal import (
+from scion_sdk.source_connectors import universal
+from scion_sdk.source_connectors.universal import (
     UniversalConnector,
     infer_kind,
 )

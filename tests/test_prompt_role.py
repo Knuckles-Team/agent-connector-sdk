@@ -5,8 +5,8 @@ import json
 import pytest
 from epistemic_graph.generated.connector_pack import PackEntryKind
 
-from agent_connector_sdk.artifacts.pack import build_connector_content_pack
-from agent_connector_sdk.mcp.content import ConnectorContent, ContentError
+from scion_sdk.artifacts.pack import build_connector_content_pack
+from scion_sdk.mcp.content import ConnectorContent, ContentError
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R074.2")

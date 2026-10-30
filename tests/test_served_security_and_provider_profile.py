@@ -12,21 +12,21 @@ from typing import Any
 import pytest
 from mcp.shared.exceptions import MCPError
 
-from agent_connector_sdk.credentials import provider_profile as pp
-from agent_connector_sdk.credentials.provider_profile import (
+from scion_sdk.credentials import provider_profile as pp
+from scion_sdk.credentials.provider_profile import (
     ProviderProfileError,
     load_provider_profiles,
     resolve_provider_profile,
     resolve_selected_provider_profile,
 )
-from agent_connector_sdk.mcp import served_security as ss
-from agent_connector_sdk.mcp.served_security import (
+from scion_sdk.mcp import served_security as ss
+from scion_sdk.mcp.served_security import (
     ServedSecurityError,
     ServedSecurityMiddleware,
     ServedSecurityOverride,
     apply_served_security_profile,
 )
-from agent_connector_sdk.mcp.server import create_mcp_server
+from scion_sdk.mcp.server import create_mcp_server
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -149,8 +149,8 @@ def test_r014_18_every_server_gets_the_profile_by_default() -> None:
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.18")
 def test_r014_18_static_token_carries_tenant() -> None:
-    from agent_connector_sdk.mcp.auth.policy import AuthConfigurationError
-    from agent_connector_sdk.mcp.auth.static import validated_static_tokens
+    from scion_sdk.mcp.auth.policy import AuthConfigurationError
+    from scion_sdk.mcp.auth.static import validated_static_tokens
 
     token = "t" * 40
     ok = validated_static_tokens(
@@ -275,16 +275,16 @@ def test_r014_20_entry_point_groups_use_the_sdk_namespace() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text())
     groups = set(project["project"]["entry-points"])
     assert groups == {
-        "agent_connector_sdk.source_adapters",
-        "agent_connector_sdk.artifact_kinds",
-        "agent_connector_sdk.transports",
-        "agent_connector_sdk.sinks",
-        "agent_connector_sdk.skill_providers",
+        "scion_sdk.source_adapters",
+        "scion_sdk.artifact_kinds",
+        "scion_sdk.transports",
+        "scion_sdk.sinks",
+        "scion_sdk.skill_providers",
         "pytest11",
     }
     offenders = [
         str(path.relative_to(ROOT))
-        for path in (ROOT / "agent_connector_sdk").rglob("*")
+        for path in (ROOT / "scion_sdk").rglob("*")
         if path.suffix in {".py", ".md"}
         and re.search(
             r"agent_utilities\.\w+_providers", path.read_text(errors="ignore")

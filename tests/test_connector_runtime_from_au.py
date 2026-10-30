@@ -8,27 +8,27 @@ import os
 
 import pytest
 
-from agent_connector_sdk import file_lock, paths
-from agent_connector_sdk.auth.delegation import (
+from scion_sdk import file_lock, paths
+from scion_sdk.auth.delegation import (
     DelegationSettings,
     get_delegated_token,
     is_delegation_enabled,
 )
-from agent_connector_sdk.credentials.provider import NoCredential
-from agent_connector_sdk.credentials.runtime_references import (
+from scion_sdk.credentials.provider import NoCredential
+from scion_sdk.credentials.runtime_references import (
     RuntimeSecretReferenceAction,
     RuntimeSecretReferenceError,
     resolve_runtime_secret_reference,
     validate_runtime_secret_reference,
 )
-from agent_connector_sdk.exceptions import LoginRequiredError
-from agent_connector_sdk.http.egress import (
+from scion_sdk.exceptions import LoginRequiredError
+from scion_sdk.http.egress import (
     egress_ip_is_blocked,
     validate_base_url,
     validate_base_url_resolved,
 )
-from agent_connector_sdk.mcp.versioning import tool_version
-from agent_connector_sdk.privacy_pii import PiiSanitizer
+from scion_sdk.mcp.versioning import tool_version
+from scion_sdk.privacy_pii import PiiSanitizer
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.2")

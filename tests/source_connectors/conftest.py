@@ -6,7 +6,7 @@ from collections.abc import Iterator
 
 import pytest
 
-from agent_connector_sdk.source_connectors.registry import set_activation_gate
+from scion_sdk.source_connectors.registry import set_activation_gate
 
 
 @pytest.fixture(autouse=True)

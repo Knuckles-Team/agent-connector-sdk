@@ -13,9 +13,9 @@ from fastmcp.client.elicitation import ElicitResult
 from fastmcp.exceptions import ToolError
 from mcp.shared.exceptions import MCPError
 
-from agent_connector_sdk.mcp.action_dispatch import dispatch_async
-from agent_connector_sdk.mcp.context import ctx_confirm_destructive
-from agent_connector_sdk.mcp.method_tools import register_method_tools
+from scion_sdk.mcp.action_dispatch import dispatch_async
+from scion_sdk.mcp.context import ctx_confirm_destructive
+from scion_sdk.mcp.method_tools import register_method_tools
 
 
 class _Api:

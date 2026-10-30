@@ -197,7 +197,8 @@ These are required future tests. None ran during definition authoring.
 - `SCION-CONNECTOR-CONTROL-R025.1`: `tests/test_actor_binding_served.py::test_local_transport_binds_the_system_actor`.
 - `SCION-CONNECTOR-CONTROL-R025.2`: `tests/test_actor_binding_served.py::test_authenticated_http_binds_the_token_actor_with_inherited_roles`.
 - `SCION-CONNECTOR-CONTROL-R025.3`: `tests/test_actor_binding_served.py::test_unauthenticated_http_binds_the_anonymous_actor`.
-- `SCION-CONNECTOR-CONTROL-R025.4`: `tests/test_actor_binding_served.py::test_a_mutation_without_authentication_is_a_typed_refusal` and `::test_current_actor_stays_strict_outside_the_served_binding`.
+- `SCION-CONNECTOR-CONTROL-R025.4`: `tests/test_actor_binding_served.py::test_a_mutation_without_authentication_is_a_typed_refusal` and `::test_the_binding_middleware_refuses_typed_on_a_bare_server`.
+- `SCION-CONNECTOR-CONTROL-R025.5`: `tests/test_actor_binding_served.py::test_current_actor_resolves_system_outside_any_request`, `::test_a_bare_no_auth_server_serves_without_use_actor` and `::test_a_bare_authenticated_server_uses_the_token_identity_and_denies`.
 
 All five tests serve a real `create_mcp_server` server. A fastmcp client calls it in memory or over streamable HTTP. No test fakes the identity layer.
 

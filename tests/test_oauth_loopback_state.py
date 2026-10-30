@@ -5,7 +5,7 @@ from urllib.parse import parse_qs, urlsplit
 import httpx
 import pytest
 
-from agent_connector_sdk.auth.browser import BaseBrowserAuthManager
+from scion_sdk.auth.browser import BaseBrowserAuthManager
 
 
 def manager() -> BaseBrowserAuthManager:

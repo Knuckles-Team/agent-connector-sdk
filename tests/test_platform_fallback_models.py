@@ -5,7 +5,7 @@ import hashlib
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.adapters.platform_models import (
+from scion_sdk.adapters.platform_models import (
     BackendAttempt,
     BackendPolicy,
     BackendState,
@@ -240,7 +240,7 @@ def test_backend_refuses_literal_credentials_without_echoing_them() -> None:
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R012.5")
 def test_private_inputs_and_record_content_are_not_in_repr() -> None:
-    from agent_connector_sdk.adapters.platform_models import PlatformRecord, Provenance
+    from scion_sdk.adapters.platform_models import PlatformRecord, Provenance
 
     private_query = "sensitive-query-fixture"
     private_content = "sensitive-content-fixture"

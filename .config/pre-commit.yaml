@@ -1,4 +1,4 @@
-# Combined pre-commit and pre-push scan suite for agent-connector-sdk.
+# Combined pre-commit and pre-push scan suite for scion-sdk.
 #
 # Repository-agnostic complexity, clone, security, privacy, supply-chain,
 # hygiene, code-shape, and documentation gates come from the shared
@@ -50,7 +50,7 @@ repos:
   - id: vulture
     stages: [pre-push]
     pass_filenames: false
-    args: ["agent_connector_sdk", "--min-confidence", "95"]
+    args: ["scion_sdk", "--min-confidence", "95"]
     require_serial: true
 - repo: https://github.com/codespell-project/codespell
   rev: 2ccb47ff45ad361a21071a7eedda4c37e6ae8c5a # v2.4.2
@@ -164,10 +164,10 @@ repos:
   - id: mypy
     stages: [pre-push]
     name: mypy (strict, project environment)
-    entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && uv run --frozen --no-sync python -m mypy agent_connector_sdk'
+    entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && uv run --frozen --no-sync python -m mypy scion_sdk'
     language: system
     pass_filenames: false
-    files: ^(agent_connector_sdk/.*\.py|pyproject\.toml|uv\.lock)$
+    files: ^(scion_sdk/.*\.py|pyproject\.toml|uv\.lock)$
   - id: pytest
     name: pytest (full suite)
     entry: bash -c 'bash scripts/bootstrap_epistemic_graph_contract.sh && uv run --frozen --no-sync python -m pytest -q'

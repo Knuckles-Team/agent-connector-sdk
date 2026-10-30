@@ -8,23 +8,23 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from pydantic import ValidationError
 
-from agent_connector_sdk.testing.writeback import make_writeback_fixture
-from agent_connector_sdk.testing.writeback_audit import InMemoryAuditReservation
-from agent_connector_sdk.writeback import (
+from scion_sdk.testing.writeback import make_writeback_fixture
+from scion_sdk.testing.writeback_audit import InMemoryAuditReservation
+from scion_sdk.writeback import (
     WalletKeyTrust,
     WalletProofBinding,
     WalletProofRequest,
     WalletProofResult,
     WalletSignatureVerifier,
 )
-from agent_connector_sdk.writeback.authorization import (
+from scion_sdk.writeback.authorization import (
     DeterministicAuthorizationVerifier,
 )
-from agent_connector_sdk.writeback.errors import (
+from scion_sdk.writeback.errors import (
     AuthorizationDeniedError,
     WalletProofRefusedError,
 )
-from agent_connector_sdk.writeback.service import GovernedWriteBack
+from scion_sdk.writeback.service import GovernedWriteBack
 
 NOW = 1050
 

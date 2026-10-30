@@ -38,16 +38,16 @@ def test_base_modules_import_without_the_mcp_extra() -> None:
         """
         import importlib
         for name in (
-            "agent_connector_sdk.http.client",
-            "agent_connector_sdk.exposure",
-            "agent_connector_sdk.auth.delegation",
-            "agent_connector_sdk.artifacts.pack",
-            "agent_connector_sdk.artifacts.prompts",
-            "agent_connector_sdk.ports.sink",
-            "agent_connector_sdk.runner.provisioning",
-            "agent_connector_sdk.runner.worker",
-            "agent_connector_sdk.certify.cli",
-            "agent_connector_sdk.sinks.epistemic_graph",
+            "scion_sdk.http.client",
+            "scion_sdk.exposure",
+            "scion_sdk.auth.delegation",
+            "scion_sdk.artifacts.pack",
+            "scion_sdk.artifacts.prompts",
+            "scion_sdk.ports.sink",
+            "scion_sdk.runner.provisioning",
+            "scion_sdk.runner.worker",
+            "scion_sdk.certify.cli",
+            "scion_sdk.sinks.epistemic_graph",
         ):
             importlib.import_module(name)
         """
@@ -60,7 +60,7 @@ def test_mcp_surface_names_the_extra_when_missing() -> None:
     result = _run(
         """
         import importlib
-        for name in ("agent_connector_sdk.mcp", "agent_connector_sdk.transports.mcp"):
+        for name in ("scion_sdk.mcp", "scion_sdk.transports.mcp"):
             try:
                 importlib.import_module(name)
             except ImportError as exc:
@@ -76,7 +76,7 @@ def test_mcp_surface_names_the_extra_when_missing() -> None:
 def test_current_user_token_needs_the_extra() -> None:
     result = _run(
         """
-        from agent_connector_sdk.auth.delegation import current_user_token
+        from scion_sdk.auth.delegation import current_user_token
         try:
             current_user_token()
         except ImportError as exc:
@@ -89,7 +89,7 @@ def test_current_user_token_needs_the_extra() -> None:
 
 
 def test_mcp_extra_present_in_this_environment() -> None:
-    import agent_connector_sdk.mcp  # noqa: F401
-    from agent_connector_sdk.mcp.exposure import is_loopback_host
+    import scion_sdk.mcp  # noqa: F401
+    from scion_sdk.mcp.exposure import is_loopback_host
 
     assert is_loopback_host("localhost")

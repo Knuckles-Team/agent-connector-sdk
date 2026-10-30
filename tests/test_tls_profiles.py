@@ -9,31 +9,31 @@ import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 
-from agent_connector_sdk.credentials.references import SecretReference
-from agent_connector_sdk.credentials.resolver import (
+from scion_sdk.credentials.references import SecretReference
+from scion_sdk.credentials.resolver import (
     CompositeCredentialResolver,
     CredentialUnavailableError,
     EnvironmentCredentialResolver,
 )
-from agent_connector_sdk.testing.certificates import (
+from scion_sdk.testing.certificates import (
     CertificateSet,
     issue_test_certificates,
 )
-from agent_connector_sdk.tls.context import (
+from scion_sdk.tls.context import (
     build_ssl_context,
     minimum_tls_version,
     unencrypted_key_pem,
 )
-from agent_connector_sdk.tls.errors import TransportSecurityError
-from agent_connector_sdk.tls.material import (
+from scion_sdk.tls.errors import TransportSecurityError
+from scion_sdk.tls.material import (
     MAX_PEM_BYTES,
     MaterialStore,
     default_runtime_root,
     existing_path,
 )
-from agent_connector_sdk.tls.profile import ResolvedTLSProfile
-from agent_connector_sdk.tls.resolve import resolve_tls_profile
-from agent_connector_sdk.tls.selection import (
+from scion_sdk.tls.profile import ResolvedTLSProfile
+from scion_sdk.tls.resolve import resolve_tls_profile
+from scion_sdk.tls.selection import (
     SelectedProfile,
     select_profile,
     service_prefix,
@@ -339,7 +339,7 @@ def test_context_and_material_helpers(
     big.write_bytes(b"x" * (MAX_PEM_BYTES + 1))
     with pytest.raises(TransportSecurityError, match="tls_material_too_large"):
         existing_path(big)
-    assert default_runtime_root().parts[-2:] == ("agent-connector-sdk", "tls")
+    assert default_runtime_root().parts[-2:] == ("scion-sdk", "tls")
 
 
 def test_wrapped_material_failure_names_the_cause_and_cleans_up(

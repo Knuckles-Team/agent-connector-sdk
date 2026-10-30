@@ -7,18 +7,18 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.finance.account import (
+from scion_sdk.finance.account import (
     AccountActivity,
     AccountSnapshot,
     Position,
 )
-from agent_connector_sdk.finance.multi_asset import (
+from scion_sdk.finance.multi_asset import (
     CommodityPrice,
     CommodityPriceBasis,
     FxRate,
     RealEstateValuation,
 )
-from agent_connector_sdk.finance.records import (
+from scion_sdk.finance.records import (
     FINANCE_SCHEMA_VERSION,
     AdjustmentMode,
     Completeness,

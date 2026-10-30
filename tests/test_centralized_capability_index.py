@@ -10,7 +10,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "specs/centralized-capabilities/plan.md"
-PACKAGE = ROOT / "agent_connector_sdk"
+PACKAGE = ROOT / "scion_sdk"
 ROW_ID = re.compile(r"SCION-CENTRALIZED-CAPABILITIES-R\d{3}")
 OWNER_ID = re.compile(r"SCION-[A-Z-]+-R\d+(?:\.\d+)?\Z")
 

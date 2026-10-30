@@ -25,10 +25,10 @@ from test_event_feeds import (
     _tool_descriptor,
 )
 
-from agent_connector_sdk.adapters.event_feed_bindings import rum_source_adapter
-from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
-from agent_connector_sdk.testing.sinks import InMemorySink
+from scion_sdk.adapters.event_feed_bindings import rum_source_adapter
+from scion_sdk.runner.syncing import SyncTarget, sync_stream
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.testing.sinks import InMemorySink
 
 
 async def _sync(sink, event):

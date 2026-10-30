@@ -8,8 +8,8 @@ import anyio
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
-from agent_connector_sdk.ports.access_check import (
+from scion_sdk.ingest.sources import IngestSourceDeclaration
+from scion_sdk.ports.access_check import (
     AccessCheckAnswer,
     AccessCheckPort,
     BoundedAccessCheck,

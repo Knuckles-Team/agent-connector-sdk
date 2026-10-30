@@ -7,8 +7,8 @@ from itertools import pairwise
 
 import pytest
 
-from agent_connector_sdk.httpsupport import RateLimiter as ExportedRateLimiter
-from agent_connector_sdk.httpsupport.rate_limit import RateLimiter
+from scion_sdk.httpsupport import RateLimiter as ExportedRateLimiter
+from scion_sdk.httpsupport.rate_limit import RateLimiter
 
 pytestmark = [pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R005")]
 

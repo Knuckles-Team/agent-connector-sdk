@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.ingest import ChangeSet, Document, IngestBinding
-from agent_connector_sdk.ingest.request import build_request
-from agent_connector_sdk.privacy import PersistencePrivacyGuard, public_http_url
+from scion_sdk.ingest import ChangeSet, Document, IngestBinding
+from scion_sdk.ingest.request import build_request
+from scion_sdk.privacy import PersistencePrivacyGuard, public_http_url
 
 PAGE = "https://kubernetes.io/docs/concepts/workloads/pods/disruptions/"
 

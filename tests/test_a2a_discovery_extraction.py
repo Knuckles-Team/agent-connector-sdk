@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from agent_connector_sdk.ingest import ChangeSet
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
-from agent_connector_sdk.vendor_extractors import a2a_helpers
-from agent_connector_sdk.vendor_extractors.a2a import extract
-from agent_connector_sdk.vendor_extractors.a2a_discovery import AgentCardRefused
+from scion_sdk.ingest import ChangeSet
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.vendor_extractors import a2a_helpers
+from scion_sdk.vendor_extractors.a2a import extract
+from scion_sdk.vendor_extractors.a2a_discovery import AgentCardRefused
 
 
 def test_refused_discovery_is_excluded_from_extractor_changeset(monkeypatch) -> None:

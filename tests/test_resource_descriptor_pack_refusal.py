@@ -7,11 +7,11 @@ import json
 import pytest
 from fastmcp import FastMCP
 
-from agent_connector_sdk.artifacts.pack import build_content_pack
-from agent_connector_sdk.artifacts.resource_descriptor import ResourceDeclarationError
-from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.artifacts.pack import build_content_pack
+from scion_sdk.artifacts.resource_descriptor import ResourceDeclarationError
+from scion_sdk.artifacts.resources import ResourceArtifactKind
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.transports.mcp import McpTransport
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R074.5")

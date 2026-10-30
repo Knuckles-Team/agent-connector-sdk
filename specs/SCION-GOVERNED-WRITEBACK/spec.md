@@ -1,7 +1,7 @@
 # SCION-GOVERNED-WRITEBACK — Governed write-back to attached sources
 
 **Requirement IDs:** SCION-GOVERNED-WRITEBACK-R001, SCION-GOVERNED-WRITEBACK-R002, SCION-GOVERNED-WRITEBACK-R003, SCION-GOVERNED-WRITEBACK-R004, SCION-GOVERNED-WRITEBACK-R005.
-**Owner:** agent-connector-sdk source-side protocol.
+**Owner:** scion-sdk source-side protocol.
 
 ## Outcome and boundary
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from agent_connector_sdk.source_connectors import (
+from scion_sdk.source_connectors import (
     ConnectorCheckpoint,
     ConnectorGovernanceError,
     LoadConnector,
@@ -13,11 +13,11 @@ from agent_connector_sdk.source_connectors import (
     build_connector,
     list_sources,
 )
-from agent_connector_sdk.source_connectors.http_safety import (
+from scion_sdk.source_connectors.http_safety import (
     SourceEgressError,
     safe_get_text,
 )
-from agent_connector_sdk.source_connectors.registry import set_activation_gate
+from scion_sdk.source_connectors.registry import set_activation_gate
 
 RSS = """<?xml version="1.0"?>
 <rss version="2.0"><channel><title>T</title>
@@ -346,7 +346,7 @@ def test_http_boundary_enforces_decoded_body_limit():
 
 # --- connector framework surface: typed documents, registration, drain loops ---
 
-from agent_connector_sdk.source_connectors import (  # noqa: E402
+from scion_sdk.source_connectors import (  # noqa: E402
     BaseSourceConnector,
     CheckpointedBatch,
     PermSyncConnector,
@@ -356,11 +356,11 @@ from agent_connector_sdk.source_connectors import (  # noqa: E402
     get_connector_class,
     register_source,
 )
-from agent_connector_sdk.source_connectors.base import ExternalAccess  # noqa: E402
-from agent_connector_sdk.source_connectors.connectors.arxiv import (  # noqa: E402
+from scion_sdk.source_connectors.base import ExternalAccess  # noqa: E402
+from scion_sdk.source_connectors.connectors.arxiv import (  # noqa: E402
     ArxivConnector,
 )
-from agent_connector_sdk.source_connectors.connectors.package_manifest import (  # noqa: E402
+from scion_sdk.source_connectors.connectors.package_manifest import (  # noqa: E402
     ONYX_CONNECTOR_PARITY,
     PACKAGE_PRESETS,
     get_preset,
@@ -368,16 +368,16 @@ from agent_connector_sdk.source_connectors.connectors.package_manifest import ( 
     onyx_parity,
     onyx_parity_summary,
 )
-from agent_connector_sdk.source_connectors.connectors.rest import (  # noqa: E402
+from scion_sdk.source_connectors.connectors.rest import (  # noqa: E402
     RestJsonConnector,
 )
-from agent_connector_sdk.source_connectors.connectors.rss import (  # noqa: E402
+from scion_sdk.source_connectors.connectors.rss import (  # noqa: E402
     RssConnector,
 )
-from agent_connector_sdk.source_connectors.connectors.web import (  # noqa: E402
+from scion_sdk.source_connectors.connectors.web import (  # noqa: E402
     WebCrawlerConnector,
 )
-from agent_connector_sdk.source_connectors.http_safety import (  # noqa: E402
+from scion_sdk.source_connectors.http_safety import (  # noqa: E402
     DEFAULT_MAX_REDIRECTS,
     DEFAULT_MAX_REQUEST_BYTES,
     HARD_MAX_REDIRECTS,

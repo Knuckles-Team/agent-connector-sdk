@@ -12,21 +12,21 @@ import pytest
 from epistemic_graph.generated.source_ingestion import SourceCheckpoint
 from fastmcp import Client, FastMCP
 
-from agent_connector_sdk.adapters.web_fetch import (
+from scion_sdk.adapters.web_fetch import (
     WebFetchRefusalError,
     WebFetchSourceAdapter,
     WebQueryRef,
 )
-from agent_connector_sdk.contracts import SEAM_SCHEMA_VERSION
-from agent_connector_sdk.ports.errors import SourceContractError
-from agent_connector_sdk.ports.web_source import (
+from scion_sdk.contracts import SEAM_SCHEMA_VERSION
+from scion_sdk.ports.errors import SourceContractError
+from scion_sdk.ports.web_source import (
     WebFetchRequest,
     WebPageResult,
     WebSourceRefused,
     content_digest,
     register_web_source_tools,
 )
-from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
+from scion_sdk.runner.syncing import SyncTarget, sync_stream
 
 
 @dataclass

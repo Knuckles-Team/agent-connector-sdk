@@ -7,8 +7,8 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.finance.alpaca_account import account_snapshot_from_alpaca
-from agent_connector_sdk.finance.csv_import import AccountContext
+from scion_sdk.finance.alpaca_account import account_snapshot_from_alpaca
+from scion_sdk.finance.csv_import import AccountContext
 
 _CONTEXT = AccountContext(
     tenant_id="tenant-1",

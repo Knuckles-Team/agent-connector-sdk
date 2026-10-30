@@ -7,7 +7,7 @@ from datetime import UTC, date, datetime
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.finance.fred_series import (
+from scion_sdk.finance.fred_series import (
     MacroSeriesObservation,
     MissingFredValueError,
     macro_series_from_fred,

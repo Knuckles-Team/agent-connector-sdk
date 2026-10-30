@@ -10,12 +10,12 @@ from test_contracts_and_sink import _catalog
 from test_event_feeds import CONNECTOR
 from test_event_replay_checkpoint import _import_mapping
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.runner.syncing import SyncTarget, sync_stream
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.transports.mcp import McpTransport
 
 
 async def _exercise():

@@ -8,8 +8,8 @@ from typing import cast
 
 import pytest
 
-from agent_connector_sdk._contract_fields import AUTH_MODELS, STREAM_MODES
-from agent_connector_sdk.access_contract import (
+from scion_sdk._contract_fields import AUTH_MODELS, STREAM_MODES
+from scion_sdk.access_contract import (
     AccessContractError,
     TransportContract,
     parse_access_contracts,

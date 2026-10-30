@@ -12,18 +12,18 @@ import time
 import httpx
 import pytest
 
-from agent_connector_sdk.auth.browser import (
+from scion_sdk.auth.browser import (
     BaseBrowserAuthManager,
     FileTokenStore,
     generate_pkce,
 )
-from agent_connector_sdk.contracts import (
+from scion_sdk.contracts import (
     CONNECTOR_UNCONFIGURED_MARKING,
     ExternalAccess,
     default_external_access,
 )
-from agent_connector_sdk.exceptions import ApiError, AuthError, ParameterError
-from agent_connector_sdk.http.support import (
+from scion_sdk.exceptions import ApiError, AuthError, ParameterError
+from scion_sdk.http.support import (
     AuthHeaderInjector,
     BaseApiClient,
     BasicAuth,
@@ -31,12 +31,12 @@ from agent_connector_sdk.http.support import (
     QueryApiKeyAuth,
     TokenAuth,
 )
-from agent_connector_sdk.mcp import env_drift
-from agent_connector_sdk.mcp.graphql import (
+from scion_sdk.mcp import env_drift
+from scion_sdk.mcp.graphql import (
     ctx_graphql_get_type_details,
     ctx_graphql_list_types,
 )
-from agent_connector_sdk.mcp.parser import PARSER_ENV
+from scion_sdk.mcp.parser import PARSER_ENV
 
 
 def _client(handler, **kwargs) -> BaseApiClient:
@@ -226,7 +226,7 @@ def test_r014_14_env_drift_against_declarations(tmp_path, capsys):
     (pkg / "__init__.py").write_text("")
     (pkg / "server.py").write_text(
         "import os\n"
-        "from agent_connector_sdk.config import setting\n"
+        "from scion_sdk.config import setting\n"
         "TOKEN_VAR = 'DEMO_TOKEN'\n"
         "URL = setting('DEMO_URL')\n"
         "TOKEN = os.environ.get(TOKEN_VAR)\n"

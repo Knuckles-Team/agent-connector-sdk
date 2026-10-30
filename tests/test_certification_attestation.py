@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.certify.attestation import (
+from scion_sdk.certify.attestation import (
     AttestationConsumerBinding,
     CertificationAttestation,
 )

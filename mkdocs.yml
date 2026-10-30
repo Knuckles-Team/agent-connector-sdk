@@ -9,7 +9,7 @@ strict: true
 
 extra:
   ecosystem:
-    current: agent-connector-sdk
+    current: scion-sdk
 
 nav:
   - Home: index.md

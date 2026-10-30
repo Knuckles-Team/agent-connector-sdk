@@ -26,9 +26,9 @@ from typing import Any, Literal
 from fastmcp import FastMCP
 from fleet_declarations import DECLARATIONS
 
-from agent_connector_sdk.artifacts.resource_descriptor import RESOURCES_URI
-from agent_connector_sdk.mcp.change_events import serve_change_subscriptions
-from agent_connector_sdk.mcp.content import ConnectorContent, register_connector_content
+from scion_sdk.artifacts.resource_descriptor import RESOURCES_URI
+from scion_sdk.mcp.change_events import serve_change_subscriptions
+from scion_sdk.mcp.content import ConnectorContent, register_connector_content
 
 FLEET_PACKAGES = Path(__file__).parent / "fleet_packages"
 FRESHRSS_ROOT = FLEET_PACKAGES / "freshrss-agent"

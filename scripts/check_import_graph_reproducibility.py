@@ -256,7 +256,7 @@ def _requirement_names(
 
 def _find_sdk_imports() -> list[str]:
     modules: set[str] = set()
-    package_root = ROOT / "agent_connector_sdk"
+    package_root = ROOT / "scion_sdk"
     for path in sorted(package_root.rglob("*.py")):
         try:
             tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))

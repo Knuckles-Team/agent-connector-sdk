@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 import pytest
 from storm_test_helpers import archive_policy
 
-from agent_connector_sdk.earth_observations.storm import (
+from scion_sdk.earth_observations.storm import (
     NoaaStormArchive,
     StormAdmission,
     StormSourceError,

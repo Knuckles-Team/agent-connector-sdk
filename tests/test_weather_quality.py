@@ -4,12 +4,12 @@ from datetime import UTC, datetime
 
 import pytest
 
-from agent_connector_sdk.earth_observations.records import (
+from scion_sdk.earth_observations.records import (
     Place,
     Region,
     WeatherObservation,
 )
-from agent_connector_sdk.earth_observations.weather_location import (
+from scion_sdk.earth_observations.weather_location import (
     WeatherLocation,
     WeatherQuality,
     _located_records,

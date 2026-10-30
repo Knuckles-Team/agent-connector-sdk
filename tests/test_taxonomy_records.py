@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.taxonomy.records import (
+from scion_sdk.taxonomy.records import (
     TaxonRecord,
     taxon_from_gbif,
     taxon_from_ncbi,

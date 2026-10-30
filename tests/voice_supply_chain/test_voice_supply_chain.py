@@ -7,9 +7,9 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.voice_supply_chain import license_registry as lr
-from agent_connector_sdk.voice_supply_chain import store
-from agent_connector_sdk.voice_supply_chain.manifest import (
+from scion_sdk.voice_supply_chain import license_registry as lr
+from scion_sdk.voice_supply_chain import store
+from scion_sdk.voice_supply_chain.manifest import (
     VoiceLicenseDecision,
     VoiceManifestStatus,
     VoiceModelManifest,
@@ -169,7 +169,7 @@ def test_license_decisions_round_trip_and_absence_is_none():
 
 
 def test_provider_is_piper_only_and_config_manifest_pins_its_digest():
-    from agent_connector_sdk.voice_supply_chain.manifest import (
+    from scion_sdk.voice_supply_chain.manifest import (
         HF_COMMIT_SHA_LEN,
         VoiceConfigManifest,
         VoiceModelProvider,

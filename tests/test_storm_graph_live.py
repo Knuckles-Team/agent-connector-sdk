@@ -9,19 +9,19 @@ from storm_test_helpers import archive_policy
 from test_contracts_and_sink import _catalog
 from test_event_feeds import CONNECTOR
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.earth_observations.storm import (
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.earth_observations.storm import (
     NoaaStormArchive,
     StormAdmission,
 )
-from agent_connector_sdk.earth_observations.storm_stream import register_storm_stream
-from agent_connector_sdk.manifest.model import (
+from scion_sdk.earth_observations.storm_stream import register_storm_stream
+from scion_sdk.manifest.model import (
     ResourceRelation,
     ResourceSpec,
     SchemaMapping,
 )
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
 
 
 async def exercise(root: Path, compressed: bytes):
