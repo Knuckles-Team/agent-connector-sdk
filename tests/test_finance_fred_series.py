@@ -38,6 +38,7 @@ def _series(**overrides: object) -> tuple[MacroSeriesObservation, ...]:
 
 
 @pytest.mark.spec("SCION-FINANCE-SOURCES-R005")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R005.1")
 def test_each_observation_preserves_its_own_vintage_date() -> None:
     observations = _series()
 
