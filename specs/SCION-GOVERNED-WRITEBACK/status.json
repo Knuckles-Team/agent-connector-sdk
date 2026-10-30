@@ -116,7 +116,7 @@
         "2d39be956d8d"
       ],
       "verified_by": [
-        "tests/test_writeback_durable.py:314",
+        "tests/test_writeback_durable.py:315",
         "tests/test_writeback_process_restart.py:105"
       ]
     },
@@ -155,16 +155,27 @@
     {
       "id": "SCION-GOVERNED-WRITEBACK-R004.1",
       "title": "Generic approval residual",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "431f3cf70f80"
+      ],
+      "verified_by": [
+        "tests/test_writeback_recorded_approval.py:45",
+        "tests/test_writeback_recorded_approval.py:75"
+      ]
     },
     {
       "id": "SCION-GOVERNED-WRITEBACK-R004.2",
       "title": "Generic deterministic replay residual",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "431f3cf70f80"
+      ],
+      "verified_by": [
+        "tests/test_writeback.py:202",
+        "tests/test_writeback_durable.py:219",
+        "tests/test_writeback_durable.py:358"
+      ]
     },
     {
       "id": "SCION-GOVERNED-WRITEBACK-R004.3",
@@ -190,9 +201,16 @@
     {
       "id": "SCION-GOVERNED-WRITEBACK-R004.5",
       "title": "Typed repository effect request",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "431f3cf70f80"
+      ],
+      "verified_by": [
+        "tests/test_repository_effect_contract.py:154",
+        "tests/test_repository_effect_contract.py:54",
+        "tests/test_repository_effect_contract.py:87",
+        "tests/test_repository_effect_contract.py:95"
+      ]
     },
     {
       "id": "SCION-GOVERNED-WRITEBACK-R004.6",
@@ -286,9 +304,9 @@
         "402182302e8c"
       ],
       "verified_by": [
-        "tests/test_writeback.py:221",
-        "tests/test_writeback.py:241",
-        "tests/test_writeback.py:259"
+        "tests/test_writeback.py:222",
+        "tests/test_writeback.py:242",
+        "tests/test_writeback.py:260"
       ]
     },
     {
@@ -299,8 +317,8 @@
         "020a30bbcd68"
       ],
       "verified_by": [
-        "tests/test_writeback_durable.py:356",
-        "tests/test_writeback_durable.py:392"
+        "tests/test_writeback_durable.py:357",
+        "tests/test_writeback_durable.py:394"
       ]
     },
     {
@@ -312,7 +330,7 @@
       ],
       "verified_by": [
         "tests/test_writeback_durable.py:218",
-        "tests/test_writeback_durable.py:238"
+        "tests/test_writeback_durable.py:239"
       ]
     }
   ]
