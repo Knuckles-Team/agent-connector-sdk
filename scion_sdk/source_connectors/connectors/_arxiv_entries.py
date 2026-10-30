@@ -37,7 +37,7 @@ def _authors(entry: dict[str, Any]) -> list[str]:
 
 
 def _entry_record(
-    entry: dict[str, Any], aid: str, abs_url: str, category: str
+    entry: dict[str, Any], *, aid: str, abs_url: str, category: str
 ) -> dict[str, Any]:
     return {
         "id": aid,
@@ -69,7 +69,7 @@ def _entry_document(
     if not aid:
         return None
     abs_url = raw_id or f"https://arxiv.org/abs/{aid}"
-    record = _entry_record(entry, aid, abs_url, category)
+    record = _entry_record(entry, aid=aid, abs_url=abs_url, category=category)
     return SourceDocument(
         id=f"arxiv:{aid}",
         source_uri=abs_url,

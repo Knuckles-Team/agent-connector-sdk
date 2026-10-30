@@ -47,6 +47,19 @@ def _entry_categories(entry: Any) -> list[str]:
     ]
 
 
+def _is_fresh(doc: SourceDocument, prior_ids: set[str], wm: str | None) -> bool:
+    return doc.id not in prior_ids and (
+        wm is None or not doc.updated_at or doc.updated_at >= wm
+    )
+
+
+def _next_watermark(all_docs: Sequence[SourceDocument], wm: str | None) -> str | None:
+    dates = [d.updated_at for d in all_docs if d.updated_at]
+    if wm:
+        dates.append(wm)
+    return max(dates) if dates else wm
+
+
 def _checkpointed_delta(
     checkpoint: ConnectorCheckpoint | None,
     all_docs: Sequence[SourceDocument],
@@ -62,16 +75,8 @@ def _checkpointed_delta(
     """
     prior_ids = set(checkpoint.seen_ids) if checkpoint else set()
     wm = checkpoint.watermark if checkpoint else None
-    fresh = [
-        d
-        for d in all_docs
-        if d.id not in prior_ids
-        and (wm is None or not d.updated_at or d.updated_at >= wm)
-    ]
-    dates = [d.updated_at for d in all_docs if d.updated_at]
-    if wm:
-        dates.append(wm)
-    new_wm = (max(dates) if dates else wm) if complete else wm
+    fresh = [d for d in all_docs if _is_fresh(d, prior_ids, wm)]
+    new_wm = _next_watermark(all_docs, wm) if complete else wm
     new_ids = sorted(prior_ids | {d.id for d in fresh})[-_SEEN_CAP:]
     cp = ConnectorCheckpoint(has_more=False, watermark=new_wm, seen_ids=new_ids)
     return CheckpointedBatch(documents=fresh, checkpoint=cp)

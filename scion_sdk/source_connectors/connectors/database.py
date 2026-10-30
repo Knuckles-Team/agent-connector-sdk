@@ -12,10 +12,8 @@ never enters durable configuration, logs, provenance or identifiers.
 
 from __future__ import annotations
 
-import json
 import re
 from collections.abc import Iterator
-from datetime import datetime
 from typing import Any, cast
 
 from scion_sdk.credentials.resolution import (
@@ -35,97 +33,20 @@ from ..base import (
 )
 from ..registry import logger, register_source
 from ..universal import UniversalConnector
+from ._database_config import (
+    _validate_fields,
+    _validate_max_rows,
+    _validate_query_text,
+    _validate_read_query,
+    _validate_source_alias,
+    _validated_profile_ref,
+)
+from ._database_profile import _parse_connection_profile, _render_connection_profile
+from ._database_watermark import _max_watermark, _newer_than
 
 _SECRET_REF_RE = re.compile(r"^(?:env|openbao)://[A-Za-z0-9_./#-]+$")
 _FIELD_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.-]{0,254}$")
 _SOURCE_ALIAS_RE = re.compile(r"^[a-z][a-z0-9-]{1,62}$")
-_INTEGER_WATERMARK_RE = re.compile(r"[+-]?[0-9]+\Z")
-_TIMESTAMP_WATERMARK_RE = re.compile(r"\d{4}-\d{2}-\d{2}[Tt ]")
-_DATABASE_PROFILE_FIELDS = frozenset(
-    {"dsn", "kind", "tls_service", "tls_profile", "tls_profile_ref"}
-)
-
-
-def _watermark_after(candidate: str, previous: str) -> bool:
-    """Compare integer and timestamp watermarks by value, and other text lexically."""
-    candidate_integer = _INTEGER_WATERMARK_RE.fullmatch(candidate) is not None
-    previous_integer = _INTEGER_WATERMARK_RE.fullmatch(previous) is not None
-    if candidate_integer and previous_integer:
-        if len(candidate) > 256 or len(previous) > 256:
-            raise ValueError("database integer watermark is too large")
-        return int(candidate) > int(previous)
-    if candidate_integer != previous_integer:
-        raise ValueError("database watermark types do not match")
-    candidate_time = _TIMESTAMP_WATERMARK_RE.match(candidate) is not None
-    previous_time = _TIMESTAMP_WATERMARK_RE.match(previous) is not None
-    if candidate_time != previous_time:
-        raise ValueError("database watermark types do not match")
-    if candidate_time:
-        if len(candidate) > 256 or len(previous) > 256:
-            raise ValueError("database timestamp watermark is too large")
-        try:
-            candidate_datetime = datetime.fromisoformat(
-                candidate.replace("Z", "+00:00")
-            )
-            previous_datetime = datetime.fromisoformat(previous.replace("Z", "+00:00"))
-            return candidate_datetime > previous_datetime
-        except (TypeError, ValueError) as exc:
-            raise ValueError("database timestamp watermarks are incomparable") from exc
-    return candidate > previous
-
-
-def _render_connection_profile(raw: object) -> str:
-    rendered = raw.decode("utf-8") if isinstance(raw, bytes) else str(raw or "")
-    if not rendered or len(rendered.encode("utf-8")) > 65_536:
-        raise ValueError("database connection profile is unavailable")
-    return rendered
-
-
-def _load_connection_profile(rendered: str) -> dict[str, Any] | None:
-    try:
-        profile = json.loads(rendered)
-    except (TypeError, ValueError):
-        return None
-    if not isinstance(profile, dict):
-        return None
-    if set(profile).difference(_DATABASE_PROFILE_FIELDS):
-        raise ValueError("database connection profile has unsupported fields")
-    return profile
-
-
-def _validate_profile_dsn(resolved_dsn: str) -> None:
-    if not resolved_dsn:
-        raise ValueError("database connection profile is unavailable")
-    if "\x00" in resolved_dsn:
-        raise ValueError("database connection profile is unavailable")
-    if len(resolved_dsn.encode("utf-8")) > 8_192:
-        raise ValueError("database connection profile is unavailable")
-
-
-def _profile_tls_values(
-    profile: dict[str, Any] | None,
-) -> tuple[str | None, str | None, str | None]:
-    profile = profile or {}
-    return cast(
-        tuple[str | None, str | None, str | None],
-        tuple(
-            str(profile.get(key) or "").strip() or None
-            for key in ("tls_service", "tls_profile", "tls_profile_ref")
-        ),
-    )
-
-
-def _parse_connection_profile(
-    rendered: str,
-) -> tuple[str, str | None, tuple[str | None, str | None, str | None]]:
-    profile = _load_connection_profile(rendered)
-    if profile is None:
-        resolved_dsn, profile_kind = rendered, None
-    else:
-        resolved_dsn = str(profile.get("dsn") or "")
-        profile_kind = str(profile.get("kind") or "").strip().lower() or None
-    _validate_profile_dsn(resolved_dsn)
-    return resolved_dsn, profile_kind, _profile_tls_values(profile)
 
 
 class RowVersionEvidenceUnavailable(NotImplementedError):
@@ -185,36 +106,14 @@ class DatabaseConnector(LoadConnector, PollConnector):
             )
         if "dsn" in _:
             raise ValueError("legacy database dsn configuration is unsupported")
-        profile_ref = str(connection_profile_ref or "").strip()
-        if conn is None and not _SECRET_REF_RE.fullmatch(profile_ref):
-            raise ValueError(
-                "DatabaseConnector requires a runtime connection_profile_ref"
-            )
-        if (
-            conn is not None
-            and profile_ref
-            and not _SECRET_REF_RE.fullmatch(profile_ref)
-        ):
-            raise ValueError("literal database connection values are not supported")
-        if not query:
-            raise ValueError("DatabaseConnector requires a 'query'")
-        if len(query.encode("utf-8")) > 65_536 or "\x00" in query:
-            raise ValueError("DatabaseConnector query is invalid")
-        if not _SOURCE_ALIAS_RE.fullmatch(source_alias):
-            raise ValueError("DatabaseConnector source_alias is invalid")
-        if not isinstance(max_rows, int) or isinstance(max_rows, bool):
-            raise ValueError("DatabaseConnector max_rows is invalid")
-        if not 1 <= max_rows <= 9_999:
-            raise ValueError("DatabaseConnector max_rows is out of range")
-        fields: tuple[str, ...] = (id_field, title_field, text_field)
-        if updated_field:
-            fields = (*fields, updated_field)
-        if watermark_param:
-            fields = (*fields, watermark_param)
-        if any(not _FIELD_RE.fullmatch(value) for value in fields):
-            raise ValueError("DatabaseConnector field mapping is invalid")
+        profile_ref = _validated_profile_ref(conn, connection_profile_ref)
+        _validate_query_text(query)
+        _validate_source_alias(source_alias)
+        _validate_max_rows(max_rows)
+        optional_fields = tuple(filter(None, (updated_field, watermark_param)))
+        _validate_fields((id_field, title_field, text_field, *optional_fields))
         effective_kind = str(kind or "").strip().lower() or None
-        self._validate_read_query(query, effective_kind)
+        _validate_read_query(query, effective_kind)
         self.connection_profile_ref = profile_ref
         self.kind = effective_kind
         self.query = query
@@ -232,31 +131,6 @@ class DatabaseConnector(LoadConnector, PollConnector):
         self._conn = conn
         self._privacy_guard = PersistencePrivacyGuard()
         self.external_access = default_external_access()
-
-    @staticmethod
-    def _validate_read_query(query: str, kind: str | None) -> None:
-        """Reject obvious mutating or stacked SQL at the ingestion boundary.
-
-        This is defense in depth; production credentials must still be granted
-        read-only database permissions. Mongo's ``query`` is a collection name,
-        while SQL ingestion deliberately accepts one plain ``SELECT`` only.
-        """
-        value = query.strip()
-        if kind == "mongodb":
-            if not re.fullmatch(r"[A-Za-z0-9_.-]{1,255}", value):
-                raise ValueError("Mongo source query must be a collection name")
-            return
-        if value.endswith(";"):
-            value = value[:-1].rstrip()
-        if (
-            not re.match(r"(?is)^select\b", value)
-            or ";" in value
-            or "--" in value
-            or "/*" in value
-            or re.search(r"(?is)\binto\b", value)
-            or re.search(r"(?is)\bfor\s+(update|share)\b", value)
-        ):
-            raise ValueError("Database ingestion requires one read-only SELECT query")
 
     def _connection(self) -> Any:
         if self._conn is not None:
@@ -364,25 +238,12 @@ class DatabaseConnector(LoadConnector, PollConnector):
             rows = self._run({self.watermark_param: prior})
         else:
             rows = self._run()
-
-        docs: list[SourceDocument] = []
-        max_wm = prior
-        for doc in self._documents(rows):
-            if (
-                self.updated_field
-                and prior is not None
-                and doc.updated_at is not None
-                and not _watermark_after(doc.updated_at, prior)
-            ):
-                continue
-            docs.append(doc)
-            if doc.updated_at is not None:
-                if max_wm is None:
-                    _watermark_after(doc.updated_at, doc.updated_at)
-                    max_wm = doc.updated_at
-                elif _watermark_after(doc.updated_at, max_wm):
-                    max_wm = doc.updated_at
+        documents = self._documents(rows)
+        if self.updated_field and prior is not None:
+            documents = _newer_than(documents, prior)
         return CheckpointedBatch(
-            documents=docs,
-            checkpoint=ConnectorCheckpoint(has_more=False, watermark=max_wm),
+            documents=documents,
+            checkpoint=ConnectorCheckpoint(
+                has_more=False, watermark=_max_watermark(documents, prior)
+            ),
         )
