@@ -1931,7 +1931,7 @@
         "92242d3e53dd"
       ],
       "verified_by": [
-        "tests/test_http_payments.py:27"
+        "tests/test_http_payments.py:28"
       ]
     },
     {
@@ -1942,7 +1942,7 @@
         "92242d3e53dd"
       ],
       "verified_by": [
-        "tests/test_http_payments.py:60"
+        "tests/test_http_payments.py:61"
       ]
     },
     {
