@@ -94,6 +94,7 @@
     "SCION-CONNECTOR-CONTROL-R045.9",
     "SCION-CONNECTOR-CONTROL-R045.10",
     "SCION-CONNECTOR-CONTROL-R045.11",
+    "SCION-CONNECTOR-CONTROL-R045.12",
     "SCION-CONNECTOR-CONTROL-R046",
     "SCION-CONNECTOR-CONTROL-R046.1",
     "SCION-CONNECTOR-CONTROL-R046.2",
@@ -1437,7 +1438,7 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R045",
       "title": "Tool contract facts for the run loop and the tool-subset decision",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "2907b584635e",
         "3ddd773fb6dc",
@@ -1446,9 +1447,6 @@
         "5d4848e2ff0f"
       ],
       "verified_by": [
-        "tests/test_certify_read_only.py:24",
-        "tests/test_certify_read_only.py:25",
-        "tests/test_certify_read_only.py:74",
         "tests/test_schema_disclosure_artifacts.py:22",
         "tests/test_schema_disclosure_provider.py:64"
       ],
@@ -1463,7 +1461,8 @@
         "SCION-CONNECTOR-CONTROL-R045.8",
         "SCION-CONNECTOR-CONTROL-R045.9",
         "SCION-CONNECTOR-CONTROL-R045.10",
-        "SCION-CONNECTOR-CONTROL-R045.11"
+        "SCION-CONNECTOR-CONTROL-R045.11",
+        "SCION-CONNECTOR-CONTROL-R045.12"
       ]
     },
     {
@@ -1589,6 +1588,13 @@
       "verified_by": [
         "tests/test_single_declaration.py:170"
       ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045.12",
+      "title": "Operation descriptors travel in the handshake",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R046",
