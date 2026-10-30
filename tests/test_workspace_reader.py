@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pytest
 from fastmcp import Client, FastMCP
+from pydantic import ValidationError
 from pypdf import PdfWriter
 
 from agent_connector_sdk.adapters.workspace_models import (
@@ -250,6 +251,78 @@ async def test_cancel_stops_worker(
         os.kill(pid, 0)
 
 
+def _file_dict(**changes) -> dict:
+    values = {
+        "relative_path": "a.txt",
+        "format": "text",
+        "size_bytes": 5,
+        "sha256": "ab" * 32,
+        "parser_revision": "1",
+    }
+    return {**values, **changes}
+
+
+def _request_dict(files: list[dict]) -> dict:
+    return {
+        "tenant": "tenant",
+        "root_authority": "root",
+        "files": files,
+        "max_tasks": 4,
+        "max_file_bytes": 1024,
+        "max_expanded_bytes": 2048,
+        "max_pages": 10,
+        "deadline_seconds": 5.0,
+    }
+
+
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.19")
+def test_workspace_models_bind_request_and_refuse_undeclared_formats() -> None:
+    file = WorkspaceFile.model_validate(_file_dict())
+    request = WorkspaceRequest.model_validate(_request_dict([file.model_dump()]))
+    assert WorkspaceFile.model_validate(file.model_dump(mode="json")) == file
+    assert WorkspaceRequest.model_validate(request.model_dump(mode="json")) == request
+    for fmt in ("doc", "xls", "odt", "unknown"):
+        with pytest.raises(ValidationError, match="format"):
+            WorkspaceFile.model_validate(
+                _file_dict(relative_path=f"a.{fmt}", format=fmt)
+            )
+    for changes in (
+        {"relative_path": "/absolute"},
+        {"relative_path": "a\x00b.txt"},
+        {"size_bytes": 10_485_761},
+        {"sha256": "AB" * 32},
+        {"parser_revision": ""},
+    ):
+        with pytest.raises(ValidationError):
+            WorkspaceFile.model_validate(_file_dict(**changes))
+    duplicate = _request_dict([_file_dict(), _file_dict()])
+    with pytest.raises(ValidationError, match="duplicate"):
+        WorkspaceRequest.model_validate(duplicate)
+    for changes in (
+        {"max_tasks": 0},
+        {"max_tasks": 17},
+        {"max_pages": 0},
+        {"deadline_seconds": 31.0},
+        {"files": []},
+    ):
+        with pytest.raises(ValidationError):
+            WorkspaceRequest.model_validate(_request_dict([_file_dict()]) | changes)
+    location = WorkspaceLocation(
+        text="line",
+        line=1,
+        page=1,
+        paragraph=1,
+        sheet="Notes",
+        cell="A1",
+        start="00:00:01.000",
+        end="00:00:02.000",
+    )
+    assert (
+        WorkspaceLocation.model_validate(location.model_dump(mode="json")) == location
+    )
+
+
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.19")
 def test_parser_public_contract() -> None:
     locations = parse_workspace(b"example", "text", expanded=1024, max_pages=1)
     assert isinstance(locations[0], WorkspaceLocation)
