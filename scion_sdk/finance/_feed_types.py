@@ -82,6 +82,7 @@ def _require_bar_size(bar_size: int) -> None:
 
 
 def _crossed(alert: dict[str, Any], tick: Tick) -> bool:
-    return (alert["direction"] == "above" and tick.price >= alert["price"]) or (
-        alert["direction"] == "below" and tick.price <= alert["price"]
+    return bool(
+        (alert["direction"] == "above" and tick.price >= alert["price"])
+        or (alert["direction"] == "below" and tick.price <= alert["price"])
     )
