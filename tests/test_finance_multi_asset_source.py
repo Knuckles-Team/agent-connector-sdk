@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 from fastmcp import FastMCP
-from finance_source_support import record_server, served_session
+from finance_source_support import record_server, served_session, sync_page
 
 from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from scion_sdk.finance.multi_asset_source import (
@@ -13,7 +13,6 @@ from scion_sdk.finance.multi_asset_source import (
 )
 from scion_sdk.manifest.presets import ToolPreset
 from scion_sdk.ports.errors import MalformedSourceDataError
-from scion_sdk.runner.syncing import SyncTarget, sync_stream
 from scion_sdk.testing.sinks import InMemorySink
 
 
@@ -61,9 +60,7 @@ async def _sync(kind, records, *, age=None):
     adapter = _adapter(kind, age=age)
     sink = InMemorySink()
     async with served_session(_server(records)) as session:
-        outcome = await sync_stream(
-            session, adapter, SyncTarget("finance", sink, max_pages=1)
-        )
+        outcome = await sync_page(session, adapter, sink, "finance")
     return sink, outcome
 
 
@@ -181,9 +178,7 @@ async def test_bad_domain_records_refuse_before_sink(kind, record, age):
     sink = InMemorySink()
     async with served_session(_server([record])) as session:
         with pytest.raises(MalformedSourceDataError) as error:
-            await sync_stream(
-                session, adapter, SyncTarget("finance", sink, max_pages=1)
-            )
+            await sync_page(session, adapter, sink, "finance")
     assert "private-other" not in str(error.value)
     assert not sink.batches
 
@@ -200,9 +195,7 @@ async def test_duplicate_page_identity_refuses_before_sink():
     sink = InMemorySink()
     async with served_session(_server([record, record])) as session:
         with pytest.raises(MalformedSourceDataError, match="duplicate"):
-            await sync_stream(
-                session, adapter, SyncTarget("finance", sink, max_pages=1)
-            )
+            await sync_page(session, adapter, sink, "finance")
     assert not sink.batches
 
 

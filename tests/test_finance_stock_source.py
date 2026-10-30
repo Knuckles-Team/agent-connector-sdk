@@ -6,7 +6,7 @@ import base64
 import hashlib
 
 import pytest
-from finance_source_support import record_server, served_session
+from finance_source_support import record_server, served_session, sync_page
 
 from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from scion_sdk.finance.stock_source import StockSourceAdapter, StockSourceKind
@@ -131,9 +131,7 @@ def _adapter(kind, *, mode="delta"):
 async def test_served_stock_records_reach_sink(kind):
     sink = InMemorySink()
     async with served_session(_server(CASES[kind])) as session:
-        outcome = await sync_stream(
-            session, _adapter(kind), SyncTarget("finance", sink, max_pages=1)
-        )
+        outcome = await sync_page(session, _adapter(kind), sink, "finance")
     assert outcome.accepted == 1
     assert next(iter(sink.batches.values())).records[0].payload == CASES[kind]
 
@@ -153,9 +151,7 @@ async def test_bad_records_refuse_before_sink(kind, changes):
     sink = InMemorySink()
     async with served_session(_server({**CASES[kind], **changes})) as session:
         with pytest.raises(MalformedSourceDataError) as error:
-            await sync_stream(
-                session, _adapter(kind), SyncTarget("finance", sink, max_pages=1)
-            )
+            await sync_page(session, _adapter(kind), sink, "finance")
     assert "private-other" not in str(error.value)
     assert not sink.batches
 
@@ -193,10 +189,8 @@ async def test_stock_source_preserves_adjustment_and_calendar_session(
     }
     sink = InMemorySink()
     async with served_session(_server(record)) as session:
-        outcome = await sync_stream(
-            session,
-            _adapter(StockSourceKind.BAR),
-            SyncTarget("finance", sink, max_pages=1),
+        outcome = await sync_page(
+            session, _adapter(StockSourceKind.BAR), sink, "finance"
         )
     assert outcome.accepted == 1
     actual = next(iter(sink.batches.values())).records[0].payload

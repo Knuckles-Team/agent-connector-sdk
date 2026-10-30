@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from fastmcp import FastMCP
 
 from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.runner.syncing import SyncTarget, sync_stream
 from scion_sdk.transports.mcp import McpTransport
 
 
@@ -35,3 +36,8 @@ async def served_session(server: FastMCP) -> AsyncIterator:
     """Open an in-process MCP session against ``server``."""
     async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
         yield session
+
+
+async def sync_page(session, adapter, sink, connector="finance"):
+    """Sync one bounded page of ``adapter`` into ``sink``."""
+    return await sync_stream(session, adapter, SyncTarget(connector, sink, max_pages=1))
