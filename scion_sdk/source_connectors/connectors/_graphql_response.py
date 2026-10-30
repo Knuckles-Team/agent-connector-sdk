@@ -9,13 +9,17 @@ from typing import Any
 from ._graphql_base import GraphQLDocumentError, _reject_json_constant
 
 
+def _require_bytes(chunk: Any) -> bytes:
+    if not isinstance(chunk, bytes):
+        raise TypeError("response chunk is not bytes")
+    return chunk
+
+
 def _iterate_chunks(iterator: Any) -> Iterator[bytes]:
     """Yield byte chunks, mapping any transport failure to a source-safe error."""
     try:
         for chunk in iterator():
-            if not isinstance(chunk, bytes):
-                raise TypeError("response chunk is not bytes")
-            yield chunk
+            yield _require_bytes(chunk)
     except Exception:
         raise GraphQLDocumentError("GraphQL transport byte stream is invalid") from None
 

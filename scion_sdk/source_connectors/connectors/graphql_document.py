@@ -16,13 +16,10 @@ extra for the query parser.
 from __future__ import annotations
 
 import hashlib
-import hmac
 import json
-import re
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
 from typing import Any
-from urllib.parse import urlparse
 
 import httpx
 
@@ -49,14 +46,57 @@ from ..http_safety import (
 )
 from ..registry import register_source
 from ._graphql_base import (
+    _CHECKPOINT_FORMAT,
+    _DEFAULT_ENTITY_TYPES,
+    _ENTITY_KINDS,
+    _ERROR_CODE_RE,
+    _FIELD_PATH_RE,
+    _MAPPING_KEYS,
+    _MAX_PROFILE_BYTES,
+    _OPERATION_RE,
+    _RETENTION_RE,
+    _SECRET_REF_RE,
     GraphQLDocumentError,
     _reject_json_constant,
 )
+from ._graphql_errors import _errors_are_allowlisted
+from ._graphql_paths import _dig, _dig_many, _is_invalid_next_cursor
+from ._graphql_profile_conn import (
+    _validate_endpoint,
+    _validate_headers,
+    _validate_profile_shape,
+)
+from ._graphql_profile_gov import _validate_discovery, _validate_governance
+from ._graphql_profile_map import _validate_snapshot_policy_and_mappings
+from ._graphql_profile_op import (
+    _validate_fallbacks,
+    _validate_identity_and_limits,
+    _validate_operation_paths_and_query,
+    _validate_pagination,
+    _validate_partial_errors,
+    _validate_read_bound,
+)
 from ._graphql_query import (
-    _query_binds_row_bound,
     _validate_query_document,
 )
 from ._graphql_response import _bounded_transport_payload
+from ._graphql_settings import (
+    _access_from_config,
+    _bounded_int,
+    _cfg_float,
+    _cfg_int,
+    _parse_configured_tls,
+)
+from ._graphql_values import (
+    _classification,
+    _digest,
+    _policy_values,
+    _private_digest,
+    _safe_alias,
+    _safe_document_type,
+    _safe_entity_type,
+    _validate_governance_classification,
+)
 
 #: One governed change: an upsert entity or a withdrawal.
 GovernedChange = Entity | Withdrawal
@@ -103,51 +143,6 @@ def _governed_change(
     )
 
 
-_ALIAS_RE = re.compile(r"^[a-z][a-z0-9-]{1,62}$")
-_OPERATION_RE = re.compile(r"^[a-z][a-z0-9_]{1,63}$")
-_DOCUMENT_TYPE_RE = re.compile(r"^[a-z][a-z0-9_-]{1,63}$")
-_SECRET_REF_RE = re.compile(r"^(?:env|openbao)://[A-Za-z0-9_./#-]+$")
-_ERROR_CODE_RE = re.compile(r"^[A-Z][A-Z0-9_]{1,63}$")
-_FIELD_NAME_RE = re.compile(r"^[_A-Za-z][_0-9A-Za-z]{0,127}$")
-_FIELD_PATH_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$")
-_RETENTION_RE = re.compile(
-    r"^(?:P(?:\d+[YMWD])+(?:T(?:\d+[HMS])+)?)|[A-Za-z][A-Za-z0-9_.:-]{1,63}$"
-)
-_VERSION_LABEL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}$")
-_HEADER_RE = re.compile(r"^[!#$%&'*+.^_`|~0-9A-Za-z-]{1,128}$")
-_BLOCKED_REQUEST_HEADERS = frozenset(
-    {
-        "connection",
-        "content-length",
-        "host",
-        "keep-alive",
-        "proxy-authenticate",
-        "proxy-authorization",
-        "te",
-        "trailer",
-        "transfer-encoding",
-        "upgrade",
-    }
-)
-_MAX_PROFILE_BYTES = 8 * 1024 * 1024
-_CHECKPOINT_FORMAT = "graphql-snapshot-checkpoint/v1"
-_ENTITY_KINDS = ("entity", "hierarchy", "document", "application", "dependency")
-_MAPPING_KEYS = {
-    "entity": ("entity", "entities"),
-    "hierarchy": ("hierarchy", "hierarchies"),
-    "document": ("document", "documents"),
-    "application": ("application", "applications"),
-    "dependency": ("dependency", "dependencies"),
-}
-_DEFAULT_ENTITY_TYPES = {
-    "entity": "ExternalEntity",
-    "hierarchy": "ExternalHierarchy",
-    "document": "Document",
-    "application": "Application",
-    "dependency": "Dependency",
-}
-
-
 @dataclass(frozen=True)
 class GraphQLHierarchyBatch:
     """One bounded GraphQL read mapped to embedding documents and envelopes."""
@@ -156,241 +151,6 @@ class GraphQLHierarchyBatch:
     envelopes: tuple[GovernedChange, ...] = ()
     checkpoint: ConnectorCheckpoint = field(default_factory=ConnectorCheckpoint)
     diagnostics: dict[str, Any] = field(default_factory=dict)
-
-
-def _dig(value: Any, path: str, default: Any = None) -> Any:
-    current = value
-    for part in (segment for segment in path.split(".") if segment):
-        if not isinstance(current, Mapping) or part not in current:
-            return default
-        current = current[part]
-    return current
-
-
-def _is_invalid_next_cursor(next_cursor_text: str, seen_cursors: set[str]) -> bool:
-    return (
-        not next_cursor_text
-        or next_cursor_text != next_cursor_text.strip()
-        or len(next_cursor_text.encode("utf-8")) > 4_096
-        or any(
-            ord(character) < 32 or ord(character) == 127
-            for character in next_cursor_text
-        )
-        or next_cursor_text in seen_cursors
-    )
-
-
-def _dig_resolve_segment(current: list[Any], part: str) -> list[Any]:
-    """Resolve one dotted-path segment across all in-flight items."""
-    resolved: list[Any] = []
-    for item in current:
-        values = item if isinstance(item, list) else [item]
-        for candidate in values:
-            if isinstance(candidate, Mapping) and part in candidate:
-                resolved.append(candidate[part])
-    return resolved
-
-
-def _dig_flatten(current: list[Any]) -> list[Any]:
-    """Flatten one level of list nesting produced by fan-out resolution."""
-    flattened: list[Any] = []
-    for item in current:
-        if isinstance(item, list):
-            flattened.extend(item)
-        else:
-            flattened.append(item)
-    return flattened
-
-
-def _dig_many(value: Any, path: str) -> list[Any]:
-    """Resolve a dotted path while treating lists as bounded fan-out points."""
-    current = [value]
-    for part in (segment for segment in str(path or "").split(".") if segment):
-        current = _dig_resolve_segment(current, part)
-    return _dig_flatten(current)
-
-
-def _digest(*parts: Any) -> str:
-    canonical = json.dumps(parts, sort_keys=True, separators=(",", ":"), default=str)
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-
-
-def _private_digest(key: str, *parts: Any) -> str:
-    canonical = json.dumps(parts, sort_keys=True, separators=(",", ":"), default=str)
-    return hmac.new(
-        key.encode("utf-8"), canonical.encode("utf-8"), hashlib.sha256
-    ).hexdigest()
-
-
-def _safe_alias(value: str, *, label: str) -> str:
-    clean = str(value or "").strip().lower()
-    if not _ALIAS_RE.fullmatch(clean):
-        raise ValueError(f"{label} must be a neutral lowercase alias")
-    return clean
-
-
-def _safe_document_type(value: Any) -> str:
-    clean = str(value or "external_document").strip().lower()
-    return clean if _DOCUMENT_TYPE_RE.fullmatch(clean) else "external_document"
-
-
-def _safe_entity_type(value: Any, *, fallback: str) -> str:
-    clean = str(value or fallback).strip()
-    return clean if re.fullmatch(r"^[A-Za-z][A-Za-z0-9_-]{1,63}$", clean) else fallback
-
-
-def _bounded_int(value: Any, *, default: int, minimum: int, maximum: int) -> int:
-    try:
-        parsed = int(value)
-    except (TypeError, ValueError):
-        parsed = default
-    return max(minimum, min(parsed, maximum))
-
-
-def _cfg_int(config: Mapping[str, Any], key: str, default: int) -> int:
-    return int(config.get(key) or default)
-
-
-def _cfg_float(config: Mapping[str, Any], key: str, default: float) -> float:
-    return float(config.get(key) or default)
-
-
-def _parse_configured_tls_mapping(
-    configured: Mapping[str, Any],
-) -> tuple[str | None, str | None, Mapping[str, Any] | None]:
-    profile_name = (
-        str(configured.get("profile_name") or configured.get("profile") or "").strip()
-        or None
-    )
-    profile_ref = str(configured.get("profile_ref") or "").strip() or None
-    settings = configured.get("settings")
-    inline: Mapping[str, Any] | None = None
-    if isinstance(settings, Mapping):
-        inline = settings
-    elif not profile_name and not profile_ref:
-        inline = configured
-    return profile_name, profile_ref, inline
-
-
-def _parse_configured_tls(
-    configured: Any,
-) -> tuple[str | None, str | None, Mapping[str, Any] | None]:
-    if isinstance(configured, str):
-        return configured, None, None
-    if isinstance(configured, Mapping):
-        return _parse_configured_tls_mapping(configured)
-    if configured is not None:
-        raise GraphQLDocumentError("GraphQL transport security profile is invalid")
-    return None, None, None
-
-
-def _classification(value: Any) -> DataClassification:
-    try:
-        return DataClassification(str(value or DataClassification.INTERNAL.value))
-    except ValueError:
-        raise GraphQLDocumentError(
-            "GraphQL governance classification is invalid"
-        ) from None
-
-
-def _validate_governance_classification(
-    classification: DataClassification, access: ExternalAccess
-) -> None:
-    if classification == DataClassification.PUBLIC and not access.is_public:
-        raise GraphQLDocumentError(
-            "GraphQL public classification requires public source access"
-        )
-    if classification != DataClassification.PUBLIC and access.is_public:
-        raise GraphQLDocumentError(
-            "GraphQL non-public classification cannot use public source access"
-        )
-
-
-def _policy_values(
-    value: Any, *, label: str, pattern: re.Pattern[str]
-) -> tuple[str, ...]:
-    if value in (None, []):
-        return ()
-    if not isinstance(value, list) or not value or len(value) > 256:
-        raise GraphQLDocumentError(f"GraphQL {label} allowlist is invalid")
-    result = tuple(str(item).strip() for item in value)
-    if any(
-        len(item.encode("utf-8")) > 512 or not pattern.fullmatch(item)
-        for item in result
-    ):
-        raise GraphQLDocumentError(f"GraphQL {label} allowlist is invalid")
-    return result
-
-
-def _valid_field_path(value: Any) -> bool:
-    rendered = str(value or "")
-    return len(rendered.encode("utf-8")) <= 512 and bool(
-        _FIELD_PATH_RE.fullmatch(rendered)
-    )
-
-
-def _valid_field_name(value: Any) -> bool:
-    return bool(_FIELD_NAME_RE.fullmatch(str(value or "")))
-
-
-def _error_signature(error: Any) -> tuple[str, str] | None:
-    if not isinstance(error, Mapping):
-        return None
-    extensions = error.get("extensions")
-    code = (
-        str(extensions.get("code") or "").strip().upper()
-        if isinstance(extensions, Mapping)
-        else ""
-    )
-    raw_path = error.get("path")
-    if not isinstance(raw_path, list):
-        return None
-    path = ".".join(str(part) for part in raw_path if isinstance(part, str))
-    if not _ERROR_CODE_RE.fullmatch(code) or not _valid_field_path(path):
-        return None
-    return code, path
-
-
-def _error_is_allowlisted(
-    error: Any, *, codes: tuple[str, ...], paths: tuple[str, ...]
-) -> bool:
-    signature = _error_signature(error)
-    if signature is None:
-        return False
-    code, path = signature
-    if code not in codes:
-        return False
-    return any(path == allowed or path.startswith(f"{allowed}.") for allowed in paths)
-
-
-def _errors_are_allowlisted(
-    errors: Any, *, codes: tuple[str, ...], paths: tuple[str, ...]
-) -> bool:
-    if not isinstance(errors, list) or not errors or not codes or not paths:
-        return False
-    return all(
-        _error_is_allowlisted(error, codes=codes, paths=paths) for error in errors
-    )
-
-
-def _access_from_config(value: Any) -> ExternalAccess:
-    if value is None:
-        return ExternalAccess.quarantined()
-    access = ExternalAccess.model_validate(value)
-    if access.user_emails:
-        raise ValueError(
-            "GraphQL document ingestion does not persist user-email ACLs; "
-            "use non-personal group aliases or a mandatory marking"
-        )
-    guard = PersistencePrivacyGuard()
-    if any(
-        guard.sanitize_text(str(principal))[1].changed
-        for principal in (*access.group_ids, *access.markings)
-    ):
-        raise ValueError("GraphQL ACL aliases must be non-personal and location-free")
-    if not access.is_public and not (access.group_ids or access.markings):
-        return ExternalAccess.quarantined()
-    return access
 
 
 @dataclass(frozen=True)
@@ -658,19 +418,19 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
 
     def _resolve_profile(self) -> dict[str, Any]:
         profile = self._load_profile_document()
-        self._validate_endpoint(profile)
-        headers, operations = self._validate_profile_shape(profile)
-        self._validate_headers(headers)
+        _validate_endpoint(profile)
+        headers, operations = _validate_profile_shape(profile)
+        _validate_headers(headers)
         op = self._select_operation(operations)
-        validated_query = self._validate_operation_paths_and_query(op)
-        self._validate_identity_and_limits(profile)
-        pagination = self._validate_pagination(op, validated_query)
-        self._validate_read_bound(op, validated_query, pagination)
-        self._validate_partial_errors(op)
-        self._validate_fallbacks(op)
-        mappings = self._validate_snapshot_policy_and_mappings(op)
-        self._validate_governance(profile, mappings)
-        self._validate_discovery(profile)
+        validated_query = _validate_operation_paths_and_query(op)
+        _validate_identity_and_limits(profile)
+        pagination = _validate_pagination(op, validated_query)
+        _validate_read_bound(op, validated_query, pagination)
+        _validate_partial_errors(op)
+        _validate_fallbacks(op)
+        mappings = _validate_snapshot_policy_and_mappings(op)
+        _validate_governance(profile, mappings)
+        _validate_discovery(profile)
         return profile
 
     def _load_profile_document(self) -> dict[str, Any]:
@@ -699,292 +459,11 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
             raise GraphQLDocumentError("GraphQL profile must be a JSON object")
         return parsed
 
-    @staticmethod
-    def _validate_endpoint(profile: dict[str, Any]) -> None:
-        endpoint = str(profile.get("endpoint") or "")
-        parsed_endpoint = urlparse(endpoint)
-        if (
-            parsed_endpoint.scheme != "https"
-            or not parsed_endpoint.hostname
-            or parsed_endpoint.username is not None
-            or parsed_endpoint.password is not None
-            or parsed_endpoint.query
-            or parsed_endpoint.fragment
-        ):
-            raise GraphQLDocumentError("GraphQL endpoint must use HTTPS")
-
-    @staticmethod
-    def _validate_profile_shape(profile: dict[str, Any]) -> tuple[Any, Any]:
-        headers = profile.get("headers") or {}
-        operations = profile.get("operations") or {}
-        if not isinstance(headers, dict) or not isinstance(operations, dict):
-            raise GraphQLDocumentError("GraphQL profile has an invalid shape")
-        return headers, operations
-
-    @staticmethod
-    def _validate_header_entry(
-        name: Any, value: Any, normalized_names: set[str]
-    ) -> None:
-        if not isinstance(name, str) or not isinstance(value, str):
-            raise GraphQLDocumentError("GraphQL profile headers are invalid")
-        rendered_name = str(name)
-        rendered_value = str(value)
-        normalized_name = rendered_name.lower()
-        if (
-            not _HEADER_RE.fullmatch(rendered_name)
-            or len(rendered_value.encode("utf-8")) > 16_384
-            or "\r" in rendered_value
-            or "\n" in rendered_value
-            or normalized_name in _BLOCKED_REQUEST_HEADERS
-            or normalized_name in normalized_names
-        ):
-            raise GraphQLDocumentError("GraphQL profile headers are invalid")
-        normalized_names.add(normalized_name)
-
-    @classmethod
-    def _validate_headers(cls, headers: dict[str, Any]) -> None:
-        if len(headers) > 32:
-            raise GraphQLDocumentError("GraphQL profile headers are invalid")
-        normalized_names: set[str] = set()
-        for name, value in headers.items():
-            cls._validate_header_entry(name, value, normalized_names)
-
     def _select_operation(self, operations: dict[str, Any]) -> dict[str, Any]:
         op = operations.get(self.operation)
         if not isinstance(op, dict):
             raise GraphQLDocumentError("Requested GraphQL operation is not configured")
         return op
-
-    @staticmethod
-    def _validate_operation_paths_and_query(op: dict[str, Any]) -> Any:
-        validated_query = _validate_query_document(op.get("query"))
-        if not _valid_field_path(op.get("root_path")):
-            raise GraphQLDocumentError("GraphQL operation has no response root mapping")
-        for key, value in op.items():
-            if (
-                key.endswith("_path")
-                and value not in (None, "")
-                and not _valid_field_path(value)
-            ):
-                raise GraphQLDocumentError("GraphQL operation field path is invalid")
-        for key in (
-            "section_content_field",
-            "section_level_field",
-            "section_title_field",
-        ):
-            if key in op and not _valid_field_name(op[key]):
-                raise GraphQLDocumentError("GraphQL operation field name is invalid")
-        return validated_query
-
-    @staticmethod
-    def _validate_identity_and_limits(profile: dict[str, Any]) -> None:
-        identity_key = str(profile.get("identity_hmac_key") or "")
-        if len(identity_key) < 32:
-            raise GraphQLDocumentError(
-                "GraphQL profile requires a 32-character identity HMAC key"
-            )
-        limits = profile.get("limits") or {}
-        if not isinstance(limits, dict):
-            raise GraphQLDocumentError("GraphQL profile limits are invalid")
-
-    @staticmethod
-    def _validate_pagination(op: dict[str, Any], validated_query: Any) -> Any:
-        pagination = op.get("pagination")
-        if pagination is not None:
-            if not isinstance(pagination, dict):
-                raise GraphQLDocumentError("GraphQL pagination mapping is invalid")
-            if any(
-                not _valid_field_name(pagination.get(key))
-                for key in ("cursor_variable", "page_size_variable")
-            ) or any(
-                not _valid_field_path(pagination.get(key))
-                for key in ("next_cursor_path", "has_more_path")
-            ):
-                raise GraphQLDocumentError("GraphQL pagination mapping is invalid")
-            if not _query_binds_row_bound(
-                validated_query, str(pagination["page_size_variable"])
-            ):
-                raise GraphQLDocumentError(
-                    "GraphQL pagination query does not enforce its row bound"
-                )
-        return pagination
-
-    @staticmethod
-    def _validate_read_bound(
-        op: dict[str, Any], validated_query: Any, pagination: Any
-    ) -> None:
-        read_bound = op.get("read_bound")
-        if read_bound is not None:
-            if pagination is not None or not isinstance(read_bound, dict):
-                raise GraphQLDocumentError("GraphQL read bound is invalid")
-            variable = str(read_bound.get("variable") or "")
-            maximum = read_bound.get("maximum")
-            if (
-                variable not in {"first", "limit"}
-                or isinstance(maximum, bool)
-                or not isinstance(maximum, int)
-                or not 1 <= maximum <= 1_000
-                or not _query_binds_row_bound(validated_query, variable)
-            ):
-                raise GraphQLDocumentError("GraphQL read bound is invalid")
-
-    @staticmethod
-    def _validate_partial_errors(op: dict[str, Any]) -> None:
-        partial = op.get("partial_errors")
-        if partial is not None:
-            if not isinstance(partial, dict):
-                raise GraphQLDocumentError("GraphQL partial-error policy is invalid")
-            _policy_values(
-                partial.get("codes"), label="partial-error code", pattern=_ERROR_CODE_RE
-            )
-            _policy_values(
-                partial.get("paths"), label="partial-error path", pattern=_FIELD_PATH_RE
-            )
-
-    @staticmethod
-    def _validate_fallbacks(op: dict[str, Any]) -> None:
-        fallbacks = op.get("optional_field_fallbacks") or []
-        if not isinstance(fallbacks, list) or len(fallbacks) > 3:
-            raise GraphQLDocumentError("GraphQL optional-field fallbacks are invalid")
-        for fallback in fallbacks:
-            if not isinstance(fallback, dict):
-                raise GraphQLDocumentError("GraphQL optional-field fallback is invalid")
-            _validate_query_document(fallback.get("query"))
-            _policy_values(
-                fallback.get("codes"), label="fallback code", pattern=_ERROR_CODE_RE
-            )
-            _policy_values(
-                fallback.get("paths"), label="fallback path", pattern=_FIELD_PATH_RE
-            )
-
-    @staticmethod
-    def _validate_entity_mapping_paths(mapping: dict[str, Any]) -> None:
-        id_path = str(mapping.get("id_path") or "id")
-        if not _valid_field_path(id_path):
-            raise GraphQLDocumentError("GraphQL entity identity mapping is invalid")
-        records_path = str(mapping.get("records_path") or "")
-        if records_path and not _valid_field_path(records_path):
-            raise GraphQLDocumentError("GraphQL entity records mapping is invalid")
-        if any(
-            not _valid_field_path(value)
-            for key, value in mapping.items()
-            if key.endswith("_path") and value not in (None, "")
-        ):
-            raise GraphQLDocumentError("GraphQL entity field path is invalid")
-
-    @staticmethod
-    def _validate_entity_allowlist(mapping: dict[str, Any]) -> None:
-        allowlist = mapping.get("property_allowlist")
-        if not isinstance(allowlist, list) or len(allowlist) > 256:
-            raise GraphQLDocumentError("GraphQL entity property allowlist is required")
-        if any(not _valid_field_path(field) for field in allowlist):
-            raise GraphQLDocumentError("GraphQL entity property allowlist is invalid")
-
-    @staticmethod
-    def _validate_hierarchy_children_path(mapping: dict[str, Any]) -> None:
-        children_path = str(mapping.get("children_path") or "")
-        if children_path and not _valid_field_path(children_path):
-            raise GraphQLDocumentError("GraphQL hierarchy children mapping is invalid")
-
-    @classmethod
-    def _validate_entity_mapping(cls, kind: str, mapping: Any) -> None:
-        if not isinstance(mapping, dict):
-            raise GraphQLDocumentError("GraphQL entity mapping is invalid")
-        cls._validate_entity_mapping_paths(mapping)
-        cls._validate_entity_allowlist(mapping)
-        if kind == "hierarchy":
-            cls._validate_hierarchy_children_path(mapping)
-
-    @staticmethod
-    def _validate_snapshot_authority_flags(op: dict[str, Any]) -> None:
-        for key in ("snapshot_authoritative", "allow_empty_snapshot"):
-            if key in op and not isinstance(op[key], bool):
-                raise GraphQLDocumentError(
-                    "GraphQL snapshot authority policy is invalid"
-                )
-        if op.get("allow_empty_snapshot") is True and not op.get(
-            "snapshot_authoritative", False
-        ):
-            raise GraphQLDocumentError(
-                "GraphQL empty snapshot approval requires authoritative mode"
-            )
-
-    @classmethod
-    def _validate_mappings(cls, mappings: Any) -> None:
-        if not isinstance(mappings, dict):
-            raise GraphQLDocumentError("GraphQL entity mappings are invalid")
-        recognized = False
-        for kind, aliases in _MAPPING_KEYS.items():
-            mapping = next(
-                (mappings.get(alias) for alias in aliases if alias in mappings),
-                None,
-            )
-            if mapping is None:
-                continue
-            recognized = True
-            cls._validate_entity_mapping(kind, mapping)
-        if not recognized:
-            raise GraphQLDocumentError("GraphQL profile has no entity mappings")
-
-    @classmethod
-    def _validate_snapshot_policy_and_mappings(cls, op: dict[str, Any]) -> Any:
-        mappings = op.get("mappings")
-        cls._validate_snapshot_authority_flags(op)
-        if mappings is not None:
-            cls._validate_mappings(mappings)
-        return mappings
-
-    @staticmethod
-    def _validate_governance_shape(governance: Any) -> None:
-        if not isinstance(governance, dict):
-            raise GraphQLDocumentError("GraphQL governance mapping is invalid")
-        _classification(governance.get("classification"))
-        if "legal_hold" in governance and not isinstance(
-            governance["legal_hold"], bool
-        ):
-            raise GraphQLDocumentError("GraphQL governance legal hold is invalid")
-
-    @staticmethod
-    def _validate_governance_retention(
-        governance: dict[str, Any], mappings: Any
-    ) -> str:
-        retention = str(governance.get("retention") or "").strip()
-        if mappings is not None and not retention:
-            raise GraphQLDocumentError(
-                "GraphQL hierarchy governance requires a retention policy"
-            )
-        if retention and not _RETENTION_RE.fullmatch(retention):
-            raise GraphQLDocumentError("GraphQL governance retention is invalid")
-        return retention
-
-    @staticmethod
-    def _validate_governance_versions(governance: dict[str, Any]) -> None:
-        tenant = str(governance.get("tenant") or "").strip()
-        if tenant:
-            _safe_alias(tenant, label="tenant")
-        for key in ("schema_version", "ontology_mapping_version"):
-            if key in governance and not _VERSION_LABEL_RE.fullmatch(
-                str(governance[key] or "")
-            ):
-                raise GraphQLDocumentError("GraphQL governance version is invalid")
-
-    @classmethod
-    def _validate_governance(cls, profile: dict[str, Any], mappings: Any) -> None:
-        governance = profile.get("governance") or {}
-        cls._validate_governance_shape(governance)
-        cls._validate_governance_retention(governance, mappings)
-        cls._validate_governance_versions(governance)
-        _access_from_config(governance.get("access", profile.get("access")))
-
-    @staticmethod
-    def _validate_discovery(profile: dict[str, Any]) -> None:
-        discovery = profile.get("discovery")
-        if discovery is not None and not isinstance(discovery, Mapping):
-            raise GraphQLDocumentError("GraphQL discovery policy is invalid")
-        if isinstance(discovery, Mapping):
-            for key in ("enabled", "allow_introspection"):
-                if key in discovery and not isinstance(discovery[key], bool):
-                    raise GraphQLDocumentError("GraphQL discovery policy is invalid")
 
     def _transport_security(self, profile: dict[str, Any]) -> Any:
         """Resolve a runtime-only TLS profile without exposing it downstream."""
