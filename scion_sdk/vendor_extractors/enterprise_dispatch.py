@@ -274,13 +274,16 @@ class EnterpriseDispatcher:
         self, actor: ActorContext, request: EnterpriseOperation
     ) -> EnterpriseResult:
         refusal = self._write_refusal(actor, request)
-        if refusal is not None:
-            return self._result(request, refusal)
-        assert isinstance(request.parameters, CreateInvoice)
-        assert self._write_admission is not None
+        admission = self._write_admission
+        if (
+            refusal is not None
+            or admission is None
+            or not isinstance(request.parameters, CreateInvoice)
+        ):
+            return self._result(request, refusal or "invalid_request")
         change = request.parameters.change_set
         admitted_digest = _operation_digest(request)
-        target = await self._write_admission.admit(actor, request, self._capability)
+        target = await admission.admit(actor, request, self._capability)
         if target is None:
             return self._result(request, "unauthorized")
         if _operation_digest(request) != admitted_digest:
