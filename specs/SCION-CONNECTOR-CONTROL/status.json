@@ -42,6 +42,7 @@
     "SCION-CONNECTOR-CONTROL-R025.2",
     "SCION-CONNECTOR-CONTROL-R025.3",
     "SCION-CONNECTOR-CONTROL-R025.4",
+    "SCION-CONNECTOR-CONTROL-R025.5",
     "SCION-CONNECTOR-CONTROL-R020.1",
     "SCION-CONNECTOR-CONTROL-R020.2",
     "SCION-CONNECTOR-CONTROL-R020.3",
@@ -686,7 +687,7 @@
         "b0c376748245"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:390"
+        "tests/gates/test_workflow_contract.py:369"
       ]
     },
     {
@@ -852,20 +853,22 @@
       "landed_in": [
         "5a476653a386",
         "d7d1ff0fb276",
-        "e266bf988bb9"
+        "e266bf988bb9",
+        "e619a6e18aa8"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:117",
-        "tests/test_actor_binding_served.py:129",
-        "tests/test_actor_binding_served.py:165",
-        "tests/test_actor_binding_served.py:178",
-        "tests/test_actor_binding_served.py:188"
+        "tests/test_actor_binding_served.py:118",
+        "tests/test_actor_binding_served.py:130",
+        "tests/test_actor_binding_served.py:166",
+        "tests/test_actor_binding_served.py:179",
+        "tests/test_actor_binding_served.py:189"
       ],
       "rollup_of": [
         "SCION-CONNECTOR-CONTROL-R025.1",
         "SCION-CONNECTOR-CONTROL-R025.2",
         "SCION-CONNECTOR-CONTROL-R025.3",
-        "SCION-CONNECTOR-CONTROL-R025.4"
+        "SCION-CONNECTOR-CONTROL-R025.4",
+        "SCION-CONNECTOR-CONTROL-R025.5"
       ]
     },
     {
@@ -876,7 +879,7 @@
         "d7d1ff0fb276"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:117"
+        "tests/test_actor_binding_served.py:118"
       ]
     },
     {
@@ -887,7 +890,7 @@
         "d7d1ff0fb276"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:129"
+        "tests/test_actor_binding_served.py:130"
       ]
     },
     {
@@ -898,7 +901,7 @@
         "d7d1ff0fb276"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:165"
+        "tests/test_actor_binding_served.py:166"
       ]
     },
     {
@@ -909,8 +912,21 @@
         "d7d1ff0fb276"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:178",
-        "tests/test_actor_binding_served.py:188"
+        "tests/test_actor_binding_served.py:179",
+        "tests/test_actor_binding_served.py:231"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R025.5",
+      "title": "No actor bootstrap: an unbound context resolves from the transport",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e619a6e18aa8"
+      ],
+      "verified_by": [
+        "tests/test_actor_binding_served.py:189",
+        "tests/test_actor_binding_served.py:198",
+        "tests/test_actor_binding_served.py:208"
       ]
     },
     {
@@ -1328,9 +1344,9 @@
       "title": "SDK's identity-scoped resource entitlements cover the backend-resource catalogs these connectors manage",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "4faad30ebcd9",
         "5d4848e2ff0f",
         "629ef53c29f0",
-        "6383fe85888e",
         "bac65b612ced"
       ],
       "verified_by": [
@@ -3987,9 +4003,9 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "1ac640f88ad4",
+        "4faad30ebcd9",
         "52111adb6bf2",
         "5a0965f9c2e8",
-        "6383fe85888e",
         "9571c94146e2"
       ],
       "verified_by": [
@@ -4036,7 +4052,7 @@
       "title": "Behavior",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "6383fe85888e"
+        "4faad30ebcd9"
       ],
       "verified_by": [
         "tests/test_pack_surfaces_served.py:59"
@@ -4047,7 +4063,7 @@
       "title": "Wiring",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "6383fe85888e"
+        "4faad30ebcd9"
       ],
       "verified_by": [
         "tests/test_pack_surfaces_served.py:60"
@@ -4070,7 +4086,7 @@
       "title": "Hot-path proof",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "6383fe85888e"
+        "4faad30ebcd9"
       ],
       "verified_by": [
         "tests/test_pack_surfaces_served.py:61"
@@ -4101,9 +4117,9 @@
       "verified_by": [
         "tests/test_eg_pack_entry_kinds.py:45",
         "tests/test_eg_pack_entry_kinds.py:54",
-        "tests/test_eg_pack_entry_kinds.py:68",
-        "tests/test_eg_pack_entry_kinds.py:83",
-        "tests/test_eg_pack_entry_kinds.py:97"
+        "tests/test_eg_pack_entry_kinds.py:66",
+        "tests/test_eg_pack_entry_kinds.py:81",
+        "tests/test_eg_pack_entry_kinds.py:95"
       ],
       "rollup_of": [
         "SCION-CONNECTOR-CONTROL-R075.1",
@@ -4198,9 +4214,9 @@
       "verified_by": [
         "tests/test_eg_pack_entry_kinds.py:45",
         "tests/test_eg_pack_entry_kinds.py:54",
-        "tests/test_eg_pack_entry_kinds.py:68",
-        "tests/test_eg_pack_entry_kinds.py:83",
-        "tests/test_eg_pack_entry_kinds.py:97"
+        "tests/test_eg_pack_entry_kinds.py:66",
+        "tests/test_eg_pack_entry_kinds.py:81",
+        "tests/test_eg_pack_entry_kinds.py:95"
       ]
     },
     {

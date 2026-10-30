@@ -480,7 +480,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "23814702c30b",
-        "6383fe85888e"
+        "4faad30ebcd9"
       ],
       "verified_by": [
         "tests/test_paper_contract.py:48",
@@ -1053,7 +1053,7 @@
         "23814702c30b",
         "289aadb634d8",
         "3735e4434463",
-        "6383fe85888e",
+        "4faad30ebcd9",
         "83b7dd3f33eb"
       ],
       "verified_by": [
@@ -1071,7 +1071,7 @@
       "landed_in": [
         "23814702c30b",
         "3735e4434463",
-        "6383fe85888e",
+        "4faad30ebcd9",
         "bfe88b9d8521",
         "ff4c1aaafc8a"
       ],
@@ -2710,11 +2710,11 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:110",
-        "tests/test_writeback_sinks.py:151",
-        "tests/test_writeback_sinks.py:185",
-        "tests/test_writeback_sinks.py:230",
-        "tests/test_writeback_sinks.py:242"
+        "tests/test_writeback_sinks.py:108",
+        "tests/test_writeback_sinks.py:149",
+        "tests/test_writeback_sinks.py:183",
+        "tests/test_writeback_sinks.py:228",
+        "tests/test_writeback_sinks.py:240"
       ],
       "rollup_of": [
         "SCION-SOURCE-INGEST-R600.1",
@@ -2733,7 +2733,7 @@
         "7f1902255745"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:110"
+        "tests/test_writeback_sinks.py:108"
       ]
     },
     {
@@ -2744,7 +2744,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:230"
+        "tests/test_writeback_sinks.py:228"
       ]
     },
     {
@@ -2755,8 +2755,8 @@
         "7f1902255745"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:151",
-        "tests/test_writeback_sinks.py:185"
+        "tests/test_writeback_sinks.py:149",
+        "tests/test_writeback_sinks.py:183"
       ]
     },
     {
@@ -2767,7 +2767,7 @@
         "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:242"
+        "tests/test_writeback_sinks.py:240"
       ]
     },
     {
@@ -2778,8 +2778,8 @@
         "2ebd61c4c0b5"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:251",
-        "tests/test_writeback_sinks.py:292"
+        "tests/test_writeback_sinks.py:249",
+        "tests/test_writeback_sinks.py:290"
       ]
     },
     {
@@ -2790,7 +2790,7 @@
         "25e1d47263ea"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:351"
+        "tests/test_writeback_sinks.py:349"
       ]
     },
     {
