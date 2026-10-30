@@ -216,6 +216,7 @@ async def _registered_with_uncertainty(
 
 
 @pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R005")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.2")
 async def test_uncertain_effect_is_reconciled_after_process_restart() -> None:
     state = await _registered_with_uncertainty(FixtureUncertainty.AFTER_EFFECT)
     fixture = state.fixture
@@ -354,6 +355,7 @@ async def test_writable_connector_rejects_noncanonical_or_wrong_connector() -> N
 
 
 @pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.17")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.2")
 async def test_connector_refuses_overlapping_effects(monkeypatch):
     import asyncio
 

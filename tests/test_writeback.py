@@ -199,6 +199,7 @@ async def test_patch_cannot_escape_approved_field_scope() -> None:
         await fixture.port.dry_run(changed)
 
 
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.2")
 async def test_idempotency_key_cannot_name_a_different_digest() -> None:
     fixture = make_writeback_fixture()
     result = await fixture.port.apply(fixture.change_set)
