@@ -1,4 +1,4 @@
-"""Conformance kit for the web-source contract (SDK-SOURCE-INGEST-R005.40.2).
+"""Conformance kit for the web-source contract (SCION-SOURCE-INGEST-R005.40.2).
 
 A page connector runs :func:`check_web_source` against its own served tools and
 :func:`fixture_site`. Each obligation is checked by name, and the report names

@@ -45,8 +45,8 @@ def test_rows_become_private_documents(sqlite_dsn: str) -> None:
     assert all(d.external_access.is_public is False for d in docs)
 
 
-# spec: SDK-SOURCE-INGEST-R900.6
-@pytest.mark.spec("SDK-SOURCE-INGEST-R900.2")
+# spec: SCION-SOURCE-INGEST-R900.6
+@pytest.mark.spec("SCION-SOURCE-INGEST-R900.2")
 def test_poll_advances_the_watermark_and_is_idempotent(sqlite_dsn: str) -> None:
     source = _source(sqlite_dsn)
     first = source.poll(ConnectorCheckpoint(watermark="1"))
@@ -55,7 +55,7 @@ def test_poll_advances_the_watermark_and_is_idempotent(sqlite_dsn: str) -> None:
     assert source.poll(first.checkpoint).documents == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R900.2")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R900.2")
 def test_poll_orders_integer_watermarks_numerically(sqlite_dsn: str) -> None:
     with sqlite3.connect(sqlite_dsn.removeprefix("sqlite:///")) as connection:
         connection.execute("INSERT INTO authors(id, name) VALUES (10, 'Ten')")
@@ -73,7 +73,7 @@ def test_poll_refuses_a_watermark_type_change(sqlite_dsn: str) -> None:
         source.poll(ConnectorCheckpoint(watermark="2026-01-01"))
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R900.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R900.7")
 def test_poll_orders_offset_timestamps_by_instant(tmp_path: Path) -> None:
     path = tmp_path / "timestamps.db"
     with sqlite3.connect(path) as connection:
@@ -125,7 +125,7 @@ def test_poll_refuses_invalid_initial_timestamp(tmp_path: Path) -> None:
         source.poll()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R900.8")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R900.8")
 @pytest.mark.parametrize("missing", ["text", "updated"])
 def test_bad_database_row_never_advances_or_yields_partial_page(
     tmp_path: Path, missing: str
@@ -177,7 +177,7 @@ def test_non_object_database_row_refuses_before_partial_load() -> None:
         next(source.load())
 
 
-# spec: SDK-SOURCE-INGEST-R900.4
+# spec: SCION-SOURCE-INGEST-R900.4
 @pytest.mark.parametrize(
     ("config", "error"),
     [
@@ -204,7 +204,7 @@ def test_literal_connection_values_are_refused() -> None:
         )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R900.3")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R900.3")
 def test_database_profile_resolution_reaches_the_tls_governed_connection(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

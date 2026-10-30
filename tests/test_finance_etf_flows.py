@@ -1,5 +1,5 @@
 """ETF fund-flow panel, tagged with source and observation time
-(SDK-FINANCE-SOURCES-R005)."""
+(SCION-FINANCE-SOURCES-R005)."""
 
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ def _flows(**overrides: object) -> tuple[EtfFundFlow, ...]:
     return etf_fund_flows_from_source(**fields)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R005")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R005")
 def test_one_record_per_fund_per_day() -> None:
     flows = _flows()
     assert [f.fund_ticker for f in flows] == ["SPY", "QQQ"]
@@ -55,7 +55,7 @@ def test_one_record_per_fund_per_day() -> None:
     assert flows[0].aum_usd == 512_000_000_000.0
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R005")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R005")
 def test_each_record_is_tagged_with_source_and_observation_time() -> None:
     flows = _flows()
     assert all(f.source_id == "etf-flow-vendor" for f in flows)
@@ -64,7 +64,7 @@ def test_each_record_is_tagged_with_source_and_observation_time() -> None:
     assert all(f.instrument_id == f.fund_ticker for f in flows)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R005")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R005")
 def test_outflow_is_a_negative_net_flow() -> None:
     flows = _flows()
     assert flows[1].net_flow_usd < 0
@@ -79,7 +79,7 @@ def test_empty_flows_yields_no_records() -> None:
     assert _flows(payload={"flows": []}) == ()
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R005.3")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R005.3")
 @pytest.mark.parametrize("value", [None, "invalid", {}, 1])
 def test_flow_page_requires_an_array(value: object) -> None:
     with pytest.raises(ValueError, match="flows must be an array"):
@@ -89,7 +89,7 @@ def test_flow_page_requires_an_array(value: object) -> None:
     assert _flows(payload={"flows": []}) == ()
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R005.2")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R005.2")
 @pytest.mark.parametrize("field", ["net_flow_usd", "aum_usd"])
 @pytest.mark.parametrize("value", ["nan", "inf", "-inf", "1e999"])
 def test_nonfinite_amounts_are_rejected(field: str, value: str) -> None:

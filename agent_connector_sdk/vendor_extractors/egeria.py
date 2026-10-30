@@ -1,4 +1,4 @@
-"""Apache Egeria open-metadata vendor extractor (SDK-SOURCE-INGEST-R006.30).
+"""Apache Egeria open-metadata vendor extractor (SCION-SOURCE-INGEST-R006.30).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.egeria``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

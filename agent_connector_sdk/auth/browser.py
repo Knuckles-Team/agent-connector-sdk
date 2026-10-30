@@ -1,4 +1,4 @@
-"""Browser OAuth (PKCE) login and token lifecycle (SDK-CONNECTOR-CONTROL-R014.11).
+"""Browser OAuth (PKCE) login and token lifecycle (SCION-CONNECTOR-CONTROL-R014.11).
 
 Replaces ``agent_utilities.security.browser_auth`` for connectors that let an
 operator sign in interactively (leanix). :func:`generate_pkce` makes an S256

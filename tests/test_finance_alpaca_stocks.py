@@ -53,7 +53,7 @@ def _bars(**overrides: object) -> tuple:
     return ohlcv_bars_from_alpaca(**fields)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R002")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R002")
 def test_every_bar_in_the_page_maps_in_deterministic_order() -> None:
     bars = _bars()
 
@@ -66,13 +66,13 @@ def test_every_bar_in_the_page_maps_in_deterministic_order() -> None:
     assert bars[0].close == 100.5
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R002")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R002")
 def test_adjustment_mode_is_the_caller_s_explicit_request() -> None:
     bars = _bars(adjustment_mode=AdjustmentMode.ADJUSTED)
     assert all(bar.adjustment_mode is AdjustmentMode.ADJUSTED for bar in bars)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R002")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R002")
 def test_a_page_with_no_next_token_is_complete() -> None:
     bars = _bars()
     assert all(bar.completeness is Completeness.COMPLETE for bar in bars)
@@ -90,7 +90,7 @@ def test_rereading_the_same_bar_yields_the_same_identity() -> None:
     assert [b.source_event_id for b in first] == [b.source_event_id for b in second]
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R002.3")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R002.3")
 @pytest.mark.parametrize(
     "change",
     [
@@ -112,7 +112,7 @@ def test_malformed_page_is_rejected(change: dict[str, object]) -> None:
             _bars(payload=page)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R002.3")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R002.3")
 def test_explicit_empty_page_is_valid() -> None:
     assert _bars(payload={**_PAGE, "bars": []}) == ()
     with pytest.raises(ValueError, match="continuation"):

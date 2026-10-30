@@ -1,6 +1,6 @@
 """Enumerate a repository's refs and walk each immutable tree without content.
 
-Implements the walk phase of SDK-REPOSITORY-TRANSPORT-R003: refs pinned to the
+Implements the walk phase of SCION-REPOSITORY-TRANSPORT-R003: refs pinned to the
 same immutable tree share one walk, and a provider that can read many tree
 objects in one batch (``prime_trees``) is given every distinct tree id up
 front, so a large repository with many branches is walked with one call per

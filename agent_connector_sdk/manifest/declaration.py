@@ -1,6 +1,6 @@
 """The connector declaration, read from the server (``connector://resources``).
 
-SDK-CONNECTOR-CONTROL-R075: a connector declares its data sources, runner
+SCION-CONNECTOR-CONTROL-R075: a connector declares its data sources, runner
 sync presets, record-type mappings and resources in code. The server serves
 them; tool fingerprints are read from the live MCP handshake.
 """

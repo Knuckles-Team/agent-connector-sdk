@@ -1,4 +1,4 @@
-"""Deterministic social/text entity vendor extractor (SDK-SOURCE-INGEST-R006.28).
+"""Deterministic social/text entity vendor extractor (SCION-SOURCE-INGEST-R006.28).
 
 Ported from
 ``agent_utilities.knowledge_graph.enrichment.extractors.social`` onto this

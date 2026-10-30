@@ -26,7 +26,7 @@ def _decision(**updates: object) -> CertificationAttestation:
     return CertificationAttestation.model_validate(fields)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R062.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R062.1")
 def test_attestation_is_immutable_and_has_closed_outcomes() -> None:
     for outcome in ("accepted", "rejected", "deferred"):
         decision = _decision(outcome=outcome)
@@ -40,7 +40,7 @@ def test_attestation_is_immutable_and_has_closed_outcomes() -> None:
         _decision().outcome = "rejected"  # type: ignore[misc]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R062.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R062.1")
 def test_attestation_refuses_missing_digest_and_scope() -> None:
     for value in ("", "a" * 63, "G" * 64):
         with pytest.raises(ValidationError):

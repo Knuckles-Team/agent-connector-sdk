@@ -2,7 +2,7 @@
 
 ``[project.scripts] <fleet-name> = "agent_connector_sdk.cli:serve"`` serves the
 connector whose fleet name is the script's name; with one installed connector
-the name is optional (SDK-CONNECTOR-CONTROL-R019.1).
+the name is optional (SCION-CONNECTOR-CONTROL-R019.1).
 """
 
 from __future__ import annotations

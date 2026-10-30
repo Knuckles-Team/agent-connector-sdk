@@ -1,4 +1,4 @@
-"""Data-resource declarations of a connector pack (SDK-CONNECTOR-CONTROL-R074).
+"""Data-resource declarations of a connector pack (SCION-CONNECTOR-CONTROL-R074).
 
 A :class:`ResourceDescriptor` states how one record type of the source is read
 live: the ontology class, the field-to-property pairs, the access method, the

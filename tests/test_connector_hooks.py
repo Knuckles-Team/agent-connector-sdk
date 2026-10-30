@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R019.2, R019.3: typed bootstrap hooks and config mounts."""
+"""SCION-CONNECTOR-CONTROL-R019.2, R019.3: typed bootstrap hooks and config mounts."""
 
 from __future__ import annotations
 
@@ -84,7 +84,7 @@ def register_router_tools(mcp: FastMCP[object]) -> None:
 
 
 # --- tool_registry --------------------------------------------------------------------------------
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_tool_registry_uses_the_declared_tag_and_toggle(democonn, monkeypatch) -> None:
     entry = ("shared", "SHAREDTOOL", register_shared_tools)
     mcp = _server(monkeypatch, Connector(tool_registry=(entry,)))
@@ -95,7 +95,7 @@ def test_tool_registry_uses_the_declared_tag_and_toggle(democonn, monkeypatch) -
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_tool_registry_and_tools_are_exclusive() -> None:
     with pytest.raises(ValueError, match="not both"):
         Connector(
@@ -105,7 +105,7 @@ def test_tool_registry_and_tools_are_exclusive() -> None:
 
 
 # --- action_tools ---------------------------------------------------------------------------------
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_action_tools_split_with_declared_prefix_without_a_client(
     democonn, monkeypatch
 ) -> None:
@@ -118,7 +118,7 @@ def test_action_tools_split_with_declared_prefix_without_a_client(
     assert "demo_router" not in tools
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_action_tools_default_prefix_and_toggle(democonn, monkeypatch) -> None:
     connector = Connector(
         action_tools=(("router", "ROUTERTOOL", register_router_tools),)
@@ -130,13 +130,13 @@ def test_action_tools_default_prefix_and_toggle(democonn, monkeypatch) -> None:
     assert not {t for t in _tools(_server(monkeypatch, connector)) if "router" in t}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_action_prefixes_need_action_tools() -> None:
     with pytest.raises(ValueError, match="action_tools"):
         Connector(action_prefixes={"x": "y"})
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_split_action_tool_takes_a_prefix() -> None:
     mcp: FastMCP[Any] = FastMCP("split")
     register_router_tools(mcp)
@@ -157,7 +157,7 @@ def inline_plain() -> str:
     return "plain"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_inline_tools_are_added_through_fastmcp(democonn, monkeypatch) -> None:
     from democonn.client import Api, get_client
 
@@ -174,7 +174,7 @@ async def _version(_request: Request) -> Response:
     return PlainTextResponse("v")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_routes_are_served_through_custom_route(democonn, monkeypatch) -> None:
     mcp = _server(
         monkeypatch,
@@ -185,14 +185,14 @@ def test_routes_are_served_through_custom_route(democonn, monkeypatch) -> None:
         assert client.get("/health").status_code == 200
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 @pytest.mark.parametrize("path", ["/health", "/ready", "/ready/", "relative"])
 def test_routes_refuse_reserved_and_relative_paths(path: str) -> None:
     with pytest.raises(ValueError):
         Route(path, _version)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_routes_refuse_a_duplicate_path_and_method(democonn, monkeypatch) -> None:
     with pytest.raises(ValueError, match="declared twice"):
         _server(
@@ -213,7 +213,7 @@ async def _boom() -> Readiness:
     raise ConnectionError("token=secret-value refused")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 @pytest.mark.parametrize(
     ("probe", "code", "body"),
     [
@@ -235,7 +235,7 @@ def test_readiness_probe_is_served_at_ready(
     assert response.headers["cache-control"] == "no-store"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_no_ready_route_without_a_probe(democonn, monkeypatch) -> None:
     mcp = _server(monkeypatch, Connector())
     with TestClient(mcp.http_app()) as client:
@@ -243,7 +243,7 @@ def test_no_ready_route_without_a_probe(democonn, monkeypatch) -> None:
 
 
 # --- extra_registrations --------------------------------------------------------------------------
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_extra_registrations_receive_the_registration_context(
     democonn, monkeypatch
 ) -> None:
@@ -269,7 +269,7 @@ def test_extra_registrations_receive_the_registration_context(
 
 
 # --- content_root ---------------------------------------------------------------------------------
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_content_root_moves_the_content_directories(democonn, monkeypatch) -> None:
     pkg = democonn / "democonn"
     (pkg / "assets").mkdir()
@@ -289,14 +289,14 @@ def test_content_root_moves_the_content_directories(democonn, monkeypatch) -> No
     assert "ontology://demo-mcp/demo.ttl" in asyncio.run(resources())
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 @pytest.mark.parametrize("root", ["", "/abs", "../outside", "a/../../b"])
 def test_content_root_must_stay_inside_the_package(root: str) -> None:
     with pytest.raises(ValueError, match="inside the package"):
         Connector(content_root=root)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_content_dirs_default_is_the_package_root(democonn) -> None:
     dirs = content_dirs("democonn")
     assert dirs.content == dirs.root
@@ -307,7 +307,7 @@ def _pyproject(mounts: str) -> dict[str, object]:
     return tomllib.loads(f"[tool.pipelines.container]\n{mounts}\n")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.3")
 def test_config_mounts_parse_interpolated_and_absolute_sources() -> None:
     mounts = config_mounts(
         _pyproject(
@@ -324,7 +324,7 @@ def test_config_mounts_parse_interpolated_and_absolute_sources() -> None:
     assert config_mounts({}) == ()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.3")
 @pytest.mark.parametrize(
     "mounts",
     [
@@ -345,7 +345,7 @@ def test_config_mounts_refuse_malformed_and_unsafe_entries(mounts: str) -> None:
         config_mounts(_pyproject(mounts))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.3")
 def test_config_mounts_schema_requires_exactly_source_and_target() -> None:
     items = CONFIG_MOUNTS_SCHEMA["items"]
     assert isinstance(items, dict)
@@ -354,7 +354,7 @@ def test_config_mounts_schema_requires_exactly_source_and_target() -> None:
     assert str(CONFIG_ROOT) == "/etc"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.3")
 def test_conformance_check_fails_an_unsafe_config_mount(democonn) -> None:
     resolved = resolve_connector("democonn")
     run_check("config_mounts", resolved)
@@ -368,7 +368,7 @@ def test_conformance_check_fails_an_unsafe_config_mount(democonn) -> None:
 
 
 # --- the hook helpers, used directly ---------------------------------------------------------------
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_hook_helpers_serve_on_a_plain_server() -> None:
     from agent_connector_sdk.connector_hooks import (
         READINESS_PATH,

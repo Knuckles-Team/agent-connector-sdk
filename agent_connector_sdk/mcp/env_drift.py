@@ -1,4 +1,4 @@
-"""Check a connector's declared env vars against the vars its code reads (SDK-CONNECTOR-CONTROL-R014.14).
+"""Check a connector's declared env vars against the vars its code reads (SCION-CONNECTOR-CONTROL-R014.14).
 
 Replaces ``agent_utilities.mcp.check_env_var_drift`` for connectors. The code
 is the authority on which variables exist. A connector declares them in

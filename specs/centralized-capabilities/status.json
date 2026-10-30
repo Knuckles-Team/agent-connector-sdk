@@ -1,66 +1,66 @@
 {
   "schema_version": 2,
-  "spec_id": "SDK-CENTRALIZED-CAPABILITIES",
+  "spec_id": "SCION-CENTRALIZED-CAPABILITIES",
   "owner_repo": "scion-sdk",
   "delivery_state": "SPECIFIED",
   "requirement_ids": [
-    "SDK-CENTRALIZED-CAPABILITIES-R001",
-    "SDK-CENTRALIZED-CAPABILITIES-R002",
-    "SDK-CENTRALIZED-CAPABILITIES-R003",
-    "SDK-CENTRALIZED-CAPABILITIES-R004",
-    "SDK-CENTRALIZED-CAPABILITIES-R004.1",
-    "SDK-CENTRALIZED-CAPABILITIES-R004.2",
-    "SDK-CENTRALIZED-CAPABILITIES-R004.4",
-    "SDK-CENTRALIZED-CAPABILITIES-R005",
-    "SDK-CENTRALIZED-CAPABILITIES-R006",
-    "SDK-CENTRALIZED-CAPABILITIES-R006.1",
-    "SDK-CENTRALIZED-CAPABILITIES-R006.2",
-    "SDK-CENTRALIZED-CAPABILITIES-R006.3",
-    "SDK-CENTRALIZED-CAPABILITIES-R006.4",
-    "SDK-CENTRALIZED-CAPABILITIES-R006.5",
-    "SDK-CENTRALIZED-CAPABILITIES-R007",
-    "SDK-CENTRALIZED-CAPABILITIES-R008",
-    "SDK-CENTRALIZED-CAPABILITIES-R009",
-    "SDK-CENTRALIZED-CAPABILITIES-R010",
-    "SDK-CENTRALIZED-CAPABILITIES-R011",
-    "SDK-CENTRALIZED-CAPABILITIES-R012",
-    "SDK-CENTRALIZED-CAPABILITIES-R013",
-    "SDK-CENTRALIZED-CAPABILITIES-R014",
-    "SDK-CENTRALIZED-CAPABILITIES-R015",
-    "SDK-CENTRALIZED-CAPABILITIES-R016",
-    "SDK-CENTRALIZED-CAPABILITIES-R017",
-    "SDK-CENTRALIZED-CAPABILITIES-R018",
-    "SDK-CENTRALIZED-CAPABILITIES-R019",
-    "SDK-CENTRALIZED-CAPABILITIES-R020",
-    "SDK-CENTRALIZED-CAPABILITIES-R021",
-    "SDK-CENTRALIZED-CAPABILITIES-R022",
-    "SDK-CENTRALIZED-CAPABILITIES-R023",
-    "SDK-CENTRALIZED-CAPABILITIES-R024",
-    "SDK-CENTRALIZED-CAPABILITIES-R025",
-    "SDK-CENTRALIZED-CAPABILITIES-R026",
-    "SDK-CENTRALIZED-CAPABILITIES-R027",
-    "SDK-CENTRALIZED-CAPABILITIES-R028",
-    "SDK-CENTRALIZED-CAPABILITIES-R029",
-    "SDK-CENTRALIZED-CAPABILITIES-R030",
-    "SDK-CENTRALIZED-CAPABILITIES-R031",
-    "SDK-CENTRALIZED-CAPABILITIES-R032",
-    "SDK-CENTRALIZED-CAPABILITIES-R033",
-    "SDK-CENTRALIZED-CAPABILITIES-R034",
-    "SDK-CENTRALIZED-CAPABILITIES-R035",
-    "SDK-CENTRALIZED-CAPABILITIES-R036",
-    "SDK-CENTRALIZED-CAPABILITIES-R037",
-    "SDK-CENTRALIZED-CAPABILITIES-R038",
-    "SDK-CENTRALIZED-CAPABILITIES-R039",
-    "SDK-CENTRALIZED-CAPABILITIES-R040",
-    "SDK-CENTRALIZED-CAPABILITIES-R004.3",
-    "SDK-CENTRALIZED-CAPABILITIES-R004.5",
-    "SDK-CENTRALIZED-CAPABILITIES-R004.8",
-    "SDK-CENTRALIZED-CAPABILITIES-R004.7",
-    "SDK-CENTRALIZED-CAPABILITIES-R004.6"
+    "SCION-CENTRALIZED-CAPABILITIES-R001",
+    "SCION-CENTRALIZED-CAPABILITIES-R002",
+    "SCION-CENTRALIZED-CAPABILITIES-R003",
+    "SCION-CENTRALIZED-CAPABILITIES-R004",
+    "SCION-CENTRALIZED-CAPABILITIES-R004.1",
+    "SCION-CENTRALIZED-CAPABILITIES-R004.2",
+    "SCION-CENTRALIZED-CAPABILITIES-R004.4",
+    "SCION-CENTRALIZED-CAPABILITIES-R005",
+    "SCION-CENTRALIZED-CAPABILITIES-R006",
+    "SCION-CENTRALIZED-CAPABILITIES-R006.1",
+    "SCION-CENTRALIZED-CAPABILITIES-R006.2",
+    "SCION-CENTRALIZED-CAPABILITIES-R006.3",
+    "SCION-CENTRALIZED-CAPABILITIES-R006.4",
+    "SCION-CENTRALIZED-CAPABILITIES-R006.5",
+    "SCION-CENTRALIZED-CAPABILITIES-R007",
+    "SCION-CENTRALIZED-CAPABILITIES-R008",
+    "SCION-CENTRALIZED-CAPABILITIES-R009",
+    "SCION-CENTRALIZED-CAPABILITIES-R010",
+    "SCION-CENTRALIZED-CAPABILITIES-R011",
+    "SCION-CENTRALIZED-CAPABILITIES-R012",
+    "SCION-CENTRALIZED-CAPABILITIES-R013",
+    "SCION-CENTRALIZED-CAPABILITIES-R014",
+    "SCION-CENTRALIZED-CAPABILITIES-R015",
+    "SCION-CENTRALIZED-CAPABILITIES-R016",
+    "SCION-CENTRALIZED-CAPABILITIES-R017",
+    "SCION-CENTRALIZED-CAPABILITIES-R018",
+    "SCION-CENTRALIZED-CAPABILITIES-R019",
+    "SCION-CENTRALIZED-CAPABILITIES-R020",
+    "SCION-CENTRALIZED-CAPABILITIES-R021",
+    "SCION-CENTRALIZED-CAPABILITIES-R022",
+    "SCION-CENTRALIZED-CAPABILITIES-R023",
+    "SCION-CENTRALIZED-CAPABILITIES-R024",
+    "SCION-CENTRALIZED-CAPABILITIES-R025",
+    "SCION-CENTRALIZED-CAPABILITIES-R026",
+    "SCION-CENTRALIZED-CAPABILITIES-R027",
+    "SCION-CENTRALIZED-CAPABILITIES-R028",
+    "SCION-CENTRALIZED-CAPABILITIES-R029",
+    "SCION-CENTRALIZED-CAPABILITIES-R030",
+    "SCION-CENTRALIZED-CAPABILITIES-R031",
+    "SCION-CENTRALIZED-CAPABILITIES-R032",
+    "SCION-CENTRALIZED-CAPABILITIES-R033",
+    "SCION-CENTRALIZED-CAPABILITIES-R034",
+    "SCION-CENTRALIZED-CAPABILITIES-R035",
+    "SCION-CENTRALIZED-CAPABILITIES-R036",
+    "SCION-CENTRALIZED-CAPABILITIES-R037",
+    "SCION-CENTRALIZED-CAPABILITIES-R038",
+    "SCION-CENTRALIZED-CAPABILITIES-R039",
+    "SCION-CENTRALIZED-CAPABILITIES-R040",
+    "SCION-CENTRALIZED-CAPABILITIES-R004.3",
+    "SCION-CENTRALIZED-CAPABILITIES-R004.5",
+    "SCION-CENTRALIZED-CAPABILITIES-R004.8",
+    "SCION-CENTRALIZED-CAPABILITIES-R004.7",
+    "SCION-CENTRALIZED-CAPABILITIES-R004.6"
   ],
   "requirements": [
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R001",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R001",
       "title": "Governed HTTP client and retry",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -71,7 +71,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R002",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R002",
       "title": "Egress guard and pinned addresses",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -82,7 +82,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R003",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R003",
       "title": "API client base and auth strategies",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -93,7 +93,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R004",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R004",
       "title": "Pagination helpers",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -111,18 +111,18 @@
         "tests/httpsupport/test_pagination_invalid_page.py:14"
       ],
       "rollup_of": [
-        "SDK-CENTRALIZED-CAPABILITIES-R004.1",
-        "SDK-CENTRALIZED-CAPABILITIES-R004.2",
-        "SDK-CENTRALIZED-CAPABILITIES-R004.4",
-        "SDK-CENTRALIZED-CAPABILITIES-R004.3",
-        "SDK-CENTRALIZED-CAPABILITIES-R004.5",
-        "SDK-CENTRALIZED-CAPABILITIES-R004.8",
-        "SDK-CENTRALIZED-CAPABILITIES-R004.7",
-        "SDK-CENTRALIZED-CAPABILITIES-R004.6"
+        "SCION-CENTRALIZED-CAPABILITIES-R004.1",
+        "SCION-CENTRALIZED-CAPABILITIES-R004.2",
+        "SCION-CENTRALIZED-CAPABILITIES-R004.4",
+        "SCION-CENTRALIZED-CAPABILITIES-R004.3",
+        "SCION-CENTRALIZED-CAPABILITIES-R004.5",
+        "SCION-CENTRALIZED-CAPABILITIES-R004.8",
+        "SCION-CENTRALIZED-CAPABILITIES-R004.7",
+        "SCION-CENTRALIZED-CAPABILITIES-R004.6"
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.1",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R004.1",
       "title": "Refuse unsafe next-page URLs without exposing credentials",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -136,7 +136,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.2",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R004.2",
       "title": "Link pagination stays on the admitted origin",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -147,7 +147,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.4",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R004.4",
       "title": "Valid window sizes",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -159,7 +159,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R005",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R005",
       "title": "Rate-limit telemetry and concurrency",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -174,7 +174,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R006",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R006",
       "title": "Error redaction and typed problems",
       "delivery_state": "SPECIFIED",
       "landed_in": [
@@ -184,15 +184,15 @@
         "tests/test_centralized_capability_index.py:74"
       ],
       "rollup_of": [
-        "SDK-CENTRALIZED-CAPABILITIES-R006.1",
-        "SDK-CENTRALIZED-CAPABILITIES-R006.2",
-        "SDK-CENTRALIZED-CAPABILITIES-R006.3",
-        "SDK-CENTRALIZED-CAPABILITIES-R006.4",
-        "SDK-CENTRALIZED-CAPABILITIES-R006.5"
+        "SCION-CENTRALIZED-CAPABILITIES-R006.1",
+        "SCION-CENTRALIZED-CAPABILITIES-R006.2",
+        "SCION-CENTRALIZED-CAPABILITIES-R006.3",
+        "SCION-CENTRALIZED-CAPABILITIES-R006.4",
+        "SCION-CENTRALIZED-CAPABILITIES-R006.5"
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R006.1",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R006.1",
       "title": "Do not expose upstream problem fields in governed response errors",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -204,14 +204,14 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R006.2",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R006.2",
       "title": "Fleet error redaction",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R006.3",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R006.3",
       "title": "Limit governed HTTP diagnostics to the origin",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -224,7 +224,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R006.4",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R006.4",
       "title": "Keep GraphQL failures out of logs and errors",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -236,7 +236,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R006.5",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R006.5",
       "title": "Protect GraphQL close diagnostics",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -247,7 +247,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R007",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R007",
       "title": "Payment challenge handling",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -258,7 +258,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R008",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R008",
       "title": "TLS profiles",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -269,7 +269,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R009",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R009",
       "title": "Credential and secret-reference resolution",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -280,7 +280,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R010",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R010",
       "title": "Selected-provider credential profile",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -291,7 +291,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R011",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R011",
       "title": "Token providers and source credentials",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -302,7 +302,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R012",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R012",
       "title": "OIDC delegation and actor identity",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -313,7 +313,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R013",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R013",
       "title": "Browser OAuth with PKCE",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -324,7 +324,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R014",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R014",
       "title": "MCP server factory and served security",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -335,7 +335,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R015",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R015",
       "title": "Tool surface and tool context",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -346,7 +346,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R016",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R016",
       "title": "GraphQL",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -357,7 +357,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R017",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R017",
       "title": "A2A protocol",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -368,7 +368,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R018",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R018",
       "title": "Engine client adapter and compute",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -379,7 +379,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R019",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R019",
       "title": "Ingest bindings and source adapters",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -390,7 +390,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R020",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R020",
       "title": "Database sources",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -401,7 +401,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R021",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R021",
       "title": "Feed and document sources",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -412,7 +412,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R022",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R022",
       "title": "Message streams",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -423,7 +423,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R023",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R023",
       "title": "Market data",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -434,7 +434,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R024",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R024",
       "title": "Data preparation",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -445,7 +445,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R025",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R025",
       "title": "Embedding client",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -458,7 +458,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R026",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R026",
       "title": "Vendor extractors",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -469,7 +469,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R027",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R027",
       "title": "Ontology and content packs",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -480,7 +480,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R028",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R028",
       "title": "Connector declaration and fingerprints",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -491,7 +491,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R029",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R029",
       "title": "Certification and fingerprints",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -502,7 +502,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R030",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R030",
       "title": "Connector identity",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -513,7 +513,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R031",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R031",
       "title": "Governed write-back",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -524,7 +524,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R032",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R032",
       "title": "Runner and CLI bootstrap",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -535,7 +535,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R033",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R033",
       "title": "Health and observability",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -546,7 +546,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R034",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R034",
       "title": "Configuration, paths, and locks",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -557,7 +557,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R035",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R035",
       "title": "Privacy, entitlements, and external access",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -568,7 +568,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R036",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R036",
       "title": "Source client and repository transport",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -579,7 +579,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R037",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R037",
       "title": "Plugin entry-point groups",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -590,7 +590,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R038",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R038",
       "title": "Connector test kit",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -601,7 +601,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R039",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R039",
       "title": "Domain record models",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -612,7 +612,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R040",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R040",
       "title": "Optional dependencies come from SDK extras",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -627,7 +627,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.3",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R004.3",
       "title": "Bound Link-header parsing work",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -639,7 +639,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.5",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R004.5",
       "title": "Refuse an unsafe partial-page cursor",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -652,7 +652,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.8",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R004.8",
       "title": "Stop repeated continuation tokens",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -666,7 +666,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.7",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R004.7",
       "title": "Protect pagination iterator state",
       "delivery_state": "VERIFIED",
       "landed_in": [
@@ -679,7 +679,7 @@
       ]
     },
     {
-      "id": "SDK-CENTRALIZED-CAPABILITIES-R004.6",
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R004.6",
       "title": "Refuse malformed pagination pages",
       "delivery_state": "VERIFIED",
       "landed_in": [

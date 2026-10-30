@@ -46,7 +46,7 @@ def test_parses_dex_volume_tvl_and_funding_rate() -> None:
     assert urls[0].endswith("symbol=BTCUSDT")
 
 
-# spec: SDK-FINANCE-SOURCES-R900.4
+# spec: SCION-FINANCE-SOURCES-R900.4
 @pytest.mark.parametrize(
     "call",
     [
@@ -55,7 +55,7 @@ def test_parses_dex_volume_tvl_and_funding_rate() -> None:
         lambda g: CryptoDerivatives(g).get_funding_rate("BTC/USDT"),
     ],
 )
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.5")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R900.5")
 def test_malformed_answers_raise_provider_request_error(call: Any) -> None:
     with pytest.raises(ProviderRequestError):
         call(_serve({"unexpected": True})[1])
@@ -66,7 +66,7 @@ def test_funding_rate_is_a_typed_record() -> None:
     assert isinstance(CryptoDerivatives(get_json).get_funding_rate("X/Y"), FundingRate)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.3")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R900.3")
 def test_crypto_default_fetch_uses_governed_http_safety(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -102,7 +102,7 @@ def test_error_hierarchy_lets_callers_catch_by_family(
     assert issubclass(error, bases)
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.11")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R900.11")
 @pytest.mark.parametrize(
     "field,value",
     [

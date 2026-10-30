@@ -48,7 +48,7 @@ def trade(**changes):
     return EvmTrade.model_validate({**values, **changes})
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.47")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.47")
 def test_evm_models_validate_identity_and_exact_numbers() -> None:
     value = trade()
     assert value.amount_in == 2**200 + 1
@@ -81,7 +81,7 @@ def test_evm_models_validate_identity_and_exact_numbers() -> None:
         value.amount_in = 1
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.47")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.47")
 @pytest.mark.asyncio
 async def test_evm_descriptor_refuses_undecoded_extraction() -> None:
     preset = ToolPreset(name="chain", server="server", tool="logs", id_field="id")

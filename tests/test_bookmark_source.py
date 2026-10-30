@@ -48,8 +48,8 @@ def _records() -> list[dict[str, Any]]:
     ]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.7")
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.8")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.8")
 async def test_served_read_is_stable_and_preserves_source(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -89,8 +89,8 @@ async def test_served_read_is_stable_and_preserves_source(
     assert result.structured_content == expected.model_dump(mode="json")
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.7")
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.8")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.8")
 async def test_reader_refuses_invalid_and_escaping_files(tmp_path: Path) -> None:
     reader = BookmarkReader(tmp_path, vocabulary_revision="v1", domains={})
     for path in ("../outside", "/absolute", "a//b", "a/./b"):
@@ -117,8 +117,8 @@ async def test_reader_refuses_invalid_and_escaping_files(tmp_path: Path) -> None
         await reader.read(_request())
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.7")
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.8")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.8")
 async def test_continuation_binds_file_digest_and_preserves_offsets(
     tmp_path: Path,
 ) -> None:
@@ -174,8 +174,8 @@ async def test_continuation_binds_file_digest_and_preserves_offsets(
         await reader.read(_request())
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.7")
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.8")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.7")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.8")
 async def test_limits_and_authorized_directories(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="root must be absolute"):
         BookmarkReader(Path("relative"), vocabulary_revision="v1", domains={})

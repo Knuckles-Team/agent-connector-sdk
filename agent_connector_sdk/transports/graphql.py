@@ -1,4 +1,4 @@
-"""The shared GraphQL client for connectors (SDK-CONNECTOR-CONTROL-R030.1).
+"""The shared GraphQL client for connectors (SCION-CONNECTOR-CONTROL-R030.1).
 
 One client owns the GraphQL transport for every connector with a GraphQL
 backend: the endpoint, an auth header strategy (bearer, token or basic), the

@@ -1,4 +1,4 @@
-"""Per-connector state directories (SDK-CONNECTOR-CONTROL-R014.7).
+"""Per-connector state directories (SCION-CONNECTOR-CONTROL-R014.7).
 
 Replaces agent-utilities ``core.paths`` for connectors: XDG locations under an
 ``agent-connectors`` application directory, each overridable by one setting.

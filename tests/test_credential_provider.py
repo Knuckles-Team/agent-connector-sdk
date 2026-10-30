@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R035: a connector-scoped CredentialProvider."""
+"""SCION-CONNECTOR-CONTROL-R035: a connector-scoped CredentialProvider."""
 
 from __future__ import annotations
 

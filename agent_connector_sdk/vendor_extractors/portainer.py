@@ -1,4 +1,4 @@
-"""Portainer vendor extractor (SDK-SOURCE-INGEST-R006.11).
+"""Portainer vendor extractor (SCION-SOURCE-INGEST-R006.11).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.portainer``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

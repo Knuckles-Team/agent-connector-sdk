@@ -116,7 +116,7 @@ def _adapter(kind, *, connector="finance", mode="delta"):
     )
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.2")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.2")
 @pytest.mark.parametrize("kind", tuple(CASES))
 async def test_served_market_sources_reach_sink(kind):
     sink = InMemorySink()
@@ -176,7 +176,7 @@ async def test_bounded_sources_never_claim_full_reconciliation():
             await _adapter(MarketSourceKind.FRED).reconcile(session, frozenset({"old"}))
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R001.2")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R001.2")
 async def test_fred_vintages_reach_sink_as_distinct_records():
     first = CASES[MarketSourceKind.FRED][1]
     second = {

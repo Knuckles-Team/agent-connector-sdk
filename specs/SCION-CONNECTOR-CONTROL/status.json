@@ -1,0 +1,4165 @@
+{
+  "schema_version": 2,
+  "spec_id": "SCION-CONNECTOR-CONTROL",
+  "owner_repo": "scion-sdk",
+  "delivery_state": "SPECIFIED",
+  "requirement_ids": [
+    "SCION-CONNECTOR-CONTROL-R001",
+    "SCION-CONNECTOR-CONTROL-R002",
+    "SCION-CONNECTOR-CONTROL-R003",
+    "SCION-CONNECTOR-CONTROL-R004",
+    "SCION-CONNECTOR-CONTROL-R004.1",
+    "SCION-CONNECTOR-CONTROL-R005",
+    "SCION-CONNECTOR-CONTROL-R006",
+    "SCION-CONNECTOR-CONTROL-R007",
+    "SCION-CONNECTOR-CONTROL-R008",
+    "SCION-CONNECTOR-CONTROL-R009",
+    "SCION-CONNECTOR-CONTROL-R010",
+    "SCION-CONNECTOR-CONTROL-R011",
+    "SCION-CONNECTOR-CONTROL-R012",
+    "SCION-CONNECTOR-CONTROL-R013",
+    "SCION-CONNECTOR-CONTROL-R014",
+    "SCION-CONNECTOR-CONTROL-R014.27",
+    "SCION-CONNECTOR-CONTROL-R014.28",
+    "SCION-CONNECTOR-CONTROL-R014.29",
+    "SCION-CONNECTOR-CONTROL-R014.1",
+    "SCION-CONNECTOR-CONTROL-R015",
+    "SCION-CONNECTOR-CONTROL-R015.1",
+    "SCION-CONNECTOR-CONTROL-R016",
+    "SCION-CONNECTOR-CONTROL-R017",
+    "SCION-CONNECTOR-CONTROL-R018",
+    "SCION-CONNECTOR-CONTROL-R019",
+    "SCION-CONNECTOR-CONTROL-R019.1",
+    "SCION-CONNECTOR-CONTROL-R019.2",
+    "SCION-CONNECTOR-CONTROL-R019.3",
+    "SCION-CONNECTOR-CONTROL-R020",
+    "SCION-CONNECTOR-CONTROL-R021",
+    "SCION-CONNECTOR-CONTROL-R022",
+    "SCION-CONNECTOR-CONTROL-R023",
+    "SCION-CONNECTOR-CONTROL-R024",
+    "SCION-CONNECTOR-CONTROL-R025",
+    "SCION-CONNECTOR-CONTROL-R025.1",
+    "SCION-CONNECTOR-CONTROL-R025.2",
+    "SCION-CONNECTOR-CONTROL-R025.3",
+    "SCION-CONNECTOR-CONTROL-R025.4",
+    "SCION-CONNECTOR-CONTROL-R020.1",
+    "SCION-CONNECTOR-CONTROL-R020.2",
+    "SCION-CONNECTOR-CONTROL-R020.3",
+    "SCION-CONNECTOR-CONTROL-R020.5",
+    "SCION-CONNECTOR-CONTROL-R020.4",
+    "SCION-CONNECTOR-CONTROL-R026",
+    "SCION-CONNECTOR-CONTROL-R027",
+    "SCION-CONNECTOR-CONTROL-R028",
+    "SCION-CONNECTOR-CONTROL-R028.1",
+    "SCION-CONNECTOR-CONTROL-R028.2",
+    "SCION-CONNECTOR-CONTROL-R028.3",
+    "SCION-CONNECTOR-CONTROL-R028.4",
+    "SCION-CONNECTOR-CONTROL-R028.5",
+    "SCION-CONNECTOR-CONTROL-R028.6",
+    "SCION-CONNECTOR-CONTROL-R029",
+    "SCION-CONNECTOR-CONTROL-R030",
+    "SCION-CONNECTOR-CONTROL-R030.1",
+    "SCION-CONNECTOR-CONTROL-R031",
+    "SCION-CONNECTOR-CONTROL-R032",
+    "SCION-CONNECTOR-CONTROL-R033",
+    "SCION-CONNECTOR-CONTROL-R034",
+    "SCION-CONNECTOR-CONTROL-R035",
+    "SCION-CONNECTOR-CONTROL-R035.1",
+    "SCION-CONNECTOR-CONTROL-R035.2",
+    "SCION-CONNECTOR-CONTROL-R035.3",
+    "SCION-CONNECTOR-CONTROL-R035.4",
+    "SCION-CONNECTOR-CONTROL-R035.5",
+    "SCION-CONNECTOR-CONTROL-R035.6",
+    "SCION-CONNECTOR-CONTROL-R035.7",
+    "SCION-CONNECTOR-CONTROL-R035.8",
+    "SCION-CONNECTOR-CONTROL-R036",
+    "SCION-CONNECTOR-CONTROL-R037",
+    "SCION-CONNECTOR-CONTROL-R038",
+    "SCION-CONNECTOR-CONTROL-R039",
+    "SCION-CONNECTOR-CONTROL-R040",
+    "SCION-CONNECTOR-CONTROL-R041",
+    "SCION-CONNECTOR-CONTROL-R042",
+    "SCION-CONNECTOR-CONTROL-R043",
+    "SCION-CONNECTOR-CONTROL-R044",
+    "SCION-CONNECTOR-CONTROL-R045",
+    "SCION-CONNECTOR-CONTROL-R045.1",
+    "SCION-CONNECTOR-CONTROL-R045.2",
+    "SCION-CONNECTOR-CONTROL-R045.3",
+    "SCION-CONNECTOR-CONTROL-R045.4",
+    "SCION-CONNECTOR-CONTROL-R045.5",
+    "SCION-CONNECTOR-CONTROL-R045.6",
+    "SCION-CONNECTOR-CONTROL-R045.7",
+    "SCION-CONNECTOR-CONTROL-R045.8",
+    "SCION-CONNECTOR-CONTROL-R045.9",
+    "SCION-CONNECTOR-CONTROL-R045.10",
+    "SCION-CONNECTOR-CONTROL-R045.11",
+    "SCION-CONNECTOR-CONTROL-R046",
+    "SCION-CONNECTOR-CONTROL-R046.1",
+    "SCION-CONNECTOR-CONTROL-R046.2",
+    "SCION-CONNECTOR-CONTROL-R046.3",
+    "SCION-CONNECTOR-CONTROL-R046.4",
+    "SCION-CONNECTOR-CONTROL-R046.5",
+    "SCION-CONNECTOR-CONTROL-R046.6",
+    "SCION-CONNECTOR-CONTROL-R046.7",
+    "SCION-CONNECTOR-CONTROL-R046.8",
+    "SCION-CONNECTOR-CONTROL-R046.9",
+    "SCION-CONNECTOR-CONTROL-R046.10",
+    "SCION-CONNECTOR-CONTROL-R047",
+    "SCION-CONNECTOR-CONTROL-R047.1",
+    "SCION-CONNECTOR-CONTROL-R047.2",
+    "SCION-CONNECTOR-CONTROL-R047.3",
+    "SCION-CONNECTOR-CONTROL-R047.4",
+    "SCION-CONNECTOR-CONTROL-R047.5",
+    "SCION-CONNECTOR-CONTROL-R047.6",
+    "SCION-CONNECTOR-CONTROL-R047.7",
+    "SCION-CONNECTOR-CONTROL-R047.8",
+    "SCION-CONNECTOR-CONTROL-R047.9",
+    "SCION-CONNECTOR-CONTROL-R048",
+    "SCION-CONNECTOR-CONTROL-R048.1",
+    "SCION-CONNECTOR-CONTROL-R048.2",
+    "SCION-CONNECTOR-CONTROL-R048.3",
+    "SCION-CONNECTOR-CONTROL-R048.4",
+    "SCION-CONNECTOR-CONTROL-R048.5",
+    "SCION-CONNECTOR-CONTROL-R048.6",
+    "SCION-CONNECTOR-CONTROL-R048.7",
+    "SCION-CONNECTOR-CONTROL-R048.8",
+    "SCION-CONNECTOR-CONTROL-R049",
+    "SCION-CONNECTOR-CONTROL-R049.1",
+    "SCION-CONNECTOR-CONTROL-R049.2",
+    "SCION-CONNECTOR-CONTROL-R049.3",
+    "SCION-CONNECTOR-CONTROL-R049.4",
+    "SCION-CONNECTOR-CONTROL-R049.5",
+    "SCION-CONNECTOR-CONTROL-R049.6",
+    "SCION-CONNECTOR-CONTROL-R049.7",
+    "SCION-CONNECTOR-CONTROL-R050",
+    "SCION-CONNECTOR-CONTROL-R050.1",
+    "SCION-CONNECTOR-CONTROL-R050.2",
+    "SCION-CONNECTOR-CONTROL-R050.3",
+    "SCION-CONNECTOR-CONTROL-R050.4",
+    "SCION-CONNECTOR-CONTROL-R050.5",
+    "SCION-CONNECTOR-CONTROL-R050.6",
+    "SCION-CONNECTOR-CONTROL-R050.8",
+    "SCION-CONNECTOR-CONTROL-R050.9",
+    "SCION-CONNECTOR-CONTROL-R050.7",
+    "SCION-CONNECTOR-CONTROL-R007.1",
+    "SCION-CONNECTOR-CONTROL-R007.2",
+    "SCION-CONNECTOR-CONTROL-R007.3",
+    "SCION-CONNECTOR-CONTROL-R007.4",
+    "SCION-CONNECTOR-CONTROL-R007.5",
+    "SCION-CONNECTOR-CONTROL-R007.6",
+    "SCION-CONNECTOR-CONTROL-R055",
+    "SCION-CONNECTOR-CONTROL-R056",
+    "SCION-CONNECTOR-CONTROL-R057",
+    "SCION-CONNECTOR-CONTROL-R058",
+    "SCION-CONNECTOR-CONTROL-R059",
+    "SCION-CONNECTOR-CONTROL-R060",
+    "SCION-CONNECTOR-CONTROL-R650",
+    "SCION-CONNECTOR-CONTROL-R650.1",
+    "SCION-CONNECTOR-CONTROL-R650.2",
+    "SCION-CONNECTOR-CONTROL-R650.3",
+    "SCION-CONNECTOR-CONTROL-R650.4",
+    "SCION-CONNECTOR-CONTROL-R650.5",
+    "SCION-CONNECTOR-CONTROL-R014.30",
+    "SCION-CONNECTOR-CONTROL-R014.31",
+    "SCION-CONNECTOR-CONTROL-R051",
+    "SCION-CONNECTOR-CONTROL-R051.1",
+    "SCION-CONNECTOR-CONTROL-R051.2",
+    "SCION-CONNECTOR-CONTROL-R051.3",
+    "SCION-CONNECTOR-CONTROL-R051.4",
+    "SCION-CONNECTOR-CONTROL-R051.5",
+    "SCION-CONNECTOR-CONTROL-R051.6",
+    "SCION-CONNECTOR-CONTROL-R052",
+    "SCION-CONNECTOR-CONTROL-R052.1",
+    "SCION-CONNECTOR-CONTROL-R052.2",
+    "SCION-CONNECTOR-CONTROL-R052.3",
+    "SCION-CONNECTOR-CONTROL-R052.4",
+    "SCION-CONNECTOR-CONTROL-R052.5",
+    "SCION-CONNECTOR-CONTROL-R052.6",
+    "SCION-CONNECTOR-CONTROL-R053",
+    "SCION-CONNECTOR-CONTROL-R053.1",
+    "SCION-CONNECTOR-CONTROL-R053.2",
+    "SCION-CONNECTOR-CONTROL-R053.3",
+    "SCION-CONNECTOR-CONTROL-R053.4",
+    "SCION-CONNECTOR-CONTROL-R053.5",
+    "SCION-CONNECTOR-CONTROL-R053.6",
+    "SCION-CONNECTOR-CONTROL-R054",
+    "SCION-CONNECTOR-CONTROL-R054.1",
+    "SCION-CONNECTOR-CONTROL-R054.2",
+    "SCION-CONNECTOR-CONTROL-R054.3",
+    "SCION-CONNECTOR-CONTROL-R054.4",
+    "SCION-CONNECTOR-CONTROL-R054.5",
+    "SCION-CONNECTOR-CONTROL-R054.6",
+    "SCION-CONNECTOR-CONTROL-R061",
+    "SCION-CONNECTOR-CONTROL-R061.1",
+    "SCION-CONNECTOR-CONTROL-R061.2",
+    "SCION-CONNECTOR-CONTROL-R061.3",
+    "SCION-CONNECTOR-CONTROL-R061.4",
+    "SCION-CONNECTOR-CONTROL-R061.5",
+    "SCION-CONNECTOR-CONTROL-R061.6",
+    "SCION-CONNECTOR-CONTROL-R062",
+    "SCION-CONNECTOR-CONTROL-R062.1",
+    "SCION-CONNECTOR-CONTROL-R062.2",
+    "SCION-CONNECTOR-CONTROL-R062.3",
+    "SCION-CONNECTOR-CONTROL-R062.4",
+    "SCION-CONNECTOR-CONTROL-R062.5",
+    "SCION-CONNECTOR-CONTROL-R062.6",
+    "SCION-CONNECTOR-CONTROL-R063",
+    "SCION-CONNECTOR-CONTROL-R063.1",
+    "SCION-CONNECTOR-CONTROL-R063.2",
+    "SCION-CONNECTOR-CONTROL-R063.3",
+    "SCION-CONNECTOR-CONTROL-R063.4",
+    "SCION-CONNECTOR-CONTROL-R063.5",
+    "SCION-CONNECTOR-CONTROL-R063.6",
+    "SCION-CONNECTOR-CONTROL-R064",
+    "SCION-CONNECTOR-CONTROL-R064.1",
+    "SCION-CONNECTOR-CONTROL-R064.2",
+    "SCION-CONNECTOR-CONTROL-R064.3",
+    "SCION-CONNECTOR-CONTROL-R064.4",
+    "SCION-CONNECTOR-CONTROL-R064.5",
+    "SCION-CONNECTOR-CONTROL-R064.6",
+    "SCION-CONNECTOR-CONTROL-R065",
+    "SCION-CONNECTOR-CONTROL-R065.1",
+    "SCION-CONNECTOR-CONTROL-R065.2",
+    "SCION-CONNECTOR-CONTROL-R065.3",
+    "SCION-CONNECTOR-CONTROL-R065.4",
+    "SCION-CONNECTOR-CONTROL-R065.5",
+    "SCION-CONNECTOR-CONTROL-R065.6",
+    "SCION-CONNECTOR-CONTROL-R066",
+    "SCION-CONNECTOR-CONTROL-R066.1",
+    "SCION-CONNECTOR-CONTROL-R066.2",
+    "SCION-CONNECTOR-CONTROL-R066.3",
+    "SCION-CONNECTOR-CONTROL-R066.4",
+    "SCION-CONNECTOR-CONTROL-R066.5",
+    "SCION-CONNECTOR-CONTROL-R066.6",
+    "SCION-CONNECTOR-CONTROL-R026.1",
+    "SCION-CONNECTOR-CONTROL-R026.2",
+    "SCION-CONNECTOR-CONTROL-R014.2",
+    "SCION-CONNECTOR-CONTROL-R014.3",
+    "SCION-CONNECTOR-CONTROL-R014.4",
+    "SCION-CONNECTOR-CONTROL-R014.5",
+    "SCION-CONNECTOR-CONTROL-R014.6",
+    "SCION-CONNECTOR-CONTROL-R014.7",
+    "SCION-CONNECTOR-CONTROL-R014.8",
+    "SCION-CONNECTOR-CONTROL-R014.9",
+    "SCION-CONNECTOR-CONTROL-R014.10",
+    "SCION-CONNECTOR-CONTROL-R014.11",
+    "SCION-CONNECTOR-CONTROL-R014.12",
+    "SCION-CONNECTOR-CONTROL-R014.13",
+    "SCION-CONNECTOR-CONTROL-R014.14",
+    "SCION-CONNECTOR-CONTROL-R014.15",
+    "SCION-CONNECTOR-CONTROL-R014.16",
+    "SCION-CONNECTOR-CONTROL-R014.17",
+    "SCION-CONNECTOR-CONTROL-R014.18",
+    "SCION-CONNECTOR-CONTROL-R014.19",
+    "SCION-CONNECTOR-CONTROL-R014.20",
+    "SCION-CONNECTOR-CONTROL-R014.22",
+    "SCION-CONNECTOR-CONTROL-R014.23",
+    "SCION-CONNECTOR-CONTROL-R014.24",
+    "SCION-CONNECTOR-CONTROL-R014.25",
+    "SCION-CONNECTOR-CONTROL-R014.26",
+    "SCION-CONNECTOR-CONTROL-R068",
+    "SCION-CONNECTOR-CONTROL-R068.1",
+    "SCION-CONNECTOR-CONTROL-R068.2",
+    "SCION-CONNECTOR-CONTROL-R068.3",
+    "SCION-CONNECTOR-CONTROL-R068.4",
+    "SCION-CONNECTOR-CONTROL-R068.5",
+    "SCION-CONNECTOR-CONTROL-R068.6",
+    "SCION-CONNECTOR-CONTROL-R069",
+    "SCION-CONNECTOR-CONTROL-R069.1",
+    "SCION-CONNECTOR-CONTROL-R069.2",
+    "SCION-CONNECTOR-CONTROL-R069.3",
+    "SCION-CONNECTOR-CONTROL-R069.4",
+    "SCION-CONNECTOR-CONTROL-R069.5",
+    "SCION-CONNECTOR-CONTROL-R069.6",
+    "SCION-CONNECTOR-CONTROL-R014.21",
+    "SCION-CONNECTOR-CONTROL-R014.21.1",
+    "SCION-CONNECTOR-CONTROL-R014.21.3",
+    "SCION-CONNECTOR-CONTROL-R014.21.2",
+    "SCION-CONNECTOR-CONTROL-R700",
+    "SCION-CONNECTOR-CONTROL-R701",
+    "SCION-CONNECTOR-CONTROL-R900",
+    "SCION-CONNECTOR-CONTROL-R900.1",
+    "SCION-CONNECTOR-CONTROL-R900.2",
+    "SCION-CONNECTOR-CONTROL-R900.3",
+    "SCION-CONNECTOR-CONTROL-R900.4",
+    "SCION-CONNECTOR-CONTROL-R900.5",
+    "SCION-CONNECTOR-CONTROL-R900.6",
+    "SCION-CONNECTOR-CONTROL-R901",
+    "SCION-CONNECTOR-CONTROL-R901.1",
+    "SCION-CONNECTOR-CONTROL-R901.2",
+    "SCION-CONNECTOR-CONTROL-R901.3",
+    "SCION-CONNECTOR-CONTROL-R901.4",
+    "SCION-CONNECTOR-CONTROL-R901.5",
+    "SCION-CONNECTOR-CONTROL-R901.6",
+    "SCION-CONNECTOR-CONTROL-R902",
+    "SCION-CONNECTOR-CONTROL-R902.1",
+    "SCION-CONNECTOR-CONTROL-R902.2",
+    "SCION-CONNECTOR-CONTROL-R902.3",
+    "SCION-CONNECTOR-CONTROL-R902.4",
+    "SCION-CONNECTOR-CONTROL-R902.5",
+    "SCION-CONNECTOR-CONTROL-R902.6",
+    "SCION-CONNECTOR-CONTROL-R067",
+    "SCION-CONNECTOR-CONTROL-R067.1",
+    "SCION-CONNECTOR-CONTROL-R067.2",
+    "SCION-CONNECTOR-CONTROL-R067.3",
+    "SCION-CONNECTOR-CONTROL-R067.4",
+    "SCION-CONNECTOR-CONTROL-R067.5",
+    "SCION-CONNECTOR-CONTROL-R067.6",
+    "SCION-CONNECTOR-CONTROL-R067.7",
+    "SCION-CONNECTOR-CONTROL-R067.8",
+    "SCION-CONNECTOR-CONTROL-R780",
+    "SCION-CONNECTOR-CONTROL-R780.1",
+    "SCION-CONNECTOR-CONTROL-R780.2",
+    "SCION-CONNECTOR-CONTROL-R780.3",
+    "SCION-CONNECTOR-CONTROL-R780.4",
+    "SCION-CONNECTOR-CONTROL-R780.5",
+    "SCION-CONNECTOR-CONTROL-R780.6",
+    "SCION-CONNECTOR-CONTROL-R780.7",
+    "SCION-CONNECTOR-CONTROL-R780.8",
+    "SCION-CONNECTOR-CONTROL-R780.10",
+    "SCION-CONNECTOR-CONTROL-R780.9",
+    "SCION-CONNECTOR-CONTROL-R780.13",
+    "SCION-CONNECTOR-CONTROL-R780.11",
+    "SCION-CONNECTOR-CONTROL-R780.12",
+    "SCION-CONNECTOR-CONTROL-R781",
+    "SCION-CONNECTOR-CONTROL-R782",
+    "SCION-CONNECTOR-CONTROL-R070",
+    "SCION-CONNECTOR-CONTROL-R071",
+    "SCION-CONNECTOR-CONTROL-R071.1",
+    "SCION-CONNECTOR-CONTROL-R071.2",
+    "SCION-CONNECTOR-CONTROL-R072",
+    "SCION-CONNECTOR-CONTROL-R073",
+    "SCION-CONNECTOR-CONTROL-R074",
+    "SCION-CONNECTOR-CONTROL-R074.1",
+    "SCION-CONNECTOR-CONTROL-R074.2",
+    "SCION-CONNECTOR-CONTROL-R074.3",
+    "SCION-CONNECTOR-CONTROL-R074.4",
+    "SCION-CONNECTOR-CONTROL-R074.5",
+    "SCION-CONNECTOR-CONTROL-R074.6",
+    "SCION-CONNECTOR-CONTROL-R074.7",
+    "SCION-CONNECTOR-CONTROL-R075",
+    "SCION-CONNECTOR-CONTROL-R075.1",
+    "SCION-CONNECTOR-CONTROL-R075.2",
+    "SCION-CONNECTOR-CONTROL-R075.3",
+    "SCION-CONNECTOR-CONTROL-R075.4",
+    "SCION-CONNECTOR-CONTROL-R075.5",
+    "SCION-CONNECTOR-CONTROL-R075.6",
+    "SCION-CONNECTOR-CONTROL-R075.7",
+    "SCION-CONNECTOR-CONTROL-R781.1"
+  ],
+  "requirements": [
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R001",
+      "title": "Pack retries reuse one key",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "dcc7d285ccc9"
+      ],
+      "verified_by": [
+        "tests/test_contracts_and_sink.py:511"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R002",
+      "title": "Contract pin travels as a claim attribute, not recomputed downstream",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "dcc7d285ccc9"
+      ],
+      "verified_by": [
+        "tests/test_artifacts_discovery.py:102"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R003",
+      "title": "Canonical output-schema digest on every certified tool verdict",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0f826d4ca6db",
+        "93afc6b075df",
+        "fdd0b01582d5"
+      ],
+      "verified_by": [
+        "tests/test_certify_missing_output.py:24"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R004",
+      "title": "Contract-pin verification owned by the SDK's own test kit",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "043914e6c9cb",
+        "dcc7d285ccc9"
+      ],
+      "verified_by": [
+        "tests/test_artifacts_discovery.py:111",
+        "tests/test_artifacts_discovery.py:143",
+        "tests/test_artifacts_discovery.py:179"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R004.1"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R004.1",
+      "title": "Pin conformance covers the exact live tool set",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "043914e6c9cb"
+      ],
+      "verified_by": [
+        "tests/test_artifacts_discovery.py:143",
+        "tests/test_artifacts_discovery.py:179"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R005",
+      "title": "Pack publisher and source submission use generated graph-client types",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "584fb45cdf24",
+        "602215e2ddd8"
+      ],
+      "verified_by": [
+        "tests/test_contracts_and_sink.py:54",
+        "tests/test_mcp_native_primitives.py:47",
+        "tests/test_mcp_native_primitives.py:78"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R006",
+      "title": "Decision-service proposals for tool choice and triage stay observational",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "077a14c9f3d3",
+        "0f826d4ca6db",
+        "91801315ccaf",
+        "daeb199f91c0",
+        "fad5328aee62"
+      ],
+      "verified_by": [
+        "tests/test_decide_consumers.py:158"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R007",
+      "title": "Fleet-wide re-certification yields nonempty schema fingerprints",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [
+        "0f826d4ca6db",
+        "93afc6b075df"
+      ],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R007.1",
+        "SCION-CONNECTOR-CONTROL-R007.2",
+        "SCION-CONNECTOR-CONTROL-R007.3",
+        "SCION-CONNECTOR-CONTROL-R007.4",
+        "SCION-CONNECTOR-CONTROL-R007.5",
+        "SCION-CONNECTOR-CONTROL-R007.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R008",
+      "title": "Closed, canonical pack annotation map across the connector fleet",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "077a14c9f3d3",
+        "e444b35a4c21",
+        "fad5328aee62"
+      ],
+      "verified_by": [
+        "tests/test_artifacts_discovery.py:425",
+        "tests/test_artifacts_discovery.py:442",
+        "tests/test_artifacts_discovery.py:458"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R009",
+      "title": "Connector batch A-E migrates fully onto the SDK client",
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "5e1bd9257555",
+        "7a38ee433346",
+        "d3617301012c"
+      ],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R010",
+      "title": "Connector batch F-J migrates fully onto the SDK client",
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "5e1bd9257555",
+        "7a38ee433346"
+      ],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R011",
+      "title": "Connector batch K-O migrates fully onto the SDK client",
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "5e1bd9257555",
+        "7a38ee433346"
+      ],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R012",
+      "title": "Connector batch P-S migrates fully onto the SDK client",
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "5e1bd9257555",
+        "7a38ee433346"
+      ],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R013",
+      "title": "Connector batch T-Z migrates fully onto the SDK client",
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "5e1bd9257555",
+        "7a38ee433346"
+      ],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014",
+      "title": "SDK fully supersedes the duplicated connector toolkit",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [
+        "04a50086718c",
+        "077a14c9f3d3",
+        "15b099abed9d",
+        "16cb53774404"
+      ],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R014.27",
+        "SCION-CONNECTOR-CONTROL-R014.28",
+        "SCION-CONNECTOR-CONTROL-R014.29",
+        "SCION-CONNECTOR-CONTROL-R014.1",
+        "SCION-CONNECTOR-CONTROL-R014.30",
+        "SCION-CONNECTOR-CONTROL-R014.31",
+        "SCION-CONNECTOR-CONTROL-R014.2",
+        "SCION-CONNECTOR-CONTROL-R014.3",
+        "SCION-CONNECTOR-CONTROL-R014.4",
+        "SCION-CONNECTOR-CONTROL-R014.5",
+        "SCION-CONNECTOR-CONTROL-R014.6",
+        "SCION-CONNECTOR-CONTROL-R014.7",
+        "SCION-CONNECTOR-CONTROL-R014.8",
+        "SCION-CONNECTOR-CONTROL-R014.9",
+        "SCION-CONNECTOR-CONTROL-R014.10",
+        "SCION-CONNECTOR-CONTROL-R014.11",
+        "SCION-CONNECTOR-CONTROL-R014.12",
+        "SCION-CONNECTOR-CONTROL-R014.13",
+        "SCION-CONNECTOR-CONTROL-R014.14",
+        "SCION-CONNECTOR-CONTROL-R014.15",
+        "SCION-CONNECTOR-CONTROL-R014.16",
+        "SCION-CONNECTOR-CONTROL-R014.17",
+        "SCION-CONNECTOR-CONTROL-R014.18",
+        "SCION-CONNECTOR-CONTROL-R014.19",
+        "SCION-CONNECTOR-CONTROL-R014.20",
+        "SCION-CONNECTOR-CONTROL-R014.22",
+        "SCION-CONNECTOR-CONTROL-R014.23",
+        "SCION-CONNECTOR-CONTROL-R014.24",
+        "SCION-CONNECTOR-CONTROL-R014.25",
+        "SCION-CONNECTOR-CONTROL-R014.26",
+        "SCION-CONNECTOR-CONTROL-R014.21"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.27",
+      "title": "Fleet migration evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.28",
+      "title": "Refuse incomplete migration scans",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "11f2cc3efb0f"
+      ],
+      "verified_by": [
+        "tests/test_fleet_migration_scan.py:94"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.29",
+      "title": "Inspect common dynamic imports",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2abe574d835f",
+        "63f08e2ab188"
+      ],
+      "verified_by": [
+        "tests/test_fleet_migration_scan.py:140"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.1",
+      "title": "One reusable cross-repository import-scan call site",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "077a14c9f3d3",
+        "ab73ea5005a0",
+        "fad5328aee62"
+      ],
+      "verified_by": [
+        "tests/test_fleet_migration_scan.py:170"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R015",
+      "title": "SDK is sole owner of connector source lifecycle and certification",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "061f9b58abb2",
+        "077a14c9f3d3",
+        "5e1bd9257555",
+        "9cec9cea7d37",
+        "b3d7982de139"
+      ],
+      "verified_by": [
+        "tests/test_duplicate_symbol_scan.py:21",
+        "tests/test_duplicate_symbol_scan.py:29",
+        "tests/test_duplicate_symbol_scan.py:43",
+        "tests/test_duplicate_symbol_scan.py:56",
+        "tests/test_duplicate_symbol_scan.py:69"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R015.1"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R015.1",
+      "title": "A duplicate-definition scan for the manifest/certify surface",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "061f9b58abb2",
+        "077a14c9f3d3",
+        "9cec9cea7d37",
+        "b3d7982de139",
+        "fad5328aee62"
+      ],
+      "verified_by": [
+        "tests/test_duplicate_symbol_scan.py:21",
+        "tests/test_duplicate_symbol_scan.py:29",
+        "tests/test_duplicate_symbol_scan.py:43",
+        "tests/test_duplicate_symbol_scan.py:56",
+        "tests/test_duplicate_symbol_scan.py:69"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R016",
+      "title": "Connector base settings live in the SDK's own config module",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "584fb45cdf24",
+        "602215e2ddd8"
+      ],
+      "verified_by": [
+        "tests/test_foundation.py:139"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R017",
+      "title": "Every connector uses the shared TLS profile, no bare verify bypass",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "fad5328aee62"
+      ],
+      "verified_by": [
+        "tests/test_tls_profiles.py:200"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R018",
+      "title": "SDK source and test suite build cleanly from a fresh checkout",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "136f9b4e353f",
+        "b0c376748245"
+      ],
+      "verified_by": [
+        "tests/gates/test_workflow_contract.py:390"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R019",
+      "title": "Host servers register ontology resources without duplicate skills or prompts",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "045ba48df230",
+        "077a14c9f3d3",
+        "3ddd773fb6dc",
+        "434185d3a820",
+        "8f36880f39a7"
+      ],
+      "verified_by": [
+        "tests/test_connector_hooks.py:108",
+        "tests/test_connector_hooks.py:121",
+        "tests/test_connector_hooks.py:133",
+        "tests/test_connector_hooks.py:139",
+        "tests/test_connector_hooks.py:160"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R019.1",
+        "SCION-CONNECTOR-CONTROL-R019.2",
+        "SCION-CONNECTOR-CONTROL-R019.3"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R019.1",
+      "title": "The SDK runs the connector server from its declared identity",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8f36880f39a7",
+        "aa58c5dd6858"
+      ],
+      "verified_by": [
+        "tests/test_connector_run.py:104",
+        "tests/test_connector_run.py:113",
+        "tests/test_connector_run.py:126",
+        "tests/test_connector_run.py:132",
+        "tests/test_connector_run.py:187"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R019.2",
+      "title": "A connector declares its bootstrap extras as typed hooks",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "434185d3a820",
+        "f5707824fa51"
+      ],
+      "verified_by": [
+        "tests/test_connector_hooks.py:108",
+        "tests/test_connector_hooks.py:121",
+        "tests/test_connector_hooks.py:133",
+        "tests/test_connector_hooks.py:139",
+        "tests/test_connector_hooks.py:160"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R019.3",
+      "title": "Container config mounts are declared once with an SDK schema",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "434185d3a820",
+        "f5707824fa51"
+      ],
+      "verified_by": [
+        "tests/test_connector_hooks.py:310",
+        "tests/test_connector_hooks.py:327",
+        "tests/test_connector_hooks.py:348",
+        "tests/test_connector_hooks.py:357"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R020",
+      "title": "One tool per API operation is the default",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [
+        "0bc459ee7335",
+        "38b66f26f32a",
+        "6ccbf6e01d12",
+        "c9a2cf7b23cc",
+        "d3617301012c"
+      ],
+      "verified_by": [
+        "tests/test_action_split.py:90",
+        "tests/test_action_split.py:95",
+        "tests/test_operation_tools.py:100",
+        "tests/test_operation_tools.py:130",
+        "tests/test_operation_tools.py:141"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R020.1",
+        "SCION-CONNECTOR-CONTROL-R020.2",
+        "SCION-CONNECTOR-CONTROL-R020.3",
+        "SCION-CONNECTOR-CONTROL-R020.5",
+        "SCION-CONNECTOR-CONTROL-R020.4"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R021",
+      "title": "Connector ontologies declare access contracts for virtual reads",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0a10559775ea",
+        "fad5328aee62"
+      ],
+      "verified_by": [
+        "tests/test_access_contract.py:55"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R022",
+      "title": "The pack builder scopes `owl:imports` to the pack",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "077a14c9f3d3",
+        "26fd420e718e",
+        "6a4f646b48f8",
+        "e6b835dcad49",
+        "e8b5636cf36a"
+      ],
+      "verified_by": [
+        "tests/test_pack_ontology_imports.py:112",
+        "tests/test_pack_ontology_imports.py:131",
+        "tests/test_pack_ontology_imports.py:166",
+        "tests/test_pack_ontology_imports.py:180",
+        "tests/test_pack_ontology_imports.py:187"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R023",
+      "title": "A prompt with a required argument becomes a template",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1cbd6f28d13d",
+        "713782e7901c",
+        "b9a9652c0135"
+      ],
+      "verified_by": [
+        "tests/test_prompt_content.py:130",
+        "tests/test_prompt_content.py:28"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R024",
+      "title": "A prompt the server rejects for its bound placeholder still captures as a template",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "713782e7901c",
+        "830a844c6c51"
+      ],
+      "verified_by": [
+        "tests/test_prompt_content.py:166",
+        "tests/test_prompt_content.py:209",
+        "tests/test_prompt_content.py:225"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R025",
+      "title": "SDK provides identity-scoped resource entitlement resolution",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5a476653a386",
+        "d7d1ff0fb276",
+        "e266bf988bb9"
+      ],
+      "verified_by": [
+        "tests/test_actor_binding_served.py:117",
+        "tests/test_actor_binding_served.py:129",
+        "tests/test_actor_binding_served.py:165",
+        "tests/test_actor_binding_served.py:178",
+        "tests/test_actor_binding_served.py:188"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R025.1",
+        "SCION-CONNECTOR-CONTROL-R025.2",
+        "SCION-CONNECTOR-CONTROL-R025.3",
+        "SCION-CONNECTOR-CONTROL-R025.4"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R025.1",
+      "title": "A local transport binds the SYSTEM actor",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d7d1ff0fb276"
+      ],
+      "verified_by": [
+        "tests/test_actor_binding_served.py:117"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R025.2",
+      "title": "Authenticated HTTP binds the token's actor with inherited IdP roles",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d7d1ff0fb276"
+      ],
+      "verified_by": [
+        "tests/test_actor_binding_served.py:129"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R025.3",
+      "title": "Unauthenticated HTTP binds the ANONYMOUS actor with zero entitlements",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d7d1ff0fb276"
+      ],
+      "verified_by": [
+        "tests/test_actor_binding_served.py:165"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R025.4",
+      "title": "Work that needs an authenticated principal refuses typed",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d7d1ff0fb276"
+      ],
+      "verified_by": [
+        "tests/test_actor_binding_served.py:178",
+        "tests/test_actor_binding_served.py:188"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R020.1",
+      "title": "JSON tag-loader migration inventory and parity gate",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R020.2",
+      "title": "A split action never duplicates or collides with an operation tool",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3fd28fa8b883",
+        "ae05eddb4588"
+      ],
+      "verified_by": [
+        "tests/test_action_split_dedupe.py:128",
+        "tests/test_action_split_dedupe.py:191",
+        "tests/test_action_split_dedupe.py:263",
+        "tests/test_action_split_dedupe.py:290",
+        "tests/test_action_split_dedupe.py:342"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R020.3",
+      "title": "A router tool is split, never dropped",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "c1d24e199adb"
+      ],
+      "verified_by": [
+        "tests/test_action_split.py:38"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R020.5",
+      "title": "A split tool inherits its parent's risk class and never gains read-only by inheritance",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "92210596714c",
+        "d0d04813b42e",
+        "e6841fe68fbc"
+      ],
+      "verified_by": [
+        "tests/test_action_split.py:114",
+        "tests/test_action_split.py:130",
+        "tests/test_action_split.py:144",
+        "tests/test_action_split.py:164",
+        "tests/test_action_split.py:184"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R020.4",
+      "title": "A successor release keeps every predecessor tool",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R026",
+      "title": "SDK derives one typed tool per client method",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "38b66f26f32a",
+        "851969957034",
+        "c529b133556b",
+        "c65195236264",
+        "d3617301012c"
+      ],
+      "verified_by": [
+        "tests/test_mcp_confirmation_roundtrip.py:134",
+        "tests/test_mcp_confirmation_roundtrip.py:178",
+        "tests/test_mcp_confirmation_roundtrip.py:198",
+        "tests/test_mcp_confirmation_roundtrip.py:36",
+        "tests/test_method_tools.py:27"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R026.1",
+        "SCION-CONNECTOR-CONTROL-R026.2"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R027",
+      "title": "SDK resolves the selected provider-runtime profile for a multi-backend connector",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "284fb12a19ed",
+        "584fb45cdf24",
+        "602215e2ddd8",
+        "9e35fb93e960"
+      ],
+      "verified_by": [
+        "tests/test_provider_runtime.py:27",
+        "tests/test_provider_runtime.py:35",
+        "tests/test_provider_runtime.py:42",
+        "tests/test_provider_runtime.py:48"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R028",
+      "title": "SDK's governed HTTP client controls egress with named escape hatches, not ad hoc trust",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0388c2c0fbac",
+        "0481308202ca",
+        "19ca24046d12",
+        "284fb12a19ed",
+        "459897c19da8"
+      ],
+      "verified_by": [
+        "tests/test_auth_declarations.py:106",
+        "tests/test_auth_declarations.py:114",
+        "tests/test_auth_declarations.py:145",
+        "tests/test_auth_declarations.py:165",
+        "tests/test_auth_declarations.py:192"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R028.1",
+        "SCION-CONNECTOR-CONTROL-R028.2",
+        "SCION-CONNECTOR-CONTROL-R028.3",
+        "SCION-CONNECTOR-CONTROL-R028.4",
+        "SCION-CONNECTOR-CONTROL-R028.5",
+        "SCION-CONNECTOR-CONTROL-R028.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R028.1",
+      "title": "A standalone, typed SSRF egress-destination check and pinned-address transport",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0481308202ca",
+        "284fb12a19ed",
+        "54744d32428a",
+        "e6841fe68fbc",
+        "f53d74df879a"
+      ],
+      "verified_by": [
+        "tests/test_http_egress.py:22",
+        "tests/test_http_egress.py:29",
+        "tests/test_http_egress.py:36",
+        "tests/test_http_egress.py:41",
+        "tests/test_http_egress.py:52"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R028.2",
+      "title": "`create_http_client` wires the SSRF egress policy into construction",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "459897c19da8"
+      ],
+      "verified_by": [
+        "tests/test_http_egress_construction.py:16",
+        "tests/test_http_egress_construction.py:31",
+        "tests/test_http_egress_construction.py:45"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R028.3",
+      "title": "API-key identity stays header-based",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "64bcd00be5ef",
+        "c991698b90bf",
+        "d791b8cb5ca5",
+        "e40ff88a9bbc"
+      ],
+      "verified_by": [
+        "tests/test_http_client.py:352",
+        "tests/test_http_client.py:374",
+        "tests/test_http_client.py:396",
+        "tests/test_http_client.py:427"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R028.4",
+      "title": "A connector declares its outbound auth in one line and the SDK builds the governed client",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "19ca24046d12"
+      ],
+      "verified_by": [
+        "tests/test_auth_declarations.py:106",
+        "tests/test_auth_declarations.py:114",
+        "tests/test_auth_declarations.py:145",
+        "tests/test_auth_declarations.py:165",
+        "tests/test_auth_declarations.py:192"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R028.5",
+      "title": "Bind session cookies to their origin",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0388c2c0fbac",
+        "6707fe2f10c4",
+        "79a69d1fd61b",
+        "bfb6be6caa15",
+        "fb1f1684168c"
+      ],
+      "verified_by": [
+        "tests/test_auth_declarations.py:236"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R028.6",
+      "title": "Freeze retry policy controls",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "b808b525caac"
+      ],
+      "verified_by": [
+        "tests/test_retry_policy_inputs.py:14",
+        "tests/test_retry_policy_inputs.py:21",
+        "tests/test_retry_policy_inputs.py:28",
+        "tests/test_retry_policy_inputs.py:50"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R029",
+      "title": "SDK exposes a structured configuration singleton, not only a flat `setting()` lookup",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "284fb12a19ed",
+        "7aad77a0eb66"
+      ],
+      "verified_by": [
+        "tests/test_agent_config.py:17",
+        "tests/test_agent_config.py:34",
+        "tests/test_agent_config.py:50"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R030",
+      "title": "SDK provides GraphQL introspection context helpers for connector tools",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "284fb12a19ed",
+        "e4ffa1a49677",
+        "f5de79afc1e0"
+      ],
+      "verified_by": [
+        "tests/test_graphql_client.py:21",
+        "tests/test_mcp_graphql_context.py:67",
+        "tests/test_mcp_graphql_context.py:74",
+        "tests/test_mcp_graphql_context.py:90"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R030.1"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R030.1",
+      "title": "SDK owns the one GraphQL client for connectors",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "f5de79afc1e0"
+      ],
+      "verified_by": [
+        "tests/test_graphql_client.py:21"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R031",
+      "title": "SDK's client-credentials token provider accepts a literal client secret, matching the signature connectors already call",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "284fb12a19ed",
+        "eed8dd9a117e"
+      ],
+      "verified_by": [
+        "tests/test_client_credentials_literal_secret.py:29",
+        "tests/test_client_credentials_literal_secret.py:49",
+        "tests/test_client_credentials_literal_secret.py:68"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R032",
+      "title": "Explicit additional registration",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "38b66f26f32a",
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
+      "verified_by": [
+        "tests/test_tool_surface.py:124",
+        "tests/test_tool_surface.py:147"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R033",
+      "title": "SDK's governed HTTP layer provides a `safe_post_json` helper with the same private-host allowance as its GET path",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "629ef53c29f0",
+        "67802528f518",
+        "bac65b612ced"
+      ],
+      "verified_by": [
+        "tests/test_safe_post.py:19",
+        "tests/test_safe_post.py:29",
+        "tests/test_safe_post.py:45"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R034",
+      "title": "SDK provides shared library-file-path resolution and cross-process file locking utilities",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2c4e8ae0f172",
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
+      "verified_by": [
+        "tests/test_library_state.py:14",
+        "tests/test_library_state.py:24"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R035",
+      "title": "SDK provides a CredentialProvider/SecretsClient abstraction for connectors, not only a credential-reference string",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [
+        "39fdd8f06293",
+        "629ef53c29f0",
+        "9374f2c50a6e",
+        "bac65b612ced"
+      ],
+      "verified_by": [
+        "tests/test_credentials.py:168"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R035.1",
+        "SCION-CONNECTOR-CONTROL-R035.2",
+        "SCION-CONNECTOR-CONTROL-R035.3",
+        "SCION-CONNECTOR-CONTROL-R035.4",
+        "SCION-CONNECTOR-CONTROL-R035.5",
+        "SCION-CONNECTOR-CONTROL-R035.6",
+        "SCION-CONNECTOR-CONTROL-R035.7",
+        "SCION-CONNECTOR-CONTROL-R035.8"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R035.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R035.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R035.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R035.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R035.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R035.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R035.7",
+      "title": "Keep the OpenBao token on the configured transport",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d94cf2ada6f6"
+      ],
+      "verified_by": [
+        "tests/test_credentials.py:112",
+        "tests/test_credentials.py:134"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R035.8",
+      "title": "Secret reference object integrity",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1d4a4d15366e"
+      ],
+      "verified_by": [
+        "tests/test_reference_invariants.py:12"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R036",
+      "title": "SDK's identity-scoped resource entitlements cover the backend-resource catalogs these connectors manage",
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "629ef53c29f0",
+        "bac65b612ced"
+      ],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R037",
+      "title": "erpnext supplier and purchase-order operation contract is typed and recorded (unblocks `MEDULLA-CQ-XSRC-R002.7`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R038",
+      "title": "uptime service-health operation contract is declared (unblocks `MEDULLA-CQ-XSRC-R003.4`)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R039",
+      "title": "container-manager deployed-workload operation contract",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R040",
+      "title": "SDK declares an MCP source's access contract (unblocks `MEDULLA-CQ-CONN-R067.1`)",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a183c2021ba3"
+      ],
+      "verified_by": [
+        "tests/test_access_contract.py:88"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R041",
+      "title": "SDK declares an A2A source's access contract (unblocks `MEDULLA-CQ-CONN-R067.2`)",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a183c2021ba3"
+      ],
+      "verified_by": [
+        "tests/test_access_contract.py:89"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R042",
+      "title": "SDK declares an API (REST) source's access contract (unblocks `MEDULLA-CQ-CONN-R067.3`)",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a183c2021ba3"
+      ],
+      "verified_by": [
+        "tests/test_access_contract.py:90"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R043",
+      "title": "SDK declares a GraphQL source's access contract (unblocks `MEDULLA-CQ-CONN-R067.4`)",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a183c2021ba3"
+      ],
+      "verified_by": [
+        "tests/test_access_contract.py:91"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R044",
+      "title": "SDK declares a virtual-graph access contract",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a183c2021ba3"
+      ],
+      "verified_by": [
+        "tests/test_access_contract.py:106",
+        "tests/test_access_contract.py:92"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045",
+      "title": "Tool contract facts for the run loop and the tool-subset decision",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [
+        "3ddd773fb6dc",
+        "910c1a8859ca",
+        "f06d1600bb90"
+      ],
+      "verified_by": [
+        "tests/test_schema_disclosure_artifacts.py:22",
+        "tests/test_schema_disclosure_provider.py:64"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R045.1",
+        "SCION-CONNECTOR-CONTROL-R045.2",
+        "SCION-CONNECTOR-CONTROL-R045.3",
+        "SCION-CONNECTOR-CONTROL-R045.4",
+        "SCION-CONNECTOR-CONTROL-R045.5",
+        "SCION-CONNECTOR-CONTROL-R045.6",
+        "SCION-CONNECTOR-CONTROL-R045.7",
+        "SCION-CONNECTOR-CONTROL-R045.8",
+        "SCION-CONNECTOR-CONTROL-R045.9",
+        "SCION-CONNECTOR-CONTROL-R045.10",
+        "SCION-CONNECTOR-CONTROL-R045.11"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045.1",
+      "title": "Type `ToolContractFacts`",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a20fc49a180f"
+      ],
+      "verified_by": [
+        "tests/test_tool_facts.py:36"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045.2",
+      "title": "Close the `SideEffect` set",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a20fc49a180f"
+      ],
+      "verified_by": [
+        "tests/test_tool_facts.py:55"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045.3",
+      "title": "Compute `schema_tokens` from the existing canonical tool body",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2907b584635e"
+      ],
+      "verified_by": [
+        "tests/test_tool_facts.py:19"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045.4",
+      "title": "Default to the safe value when a connector declares nothing",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4c468642a56b"
+      ],
+      "verified_by": [
+        "tests/test_tool_facts.py:85"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045.5",
+      "title": "Map MCP annotations as self-declared hints",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4c468642a56b"
+      ],
+      "verified_by": [
+        "tests/test_tool_facts.py:98"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045.6",
+      "title": "Read `side_effects` from `eg.annotations`, and gate on the generated type",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045.7",
+      "title": "Reuse the destructive classification",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e4eede90f758"
+      ],
+      "verified_by": [
+        "tests/test_tool_facts.py:124"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045.8",
+      "title": "Attach the facts to the captured tool entry",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045.9",
+      "title": "Certify that a `read_only` tool wrote nothing in its recorded fixture",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "483f2e61beed",
+        "9286753c526d"
+      ],
+      "verified_by": [
+        "tests/test_certify_read_only.py:24"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045.10",
+      "title": "Refuse an unproven self-declared `read_only`",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "483f2e61beed",
+        "9286753c526d"
+      ],
+      "verified_by": [
+        "tests/test_certify_read_only.py:25",
+        "tests/test_certify_read_only.py:74"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R045.11",
+      "title": "Certify checks the live declared tools and writes no file",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "92d09c57796b"
+      ],
+      "verified_by": [
+        "tests/test_single_declaration.py:169"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R046",
+      "title": "Browser authorization-code flow with PKCE as a reusable auth manager",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R046.1",
+        "SCION-CONNECTOR-CONTROL-R046.2",
+        "SCION-CONNECTOR-CONTROL-R046.3",
+        "SCION-CONNECTOR-CONTROL-R046.4",
+        "SCION-CONNECTOR-CONTROL-R046.5",
+        "SCION-CONNECTOR-CONTROL-R046.6",
+        "SCION-CONNECTOR-CONTROL-R046.7",
+        "SCION-CONNECTOR-CONTROL-R046.8",
+        "SCION-CONNECTOR-CONTROL-R046.9",
+        "SCION-CONNECTOR-CONTROL-R046.10"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R046.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R046.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R046.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R046.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R046.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R046.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R046.7",
+      "title": "Loopback callback state",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "896bd69c510c"
+      ],
+      "verified_by": [
+        "tests/test_oauth_loopback_state.py:23"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R046.8",
+      "title": "Legacy token-file safety",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2a4f0f192573"
+      ],
+      "verified_by": [
+        "tests/test_oauth_token_file_safety.py:10",
+        "tests/test_oauth_token_file_safety.py:24",
+        "tests/test_oauth_token_file_safety.py:37"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R046.9",
+      "title": "Legacy token-key isolation",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "fe5180b4b5ca"
+      ],
+      "verified_by": [
+        "tests/test_oauth_token_key_identity.py:18",
+        "tests/test_oauth_token_key_identity.py:8"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R046.10",
+      "title": "Legacy manual callback binding",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2ebf2b9bf860"
+      ],
+      "verified_by": [
+        "tests/test_oauth_manual_state.py:22",
+        "tests/test_oauth_manual_state.py:48"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R047",
+      "title": "Agent-card discovery from the standard well-known path",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "39ed54a0a2c8",
+        "3f69e2f9f627",
+        "54aaac362dcd",
+        "6c1d3630854f",
+        "772eecafdcb1"
+      ],
+      "verified_by": [
+        "tests/test_a2a_discovery.py:128",
+        "tests/test_a2a_discovery.py:158",
+        "tests/test_a2a_discovery.py:181",
+        "tests/test_a2a_discovery.py:194",
+        "tests/test_a2a_discovery.py:28"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R047.1",
+        "SCION-CONNECTOR-CONTROL-R047.2",
+        "SCION-CONNECTOR-CONTROL-R047.3",
+        "SCION-CONNECTOR-CONTROL-R047.4",
+        "SCION-CONNECTOR-CONTROL-R047.5",
+        "SCION-CONNECTOR-CONTROL-R047.6",
+        "SCION-CONNECTOR-CONTROL-R047.7",
+        "SCION-CONNECTOR-CONTROL-R047.8",
+        "SCION-CONNECTOR-CONTROL-R047.9"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R047.1",
+      "title": "Model",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3f69e2f9f627"
+      ],
+      "verified_by": [
+        "tests/test_a2a_discovery.py:28"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R047.2",
+      "title": "Behavior",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "39ed54a0a2c8"
+      ],
+      "verified_by": [
+        "tests/test_a2a_discovery.py:44",
+        "tests/test_a2a_discovery_deadline.py:14",
+        "tests/test_a2a_discovery_deadline.py:52"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R047.3",
+      "title": "Wiring",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3f69e2f9f627"
+      ],
+      "verified_by": [
+        "tests/test_vendor_extractors_archer_infra_a2a.py:126"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R047.4",
+      "title": "Refusal",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3f69e2f9f627"
+      ],
+      "verified_by": [
+        "tests/test_a2a_discovery.py:65"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R047.5",
+      "title": "Evidence",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3f69e2f9f627"
+      ],
+      "verified_by": [
+        "tests/test_a2a_discovery.py:92"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R047.6",
+      "title": "Hot-path proof",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "3f69e2f9f627"
+      ],
+      "verified_by": [
+        "tests/test_vendor_extractors_archer_infra_a2a.py:143"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R047.7",
+      "title": "Bounded discovery cache",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "b9d3bdff1947"
+      ],
+      "verified_by": [
+        "tests/test_a2a_discovery.py:128"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R047.8",
+      "title": "Isolate cached observations",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6c1d3630854f"
+      ],
+      "verified_by": [
+        "tests/test_a2a_discovery.py:158"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R047.9",
+      "title": "Finite card JSON",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "772eecafdcb1"
+      ],
+      "verified_by": [
+        "tests/test_a2a_discovery.py:181",
+        "tests/test_a2a_discovery.py:194"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R048",
+      "title": "Agent-readable text form in tool contracts",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R048.1",
+        "SCION-CONNECTOR-CONTROL-R048.2",
+        "SCION-CONNECTOR-CONTROL-R048.3",
+        "SCION-CONNECTOR-CONTROL-R048.4",
+        "SCION-CONNECTOR-CONTROL-R048.5",
+        "SCION-CONNECTOR-CONTROL-R048.6",
+        "SCION-CONNECTOR-CONTROL-R048.7",
+        "SCION-CONNECTOR-CONTROL-R048.8"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R048.1",
+      "title": "Model",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "001bff61db68",
+        "7f1edf06973d"
+      ],
+      "verified_by": [
+        "tests/test_readable_form.py:35"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R048.2",
+      "title": "Behavior",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "de142ee07ee4"
+      ],
+      "verified_by": [
+        "tests/test_readable_form.py:17"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R048.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R048.4",
+      "title": "Refusal",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8df066084750"
+      ],
+      "verified_by": [
+        "tests/test_certify_readable_form.py:16"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R048.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R048.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R048.7",
+      "title": "Readable score bounds",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "aaa4fb613eed"
+      ],
+      "verified_by": [
+        "tests/test_readable_form.py:54",
+        "tests/test_readable_form.py:73"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R048.8",
+      "title": "Count-based readable score",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "de34f54ab763"
+      ],
+      "verified_by": [
+        "tests/test_readable_count_score.py:19",
+        "tests/test_readable_count_score.py:8"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R049",
+      "title": "Budget-limited, approval-gated payment challenge handling",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R049.1",
+        "SCION-CONNECTOR-CONTROL-R049.2",
+        "SCION-CONNECTOR-CONTROL-R049.3",
+        "SCION-CONNECTOR-CONTROL-R049.4",
+        "SCION-CONNECTOR-CONTROL-R049.5",
+        "SCION-CONNECTOR-CONTROL-R049.6",
+        "SCION-CONNECTOR-CONTROL-R049.7"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R049.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R049.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R049.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R049.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R049.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R049.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R049.7",
+      "title": "Default payment guard limits deny spending",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "9ef637916543"
+      ],
+      "verified_by": [
+        "tests/test_payments.py:200"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R050",
+      "title": "Caller-scoped tool context and ordered progress",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R050.1",
+        "SCION-CONNECTOR-CONTROL-R050.2",
+        "SCION-CONNECTOR-CONTROL-R050.3",
+        "SCION-CONNECTOR-CONTROL-R050.4",
+        "SCION-CONNECTOR-CONTROL-R050.5",
+        "SCION-CONNECTOR-CONTROL-R050.6",
+        "SCION-CONNECTOR-CONTROL-R050.8",
+        "SCION-CONNECTOR-CONTROL-R050.9",
+        "SCION-CONNECTOR-CONTROL-R050.7"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R050.1",
+      "title": "Model",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2465a8b6a1f0"
+      ],
+      "verified_by": [
+        "tests/test_tool_execution_models.py:16"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R050.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R050.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R050.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R050.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R050.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R050.8",
+      "title": "Serialized progress primitive",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "73fb45cafbaa",
+        "d59d8ba3b010"
+      ],
+      "verified_by": [
+        "tests/test_ordered_progress.py:26"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R050.9",
+      "title": "Request-local cache primitive",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "66354c9320c7",
+        "dec26950f9ce"
+      ],
+      "verified_by": [
+        "tests/test_request_cache.py:27"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R050.7",
+      "title": "Visual observation transport integration",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R007.1",
+      "title": "Model",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "514a35cffc27"
+      ],
+      "verified_by": [
+        "tests/test_major_version_models.py:72",
+        "tests/test_major_version_models.py:98"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R007.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R007.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R007.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R007.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R007.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R055",
+      "title": "Arbora producer-consumer handoff for AU disclosure-set gate",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R056",
+      "title": "EG prompt and SDK tool producer-specific compatibility decisions and receipts",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R057",
+      "title": "Replaceable search-grounding provider independent of reasoning model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R058",
+      "title": "Request durability boundary correction for durable versus ephemeral storage",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R059",
+      "title": "EG capability-to-existing-method operation bindings for analogy search, blast radius, memory recall, ontology validation and design",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R060",
+      "title": "Native desktop operation port and no-cursor/no-focus invariant",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R650",
+      "title": "Connector manifest release integrity",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [
+        "ad6af590e63c"
+      ],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R650.1",
+        "SCION-CONNECTOR-CONTROL-R650.2",
+        "SCION-CONNECTOR-CONTROL-R650.3",
+        "SCION-CONNECTOR-CONTROL-R650.4",
+        "SCION-CONNECTOR-CONTROL-R650.5"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R650.1",
+      "title": "Current declaration integrity",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R650.2",
+      "title": "Release identity digest",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "398d4a31f195",
+        "68757f5b77bc",
+        "c23ed3429195"
+      ],
+      "verified_by": [
+        "tests/test_release_identity.py:22",
+        "tests/test_release_identity.py:39",
+        "tests/test_release_identity.py:48",
+        "tests/test_release_signature.py:130"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R650.3",
+      "title": "Explicit release signing",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "398d4a31f195",
+        "68757f5b77bc",
+        "6f6fc3d5fa57"
+      ],
+      "verified_by": [
+        "tests/test_release_signature.py:131",
+        "tests/test_release_signature.py:50",
+        "tests/test_release_signature.py:91"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R650.4",
+      "title": "Explicit release key lock",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1098588e7e23",
+        "851287a63d7a"
+      ],
+      "verified_by": [
+        "tests/test_release_lock.py:39",
+        "tests/test_release_lock.py:63"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R650.5",
+      "title": "Create a release key lock",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "7b45abdf6424"
+      ],
+      "verified_by": [
+        "tests/test_release_lock.py:111",
+        "tests/test_release_lock.py:84",
+        "tests/test_release_lock.py:97"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.30",
+      "title": "Reject unlisted shared addresses",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15e8fa735e6e"
+      ],
+      "verified_by": [
+        "tests/test_http_dns_pinned_egress.py:226",
+        "tests/test_http_dns_pinned_egress.py:239",
+        "tests/test_http_dns_pinned_egress.py:259"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.31",
+      "title": "Cancellable async DNS pinning",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "65b7b041e442"
+      ],
+      "verified_by": [
+        "tests/test_http_dns_pinned_egress.py:268",
+        "tests/test_http_dns_pinned_egress.py:320"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R051",
+      "title": "Sandbox allocation producer for AU:29",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R051.1",
+        "SCION-CONNECTOR-CONTROL-R051.2",
+        "SCION-CONNECTOR-CONTROL-R051.3",
+        "SCION-CONNECTOR-CONTROL-R051.4",
+        "SCION-CONNECTOR-CONTROL-R051.5",
+        "SCION-CONNECTOR-CONTROL-R051.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R051.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R051.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R051.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R051.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R051.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R051.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R052",
+      "title": "Visual observation transport for AU:35",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R052.1",
+        "SCION-CONNECTOR-CONTROL-R052.2",
+        "SCION-CONNECTOR-CONTROL-R052.3",
+        "SCION-CONNECTOR-CONTROL-R052.4",
+        "SCION-CONNECTOR-CONTROL-R052.5",
+        "SCION-CONNECTOR-CONTROL-R052.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R052.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R052.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R052.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R052.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R052.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R052.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R053",
+      "title": "SDK environment declaration export",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R053.1",
+        "SCION-CONNECTOR-CONTROL-R053.2",
+        "SCION-CONNECTOR-CONTROL-R053.3",
+        "SCION-CONNECTOR-CONTROL-R053.4",
+        "SCION-CONNECTOR-CONTROL-R053.5",
+        "SCION-CONNECTOR-CONTROL-R053.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R053.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R053.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R053.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R053.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R053.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R053.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R054",
+      "title": "JSON tag-loader migration",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R054.1",
+        "SCION-CONNECTOR-CONTROL-R054.2",
+        "SCION-CONNECTOR-CONTROL-R054.3",
+        "SCION-CONNECTOR-CONTROL-R054.4",
+        "SCION-CONNECTOR-CONTROL-R054.5",
+        "SCION-CONNECTOR-CONTROL-R054.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R054.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R054.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R054.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R054.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R054.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R054.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R061",
+      "title": "Shared typed provider interface for host OS service and log operations",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R061.1",
+        "SCION-CONNECTOR-CONTROL-R061.2",
+        "SCION-CONNECTOR-CONTROL-R061.3",
+        "SCION-CONNECTOR-CONTROL-R061.4",
+        "SCION-CONNECTOR-CONTROL-R061.5",
+        "SCION-CONNECTOR-CONTROL-R061.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R061.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R061.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R061.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R061.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R061.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R061.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R062",
+      "title": "Define minimal EG certification producer and AU orchestration consumer with identity bindings",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R062.1",
+        "SCION-CONNECTOR-CONTROL-R062.2",
+        "SCION-CONNECTOR-CONTROL-R062.3",
+        "SCION-CONNECTOR-CONTROL-R062.4",
+        "SCION-CONNECTOR-CONTROL-R062.5",
+        "SCION-CONNECTOR-CONTROL-R062.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R062.1",
+      "title": "Model",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "98d68425be41"
+      ],
+      "verified_by": [
+        "tests/test_certification_attestation.py:29",
+        "tests/test_certification_attestation.py:43"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R062.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R062.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R062.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R062.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R062.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R063",
+      "title": "SDK and AU produce versioned environment-manifest declarations covering enabled components",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R063.1",
+        "SCION-CONNECTOR-CONTROL-R063.2",
+        "SCION-CONNECTOR-CONTROL-R063.3",
+        "SCION-CONNECTOR-CONTROL-R063.4",
+        "SCION-CONNECTOR-CONTROL-R063.5",
+        "SCION-CONNECTOR-CONTROL-R063.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R063.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R063.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R063.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R063.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R063.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R063.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R064",
+      "title": "Default vault storage and enterprise root-bundle propagation across deployed components",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R064.1",
+        "SCION-CONNECTOR-CONTROL-R064.2",
+        "SCION-CONNECTOR-CONTROL-R064.3",
+        "SCION-CONNECTOR-CONTROL-R064.4",
+        "SCION-CONNECTOR-CONTROL-R064.5",
+        "SCION-CONNECTOR-CONTROL-R064.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R064.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R064.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R064.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R064.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R064.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R064.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R065",
+      "title": "Component health endpoint distinguishes not-configured from configured-but-unavailable. Alerts fire only for enabled components",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R065.1",
+        "SCION-CONNECTOR-CONTROL-R065.2",
+        "SCION-CONNECTOR-CONTROL-R065.3",
+        "SCION-CONNECTOR-CONTROL-R065.4",
+        "SCION-CONNECTOR-CONTROL-R065.5",
+        "SCION-CONNECTOR-CONTROL-R065.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R065.1",
+      "title": "Model",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0e77c20e20a4"
+      ],
+      "verified_by": [
+        "tests/test_component_health.py:25"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R065.2",
+      "title": "Behavior",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0e77c20e20a4"
+      ],
+      "verified_by": [
+        "tests/test_component_health.py:56"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R065.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R065.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R065.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R065.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R066",
+      "title": "EG defines closed-loop load and headroom scaling proposals to Arbora with applied-state receipt",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R066.1",
+        "SCION-CONNECTOR-CONTROL-R066.2",
+        "SCION-CONNECTOR-CONTROL-R066.3",
+        "SCION-CONNECTOR-CONTROL-R066.4",
+        "SCION-CONNECTOR-CONTROL-R066.5",
+        "SCION-CONNECTOR-CONTROL-R066.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R066.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R066.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R066.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R066.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R066.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R066.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R026.1",
+      "title": "Require explicit destructive confirmation across both supported MCP eras",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "851969957034",
+        "c529b133556b",
+        "d76f26e0e5fa"
+      ],
+      "verified_by": [
+        "tests/test_mcp_confirmation_roundtrip.py:134",
+        "tests/test_mcp_confirmation_roundtrip.py:178",
+        "tests/test_mcp_confirmation_roundtrip.py:198",
+        "tests/test_mcp_confirmation_roundtrip.py:36"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R026.2",
+      "title": "A manifest field named after a Python keyword keeps its wire name in the schema",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ec63e38e9b5d"
+      ],
+      "verified_by": [
+        "tests/test_operation_tools.py:380"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.2",
+      "title": "Cross-platform advisory file locks",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d",
+        "b1a75903b188"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:34"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.3",
+      "title": "Tool version metadata",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d",
+        "b1a75903b188"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:53"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.4",
+      "title": "Reference-only CLI secrets",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d",
+        "b1a75903b188"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:65"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.5",
+      "title": "Operator base-URL egress guard",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d",
+        "4f377bf3e39a",
+        "b1a75903b188"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_source_connectors.py:46",
+        "tests/test_connector_runtime_from_au.py:83"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.6",
+      "title": "PII sanitizer",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d",
+        "b1a75903b188"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:104"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.7",
+      "title": "Connector state directories",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d",
+        "b1a75903b188"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:111"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.8",
+      "title": "Delegated-token helpers",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d",
+        "b1a75903b188"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:122"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.9",
+      "title": "Keyless credential sentinel",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d",
+        "b1a75903b188"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_from_au.py:131"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.10",
+      "title": "Class-based API client base and auth strategies",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4f377bf3e39a",
+        "afc686a65836"
+      ],
+      "verified_by": [
+        "tests/httpsupport/test_httpsupport.py:27",
+        "tests/httpsupport/test_pagination.py:18",
+        "tests/test_connector_runtime_adds.py:50",
+        "tests/test_connector_runtime_adds.py:79"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.11",
+      "title": "Browser OAuth (PKCE) login",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "afc686a65836"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:129"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.12",
+      "title": "GraphQL schema discovery over a connector executor",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "afc686a65836"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:179"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.13",
+      "title": "Per-record external access descriptor",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "afc686a65836"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:205"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.14",
+      "title": "Connector env-var drift check",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "afc686a65836"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:222"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.15",
+      "title": "External ACL sync into ingested documents",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ed3b2f7f83d5"
+      ],
+      "verified_by": [
+        "tests/test_document_sources.py:216"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.16",
+      "title": "DNS-pinned egress on the governed client",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d"
+      ],
+      "verified_by": [
+        "tests/test_http_dns_pinned_egress.py:103",
+        "tests/test_http_dns_pinned_egress.py:115",
+        "tests/test_http_dns_pinned_egress.py:122",
+        "tests/test_http_dns_pinned_egress.py:135",
+        "tests/test_http_dns_pinned_egress.py:143"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.17",
+      "title": "MCP-free base install",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d",
+        "81ea3e4bedac"
+      ],
+      "verified_by": [
+        "tests/test_base_install_mcp_free.py:35",
+        "tests/test_base_install_mcp_free.py:58",
+        "tests/test_base_install_mcp_free.py:75"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.18",
+      "title": "Default fail-closed served security profile",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d",
+        "81ea3e4bedac"
+      ],
+      "verified_by": [
+        "tests/test_served_security_and_provider_profile.py:116",
+        "tests/test_served_security_and_provider_profile.py:140",
+        "tests/test_served_security_and_provider_profile.py:150",
+        "tests/test_served_security_and_provider_profile.py:42",
+        "tests/test_served_security_and_provider_profile.py:50"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.19",
+      "title": "Selected-provider credential profile",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d"
+      ],
+      "verified_by": [
+        "tests/test_served_security_and_provider_profile.py:185",
+        "tests/test_served_security_and_provider_profile.py:211",
+        "tests/test_served_security_and_provider_profile.py:258",
+        "tests/test_served_security_and_provider_profile.py:264"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.20",
+      "title": "Plugin entry-point groups use the SDK namespace",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "15b099abed9d"
+      ],
+      "verified_by": [
+        "tests/test_served_security_and_provider_profile.py:273"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.22",
+      "title": "External embedding API client",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "da3aa0ab05a4"
+      ],
+      "verified_by": [
+        "tests/test_embeddings.py:17"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.23",
+      "title": "Typed epistemic-graph compute adapter",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "da3aa0ab05a4"
+      ],
+      "verified_by": [
+        "tests/test_compute_adapter.py:19"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.24",
+      "title": "Engine audience from the environment",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "16cb53774404"
+      ],
+      "verified_by": [
+        "tests/test_compute_adapter.py:128"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.25",
+      "title": "SDK-consumed env vars are never drift",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "eb0b3b299f31"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:269"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.26",
+      "title": "Server parser settings are never drift",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "682810f22bdd"
+      ],
+      "verified_by": [
+        "tests/test_connector_runtime_adds.py:286"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R068",
+      "title": "Each connector serves its seed graph and contract resources for first connect (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R068.1",
+        "SCION-CONNECTOR-CONTROL-R068.2",
+        "SCION-CONNECTOR-CONTROL-R068.3",
+        "SCION-CONNECTOR-CONTROL-R068.4",
+        "SCION-CONNECTOR-CONTROL-R068.5",
+        "SCION-CONNECTOR-CONTROL-R068.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R068.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R068.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R068.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R068.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R068.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R068.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R069",
+      "title": "Connector transports are declared contracts per connection protocol (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R069.1",
+        "SCION-CONNECTOR-CONTROL-R069.2",
+        "SCION-CONNECTOR-CONTROL-R069.3",
+        "SCION-CONNECTOR-CONTROL-R069.4",
+        "SCION-CONNECTOR-CONTROL-R069.5",
+        "SCION-CONNECTOR-CONTROL-R069.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R069.1",
+      "title": "Model",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "299c63d56db4",
+        "9457b6d5a33d"
+      ],
+      "verified_by": [
+        "tests/test_transport_contract.py:28"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R069.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R069.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R069.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R069.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R069.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.21",
+      "title": "Reusable A2A protocol module",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "04a50086718c",
+        "0744e3514186",
+        "4549ac7babc9"
+      ],
+      "verified_by": [
+        "tests/test_a2a_protocol.py:118",
+        "tests/test_a2a_protocol.py:209",
+        "tests/test_a2a_protocol.py:252",
+        "tests/test_a2a_protocol.py:279",
+        "tests/test_a2a_protocol.py:80"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R014.21.1",
+        "SCION-CONNECTOR-CONTROL-R014.21.3",
+        "SCION-CONNECTOR-CONTROL-R014.21.2"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.21.1",
+      "title": "Bound response reads",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "04a50086718c"
+      ],
+      "verified_by": [
+        "tests/test_a2a_protocol.py:209",
+        "tests/test_a2a_protocol.py:252"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.21.3",
+      "title": "Correlated A2A responses",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4549ac7babc9"
+      ],
+      "verified_by": [
+        "tests/test_a2a_protocol.py:118",
+        "tests/test_a2a_protocol.py:80"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R014.21.2",
+      "title": "Prove the optional server composition",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0744e3514186"
+      ],
+      "verified_by": [
+        "tests/test_a2a_protocol.py:279"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R700",
+      "title": "Declared semantic coverage refusal",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "91301b15d255"
+      ],
+      "verified_by": [
+        "tests/test_certify_declared_coverage.py:15"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R701",
+      "title": "Bundle-based lifecycle certification (definition only, awaiting implementation)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R900",
+      "title": "Source credentials by source name (rollup)",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55",
+        "8c6dcfdd27e8",
+        "be6035bc97e5"
+      ],
+      "verified_by": [
+        "tests/test_credential_sensitivity.py:28",
+        "tests/test_source_credentials.py:104",
+        "tests/test_source_credentials.py:142",
+        "tests/test_source_credentials.py:229",
+        "tests/test_source_credentials.py:73"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R900.1",
+        "SCION-CONNECTOR-CONTROL-R900.2",
+        "SCION-CONNECTOR-CONTROL-R900.3",
+        "SCION-CONNECTOR-CONTROL-R900.4",
+        "SCION-CONNECTOR-CONTROL-R900.5",
+        "SCION-CONNECTOR-CONTROL-R900.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R900.1",
+      "title": "Model",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/test_source_credentials.py:73"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R900.2",
+      "title": "Behavior",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/test_source_credentials.py:104"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R900.3",
+      "title": "Wiring",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "be6035bc97e5"
+      ],
+      "verified_by": [
+        "tests/test_source_credentials.py:142"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R900.4",
+      "title": "Refusal",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/test_source_credentials.py:81"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R900.5",
+      "title": "Evidence",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/test_credential_sensitivity.py:28"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R900.6",
+      "title": "Hot-path proof",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/test_source_credentials.py:229"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R901",
+      "title": "Identifier gate and datapoint signing (rollup)",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55",
+        "8c6dcfdd27e8",
+        "be6035bc97e5"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_universal.py:98",
+        "tests/test_identifiers.py:27",
+        "tests/test_identifiers.py:45",
+        "tests/test_signing.py:14",
+        "tests/test_signing.py:22"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R901.1",
+        "SCION-CONNECTOR-CONTROL-R901.2",
+        "SCION-CONNECTOR-CONTROL-R901.3",
+        "SCION-CONNECTOR-CONTROL-R901.4",
+        "SCION-CONNECTOR-CONTROL-R901.5",
+        "SCION-CONNECTOR-CONTROL-R901.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R901.1",
+      "title": "Model",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/test_identifiers.py:45"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R901.2",
+      "title": "Behavior",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/test_signing.py:14"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R901.3",
+      "title": "Wiring",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "be6035bc97e5"
+      ],
+      "verified_by": [
+        "tests/source_connectors/test_universal.py:98",
+        "tests/test_signing.py:61"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R901.4",
+      "title": "Refusal",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/test_identifiers.py:27",
+        "tests/test_signing.py:22",
+        "tests/test_signing.py:44"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R901.5",
+      "title": "Evidence",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4b003b24ce55"
+      ],
+      "verified_by": [
+        "tests/test_signing.py:33"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R901.6",
+      "title": "Hot-path proof",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8c6dcfdd27e8"
+      ],
+      "verified_by": [
+        "tests/test_signing.py:44"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R902",
+      "title": "Connector tools declare and receive an acting user (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R902.1",
+        "SCION-CONNECTOR-CONTROL-R902.2",
+        "SCION-CONNECTOR-CONTROL-R902.3",
+        "SCION-CONNECTOR-CONTROL-R902.4",
+        "SCION-CONNECTOR-CONTROL-R902.5",
+        "SCION-CONNECTOR-CONTROL-R902.6"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R902.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R902.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R902.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R902.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R902.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R902.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R067",
+      "title": "The SDK authors each connector pack as Turtle from typed declarations (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R067.1",
+        "SCION-CONNECTOR-CONTROL-R067.2",
+        "SCION-CONNECTOR-CONTROL-R067.3",
+        "SCION-CONNECTOR-CONTROL-R067.4",
+        "SCION-CONNECTOR-CONTROL-R067.5",
+        "SCION-CONNECTOR-CONTROL-R067.6",
+        "SCION-CONNECTOR-CONTROL-R067.7",
+        "SCION-CONNECTOR-CONTROL-R067.8"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R067.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R067.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R067.3",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R067.4",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R067.5",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R067.6",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R067.7",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R067.8",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780",
+      "title": "SDK helpers replace the retired agent-utilities harness modules",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R780.1",
+        "SCION-CONNECTOR-CONTROL-R780.2",
+        "SCION-CONNECTOR-CONTROL-R780.3",
+        "SCION-CONNECTOR-CONTROL-R780.4",
+        "SCION-CONNECTOR-CONTROL-R780.5",
+        "SCION-CONNECTOR-CONTROL-R780.6",
+        "SCION-CONNECTOR-CONTROL-R780.7",
+        "SCION-CONNECTOR-CONTROL-R780.8",
+        "SCION-CONNECTOR-CONTROL-R780.10",
+        "SCION-CONNECTOR-CONTROL-R780.9",
+        "SCION-CONNECTOR-CONTROL-R780.13",
+        "SCION-CONNECTOR-CONTROL-R780.11",
+        "SCION-CONNECTOR-CONTROL-R780.12"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.1",
+      "title": "Actor type",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "889be6e354c7",
+        "d7d1ff0fb276"
+      ],
+      "verified_by": [
+        "tests/test_au_helper_parity.py:15"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.2",
+      "title": "Exceptions",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "889be6e354c7"
+      ],
+      "verified_by": [
+        "tests/test_au_helper_parity.py:28"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.3",
+      "title": "Governed HTTP client and retry",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "081d9ebfb161",
+        "889be6e354c7"
+      ],
+      "verified_by": [
+        "tests/test_au_helper_parity.py:43"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.4",
+      "title": "TLS profile resolution",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "889be6e354c7"
+      ],
+      "verified_by": [
+        "tests/test_au_helper_parity.py:62"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.5",
+      "title": "Value helpers and configuration projection",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "889be6e354c7"
+      ],
+      "verified_by": [
+        "tests/test_au_helper_parity.py:67"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.6",
+      "title": "Remainder of SDK helper migration",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.7",
+      "title": "Air-gap transport guard",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ec3be6142adf"
+      ],
+      "verified_by": [
+        "tests/test_http_airgap.py:14",
+        "tests/test_http_airgap.py:36",
+        "tests/test_http_airgap.py:52"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.8",
+      "title": "Standard HTTP request headers",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "18cdae66cae9"
+      ],
+      "verified_by": [
+        "tests/test_http_standard_headers.py:10"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.10",
+      "title": "Async callable retry",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "08ac13fb5d59"
+      ],
+      "verified_by": [
+        "tests/test_async_resilience.py:109",
+        "tests/test_async_resilience.py:12",
+        "tests/test_async_resilience.py:130",
+        "tests/test_async_resilience.py:39",
+        "tests/test_async_resilience.py:74"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.9",
+      "title": "Requests session factory",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "64da2f887f36",
+        "b1c18e431888"
+      ],
+      "verified_by": [
+        "tests/test_http_requests.py:34",
+        "tests/test_http_requests.py:56"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.13",
+      "title": "Explicit TLS selector settings",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "17e99e5e3ed9",
+        "8b8ba3ab9cb9"
+      ],
+      "verified_by": [
+        "tests/test_tls_explicit_settings.py:14",
+        "tests/test_tls_explicit_settings.py:28",
+        "tests/test_tls_explicit_settings.py:42",
+        "tests/test_tls_explicit_settings.py:48"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.11",
+      "title": "Synchronous callable retry",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1ddadb905f3a"
+      ],
+      "verified_by": [
+        "tests/test_sync_resilience.py:11",
+        "tests/test_sync_resilience.py:36",
+        "tests/test_sync_resilience.py:58"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R780.12",
+      "title": "Explicit value expansion",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "28a188c77d56"
+      ],
+      "verified_by": [
+        "tests/test_explicit_env_expansion.py:22",
+        "tests/test_explicit_env_expansion.py:8"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R781",
+      "title": "Training-trajectory recorder helper",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6a04f75ba91e"
+      ],
+      "verified_by": [
+        "tests/test_trajectory_recorder.py:47",
+        "tests/test_trajectory_recorder.py:90"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R781.1"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R782",
+      "title": "Message-stream adapters normalize into change envelopes",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R070",
+      "title": "Current-plan boundary models",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ea6e90065040"
+      ],
+      "verified_by": [
+        "tests/test_current_plan.py:16"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R071",
+      "title": "One declared connector identity",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8ec791033514",
+        "aa58c5dd6858",
+        "e94990c8a480"
+      ],
+      "verified_by": [
+        "tests/test_connector_identity.py:20",
+        "tests/test_connector_run.py:140",
+        "tests/test_connector_run.py:152",
+        "tests/test_connector_run.py:161",
+        "tests/test_connector_run.py:170"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R071.1",
+        "SCION-CONNECTOR-CONTROL-R071.2"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R071.1",
+      "title": "Content is found by convention",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "aa58c5dd6858"
+      ],
+      "verified_by": [
+        "tests/test_connector_run.py:140",
+        "tests/test_connector_run.py:152",
+        "tests/test_connector_run.py:170"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R071.2",
+      "title": "The version is read from package metadata only",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "aa58c5dd6858"
+      ],
+      "verified_by": [
+        "tests/test_connector_run.py:161"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R072",
+      "title": "Certify names the connector from its declaration",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "85fafc5b02ad",
+        "92d09c57796b"
+      ],
+      "verified_by": [
+        "tests/test_single_declaration.py:230"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R073",
+      "title": "The server factory serves all five connector surfaces and keeps the parent link",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "268d030fffad",
+        "57d0997107dd",
+        "8127c9c988fc",
+        "8f36880f39a7",
+        "cf3d6e92c008"
+      ],
+      "verified_by": [
+        "tests/test_default_content.py:12",
+        "tests/test_mcp_app_resources.py:103",
+        "tests/test_mcp_app_resources.py:37",
+        "tests/test_mcp_app_resources.py:80",
+        "tests/test_mcp_app_resources.py:88"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R074",
+      "title": "A connector pack declares every surface and the source contracts for virtual access (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R074.1",
+        "SCION-CONNECTOR-CONTROL-R074.2",
+        "SCION-CONNECTOR-CONTROL-R074.3",
+        "SCION-CONNECTOR-CONTROL-R074.4",
+        "SCION-CONNECTOR-CONTROL-R074.5",
+        "SCION-CONNECTOR-CONTROL-R074.6",
+        "SCION-CONNECTOR-CONTROL-R074.7"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R074.1",
+      "title": "Model",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5a0965f9c2e8"
+      ],
+      "verified_by": [
+        "tests/test_resource_descriptor.py:30"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R074.2",
+      "title": "Prompt role",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1ac640f88ad4"
+      ],
+      "verified_by": [
+        "tests/test_prompt_role.py:12"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R074.3",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_pack_surfaces_served.py:59"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R074.4",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_pack_surfaces_served.py:60"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R074.5",
+      "title": "Refusal",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "52111adb6bf2",
+        "e57b0b8d7896"
+      ],
+      "verified_by": [
+        "tests/test_resource_descriptor_pack_refusal.py:17"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R074.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_pack_surfaces_served.py:61"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R074.7",
+      "title": "Default declarations",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "9571c94146e2"
+      ],
+      "verified_by": [
+        "tests/test_resource_declarations.py:32"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R075",
+      "title": "The connector's MCP server is the only place its metadata is read from (rollup)",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0d150cf96fd8",
+        "2078ee0208c5",
+        "2487b614c171",
+        "647f3de98067",
+        "95f251043be1"
+      ],
+      "verified_by": [
+        "tests/test_eg_pack_entry_kinds.py:45",
+        "tests/test_eg_pack_entry_kinds.py:54",
+        "tests/test_eg_pack_entry_kinds.py:68",
+        "tests/test_eg_pack_entry_kinds.py:83",
+        "tests/test_eg_pack_entry_kinds.py:97"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R075.1",
+        "SCION-CONNECTOR-CONTROL-R075.2",
+        "SCION-CONNECTOR-CONTROL-R075.3",
+        "SCION-CONNECTOR-CONTROL-R075.4",
+        "SCION-CONNECTOR-CONTROL-R075.5",
+        "SCION-CONNECTOR-CONTROL-R075.6",
+        "SCION-CONNECTOR-CONTROL-R075.7"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R075.1",
+      "title": "No file fallback",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "0d150cf96fd8",
+        "f0b9e7f4f535"
+      ],
+      "verified_by": [
+        "tests/test_single_declaration.py:85"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R075.2",
+      "title": "Data sources are declared in code and served live",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2078ee0208c5",
+        "f0b9e7f4f535"
+      ],
+      "verified_by": [
+        "tests/test_single_declaration.py:86"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R075.3",
+      "title": "The runner and certification read the live declaration",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "f0b9e7f4f535"
+      ],
+      "verified_by": [
+        "tests/test_single_declaration.py:102",
+        "tests/test_single_declaration.py:112",
+        "tests/test_single_declaration.py:87"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R075.4",
+      "title": "Prompts serve their own directive and carry their metadata over native MCP",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "2487b614c171",
+        "f0b9e7f4f535"
+      ],
+      "verified_by": [
+        "tests/test_single_declaration.py:238",
+        "tests/test_single_declaration.py:276"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R075.5",
+      "title": "Skills, ontology and shapes stay on fastmcp",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "f0b9e7f4f535"
+      ],
+      "verified_by": [
+        "tests/test_single_declaration.py:340"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R075.6",
+      "title": "Mapping references name the declaration",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "95f251043be1"
+      ],
+      "verified_by": [
+        "tests/test_ingest.py:144"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R075.7",
+      "title": "The declaration entry carries its content schema",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "647f3de98067",
+        "bbc715bc3431"
+      ],
+      "verified_by": [
+        "tests/test_eg_pack_entry_kinds.py:45",
+        "tests/test_eg_pack_entry_kinds.py:54",
+        "tests/test_eg_pack_entry_kinds.py:68",
+        "tests/test_eg_pack_entry_kinds.py:83",
+        "tests/test_eg_pack_entry_kinds.py:97"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R781.1",
+      "title": "Route trajectory and training calls",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6a04f75ba91e"
+      ],
+      "verified_by": [
+        "tests/test_trajectory_recorder.py:47",
+        "tests/test_trajectory_recorder.py:90"
+      ]
+    }
+  ]
+}

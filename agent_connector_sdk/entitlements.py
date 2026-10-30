@@ -182,7 +182,7 @@ class CatalogResource:
     systems-manager managed host, a Vaultwarden vault or collection, ...) maps
     to this one pair so :func:`catalog_entitled_resources` can resolve
     entitlements against it without the connector reimplementing the
-    capability grammar (SDK-CONNECTOR-CONTROL-R036).
+    capability grammar (SCION-CONNECTOR-CONTROL-R036).
     """
 
     identifier: str

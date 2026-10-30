@@ -8,7 +8,7 @@ from agent_connector_sdk.http.retry import RetryPolicy
 from agent_connector_sdk.resilience import run_with_resilience_sync
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.11")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.11")
 def test_sync_retry_and_fallback_order() -> None:
     calls = []
 
@@ -33,7 +33,7 @@ def test_sync_retry_and_fallback_order() -> None:
     assert calls == ["primary", "primary", "fallback"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.11")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.11")
 def test_sync_timeout_and_unsafe_retry_refuse_before_call() -> None:
     calls = []
 
@@ -55,7 +55,7 @@ def test_sync_timeout_and_unsafe_retry_refuse_before_call() -> None:
     assert not calls
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.11")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.11")
 @pytest.mark.parametrize(
     "error", [PermissionError(), ssl.SSLCertVerificationError(), TimeoutError()]
 )

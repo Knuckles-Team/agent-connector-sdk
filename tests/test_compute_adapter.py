@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R014.23: typed epistemic-graph compute adapter."""
+"""SCION-CONNECTOR-CONTROL-R014.23: typed epistemic-graph compute adapter."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from agent_connector_sdk.compute import (
 )
 from agent_connector_sdk.ingest.engine import EngineSettings
 
-pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.23")
+pytestmark = pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.23")
 
 VOCAB = "http://knuckles.team/kg/quant#"
 ANALYSIS = "http://knuckles.team/kg/quant#SignalFusionAnalysis"
@@ -125,7 +125,7 @@ def test_compute_session_asks_for_compute_scopes_only():
     assert settings.verified_context()["scopes"] == ["source:ingest", "blob:write"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.24")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.24")
 def test_r014_24_audience_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     for key, value in {
         "EPISTEMIC_GRAPH_ENDPOINT": "tcp://127.0.0.1:9100",

@@ -51,7 +51,7 @@ def test_pack_import_authority_resolver_is_public() -> None:
     assert PackImportAuthorityResolver is not None
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R005")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R005")
 def test_sdk_does_not_redeclare_generated_graph_boundary_models() -> None:
     copied_names = {
         "ArtifactEntry",
@@ -508,7 +508,7 @@ async def test_epistemic_graph_sink_replays_matching_pack_without_upload() -> No
     assert [method for method, _, _ in client.calls] == ["ConnectorPack"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R001")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R001")
 async def test_epistemic_graph_sink_retries_one_pack_head_conflict() -> None:
     async def authority(
         _connector: str,
@@ -590,7 +590,7 @@ def _import_requests(client: _PackClient) -> list[dict[str, object]]:
     return found
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.27")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.27")
 @pytest.mark.parametrize("allow", [False, True])
 async def test_sink_passes_the_mass_withdrawal_decision_to_the_engine(
     allow: bool,

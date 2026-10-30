@@ -38,7 +38,7 @@ from agent_connector_sdk.ports.errors import (
     SourceContractError,
 )
 
-#: Payload fields SDK-OBSERVABILITY-FEEDS-R001 requires each feed kind to carry.
+#: Payload fields SCION-OBSERVABILITY-FEEDS-R001 requires each feed kind to carry.
 _REQUIRED_PAYLOAD_FIELDS: dict[FeedKind, tuple[str, ...]] = {
     FeedKind.RUM: ("signal", "page", "session_id"),
     FeedKind.SECURITY_AUDIT: (

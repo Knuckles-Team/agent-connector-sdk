@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "spec_id": "SCION-REPOSITORY-TRANSPORT",
+  "owner_repo": "scion-sdk",
+  "delivery_state": "SPECIFIED",
+  "requirement_ids": [
+    "SCION-REPOSITORY-TRANSPORT-R001",
+    "SCION-REPOSITORY-TRANSPORT-R002",
+    "SCION-REPOSITORY-TRANSPORT-R003",
+    "SCION-REPOSITORY-TRANSPORT-R004",
+    "SCION-REPOSITORY-TRANSPORT-R005",
+    "SCION-REPOSITORY-TRANSPORT-R006",
+    "SCION-REPOSITORY-TRANSPORT-R007"
+  ],
+  "requirements": [
+    {
+      "id": "SCION-REPOSITORY-TRANSPORT-R001",
+      "title": "Repository transport hydrates code and specification sources from Git",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "acf470ac4906"
+      ],
+      "verified_by": [
+        "tests/test_repository_transport.py:117"
+      ]
+    },
+    {
+      "id": "SCION-REPOSITORY-TRANSPORT-R002",
+      "title": "SDK is the sole path for repository-native codebase hydration",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-REPOSITORY-TRANSPORT-R003",
+      "title": "Repository ref walk traverses each Git tree once with batched reads",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "077a14c9f3d3",
+        "9a6fe1ddcf26",
+        "fad5328aee62"
+      ],
+      "verified_by": [
+        "tests/test_repository_refwalk_fastpath.py:40",
+        "tests/test_repository_refwalk_fastpath.py:79"
+      ]
+    },
+    {
+      "id": "SCION-REPOSITORY-TRANSPORT-R004",
+      "title": "Repository transport submits bounded, outcome-complete index batches",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "acf470ac4906"
+      ],
+      "verified_by": [
+        "tests/test_repository_transport.py:179",
+        "tests/test_repository_transport.py:200",
+        "tests/test_repository_transport.py:285"
+      ]
+    },
+    {
+      "id": "SCION-REPOSITORY-TRANSPORT-R005",
+      "title": "Branch-aware transport batches indexing into one call per batch",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "acf470ac4906"
+      ],
+      "verified_by": [
+        "tests/test_repository_transport.py:180"
+      ]
+    },
+    {
+      "id": "SCION-REPOSITORY-TRANSPORT-R006",
+      "title": "Provider pages respect their requested bound",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "8dada56817e1"
+      ],
+      "verified_by": [
+        "tests/test_repository_refs.py:110",
+        "tests/test_repository_transport.py:219"
+      ]
+    },
+    {
+      "id": "SCION-REPOSITORY-TRANSPORT-R007",
+      "title": "Local Git blob reads stay within the selected revision",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d71d46857e30"
+      ],
+      "verified_by": [
+        "tests/test_repository_refwalk_fastpath.py:159"
+      ]
+    }
+  ]
+}

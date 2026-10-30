@@ -26,7 +26,7 @@ from agent_connector_sdk.data_prep import (
 )
 
 pytestmark = [
-    pytest.mark.spec("SDK-SOURCE-INGEST-R803"),
+    pytest.mark.spec("SCION-SOURCE-INGEST-R803"),
 ]
 
 
@@ -88,7 +88,7 @@ def test_cardinality_is_bounded_and_high_cardinality_is_observable() -> None:
         )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.5")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.5")
 def test_below_threshold_values_never_appear_in_top_k_or_serialized_profile() -> None:
     table = pa.table({"secret": ["glpat-a", "glpat-b", "glpat-a", "glpat-b"]})
     result = profile_table(
@@ -278,7 +278,7 @@ def test_engine_profile_validation_rejects_the_wrong_authority_or_target() -> No
     assert issubclass(ProfileDeadlineError, ProfileLimitError)
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.9")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.9")
 def test_rare_numeric_values_do_not_escape_in_statistics() -> None:
     limits = ProfileLimits(disclosure_threshold=2)
     rare = profile_table(
@@ -298,7 +298,7 @@ def test_rare_numeric_values_do_not_escape_in_statistics() -> None:
     assert eligible.column_profiles[0].max_value == 3
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.9")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.9")
 def test_failed_frequency_count_suppresses_numeric_statistics(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -323,7 +323,7 @@ def test_failed_frequency_count_suppresses_numeric_statistics(
     assert "987654321" not in result.model_dump_json()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R803.14")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R803.14")
 def test_engine_profile_revalidates_mutated_nested_results() -> None:
     local = profile_table(
         pa.table({"value": [1, 1, 2, 2]}), _plan().profile, target_ref="engine:table"

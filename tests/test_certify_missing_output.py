@@ -21,7 +21,7 @@ from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.transports.mcp import McpTransport
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R003")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R003")
 async def test_served_certification_pins_missing_output_schema() -> None:
     server = FastMCP("demo-mcp")
 

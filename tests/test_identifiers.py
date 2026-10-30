@@ -24,7 +24,7 @@ HOSTILE = [
 ]
 
 
-# spec: SDK-CONNECTOR-CONTROL-R901.4
+# spec: SCION-CONNECTOR-CONTROL-R901.4
 @pytest.mark.parametrize("name", HOSTILE)
 @pytest.mark.parametrize("check", [validate_identifier, validate_sql_identifier])
 def test_hostile_names_are_refused_without_echo(check, name: object) -> None:
@@ -42,6 +42,6 @@ def test_length_ceilings_differ_for_graph_and_sql() -> None:
         validate_sql_identifier("a" * 64)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R901.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R901.1")
 def test_quote_sql_identifier_returns_a_quoted_name() -> None:
     assert quote_sql_identifier("Orders_2026") == '"Orders_2026"'

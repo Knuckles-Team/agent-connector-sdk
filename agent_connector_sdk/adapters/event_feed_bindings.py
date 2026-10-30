@@ -1,4 +1,4 @@
-"""One provider implementation per feed kind (SDK-OBSERVABILITY-FEEDS-R001).
+"""One provider implementation per feed kind (SCION-OBSERVABILITY-FEEDS-R001).
 
 :class:`agent_connector_sdk.adapters.event_feed.EventFeedSourceAdapter` is one
 shared engine; only the feed kind is fixed per binding, so a new feed kind

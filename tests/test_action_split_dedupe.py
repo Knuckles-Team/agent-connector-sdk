@@ -1,6 +1,6 @@
 """A split action never duplicates or collides with an operation tool.
 
-SDK-CONNECTOR-CONTROL-R020.2: minimal fixtures for the three collision shapes
+SCION-CONNECTOR-CONTROL-R020.2: minimal fixtures for the three collision shapes
 seen in the fleet (a search branch whose split name is an operation name, a
 closure-built action table, a router whose own name is reused by an operation)
 and for duplicate splits resolved through action tables.
@@ -70,7 +70,7 @@ async def _listed(mcp: FastMCP[Any]) -> dict[str, Any]:
     return {tool.name: tool for tool in await mcp.list_tools()}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.2")
 async def test_split_name_equal_to_an_operation_name_is_covered() -> None:
     mcp: FastMCP[Any] = FastMCP("sample")
     register_tool_surface(
@@ -125,7 +125,7 @@ def register_romm_tools(mcp: FastMCP[Any]) -> None:
         _romm_tool(mcp, name, actions)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.2")
 async def test_closure_table_actions_are_covered_by_their_operations() -> None:
     mcp: FastMCP[Any] = FastMCP("sample")
     register_tool_surface(
@@ -188,7 +188,7 @@ def register_execute_tools(mcp: FastMCP[Any]) -> None:
         raise ValueError(action)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.2")
 async def test_router_name_reused_by_an_operation_is_not_a_collision() -> None:
     mcp: FastMCP[Any] = FastMCP("sample")
     register_tool_surface(
@@ -260,7 +260,7 @@ def register_duplicate_tools(mcp: FastMCP[Any]) -> None:
         return handlers[action](**json.loads(params_json))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.2")
 async def test_table_duplicates_are_covered_and_nothing_is_dropped() -> None:
     mcp: FastMCP[Any] = FastMCP("sample")
     register_tool_surface(
@@ -287,7 +287,7 @@ async def test_table_duplicates_are_covered_and_nothing_is_dropped() -> None:
     assert all(entry["served_by"] in tools for entry in report.values())
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.2")
 def test_two_different_tools_with_one_name_still_raise() -> None:
     def register_clash(mcp: FastMCP[Any]) -> None:
         @mcp.tool()
@@ -339,7 +339,7 @@ def register_lambda_tools(mcp: FastMCP[Any]) -> None:
         return run_apps(action, params_json)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.2")
 async def test_listed_actions_and_lambda_handlers_resolve() -> None:
     mcp: FastMCP[Any] = FastMCP("sample")
     register_tool_surface(
@@ -389,7 +389,7 @@ def register_router_tools(mcp: FastMCP[Any]) -> None:
         return dispatch(client, action, json.loads(params_json))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R020.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.2")
 async def test_generic_router_is_covered_by_its_clients_operations() -> None:
     mcp: FastMCP[Any] = FastMCP("sample")
     register_tool_surface(

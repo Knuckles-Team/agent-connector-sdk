@@ -1,4 +1,4 @@
-"""Caddy reverse-proxy vendor extractor (SDK-SOURCE-INGEST-R006.3).
+"""Caddy reverse-proxy vendor extractor (SCION-SOURCE-INGEST-R006.3).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.caddy``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`:

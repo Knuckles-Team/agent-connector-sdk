@@ -11,7 +11,7 @@ from agent_connector_sdk import signing
 SEED = bytes(range(32))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R901.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R901.2")
 def test_signature_round_trips_over_canonical_json() -> None:
     public = signing.public_key_b64(SEED)
     signature = signing.sign_datapoint({"b": 2, "a": 1}, SEED)
@@ -19,7 +19,7 @@ def test_signature_round_trips_over_canonical_json() -> None:
     assert signing.verify_datapoint('{"a":1,"b":2}', signature, public)
 
 
-# spec: SDK-CONNECTOR-CONTROL-R901.4
+# spec: SCION-CONNECTOR-CONTROL-R901.4
 @pytest.mark.parametrize(
     ("datapoint", "signature", "public"),
     [
@@ -30,7 +30,7 @@ def test_signature_round_trips_over_canonical_json() -> None:
         ({"a": 1}, "good", "not base64!"),
     ],
 )
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R901.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R901.5")
 def test_any_mismatch_fails_closed(
     datapoint: object, signature: str, public: str
 ) -> None:
@@ -41,7 +41,7 @@ def test_any_mismatch_fails_closed(
     assert signing.verify_datapoint(datapoint, signature, public) is False
 
 
-# spec: SDK-CONNECTOR-CONTROL-R901.4, SDK-CONNECTOR-CONTROL-R901.6
+# spec: SCION-CONNECTOR-CONTROL-R901.4, SCION-CONNECTOR-CONTROL-R901.6
 def test_configured_seed_is_used_and_malformed_seed_is_refused(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -58,7 +58,7 @@ def test_configured_seed_is_used_and_malformed_seed_is_refused(
         signing.sign_datapoint("x")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R901.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R901.3")
 def test_configured_signing_seed_reads_through_sdk_setting(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

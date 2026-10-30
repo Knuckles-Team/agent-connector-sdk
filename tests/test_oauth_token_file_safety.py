@@ -7,7 +7,7 @@ import pytest
 from agent_connector_sdk.auth.browser import FileTokenStore
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R046.8")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R046.8")
 def test_token_file_symlink_never_reads_or_overwrites_target(tmp_path) -> None:
     root = tmp_path / "tokens"
     root.mkdir()
@@ -21,7 +21,7 @@ def test_token_file_symlink_never_reads_or_overwrites_target(tmp_path) -> None:
     assert target.read_text(encoding="utf-8") == "original"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R046.8")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R046.8")
 def test_token_file_is_restricted_before_write(tmp_path) -> None:
     root = tmp_path / "tokens"
     root.mkdir()
@@ -34,7 +34,7 @@ def test_token_file_is_restricted_before_write(tmp_path) -> None:
     assert store.get("account") == "new"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R046.8")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R046.8")
 def test_token_store_refuses_nonregular_files_without_waiting(tmp_path) -> None:
     import os
 

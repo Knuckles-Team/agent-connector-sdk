@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R028.1: the SSRF egress policy check and pinned transport."""
+"""SCION-CONNECTOR-CONTROL-R028.1: the SSRF egress policy check and pinned transport."""
 
 from __future__ import annotations
 
@@ -19,26 +19,26 @@ from agent_connector_sdk.testing.certificates import issue_test_certificates
 from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.1")
 @pytest.mark.parametrize("host", ["127.0.0.1", "localhost", "10.0.0.5", "192.168.1.1"])
 def test_private_and_loopback_destinations_rejected_by_default(host: str) -> None:
     with pytest.raises(EgressPolicyError):
         check_egress_destination(host)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.1")
 def test_explicitly_allowed_private_host_passes() -> None:
     check_egress_destination(
         "10.0.0.5", EgressOptions(allowed_private_hosts={"10.0.0.5"})
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.1")
 def test_explicitly_allowed_loopback_passes() -> None:
     check_egress_destination("127.0.0.1", EgressOptions(allow_loopback=True))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.1")
 @pytest.mark.parametrize("host", ["LOCALHOST", "localhost.", "LoCaLhOsT."])
 def test_loopback_hostname_canonicalization(host: str) -> None:
     with pytest.raises(EgressPolicyError):
@@ -49,17 +49,17 @@ def test_loopback_hostname_canonicalization(host: str) -> None:
         check_egress_destination(host, EgressOptions(allowed_private_hosts={"other"}))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.1")
 def test_public_destination_always_passes() -> None:
     check_egress_destination("api.example.com")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.1")
 def test_pin_egress_false_disables_the_check_entirely() -> None:
     check_egress_destination("127.0.0.1", EgressOptions(pin_egress=False))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.1")
 def test_pinned_transport_reuses_the_resolved_address_not_dns() -> None:
     seen_hosts: list[str] = []
 
@@ -84,7 +84,7 @@ def test_pinned_transport_reuses_the_resolved_address_not_dns() -> None:
     assert seen_hosts == ["203.0.113.9", "203.0.113.9"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R028.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.1")
 def test_pinned_transport_verifies_original_tls_hostname(tmp_path: Path) -> None:
     certificates = issue_test_certificates()
     server_context = certificates.server_context(tmp_path)

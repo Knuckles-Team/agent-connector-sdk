@@ -23,7 +23,7 @@ def _context(token: str | None) -> ToolExecutionContext:
 
 
 @pytest.mark.asyncio
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R050.8")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R050.8")
 async def test_ordered_progress_serializes_and_bounds_delivery() -> None:
     assert PROGRESS_SEND_TIMEOUT == 5.0
     sent = []

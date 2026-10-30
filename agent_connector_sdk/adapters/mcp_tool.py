@@ -104,7 +104,7 @@ class McpToolSourceAdapter:
         """Build an adapter from a sync declaration.
 
         The tool fingerprint is the live compatibility fingerprint read at
-        discovery (SDK-CONNECTOR-CONTROL-R075.3).
+        discovery (SCION-CONNECTOR-CONTROL-R075.3).
         """
         return cls(
             ToolPreset.from_mapping(spec.preset, dict(spec.raw)),

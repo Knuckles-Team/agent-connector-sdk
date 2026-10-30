@@ -35,7 +35,7 @@ def test_proof_hash_is_deterministic_and_content_bound() -> None:
     assert _proof().proof_hash != _proof(transaction_hash="0xdef").proof_hash
 
 
-# spec: SDK-FINANCE-SOURCES-R900.4
+# spec: SCION-FINANCE-SOURCES-R900.4
 @pytest.mark.parametrize(
     ("limits", "spent", "challenge", "reason"),
     [
@@ -128,7 +128,7 @@ def test_guard_refuses_invalid_limits_and_accounting_overflow() -> None:
     assert guard._monthly_spend == 1e308
 
 
-# spec: SDK-FINANCE-SOURCES-R900.6
+# spec: SCION-FINANCE-SOURCES-R900.6
 def test_client_parses_402_proves_and_records_spend() -> None:
     client = X402PaymentClient(
         wallet_address="0xwallet",
@@ -158,7 +158,7 @@ def test_client_parses_402_proves_and_records_spend() -> None:
     assert "Payment-Proof" in headers and headers["X-Payment-Chain"] == "base"
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R900.8")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R900.8")
 @pytest.mark.parametrize(
     ("field", "value"),
     [
@@ -197,7 +197,7 @@ def test_confirmed_payment_requires_challenge_identity() -> None:
     assert client.get_payment_history() == []
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R049.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R049.7")
 def test_default_payment_budgets_deny_positive_challenges() -> None:
     challenge = PaymentChallenge("r", 1.0)
     assert X402PaymentClient().authorize_payment(challenge)[0] is False

@@ -70,7 +70,7 @@ class _Resolver:
         ),
     ],
 )
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R900.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R900.1")
 def test_descriptor_materializes_request_auth(
     descriptor: dict[str, Any], headers: dict[str, str], params: dict[str, str]
 ) -> None:
@@ -78,7 +78,7 @@ def test_descriptor_materializes_request_auth(
     assert (material.headers, material.params) == (headers, params)
 
 
-# spec: SDK-CONNECTOR-CONTROL-R900.4
+# spec: SCION-CONNECTOR-CONTROL-R900.4
 @pytest.mark.parametrize(
     "descriptor",
     [
@@ -101,7 +101,7 @@ def test_unknown_type_is_a_key_error_naming_the_kinds() -> None:
         build_credential({"type": "kerberos"})
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R900.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R900.2")
 def test_oauth2_refreshes_inside_the_expiry_skew_with_an_injected_clock() -> None:
     now = [0.0]
     posts: list[dict[str, str]] = []
@@ -139,7 +139,7 @@ def test_oauth2_failed_refresh_sends_no_header() -> None:
     assert credential.is_present()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R900.3")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R900.3")
 def test_source_registry_wires_secret_and_tls_resolvers_for_refresh(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -226,7 +226,7 @@ def test_source_registry_wires_secret_and_tls_resolvers_for_refresh(
     assert client_calls[1]["auth"] == ("client", "cs")
 
 
-# spec: SDK-CONNECTOR-CONTROL-R900.6
+# spec: SCION-CONNECTOR-CONTROL-R900.6
 def test_registry_caches_degrades_and_reports_status_without_values(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

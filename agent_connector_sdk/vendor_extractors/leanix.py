@@ -1,4 +1,4 @@
-"""LeanIX Enterprise Architecture vendor extractor (SDK-SOURCE-INGEST-R006.24).
+"""LeanIX Enterprise Architecture vendor extractor (SCION-SOURCE-INGEST-R006.24).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.leanix``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract``:

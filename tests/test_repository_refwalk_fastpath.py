@@ -1,6 +1,6 @@
 """Focused checks for Git tree batching across refs and nested trees.
 
-Proves SDK-REPOSITORY-TRANSPORT-R003: the walk phase visits each distinct Git
+Proves SCION-REPOSITORY-TRANSPORT-R003: the walk phase visits each distinct Git
 tree once and reads objects in batches, and its output matches a plain
 recursive ``git ls-tree`` listing.
 """
@@ -37,7 +37,7 @@ def _init_repo(root: Path) -> None:
     _git(root, "config", "user.email", "fixture@example.invalid")
 
 
-@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R003")
+@pytest.mark.spec("SCION-REPOSITORY-TRANSPORT-R003")
 async def test_distinct_commits_with_one_tree_walk_once(tmp_path: Path) -> None:
     root = tmp_path / "repo"
     _init_repo(root)
@@ -76,7 +76,7 @@ async def test_distinct_commits_with_one_tree_walk_once(tmp_path: Path) -> None:
     ]
 
 
-@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R003")
+@pytest.mark.spec("SCION-REPOSITORY-TRANSPORT-R003")
 async def test_batch_matches_git_recursive_listing(tmp_path: Path) -> None:
     root = tmp_path / "repo"
     _init_repo(root)
@@ -156,7 +156,7 @@ async def test_provider_ignores_inherited_repository_selectors(
     assert {name: os.environ[name] for name in selectors} == selectors
 
 
-@pytest.mark.spec("SDK-REPOSITORY-TRANSPORT-R007")
+@pytest.mark.spec("SCION-REPOSITORY-TRANSPORT-R007")
 async def test_local_blob_read_is_bound_to_selected_commit(tmp_path: Path) -> None:
     root = tmp_path / "repo"
     _init_repo(root)

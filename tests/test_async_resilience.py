@@ -9,7 +9,7 @@ from agent_connector_sdk.http.retry import RetryPolicy
 from agent_connector_sdk.resilience import run_with_resilience
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.10")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.10")
 async def test_retry_then_fallback_in_order() -> None:
     calls: list[str] = []
 
@@ -36,7 +36,7 @@ async def test_retry_then_fallback_in_order() -> None:
     assert calls == ["primary", "primary", "first", "second"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.10")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.10")
 async def test_refusals_and_timeout_never_retry() -> None:
     calls: list[str] = []
 
@@ -71,7 +71,7 @@ async def test_refusals_and_timeout_never_retry() -> None:
         )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.10")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.10")
 async def test_unlisted_error_never_runs_fallback() -> None:
     calls = []
 
@@ -89,7 +89,7 @@ async def test_unlisted_error_never_runs_fallback() -> None:
     assert calls == []
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.10")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.10")
 async def test_invalid_policy_refuses_before_call() -> None:
     calls = []
 
@@ -106,7 +106,7 @@ async def test_invalid_policy_refuses_before_call() -> None:
     assert not calls
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.10")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.10")
 async def test_certificate_verification_failure_never_retries() -> None:
     import ssl
 
@@ -127,7 +127,7 @@ async def test_certificate_verification_failure_never_retries() -> None:
     assert calls == [1]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R780.10")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.10")
 async def test_last_retryable_fallback_failure_propagates() -> None:
     calls = []
 

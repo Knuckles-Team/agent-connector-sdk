@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R014.18-R014.20: served security, provider profiles, plugin groups."""
+"""SCION-CONNECTOR-CONTROL-R014.18-R014.20: served security, provider profiles, plugin groups."""
 
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ class _Recorder:
         self.middleware.append(item)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.18")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.18")
 def test_r014_18_stdio_is_untouched_and_network_without_auth_is_refused() -> None:
     assert apply_served_security_profile("stdio", auth_provider=None) is False
     for transport in ("streamable-http", "sse"):
@@ -47,7 +47,7 @@ def test_r014_18_stdio_is_untouched_and_network_without_auth_is_refused() -> Non
             apply_served_security_profile(transport, auth_provider=None, audience="a")
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.18")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.18")
 def test_r014_18_audience_required_and_middleware_installed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -67,7 +67,7 @@ def test_r014_18_audience_required_and_middleware_installed(
     assert installed._required == {"read", "write"}
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.18")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.18")
 def test_r014_18_override_is_explicit_and_logged(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
@@ -113,7 +113,7 @@ def _token(**kwargs: Any) -> SimpleNamespace:
         ),
     ],
 )
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.18")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.18")
 async def test_r014_18_middleware_enforces_identity_tenant_acl_session(
     monkeypatch: pytest.MonkeyPatch,
     token: Any,
@@ -137,7 +137,7 @@ async def test_r014_18_middleware_enforces_identity_tenant_acl_session(
             await middleware.on_request(context, call_next)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.18")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.18")
 def test_r014_18_every_server_gets_the_profile_by_default() -> None:
     with pytest.raises(SystemExit):
         create_mcp_server(
@@ -147,7 +147,7 @@ def test_r014_18_every_server_gets_the_profile_by_default() -> None:
     assert not any(isinstance(m, ServedSecurityMiddleware) for m in mcp.middleware)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.18")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.18")
 def test_r014_18_static_token_carries_tenant() -> None:
     from agent_connector_sdk.mcp.auth.policy import AuthConfigurationError
     from agent_connector_sdk.mcp.auth.static import validated_static_tokens
@@ -182,7 +182,7 @@ def _env(monkeypatch: pytest.MonkeyPatch, **values: str) -> None:
         monkeypatch.setenv(key, value)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.19")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.19")
 def test_r014_19_selected_profile_resolves_and_closes(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -208,7 +208,7 @@ def test_r014_19_selected_profile_resolves_and_closes(
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.19")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.19")
 def test_r014_19_failures_are_stable_codes_without_values(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -255,13 +255,13 @@ def test_r014_19_failures_are_stable_codes_without_values(
         "[]",
     ],
 )
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.19")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.19")
 def test_r014_19_invalid_profile_documents_are_refused(document: str) -> None:
     with pytest.raises(ProviderProfileError, match="provider_profiles_invalid"):
         load_provider_profiles(document)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.19")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.19")
 def test_r014_19_empty_configuration_has_no_profiles(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -270,7 +270,7 @@ def test_r014_19_empty_configuration_has_no_profiles(
     assert pp.ProviderProfile().enabled is False
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.20")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.20")
 def test_r014_20_entry_point_groups_use_the_sdk_namespace() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text())
     groups = set(project["project"]["entry-points"])

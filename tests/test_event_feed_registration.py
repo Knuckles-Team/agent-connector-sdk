@@ -14,7 +14,7 @@ from agent_connector_sdk.discovery import (
 from agent_connector_sdk.manifest.presets import ToolPreset
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.5")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.5")
 def test_event_feed_entrypoints_require_certified_identity() -> None:
     names = ("rum", "security_audit", "ci_cd")
     identities = {item.name: item for item in discover_extensions(SOURCE_ADAPTER_GROUP)}

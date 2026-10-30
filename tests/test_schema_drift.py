@@ -178,7 +178,7 @@ class SyntheticAdapter:
         )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R002")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R002")
 async def test_classifier_contract_covers_representative_changes_and_quarantine(
     sessions: SessionFactory,
 ) -> None:
@@ -203,7 +203,7 @@ async def test_classifier_contract_covers_representative_changes_and_quarantine(
     assert (await sink.source_status("synthetic", "items")).accepted_checkpoint is None
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R007")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R007")
 async def test_drift_gate_runs_between_drain_and_apply_with_no_shacl_or_activation(
     sessions: SessionFactory,
 ) -> None:

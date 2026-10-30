@@ -15,8 +15,8 @@ from agent_connector_sdk.httpsupport.pagination import (
 )
 
 pytestmark = [
-    pytest.mark.spec("SDK-CONNECTOR-CONTROL-R014.10"),
-    pytest.mark.spec("SDK-SOURCE-INGEST-R802"),
+    pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.10"),
+    pytest.mark.spec("SCION-SOURCE-INGEST-R802"),
 ]
 
 
@@ -52,7 +52,7 @@ def test_cursor_pagination_follows_dotted_response_path():
     assert seen_params[1] == {"q": "x", "after": "c2"}
 
 
-@pytest.mark.spec("SDK-CENTRALIZED-CAPABILITIES-R004.5")
+@pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.5")
 def test_cursor_partial_page_has_no_unsafe_resume_cursor():
     def fetch(url, params):
         start = int((params or {}).get("cursor", 0))

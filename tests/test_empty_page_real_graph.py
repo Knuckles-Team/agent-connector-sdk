@@ -19,7 +19,7 @@ from agent_connector_sdk.ingest import (
 from agent_connector_sdk.ingest.transport import EpistemicGraphIngestTransport
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R004.33")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R004.33")
 def test_empty_page_checkpoint_on_real_graph(live_ingest: Any) -> None:  # noqa: F811
     binding = IngestBinding(connector=CONNECTOR, stream="empty-window")
     stream = SourceStream(binding, {"item": RecordMap("Item", "demo:{_id}")})

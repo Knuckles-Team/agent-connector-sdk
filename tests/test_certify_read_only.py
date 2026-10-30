@@ -21,8 +21,8 @@ from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.transports.mcp import McpTransport
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.9")
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.10")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.9")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.10")
 async def test_mcp_hint_requires_matching_write_free_fixture() -> None:
     server = FastMCP("demo")
 
@@ -71,7 +71,7 @@ async def test_mcp_hint_requires_matching_write_free_fixture() -> None:
     assert rejected.verdicts[0].status is ToolStatus.UNPROVEN
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045.10")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045.10")
 async def test_non_preset_read_only_hint_is_not_silently_certified() -> None:
     server = FastMCP("demo")
 

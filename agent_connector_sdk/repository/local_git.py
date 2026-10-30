@@ -157,7 +157,7 @@ class LocalGitRepositoryProvider:
 
         Tree objects are content addressed, so common subtrees are read once
         even when many branch tips have different root trees
-        (SDK-REPOSITORY-TRANSPORT-R003).
+        (SCION-REPOSITORY-TRANSPORT-R003).
         """
         roots = tuple(dict.fromkeys(oid for oid in tree_ids if oid not in self._trees))
         if not roots:

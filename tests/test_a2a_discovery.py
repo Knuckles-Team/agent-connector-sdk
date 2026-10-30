@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R047 agent-card discovery contract tests."""
+"""SCION-CONNECTOR-CONTROL-R047 agent-card discovery contract tests."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ def _body(*, name: str = "Research Agent") -> bytes:
     ).encode()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.1")
 def test_discovered_card_is_frozen_and_typed() -> None:
     card = DiscoveredAgentCard(
         base_url="https://agent.example",
@@ -41,7 +41,7 @@ def test_discovered_card_is_frozen_and_typed() -> None:
         card.base_url = "https://other.example"  # type: ignore[misc]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.2")
 def test_fetch_uses_well_known_path_and_etag() -> None:
     with ScriptedHttpServer(
         ScriptedResponse(
@@ -62,7 +62,7 @@ def test_fetch_uses_well_known_path_and_etag() -> None:
     assert server.requests[1].headers["if-none-match"] == '"v1"'
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.4")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.4")
 def test_refusals_write_nothing() -> None:
     cases = (
         (ScriptedResponse(status=404), "not_found"),
@@ -89,7 +89,7 @@ def test_refusals_write_nothing() -> None:
         assert "secret" not in repr(result)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.5")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.5")
 def test_entity_carries_fetch_provenance() -> None:
     with ScriptedHttpServer(
         ScriptedResponse(
@@ -125,7 +125,7 @@ def test_compressed_card_is_refused_before_decoding() -> None:
     assert server.requests[0].headers["accept-encoding"] == "identity"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.7")
 def test_discovery_cache_is_bounded_and_refreshes_hits(monkeypatch) -> None:
     from collections import OrderedDict
 
@@ -155,7 +155,7 @@ def test_discovery_cache_is_bounded_and_refreshes_hits(monkeypatch) -> None:
     assert len(discovery._CACHE) == 2
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.8")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.8")
 def test_cached_card_is_isolated_from_returned_mutations() -> None:
     with ScriptedHttpServer(
         ScriptedResponse(body=_body(), headers={"ETag": '"v1"'}),
@@ -178,7 +178,7 @@ def test_cached_card_is_isolated_from_returned_mutations() -> None:
         )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.9")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.9")
 @pytest.mark.parametrize("number", ["NaN", "Infinity", "-Infinity", "1e999"])
 def test_nonfinite_card_refuses_before_extractor_writes(number: str) -> None:
     payload = ('{"name":"A", "metadata":{"score":' + number + "}}").encode()
@@ -191,7 +191,7 @@ def test_nonfinite_card_refuses_before_extractor_writes(number: str) -> None:
     assert changes.entities == ()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R047.9")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.9")
 def test_finite_card_numbers_remain_accepted() -> None:
     with ScriptedHttpServer(
         ScriptedResponse(body=b'{"name":"A","metadata":{"score":-1.5}}')

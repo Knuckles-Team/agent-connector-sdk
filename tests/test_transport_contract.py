@@ -25,7 +25,7 @@ ex:feed a ac:AccessContract ; ac:classIri ex:Event ; ac:sourceId "source" ;
  ac:pushdown {pushdown} .'''
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R069.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R069.1")
 def test_transport_contract_round_trips() -> None:
     assert "sasl" in AUTH_MODELS
     assert "offset" in STREAM_MODES

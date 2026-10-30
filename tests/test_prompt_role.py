@@ -9,7 +9,7 @@ from agent_connector_sdk.artifacts.pack import build_connector_content_pack
 from agent_connector_sdk.mcp.content import ConnectorContent, ContentError
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R074.2")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R074.2")
 async def test_prompt_role_and_concepts_reach_the_pack_entry(tmp_path):
     prompts = tmp_path / "prompts"
     prompts.mkdir()

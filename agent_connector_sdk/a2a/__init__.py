@@ -1,6 +1,6 @@
 """Agent-to-Agent (A2A) protocol pieces any connector or host can reuse.
 
-CONCEPT:SDK-CONNECTOR-CONTROL-R014.21
+CONCEPT:SCION-CONNECTOR-CONTROL-R014.21
 
 The base install carries the wire models and the JSON-RPC client (pydantic and
 httpx only). The server-side application factory needs the optional ``a2a``

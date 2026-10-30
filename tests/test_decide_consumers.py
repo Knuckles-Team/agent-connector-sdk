@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R006 / SDK-GOVERNED-WRITEBACK-R001: the SDK's own
+"""SCION-CONNECTOR-CONTROL-R006 / SCION-GOVERNED-WRITEBACK-R001: the SDK's own
 ``Decide`` call sites are evaluate-only and never authorize; all three paths
 (no runner installed, EG abstains, EG names something outside the offered
 set) fall back deterministically.
@@ -155,7 +155,7 @@ def test_triage_falls_back_when_decide_abstains(eg: FakeRunner) -> None:
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R006")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R006")
 def test_triage_proposal_never_reaches_write_back(eg: FakeRunner) -> None:
     """A triage proposal is observational: it returns a plain action string,
     never a write-back change-set, and never asks the write-back question."""
@@ -166,14 +166,14 @@ def test_triage_proposal_never_reaches_write_back(eg: FakeRunner) -> None:
     assert all(question != "au.connector.writeback" for question, _ in eg.calls)
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R001")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R001")
 def test_writeback_with_no_runner_defaults_to_no_write() -> None:
     assert decide.current_runner() is None
     proposals = {"close-incident": {"server": "servicenow-mcp", "tool": "t"}}
     assert propose_writeback(proposals) == (NO_WRITE, None)
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R001")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R001")
 def test_writeback_is_only_ever_a_proposal(eg: FakeRunner) -> None:
     proposals = {"close-incident": {"server": "servicenow-mcp", "tool": "t"}}
     eg.answer = _acted("close-incident")

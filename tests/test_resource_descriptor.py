@@ -27,7 +27,7 @@ def _descriptor(**changes):
     return ResourceDescriptor(**(values | changes))
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R074.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R074.1")
 def test_descriptor_round_trips_and_names_only_a_credential_reference():
     descriptor = _descriptor()
     assert ResourceDescriptor.from_json(descriptor.to_json()) == descriptor

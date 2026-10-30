@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R031: a literal client_secret, matching the prior call shape."""
+"""SCION-CONNECTOR-CONTROL-R031: a literal client_secret, matching the prior call shape."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ def _minting_transport(
     return httpx.MockTransport(handler)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R031")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R031")
 def test_literal_client_secret_is_used_to_fetch_a_token() -> None:
     captured: list[str] = []
     client = httpx.Client(transport=_minting_transport(captured))
@@ -46,7 +46,7 @@ def test_literal_client_secret_is_used_to_fetch_a_token() -> None:
     assert base64.b64decode(encoded).decode() == f"fleet-client:{_LITERAL_SECRET}"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R031")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R031")
 def test_requires_exactly_one_of_ref_and_literal_secret() -> None:
     client = httpx.Client(transport=_minting_transport([]))
     with pytest.raises(ValueError):
@@ -65,7 +65,7 @@ def test_requires_exactly_one_of_ref_and_literal_secret() -> None:
         )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R031")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R031")
 def test_literal_secret_never_appears_in_repr_or_str() -> None:
     client = httpx.Client(transport=_minting_transport([]))
     provider = ClientCredentialsTokenProvider(

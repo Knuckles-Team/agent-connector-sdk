@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R073: content is passed explicitly; the factory has no implicit lookup."""
+"""SCION-CONNECTOR-CONTROL-R073: content is passed explicitly; the factory has no implicit lookup."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from agent_connector_sdk.connector import content_dirs
 from agent_connector_sdk.mcp.content import ConnectorContent
 from agent_connector_sdk.mcp.server import create_mcp_server
 
-pytestmark = pytest.mark.spec("SDK-CONNECTOR-CONTROL-R073")
+pytestmark = pytest.mark.spec("SCION-CONNECTOR-CONTROL-R073")
 
 from pathlib import Path  # noqa: E402
 

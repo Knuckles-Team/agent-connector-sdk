@@ -20,7 +20,7 @@ def _project(path: Path) -> dict[str, object]:
     return cast(dict[str, object], document["project"])
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R003")
 def test_old_distribution_is_a_version_matched_metadata_forwarder() -> None:
     target = _project(ROOT)
     alias = _project(COMPAT)
@@ -36,7 +36,7 @@ def test_old_distribution_is_a_version_matched_metadata_forwarder() -> None:
         ]
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R003")
 def test_old_distribution_declares_no_payload_or_entry_points() -> None:
     alias = _project(COMPAT)
     assert "scripts" not in alias
@@ -51,7 +51,7 @@ def test_old_distribution_declares_no_payload_or_entry_points() -> None:
     } == {Path("pyproject.toml"), Path("README.md")}
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R003")
 def test_next_bump_updates_the_forwarder_version_with_the_target() -> None:
     config = ConfigParser()
     config.read(ROOT / ".bumpversion.cfg")
@@ -103,7 +103,7 @@ def test_bump_updates_all_compatibility_dependency_pins(tmp_path: Path) -> None:
         assert requirements == [f"scion-sdk[{extra}]==99.99.99"]
 
 
-@pytest.mark.spec("SDK-QUALITY-RELEASE-R003")
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R003")
 def test_upgrade_guidance_requires_payload_safe_recovery_and_verification() -> None:
     guidance = (COMPAT / "README.md").read_text(encoding="utf-8")
     assert "Do not" in guidance

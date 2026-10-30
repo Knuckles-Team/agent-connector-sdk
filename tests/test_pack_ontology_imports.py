@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R022: pack-scoped owl:imports."""
+"""SCION-CONNECTOR-CONTROL-R022: pack-scoped owl:imports."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ def _requirements(entry: CapturedArtifact) -> list[str]:
     return list(entry.annotations.requires_capabilities)
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R022")
 def test_external_import_is_removed_and_recorded() -> None:
     body = (
         "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
@@ -48,7 +48,7 @@ def test_external_import_is_removed_and_recorded() -> None:
     assert _requirements(scoped) == [f"{IMPORT_REQUIREMENT_PREFIX}{HUB}"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R022")
 def test_comment_import_example_is_not_recorded_as_a_capability() -> None:
     body = (
         "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
@@ -64,7 +64,7 @@ def test_comment_import_example_is_not_recorded_as_a_capability() -> None:
     assert _requirements(scoped) == [f"{IMPORT_REQUIREMENT_PREFIX}urn:actual"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R022")
 def test_commented_legal_import_separator_preserves_documentation() -> None:
     body = (
         "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
@@ -85,7 +85,7 @@ def test_commented_legal_import_separator_preserves_documentation() -> None:
     assert "owl:imports <http://knuckles.team/kg/legal>" not in scoped.body
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R022")
 def test_import_text_in_literals_does_not_change_graph_or_bytes() -> None:
     body = (
         "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
@@ -109,7 +109,7 @@ def test_import_text_in_literals_does_not_change_graph_or_bytes() -> None:
     assert set(after) - set(before) == set()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R022")
 def test_trailing_import_and_mixed_list() -> None:
     body = (
         "<http://x/demo> a owl:Ontology ;\n"
@@ -128,7 +128,7 @@ def test_trailing_import_and_mixed_list() -> None:
     ]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R022")
 def test_adjacent_trailing_drops_keep_first_import_and_comments() -> None:
     body = (
         "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
@@ -163,7 +163,7 @@ def test_adjacent_trailing_drops_keep_first_import_and_comments() -> None:
     assert set(after) - set(before) == set()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R022")
 def test_lone_statement_and_full_iri_predicate() -> None:
     body = (
         "<http://x/demo> a owl:Ontology .\n"
@@ -177,20 +177,20 @@ def test_lone_statement_and_full_iri_predicate() -> None:
     )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R022")
 def test_self_import_is_removed() -> None:
     body = f"<http://x/demo> a owl:Ontology ;\n    owl:imports <{SELF}> .\n"
     scoped = scope_ontology_imports(_entry(body), PACK)
     assert scoped.body == "<http://x/demo> a owl:Ontology .\n"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R022")
 def test_in_pack_imports_keep_bytes_and_identity() -> None:
     entry = _entry(f"<http://x/demo> a owl:Ontology ;\n    owl:imports <{SIBLING}> .\n")
     assert scope_ontology_imports(entry, PACK) is entry
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R022")
 def test_rdfxml_import_is_removed() -> None:
     body = (
         '<owl:Ontology rdf:about="http://x/demo">\n'
@@ -204,7 +204,7 @@ def test_rdfxml_import_is_removed() -> None:
     assert _requirements(scoped) == [f"{IMPORT_REQUIREMENT_PREFIX}{HUB}"]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R022")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R022")
 def test_scoping_is_deterministic() -> None:
     body = f"<http://x/demo> a owl:Ontology ;\n    owl:imports <{HUB}> .\n"
     first = scope_ontology_imports(_entry(body), PACK)

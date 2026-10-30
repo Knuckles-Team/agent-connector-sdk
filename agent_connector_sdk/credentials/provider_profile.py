@@ -1,4 +1,4 @@
-"""Selected-provider credential profiles (SDK-CONNECTOR-CONTROL-R014.19).
+"""Selected-provider credential profiles (SCION-CONNECTOR-CONTROL-R014.19).
 
 Ported from ``agent_utilities.core.provider_runtime`` (the selection and
 resolution half; child-process projection stays with arbora). A deployment

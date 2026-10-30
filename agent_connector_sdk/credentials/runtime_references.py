@@ -1,4 +1,4 @@
-"""Secret-reference-only command-line arguments (SDK-CONNECTOR-CONTROL-R014.4).
+"""Secret-reference-only command-line arguments (SCION-CONNECTOR-CONTROL-R014.4).
 
 Moved from agent-utilities ``security.cli_secrets``. Secret material never
 travels in a process argument: a CLI accepts only a bounded ``env://``,

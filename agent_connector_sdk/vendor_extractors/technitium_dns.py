@@ -1,4 +1,4 @@
-"""Technitium DNS vendor extractor (SDK-SOURCE-INGEST-R006.10).
+"""Technitium DNS vendor extractor (SCION-SOURCE-INGEST-R006.10).
 
 Ported from
 ``agent_utilities.knowledge_graph.enrichment.extractors.technitium_dns`` onto

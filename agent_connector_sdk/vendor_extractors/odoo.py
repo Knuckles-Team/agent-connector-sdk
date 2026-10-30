@@ -1,4 +1,4 @@
-"""Odoo CRM vendor extractor (SDK-SOURCE-INGEST-R006.15).
+"""Odoo CRM vendor extractor (SCION-SOURCE-INGEST-R006.15).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.odoo``
 onto this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`::

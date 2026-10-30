@@ -13,7 +13,7 @@ from agent_connector_sdk.mcp.context import (
 )
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R050.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R050.1")
 def test_context_and_progress_models_validate_identity_and_bounds() -> None:
     context = {
         "tenant_id": "tenant",

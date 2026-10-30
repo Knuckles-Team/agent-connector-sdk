@@ -4,7 +4,7 @@ Each sink under :mod:`agent_connector_sdk.writeback_sinks.sinks` registers a
 target system's write-back adapter. :func:`run_writeback` is the single
 fail-closed, dry-run-first entry point; every live call is executed through
 the governed change-set, audit-reservation and ledger path in
-:mod:`agent_connector_sdk.writeback_sinks.governed`. SDK-SOURCE-INGEST-R600
+:mod:`agent_connector_sdk.writeback_sinks.governed`. SCION-SOURCE-INGEST-R600
 owns this package.
 """
 

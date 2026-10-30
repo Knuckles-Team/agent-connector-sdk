@@ -1,4 +1,4 @@
-"""SDK-OBSERVABILITY-FEEDS-R001: RUM, security-audit and CI/CD event feeds.
+"""SCION-OBSERVABILITY-FEEDS-R001: RUM, security-audit and CI/CD event feeds.
 
 OF-01..OF-05 run offline against a fake in-memory MCP session (no network, no
 production telemetry). OF-06 uses a separate isolated graph fixture.
@@ -264,7 +264,7 @@ async def _single_page_sweep(
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001")
 async def test_rum_event_carries_identity_time_privacy_and_digest() -> None:
     preset = _preset("rum-stream", "rum_events")
     session = FakeEventSession(
@@ -282,7 +282,7 @@ async def test_rum_event_carries_identity_time_privacy_and_digest() -> None:
     assert len(record.payload["payload_digest"]) == 64
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001")
 async def test_rum_event_refuses_raw_credential_fields() -> None:
     preset = _preset("rum-stream", "rum_events")
     session = FakeEventSession(
@@ -298,7 +298,7 @@ async def test_rum_event_refuses_raw_credential_fields() -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001")
 async def test_audit_event_retains_outcome_and_chain_reference() -> None:
     preset = _preset("audit-stream", "audit_events")
     session = FakeEventSession(
@@ -390,7 +390,7 @@ async def test_identical_duplicate_is_idempotent_across_pages() -> None:
     assert await _collect_record_ids(adapter, session, pages=2) == ["dup-1"]
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.1")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.1")
 async def test_rejected_page_does_not_poison_event_identity():
     preset = _preset("rum-stream", "rum_events")
     valid = _rum_event("retry-1")
@@ -426,7 +426,7 @@ async def test_changed_digest_for_a_known_id_is_a_conflict_not_an_overwrite() ->
         await adapter.extract(session, checkpoint)
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.2")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.2")
 @pytest.mark.parametrize("failure", ["network", "invalid_receipt", "cancel"])
 async def test_event_identity_waits_for_worker_acceptance(failure):
     class FailOnceSink(InMemorySink):
@@ -473,7 +473,7 @@ async def test_event_identity_waits_for_worker_acceptance(failure):
     assert sum(len(batch.records) for batch in sink.batches.values()) == 1
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.2")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.2")
 async def test_unfinished_event_page_refuses_reentry_and_wrong_completion():
     preset = _preset("rum-stream", "rum_events")
     event = _rum_event("pending")
@@ -491,7 +491,7 @@ async def test_unfinished_event_page_refuses_reentry_and_wrong_completion():
     assert len((await adapter.extract(session, None)).records) == 1
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.2")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.2")
 async def test_concurrent_event_extraction_refuses_before_second_tool_call():
     entered, release = asyncio.Event(), asyncio.Event()
     preset = _preset("rum-stream", "rum_events")
@@ -682,7 +682,7 @@ def test_describe_names_the_feed_specific_kind() -> None:
     assert descriptor.pagination == ("cursor",)
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.8")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.8")
 def test_event_identity_capacity_preserves_known_entries():
     tracker = EventIdentityTracker(max_entries=2, max_bytes=12)
     assert tracker.classify("one", "d1") is EventIdentityOutcome.NEW
@@ -695,7 +695,7 @@ def test_event_identity_capacity_preserves_known_entries():
     assert tracker.classify("two", "d2") is EventIdentityOutcome.DUPLICATE
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.8")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.8")
 def test_event_identity_bounds_apply_to_staged_utf8_bytes():
     tracker = EventIdentityTracker(max_entries=3, max_bytes=6)
     tracker.classify("é", "d")
@@ -705,7 +705,7 @@ def test_event_identity_bounds_apply_to_staged_utf8_bytes():
     assert tracker.classify("é", "d") is EventIdentityOutcome.DUPLICATE
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.8")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.8")
 async def test_identity_capacity_refuses_page_without_advancing_checkpoint():
     preset = _preset("rum-stream", "rum_events")
     session = FakeEventSession(
@@ -723,7 +723,7 @@ async def test_identity_capacity_refuses_page_without_advancing_checkpoint():
     ).accepted_checkpoint is None
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.8")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.8")
 def test_event_identity_rejects_stale_staged_pages():
     tracker = EventIdentityTracker(max_entries=2, max_bytes=20)
     first = tracker.fork()
@@ -736,7 +736,7 @@ def test_event_identity_rejects_stale_staged_pages():
     assert tracker.classify("first", "d1") is EventIdentityOutcome.DUPLICATE
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.8")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.8")
 @pytest.mark.parametrize(
     "limits",
     [
@@ -752,7 +752,7 @@ def test_event_identity_refuses_unbounded_limits(limits):
         EventIdentityTracker(**limits)
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.7")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.7")
 async def test_bound_tenant_refuses_before_duplicate_classification():
     preset = _preset("rum-stream", "rum_events")
     descriptor = _tool_descriptor(preset.tool)
@@ -778,7 +778,7 @@ async def test_bound_tenant_refuses_before_duplicate_classification():
     adapter.finish_page(retry, accepted=True)
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.7")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.7")
 @pytest.mark.parametrize("tenant", ["", " ", " tenant-a ", 7])
 def test_bound_tenant_requires_exact_nonblank_identity(tenant):
     preset = _preset("rum-stream", "rum_events")
@@ -792,7 +792,7 @@ def test_bound_tenant_requires_exact_nonblank_identity(tenant):
         )
 
 
-@pytest.mark.spec("SDK-OBSERVABILITY-FEEDS-R001.7")
+@pytest.mark.spec("SCION-OBSERVABILITY-FEEDS-R001.7")
 async def test_bound_tenant_refusal_preserves_sink_checkpoint():
     preset = _preset("rum-stream", "rum_events")
     descriptor = _tool_descriptor(preset.tool)

@@ -1,4 +1,4 @@
-"""SDK-SOURCE-INGEST-R006.9: the Microsoft 365 vendor extractor port."""
+"""SCION-SOURCE-INGEST-R006.9: the Microsoft 365 vendor extractor port."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ class _FakeClient:
         return self._users
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.9")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.9")
 def test_extract_returns_calendar_event_and_person_entities() -> None:
     config = {
         "client": _FakeClient(
@@ -57,12 +57,12 @@ def test_extract_returns_calendar_event_and_person_entities() -> None:
     assert result.relationships == ()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.9")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.9")
 def test_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert extract({}) == ChangeSet()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.9")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.9")
 def test_extract_returns_an_empty_change_set_when_calendar_events_raises() -> None:
     class _BrokenClient:
         def calendar_events(self) -> object:
@@ -74,7 +74,7 @@ def test_extract_returns_an_empty_change_set_when_calendar_events_raises() -> No
     assert extract({"client": _BrokenClient()}) == ChangeSet()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.9")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.9")
 def test_microsoft_self_registers_under_the_vendor_extractor_registry() -> None:
     registered = get_vendor_extractor(CATEGORY)
 

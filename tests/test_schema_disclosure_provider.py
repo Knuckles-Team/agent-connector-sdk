@@ -60,8 +60,8 @@ def provider(*, allowed=True):
     return server, disclosure
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019")
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R045")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R045")
 def test_native_search_manifest_fragments_and_json_schemas():
     server, disclosure = provider()
 
@@ -139,7 +139,7 @@ def test_stale_schema_uri_refuses():
     asyncio.run(run())
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R019")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019")
 @pytest.mark.parametrize("field", ["parameters", "output_schema"])
 def test_same_alias_schema_replacement_refuses_stale_metadata(field):
     server, disclosure = provider()

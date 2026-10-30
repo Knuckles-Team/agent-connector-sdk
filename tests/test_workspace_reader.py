@@ -59,7 +59,7 @@ def _request(files: tuple[WorkspaceFile, ...]) -> WorkspaceRequest:
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.56")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_served_workspace_formats_and_immutable_inputs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -121,7 +121,7 @@ async def test_served_workspace_formats_and_immutable_inputs(
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.56")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_refusals_are_per_file_and_snapshot_bound(tmp_path: Path) -> None:
     good = _entry(tmp_path, "a.txt", "text", b"hello")
     changed = _entry(tmp_path, "b.txt", "text", b"original")
@@ -143,7 +143,7 @@ async def test_refusals_are_per_file_and_snapshot_bound(tmp_path: Path) -> None:
         await WorkspaceReader(tmp_path, authority="other").read(_request((good,)))
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.56")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_workspace_rejects_zip_bombs_and_unknown_parser(tmp_path: Path) -> None:
     bomb = _zip({"[Content_Types].xml": "<Types/>", "word/document.xml": "x" * 10_000})
     entry = _entry(tmp_path, "a.docx", "docx", bomb)
@@ -162,7 +162,7 @@ async def test_workspace_rejects_zip_bombs_and_unknown_parser(tmp_path: Path) ->
     ]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.56")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_workspace_refuses_changed_digest_and_xml_entities(
     tmp_path: Path,
 ) -> None:
@@ -179,7 +179,7 @@ async def test_workspace_refuses_changed_digest_and_xml_entities(
     assert outcome.reason == "invalid_content"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.56")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_workspace_reads_overlap_and_respect_task_limit(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -196,7 +196,7 @@ async def test_workspace_reads_overlap_and_respect_task_limit(
     assert maximum_parallelism(tmp_path, files) == 2
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.56")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_workspace_traversal_is_a_per_file_refusal(tmp_path: Path) -> None:
     good = _entry(tmp_path, "safe.txt", "text", b"good")
     escape = good.model_copy(update={"relative_path": "../safe.txt"})
@@ -206,7 +206,7 @@ async def test_workspace_traversal_is_a_per_file_refusal(tmp_path: Path) -> None
     assert [value.reason for value in values] == [None, "access_denied"]
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.56")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_workspace_deadline_reports_cancelled_files(tmp_path: Path) -> None:
     files = tuple(
         _entry(tmp_path, f"{index}.txt", "text", b"item") for index in range(2)
@@ -218,7 +218,7 @@ async def test_workspace_deadline_reports_cancelled_files(tmp_path: Path) -> Non
     assert all(item.reason == "cancelled" for item in await reader.read(request))
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.57")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.57")
 @pytest.mark.parametrize("mode", ["caller", "deadline"])
 async def test_cancel_stops_worker(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mode: str
@@ -271,7 +271,7 @@ def test_parser_public_contract() -> None:
     )
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R005.57")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.57")
 async def test_process_start_failure_is_reported_per_file(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

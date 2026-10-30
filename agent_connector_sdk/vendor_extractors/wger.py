@@ -1,4 +1,4 @@
-"""wger wellness vendor extractor (SDK-SOURCE-INGEST-R006.17).
+"""wger wellness vendor extractor (SCION-SOURCE-INGEST-R006.17).
 
 Ported from ``agent_utilities.knowledge_graph.enrichment.extractors.wger`` onto
 this SDK's typed :mod:`~agent_connector_sdk.vendor_extractors.contract`: weight

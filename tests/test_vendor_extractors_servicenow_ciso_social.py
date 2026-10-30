@@ -1,4 +1,4 @@
-"""SDK-SOURCE-INGEST-R006.26/27/28: ServiceNow, CISO Assistant, social vendor extractor ports."""
+"""SCION-SOURCE-INGEST-R006.26/27/28: ServiceNow, CISO Assistant, social vendor extractor ports."""
 
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ class _FakeClient:
 # --- servicenow ------------------------------------------------------------
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.26")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.26")
 def test_servicenow_extract_links_incidents_and_emits_risk_entities() -> None:
     client = _FakeClient(
         incidents=[
@@ -65,7 +65,7 @@ def test_servicenow_extract_links_incidents_and_emits_risk_entities() -> None:
     assert ci.properties["domain"] == SERVICENOW_CATEGORY
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.26")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.26")
 def test_servicenow_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert servicenow_extract({}) == ChangeSet()
 
@@ -73,7 +73,7 @@ def test_servicenow_extract_returns_an_empty_change_set_without_a_client() -> No
 # --- ciso_assistant ------------------------------------------------------
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.27")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.27")
 def test_ciso_assistant_extract_links_risk_scenarios_to_controls() -> None:
     def api_risk_scenarios_list() -> list[dict]:
         return [
@@ -108,7 +108,7 @@ def test_ciso_assistant_extract_links_risk_scenarios_to_controls() -> None:
     assert risk.properties["domain"] == CISO_CATEGORY
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.27")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.27")
 def test_ciso_assistant_extract_returns_an_empty_change_set_without_a_client() -> None:
     assert ciso_extract({}) == ChangeSet()
 
@@ -116,7 +116,7 @@ def test_ciso_assistant_extract_returns_an_empty_change_set_without_a_client() -
 # --- social ------------------------------------------------------------
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.28")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.28")
 def test_social_extract_mines_hashtags_mentions_and_known_tools() -> None:
     record = {
         "entities": {
@@ -140,7 +140,7 @@ def test_social_extract_mines_hashtags_mentions_and_known_tools() -> None:
     assert SOCIAL_CATEGORY == "social"
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.28")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.28")
 def test_social_extract_reads_the_legacy_v1_1_entities_shape() -> None:
     record = {"legacy": {"entities": {"hashtags": [{"text": "News"}]}}}
 
@@ -149,6 +149,6 @@ def test_social_extract_reads_the_legacy_v1_1_entities_shape() -> None:
     assert {e.id for e in result.entities} == {"hashtag:news"}
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R006.28")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R006.28")
 def test_social_extract_returns_an_empty_change_set_without_a_record() -> None:
     assert social_extract({}) == ChangeSet()

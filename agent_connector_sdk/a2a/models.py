@@ -1,6 +1,6 @@
 """A2A wire models: agent card, skills, messages and tasks.
 
-CONCEPT:SDK-CONNECTOR-CONTROL-R014.21
+CONCEPT:SCION-CONNECTOR-CONTROL-R014.21
 """
 
 from __future__ import annotations

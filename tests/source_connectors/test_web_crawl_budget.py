@@ -7,7 +7,7 @@ import pytest
 from agent_connector_sdk.source_connectors import ConnectorCheckpoint, build_connector
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.10")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.10")
 def test_web_poll_bounds_fetches_and_resumes_frontier():
     pages = {
         "https://example.org/": '<title>Root</title><a href="/a">a</a>',
@@ -49,7 +49,7 @@ def test_web_poll_bounds_fetches_and_resumes_frontier():
     assert repeated.checkpoint.has_more
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.10")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.10")
 def test_web_poll_refuses_wrong_source_frontier_before_fetch():
     calls = []
     conn = build_connector(
@@ -64,7 +64,7 @@ def test_web_poll_refuses_wrong_source_frontier_before_fetch():
     assert calls == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.10")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.10")
 def test_web_frontier_overflow_refuses_without_checkpoint(monkeypatch):
     monkeypatch.setattr(
         "agent_connector_sdk.source_connectors.connectors.web_frontier._FRONTIER_LIMIT",
@@ -82,7 +82,7 @@ def test_web_frontier_overflow_refuses_without_checkpoint(monkeypatch):
         conn.poll()
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.10")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.10")
 def test_web_frontier_refuses_unsafe_url_before_fetch():
     calls = []
     conn = build_connector(
@@ -108,7 +108,7 @@ def test_web_frontier_refuses_unsafe_url_before_fetch():
     assert calls == []
 
 
-@pytest.mark.spec("SDK-SOURCE-INGEST-R800.10")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R800.10")
 def test_web_load_budget_counts_empty_pages():
     calls = []
 

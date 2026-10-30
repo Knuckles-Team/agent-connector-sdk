@@ -2,7 +2,7 @@
 
 Every class a connector's ``ontology/*.ttl`` declares must reach a class of the
 core namespace through ``rdfs:subClassOf``, directly or through other declared
-classes (SDK-CONNECTOR-CONTROL-R073).
+classes (SCION-CONNECTOR-CONTROL-R073).
 """
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R034: library file path resolution and file locking."""
+"""SCION-CONNECTOR-CONTROL-R034: library file path resolution and file locking."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import pytest
 from agent_connector_sdk.library_state import file_lock, get_library_file_path
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R034")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R034")
 def test_get_library_file_path_resolves_from_configuration(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -21,7 +21,7 @@ def test_get_library_file_path_resolves_from_configuration(
     assert first == second == tmp_path / "demo-connector" / "library.json"
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R034")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R034")
 def test_file_lock_serializes_two_writers(tmp_path: Path) -> None:
     target = tmp_path / "library.json"
     order: list[str] = []

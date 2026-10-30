@@ -1,4 +1,4 @@
-"""SDK-CONNECTOR-CONTROL-R075.7: the declaration entry carries its content schema."""
+"""SCION-CONNECTOR-CONTROL-R075.7: the declaration entry carries its content schema."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ def _section(data: bytes, ref: object) -> bytes:
     return data[ref.offset : ref.offset + ref.length]  # type: ignore[attr-defined]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R075.7")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.7")
 async def test_pack_satisfies_engine_resource_schema_rule(
     sessions: SessionFactory,
 ) -> None:

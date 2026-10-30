@@ -41,7 +41,7 @@ def _snapshot(**overrides: object) -> dict[str, object]:
     return fields
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004")
 def test_snapshot_maps_cash_balance_and_every_position() -> None:
     snapshot = account_snapshot_from_alpaca(**_snapshot())
 
@@ -52,13 +52,13 @@ def test_snapshot_maps_cash_balance_and_every_position() -> None:
     assert snapshot.positions[0].average_cost == 100.0
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004")
 def test_position_without_its_own_currency_inherits_the_account_currency() -> None:
     snapshot = account_snapshot_from_alpaca(**_snapshot())
     assert snapshot.positions[0].currency == "USD"
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004")
 def test_rereading_the_same_account_at_the_same_instant_is_idempotent() -> None:
     first = account_snapshot_from_alpaca(**_snapshot())
     second = account_snapshot_from_alpaca(**_snapshot())
@@ -77,7 +77,7 @@ def test_a_later_read_instant_is_a_new_version() -> None:
     assert first.source_digest != later.source_digest
 
 
-@pytest.mark.spec("SDK-FINANCE-SOURCES-R004.2")
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R004.2")
 @pytest.mark.parametrize("value", ["nan", "inf", "-inf", "1e999"])
 @pytest.mark.parametrize("field", ["cash", "qty", "avg_entry_price"])
 def test_nonfinite_account_values_are_rejected(field: str, value: str) -> None:

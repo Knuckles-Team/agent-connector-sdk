@@ -1,6 +1,6 @@
 """Connector data sources declared in code and served live over MCP.
 
-SDK-CONNECTOR-CONTROL-R075: the connector's MCP server is the only place its
+SCION-CONNECTOR-CONTROL-R075: the connector's MCP server is the only place its
 metadata is read from. A read tool carries its data-source declaration in its
 tool ``meta`` (:func:`source_meta`); the server serves the assembled
 declaration as the ``connector://resources`` resource. Tool fingerprints come
@@ -63,7 +63,7 @@ def _entries(tool: Any) -> list[dict[str, Any]]:
 
 
 #: ``SCHEMA_VERSION`` values the reader accepts. 1 spells each mapping's fields
-#: inline; 2 may also name shared ``FIELD_SETS`` (SDK-SOURCE-INGEST-R004.29).
+#: inline; 2 may also name shared ``FIELD_SETS`` (SCION-SOURCE-INGEST-R004.29).
 DECLARATION_SCHEMA_VERSIONS = (1, 2)
 
 
@@ -149,7 +149,7 @@ def load_declaration(package: str) -> IngestSourceDeclaration:
 
     The fleet name comes from the connector's declared identity. Shared
     ``FIELD_SETS`` expand once per mapping. This replaces the ``declaration()``
-    helper that every connector carried (SDK-SOURCE-INGEST-R004.29).
+    helper that every connector carried (SCION-SOURCE-INGEST-R004.29).
 
     Raises:
         DeclarationError: the package ships no ``connector_sources`` module, or

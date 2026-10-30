@@ -44,7 +44,7 @@ class _Engine:
         }[method]
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R781.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R781.1")
 async def test_trajectory_recorder_routes_generated_engine_calls() -> None:
     engine = _Engine()
     recorder = TrajectoryRecorder(engine, graph_name="training")
@@ -87,7 +87,7 @@ async def test_trajectory_recorder_routes_generated_engine_calls() -> None:
     assert engine.calls[6][1] == dpo.model_dump()
 
 
-@pytest.mark.spec("SDK-CONNECTOR-CONTROL-R781.1")
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R781.1")
 async def test_recorder_does_not_retry_an_uncertain_append() -> None:
     class FailingEngine(_Engine):
         async def _send(

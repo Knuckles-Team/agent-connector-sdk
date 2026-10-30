@@ -153,7 +153,7 @@ class DatabaseConnector(LoadConnector, PollConnector):
             rows; when unset, ``poll`` re-runs the full query and filters in-memory
             by ``updated_field``.
         table: Refused. Row-version evidence is written by the graph
-            service (EG-INGEST-WORKER-R901); this connector does not write it.
+            service (MEDULLA-INGEST-WORKER-R901); this connector does not write it.
         conn: Optional pre-built ``UniversalConnector`` (injected for tests).
         source_alias: Optional neutral logical alias (never an endpoint/name).
         max_rows: Hard cap per load/poll request; overflow fails closed.
@@ -181,7 +181,7 @@ class DatabaseConnector(LoadConnector, PollConnector):
         if table:
             raise RowVersionEvidenceUnavailable(
                 "row-version evidence is written by the graph service "
-                "(EG-INGEST-WORKER-R901); configure the database source without 'table'"
+                "(MEDULLA-INGEST-WORKER-R901); configure the database source without 'table'"
             )
         if "dsn" in _:
             raise ValueError("legacy database dsn configuration is unsupported")

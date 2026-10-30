@@ -1,4 +1,4 @@
-"""SDK-GOVERNED-WRITEBACK-R004: approval, idempotency and audit reservation."""
+"""SCION-GOVERNED-WRITEBACK-R004: approval, idempotency and audit reservation."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from agent_connector_sdk.writeback.service import GovernedWriteBack
 from agent_connector_sdk.writeback_sinks.governed import FileAuditReservation
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004")
 async def test_apply_without_an_available_reservation_makes_no_source_call() -> None:
     fixture = make_writeback_fixture()
     fixture.audit.deny_next(fixture.change_set.idempotency_key)
@@ -33,7 +33,7 @@ async def test_apply_without_an_available_reservation_makes_no_source_call() -> 
     assert fixture.transport.attempts == 0
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004")
 async def test_replayed_apply_returns_the_identical_effect_and_key() -> None:
     fixture = make_writeback_fixture()
 
@@ -56,7 +56,7 @@ async def test_reservation_for_the_same_key_is_reused_not_taken_twice() -> None:
     assert first == second
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.13")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.13")
 @pytest.mark.parametrize("reservation_id", [None, "", "  ", 7])
 async def test_invalid_reservation_never_applies(reservation_id: Any) -> None:
     fixture = make_writeback_fixture()
@@ -74,7 +74,7 @@ async def test_invalid_reservation_never_applies(reservation_id: Any) -> None:
     assert fixture.transport.attempts == 0
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.13")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.13")
 async def test_file_reservation_refuses_a_different_change_set(tmp_path: Path) -> None:
     fixture = make_writeback_fixture()
     verifier = DeterministicAuthorizationVerifier()
@@ -92,7 +92,7 @@ async def test_file_reservation_refuses_a_different_change_set(tmp_path: Path) -
     assert fixture.transport.attempts == 0
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.3")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.3")
 @pytest.mark.parametrize("binding", ["key", "digest", "blank", "unavailable"])
 async def test_bound_reservation_refuses_before_mutation(binding: str) -> None:
     from agent_connector_sdk.ports.audit_reservation import AuditReservation
@@ -118,7 +118,7 @@ async def test_bound_reservation_refuses_before_mutation(binding: str) -> None:
     assert fixture.transport.attempts == 0
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.3")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.3")
 async def test_file_reservation_is_reused_after_no_effect_retry(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -155,7 +155,7 @@ async def test_file_reservation_is_reused_after_no_effect_retry(
     assert await restarted.reserve(fixture.change_set) == initial
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.3")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.3")
 async def test_file_sync_failure_prevents_source_effect(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -178,7 +178,7 @@ async def test_file_sync_failure_prevents_source_effect(
     assert not (tmp_path / "audit_reservation.json").exists()
 
 
-@pytest.mark.spec("SDK-GOVERNED-WRITEBACK-R004.3")
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.3")
 async def test_concurrent_file_reservations_share_one_binding(tmp_path: Path) -> None:
     import asyncio
 
