@@ -1081,16 +1081,26 @@
     {
       "id": "SCION-SOURCE-INGEST-R010",
       "title": "SDK ships the ingest worker runner `run_ingest_worker` (unblocks `MEDULLA-INGEST-WORKER-R001.14`)",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a9b596c2869f"
+      ],
+      "verified_by": [
+        "tests/runner/test_ingest_worker.py:45",
+        "tests/runner/test_ingest_worker.py:75",
+        "tests/runner/test_ingest_worker.py:86"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R011",
       "title": "SDK ships the `ingest-worker` command (unblocks `MEDULLA-INGEST-WORKER-R001.15`)",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a9b596c2869f"
+      ],
+      "verified_by": [
+        "tests/runner/test_ingest_worker_cli.py:14"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012",
