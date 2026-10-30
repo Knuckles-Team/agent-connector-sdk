@@ -586,7 +586,7 @@
         "11f2cc3efb0f"
       ],
       "verified_by": [
-        "tests/test_fleet_migration_scan.py:94"
+        "tests/test_fleet_migration_scan.py:93"
       ]
     },
     {
@@ -598,7 +598,7 @@
         "63f08e2ab188"
       ],
       "verified_by": [
-        "tests/test_fleet_migration_scan.py:140"
+        "tests/test_fleet_migration_scan.py:139"
       ]
     },
     {
@@ -611,7 +611,7 @@
         "fad5328aee62"
       ],
       "verified_by": [
-        "tests/test_fleet_migration_scan.py:170"
+        "tests/test_fleet_migration_scan.py:169"
       ]
     },
     {
