@@ -231,91 +231,101 @@ class PlatformResult(_ClosedModel):
 
     @model_validator(mode="after")
     def validate_outcome(self) -> PlatformResult:
-        request_scope = (
-            self.tenant_id,
-            self.principal_id,
-            self.connector_id,
-            self.platform_id,
-            self.channel_id,
-            self.operation,
-        )
-        if any(value is not None for value in request_scope) and not all(
-            value is not None for value in request_scope
-        ):
-            raise ValueError("result request scope must be complete")
-        if (self.policy_revision is None) != (self.output_schema_digest is None):
-            raise ValueError("result policy and schema must be bound together")
-        if self.channel_status is not None and self.tenant_id is not None:
-            status = self.channel_status
-            if (
-                status.tenant_id,
-                status.connector_id,
-                status.platform_id,
-                status.channel_id,
-                status.operation,
-                status.policy_revision,
-            ) != (
-                self.tenant_id,
-                self.connector_id,
-                self.platform_id,
-                self.channel_id,
-                self.operation,
-                self.policy_revision,
-            ):
-                raise ValueError("result status does not match its request scope")
-        if self.outcome == "refused":
-            if (
-                self.reason is None
-                or self.records
-                or self.continuation is not None
-                or self.selected_backend is not None
-            ):
-                raise ValueError("refusal requires reason and no success data")
-        elif self.reason is not None or self.selected_backend is None:
-            raise ValueError("success requires backend and no refusal reason")
-        if (
-            sum(
-                len(
-                    json.dumps(
-                        record.content,
-                        allow_nan=False,
-                        separators=(",", ":"),
-                        ensure_ascii=False,
-                    ).encode("utf-8")
-                )
-                for record in self.records
-            )
-            > 1_048_576
-        ):
-            raise ValueError("result exceeds byte limit")
-        if tuple(a.sequence for a in self.attempts) != tuple(
-            range(1, len(self.attempts) + 1)
-        ):
-            raise ValueError("attempt sequence must be complete and ordered")
-        if self.outcome == "ok" and (
-            not self.attempts
-            or self.attempts[-1].outcome != "ok"
-            or self.attempts[-1].backend_id != self.selected_backend
-            or any(attempt.outcome != "failed" for attempt in self.attempts[:-1])
-            or any(
-                record.provenance.backend_id != self.selected_backend
-                for record in self.records
-            )
-            or (
-                self.continuation is not None
-                and self.continuation.backend_id != self.selected_backend
-            )
-            or (
-                self.provenance is not None
-                and self.provenance.backend_id != self.selected_backend
-            )
-        ):
-            raise ValueError("success evidence must match the selected backend")
-        if self.outcome == "refused" and any(
-            attempt.outcome == "ok" for attempt in self.attempts
-        ):
-            raise ValueError("refusal cannot contain a successful attempt")
+        _check_scope_bindings(self)
+        _check_outcome_shape(self)
+        _check_result_size(self)
+        _check_attempts(self)
         return self
+
+
+_SCOPE_FIELDS = (
+    "tenant_id",
+    "principal_id",
+    "connector_id",
+    "platform_id",
+    "channel_id",
+    "operation",
+)
+_STATUS_SCOPE_FIELDS = (
+    "tenant_id",
+    "connector_id",
+    "platform_id",
+    "channel_id",
+    "operation",
+    "policy_revision",
+)
+
+
+def _check_scope_bindings(result: PlatformResult) -> None:
+    scope = [getattr(result, name) for name in _SCOPE_FIELDS]
+    if any(value is not None for value in scope) and not all(
+        value is not None for value in scope
+    ):
+        raise ValueError("result request scope must be complete")
+    if (result.policy_revision is None) != (result.output_schema_digest is None):
+        raise ValueError("result policy and schema must be bound together")
+    status = result.channel_status
+    if (
+        status is not None
+        and result.tenant_id is not None
+        and tuple(getattr(status, n) for n in _STATUS_SCOPE_FIELDS)
+        != tuple(getattr(result, n) for n in _STATUS_SCOPE_FIELDS)
+    ):
+        raise ValueError("result status does not match its request scope")
+
+
+def _check_outcome_shape(result: PlatformResult) -> None:
+    if result.outcome != "refused":
+        if result.reason is not None or result.selected_backend is None:
+            raise ValueError("success requires backend and no refusal reason")
+    elif (
+        result.reason is None
+        or result.records
+        or result.continuation is not None
+        or result.selected_backend is not None
+    ):
+        raise ValueError("refusal requires reason and no success data")
+
+
+def _check_result_size(result: PlatformResult) -> None:
+    total = sum(
+        len(
+            json.dumps(
+                record.content,
+                allow_nan=False,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            ).encode("utf-8")
+        )
+        for record in result.records
+    )
+    if total > 1_048_576:
+        raise ValueError("result exceeds byte limit")
+
+
+def _success_evidence_matches(result: PlatformResult) -> bool:
+    selected = result.selected_backend
+    attempts = result.attempts
+    if (
+        not attempts
+        or attempts[-1].outcome != "ok"
+        or attempts[-1].backend_id != selected
+        or any(attempt.outcome != "failed" for attempt in attempts[:-1])
+        or any(record.provenance.backend_id != selected for record in result.records)
+    ):
+        return False
+    bound = (result.continuation, result.provenance)
+    return all(item is None or item.backend_id == selected for item in bound)
+
+
+def _check_attempts(result: PlatformResult) -> None:
+    attempts = result.attempts
+    if tuple(a.sequence for a in attempts) != tuple(range(1, len(attempts) + 1)):
+        raise ValueError("attempt sequence must be complete and ordered")
+    if result.outcome == "ok" and not _success_evidence_matches(result):
+        raise ValueError("success evidence must match the selected backend")
+    if result.outcome == "refused" and any(a.outcome == "ok" for a in attempts):
+        raise ValueError("refusal cannot contain a successful attempt")
 
 
 def validate_request_binding(
@@ -333,19 +343,21 @@ def validate_request_binding(
         capability.operation,
     ):
         raise ValueError("request does not match capability")
+    if request.continuation is not None:
+        _check_continuation(request, capability)
+
+
+def _check_continuation(
+    request: PlatformRequest, capability: PlatformCapability
+) -> None:
     continuation = request.continuation
-    if continuation is None:
-        return
+    assert continuation is not None
     query = request.query if request.operation == "search" else request.target
     if query is None:
         raise ValueError("request has no query or target")
     digest = "sha256:" + hashlib.sha256(query.encode("utf-8")).hexdigest()
     backend = next(
-        (
-            item
-            for item in capability.backends
-            if item.backend_id == continuation.backend_id
-        ),
+        (b for b in capability.backends if b.backend_id == continuation.backend_id),
         None,
     )
     if (

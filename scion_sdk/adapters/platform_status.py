@@ -6,10 +6,11 @@ import threading
 import time
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Literal
+from typing import Any, Literal
 
 from scion_sdk.adapters.platform_models import (
     BackendAttempt,
+    BackendPolicy,
     BackendState,
     ChannelStatus,
     PlatformCapability,
@@ -46,6 +47,85 @@ def _key(request: PlatformRequest, capability: PlatformCapability) -> _StatusKey
     )
 
 
+def _validate_observation(
+    capability: PlatformCapability,
+    attempts: tuple[BackendAttempt, ...],
+    selected: str | None,
+) -> None:
+    if not attempts or tuple(attempt.sequence for attempt in attempts) != tuple(
+        range(1, len(attempts) + 1)
+    ):
+        raise ValueError("status requires ordered observed attempts")
+    known = {policy.backend_id for policy in capability.backends}
+    if any(attempt.backend_id not in known for attempt in attempts):
+        raise ValueError("status attempt does not match capability")
+    if selected is not None and (
+        attempts[-1].outcome != "ok" or attempts[-1].backend_id != selected
+    ):
+        raise ValueError("status selection must match successful observation")
+    if selected is None and any(attempt.outcome == "ok" for attempt in attempts):
+        raise ValueError("unavailable status cannot contain a success")
+
+
+def _unobserved_health(
+    policy: BackendPolicy, skipped_reason: str | None
+) -> Literal["disabled", "unconfigured", "untested"]:
+    if not policy.enabled:
+        return "disabled"
+    return "unconfigured" if skipped_reason == "unconfigured" else "untested"
+
+
+def _observed_state(
+    policy: BackendPolicy,
+    attempts: tuple[BackendAttempt, ...],
+    skipped: tuple[SkippedBackend, ...],
+) -> BackendState:
+    latest = next(
+        (a for a in reversed(attempts) if a.backend_id == policy.backend_id), None
+    )
+    if latest is None:
+        skipped_reason = next(
+            (i.reason for i in skipped if i.backend_id == policy.backend_id), None
+        )
+        return BackendState(
+            backend_id=policy.backend_id,
+            health=_unobserved_health(policy, skipped_reason),
+            reason=None,
+            observed_at=None,
+        )
+    return BackendState(
+        backend_id=policy.backend_id,
+        health="healthy" if latest.outcome == "ok" else "failed",
+        reason=latest.reason,
+        observed_at=latest.started_at,
+    )
+
+
+def _channel_health(
+    capability: PlatformCapability, selected: str | None
+) -> Literal["healthy", "degraded", "unavailable"]:
+    if selected is None:
+        return "unavailable"
+    return "healthy" if selected == capability.backends[0].backend_id else "degraded"
+
+
+def _channel_status(
+    request: PlatformRequest,
+    capability: PlatformCapability,
+    **fields: Any,
+) -> ChannelStatus:
+    return ChannelStatus(
+        tenant_id=request.tenant_id,
+        connector_id=request.connector_id,
+        account_scope=capability.backends[0].equivalence_contract.account_scope,
+        platform_id=request.platform_id,
+        channel_id=request.channel_id,
+        operation=request.operation,
+        policy_revision=capability.policy_revision,
+        **fields,
+    )
+
+
 class PlatformStatusStore:
     """Small expiring observation cache; status never confers authority."""
 
@@ -63,73 +143,17 @@ class PlatformStatusStore:
         selected: str | None,
         skipped: tuple[SkippedBackend, ...] = (),
     ) -> ChannelStatus:
-        if not attempts or tuple(attempt.sequence for attempt in attempts) != tuple(
-            range(1, len(attempts) + 1)
-        ):
-            raise ValueError("status requires ordered observed attempts")
-        if any(
-            attempt.backend_id
-            not in {policy.backend_id for policy in capability.backends}
-            for attempt in attempts
-        ):
-            raise ValueError("status attempt does not match capability")
-        if selected is not None and (
-            attempts[-1].outcome != "ok" or attempts[-1].backend_id != selected
-        ):
-            raise ValueError("status selection must match successful observation")
-        if selected is None and any(attempt.outcome == "ok" for attempt in attempts):
-            raise ValueError("unavailable status cannot contain a success")
+        _validate_observation(capability, attempts, selected)
         now = int(time.time())
-        states = []
-        for policy in capability.backends:
-            latest = next(
-                (a for a in reversed(attempts) if a.backend_id == policy.backend_id),
-                None,
-            )
-            skipped_reason = next(
-                (
-                    item.reason
-                    for item in skipped
-                    if item.backend_id == policy.backend_id
-                ),
-                None,
-            )
-            states.append(
-                BackendState(
-                    backend_id=policy.backend_id,
-                    health=(
-                        "disabled"
-                        if not policy.enabled
-                        else "unconfigured"
-                        if skipped_reason == "unconfigured"
-                        else "untested"
-                    )
-                    if latest is None
-                    else ("healthy" if latest.outcome == "ok" else "failed"),
-                    reason=latest.reason if latest is not None else None,
-                    observed_at=latest.started_at if latest is not None else None,
-                )
-            )
-        health: Literal["healthy", "degraded", "unavailable"] = (
-            "unavailable"
-            if selected is None
-            else (
-                "healthy"
-                if selected == capability.backends[0].backend_id
-                else "degraded"
-            )
-        )
-        status = ChannelStatus(
-            tenant_id=request.tenant_id,
-            connector_id=request.connector_id,
-            account_scope=capability.backends[0].equivalence_contract.account_scope,
-            platform_id=request.platform_id,
-            channel_id=request.channel_id,
-            operation=request.operation,
-            policy_revision=capability.policy_revision,
+        status = _channel_status(
+            request,
+            capability,
             selected_backend=selected,
-            health=health,
-            backend_states=tuple(states),
+            health=_channel_health(capability, selected),
+            backend_states=tuple(
+                _observed_state(policy, attempts, skipped)
+                for policy in capability.backends
+            ),
             observed_at=now,
             expires_at=now + DEFAULT_STATUS_TTL_SECONDS,
         )
@@ -151,14 +175,9 @@ class PlatformStatusStore:
             if entry is not None:
                 self._entries.move_to_end(key)
         if entry is None:
-            return ChannelStatus(
-                tenant_id=request.tenant_id,
-                connector_id=request.connector_id,
-                account_scope=capability.backends[0].equivalence_contract.account_scope,
-                platform_id=request.platform_id,
-                channel_id=request.channel_id,
-                operation=request.operation,
-                policy_revision=capability.policy_revision,
+            return _channel_status(
+                request,
+                capability,
                 selected_backend=None,
                 health="unknown",
                 backend_states=tuple(
