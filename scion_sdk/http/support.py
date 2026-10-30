@@ -19,8 +19,7 @@ client instead of calling :func:`scion_sdk.http.create_http_client`:
 from __future__ import annotations
 
 import time
-from base64 import b64encode
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from typing import Any
 
@@ -33,6 +32,12 @@ from scion_sdk.exceptions import (
     UnauthorizedError,
 )
 from scion_sdk.http.retry import parse_retry_after
+from scion_sdk.httpsupport.auth import (
+    AuthHeaderInjector,
+    BasicAuth,
+    QueryApiKeyAuth,
+    TokenAuth,
+)
 
 __all__ = [
     "DEFAULT_ERROR_MAP",
@@ -59,91 +64,6 @@ DEFAULT_ERROR_MAP: dict[int, type[Exception]] = {
     403: UnauthorizedError,
     404: ParameterError,
 }
-
-
-class AuthHeaderInjector:
-    """Base auth strategy: injects nothing (anonymous access)."""
-
-    def headers(self) -> dict[str, str]:
-        """Headers merged into every request."""
-        return {}
-
-    def params(self) -> dict[str, str]:
-        """Query parameters merged into every request."""
-        return {}
-
-    def secrets(self) -> list[str]:
-        """Literal secret values redacted from raised messages."""
-        return []
-
-
-class TokenAuth(AuthHeaderInjector):
-    """A header token with a configurable header name and scheme prefix.
-
-    Exactly one of ``token`` or ``token_provider`` is required. A provider is
-    called on every request, so a delegated token manager keeps control of
-    caching and refresh. ``prefix=None`` sends the bare token (``X-API-Key``).
-    """
-
-    def __init__(
-        self,
-        token: str | None = None,
-        *,
-        token_provider: Callable[[], str] | None = None,
-        header: str = "Authorization",
-        prefix: str | None = "Bearer",
-    ) -> None:
-        if (token is None) == (token_provider is None):
-            raise ValueError(
-                "TokenAuth requires exactly one of 'token' or 'token_provider'"
-            )
-        self._token = token
-        self._token_provider = token_provider
-        self.header = header
-        self.prefix = prefix or ""
-
-    def _current_token(self) -> str:
-        if self._token_provider is not None:
-            return self._token_provider()
-        return self._token or ""
-
-    def headers(self) -> dict[str, str]:
-        token = self._current_token()
-        return {self.header: f"{self.prefix} {token}" if self.prefix else token}
-
-    def secrets(self) -> list[str]:
-        return [self._token] if self._token else []
-
-
-class BasicAuth(AuthHeaderInjector):
-    """RFC 7617 ``Authorization: Basic`` credentials."""
-
-    def __init__(self, username: str, password: str) -> None:
-        self.username = username
-        self._password = password
-
-    def headers(self) -> dict[str, str]:
-        raw = f"{self.username}:{self._password}".encode()
-        return {"Authorization": f"Basic {b64encode(raw).decode('ascii')}"}
-
-    def secrets(self) -> list[str]:
-        return [self._password] if self._password else []
-
-
-class QueryApiKeyAuth(AuthHeaderInjector):
-    """An API key carried as a query parameter."""
-
-    def __init__(self, param: str, key: str) -> None:
-        if not param or not key:
-            raise ValueError("QueryApiKeyAuth requires both 'param' and 'key'")
-        self.param = param
-        self._key = key
-
-    def params(self) -> dict[str, str]:
-        return {self.param: self._key}
-
-    def secrets(self) -> list[str]:
-        return [self._key]
 
 
 class DestructiveOperationError(PermissionError):

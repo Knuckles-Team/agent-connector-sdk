@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import functools
-import threading
 from collections.abc import AsyncGenerator, Generator
 from typing import Any
 
@@ -11,26 +10,23 @@ import anyio
 import httpx
 import httpx2
 
-from scion_sdk.auth.tokens import (
-    AccessToken,
-    TokenRequestError,
-    request_access_token,
+from scion_sdk.auth._cached_provider import (
+    REFRESH_SKEW_SECONDS,
+    CachedTokenProvider,
+    resolve_or_unavailable,
 )
+from scion_sdk.auth.tokens import AccessToken, request_access_token
 from scion_sdk.auth.values import header_safe
-from scion_sdk.credentials.references import SecretReferenceError
-from scion_sdk.credentials.resolution import resolve_secret_reference
-from scion_sdk.credentials.resolver import (
-    CredentialResolver,
-    CredentialUnavailableError,
-)
+from scion_sdk.credentials.resolver import CredentialResolver
 
-__all__ = ["ClientCredentialsAuth", "ClientCredentialsTokenProvider"]
-
-#: Refresh a cached token this many seconds before it expires.
-REFRESH_SKEW_SECONDS = 30.0
+__all__ = [
+    "REFRESH_SKEW_SECONDS",
+    "ClientCredentialsAuth",
+    "ClientCredentialsTokenProvider",
+]
 
 
-class ClientCredentialsTokenProvider:
+class ClientCredentialsTokenProvider(CachedTokenProvider):
     """A thread-safe, self-refreshing client-credentials token cache.
 
     The client secret is resolved from ``client_secret_ref`` at every mint, so a
@@ -68,6 +64,7 @@ class ClientCredentialsTokenProvider:
         scope: str = "",
         resolver: CredentialResolver | None = None,
     ) -> None:
+        super().__init__()
         if bool(client_secret_ref) == (client_secret is not None):
             raise ValueError(
                 "exactly one of client_secret_ref and client_secret must be set"
@@ -82,8 +79,6 @@ class ClientCredentialsTokenProvider:
             {k: v for k, v in (("audience", audience), ("scope", scope)) if v}
         )
         self._resolver = resolver
-        self._lock = threading.Lock()
-        self._token: AccessToken | None = None
 
     @property
     def access_token_ttl(self) -> float | None:
@@ -93,10 +88,7 @@ class ClientCredentialsTokenProvider:
     def _client_secret(self) -> str:
         if self._literal_secret is not None:
             return self._literal_secret
-        try:
-            return resolve_secret_reference(self._secret_ref, self._resolver)
-        except (SecretReferenceError, CredentialUnavailableError) as exc:
-            raise TokenRequestError("client secret is unavailable") from exc
+        return resolve_or_unavailable(self._secret_ref, self._resolver, "client secret")
 
     def _mint(self) -> AccessToken:
         secret = self._client_secret()
@@ -106,21 +98,6 @@ class ClientCredentialsTokenProvider:
             form=self._form,
             client_auth=(self._client_id, secret),
         )
-
-    def get_token(self, *, force: bool = False) -> str:
-        """A cached token, minted when missing, near expiry or ``force``d.
-
-        Raises:
-            TokenRequestError: minting failed.
-        """
-        with self._lock:
-            if (
-                force
-                or self._token is None
-                or not self._token.fresh(REFRESH_SKEW_SECONDS)
-            ):
-                self._token = self._mint()
-            return self._token.value
 
 
 class ClientCredentialsAuth(httpx.Auth, httpx2.Auth):
