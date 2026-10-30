@@ -854,9 +854,9 @@
       "landed_in": [
         "5a476653a386",
         "6a459cc1ce9c",
+        "6f19c7e2cf1f",
         "71c6dc734b3f",
-        "c1a0f0b11a29",
-        "d7d1ff0fb276"
+        "c1a0f0b11a29"
       ],
       "verified_by": [
         "tests/test_actor_binding_served.py:118",
