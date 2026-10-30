@@ -341,9 +341,9 @@
         "55bab2b23000"
       ],
       "verified_by": [
-        "tests/test_ingest.py:225",
-        "tests/test_ingest.py:242",
-        "tests/test_ingest.py:270"
+        "tests/test_ingest.py:219",
+        "tests/test_ingest.py:236",
+        "tests/test_ingest.py:264"
       ],
       "rollup_of": [
         "SCION-SOURCE-INGEST-R004.1",
@@ -1128,11 +1128,11 @@
         "8eacf9ba10b6"
       ],
       "verified_by": [
-        "tests/test_platform_fallback.py:1010",
-        "tests/test_platform_fallback.py:1213",
-        "tests/test_platform_fallback.py:1244",
-        "tests/test_platform_fallback.py:1245",
-        "tests/test_platform_fallback.py:155"
+        "tests/test_platform_fallback.py:1199",
+        "tests/test_platform_fallback.py:1230",
+        "tests/test_platform_fallback.py:1231",
+        "tests/test_platform_fallback.py:226",
+        "tests/test_platform_fallback.py:265"
       ],
       "rollup_of": [
         "SCION-SOURCE-INGEST-R012.1",
@@ -1166,11 +1166,11 @@
         "5436800bcc12"
       ],
       "verified_by": [
-        "tests/test_platform_fallback.py:1244",
-        "tests/test_platform_fallback.py:155",
-        "tests/test_platform_fallback.py:194",
-        "tests/test_platform_fallback.py:221",
-        "tests/test_platform_fallback.py:318"
+        "tests/test_platform_fallback.py:1230",
+        "tests/test_platform_fallback.py:226",
+        "tests/test_platform_fallback.py:265",
+        "tests/test_platform_fallback.py:292",
+        "tests/test_platform_fallback.py:340"
       ]
     },
     {
@@ -1181,8 +1181,8 @@
         "5436800bcc12"
       ],
       "verified_by": [
-        "tests/test_platform_fallback.py:1010",
-        "tests/test_platform_fallback.py:597"
+        "tests/test_platform_fallback.py:604",
+        "tests/test_platform_fallback.py:996"
       ]
     },
     {
@@ -1193,11 +1193,11 @@
         "5436800bcc12"
       ],
       "verified_by": [
-        "tests/test_platform_fallback.py:1213",
-        "tests/test_platform_fallback.py:1245",
-        "tests/test_platform_fallback.py:195",
-        "tests/test_platform_fallback.py:222",
-        "tests/test_platform_fallback.py:278"
+        "tests/test_platform_fallback.py:1199",
+        "tests/test_platform_fallback.py:1231",
+        "tests/test_platform_fallback.py:266",
+        "tests/test_platform_fallback.py:293",
+        "tests/test_platform_fallback.py:328"
       ]
     },
     {
@@ -1208,9 +1208,9 @@
         "5436800bcc12"
       ],
       "verified_by": [
-        "tests/test_platform_fallback.py:357",
-        "tests/test_platform_fallback.py:385",
-        "tests/test_platform_fallback.py:474",
+        "tests/test_platform_fallback.py:379",
+        "tests/test_platform_fallback.py:407",
+        "tests/test_platform_fallback.py:481",
         "tests/test_platform_fallback_models.py:181",
         "tests/test_platform_fallback_models.py:231"
       ]
@@ -1223,7 +1223,7 @@
         "5436800bcc12"
       ],
       "verified_by": [
-        "tests/test_platform_fallback_served.py:75"
+        "tests/test_platform_fallback_served.py:53"
       ]
     },
     {
@@ -2055,8 +2055,8 @@
         "7990ab055ef8"
       ],
       "verified_by": [
-        "tests/test_ingest.py:443",
-        "tests/test_ingest.py:520"
+        "tests/test_ingest.py:437",
+        "tests/test_ingest.py:514"
       ]
     },
     {
@@ -2067,7 +2067,7 @@
         "22f14c128bac"
       ],
       "verified_by": [
-        "tests/test_ingest.py:546"
+        "tests/test_ingest.py:540"
       ]
     },
     {
@@ -2078,7 +2078,7 @@
         "976fb92ad5ec"
       ],
       "verified_by": [
-        "tests/test_ingest.py:577"
+        "tests/test_ingest.py:571"
       ]
     },
     {
@@ -2089,7 +2089,7 @@
         "e517969ca5c4"
       ],
       "verified_by": [
-        "tests/test_ingest.py:593"
+        "tests/test_ingest.py:587"
       ]
     },
     {
@@ -2100,7 +2100,7 @@
         "cc667d74af34"
       ],
       "verified_by": [
-        "tests/test_ingest.py:618"
+        "tests/test_ingest.py:612"
       ]
     },
     {
@@ -2111,8 +2111,8 @@
         "cc667d74af34"
       ],
       "verified_by": [
-        "tests/test_ingest.py:642",
-        "tests/test_ingest.py:670"
+        "tests/test_ingest.py:636",
+        "tests/test_ingest.py:664"
       ]
     },
     {
@@ -2134,7 +2134,7 @@
         "cc667d74af34"
       ],
       "verified_by": [
-        "tests/test_ingest.py:704"
+        "tests/test_ingest.py:698"
       ]
     },
     {
@@ -2145,7 +2145,7 @@
         "cc667d74af34"
       ],
       "verified_by": [
-        "tests/test_ingest.py:719"
+        "tests/test_ingest.py:713"
       ]
     },
     {
@@ -2167,7 +2167,7 @@
         "e02fe49f73bd"
       ],
       "verified_by": [
-        "tests/test_ingest.py:758"
+        "tests/test_ingest.py:752"
       ]
     },
     {
@@ -3579,7 +3579,7 @@
         "fd971f154a52"
       ],
       "verified_by": [
-        "tests/test_ingest_contract_binding.py:80"
+        "tests/test_ingest_contract_binding.py:71"
       ]
     },
     {
@@ -3597,7 +3597,7 @@
         "fd971f154a52"
       ],
       "verified_by": [
-        "tests/test_ingest_contract_binding.py:103"
+        "tests/test_ingest_contract_binding.py:94"
       ]
     },
     {
@@ -3608,7 +3608,7 @@
         "fd971f154a52"
       ],
       "verified_by": [
-        "tests/test_ingest_contract_binding.py:110"
+        "tests/test_ingest_contract_binding.py:101"
       ]
     },
     {
@@ -3619,7 +3619,7 @@
         "fd971f154a52"
       ],
       "verified_by": [
-        "tests/test_ingest_contract_binding.py:130"
+        "tests/test_ingest_contract_binding.py:121"
       ]
     },
     {

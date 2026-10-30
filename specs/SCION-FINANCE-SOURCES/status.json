@@ -97,8 +97,8 @@
         "44c6cb0bf7be"
       ],
       "verified_by": [
-        "tests/test_finance_market_source.py:119",
-        "tests/test_finance_market_source.py:179"
+        "tests/test_finance_market_source.py:104",
+        "tests/test_finance_market_source.py:150"
       ]
     },
     {
@@ -179,8 +179,8 @@
       ],
       "verified_by": [
         "tests/test_finance_stock_image.py:17",
-        "tests/test_finance_stock_source.py:141",
-        "tests/test_finance_stock_source.py:201"
+        "tests/test_finance_stock_source.py:129",
+        "tests/test_finance_stock_source.py:177"
       ]
     },
     {
@@ -219,11 +219,11 @@
         "a386922d65f8"
       ],
       "verified_by": [
-        "tests/test_finance_multi_asset_source.py:136",
+        "tests/test_finance_multi_asset_source.py:124",
+        "tests/test_finance_multi_asset_source.py:186",
         "tests/test_finance_multi_asset_source.py:202",
-        "tests/test_finance_multi_asset_source.py:222",
-        "tests/test_finance_multi_asset_source.py:245",
-        "tests/test_finance_multi_asset_source.py:302"
+        "tests/test_finance_multi_asset_source.py:221",
+        "tests/test_finance_multi_asset_source.py:278"
       ],
       "rollup_of": [
         "SCION-FINANCE-SOURCES-R003.1",
@@ -240,10 +240,10 @@
         "a386922d65f8"
       ],
       "verified_by": [
-        "tests/test_finance_multi_asset_source.py:136",
+        "tests/test_finance_multi_asset_source.py:124",
+        "tests/test_finance_multi_asset_source.py:186",
         "tests/test_finance_multi_asset_source.py:202",
-        "tests/test_finance_multi_asset_source.py:222",
-        "tests/test_finance_multi_asset_source.py:79"
+        "tests/test_finance_multi_asset_source.py:67"
       ]
     },
     {
@@ -278,8 +278,8 @@
         "08979a040365"
       ],
       "verified_by": [
-        "tests/test_finance_multi_asset_source.py:245",
-        "tests/test_finance_multi_asset_source.py:302"
+        "tests/test_finance_multi_asset_source.py:221",
+        "tests/test_finance_multi_asset_source.py:278"
       ]
     },
     {
@@ -298,7 +298,7 @@
         "tests/test_finance_account_read.py:55",
         "tests/test_finance_account_read.py:61",
         "tests/test_finance_account_read.py:80",
-        "tests/test_finance_account_source.py:110"
+        "tests/test_finance_account_source.py:114"
       ],
       "rollup_of": [
         "SCION-FINANCE-SOURCES-R004.1",
@@ -317,9 +317,9 @@
         "c4e23aa78211"
       ],
       "verified_by": [
-        "tests/test_finance_account_source.py:110",
-        "tests/test_finance_account_source.py:130",
-        "tests/test_finance_account_source.py:82"
+        "tests/test_finance_account_source.py:114",
+        "tests/test_finance_account_source.py:74",
+        "tests/test_finance_account_source.py:98"
       ]
     },
     {
@@ -413,7 +413,7 @@
         "tests/test_finance_etf_flows.py:59",
         "tests/test_finance_fred_series.py:41",
         "tests/test_finance_liquidity_panel.py:126",
-        "tests/test_finance_macro_source.py:72"
+        "tests/test_finance_macro_source.py:63"
       ]
     },
     {
