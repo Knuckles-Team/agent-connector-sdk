@@ -683,6 +683,46 @@ class _EnvelopeContext:
     legal_hold: bool
 
 
+@dataclass(frozen=True)
+class _BatchBase:
+    identity_key: str
+    governance: Any
+    profile_digest: str
+    governance_digest: str
+
+
+@dataclass(frozen=True)
+class _LinkContext:
+    """The per-entity inputs every relationship builder needs."""
+
+    identity_key: str
+    mapping: dict[str, Any]
+    record: dict[str, Any]
+    source: str
+    known_ids: set[str]
+
+
+@dataclass(frozen=True)
+class _BatchInputs:
+    """One fetched read: the profile, operation, roots and checkpoint to batch."""
+
+    profile: dict[str, Any]
+    operation: dict[str, Any]
+    roots: list[Any]
+    fetch_diagnostics: dict[str, int]
+    checkpoint: ConnectorCheckpoint | None
+
+    def snapshot_flags(self) -> dict[str, bool]:
+        return {
+            "snapshot_authoritative": bool(
+                self.operation.get("snapshot_authoritative", False)
+            ),
+            "allow_empty_snapshot": bool(
+                self.operation.get("allow_empty_snapshot", False)
+            ),
+        }
+
+
 @register_source("graphql_document")
 class GraphQLDocumentConnector(LoadConnector, PollConnector):
     """Ingest mapped GraphQL responses as governed ``SourceDocument`` objects.
@@ -1862,16 +1902,8 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
         _opaque, target = self._entity_node_id(identity_key, kind=kind, raw_id=raw_id)
         return target if target in known_ids else None
 
-    def _parent_link(
-        self,
-        identity_key: str,
-        *,
-        mapping: dict[str, Any],
-        record: dict[str, Any],
-        source: str,
-        parent_raw: Any,
-        known_ids: set[str],
-    ) -> dict[str, Any] | None:
+    def _parent_link(self, ctx: _LinkContext, parent_raw: Any) -> dict[str, Any] | None:
+        mapping, record, source = ctx.mapping, ctx.record, ctx.source
         parent_path = str(mapping.get("parent_id_path") or "")
         if parent_raw in (None, "") and parent_path:
             parent_raw = _dig(record, parent_path)
@@ -1881,7 +1913,10 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
         if parent_kind not in _ENTITY_KINDS:
             parent_kind = "hierarchy"
         target = self._target_node_id(
-            identity_key, kind=parent_kind, raw_id=parent_raw, known_ids=known_ids
+            ctx.identity_key,
+            kind=parent_kind,
+            raw_id=parent_raw,
+            known_ids=ctx.known_ids,
         )
         if not target:
             return None
@@ -1893,28 +1928,21 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
             ),
         }
 
-    def _application_link(
-        self,
-        identity_key: str,
-        *,
-        mapping: dict[str, Any],
-        record: dict[str, Any],
-        source: str,
-        known_ids: set[str],
-    ) -> dict[str, Any] | None:
+    def _application_link(self, ctx: _LinkContext) -> dict[str, Any] | None:
+        mapping = ctx.mapping
         application_path = str(mapping.get("application_id_path") or "")
         if not application_path:
             return None
         target = self._target_node_id(
-            identity_key,
+            ctx.identity_key,
             kind="application",
-            raw_id=_dig(record, application_path),
-            known_ids=known_ids,
+            raw_id=_dig(ctx.record, application_path),
+            known_ids=ctx.known_ids,
         )
         if not target:
             return None
         return {
-            "source": source,
+            "source": ctx.source,
             "target": target,
             "type": _safe_entity_type(
                 mapping.get("application_relation"),
@@ -1922,29 +1950,10 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
             ),
         }
 
-    def _dependency_link(
-        self,
-        identity_key: str,
-        *,
-        mapping: dict[str, Any],
-        record: dict[str, Any],
-        source: str,
-        known_ids: set[str],
-    ) -> dict[str, Any] | None:
-        source_path = str(mapping.get("source_id_path") or "")
-        target_path = str(mapping.get("target_id_path") or "")
-        dependency_source = self._target_node_id(
-            identity_key,
-            kind="application",
-            raw_id=_dig(record, source_path) if source_path else None,
-            known_ids=known_ids,
-        )
-        dependency_target = self._target_node_id(
-            identity_key,
-            kind="application",
-            raw_id=_dig(record, target_path) if target_path else None,
-            known_ids=known_ids,
-        )
+    def _dependency_link(self, ctx: _LinkContext) -> dict[str, Any] | None:
+        mapping = ctx.mapping
+        dependency_source = self._application_endpoint(ctx, "source_id_path")
+        dependency_target = self._application_endpoint(ctx, "target_id_path")
         if not (dependency_source and dependency_target):
             return None
         return {
@@ -1954,8 +1963,17 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
                 mapping.get("dependency_relation"),
                 fallback="DEPENDS_ON",
             ),
-            "evidence": source,
+            "evidence": ctx.source,
         }
+
+    def _application_endpoint(self, ctx: _LinkContext, path_key: str) -> str | None:
+        path = str(ctx.mapping.get(path_key) or "")
+        return self._target_node_id(
+            ctx.identity_key,
+            kind="application",
+            raw_id=_dig(ctx.record, path) if path else None,
+            known_ids=ctx.known_ids,
+        )
 
     def _entity_links(
         self,
@@ -1970,35 +1988,17 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
         source = str(item["node_id"])
         links: list[dict[str, Any]] = []
 
-        parent_link = self._parent_link(
-            identity_key,
-            mapping=mapping,
-            record=record,
-            source=source,
-            parent_raw=item.get("parent_raw"),
-            known_ids=known_ids,
-        )
+        ctx = _LinkContext(identity_key, mapping, record, source, known_ids)
+        parent_link = self._parent_link(ctx, item.get("parent_raw"))
         if parent_link is not None:
             links.append(parent_link)
 
-        application_link = self._application_link(
-            identity_key,
-            mapping=mapping,
-            record=record,
-            source=source,
-            known_ids=known_ids,
-        )
+        application_link = self._application_link(ctx)
         if application_link is not None:
             links.append(application_link)
 
         if kind == "dependency":
-            dependency_link = self._dependency_link(
-                identity_key,
-                mapping=mapping,
-                record=record,
-                source=source,
-                known_ids=known_ids,
-            )
+            dependency_link = self._dependency_link(ctx)
             if dependency_link is not None:
                 links.append(dependency_link)
         return links
@@ -2408,23 +2408,31 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
             "tombstones": len(tombstones),
         }
 
-    def _document_batch(
-        self,
-        *,
-        profile: dict[str, Any],
-        operation: dict[str, Any],
-        roots: list[Any],
-        fetch_diagnostics: dict[str, int],
-        checkpoint: ConnectorCheckpoint | None,
-    ) -> GraphQLHierarchyBatch:
-        identity_key = str(profile["identity_hmac_key"])
+    def _batch_base(
+        self, profile: dict[str, Any], operation: dict[str, Any]
+    ) -> _BatchBase:
+        """Identity key, governance tuple and the profile/governance digests."""
         governance = self._governance(profile)
-        profile_digest = _digest(operation)
         governance_digest = _digest(
             governance[0].model_dump(mode="json"),
             governance[1].value,
             governance[2:],
         )
+        return _BatchBase(
+            identity_key=str(profile["identity_hmac_key"]),
+            governance=governance,
+            profile_digest=_digest(operation),
+            governance_digest=governance_digest,
+        )
+
+    def _document_batch(
+        self,
+        inputs: _BatchInputs,
+    ) -> GraphQLHierarchyBatch:
+        profile, operation = inputs.profile, inputs.operation
+        base = self._batch_base(profile, operation)
+        identity_key, governance = base.identity_key, base.governance
+        profile_digest, governance_digest = base.profile_digest, base.governance_digest
         max_documents = self._effective_limit(
             profile,
             "max_documents",
@@ -2433,7 +2441,7 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
             maximum=10_000,
         )
         records: list[dict[str, Any]] = []
-        for root in roots:
+        for root in inputs.roots:
             values = root if isinstance(root, list) else [root]
             records.extend(value for value in values if isinstance(value, dict))
         documents: list[SourceDocument] = []
@@ -2512,29 +2520,23 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
             documents=documents,
             envelopes=envelopes,
             versions=versions,
-            checkpoint=checkpoint,
+            checkpoint=inputs.checkpoint,
             profile_digest=profile_digest,
             diagnostics={
-                **fetch_diagnostics,
+                **inputs.fetch_diagnostics,
                 "truncated": max(0, len(records) - max_documents),
                 "invalid_records": invalid_records,
             },
             governance=governance,
-            snapshot_authoritative=bool(operation.get("snapshot_authoritative", False)),
-            allow_empty_snapshot=bool(operation.get("allow_empty_snapshot", False)),
+            **inputs.snapshot_flags(),
         )
 
     def _hierarchy_batch_context(
         self, profile: dict[str, Any], operation: dict[str, Any]
     ) -> _HierarchyBatchSetup:
-        identity_key = str(profile["identity_hmac_key"])
-        governance = self._governance(profile)
-        profile_digest = _digest(operation)
-        governance_digest = _digest(
-            governance[0].model_dump(mode="json"),
-            governance[1].value,
-            governance[2:],
-        )
+        base = self._batch_base(profile, operation)
+        identity_key, governance = base.identity_key, base.governance
+        profile_digest, governance_digest = base.profile_digest, base.governance_digest
         max_entities = self._effective_limit(
             profile,
             "max_entities",
@@ -2760,13 +2762,9 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
 
     def _hierarchy_batch(
         self,
-        *,
-        profile: dict[str, Any],
-        operation: dict[str, Any],
-        roots: list[Any],
-        fetch_diagnostics: dict[str, int],
-        checkpoint: ConnectorCheckpoint | None,
+        inputs: _BatchInputs,
     ) -> GraphQLHierarchyBatch:
+        profile, operation = inputs.profile, inputs.operation
         setup = self._hierarchy_batch_context(profile, operation)
 
         (
@@ -2776,7 +2774,7 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
             privacy_redactions,
             truncated,
             invalid_records,
-        ) = self._prepare_entities(roots, operation, setup)
+        ) = self._prepare_entities(inputs.roots, operation, setup)
 
         (
             access,
@@ -2791,7 +2789,7 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
             identity_key=setup.identity_key,
             known_node_ids=known_node_ids,
             profile_digest=setup.profile_digest,
-            fetch_diagnostics=fetch_diagnostics,
+            fetch_diagnostics=inputs.fetch_diagnostics,
             tenant=tenant,
             schema=schema,
             mapping_version=mapping_version,
@@ -2806,10 +2804,10 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
             documents=documents,
             envelopes=envelopes,
             versions=versions,
-            checkpoint=checkpoint,
+            checkpoint=inputs.checkpoint,
             profile_digest=setup.profile_digest,
             diagnostics={
-                **fetch_diagnostics,
+                **inputs.fetch_diagnostics,
                 "truncated": truncated,
                 "invalid_records": invalid_records,
                 "privacy_redactions": privacy_redactions,
@@ -2821,8 +2819,7 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
                 },
             },
             governance=setup.governance,
-            snapshot_authoritative=bool(operation.get("snapshot_authoritative", False)),
-            allow_empty_snapshot=bool(operation.get("allow_empty_snapshot", False)),
+            **inputs.snapshot_flags(),
         )
 
     def _build_batch(
@@ -2831,21 +2828,10 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
         profile = self._resolve_profile()
         operation = profile["operations"][self.operation]
         roots, diagnostics = self._fetch_roots(profile, operation)
+        inputs = _BatchInputs(profile, operation, roots, diagnostics, checkpoint)
         if isinstance(operation.get("mappings"), dict):
-            return self._hierarchy_batch(
-                profile=profile,
-                operation=operation,
-                roots=roots,
-                fetch_diagnostics=diagnostics,
-                checkpoint=checkpoint,
-            )
-        return self._document_batch(
-            profile=profile,
-            operation=operation,
-            roots=roots,
-            fetch_diagnostics=diagnostics,
-            checkpoint=checkpoint,
-        )
+            return self._hierarchy_batch(inputs)
+        return self._document_batch(inputs)
 
     def _documents(self) -> list[SourceDocument]:
         batch = self._build_batch()
