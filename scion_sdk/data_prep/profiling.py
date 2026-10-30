@@ -17,7 +17,9 @@ from typing import Any, Protocol
 from pydantic import ValidationError
 
 from .models import (
+    ColumnProfile,
     ProfileEvidenceReference,
+    ProfileLimits,
     ProfileRequest,
     ProfileResult,
     ProfileTarget,
@@ -82,25 +84,25 @@ def _validate_bounds(result: ProfileResult, request: ProfileRequest) -> None:
         raise ProfileProtocolError("engine profile returned too many warnings")
     if len(result.column_profiles) != result.columns:
         raise ProfileProtocolError("engine profile column count is inconsistent")
-    expected_ordinals = (
-        set(request.selector.ordinals) if request.selector is not None else None
-    )
-    actual_ordinals = {column.ordinal for column in result.column_profiles}
-    if expected_ordinals is not None and actual_ordinals != expected_ordinals:
-        raise ProfileProtocolError("engine profile columns differ from selector")
+    if request.selector is not None:
+        actual_ordinals = {column.ordinal for column in result.column_profiles}
+        if actual_ordinals != set(request.selector.ordinals):
+            raise ProfileProtocolError("engine profile columns differ from selector")
     for column in result.column_profiles:
-        if column.distinct_count is not None and (
-            column.distinct_count > limits.max_cardinality
-        ):
-            raise ProfileProtocolError("engine profile cardinality exceeds the limit")
-        if len(column.top_k) > limits.max_top_k:
-            raise ProfileProtocolError("engine profile returned too many top-k values")
-        if len(column.quantiles) > limits.max_quantiles:
-            raise ProfileProtocolError("engine profile returned too many quantiles")
-        if any(item.count < limits.disclosure_threshold for item in column.top_k):
-            raise ProfileProtocolError(
-                "engine profile disclosed a below-threshold value"
-            )
+        _validate_column_bounds(column, limits)
+
+
+def _validate_column_bounds(column: ColumnProfile, limits: ProfileLimits) -> None:
+    if column.distinct_count is not None and (
+        column.distinct_count > limits.max_cardinality
+    ):
+        raise ProfileProtocolError("engine profile cardinality exceeds the limit")
+    if len(column.top_k) > limits.max_top_k:
+        raise ProfileProtocolError("engine profile returned too many top-k values")
+    if len(column.quantiles) > limits.max_quantiles:
+        raise ProfileProtocolError("engine profile returned too many quantiles")
+    if any(item.count < limits.disclosure_threshold for item in column.top_k):
+        raise ProfileProtocolError("engine profile disclosed a below-threshold value")
 
 
 def validate_engine_profile(

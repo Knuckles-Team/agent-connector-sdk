@@ -1030,6 +1030,32 @@ def _validate_row_model_schema(table: Any, row_model: type[BaseModel]) -> None:
         raise PlanExecutionError("row_model fields must exactly match the Arrow schema")
 
 
+def _row_is_valid(row_model: type[BaseModel], row: Any) -> bool:
+    try:
+        row_model.model_validate(row)
+    except ValidationError:
+        return False
+    return True
+
+
+def _record_row_outcome(
+    row_id: int,
+    accepted: bool,
+    outcome_codes: bytearray | None,
+    outcomes: list[RowOutcome],
+) -> None:
+    if outcome_codes is not None:
+        outcome_codes[row_id] = 1 if accepted else 4
+        return
+    outcomes.append(
+        RowOutcome(
+            row_index=row_id,
+            status="accepted" if accepted else "quarantined",
+            reason_code="accepted" if accepted else "model_rejected",
+        )
+    )
+
+
 def _validate_rows(
     table: Any,
     row_model: type[BaseModel],
@@ -1049,38 +1075,14 @@ def _validate_rows(
         raise ProfileLimitError("row outcomes exceed the local profile limit")
     valid_flags: list[bool] = []
     outcomes: list[RowOutcome] = []
-    rejected = 0
     row_index = 0
     for batch in table.to_batches(max_chunksize=_MAX_BATCH_ROWS):
         for row in batch.to_pylist():
-            try:
-                row_model.model_validate(row)
-            except ValidationError:
-                rejected += 1
-                valid_flags.append(False)
-                if outcome_codes is not None:
-                    outcome_codes[row_ids[row_index]] = 4
-                else:
-                    outcomes.append(
-                        RowOutcome(
-                            row_index=row_ids[row_index],
-                            status="quarantined",
-                            reason_code="model_rejected",
-                        )
-                    )
-            else:
-                valid_flags.append(True)
-                if outcome_codes is not None:
-                    outcome_codes[row_ids[row_index]] = 1
-                else:
-                    outcomes.append(
-                        RowOutcome(
-                            row_index=row_ids[row_index],
-                            status="accepted",
-                            reason_code="accepted",
-                        )
-                    )
+            accepted = _row_is_valid(row_model, row)
+            valid_flags.append(accepted)
+            _record_row_outcome(row_ids[row_index], accepted, outcome_codes, outcomes)
             row_index += 1
+    rejected = valid_flags.count(False)
     if rejected and disposition == "fail":
         raise InvalidRowsError(rejected, reason="strict row-model validation")
     if rejected > min(

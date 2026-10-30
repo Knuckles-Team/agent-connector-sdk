@@ -263,16 +263,20 @@ def _references(value: Any) -> list[Any]:
     return [value]
 
 
+def _step_into(values: list[Any], part: str) -> list[Any]:
+    items = [
+        item
+        for value in values
+        for item in (value if isinstance(value, list) else [value])
+    ]
+    return [item[part] for item in items if isinstance(item, Mapping) and part in item]
+
+
 def _resolve(record: Mapping[str, Any], path: str) -> list[Any]:
     """The values at dotted ``path``; a list on the way is mapped element-wise."""
     values: list[Any] = [record]
     for part in path.split("."):
-        found: list[Any] = []
-        for value in values:
-            for item in value if isinstance(value, list) else [value]:
-                if isinstance(item, Mapping) and part in item:
-                    found.append(item[part])
-        values = found
+        values = _step_into(values, part)
     return [ref for value in values for ref in _references(value)]
 
 
@@ -538,6 +542,21 @@ class SourceSyncRunner(_budget._SourceBudgetMixin):
                 await self._sleep(backoff.next_delay())
         raise AssertionError("unreachable")
 
+    @staticmethod
+    def _is_unchanged(
+        run: _Run, record_id: str, cursor: str | None, record: Any
+    ) -> bool:
+        spec = run.spec
+        if (
+            spec.incremental
+            and run.mode != "full"
+            and cursor is not None
+            and run.state.cursor is not None
+            and cursor <= run.state.cursor
+        ):
+            return True
+        return run.state.digests.get(record_id) == record_digest(record)
+
     async def _take(self, run: _Run, record: Mapping[str, Any], tool: str) -> None:
         spec = run.spec
         run.seen += 1
@@ -547,17 +566,7 @@ class SourceSyncRunner(_budget._SourceBudgetMixin):
         record_id = str(raw_id)
         cursor_value = record.get(spec.cursor_field) if spec.cursor_field else None
         cursor = None if cursor_value is None else str(cursor_value)
-        if (
-            spec.incremental
-            and run.mode != "full"
-            and cursor is not None
-            and run.state.cursor is not None
-            and cursor <= run.state.cursor
-        ):
-            run.unchanged += 1
-            return
-        digest = record_digest(record)
-        if run.state.digests.get(record_id) == digest:
+        if self._is_unchanged(run, record_id, cursor, record):
             run.unchanged += 1
             return
         entity = Entity(
@@ -567,7 +576,7 @@ class SourceSyncRunner(_budget._SourceBudgetMixin):
             updated_at=cursor,
         )
         run.pending_tool = tool
-        run.pending.append((entity, digest))
+        run.pending.append((entity, record_digest(record)))
         run.pending_edges.extend(_edges(record_id, record, spec))
         if cursor is not None and (run.cursor is None or cursor > run.cursor):
             run.cursor = cursor
