@@ -30,6 +30,13 @@ from agent_connector_sdk.source.client import (
     TreeRequest,
 )
 from agent_connector_sdk.source.mcp_transport import McpSourceTransport
+from agent_connector_sdk.source.mount import (
+    MountEntry,
+    MountRefusedError,
+    MountState,
+    PendingEntry,
+    SourceMount,
+)
 
 __all__ = [
     "BlameLine",
@@ -49,11 +56,16 @@ __all__ = [
     "HistoryRequest",
     "LandRequest",
     "McpSourceTransport",
+    "MountEntry",
+    "MountRefusedError",
+    "MountState",
     "PathOutcome",
+    "PendingEntry",
     "Provenance",
     "Receipt",
     "RevertRequest",
     "SourceClient",
+    "SourceMount",
     "SourceRefusal",
     "SourceRefusedError",
     "SourceTransport",
