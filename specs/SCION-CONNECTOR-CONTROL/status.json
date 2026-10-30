@@ -852,9 +852,9 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "5a476653a386",
+        "c1a0f0b11a29",
         "d7d1ff0fb276",
-        "e266bf988bb9",
-        "e619a6e18aa8"
+        "e266bf988bb9"
       ],
       "verified_by": [
         "tests/test_actor_binding_served.py:118",
@@ -921,7 +921,7 @@
       "title": "No actor bootstrap: an unbound context resolves from the transport",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "e619a6e18aa8"
+        "c1a0f0b11a29"
       ],
       "verified_by": [
         "tests/test_actor_binding_served.py:189",
@@ -1132,7 +1132,7 @@
         "fb1f1684168c"
       ],
       "verified_by": [
-        "tests/test_auth_declarations.py:236"
+        "tests/test_auth_declarations.py:254"
       ]
     },
     {
@@ -4115,11 +4115,11 @@
         "95f251043be1"
       ],
       "verified_by": [
-        "tests/test_eg_pack_entry_kinds.py:45",
-        "tests/test_eg_pack_entry_kinds.py:54",
-        "tests/test_eg_pack_entry_kinds.py:66",
-        "tests/test_eg_pack_entry_kinds.py:81",
-        "tests/test_eg_pack_entry_kinds.py:95"
+        "tests/test_eg_pack_entry_kinds.py:42",
+        "tests/test_eg_pack_entry_kinds.py:51",
+        "tests/test_eg_pack_entry_kinds.py:63",
+        "tests/test_eg_pack_entry_kinds.py:78",
+        "tests/test_eg_pack_entry_kinds.py:92"
       ],
       "rollup_of": [
         "SCION-CONNECTOR-CONTROL-R075.1",
@@ -4200,7 +4200,7 @@
         "95f251043be1"
       ],
       "verified_by": [
-        "tests/test_ingest.py:144"
+        "tests/test_ingest.py:138"
       ]
     },
     {
@@ -4212,11 +4212,11 @@
         "bbc715bc3431"
       ],
       "verified_by": [
-        "tests/test_eg_pack_entry_kinds.py:45",
-        "tests/test_eg_pack_entry_kinds.py:54",
-        "tests/test_eg_pack_entry_kinds.py:66",
-        "tests/test_eg_pack_entry_kinds.py:81",
-        "tests/test_eg_pack_entry_kinds.py:95"
+        "tests/test_eg_pack_entry_kinds.py:42",
+        "tests/test_eg_pack_entry_kinds.py:51",
+        "tests/test_eg_pack_entry_kinds.py:63",
+        "tests/test_eg_pack_entry_kinds.py:78",
+        "tests/test_eg_pack_entry_kinds.py:92"
       ]
     },
     {
