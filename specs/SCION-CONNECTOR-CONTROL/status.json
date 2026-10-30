@@ -967,17 +967,11 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R020.4",
       "title": "A successor release keeps every predecessor tool",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "LANDED",
       "landed_in": [
         "55e450970977"
       ],
-      "verified_by": [
-        "tests/test_successor_tool_parity.py:13",
-        "tests/test_successor_tool_parity.py:26",
-        "tests/test_successor_tool_parity.py:33",
-        "tests/test_successor_tool_parity.py:40",
-        "tests/test_successor_tool_parity.py:45"
-      ]
+      "verified_by": []
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R026",
