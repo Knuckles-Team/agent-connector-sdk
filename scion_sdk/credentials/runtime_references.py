@@ -36,7 +36,7 @@ class RuntimeSecretReferenceError(ValueError):
     """A CLI secret reference is invalid or unavailable (never discloses it)."""
 
 
-def _validated_reference(reference: Any) -> tuple[str, str]:
+def _bounded_reference(reference: Any) -> str:
     rendered = str(reference or "").strip()
     if (
         not rendered
@@ -44,6 +44,11 @@ def _validated_reference(reference: Any) -> tuple[str, str]:
         or any(character.isspace() or ord(character) < 32 for character in rendered)
     ):
         raise RuntimeSecretReferenceError("runtime secret reference is invalid")
+    return rendered
+
+
+def _validated_reference(reference: Any) -> tuple[str, str]:
+    rendered = _bounded_reference(reference)
     scheme, separator, target = rendered.partition("://")
     if not separator or scheme not in {"env", "vault", "secret"}:
         raise RuntimeSecretReferenceError(
