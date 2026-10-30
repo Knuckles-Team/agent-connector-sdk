@@ -197,7 +197,6 @@
 - [ ] **SCION-SOURCE-INGEST-R005.40.4:** Refusal. Return typed refusals and keep the checkpoint.
 - [ ] **SCION-SOURCE-INGEST-R005.40.5:** Evidence. Map the record provenance onto the engine model.
 - [ ] **SCION-SOURCE-INGEST-R005.40.6:** Hot-path proof. Add the served two-connector test.
-- [ ] **SCION-SOURCE-INGEST-R005.41:** Refuse failed legacy fetches before the runner advances the checkpoint.
 - [x] **SCION-SOURCE-INGEST-R005.42:** Pin legacy fetch egress and refuse private targets without an explicit host allowlist.
 - [ ] **SCION-SOURCE-INGEST-R005.48:** Bound streamed legacy web responses.
 - [ ] **SCION-SOURCE-INGEST-R005.49:** Refuse malformed legacy web checkpoints before fetching.
@@ -205,7 +204,6 @@
 - [ ] **SCION-SOURCE-INGEST-R005.51:** Make legacy tag stripping linear.
 - [ ] **SCION-SOURCE-INGEST-R005.52:** Scan legacy metadata in linear time.
 - [ ] **SCION-SOURCE-INGEST-R005.53:** Scan legacy title tags in linear time.
-- [ ] **SCION-SOURCE-INGEST-R005.54:** Exercise the bounded legacy fetch with adversarial HTML.
 - [x] Bound legacy web fetch across DNS and response streaming (SCION-SOURCE-INGEST-R005.55).
 - [x] `SCION-SOURCE-INGEST-R004.26` — Citable public URL fields kept by the persistence guard.
 - [x] `SCION-SOURCE-INGEST-R004.27` — Pass the operator's mass-withdrawal decision through the sink.

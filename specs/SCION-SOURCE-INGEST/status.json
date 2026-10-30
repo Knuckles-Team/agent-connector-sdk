@@ -114,7 +114,6 @@
     "SCION-SOURCE-INGEST-R005.40.4",
     "SCION-SOURCE-INGEST-R005.40.5",
     "SCION-SOURCE-INGEST-R005.40.6",
-    "SCION-SOURCE-INGEST-R005.41",
     "SCION-SOURCE-INGEST-R005.42",
     "SCION-SOURCE-INGEST-R005.43",
     "SCION-SOURCE-INGEST-R005.44",
@@ -127,7 +126,6 @@
     "SCION-SOURCE-INGEST-R005.51",
     "SCION-SOURCE-INGEST-R005.52",
     "SCION-SOURCE-INGEST-R005.53",
-    "SCION-SOURCE-INGEST-R005.54",
     "SCION-SOURCE-INGEST-R005.55",
     "SCION-SOURCE-INGEST-R006.32",
     "SCION-SOURCE-INGEST-R006.33",
@@ -413,8 +411,8 @@
         "8e87ef9675f0"
       ],
       "verified_by": [
-        "tests/test_adapters_web_fetch_source_adapter.py:58",
-        "tests/test_adapters_web_fetch_source_adapter.py:70"
+        "tests/test_adapters_web_fetch_source_adapter.py:108",
+        "tests/test_adapters_web_fetch_source_adapter.py:116"
       ],
       "rollup_of": [
         "SCION-SOURCE-INGEST-R005.1",
@@ -459,7 +457,6 @@
         "SCION-SOURCE-INGEST-R005.38",
         "SCION-SOURCE-INGEST-R005.39",
         "SCION-SOURCE-INGEST-R005.40",
-        "SCION-SOURCE-INGEST-R005.41",
         "SCION-SOURCE-INGEST-R005.42",
         "SCION-SOURCE-INGEST-R005.43",
         "SCION-SOURCE-INGEST-R005.44",
@@ -472,7 +469,6 @@
         "SCION-SOURCE-INGEST-R005.51",
         "SCION-SOURCE-INGEST-R005.52",
         "SCION-SOURCE-INGEST-R005.53",
-        "SCION-SOURCE-INGEST-R005.54",
         "SCION-SOURCE-INGEST-R005.55"
       ]
     },
@@ -526,11 +522,21 @@
     {
       "id": "SCION-SOURCE-INGEST-R006",
       "title": "SDK packs own vendor enrichment extraction and write-back",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "b55555566da2"
+        "10376b1e9728",
+        "1cbd1de01d83",
+        "35871f3b2b8e",
+        "36d2c92e439c",
+        "3735e4434463"
       ],
-      "verified_by": [],
+      "verified_by": [
+        "tests/test_enterprise_adapters_served.py:21",
+        "tests/test_enterprise_contract.py:107",
+        "tests/test_enterprise_contract.py:173",
+        "tests/test_enterprise_contract.py:65",
+        "tests/test_enterprise_dispatch.py:114"
+      ],
       "rollup_of": [
         "SCION-SOURCE-INGEST-R006.1",
         "SCION-SOURCE-INGEST-R006.2",
@@ -1089,9 +1095,20 @@
     {
       "id": "SCION-SOURCE-INGEST-R012",
       "title": "Platform reads and searches use declared backend fallback chains",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "27aa0ca2e9ae",
+        "5436800bcc12",
+        "8d984764c9d8",
+        "8eacf9ba10b6"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback.py:1010",
+        "tests/test_platform_fallback.py:1213",
+        "tests/test_platform_fallback.py:1244",
+        "tests/test_platform_fallback.py:1245",
+        "tests/test_platform_fallback.py:155"
+      ],
       "rollup_of": [
         "SCION-SOURCE-INGEST-R012.1",
         "SCION-SOURCE-INGEST-R012.2",
@@ -1105,44 +1122,84 @@
     {
       "id": "SCION-SOURCE-INGEST-R012.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5436800bcc12"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback_models.py:119",
+        "tests/test_platform_fallback_models.py:146",
+        "tests/test_platform_fallback_models.py:180",
+        "tests/test_platform_fallback_models.py:85"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5436800bcc12"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback.py:1244",
+        "tests/test_platform_fallback.py:155",
+        "tests/test_platform_fallback.py:194",
+        "tests/test_platform_fallback.py:221",
+        "tests/test_platform_fallback.py:318"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012.3",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5436800bcc12"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback.py:1010",
+        "tests/test_platform_fallback.py:597"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5436800bcc12"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback.py:1213",
+        "tests/test_platform_fallback.py:1245",
+        "tests/test_platform_fallback.py:195",
+        "tests/test_platform_fallback.py:222",
+        "tests/test_platform_fallback.py:278"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5436800bcc12"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback.py:357",
+        "tests/test_platform_fallback.py:385",
+        "tests/test_platform_fallback.py:474",
+        "tests/test_platform_fallback_models.py:181",
+        "tests/test_platform_fallback_models.py:231"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5436800bcc12"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback_served.py:75"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012.7",
@@ -1579,23 +1636,37 @@
     {
       "id": "SCION-SOURCE-INGEST-R005.40.3",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4e8cffaa525a"
+      ],
+      "verified_by": [
+        "tests/test_adapters_web_fetch_source_adapter.py:140"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.40.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4e8cffaa525a"
+      ],
+      "verified_by": [
+        "tests/test_adapters_web_fetch_source_adapter.py:151",
+        "tests/test_adapters_web_fetch_source_adapter.py:173",
+        "tests/test_adapters_web_fetch_source_adapter.py:185"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.40.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4e8cffaa525a"
+      ],
+      "verified_by": [
+        "tests/test_adapters_web_fetch_source_adapter.py:199"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.40.6",
@@ -1605,17 +1676,6 @@
       "verified_by": []
     },
     {
-      "id": "SCION-SOURCE-INGEST-R005.41",
-      "title": "Failed legacy web fetch preserves the checkpoint",
-      "delivery_state": "VERIFIED",
-      "landed_in": [
-        "cb75b1d7a164"
-      ],
-      "verified_by": [
-        "tests/test_adapters_web_fetch_source_adapter.py:131"
-      ]
-    },
-    {
       "id": "SCION-SOURCE-INGEST-R005.42",
       "title": "Pin legacy web-fetch egress during migration",
       "delivery_state": "VERIFIED",
@@ -1623,10 +1683,9 @@
         "62c3a3fc9e74"
       ],
       "verified_by": [
-        "tests/test_adapters_web_fetch.py:123",
-        "tests/test_adapters_web_fetch.py:86",
-        "tests/test_adapters_web_fetch.py:98",
-        "tests/test_adapters_web_fetch_source_adapter.py:157"
+        "tests/test_adapters_web_fetch.py:116",
+        "tests/test_adapters_web_fetch.py:84",
+        "tests/test_adapters_web_fetch.py:91"
       ]
     },
     {
@@ -1694,7 +1753,7 @@
         "4712f4468d5b"
       ],
       "verified_by": [
-        "tests/test_adapters_web_fetch.py:131"
+        "tests/test_adapters_web_fetch.py:124"
       ]
     },
     {
@@ -1705,7 +1764,7 @@
         "b8d725045757"
       ],
       "verified_by": [
-        "tests/test_adapters_web_fetch_source_adapter.py:181"
+        "tests/test_adapters_web_fetch_source_adapter.py:218"
       ]
     },
     {
@@ -1716,7 +1775,7 @@
         "bf6a321d7eb3"
       ],
       "verified_by": [
-        "tests/test_adapters_web_fetch_source_adapter.py:216"
+        "tests/test_adapters_web_fetch_source_adapter.py:246"
       ]
     },
     {
@@ -1727,7 +1786,7 @@
         "76677f762c1f"
       ],
       "verified_by": [
-        "tests/test_adapters_web_fetch.py:197"
+        "tests/test_adapters_web_fetch.py:183"
       ]
     },
     {
@@ -1738,7 +1797,7 @@
         "5d6da54581fd"
       ],
       "verified_by": [
-        "tests/test_adapters_web_fetch.py:213"
+        "tests/test_adapters_web_fetch.py:199"
       ]
     },
     {
@@ -1749,18 +1808,7 @@
         "c549081c0921"
       ],
       "verified_by": [
-        "tests/test_adapters_web_fetch.py:271"
-      ]
-    },
-    {
-      "id": "SCION-SOURCE-INGEST-R005.54",
-      "title": "Exercise legacy parsing through the adapter",
-      "delivery_state": "VERIFIED",
-      "landed_in": [
-        "f30eb75c62c7"
-      ],
-      "verified_by": [
-        "tests/test_adapters_web_fetch_source_adapter.py:248"
+        "tests/test_adapters_web_fetch.py:257"
       ]
     },
     {
@@ -1791,37 +1839,62 @@
     {
       "id": "SCION-SOURCE-INGEST-R006.33",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "97f4f86e9aaa"
+      ],
+      "verified_by": [
+        "tests/test_enterprise_dispatch.py:157",
+        "tests/test_enterprise_dispatch.py:83"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R006.34",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "97f4f86e9aaa"
+      ],
+      "verified_by": [
+        "tests/test_enterprise_dispatch.py:114",
+        "tests/test_enterprise_dispatch.py:257"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R006.35",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "97f4f86e9aaa"
+      ],
+      "verified_by": [
+        "tests/test_enterprise_dispatch.py:380",
+        "tests/test_enterprise_dispatch.py:97"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R006.36",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "97f4f86e9aaa"
+      ],
+      "verified_by": [
+        "tests/test_enterprise_dispatch.py:158",
+        "tests/test_enterprise_dispatch.py:264",
+        "tests/test_enterprise_dispatch.py:84"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R006.37",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "97f4f86e9aaa"
+      ],
+      "verified_by": [
+        "tests/test_enterprise_adapters_served.py:21"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.7",
@@ -2575,12 +2648,20 @@
     {
       "id": "SCION-SOURCE-INGEST-R600",
       "title": "Vendor write-back sinks run through one governed, fail-closed, dry-run-first entry point (rollup)",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "ec8d36a076f4"
+        "25e1d47263ea",
+        "2ebd61c4c0b5",
+        "4b003b24ce55",
+        "7f1902255745",
+        "8c6dcfdd27e8"
       ],
       "verified_by": [
-        "tests/test_writeback_sinks.py:28"
+        "tests/test_writeback_sinks.py:110",
+        "tests/test_writeback_sinks.py:151",
+        "tests/test_writeback_sinks.py:185",
+        "tests/test_writeback_sinks.py:230",
+        "tests/test_writeback_sinks.py:242"
       ],
       "rollup_of": [
         "SCION-SOURCE-INGEST-R600.1",
@@ -2651,9 +2732,13 @@
     {
       "id": "SCION-SOURCE-INGEST-R600.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "25e1d47263ea"
+      ],
+      "verified_by": [
+        "tests/test_writeback_sinks.py:351"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R800",

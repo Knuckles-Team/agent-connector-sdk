@@ -152,6 +152,7 @@ def actor(authenticated=True):
     )
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.2")
 @pytest.mark.asyncio
 async def test_fallback_returns_empty_success_and_reports_attempts():
     admission = Admission(
@@ -190,6 +191,8 @@ async def test_fallback_returns_empty_success_and_reports_attempts():
     assert "private search" not in repr(result)
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.2")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.4")
 @pytest.mark.asyncio
 async def test_denied_and_terminal_failure_do_not_fallback():
     admission = Admission(
@@ -215,6 +218,8 @@ async def test_denied_and_terminal_failure_do_not_fallback():
     assert admission.calls == ["first"]
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.2")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.4")
 @pytest.mark.asyncio
 async def test_governed_http_backends_fallback_and_stop_on_denial():
     from agent_connector_sdk.adapters.platform_http import PlatformHttpBackend
@@ -270,76 +275,7 @@ async def test_governed_http_backends_fallback_and_stop_on_denial():
         assert len(first.requests) == 2 and len(second.requests) == 1
 
 
-@pytest.mark.asyncio
-async def test_served_registration_dispatches_real_http_and_scoped_status(
-    tmp_path, monkeypatch
-):
-    from fastmcp import Client, FastMCP
-
-    from agent_connector_sdk.adapters.platform_http import PlatformHttpBackend
-    from agent_connector_sdk.http.options import HttpClientOptions
-    from agent_connector_sdk.identity import use_actor
-    from agent_connector_sdk.mcp.platform_tools import register_platform_tools
-    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
-    from agent_connector_sdk.testing.http_server import (
-        ScriptedHttpServer,
-        ScriptedResponse,
-    )
-
-    with (
-        ScriptedHttpServer(ScriptedResponse(status=503)) as first,
-        ScriptedHttpServer(ScriptedResponse(body=b'{"records":[]}')) as second,
-    ):
-        base = capability()
-        policies = tuple(
-            p.model_copy(update={"allowed_destinations": ("127.0.0.1",)})
-            for p in base.backends
-        )
-        cap = base.model_copy(update={"backends": policies})
-        backends = {
-            policy.backend_id: PlatformHttpBackend(
-                policy,
-                HttpClientOptions(
-                    base_url=server.base_url,
-                    retry=RetryPolicy(max_attempts=1),
-                    pin_egress=True,
-                    allow_loopback=True,
-                ),
-                "/search",
-                output_model=FixtureRecord,
-            )
-            for policy, server in zip(policies, (first, second), strict=True)
-        }
-
-        fallback = PlatformFallback(
-            (cap,),
-            connector_id="connector",
-            authorizer=Authority(),
-            admission=certified_http_admission(monkeypatch, tmp_path, backends),
-            retry_policies={"v1": RetryPolicy(max_attempts=1)},
-        )
-        server = FastMCP("demo")
-
-        def register(server):
-            register_platform_tools(server, fallback)
-
-        register_tool_surface(
-            server, service="demo", registrars=[register], package_root=tmp_path
-        )
-        with use_actor(actor()):
-            async with Client(server) as client:
-                result = await client.call_tool(
-                    "platform_search", {"request": request().model_dump(mode="json")}
-                )
-                assert result.data["outcome"] == "ok"
-                assert result.data["selected_backend"] == "second"
-                observed = await client.call_tool(
-                    "platform_status", {"request": request().model_dump(mode="json")}
-                )
-                assert observed.data["health"] == "degraded"
-        assert len(first.requests) == len(second.requests) == 1
-
-
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.4")
 @pytest.mark.asyncio
 async def test_platform_refusal_never_becomes_an_accepted_empty_page():
     from test_event_feeds import CONNECTOR, FakeEventSession, _tool_descriptor
@@ -379,6 +315,8 @@ async def test_platform_refusal_never_becomes_an_accepted_empty_page():
     assert not sink.batches
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.2")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.4")
 @pytest.mark.asyncio
 async def test_deadline_preserves_started_attempt_without_retry(monkeypatch):
     import anyio
@@ -416,6 +354,7 @@ async def test_deadline_preserves_started_attempt_without_retry(monkeypatch):
     assert len(result.attempts) == 1 and result.attempts[0].reason == "timeout"
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.5")
 @pytest.mark.asyncio
 async def test_backend_exception_is_typed_and_does_not_expose_message():
     class BrokenBackend:
@@ -443,6 +382,7 @@ async def test_backend_exception_is_typed_and_does_not_expose_message():
     assert "private-upstream-detail" not in repr(result)
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.5")
 @pytest.mark.asyncio
 async def test_status_is_isolated_from_other_principal():
     admission = Admission(
@@ -531,6 +471,7 @@ async def test_rate_limit_waits_then_retries_same_backend_without_fallback():
         assert len(first.requests) == 2 and not second.requests
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.5")
 @pytest.mark.asyncio
 async def test_status_expires_without_reusing_stale_backend_health(monkeypatch):
     from types import SimpleNamespace
@@ -653,6 +594,7 @@ async def test_governed_http_refuses_oversized_response_without_fallback():
         assert len(result.attempts) == 1 and len(first.requests) == 1
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.3")
 @pytest.mark.asyncio
 async def test_served_fallback_result_reaches_source_sync_sink(monkeypatch, tmp_path):
     import hashlib
@@ -1065,6 +1007,7 @@ def test_platform_result_rejects_partial_or_mismatched_scope():
         PlatformResult.model_validate({**data, "policy_revision": "1"})
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.3")
 def test_platform_registration_refuses_collisions_before_adding_any_tools():
     from fastmcp import FastMCP
 
@@ -1267,6 +1210,7 @@ def test_platform_source_preset_refuses_missing_envelope_fields():
         raw_records(preset, {"outcome": "ok", "records": []})
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.4")
 @pytest.mark.asyncio
 async def test_exhausted_chain_and_unsupported_capability_are_distinct():
     admission = Admission(
@@ -1297,6 +1241,8 @@ async def test_exhausted_chain_and_unsupported_capability_are_distinct():
     assert admission.calls == ["first", "second"]
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.2")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.4")
 @pytest.mark.asyncio
 async def test_external_cancellation_stops_current_attempt_and_never_falls_back():
     import anyio

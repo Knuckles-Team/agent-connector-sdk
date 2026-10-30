@@ -4,13 +4,19 @@ from __future__ import annotations
 
 from typing import Any
 
+from epistemic_graph.generated.connector_pack import PackAnnotations, ToolSideEffects
+
 from agent_connector_sdk.artifacts.annotations import _annotations_from_mcp
 from agent_connector_sdk.artifacts.common import (
     canonical_json,
     json_object,
     require_kind,
 )
-from agent_connector_sdk.artifacts.tool_facts import _tool_body
+from agent_connector_sdk.artifacts.tool_facts import (
+    ToolContractFacts,
+    _tool_body,
+    facts_from_declaration,
+)
 from agent_connector_sdk.certify.fingerprints import tool_fingerprint
 from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
 from agent_connector_sdk.ports.errors import MalformedArtifactError
@@ -19,8 +25,22 @@ from agent_connector_sdk.ports.session import McpSession
 __all__ = ["ToolArtifactKind"]
 
 
+def _with_contract_facts(
+    annotations: PackAnnotations, facts: ToolContractFacts
+) -> PackAnnotations:
+    """Fill ``side_effects`` and ``schema_tokens`` unless the connector declared them."""
+    update: dict[str, Any] = {}
+    if annotations.side_effects is None:
+        effects = sorted(facts.side_effects)
+        update["side_effects"] = ToolSideEffects(effects[0] if effects else "none")
+    if annotations.schema_tokens is None:
+        update["schema_tokens"] = facts.schema_tokens
+    return annotations.model_copy(update=update) if update else annotations
+
+
 def _tool_entry(tool: Any, server: ServerIdentity) -> CapturedArtifact:
     body = _tool_body(tool)
+    facts = facts_from_declaration(tool)
     name = body["name"]
     return CapturedArtifact(
         kind=ToolArtifactKind.kind,
@@ -29,10 +49,13 @@ def _tool_entry(tool: Any, server: ServerIdentity) -> CapturedArtifact:
         media_type="application/json",
         body=canonical_json(body),
         server=server,
-        annotations=_annotations_from_mcp(
-            tool,
-            tool_annotations=getattr(tool, "annotations", None),
-            sdk_contract_pin=tool_fingerprint(tool),
+        annotations=_with_contract_facts(
+            _annotations_from_mcp(
+                tool,
+                tool_annotations=getattr(tool, "annotations", None),
+                sdk_contract_pin=tool_fingerprint(tool),
+            ),
+            facts,
         ),
     )
 
