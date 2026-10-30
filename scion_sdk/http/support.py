@@ -19,8 +19,6 @@ client instead of calling :func:`scion_sdk.http.create_http_client`:
 from __future__ import annotations
 
 import time
-from collections.abc import Mapping
-from dataclasses import asdict, dataclass
 from typing import Any
 
 import httpx
@@ -31,7 +29,8 @@ from scion_sdk.exceptions import (
     ParameterError,
     UnauthorizedError,
 )
-from scion_sdk.http.retry import parse_retry_after
+from scion_sdk.http.support_mixins import _ResponseDecoding, _VerbMethods
+from scion_sdk.http.support_rate import RateLimitSnapshot, _backoff_seconds, _rate_limit
 from scion_sdk.httpsupport.auth import (
     AuthHeaderInjector,
     BasicAuth,
@@ -55,7 +54,6 @@ JSON_CONTENT_TYPE = "application/json"
 DEFAULT_TIMEOUT_S = 30.0
 DEFAULT_MAX_RETRIES_429 = 3
 DEFAULT_RETRY_AFTER_CAP_S = 60.0
-REDACTED = "[REDACTED]"
 
 #: Default status -> exception mapping.
 DEFAULT_ERROR_MAP: dict[int, type[Exception]] = {
@@ -70,62 +68,7 @@ class DestructiveOperationError(PermissionError):
     """A destructive operation was attempted while gated off."""
 
 
-@dataclass(frozen=True)
-class RateLimitSnapshot:
-    """The rate-limit headers observed on one response."""
-
-    limit: int | None
-    remaining: int | None
-    reset: float | None
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-
-def _header_number(headers: Mapping[str, str], *names: str) -> float | None:
-    for name in names:
-        value = headers.get(name)
-        if value is None:
-            continue
-        try:
-            return float(value)
-        except ValueError:
-            continue
-    return None
-
-
-def _rate_limit(headers: Mapping[str, str]) -> RateLimitSnapshot | None:
-    limit = _header_number(headers, "X-RateLimit-Limit", "X-Rate-Limit-Limit")
-    remaining = _header_number(
-        headers, "X-RateLimit-Remaining", "X-Rate-Limit-Remaining"
-    )
-    reset = _header_number(headers, "X-RateLimit-Reset", "X-Rate-Limit-Reset")
-    if limit is None and remaining is None and reset is None:
-        return None
-    return RateLimitSnapshot(
-        limit=int(limit) if limit is not None else None,
-        remaining=int(remaining) if remaining is not None else None,
-        reset=reset,
-    )
-
-
-def _backoff_seconds(headers: Mapping[str, str], cap: float) -> float:
-    delay = parse_retry_after(headers.get("Retry-After"))
-    if delay is None:
-        reset = _header_number(headers, "X-Rate-Limit-Reset", "X-RateLimit-Reset")
-        if reset is not None:
-            delay = max(0.0, reset - time.time()) if reset > 1e9 else reset
-    return min(max(delay if delay is not None else 1.0, 0.0), cap)
-
-
-def _redact(text: str, secrets: list[str]) -> str:
-    for secret in secrets:
-        if secret:
-            text = text.replace(secret, REDACTED)
-    return text
-
-
-class BaseApiClient:
+class BaseApiClient(_ResponseDecoding, _VerbMethods):
     """Synchronous connector API client base (see the module docstring).
 
     Args:
@@ -192,11 +135,6 @@ class BaseApiClient:
             **httpx_kwargs,
         )
 
-    @property
-    def rate_limit(self) -> RateLimitSnapshot | None:
-        """The most recent rate-limit snapshot observed on any response."""
-        return self._last_rate_limit
-
     def default_headers(self) -> dict[str, str]:
         """Headers every request starts from; override per API."""
         return {"Accept": JSON_CONTENT_TYPE}
@@ -233,44 +171,6 @@ class BaseApiClient:
             **self._auth.params(),
         }
         return merged or None
-
-    @staticmethod
-    def _parse_body(response: httpx.Response) -> Any:
-        if response.status_code == 204 or not response.content:
-            return None
-        if "json" in response.headers.get("Content-Type", ""):
-            try:
-                return response.json()
-            except ValueError:
-                return response.text
-        return response.text
-
-    def _map_error(self, response: httpx.Response, data: Any) -> Exception:
-        """Map an error response to an exception (override for bespoke APIs)."""
-        detail = ""
-        if isinstance(data, dict):
-            detail = str(
-                data.get("detail")
-                or data.get("message")
-                or data.get("error")
-                or data.get("errorSummary")
-                or ""
-            )
-        message = (
-            f"HTTP {response.status_code} for "
-            f"{response.request.method} {response.request.url.path}"
-        )
-        if detail:
-            message = f"{message}: {detail}"
-        if response.status_code == 429:
-            limits = self.rate_limit
-            message = (
-                f"{message} - rate limited after {self.max_retries_429} retries "
-                f"(remaining={limits.remaining if limits else None}, "
-                f"reset={limits.reset if limits else None})"
-            )
-        message = _redact(message, self._auth.secrets())
-        return self.error_map.get(response.status_code, self.default_error)(message)
 
     def _send(
         self,
@@ -342,24 +242,6 @@ class BaseApiClient:
         if self.include_response_headers:
             envelope["headers"] = dict(response.headers)
         return envelope
-
-    def get(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
-        return self.request("GET", endpoint, **kwargs)
-
-    def post(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
-        return self.request("POST", endpoint, **kwargs)
-
-    def put(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
-        return self.request("PUT", endpoint, **kwargs)
-
-    def patch(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
-        return self.request("PATCH", endpoint, **kwargs)
-
-    def delete(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
-        return self.request("DELETE", endpoint, **kwargs)
-
-    def head(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
-        return self.request("HEAD", endpoint, **kwargs)
 
     def close(self) -> None:
         """Close the httpx client and release runtime TLS material."""
