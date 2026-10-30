@@ -13,20 +13,24 @@ import ast
 import asyncio
 import importlib
 import importlib.util
-import tomllib
 from collections.abc import Callable
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
-from scion_sdk.config_mounts import ConfigMountError, config_mounts
 from scion_sdk.connector import ResolvedConnector, build_server
-from scion_sdk.connector_identity import (
-    CONNECTOR_ENTRY_POINT_GROUP,
-    connector_name,
-    distribution_version,
+from scion_sdk.testing._conformance_declared import (
+    _check_config_mounts,
+    _check_one_entry_point,
+    _check_ontology_rollup,
 )
-from scion_sdk.testing.ontology_rollup import orphan_classes
+from scion_sdk.testing._conformance_static import (
+    REMOVED_PROVIDER_GROUPS,
+    ConformanceFailure,
+    _check_fleet_name,
+    _check_version_from_metadata,
+    _require,
+    trees,
+)
 
 __all__ = [
     "CHECKS",
@@ -36,22 +40,7 @@ __all__ = [
     "run_check",
 ]
 
-#: Entry-point groups the convention replaces; a connector declares none.
-REMOVED_PROVIDER_GROUPS = (
-    "scion_sdk.skill_providers",
-    "scion_sdk.ontology_providers",
-    "scion_sdk.source_connector_providers",
-)
 _ROW = "SCION-QUALITY-RELEASE-R005.1"
-
-
-class ConformanceFailure(AssertionError):
-    """A connector violates a conformance property."""
-
-
-def _require(condition: object, message: str) -> None:
-    if not condition:
-        raise ConformanceFailure(message)
 
 
 @dataclass(frozen=True)
@@ -61,21 +50,6 @@ class Check:
     name: str
     spec: str
     run: Callable[[ResolvedConnector], None]
-
-
-def _python_files(resolved: ResolvedConnector) -> list[Path]:
-    return sorted(resolved.dirs.root.glob("*.py"))
-
-
-def _trees(resolved: ResolvedConnector) -> list[tuple[Path, ast.Module]]:
-    return [
-        (p, ast.parse(p.read_text(encoding="utf-8"))) for p in _python_files(resolved)
-    ]
-
-
-def _pyproject(resolved: ResolvedConnector) -> dict[str, Any]:
-    path = resolved.dirs.root.parent / "pyproject.toml"
-    return tomllib.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
 
 
 def _server(resolved: ResolvedConnector, *args: str) -> Any:
@@ -94,66 +68,6 @@ def _listings(resolved: ResolvedConnector) -> tuple[set[str], dict[str, str]]:
             return resources, prompts
 
     return asyncio.run(read())
-
-
-def check_fleet_name(resolved: ResolvedConnector) -> None:
-    """The fleet name is declared once and every literal in the package matches it."""
-    _require(
-        connector_name(resolved.package) == resolved.name,
-        "identity differs from the declaration",
-    )
-    group = (
-        _pyproject(resolved)
-        .get("project", {})
-        .get("entry-points", {})
-        .get(CONNECTOR_ENTRY_POINT_GROUP)
-    )
-    if group is not None:
-        _require(list(group) == [resolved.name], f"declares {list(group)}")
-    for path, tree in _trees(resolved):
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.Call):
-                continue
-            func = getattr(node.func, "id", getattr(node.func, "attr", ""))
-            if func not in {"IngestBinding", "ConnectorContent"}:
-                continue
-            for keyword in node.keywords:
-                if keyword.arg == "connector" and isinstance(
-                    keyword.value, ast.Constant
-                ):
-                    _require(
-                        keyword.value.value == resolved.name,
-                        f"{path.name} spells connector {keyword.value.value!r}",
-                    )
-
-
-def check_version_from_metadata(resolved: ResolvedConnector) -> None:
-    """The version comes from package metadata and no module spells its own."""
-    _require(
-        resolved.version == distribution_version(resolved.distribution),
-        "version differs from metadata",
-    )
-    for path, tree in _trees(resolved):
-        for node in ast.walk(tree):
-            targets = (
-                node.targets
-                if isinstance(node, ast.Assign)
-                else [node.target]
-                if isinstance(node, ast.AnnAssign)
-                else []
-            )
-            value = getattr(node, "value", None)
-            if (
-                any(getattr(t, "id", "") == "__version__" for t in targets)
-                and isinstance(value, ast.Constant)
-                and isinstance(value.value, str)
-            ):
-                raise ConformanceFailure(
-                    f"{path.name} spells __version__; read metadata"
-                )
-    module = importlib.import_module(resolved.package)
-    declared = getattr(module, "__version__", None)
-    _require(declared in (None, resolved.version), f"__version__ {declared!r} differs")
 
 
 def _health_status(mcp: Any) -> int:
@@ -225,17 +139,10 @@ def check_connector_sources(resolved: ResolvedConnector) -> None:
         registered_tools(mcp).values(),
         declared=load_sources_module(resolved.dirs.root),
     )
-    for item in _trees(resolved):
+    for item in trees(resolved):
         names = {n.name for n in ast.walk(item[1]) if isinstance(n, ast.FunctionDef)}
         if item[0].name == "connector_sources.py":
             _require("declaration" not in names, "declaration() belongs to the SDK")
-
-
-def check_ontology_rollup(resolved: ResolvedConnector) -> None:
-    """Every ontology class reaches the epistemic-graph core namespace."""
-    for path in sorted(resolved.dirs.ontology.glob("*.ttl")):
-        orphans = orphan_classes(path)
-        _require(not orphans, f"{path.name}: orphan classes {sorted(orphans)}")
 
 
 def check_kg_ingest(resolved: ResolvedConnector) -> None:
@@ -250,35 +157,17 @@ def check_kg_ingest(resolved: ResolvedConnector) -> None:
             _require(value.connector == resolved.name, value.connector)
 
 
-def check_one_entry_point(resolved: ResolvedConnector) -> None:
-    """Content is found by convention: no provider entry points are declared."""
-    declared = _pyproject(resolved).get("project", {}).get("entry-points", {})
-    stale = [g for g in REMOVED_PROVIDER_GROUPS if g in declared]
-    _require(
-        not stale,
-        f"remove entry-point groups {stale}; the SDK finds content by convention",
-    )
-
-
-def check_config_mounts(resolved: ResolvedConnector) -> None:
-    """Declared container config mounts follow the SDK schema."""
-    try:
-        config_mounts(_pyproject(resolved))
-    except ConfigMountError as exc:
-        raise ConformanceFailure(f"config_mounts: {exc}") from exc
-
-
 CHECKS: tuple[Check, ...] = (
-    Check("fleet_name", _ROW, check_fleet_name),
-    Check("version_from_metadata", _ROW, check_version_from_metadata),
+    Check("fleet_name", _ROW, _check_fleet_name),
+    Check("version_from_metadata", _ROW, _check_version_from_metadata),
     Check("startup", _ROW, check_startup),
     Check("content_surfaces", _ROW, check_content_surfaces),
     Check("prompts_served", _ROW, check_prompts_served),
     Check("connector_sources", _ROW, check_connector_sources),
-    Check("ontology_rollup", _ROW, check_ontology_rollup),
+    Check("ontology_rollup", _ROW, _check_ontology_rollup),
     Check("kg_ingest", _ROW, check_kg_ingest),
-    Check("one_entry_point", _ROW, check_one_entry_point),
-    Check("config_mounts", "SCION-CONNECTOR-CONTROL-R019.3", check_config_mounts),
+    Check("one_entry_point", _ROW, _check_one_entry_point),
+    Check("config_mounts", "SCION-CONNECTOR-CONTROL-R019.3", _check_config_mounts),
 )
 
 

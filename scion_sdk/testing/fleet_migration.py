@@ -14,11 +14,16 @@ than a brittle text search.
 
 from __future__ import annotations
 
-import ast
-import os
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
+
+from scion_sdk.testing._fleet_scan import _imports_agent_utilities
+from scion_sdk.testing._fleet_walk import (
+    _DEFAULT_EXCLUDED_DIRS,
+    PackageScanResult,
+    _scan_python_sources,
+)
 
 __all__ = [
     "JsonTagLoaderEntry",
@@ -30,134 +35,6 @@ __all__ = [
 ]
 
 _REGISTRATION_KINDS = frozenset({"operation", "callback", "action_dispatch"})
-_DEFAULT_EXCLUDED_DIRS = frozenset({".venv", "build", "__pycache__"})
-
-
-@dataclass(frozen=True)
-class PackageScanResult:
-    """One connector package's import-scan outcome."""
-
-    package: str
-    offending_files: tuple[str, ...]
-    unscanned_files: tuple[str, ...] = ()
-
-    @property
-    def migrated(self) -> bool:
-        """True when the scan is complete and found no legacy imports."""
-        return not self.offending_files and not self.unscanned_files
-
-
-def _imports_agent_utilities(source: str) -> bool | None:
-    tree = ast.parse(source)
-    import_functions = {"__import__"}
-    module_aliases: set[str] = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for alias in node.names:
-                if alias.name in {"importlib", "builtins"}:
-                    module_aliases.add(alias.asname or alias.name)
-        if isinstance(node, ast.ImportFrom) and node.module in {
-            "importlib",
-            "builtins",
-        }:
-            for alias in node.names:
-                if alias.name in {"import_module", "__import__"}:
-                    import_functions.add(alias.asname or alias.name)
-    uncertain = False
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import) and any(
-            alias.name.split(".")[0] == "agent_utilities" for alias in node.names
-        ):
-            return True
-        if (
-            isinstance(node, ast.ImportFrom)
-            and node.module
-            and node.module.split(".")[0] == "agent_utilities"
-        ):
-            return True
-        if not isinstance(node, ast.Call):
-            continue
-        function = node.func
-        dynamic = isinstance(function, ast.Name) and function.id in import_functions
-        dynamic |= (
-            isinstance(function, ast.Attribute)
-            and isinstance(function.value, ast.Name)
-            and function.value.id in module_aliases
-            and function.attr in {"import_module", "__import__"}
-        )
-        if not dynamic:
-            continue
-        if not node.args or not isinstance(node.args[0], ast.Constant):
-            uncertain = True
-            continue
-        module = node.args[0].value
-        if not isinstance(module, str) or module.startswith("."):
-            uncertain = True
-        elif module.split(".")[0] == "agent_utilities":
-            return True
-    if uncertain:
-        return None
-    return False
-
-
-def _scan_python_sources(
-    package_root: Path,
-    predicate: Callable[[str], bool | None],
-    *,
-    exclude_dirs: frozenset[str] = _DEFAULT_EXCLUDED_DIRS,
-) -> PackageScanResult:
-    """Run a source predicate with fail-closed traversal and parsing."""
-    offending: list[str] = []
-    unscanned: list[str] = []
-    scanned = 0
-    if package_root.is_symlink() or not package_root.is_dir():
-        return PackageScanResult(package_root.name, (), (".",))
-
-    def traversal_error(error: OSError) -> None:
-        path = Path(error.filename) if error.filename else package_root
-        try:
-            unscanned.append(str(path.relative_to(package_root)))
-        except ValueError:
-            unscanned.append(".")
-
-    for directory, dirs, files in os.walk(package_root, onerror=traversal_error):
-        base = Path(directory)
-        retained: list[str] = []
-        for name in sorted(dirs):
-            if name in exclude_dirs:
-                continue
-            path = base / name
-            if path.is_symlink():
-                unscanned.append(str(path.relative_to(package_root)))
-            else:
-                retained.append(name)
-        dirs[:] = retained
-        for name in sorted(files):
-            path = base / name
-            relative = str(path.relative_to(package_root))
-            if path.is_symlink():
-                unscanned.append(relative)
-                continue
-            if not name.endswith(".py"):
-                continue
-            try:
-                source = path.read_text(encoding="utf-8")
-                legacy = predicate(source)
-            except (OSError, UnicodeDecodeError, SyntaxError):
-                unscanned.append(relative)
-                continue
-            scanned += 1
-            if legacy is None:
-                unscanned.append(relative)
-            elif legacy:
-                offending.append(relative)
-    if not scanned and not unscanned:
-        unscanned.append(".")
-    return PackageScanResult(
-        package=package_root.name,
-        offending_files=tuple(sorted(offending)),
-        unscanned_files=tuple(sorted(unscanned)),
-    )
 
 
 def scan_for_agent_utilities_imports(
@@ -237,21 +114,39 @@ def loader_parity_problems(
     for pair in sorted(set(inventory) - seen):
         problems.append(f"loader not inventoried: {pair[0]}:{pair[1]}")
     for entry in entries:
-        where = f"{entry.package}:{entry.loader_path}"
-        if entry.registration not in _REGISTRATION_KINDS:
-            problems.append(f"{where}: unknown registration {entry.registration!r}")
-        if not (entry.source_revision and entry.json_digest and entry.json_path):
-            problems.append(f"{where}: incomplete entry")
-        if not entry.mappings:
-            problems.append(f"{where}: no operation mapping")
-        for m in entry.mappings:
-            op = f"{where}: {m.source_operation_id}->{m.target_operation_id}"
-            if m.source_input_schema != m.target_input_schema:
-                problems.append(f"{op}: input schema differs")
-            if m.source_output_schema != m.target_output_schema:
-                problems.append(f"{op}: output schema differs")
-            if m.source_tags != m.target_tags:
-                problems.append(f"{op}: tags differ")
-            if m.source_authorization != m.target_authorization:
-                problems.append(f"{op}: authorization differs")
+        problems.extend(_entry_problems(entry))
     return problems
+
+
+def _entry_problems(entry: JsonTagLoaderEntry) -> list[str]:
+    where = f"{entry.package}:{entry.loader_path}"
+    problems: list[str] = []
+    if entry.registration not in _REGISTRATION_KINDS:
+        problems.append(f"{where}: unknown registration {entry.registration!r}")
+    if not (entry.source_revision and entry.json_digest and entry.json_path):
+        problems.append(f"{where}: incomplete entry")
+    if not entry.mappings:
+        problems.append(f"{where}: no operation mapping")
+    for m in entry.mappings:
+        problems.extend(
+            _mapping_problems(
+                f"{where}: {m.source_operation_id}->{m.target_operation_id}", m
+            )
+        )
+    return problems
+
+
+_MAPPING_FACETS = (
+    ("source_input_schema", "target_input_schema", "input schema differs"),
+    ("source_output_schema", "target_output_schema", "output schema differs"),
+    ("source_tags", "target_tags", "tags differ"),
+    ("source_authorization", "target_authorization", "authorization differs"),
+)
+
+
+def _mapping_problems(op: str, m: OperationMapping) -> list[str]:
+    return [
+        f"{op}: {message}"
+        for source, target, message in _MAPPING_FACETS
+        if getattr(m, source) != getattr(m, target)
+    ]
