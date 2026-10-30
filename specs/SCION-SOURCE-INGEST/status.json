@@ -479,7 +479,8 @@
       "title": "Model",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "23814702c30b"
+        "23814702c30b",
+        "ab48ad476607"
       ],
       "verified_by": [
         "tests/test_paper_contract.py:48",
@@ -1052,7 +1053,8 @@
         "23814702c30b",
         "289aadb634d8",
         "3735e4434463",
-        "83b7dd3f33eb"
+        "83b7dd3f33eb",
+        "ab48ad476607"
       ],
       "verified_by": [
         "tests/test_earth_observation_records.py:38",
@@ -1069,6 +1071,7 @@
       "landed_in": [
         "23814702c30b",
         "3735e4434463",
+        "ab48ad476607",
         "bfe88b9d8521",
         "ff4c1aaafc8a"
       ],
