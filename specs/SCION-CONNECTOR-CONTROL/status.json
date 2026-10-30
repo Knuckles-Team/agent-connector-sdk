@@ -1587,7 +1587,7 @@
         "92d09c57796b"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:169"
+        "tests/test_single_declaration.py:170"
       ]
     },
     {
@@ -3975,7 +3975,7 @@
         "92d09c57796b"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:260"
+        "tests/test_single_declaration.py:261"
       ]
     },
     {
@@ -4140,7 +4140,7 @@
         "f0b9e7f4f535"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:85"
+        "tests/test_single_declaration.py:86"
       ]
     },
     {
@@ -4152,7 +4152,7 @@
         "f0b9e7f4f535"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:86"
+        "tests/test_single_declaration.py:87"
       ]
     },
     {
@@ -4163,9 +4163,9 @@
         "f0b9e7f4f535"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:102",
-        "tests/test_single_declaration.py:112",
-        "tests/test_single_declaration.py:87"
+        "tests/test_single_declaration.py:103",
+        "tests/test_single_declaration.py:113",
+        "tests/test_single_declaration.py:88"
       ]
     },
     {
@@ -4177,8 +4177,8 @@
         "f0b9e7f4f535"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:268",
-        "tests/test_single_declaration.py:306"
+        "tests/test_single_declaration.py:269",
+        "tests/test_single_declaration.py:307"
       ]
     },
     {
@@ -4189,7 +4189,7 @@
         "f0b9e7f4f535"
       ],
       "verified_by": [
-        "tests/test_single_declaration.py:370"
+        "tests/test_single_declaration.py:371"
       ]
     },
     {
