@@ -12,10 +12,10 @@ import pytest
 from epistemic_graph.generated.source_ingestion import (
     SourceCheckpoint,
     SourceIngestionMode,
-    SourceIngestionReceipt,
     SourceIngestionRequest,
     SourceIngestStatus,
 )
+from ingest_fakes import SinkBackedEngine
 
 from scion_sdk.ingest import (
     ChangeSet,
@@ -101,24 +101,18 @@ async def test_nonempty_page_with_empty_mapping_does_not_advance() -> None:
     assert transport.requests == []
 
 
-class _Transport:
+class _Transport(SinkBackedEngine):
     """An in-memory epistemic-graph: CAS checkpoints, receipts and Blob CAS."""
 
     def __init__(self, *, conflicts: int = 0) -> None:
-        self.sink = InMemorySink()
-        self.requests: list[SourceIngestionRequest] = []
+        super().__init__()
         self.blobs: dict[str, bytes] = {}
         self.conflicts = conflicts
 
-    async def submit(self, request: SourceIngestionRequest) -> SourceIngestionReceipt:
-        self.requests.append(request)
+    def _gate(self) -> None:
         if self.conflicts:
             self.conflicts -= 1
             raise IngestConflictError("fixture race")
-        return await self.sink.submit(request)
-
-    async def source_status(self, connector: str, stream: str) -> SourceIngestStatus:
-        return await self.sink.source_status(connector, stream)
 
     async def store_blob(self, data: bytes) -> str:
         digest = hashlib.sha256(data).hexdigest()

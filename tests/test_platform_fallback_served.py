@@ -6,16 +6,13 @@ import pytest
 from fastmcp import Client, FastMCP
 from test_platform_fallback import (
     Authority,
-    FixtureRecord,
     actor,
-    capability,
     certified_http_admission,
+    http_backends,
     request,
 )
 
 from scion_sdk.adapters.platform_fallback import PlatformFallback
-from scion_sdk.adapters.platform_http import PlatformHttpBackend
-from scion_sdk.http.options import HttpClientOptions
 from scion_sdk.http.retry import RetryPolicy
 from scion_sdk.identity import use_actor
 from scion_sdk.mcp.platform_tools import register_platform_tools
@@ -27,26 +24,7 @@ _EMPTY = ScriptedResponse(body=b'{"records":[]}')
 
 def _served(first, second, tmp_path, monkeypatch, *, allow=True):
     tmp_path.mkdir(parents=True, exist_ok=True)
-    base = capability()
-    policies = tuple(
-        p.model_copy(update={"allowed_destinations": ("127.0.0.1",)})
-        for p in base.backends
-    )
-    cap = base.model_copy(update={"backends": policies})
-    backends = {
-        policy.backend_id: PlatformHttpBackend(
-            policy,
-            HttpClientOptions(
-                base_url=server.base_url,
-                retry=RetryPolicy(max_attempts=1),
-                pin_egress=True,
-                allow_loopback=True,
-            ),
-            "/search",
-            output_model=FixtureRecord,
-        )
-        for policy, server in zip(policies, (first, second), strict=True)
-    }
+    cap, backends = http_backends(first, second)
     fallback = PlatformFallback(
         (cap,),
         connector_id="connector",

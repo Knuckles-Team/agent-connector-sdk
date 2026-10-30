@@ -7,6 +7,7 @@ from dataclasses import replace
 import pytest
 from epistemic_graph.generated.source_ingestion import SourceIngestionMode
 from fastmcp import FastMCP
+from finance_source_support import record_server, served_session
 from test_finance_csv_import import _CONTEXT, _CSV, _MAPPING
 
 from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
@@ -23,10 +24,8 @@ from scion_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
 )
-from scion_sdk.ports.session import TransportEndpoint
 from scion_sdk.runner.syncing import SyncTarget, sync_stream
 from scion_sdk.testing.sinks import InMemorySink
-from scion_sdk.transports.mcp import McpTransport
 
 POSITION = {
     "symbol": "ABC",
@@ -50,13 +49,7 @@ ACCOUNT = {
 
 
 def _server(record):
-    server = FastMCP("finance")
-
-    @server.tool()
-    def read():
-        return [record]
-
-    return server
+    return record_server(record, takes_mode=False)
 
 
 def _adapter(kind, id_field):
@@ -91,9 +84,7 @@ async def test_snapshot_and_position_validate_before_sink():
         ),
     ):
         adapter, sink = _adapter(kind, field), InMemorySink()
-        async with McpTransport().session(
-            TransportEndpoint(in_process=_server(record))
-        ) as session:
+        async with served_session(_server(record)) as session:
             await adapter.discover(session)
             assert (
                 await adapter.extract(session, None)
@@ -117,9 +108,7 @@ async def test_wrong_account_and_nonfinite_position_refuse_before_sink():
             _adapter(AccountSourceKind.ACCOUNT, "account_id"),
             InMemorySink(),
         )
-        async with McpTransport().session(
-            TransportEndpoint(in_process=_server(record))
-        ) as session:
+        async with served_session(_server(record)) as session:
             with pytest.raises(MalformedSourceDataError):
                 await sync_stream(
                     session, adapter, SyncTarget("finance", sink, max_pages=1)
@@ -147,7 +136,7 @@ async def test_csv_source_reimport_preserves_scoped_activity_ids():
         tenant_id=context.tenant_id,
         account_id=context.account_id,
     )
-    async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
+    async with served_session(server) as session:
         await adapter.discover(session)
         first = await adapter.extract(session, None)
         second = await adapter.extract(session, first.checkpoint)
@@ -164,7 +153,7 @@ async def test_csv_source_reimport_preserves_scoped_activity_ids():
         account_id=context.account_id,
     )
     sink = InMemorySink()
-    async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
+    async with served_session(server) as session:
         with pytest.raises(MalformedSourceDataError):
             await sync_stream(session, other, SyncTarget("finance", sink, max_pages=1))
     assert not sink.batches
