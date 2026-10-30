@@ -55,17 +55,9 @@ class StageDescriptor(_StageModel):
         return value
 
 
-def validate_stage_graph(
+def _check_authority(
     stages: tuple[StageDescriptor, ...], connector: str, tenant: str | None
 ) -> None:
-    """Refuse missing authority, duplicate streams and cyclic dependencies."""
-    if not isinstance(stages, tuple) or any(
-        not isinstance(stage, StageDescriptor) for stage in stages
-    ):
-        raise ValueError("stages must be a tuple of stage descriptors")
-    by_id = {stage.stage_id: stage for stage in stages}
-    if len(by_id) != len(stages):
-        raise ValueError("duplicate stage identity")
     if stages and (
         not tenant
         or any(
@@ -73,17 +65,25 @@ def validate_stage_graph(
         )
     ):
         raise ValueError("stage authority does not match target")
-    if len({stage.stream for stage in stages}) != len(stages):
-        raise ValueError("duplicate stage stream")
+
+
+def _dependency_edges(
+    stages: tuple[StageDescriptor, ...], known: set[str]
+) -> dict[str, set[str]]:
     edges = {
         stage.stage_id: {dep.stage_id for dep in stage.dependencies} for stage in stages
     }
     for stage in stages:
         if len(edges[stage.stage_id]) != len(stage.dependencies):
             raise ValueError("duplicate stage dependency")
-        if not edges[stage.stage_id] <= by_id.keys():
+        if not edges[stage.stage_id] <= known:
             raise ValueError("unknown stage dependency")
-    dependents: dict[str, list[str]] = {stage_id: [] for stage_id in by_id}
+    return edges
+
+
+def _topological_count(edges: dict[str, set[str]]) -> int:
+    """Number of stages reachable by removing satisfied dependencies (consumes ``edges``)."""
+    dependents: dict[str, list[str]] = {stage_id: [] for stage_id in edges}
     for stage_id, dependencies in edges.items():
         for dependency in dependencies:
             dependents[dependency].append(stage_id)
@@ -96,5 +96,23 @@ def validate_stage_graph(
             edges[dependent].remove(stage_id)
             if not edges[dependent]:
                 ready.append(dependent)
-    if len(seen) != len(stages):
+    return len(seen)
+
+
+def validate_stage_graph(
+    stages: tuple[StageDescriptor, ...], connector: str, tenant: str | None
+) -> None:
+    """Refuse missing authority, duplicate streams and cyclic dependencies."""
+    if not isinstance(stages, tuple) or any(
+        not isinstance(stage, StageDescriptor) for stage in stages
+    ):
+        raise ValueError("stages must be a tuple of stage descriptors")
+    by_id = {stage.stage_id: stage for stage in stages}
+    if len(by_id) != len(stages):
+        raise ValueError("duplicate stage identity")
+    _check_authority(stages, connector, tenant)
+    if len({stage.stream for stage in stages}) != len(stages):
+        raise ValueError("duplicate stage stream")
+    edges = _dependency_edges(stages, set(by_id))
+    if _topological_count(edges) != len(stages):
         raise ValueError("cyclic stage dependencies")

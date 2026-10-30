@@ -8,209 +8,29 @@ the transaction belongs to the caller's wallet.
 
 from __future__ import annotations
 
-import hashlib
 import logging
-import sys
 from collections.abc import Mapping
-from dataclasses import dataclass, field
-from datetime import UTC, datetime
-from enum import StrEnum
-from typing import Any
+
+from scion_sdk._payment_guard import PaymentGuard
+from scion_sdk._payment_models import (
+    BudgetLimits,
+    PaymentChallenge,
+    PaymentProof,
+    PaymentRecord,
+    PaymentStatus,
+)
+
+__all__ = [
+    "BudgetLimits",
+    "PaymentChallenge",
+    "PaymentGuard",
+    "PaymentProof",
+    "PaymentRecord",
+    "PaymentStatus",
+    "X402PaymentClient",
+]
 
 logger = logging.getLogger(__name__)
-
-
-def _valid_amount(value: object) -> bool:
-    return (
-        isinstance(value, int | float)
-        and not isinstance(value, bool)
-        and 0 <= value <= sys.float_info.max
-    )
-
-
-class PaymentStatus(StrEnum):
-    """Lifecycle states for a payment."""
-
-    PENDING = "pending"
-    CHALLENGED = "challenged"
-    SIGNED = "signed"
-    SUBMITTED = "submitted"
-    CONFIRMED = "confirmed"
-    FAILED = "failed"
-    REJECTED_BY_GUARD = "rejected_by_guard"
-
-
-@dataclass
-class PaymentChallenge:
-    """
-    An HTTP 402 challenge received from a paywall-protected resource.
-    Contains the payment requirements to unlock the resource.
-    """
-
-    resource_url: str
-    amount: float
-    currency: str = "USDC"
-    recipient_address: str = ""
-    chain: str = "base"
-    challenge_id: str = ""
-    expires_at: str = ""
-    metadata: dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass
-class PaymentProof:
-    """
-    Proof of payment for inclusion in the request header.
-    Submitted as 'Payment-Proof' HTTP header to unlock the resource.
-    """
-
-    challenge_id: str
-    transaction_hash: str
-    amount: float
-    currency: str
-    chain: str
-    sender_address: str
-    recipient_address: str
-    signed_at: str = ""
-    proof_hash: str = ""
-
-    def __post_init__(self) -> None:
-        if not self.signed_at:
-            self.signed_at = datetime.now(UTC).isoformat()
-        if not self.proof_hash:
-            content = f"{self.challenge_id}:{self.transaction_hash}:{self.amount}:{self.chain}"
-            self.proof_hash = hashlib.sha256(content.encode()).hexdigest()[:32]
-
-
-@dataclass
-class PaymentRecord:
-    """Complete record of a payment transaction for KG persistence."""
-
-    payment_id: str
-    status: PaymentStatus
-    challenge: PaymentChallenge
-    proof: PaymentProof | None = None
-    created_at: str = ""
-    completed_at: str = ""
-    error_message: str = ""
-
-    def __post_init__(self) -> None:
-        if not self.created_at:
-            self.created_at = datetime.now(UTC).isoformat()
-
-
-@dataclass
-class BudgetLimits:
-    """Configurable budget limits for autonomous payments."""
-
-    max_single_payment: float = 0.0
-    max_daily_spend: float = 0.0
-    max_monthly_spend: float = 1000.0
-    allowed_currencies: list[str] = field(
-        default_factory=lambda: ["USDC", "USDT", "DAI"]
-    )
-    allowed_chains: list[str] = field(
-        default_factory=lambda: ["base", "ethereum", "solana"]
-    )
-    require_approval_above: float = 50.0
-
-
-class PaymentGuard:
-    """
-    Budget enforcement and approval workflow for autonomous payments.
-    Prevents runaway spending by SI agents.
-    """
-
-    def __init__(self, limits: BudgetLimits | None = None):
-        self.limits = limits or BudgetLimits()
-        self._daily_spend: float = 0.0
-        self._monthly_spend: float = 0.0
-        self._payment_count: int = 0
-
-    def validate(self, challenge: PaymentChallenge) -> tuple[bool, str]:
-        """
-        Validate a payment challenge against budget limits.
-
-        Returns:
-            (approved, reason) tuple.
-        """
-        limits = self.limits
-        if not _valid_amount(challenge.amount) or not all(
-            _valid_amount(value)
-            for value in (
-                limits.max_single_payment,
-                limits.max_daily_spend,
-                limits.max_monthly_spend,
-                limits.require_approval_above,
-            )
-        ):
-            return (
-                False,
-                "Payment amount and budget limits must be finite and non-negative",
-            )
-
-        # Currency check
-        if challenge.currency not in self.limits.allowed_currencies:
-            return False, f"Currency {challenge.currency} not in allowed list"
-
-        # Chain check
-        if challenge.chain not in self.limits.allowed_chains:
-            return False, f"Chain {challenge.chain} not in allowed list"
-
-        # Single payment limit
-        if challenge.amount > self.limits.max_single_payment:
-            return (
-                False,
-                f"Amount {challenge.amount} exceeds single payment limit {self.limits.max_single_payment}",
-            )
-
-        # Daily spend limit
-        if self._daily_spend + challenge.amount > self.limits.max_daily_spend:
-            return (
-                False,
-                f"Would exceed daily spend limit ({self._daily_spend + challenge.amount:.2f} > {self.limits.max_daily_spend})",
-            )
-
-        # Monthly spend limit
-        if self._monthly_spend + challenge.amount > self.limits.max_monthly_spend:
-            return False, "Would exceed monthly spend limit"
-
-        # Approval required above threshold
-        if challenge.amount > self.limits.require_approval_above:
-            return (
-                False,
-                f"Amount {challenge.amount} requires manual approval (threshold: {self.limits.require_approval_above})",
-            )
-
-        return True, "Approved"
-
-    def record_spend(self, amount: float) -> None:
-        """Record a completed payment for budget tracking."""
-        if not _valid_amount(amount):
-            raise ValueError("payment amount must be finite and non-negative")
-        daily = self._daily_spend + amount
-        monthly = self._monthly_spend + amount
-        if not _valid_amount(daily) or not _valid_amount(monthly):
-            raise ValueError("payment spend exceeds finite accounting range")
-        self._daily_spend = daily
-        self._monthly_spend = monthly
-        self._payment_count += 1
-
-    def reset_daily(self) -> None:
-        """Reset daily spend counter (call at midnight)."""
-        self._daily_spend = 0.0
-
-    def reset_monthly(self) -> None:
-        """Reset monthly spend counter (call at month start)."""
-        self._monthly_spend = 0.0
-
-    @property
-    def remaining_daily(self) -> float:
-        return max(0.0, self.limits.max_daily_spend - self._daily_spend)
-
-    @property
-    def remaining_monthly(self) -> float:
-        return max(0.0, self.limits.max_monthly_spend - self._monthly_spend)
 
 
 class X402PaymentClient:
@@ -279,6 +99,21 @@ class X402PaymentClient:
             recipient_address=challenge.recipient_address,
         )
 
+    def _proof_matches(
+        self, challenge: PaymentChallenge, proof: PaymentProof | None
+    ) -> bool:
+        return (
+            proof is not None
+            and bool(challenge.challenge_id.strip())
+            and bool(proof.transaction_hash.strip())
+            and proof.challenge_id == challenge.challenge_id
+            and proof.amount == challenge.amount
+            and proof.currency == challenge.currency
+            and proof.chain == challenge.chain
+            and proof.recipient_address == challenge.recipient_address
+            and proof.sender_address == self.wallet_address
+        )
+
     def record_payment(
         self,
         challenge: PaymentChallenge,
@@ -288,16 +123,7 @@ class X402PaymentClient:
     ) -> PaymentRecord:
         """Record a payment for audit trail and KG persistence."""
         if status == PaymentStatus.CONFIRMED:
-            if proof is None or (
-                not challenge.challenge_id.strip()
-                or not proof.transaction_hash.strip()
-                or proof.challenge_id != challenge.challenge_id
-                or proof.amount != challenge.amount
-                or proof.currency != challenge.currency
-                or proof.chain != challenge.chain
-                or proof.recipient_address != challenge.recipient_address
-                or proof.sender_address != self.wallet_address
-            ):
+            if not self._proof_matches(challenge, proof):
                 raise ValueError("confirmed payment proof does not match challenge")
             self.guard.record_spend(challenge.amount)
         self._payment_counter += 1

@@ -15,7 +15,11 @@ from typing import Protocol, cast
 from scion_sdk.repository.errors import RepositoryTransportError
 from scion_sdk.repository.models import RepositoryRevision
 from scion_sdk.repository.provider import RepositoryRefWalkProvider
-from scion_sdk.repository.refs import RepositoryRef, RepositoryTreeEntry
+from scion_sdk.repository.refs import (
+    RepositoryRef,
+    RepositoryTreeEntry,
+    RepositoryTreePage,
+)
 
 __all__ = ["RefTree", "walk_refs"]
 
@@ -48,6 +52,22 @@ def _validate_refs(
     return ordered
 
 
+def _absorb_page(
+    entries: dict[str, RepositoryTreeEntry],
+    page: RepositoryTreePage,
+    revision: RepositoryRevision,
+    page_size: int,
+) -> None:
+    if page.revision != revision:
+        raise RepositoryTransportError("provider page changed immutable revision")
+    if len(page.entries) > page_size:
+        raise RepositoryTransportError("provider tree page exceeds requested size")
+    for entry in page.entries:
+        if entry.path in entries:
+            raise RepositoryTransportError("provider repeated a repository path")
+        entries[entry.path] = entry
+
+
 async def _walk_tree(
     provider: RepositoryRefWalkProvider, revision: RepositoryRevision, page_size: int
 ) -> tuple[tuple[RepositoryTreeEntry, ...], int]:
@@ -58,14 +78,7 @@ async def _walk_tree(
     while True:
         page = await provider.list_tree(revision, cursor=cursor, page_size=page_size)
         pages += 1
-        if page.revision != revision:
-            raise RepositoryTransportError("provider page changed immutable revision")
-        if len(page.entries) > page_size:
-            raise RepositoryTransportError("provider tree page exceeds requested size")
-        for entry in page.entries:
-            if entry.path in entries:
-                raise RepositoryTransportError("provider repeated a repository path")
-            entries[entry.path] = entry
+        _absorb_page(entries, page, revision, page_size)
         cursor = page.next_cursor
         if cursor is None:
             return tuple(entries[path] for path in sorted(entries)), pages

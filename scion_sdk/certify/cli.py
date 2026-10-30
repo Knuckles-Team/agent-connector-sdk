@@ -165,33 +165,39 @@ def _outcome(report: CertificationReport) -> int:
     return 0 if report.passed else 1
 
 
+def _predecessor_endpoint(args: argparse.Namespace) -> TransportEndpoint | None:
+    if not args.predecessor_url:
+        return None
+    token = (
+        resolve_secret_reference(args.predecessor_bearer_token)
+        if args.predecessor_bearer_token
+        else ""
+    )
+    return TransportEndpoint(
+        url=args.predecessor_url,
+        bearer_token=token,
+        timeout_seconds=args.timeout,
+    )
+
+
+async def _certify_endpoint(args: argparse.Namespace) -> CertificationReport:
+    from scion_sdk.transports.mcp import McpTransport
+
+    endpoint = await anyio.to_thread.run_sync(
+        partial(build_endpoint, args), abandon_on_cancel=True
+    )
+    return await certify_connector(
+        McpTransport(),
+        endpoint,
+        timeout_seconds=args.timeout,
+        predecessor=_predecessor_endpoint(args),
+    )
+
+
 async def _run_certification(args: argparse.Namespace) -> CertificationReport:
-    endpoint_factory = partial(build_endpoint, args)
     try:
         with anyio.fail_after(args.timeout):
-            endpoint = await anyio.to_thread.run_sync(
-                endpoint_factory, abandon_on_cancel=True
-            )
-            from scion_sdk.transports.mcp import McpTransport
-
-            predecessor = None
-            if args.predecessor_url:
-                token = (
-                    resolve_secret_reference(args.predecessor_bearer_token)
-                    if args.predecessor_bearer_token
-                    else ""
-                )
-                predecessor = TransportEndpoint(
-                    url=args.predecessor_url,
-                    bearer_token=token,
-                    timeout_seconds=args.timeout,
-                )
-            return await certify_connector(
-                McpTransport(),
-                endpoint,
-                timeout_seconds=args.timeout,
-                predecessor=predecessor,
-            )
+            return await _certify_endpoint(args)
     except TimeoutError:
         return CertificationReport(
             connector="",

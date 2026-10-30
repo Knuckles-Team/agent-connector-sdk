@@ -121,12 +121,21 @@ def verify_release(
     if public_key is None:
         return False
     try:
-        digest = release_identity_digest(declaration, graph)
-        if evidence.digest != digest:
-            return False
-        message = _message(evidence.key_id, digest)
-        signature = _decode(evidence.signature, 64)
-        Ed25519PublicKey.from_public_bytes(public_key).verify(signature, message)
-        return True
+        return _signature_valid(declaration, graph, evidence, public_key)
     except (ValueError, TypeError, InvalidSignature):
         return False
+
+
+def _signature_valid(
+    declaration: IngestSourceDeclaration,
+    graph: Graph,
+    evidence: ReleaseSignature,
+    public_key: bytes,
+) -> bool:
+    digest = release_identity_digest(declaration, graph)
+    if evidence.digest != digest:
+        return False
+    message = _message(evidence.key_id, digest)
+    signature = _decode(evidence.signature, 64)
+    Ed25519PublicKey.from_public_bytes(public_key).verify(signature, message)
+    return True

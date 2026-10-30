@@ -17,12 +17,10 @@ Install the ``graphql`` extra: ``scion-sdk[graphql]``.
 
 from __future__ import annotations
 
-import base64
 import logging
 import time
-import uuid
 from collections.abc import Callable, Iterator, Mapping, Sequence
-from dataclasses import dataclass, field
+from functools import partial
 from typing import Any
 
 import anyio
@@ -30,6 +28,16 @@ import anyio
 from scion_sdk.exceptions import ParameterError
 from scion_sdk.tls.profile import ResolvedTLSProfile
 from scion_sdk.tls.resolve import resolve_tls_profile
+from scion_sdk.transports._graphql_support import (
+    RETRYABLE_STATUS,
+    GraphQLAuth,
+    GraphQLExecutionError,
+    _build_profiled_client,
+    _connection_at,
+    _connection_nodes,
+    _next_cursor,
+    _retry_or_failure,
+)
 
 __all__ = [
     "RETRYABLE_STATUS",
@@ -39,72 +47,6 @@ __all__ = [
 ]
 
 _logger = logging.getLogger(__name__)
-
-#: HTTP statuses retried with backoff; every other failure fails at once.
-RETRYABLE_STATUS = frozenset({429, 500, 502, 503, 504})
-
-
-@dataclass(frozen=True)
-class GraphQLAuth:
-    """One auth header. ``repr`` never shows the credential."""
-
-    header: str = ""
-    value: str = field(default="", repr=False)
-
-    @classmethod
-    def none(cls) -> GraphQLAuth:
-        return cls()
-
-    @classmethod
-    def bearer(cls, token: str) -> GraphQLAuth:
-        """``Authorization: Bearer <token>``."""
-        return cls("Authorization", f"Bearer {token}")
-
-    @classmethod
-    def token(
-        cls, token: str, *, header: str = "Authorization", prefix: str = "token"
-    ) -> GraphQLAuth:
-        """``<header>: <prefix> <token>``; an empty prefix sends the raw token."""
-        return cls(header, f"{prefix} {token}" if prefix else token)
-
-    @classmethod
-    def basic(cls, username: str, password: str) -> GraphQLAuth:
-        """``Authorization: Basic base64(username:password)``."""
-        raw = f"{username}:{password}".encode()
-        return cls("Authorization", "Basic " + base64.b64encode(raw).decode("ascii"))
-
-    def headers(self) -> dict[str, str]:
-        return {self.header: self.value} if self.header and self.value else {}
-
-
-class GraphQLExecutionError(ParameterError):
-    """A redacted GraphQL failure: exception class and correlation id only."""
-
-    def __init__(self, exc: BaseException, *, retryable: bool = False) -> None:
-        self.error_class = type(exc).__name__
-        self.correlation_id = uuid.uuid4().hex
-        self.retryable = retryable
-        _logger.warning(
-            "GraphQL execution failed (correlation_id=%s, error_class=%s)",
-            self.correlation_id,
-            self.error_class,
-        )
-        super().__init__(f"Query execution failed: {self.error_class}")
-
-    def payload(self) -> dict[str, Any]:
-        """The public failure payload, shaped like ``graphql_failure_payload``."""
-        return {
-            "status": "error",
-            "code": "operation_failed",
-            "retryable": self.retryable,
-            "error_class": self.error_class,
-            "correlation_id": self.correlation_id,
-        }
-
-
-def _status_of(exc: BaseException) -> int | None:
-    code = getattr(exc, "code", None)
-    return code if isinstance(code, int) else None
 
 
 class GraphQLClient:
@@ -157,30 +99,12 @@ class GraphQLClient:
 
     # -- transport -----------------------------------------------------------
     def _build_client(self) -> Any:
-        from gql import Client
-        from gql.transport.requests import RequestsHTTPTransport
-
-        profile = self.tls_profile
-
-        class _ProfiledTransport(RequestsHTTPTransport):
-            def connect(self) -> None:
-                super().connect()  # type: ignore[no-untyped-call]
-                if self.session is not None:
-                    profile.configure_requests_session(self.session)
-
-        request_kwargs = profile.requests_kwargs()
-        verify = request_kwargs.pop("verify")
-        transport = _ProfiledTransport(
-            url=self.endpoint,
+        return _build_profiled_client(
+            self.endpoint,
             headers=self.headers,
-            verify=verify,
-            timeout=max(1, round(self.timeout)),
-            **request_kwargs,
-        )
-        return Client(
-            transport=transport,
-            fetch_schema_from_transport=self.fetch_schema,
-            execute_timeout=self.timeout,
+            profile=self.tls_profile,
+            timeout=self.timeout,
+            fetch_schema=self.fetch_schema,
         )
 
     @property
@@ -253,14 +177,12 @@ class GraphQLClient:
             try:
                 return self._attempt(document, variables, operation_name, allow_partial)
             except Exception as exc:
-                status = _status_of(exc)
-                retryable = status in RETRYABLE_STATUS
-                if retryable and attempt < self.max_retries:
-                    self._sleep(self.backoff * (2**attempt))
-                    attempt += 1
-                    continue
-                failure = GraphQLExecutionError(exc, retryable=retryable)
-            raise failure
+                failure = _retry_or_failure(
+                    exc, attempt, self.max_retries, self.backoff, self._sleep
+                )
+            if failure is not None:
+                raise failure
+            attempt += 1
 
     async def execute_async(
         self,
@@ -272,12 +194,14 @@ class GraphQLClient:
     ) -> dict[str, Any]:
         """:meth:`execute` on a worker thread, for async tools."""
 
-        def _run() -> dict[str, Any]:
-            return self.execute(
-                document, variables, operation_name, allow_partial=allow_partial
-            )
-
-        return await anyio.to_thread.run_sync(_run)
+        run = partial(
+            self.execute,
+            document,
+            variables,
+            operation_name,
+            allow_partial=allow_partial,
+        )
+        return await anyio.to_thread.run_sync(run)
 
     # -- pagination ----------------------------------------------------------
     def paginate(
@@ -298,24 +222,14 @@ class GraphQLClient:
         """
         page_variables = dict(variables or {})
         for _ in range(max_pages):
-            data: Any = self.execute(document, page_variables)
-            for key in connection_path:
-                data = data.get(key) if isinstance(data, dict) else None
-            if not isinstance(data, dict):
+            data = _connection_at(
+                self.execute(document, page_variables), connection_path
+            )
+            if data is None:
                 return
-            nodes = data.get("nodes")
-            if nodes is None:
-                nodes = [
-                    edge.get("node")
-                    for edge in data.get("edges") or []
-                    if isinstance(edge, dict)
-                ]
-            for node in nodes or []:
-                if isinstance(node, dict):
-                    yield node
-            page_info = data.get("pageInfo") or {}
-            cursor = page_info.get("endCursor")
-            if not page_info.get("hasNextPage") or not cursor:
+            yield from _connection_nodes(data)
+            cursor = _next_cursor(data)
+            if cursor is None:
                 return
             page_variables[cursor_variable] = cursor
 
