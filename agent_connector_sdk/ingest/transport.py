@@ -18,7 +18,8 @@ from epistemic_graph.generated.source_ingestion import (
 )
 
 from agent_connector_sdk.ingest.channel import SourceIngestChannel
-from agent_connector_sdk.ingest.errors import IngestConflictError
+from agent_connector_sdk.ingest.contract import AcceptedContract
+from agent_connector_sdk.ingest.errors import IngestConflictError, IngestError
 
 __all__ = ["EpistemicGraphIngestTransport", "IngestTransport"]
 
@@ -52,9 +53,26 @@ class EpistemicGraphIngestTransport:
     ``store_blob``).
     """
 
-    def __init__(self, client: Any) -> None:
+    def __init__(self, client: Any, *, tenant_id: str = "") -> None:
         self._channel = SourceIngestChannel(client)
         self._client = client
+        self._tenant_id = tenant_id
+
+    async def accepted_contract(self, connector: str) -> AcceptedContract | None:
+        """The connector pack head the engine accepted, from ``ConnectorPack.Status``."""
+        from epistemic_graph.connector_pack import ConnectorPackClient
+
+        if not self._tenant_id:
+            raise IngestError("a contract check needs the transport's tenant_id")
+        status = await ConnectorPackClient(self._client).status(
+            tenant_id=self._tenant_id, connector=connector
+        )
+        if status.head is None:
+            return None
+        return AcceptedContract(
+            digest=str(status.head.pack_digest),
+            revision=str(status.head.binding_revision),
+        )
 
     async def submit(self, request: SourceIngestionRequest) -> SourceIngestionReceipt:
         """Commit ``request``; a checkpoint race becomes ``IngestConflictError``."""

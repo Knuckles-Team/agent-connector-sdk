@@ -27,11 +27,18 @@ import threading
 import anyio
 from epistemic_graph.generated.source_ingestion import SourceIngestionReceipt
 
+from agent_connector_sdk.ingest.contract import (
+    AcceptedContract,
+    ContractEvidence,
+    contract_evidence,
+)
 from agent_connector_sdk.ingest.engine import EngineSettings, connect_ingest
 from agent_connector_sdk.ingest.errors import (
+    ContractNotAcceptedError,
     IngestConflictError,
     IngestError,
     IngestUnavailableError,
+    UndeclaredNestedValueError,
 )
 from agent_connector_sdk.ingest.live_declaration import (
     DeclarationError,
@@ -57,6 +64,7 @@ from agent_connector_sdk.ingest.model import (
     EntityRef,
     IngestBinding,
     MediaAsset,
+    NestedMapping,
     Relationship,
     Withdrawal,
 )
@@ -73,7 +81,10 @@ from agent_connector_sdk.ingest.stream import FetchPage, SourceStream, open_clie
 from agent_connector_sdk.ingest.tools import IngestTool, ingest_registration
 
 __all__ = [
+    "AcceptedContract",
     "ChangeSet",
+    "ContractEvidence",
+    "ContractNotAcceptedError",
     "CursorStrategy",
     "DeclarationError",
     "Document",
@@ -92,14 +103,17 @@ __all__ = [
     "Mapped",
     "Mapper",
     "MediaAsset",
+    "NestedMapping",
     "OffsetCursor",
     "Pseudonymizer",
     "RecordMap",
     "Relationship",
     "SourceStream",
     "TimeWindowCursor",
+    "UndeclaredNestedValueError",
     "Withdrawal",
     "aingest_changes",
+    "contract_evidence",
     "current_ingest",
     "document_from_record",
     "entity_from_record",
