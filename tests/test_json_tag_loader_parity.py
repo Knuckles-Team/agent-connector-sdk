@@ -42,18 +42,15 @@ def _entry(*mappings: OperationMapping, registration: str = "operation"):
     )
 
 
-@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.1")
 def test_complete_matching_inventory_has_no_problems() -> None:
     assert loader_parity_problems([_entry(_mapping())], [("pkg", "pkg/load.py")]) == []
 
 
-@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.1")
 def test_uninventoried_loader_is_reported() -> None:
     problems = loader_parity_problems([_entry(_mapping())], [("pkg", "pkg/other.py")])
     assert any("not inventoried" in p for p in problems)
 
 
-@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.1")
 @pytest.mark.parametrize(
     ("change", "text"),
     [
@@ -70,7 +67,6 @@ def test_parity_rejects_differences(change: dict, text: str) -> None:
     assert any(text in p for p in problems)
 
 
-@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R020.1")
 def test_unknown_registration_and_empty_mappings_are_rejected() -> None:
     bad = dataclasses.replace(_entry(), registration="magic")
     problems = loader_parity_problems([bad], [])
