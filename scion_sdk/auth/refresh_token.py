@@ -38,7 +38,7 @@ class RefreshTokenProvider(CachedTokenProvider):
         scope: str = "",
         resolver: CredentialResolver | None = None,
     ) -> None:
-        super().__init__()
+        super().__init__(self._mint)
         self._token_url = token_url
         self._client_id = header_safe(client_id, what="client id")
         self._refresh_ref = refresh_token_ref

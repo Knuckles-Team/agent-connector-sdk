@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import threading
+from collections.abc import Callable
 
 from scion_sdk.auth.tokens import AccessToken, TokenRequestError
 from scion_sdk.credentials.references import SecretReferenceError
@@ -27,14 +28,12 @@ def resolve_or_unavailable(
 
 
 class CachedTokenProvider:
-    """A thread-safe token cache; subclasses implement ``_mint``."""
+    """A thread-safe token cache around a ``mint`` callable."""
 
-    def __init__(self) -> None:
+    def __init__(self, mint: Callable[[], AccessToken]) -> None:
+        self._mint_token = mint
         self._lock = threading.Lock()
         self._token: AccessToken | None = None
-
-    def _mint(self) -> AccessToken:
-        raise NotImplementedError
 
     def get_token(self, *, force: bool = False) -> str:
         """A cached token, minted when missing, near expiry or ``force``d.
@@ -48,5 +47,5 @@ class CachedTokenProvider:
                 or self._token is None
                 or not self._token.fresh(REFRESH_SKEW_SECONDS)
             ):
-                self._token = self._mint()
+                self._token = self._mint_token()
             return self._token.value
