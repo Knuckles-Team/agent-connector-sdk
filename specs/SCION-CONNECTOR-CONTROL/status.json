@@ -763,20 +763,20 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R020",
       "title": "One tool per API operation is the default",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "0bc459ee7335",
         "38b66f26f32a",
+        "3fd28fa8b883",
         "6ccbf6e01d12",
-        "c9a2cf7b23cc",
-        "d3617301012c"
+        "92210596714c"
       ],
       "verified_by": [
-        "tests/test_action_split.py:90",
-        "tests/test_action_split.py:95",
-        "tests/test_operation_tools.py:100",
-        "tests/test_operation_tools.py:130",
-        "tests/test_operation_tools.py:141"
+        "tests/test_action_split.py:114",
+        "tests/test_action_split.py:130",
+        "tests/test_action_split.py:144",
+        "tests/test_action_split.py:164",
+        "tests/test_action_split.py:184"
       ],
       "rollup_of": [
         "SCION-CONNECTOR-CONTROL-R020.1",
@@ -916,8 +916,10 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R020.1",
       "title": "JSON tag-loader migration inventory and parity gate",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d15cc6536f78"
+      ],
       "verified_by": [
         "tests/test_json_tag_loader_parity.py:45",
         "tests/test_json_tag_loader_parity.py:50",
@@ -972,8 +974,10 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R020.4",
       "title": "A successor release keeps every predecessor tool",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "d15cc6536f78"
+      ],
       "verified_by": [
         "tests/test_successor_tool_parity.py:13",
         "tests/test_successor_tool_parity.py:26",
