@@ -1926,16 +1926,24 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R049.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "92242d3e53dd"
+      ],
+      "verified_by": [
+        "tests/test_http_payments.py:28"
+      ]
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R049.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "92242d3e53dd"
+      ],
+      "verified_by": [
+        "tests/test_http_payments.py:61"
+      ]
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R049.3",
