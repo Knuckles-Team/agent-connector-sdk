@@ -10,8 +10,8 @@ CI=true bash scripts/bootstrap.sh
 # The prohibited-identity catalog arrives through a repository variable. A
 # missing catalog fails closed except on a fork pull request, which cannot read it.
 if [ -n "${PROHIBITED_IDENTITY_CATALOG:-}" ]; then
-  mkdir -p "$HOME/.config/agent-utilities/governance"
-  printf '%s' "$PROHIBITED_IDENTITY_CATALOG" > "$HOME/.config/agent-utilities/governance/prohibited-identities.json"
+  mkdir -p "$HOME/.config/arbora/governance"
+  printf '%s' "$PROHIBITED_IDENTITY_CATALOG" > "$HOME/.config/arbora/governance/prohibited-identities.json"
 elif [ "${FORK_PULL_REQUEST:-false}" != "true" ]; then
   echo "tracked-privacy: CANNOT RUN: the PROHIBITED_IDENTITY_CATALOG repository variable is not set" >&2
   exit 2
