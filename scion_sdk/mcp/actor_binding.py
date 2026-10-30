@@ -9,7 +9,11 @@ ever needed:
   :data:`~scion_sdk.identity.SYSTEM_ACTOR`;
 * an authenticated HTTP request binds the actor its verified token names, with
   the IdP's roles and groups (generic, Okta and Keycloak claim locations);
-* an unauthenticated HTTP request binds
+* an HTTP request to a server the operator started with ``--auth-type none``
+  binds :data:`~scion_sdk.identity.SYSTEM_ACTOR`, the same trusted local actor
+  as stdio: the operator chose no authentication, so the deployment boundary
+  (for example a gateway in front of it) is the trust boundary;
+* an HTTP request without a token to any other server binds
   :data:`~scion_sdk.identity.ANONYMOUS_ACTOR`, which holds no
   entitlements.
 
@@ -91,15 +95,20 @@ def _actor_from_token(token: Any) -> ActorContext:
     )
 
 
-def request_actor() -> ActorContext:
-    """The actor for the current MCP request, by transport and credential."""
+def request_actor(*, no_auth: bool = False) -> ActorContext:
+    """The actor for the current MCP request, by transport and credential.
+
+    Args:
+        no_auth: The server was started with auth type ``none``; a request
+            without a token is then the trusted local actor, not anonymous.
+    """
     try:
         get_http_request()
     except RuntimeError:
         return SYSTEM_ACTOR
     token = get_access_token()
     if token is None:
-        return ANONYMOUS_ACTOR
+        return SYSTEM_ACTOR if no_auth else ANONYMOUS_ACTOR
     return _actor_from_token(token)
 
 
@@ -129,8 +138,14 @@ async def _call_typed(context: MiddlewareContext[Any], call_next: Any) -> Any:
 
 
 class ActorBindingMiddleware(Middleware):
-    """Bind :func:`request_actor` around every request; refuse identity errors typed."""
+    """Bind :func:`request_actor` around every request; refuse identity errors typed.
+
+    ``no_auth`` is true when the server was started with auth type ``none``.
+    """
+
+    def __init__(self, *, no_auth: bool = False) -> None:
+        self.no_auth = no_auth
 
     async def on_request(self, context: MiddlewareContext[Any], call_next: Any) -> Any:
-        with use_actor(request_actor()):
+        with use_actor(request_actor(no_auth=self.no_auth)):
             return await _call_typed(context, call_next)

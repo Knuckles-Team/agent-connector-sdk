@@ -1,4 +1,4 @@
-"""The served MCP stack binds one actor per request, by transport (SCION-CONNECTOR-CONTROL-R025.1-R025.4).
+"""The served MCP stack binds one actor per request, by transport and auth mode (SCION-CONNECTOR-CONTROL-R025.1-R025.5).
 
 Each test builds a real connector server with ``create_mcp_server`` and calls an
 actor-gated tool through a real fastmcp client: in memory (the stdio-equivalent
@@ -21,7 +21,7 @@ from fastmcp.exceptions import ToolError
 from fastmcp.server.auth.providers.jwt import JWTVerifier, RSAKeyPair
 from mcp.shared.exceptions import MCPError
 
-from scion_sdk.entitlements import identity_scoped_resources
+from scion_sdk.entitlements import identity_scoped_resources, require_entitled
 from scion_sdk.identity import (
     ANONYMOUS_ACTOR,
     SYSTEM_ACTOR,
@@ -49,8 +49,7 @@ def _register_host_tools(mcp: FastMCP[Any]) -> None:
     @mcp.tool
     def get_host(alias: str) -> str:
         """Return one alias, refusing an alias the caller is not entitled to."""
-        if alias not in identity_scoped_resources("ssh", [alias]):
-            raise PermissionError(f"not entitled to ssh host {alias!r}")
+        require_entitled("ssh", alias)
         return alias
 
     @mcp.tool
@@ -109,7 +108,10 @@ def _serving(mcp: FastMCP[Any]) -> Iterator[str]:
 
 @asynccontextmanager
 async def _anonymous_http() -> AsyncIterator[Client[Any]]:
-    mcp = _server("--transport", "streamable-http", override=True)
+    """A tokenless request to a binding in auth mode (no ``--auth-type none``)."""
+    mcp: FastMCP[Any] = FastMCP("auth-mode")
+    _register_host_tools(mcp)
+    mcp.add_middleware(ActorBindingMiddleware())
     with _serving(mcp) as endpoint:
         async with Client(endpoint) as client:
             yield client
@@ -157,8 +159,9 @@ async def test_authenticated_http_binds_the_token_actor_with_inherited_roles() -
         async with Client(endpoint, auth=token) as client:
             listed = await client.call_tool("list_hosts", {})
             assert listed.data == ["prod-a", "lab", "edge"]
-            with pytest.raises(MCPError, match="not entitled"):
+            with pytest.raises(MCPError) as denied:
                 await client.call_tool("get_host", {"alias": "prod-b"})
+            assert denied.value.message == "not_entitled: not entitled to ssh:prod-b"
             added = await client.call_tool("add_host", {"alias": "new"})
             assert added.data == "operator-1 added new"
 
@@ -172,8 +175,22 @@ async def test_unauthenticated_http_binds_the_anonymous_actor() -> None:
         with pytest.raises(MCPError) as denied:
             await client.call_tool("get_host", {"alias": "lab"})
         assert denied.value.code == -32000
-        assert "not entitled" in denied.value.message
+        assert denied.value.message.startswith("anonymous_caller: anonymous caller")
+        assert denied.value.data == {"reason": "anonymous_caller"}
         assert "Internal error" not in denied.value.message
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.3")
+async def test_a_no_auth_http_server_binds_the_trusted_local_actor() -> None:
+    mcp = _server(
+        "--transport", "streamable-http", "--auth-type", "none", override=True
+    )
+    with _serving(mcp) as endpoint:
+        async with Client(endpoint) as client:
+            who = await client.call_tool("whoami", {})
+            assert who.data == {"actor_id": SYSTEM_ACTOR.actor_id, "anonymous": False}
+            assert (await client.call_tool("list_hosts", {})).data == list(INVENTORY)
+            assert (await client.call_tool("get_host", {"alias": "lab"})).data == "lab"
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.4")

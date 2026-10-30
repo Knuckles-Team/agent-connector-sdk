@@ -858,11 +858,11 @@
         "e266bf988bb9"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:118",
-        "tests/test_actor_binding_served.py:130",
-        "tests/test_actor_binding_served.py:166",
-        "tests/test_actor_binding_served.py:179",
-        "tests/test_actor_binding_served.py:189"
+        "tests/test_actor_binding_served.py:120",
+        "tests/test_actor_binding_served.py:132",
+        "tests/test_actor_binding_served.py:169",
+        "tests/test_actor_binding_served.py:183",
+        "tests/test_actor_binding_served.py:196"
       ],
       "rollup_of": [
         "SCION-CONNECTOR-CONTROL-R025.1",
@@ -880,7 +880,7 @@
         "d7d1ff0fb276"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:118"
+        "tests/test_actor_binding_served.py:120"
       ]
     },
     {
@@ -891,18 +891,19 @@
         "d7d1ff0fb276"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:130"
+        "tests/test_actor_binding_served.py:132"
       ]
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R025.3",
-      "title": "Unauthenticated HTTP binds the ANONYMOUS actor with zero entitlements",
+      "title": "No-auth HTTP binds the trusted local actor; a tokenless request under auth binds ANONYMOUS",
       "delivery_state": "VERIFIED",
       "landed_in": [
         "d7d1ff0fb276"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:166"
+        "tests/test_actor_binding_served.py:169",
+        "tests/test_actor_binding_served.py:183"
       ]
     },
     {
@@ -913,8 +914,8 @@
         "d7d1ff0fb276"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:179",
-        "tests/test_actor_binding_served.py:231"
+        "tests/test_actor_binding_served.py:196",
+        "tests/test_actor_binding_served.py:248"
       ]
     },
     {
@@ -925,9 +926,9 @@
         "c1a0f0b11a29"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:189",
-        "tests/test_actor_binding_served.py:198",
-        "tests/test_actor_binding_served.py:208"
+        "tests/test_actor_binding_served.py:206",
+        "tests/test_actor_binding_served.py:215",
+        "tests/test_actor_binding_served.py:225"
       ]
     },
     {
