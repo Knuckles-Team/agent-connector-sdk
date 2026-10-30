@@ -1373,9 +1373,14 @@
     {
       "id": "SCION-SOURCE-INGEST-R005.13",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ff77228d189d"
+      ],
+      "verified_by": [
+        "tests/test_evm_chain_models.py:51",
+        "tests/test_evm_chain_models.py:85"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.14",
@@ -1420,11 +1425,11 @@
         "59d9d32b0d9e"
       ],
       "verified_by": [
-        "tests/test_workspace_reader.py:124",
-        "tests/test_workspace_reader.py:146",
-        "tests/test_workspace_reader.py:165",
-        "tests/test_workspace_reader.py:182",
-        "tests/test_workspace_reader.py:199"
+        "tests/test_workspace_reader.py:128",
+        "tests/test_workspace_reader.py:151",
+        "tests/test_workspace_reader.py:170",
+        "tests/test_workspace_reader.py:189",
+        "tests/test_workspace_reader.py:207"
       ]
     },
     {
@@ -1436,23 +1441,33 @@
         "f0f5c2898a78"
       ],
       "verified_by": [
-        "tests/test_workspace_reader.py:221",
-        "tests/test_workspace_reader.py:274"
+        "tests/test_workspace_reader.py:262",
+        "tests/test_workspace_reader.py:387"
       ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.19",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ff77228d189d"
+      ],
+      "verified_by": [
+        "tests/test_workspace_reader.py:318",
+        "tests/test_workspace_reader.py:365"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.20",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "04db40ebca21"
+      ],
+      "verified_by": [
+        "tests/test_workspace_reader.py:187",
+        "tests/test_workspace_reader.py:63"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.21",
@@ -1464,16 +1479,29 @@
     {
       "id": "SCION-SOURCE-INGEST-R005.22",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "04db40ebca21"
+      ],
+      "verified_by": [
+        "tests/test_workspace_reader.py:127",
+        "tests/test_workspace_reader.py:150",
+        "tests/test_workspace_reader.py:206",
+        "tests/test_workspace_reader.py:217"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.23",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "04db40ebca21"
+      ],
+      "verified_by": [
+        "tests/test_workspace_reader.py:188",
+        "tests/test_workspace_reader.py:230",
+        "tests/test_workspace_reader.py:64"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.24",
@@ -1752,8 +1780,8 @@
         "e3f8c713c3da"
       ],
       "verified_by": [
-        "tests/test_evm_chain_models.py:51",
-        "tests/test_evm_chain_models.py:84"
+        "tests/test_evm_chain_models.py:52",
+        "tests/test_evm_chain_models.py:86"
       ]
     },
     {
