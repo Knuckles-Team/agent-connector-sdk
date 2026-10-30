@@ -344,14 +344,14 @@ def validate_request_binding(
     ):
         raise ValueError("request does not match capability")
     if request.continuation is not None:
-        _check_continuation(request, capability)
+        _check_continuation(request, capability, request.continuation)
 
 
 def _check_continuation(
-    request: PlatformRequest, capability: PlatformCapability
+    request: PlatformRequest,
+    capability: PlatformCapability,
+    continuation: Continuation,
 ) -> None:
-    continuation = request.continuation
-    assert continuation is not None
     query = request.query if request.operation == "search" else request.target
     if query is None:
         raise ValueError("request has no query or target")
