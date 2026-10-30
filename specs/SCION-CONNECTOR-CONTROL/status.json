@@ -1324,12 +1324,18 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R036",
       "title": "SDK's identity-scoped resource entitlements cover the backend-resource catalogs these connectors manage",
-      "delivery_state": "LANDED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "5d4848e2ff0f",
         "629ef53c29f0",
         "bac65b612ced"
       ],
-      "verified_by": []
+      "verified_by": [
+        "tests/test_entitlement_catalogs.py:26",
+        "tests/test_entitlement_catalogs.py:35",
+        "tests/test_entitlement_catalogs.py:42",
+        "tests/test_entitlement_catalogs.py:49"
+      ]
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R037",
@@ -1411,13 +1417,18 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R045",
       "title": "Tool contract facts for the run loop and the tool-subset decision",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
+        "2907b584635e",
         "3ddd773fb6dc",
-        "910c1a8859ca",
-        "f06d1600bb90"
+        "483f2e61beed",
+        "4c468642a56b",
+        "5d4848e2ff0f"
       ],
       "verified_by": [
+        "tests/test_certify_read_only.py:24",
+        "tests/test_certify_read_only.py:25",
+        "tests/test_certify_read_only.py:74",
         "tests/test_schema_disclosure_artifacts.py:22",
         "tests/test_schema_disclosure_provider.py:64"
       ],
@@ -1493,9 +1504,13 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R045.6",
       "title": "Read `side_effects` from `eg.annotations`, and gate on the generated type",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5d4848e2ff0f"
+      ],
+      "verified_by": [
+        "tests/test_tool_facts.py:159"
+      ]
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R045.7",
@@ -1511,9 +1526,13 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R045.8",
       "title": "Attach the facts to the captured tool entry",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5d4848e2ff0f"
+      ],
+      "verified_by": [
+        "tests/test_tool_facts.py:141"
+      ]
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R045.9",

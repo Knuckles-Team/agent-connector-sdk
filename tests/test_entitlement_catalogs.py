@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from agent_connector_sdk.entitlements import CatalogResource, catalog_entitled_resources
 
 _KEYCLOAK_CATALOG = (
@@ -21,6 +23,7 @@ _VAULTWARDEN_CATALOG = (
 )
 
 
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R036")
 def test_keycloak_shaped_catalog_resolves_matching_subset() -> None:
     caps = ["keycloak-realm:realm-prod", "keycloak-client:client-webui"]
     assert catalog_entitled_resources(caps, _KEYCLOAK_CATALOG) == (
@@ -29,18 +32,21 @@ def test_keycloak_shaped_catalog_resolves_matching_subset() -> None:
     )
 
 
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R036")
 def test_systems_manager_shaped_catalog_resolves_matching_subset() -> None:
     assert catalog_entitled_resources(
         ["managed-host:host-b"], _SYSTEMS_MANAGER_CATALOG
     ) == ("host-b",)
 
 
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R036")
 def test_vaultwarden_shaped_catalog_resolves_matching_subset() -> None:
     assert catalog_entitled_resources(["vault:vault-ops"], _VAULTWARDEN_CATALOG) == (
         "vault-ops",
     )
 
 
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R036")
 def test_unmatched_capability_resolves_empty_fail_closed() -> None:
     assert (
         catalog_entitled_resources(["managed-host:host-z"], _SYSTEMS_MANAGER_CATALOG)

@@ -82,6 +82,7 @@ def _request() -> PlatformRequest:
     )
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.1")
 def test_inventory_is_closed_bounded_and_equivalent() -> None:
     capability = _capability()
     assert capability.operation == "search"
@@ -115,6 +116,7 @@ def test_inventory_is_closed_bounded_and_equivalent() -> None:
         )
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.1")
 def test_request_and_continuation_bindings_are_checked() -> None:
     request = _request()
     validate_request_binding(request, _capability())
@@ -141,6 +143,8 @@ def test_request_and_continuation_bindings_are_checked() -> None:
         )
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.4")
 def test_success_and_refusal_are_distinct_and_attempts_are_ordered() -> None:
     attempt = BackendAttempt(
         sequence=1,
@@ -173,6 +177,8 @@ def test_success_and_refusal_are_distinct_and_attempts_are_ordered() -> None:
         PlatformResult.model_validate({**result.model_dump(), "attempts": ()})
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.1")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.5")
 def test_status_and_record_are_scoped_and_bounded() -> None:
     state = BackendState(backend_id="first", health="healthy", observed_at=10)
     status = ChannelStatus(
@@ -222,6 +228,7 @@ def test_status_and_record_are_scoped_and_bounded() -> None:
         ChannelStatus.model_validate({**status.model_dump(), "expires_at": 9})
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.5")
 def test_backend_refuses_literal_credentials_without_echoing_them() -> None:
     literal = "fixture-private-credential-value"
     with pytest.raises(ValidationError) as failure:
@@ -231,6 +238,7 @@ def test_backend_refuses_literal_credentials_without_echoing_them() -> None:
     assert literal not in str(failure.value)
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.5")
 def test_private_inputs_and_record_content_are_not_in_repr() -> None:
     from agent_connector_sdk.adapters.platform_models import PlatformRecord, Provenance
 

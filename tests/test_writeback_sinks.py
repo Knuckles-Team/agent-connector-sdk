@@ -348,6 +348,7 @@ def test_unknown_target_errors():
     assert run_writeback("nope", dry_run=True)["status"] == "error"
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R600.6")
 def test_high_stakes_live_write_without_queue_is_refused(fake_sink, ledger, flag):
     flag(True)
     sink = FakeSink()

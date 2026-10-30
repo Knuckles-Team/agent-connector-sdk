@@ -84,9 +84,14 @@ def adapter() -> McpToolSourceAdapter:
     )
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def isolated_git_environment(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Keep temporary repositories independent of the invoking Git hook."""
+    """Keep temporary repositories independent of the invoking Git hook.
+
+    Autouse: a pre-push hook exports GIT_DIR and friends, and any test that
+    shells out to git would otherwise write the real checkout's config
+    (a fixture identity leaked into the shared scion-sdk config this way).
+    """
     for name in tuple(os.environ):
         if name.startswith("GIT_"):
             monkeypatch.delenv(name)
