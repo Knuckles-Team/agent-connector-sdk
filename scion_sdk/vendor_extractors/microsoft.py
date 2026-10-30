@@ -15,13 +15,10 @@ from __future__ import annotations
 from typing import Any
 
 from scion_sdk.ingest import ChangeSet, Entity
+from scion_sdk.vendor_extractors._extract_common import _client_changeset, _entity_of
 from scion_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "microsoft"
-
-
-def _get(config: Any, key: str) -> Any:
-    return config.get(key) if isinstance(config, dict) else getattr(config, key, None)
 
 
 def _nested(row: dict[str, Any], *path: str) -> Any:
@@ -55,15 +52,7 @@ def _events(client: Any) -> list[Entity]:
             "externalToolId": str(event_id),
             "domain": CATEGORY,
         }
-        entities.append(
-            Entity(
-                id=f"msevent:{event_id}",
-                node_type="CalendarEvent",
-                properties={
-                    key: value for key, value in properties.items() if value is not None
-                },
-            )
-        )
+        entities.append(_entity_of(f"msevent:{event_id}", "CalendarEvent", properties))
     return entities
 
 
@@ -73,30 +62,18 @@ def _users(client: Any) -> list[Entity]:
         user_id = user.get("id")
         if not user_id:
             continue
-        entities.append(
-            Entity(
-                id=f"msuser:{user_id}",
-                node_type="Person",
-                properties={
-                    key: value
-                    for key, value in {
-                        "name": user.get("displayName"),
-                        "email": user.get("mail") or user.get("userPrincipalName"),
-                        "externalToolId": str(user_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
-            )
-        )
+        fields = {
+            "name": user.get("displayName"),
+            "email": user.get("mail") or user.get("userPrincipalName"),
+            "externalToolId": str(user_id),
+            "domain": CATEGORY,
+        }
+        entities.append(_entity_of(f"msuser:{user_id}", "Person", fields))
     return entities
 
 
 def extract(config: Any) -> ChangeSet:
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-    return ChangeSet(entities=tuple([*_events(client), *_users(client)]))
+    return _client_changeset(config, lambda client: [*_events(client), *_users(client)])
 
 
 register_vendor_extractor(

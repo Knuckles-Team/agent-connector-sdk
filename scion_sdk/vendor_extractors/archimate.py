@@ -16,26 +16,11 @@ import re
 from typing import Any
 
 from scion_sdk.ingest import ChangeSet, Entity, Relationship
+from scion_sdk.vendor_extractors._extract_common import _call_dict_rows, _entity_of
+from scion_sdk.vendor_extractors._records import _get
 from scion_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "archimate"
-
-
-def _get(config: Any, key: str) -> Any:
-    return config.get(key) if isinstance(config, dict) else getattr(config, key, None)
-
-
-def _call(client: Any, name: str) -> list[dict[str, Any]]:
-    method = getattr(client, name, None)
-    try:
-        result = method() if callable(method) else None
-    except Exception:
-        return []
-    return (
-        [row for row in result if isinstance(row, dict)]
-        if isinstance(result, list)
-        else []
-    )
 
 
 def _upper_snake(name: str) -> str:
@@ -47,7 +32,7 @@ def _upper_snake(name: str) -> str:
 
 def _entities(client: Any) -> list[Entity]:
     entities: list[Entity] = []
-    for element in _call(client, "list_elements"):
+    for element in _call_dict_rows(client, "list_elements"):
         element_id = element.get("id")
         element_type = element.get("type")
         if not (element_id and element_type):
@@ -58,21 +43,13 @@ def _entities(client: Any) -> list[Entity]:
             "externalToolId": str(element_id),
             "domain": CATEGORY,
         }
-        entities.append(
-            Entity(
-                id=f"archi:{element_id}",
-                node_type=element_type,
-                properties={
-                    key: value for key, value in properties.items() if value is not None
-                },
-            )
-        )
+        entities.append(_entity_of(f"archi:{element_id}", element_type, properties))
     return entities
 
 
 def _relationships(client: Any) -> list[Relationship]:
     relationships: list[Relationship] = []
-    for relationship in _call(client, "list_relationships"):
+    for relationship in _call_dict_rows(client, "list_relationships"):
         source, target = relationship.get("source"), relationship.get("target")
         if not (source and target):
             continue

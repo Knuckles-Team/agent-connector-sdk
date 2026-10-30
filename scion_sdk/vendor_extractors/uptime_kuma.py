@@ -14,13 +14,14 @@ from __future__ import annotations
 from typing import Any
 
 from scion_sdk.ingest import ChangeSet, Entity
+from scion_sdk.vendor_extractors._extract_common import (
+    _client_changeset,
+    _entity_of,
+    _present,
+)
 from scion_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "uptime_kuma"
-
-
-def _get(config: Any, key: str) -> Any:
-    return config.get(key) if isinstance(config, dict) else getattr(config, key, None)
 
 
 def _monitors(client: Any) -> list[dict[str, Any]]:
@@ -48,25 +49,13 @@ def _entity(monitor: dict[str, Any]) -> Entity | None:
         "externalToolId": str(monitor_id),
         "domain": CATEGORY,
     }
-    return Entity(
-        id=f"uptime_monitor:{monitor_id}",
-        node_type="Service",
-        properties={
-            key: value for key, value in properties.items() if value is not None
-        },
-    )
+    return _entity_of(f"uptime_monitor:{monitor_id}", "Service", properties)
 
 
 def extract(config: Any) -> ChangeSet:
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-    entities = tuple(
-        entity
-        for entity in (_entity(monitor) for monitor in _monitors(client))
-        if entity is not None
+    return _client_changeset(
+        config, lambda client: _present(_monitors(client), _entity)
     )
-    return ChangeSet(entities=entities)
 
 
 register_vendor_extractor(
