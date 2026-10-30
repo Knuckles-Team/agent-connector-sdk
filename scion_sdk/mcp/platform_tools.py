@@ -6,18 +6,13 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-from scion_sdk.adapters.platform_backend import PlatformAuthorizer
 from scion_sdk.adapters.platform_fallback import PlatformFallback, _refused
-from scion_sdk.adapters.platform_models import (
-    PlatformCapability,
-    PlatformRequest,
-    PlatformResult,
-)
-from scion_sdk.identity import (
-    ActorContext,
-    current_actor,
-)
+from scion_sdk.adapters.platform_models import PlatformRequest, PlatformResult
+from scion_sdk.identity import current_actor
+from scion_sdk.mcp._platform_authorizer import VerifiedScopeAuthorizer
 from scion_sdk.mcp.action_dispatch import dispatch_async
+
+__all__ = ["VerifiedScopeAuthorizer", "register_platform_tools"]
 
 
 class _PlatformToolClient:
@@ -75,56 +70,3 @@ def register_platform_tools(server: FastMCP, fallback: PlatformFallback) -> None
     @server.tool(name="platform_status")
     async def platform_status(request: PlatformRequest) -> Any:
         return await dispatch_async(client, "status", {"request": request})
-
-
-class VerifiedScopeAuthorizer:
-    """Require the current verified MCP token's identity and capability scope.
-
-    The injected delegate remains responsible for connector policy and
-    continuation authentication. This wrapper never interprets caller-supplied
-    request fields as evidence of authentication.
-    """
-
-    def __init__(self, delegate: PlatformAuthorizer) -> None:
-        self._delegate = delegate
-
-    async def authorize(
-        self,
-        actor: ActorContext,
-        request: PlatformRequest,
-        capability: PlatformCapability,
-    ) -> bool:
-        from fastmcp.server.dependencies import get_access_token
-
-        token = get_access_token()
-        if token is None:
-            return False
-        claims = token.claims if isinstance(token.claims, dict) else {}
-        subject = claims.get("sub") or token.client_id
-        tenants = {
-            value.strip()
-            for name in ("tenant_id", "tenant", "org_id", "tid", "org")
-            if isinstance((value := claims.get(name)), str) and value.strip()
-        }
-        scopes = {scope for scope in token.scopes if isinstance(scope, str)}
-        scope_claim = claims.get("scope")
-        if isinstance(scope_claim, str):
-            scopes.update(scope_claim.split())
-        if (
-            not isinstance(subject, str)
-            or subject != actor.actor_id
-            or tenants != {actor.tenant_id}
-            or capability.required_scope not in scopes
-        ):
-            return False
-        return await self._delegate.authorize(actor, request, capability)
-
-    async def verify_continuation(
-        self,
-        actor: ActorContext,
-        request: PlatformRequest,
-        capability: PlatformCapability,
-    ) -> bool:
-        if not await self.authorize(actor, request, capability):
-            return False
-        return await self._delegate.verify_continuation(actor, request, capability)
