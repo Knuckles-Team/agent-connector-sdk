@@ -163,16 +163,37 @@ grant. A refused platform result cannot advance source synchronization.
 ## Caller identity
 
 A connector never binds an actor at startup. Call `scion_sdk.identity.current_actor()`
-inside a tool and it resolves the caller per request from the transport:
+inside a tool and it resolves the caller per request. There are three identity modes:
 
-| transport | actor |
+| mode | how it is started | actor |
+|---|---|---|
+| stdio | `--transport stdio`, an in-process client, startup, background work | `SYSTEM_ACTOR` (every resource) |
+| no-auth HTTP | `--transport streamable-http --auth-type none` | `SYSTEM_ACTOR` (every resource) |
+| authenticated HTTP | any other `--auth-type` | the token's subject, tenant, roles and groups |
+
+With `--auth-type none` the operator has chosen no authentication, so the server trusts
+its deployment boundary (for example arbora in front of it) the same way stdio trusts
+the local process. Run it only behind such a boundary. A server with auth configured
+binds `ANONYMOUS_ACTOR` (no entitlements) to an HTTP request without a token; a plain
+FastMCP server without the factory middleware does the same.
+
+### Entitlements
+
+`scion_sdk.entitlements` decides which resources an actor may reach. A role or group
+`<namespace>:<resource>` grants one resource (`ssh:lab`), `<namespace>:*` grants the
+namespace, and `admin` or `system` grants everything. `identity_scoped_resources`
+lists the entitled subset. `require_entitled(namespace, resource)` refuses with an
+`EntitlementError` that names the cause and never a secret:
+
+| reason | meaning |
 |---|---|
-| no HTTP request: stdio, in-process client, startup, background work | `SYSTEM_ACTOR` |
-| HTTP with a valid signed token | the token's subject, tenant, roles and groups |
-| HTTP without a token, including a no-auth HTTP server | `ANONYMOUS_ACTOR` (no entitlements) |
+| `anonymous_caller` | no token reached a server with auth configured |
+| `authentication_required` | the actor has no verified identity |
+| `tenant_required` | the identity names no tenant |
+| `not_entitled` | `not entitled to <namespace>:<resource>` |
 
-The factory installs `ActorBindingMiddleware`. The middleware turns identity refusals
-into typed JSON-RPC errors. Actor resolution works without the middleware too.
-An entitlement rule still denies an authenticated caller who lacks the entitlement.
+The factory installs `ActorBindingMiddleware`. The middleware turns identity refusals,
+entitlement refusals included, into typed JSON-RPC `-32000` errors whose message starts
+with the reason. An authenticated caller without the entitlement is always denied.
 Use `use_actor(...)` only as an explicit override in tests or embedding code.
 A connector removes any `use_actor(SYSTEM_ACTOR)` bootstrap.

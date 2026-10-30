@@ -41,8 +41,11 @@ def rate_limit_client_id(_context: Any) -> str:
     return caller_bucket(token.client_id, token.claims)
 
 
-def build_middleware() -> list[Any]:
-    """Error handling without tracebacks, 10 requests/s per caller (burst 20), then the actor binding."""
+def build_middleware(*, no_auth: bool = False) -> list[Any]:
+    """Error handling without tracebacks, 10 requests/s per caller (burst 20), then the actor binding.
+
+    ``no_auth`` is true when the network config's auth type is ``none``.
+    """
     return [
         ErrorHandlingMiddleware(include_traceback=False, transform_errors=True),
         RateLimitingMiddleware(
@@ -50,5 +53,5 @@ def build_middleware() -> list[Any]:
             burst_capacity=20,
             get_client_id=rate_limit_client_id,
         ),
-        ActorBindingMiddleware(),
+        ActorBindingMiddleware(no_auth=no_auth),
     ]

@@ -1,6 +1,20 @@
 # Changelog
 
-## Unreleased
+## 0.6.1
+
+### Fixed
+
+- A server started with `--auth-type none` binds `SYSTEM_ACTOR` to every HTTP request,
+  the same as stdio, so a no-auth deployment behind a gateway reaches its resources
+  again. `ANONYMOUS_ACTOR` stays for a tokenless request to a server with auth
+  configured. The auth mode comes from the network serving config
+  (SCION-CONNECTOR-CONTROL-R025.3).
+- Entitlement refusals name their cause: `anonymous_caller`, `authentication_required`,
+  `tenant_required` or `not entitled to <namespace>:<resource>`. New
+  `scion_sdk.entitlements.require_entitled` raises `EntitlementError` with that reason
+  (SCION-CONNECTOR-CONTROL-R025).
+
+## 0.6.0
 
 ### Changed
 
