@@ -15,10 +15,8 @@ require_mcp_extra("scion_sdk.taxonomy.stream")
 from fastmcp import Context  # noqa: E402
 from fastmcp.exceptions import ToolError  # noqa: E402
 
-from scion_sdk.ingest.live_declaration import (  # noqa: E402
-    _cursor_delta_preset,
-    source_meta,
-)
+from scion_sdk.ingest.live_declaration import source_meta  # noqa: E402
+from scion_sdk.ingest.source_metadata import _cursor_delta_preset  # noqa: E402
 from scion_sdk.taxonomy.provider import (  # noqa: E402
     TaxonomyProvider,
     _valid_identifier_batch,

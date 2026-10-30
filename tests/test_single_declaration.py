@@ -398,7 +398,7 @@ def test_connector_sources_module_declares_by_tool_name(
     declared = load_sources_module(pkg)
     assert declared is not None
     tools = registered_tools(_server()).values()
-    declaration = build_declaration("demo-mcp", tools, (), declared)
+    declaration = build_declaration("demo-mcp", tools, (), declared=declared)
     by_name = declaration.source("by-name")
     assert by_name is not None and by_name.tools == ("demo_reader",)
     assert declaration.schema_mappings["Thing"].ontology_class == "demo:Thing"
@@ -411,5 +411,5 @@ def test_connector_sources_module_declares_by_tool_name(
             "demo-mcp",
             tools,
             (),
-            {"SOURCES": ({"connector_sources": [{"tool": "nope"}]},)},
+            declared={"SOURCES": ({"connector_sources": [{"tool": "nope"}]},)},
         )
