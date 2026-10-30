@@ -8,6 +8,7 @@ from typing import Any
 import pytest
 
 from scion_sdk.source_connectors import ConnectorCheckpoint, build_connector
+from scion_sdk.source_connectors.connectors import _mcp_stdio as mcp_stdio
 from scion_sdk.source_connectors.connectors import mcp_package
 from scion_sdk.source_connectors.connectors.mcp_package import (
     CallToolFn,
@@ -148,7 +149,7 @@ def test_mcp_catalog_falls_back_to_the_platform_config_file(
         return config
 
     monkeypatch.delenv("MCP_CONFIG", raising=False)
-    monkeypatch.setattr(mcp_package, "platform_config_file", platform_config_file)
+    monkeypatch.setattr(mcp_stdio, "platform_config_file", platform_config_file)
     assert mcp_package.load_mcp_servers() == {"docs": {"command": "run"}}
     assert seen == ["mcp_config.json"]
 
