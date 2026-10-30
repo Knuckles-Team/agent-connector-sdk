@@ -40,6 +40,22 @@ class _VersionedModel(BaseModel):
         return value
 
 
+def _check_repository_path(path: str) -> None:
+    try:
+        path.encode("utf-8", errors="strict")
+    except UnicodeEncodeError as exc:
+        raise ValueError("path is not valid UTF-8") from exc
+    if (
+        path.startswith("/")
+        or "\\" in path
+        or "\x00" in path
+        or "%" in path
+        or ":" in path.split("/", 1)[0]
+        or any(part in {"", ".", ".."} for part in path.split("/"))
+    ):
+        raise ValueError("unsafe repository path")
+
+
 class RepositorySourceEffectIntent(_VersionedModel):
     """An exact regular-file effect bound to a provider-specific contract."""
 
@@ -63,6 +79,12 @@ class RepositorySourceEffectIntent(_VersionedModel):
         for value in (self.payload_sha256, self.adapter_contract_digest):
             if not _DIGEST.fullmatch(value):
                 raise ValueError("invalid SHA-256 digest")
+        self._check_action_claims()
+        self._check_payload()
+        _check_repository_path(self.relative_path)
+        return self
+
+    def _check_action_claims(self) -> None:
         if self.action == "create":
             if (
                 self.expected_file_digest is not None
@@ -75,6 +97,8 @@ class RepositorySourceEffectIntent(_VersionedModel):
             or self.expected_executable is None
         ):
             raise ValueError("update requires existing file digest and mode")
+
+    def _check_payload(self) -> None:
         try:
             raw = base64.b64decode(self.payload_base64, validate=True)
         except (binascii.Error, ValueError) as exc:
@@ -86,21 +110,6 @@ class RepositorySourceEffectIntent(_VersionedModel):
             or hashlib.sha256(raw).hexdigest() != self.payload_sha256
         ):
             raise ValueError("payload digest or size mismatch")
-        try:
-            self.relative_path.encode("utf-8", errors="strict")
-        except UnicodeEncodeError as exc:
-            raise ValueError("path is not valid UTF-8") from exc
-        path = self.relative_path
-        if (
-            path.startswith("/")
-            or "\\" in path
-            or "\x00" in path
-            or "%" in path
-            or ":" in path.split("/", 1)[0]
-            or any(part in {"", ".", ".."} for part in path.split("/"))
-        ):
-            raise ValueError("unsafe repository path")
-        return self
 
     def require_readback(self, data: bytes, executable: bool) -> None:
         """Compare an independently fetched file to the exact approved bytes and mode."""

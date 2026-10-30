@@ -27,18 +27,25 @@ _METHODS: dict[str, tuple[str, str]] = {
 }
 
 
+def _dict_record_id(obj: dict[str, Any]) -> str | None:
+    for key in ("id", "recordId"):
+        if obj.get(key):
+            return str(obj[key])
+    inner = obj.get("data")
+    if isinstance(inner, dict) and inner.get("id"):
+        return str(inner["id"])
+    return None
+
+
 def _extract_record_id(res: Any) -> str | None:
     """Best-effort pull of the created Twenty record id from the return shape."""
     if isinstance(res, str):
         return res or None
     for obj in (res, getattr(res, "data", None)):
         if isinstance(obj, dict):
-            for key in ("id", "recordId"):
-                if obj.get(key):
-                    return str(obj[key])
-            inner = obj.get("data")
-            if isinstance(inner, dict) and inner.get("id"):
-                return str(inner["id"])
+            found = _dict_record_id(obj)
+            if found:
+                return found
     rid = getattr(res, "id", None)
     return str(rid) if rid else None
 
@@ -52,54 +59,73 @@ class TwentySink(WritebackClientMixin):
 
     def _run(self, invocation: WritebackInvocation) -> WritebackResult:
         ctx, ops, client, result, dry_run = invocation.unpack()
-
-        resolve = ctx.resolver("twenty")
-
         for c in ops.get("creations") or []:
-            name = c.get("name")
-            create_m, _ = _METHODS.get(
-                (c.get("type") or "").lower(), ("create_company", "")
-            )
-            if not name:
-                continue
-            if dry_run:
-                result.proposals.append({"op": create_m, "name": name})
-                continue
-            try:
-                method = getattr(client, create_m, None)
-                if method is not None:
-                    res = method(name)
-                    result.created += 1
-                    ctx.stamp_external_id(
-                        c.get("node"),
-                        self.domain,
-                        _extract_record_id(res),
-                        node_type=c.get("type", ""),
-                    )
-            except Exception:
-                logger.debug("twenty %s failed", create_m, exc_info=True)
-                result.errors += 1
-
+            self._create(ctx, client, result, c, dry_run=dry_run)
+        resolve = ctx.resolver("twenty")
         for item in ops.get("enrichments") or []:
-            rid = resolve(item.get("node"))
-            attrs = item.get("attributes") or {}
-            _, update_m = _METHODS.get(
-                (item.get("type") or "").lower(), ("", "update_company")
+            self._enrich(
+                client, result, item, resolve(item.get("node")), dry_run=dry_run
             )
-            if not (rid and attrs):
-                result.skipped += 1
-                continue
-            if dry_run:
-                result.proposals.append({"op": update_m, "id": rid})
-                continue
-            try:
-                getattr(client, update_m)(rid, attrs)
-                result.enriched += 1
-            except Exception:
-                logger.debug("twenty %s failed", update_m, exc_info=True)
-                result.errors += 1
-
         return result
+
+    def _create(
+        self,
+        ctx: Any,
+        client: Any,
+        result: WritebackResult,
+        c: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> None:
+        name = c.get("name")
+        create_m, _ = _METHODS.get(
+            (c.get("type") or "").lower(), ("create_company", "")
+        )
+        if not name:
+            return
+        if dry_run:
+            result.proposals.append({"op": create_m, "name": name})
+            return
+        try:
+            method = getattr(client, create_m, None)
+            if method is not None:
+                res = method(name)
+                result.created += 1
+                ctx.stamp_external_id(
+                    c.get("node"),
+                    self.domain,
+                    _extract_record_id(res),
+                    node_type=c.get("type", ""),
+                )
+        except Exception:
+            logger.debug("twenty %s failed", create_m, exc_info=True)
+            result.errors += 1
+
+    @staticmethod
+    def _enrich(
+        client: Any,
+        result: WritebackResult,
+        item: dict[str, Any],
+        rid: Any,
+        *,
+        dry_run: bool,
+    ) -> None:
+        attrs = item.get("attributes") or {}
+        _, update_m = _METHODS.get(
+            (item.get("type") or "").lower(), ("", "update_company")
+        )
+        if not (rid and attrs):
+            result.skipped += 1
+            return
+        if dry_run:
+            result.proposals.append({"op": update_m, "id": rid})
+            return
+        try:
+            getattr(client, update_m)(rid, attrs)
+            result.enriched += 1
+        except Exception:
+            logger.debug("twenty %s failed", update_m, exc_info=True)
+            result.errors += 1
 
 
 register_sink(TwentySink())

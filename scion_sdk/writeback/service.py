@@ -26,6 +26,10 @@ from scion_sdk.ports.writeback_transport import (
     ReservableWriteBackTransport,
     WriteBackTransport,
 )
+from scion_sdk.writeback.dry_run_binding import (
+    expected_preview,
+    require_preview_binding,
+)
 from scion_sdk.writeback.errors import (
     AuditReservationUnavailableError,
     ChangeSetExpiredError,
@@ -47,6 +51,22 @@ from scion_sdk.writeback.wallet_proof import (
 )
 
 __all__ = ["GovernedWriteBack"]
+
+
+def _require_bound_reservation(
+    change_set: SourceChangeSet, reservation: object
+) -> AuditReservation:
+    if (
+        not isinstance(reservation, AuditReservation)
+        or not isinstance(reservation.reservation_id, str)
+        or not reservation.reservation_id.strip()
+        or reservation.effect_key != change_set.idempotency_key
+        or reservation.change_set_digest != change_set.change_set_digest
+    ):
+        raise AuditReservationUnavailableError(
+            "audit reservation binding mismatch or missing ID"
+        )
+    return reservation
 
 
 class GovernedWriteBack:
@@ -78,42 +98,9 @@ class GovernedWriteBack:
         self._validate(change_set)
         current = await self._transport.read_current(change_set)
         require_base(change_set, current)
-        before = {name: current.fields.get(name) for name in change_set.field_scope}
-        after = dict(change_set.desired_patch)
-        try:
-
-            def encode(value: object) -> str:
-                return json.dumps(
-                    value, sort_keys=True, separators=(",", ":"), allow_nan=False
-                )
-
-            changed = {
-                name
-                for name in change_set.field_scope
-                if encode(before[name]) != encode(after[name])
-            }
-            expected_before, expected_after = encode(before), encode(after)
-        except (TypeError, ValueError):
-            raise ChangeSetValidationError("invalid dry-run preview values") from None
-        version = current.source_version
+        expected = expected_preview(change_set, current)
         result = await self._transport.preview(change_set, current)
-        try:
-            matches = (
-                encode(result.before) == expected_before
-                and encode(result.after) == expected_after
-            )
-        except (TypeError, ValueError):
-            raise ChangeSetValidationError("invalid dry-run preview values") from None
-        if (
-            result.change_set_digest != change_set.change_set_digest
-            or result.desired_patch_digest != change_set.patch_digest()
-            or change_set.change_set_digest != change_set.canonical_digest()
-            or result.source_version != version
-            or not matches
-            or len(result.changed_fields) != len(changed)
-            or set(result.changed_fields) != changed
-        ):
-            raise ChangeSetValidationError("dry-run observation binding mismatch")
+        require_preview_binding(change_set, current, expected, result)
         return result
 
     async def apply(self, change_set: SourceChangeSet) -> WriteBackAttempt:
@@ -134,17 +121,9 @@ class GovernedWriteBack:
         require_base(change_set, current)
         decision = await self._verifier.verify(change_set)
         require_authorized(change_set, decision)
-        reservation = await self._audit.reserve(change_set)
-        if (
-            not isinstance(reservation, AuditReservation)
-            or not isinstance(reservation.reservation_id, str)
-            or not reservation.reservation_id.strip()
-            or reservation.effect_key != change_set.idempotency_key
-            or reservation.change_set_digest != change_set.change_set_digest
-        ):
-            raise AuditReservationUnavailableError(
-                "audit reservation binding mismatch or missing ID"
-            )
+        reservation = _require_bound_reservation(
+            change_set, await self._audit.reserve(change_set)
+        )
         # Generated change sets are shallow-frozen. Recheck their nested data
         # after awaiting admission, then isolate the exact effect from caller
         # mutation while the transport is running.
@@ -156,17 +135,25 @@ class GovernedWriteBack:
         self._validate(change_set)
         require_authorized(change_set, decision)
         try:
-            if isinstance(self._transport, AuditBoundWriteBackTransport):
-                result = await self._transport.apply_reserved(
-                    change_set, current.source_version, reservation
-                )
-            else:
-                result = await self._transport.apply(change_set, current.source_version)
-            require_effect(change_set, result)
-            return result
+            return await self._run_effect(change_set, current, reservation)
         except OutcomeUncertainError:
             self._unresolved[change_set.idempotency_key] = change_set.change_set_digest
             return self._uncertain(change_set, current.source_version)
+
+    async def _run_effect(
+        self,
+        change_set: SourceChangeSet,
+        current: SourceSnapshot,
+        reservation: AuditReservation,
+    ) -> WriteBackAttempt:
+        if isinstance(self._transport, AuditBoundWriteBackTransport):
+            result = await self._transport.apply_reserved(
+                change_set, current.source_version, reservation
+            )
+        else:
+            result = await self._transport.apply(change_set, current.source_version)
+        require_effect(change_set, result)
+        return result
 
     async def _require_wallet_proof(self, change_set: SourceChangeSet) -> None:
         """Refuse before any transport call unless the wallet proof verified."""
