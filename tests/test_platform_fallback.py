@@ -98,8 +98,6 @@ def capability():
 
 
 def http_backends(first, second):
-    from scion_sdk.adapters.platform_http import PlatformHttpBackend
-    from scion_sdk.http.options import HttpClientOptions
 
     base = capability()
     policies = tuple(
@@ -107,7 +105,14 @@ def http_backends(first, second):
         for p in base.backends
     )
     cap = base.model_copy(update={"backends": policies})
-    backends = {
+    return cap, loopback_backends(policies, (first, second))
+
+
+def loopback_backends(policies, servers):
+    from scion_sdk.adapters.platform_http import PlatformHttpBackend
+    from scion_sdk.http.options import HttpClientOptions
+
+    return {
         policy.backend_id: PlatformHttpBackend(
             policy,
             HttpClientOptions(
@@ -119,9 +124,8 @@ def http_backends(first, second):
             "/search",
             output_model=FixtureRecord,
         )
-        for policy, server in zip(policies, (first, second), strict=True)
+        for policy, server in zip(policies, servers, strict=True)
     }
-    return cap, backends
 
 
 def _platform_source_adapter():
@@ -147,6 +151,21 @@ def _platform_source_adapter():
         mapping_reference=f"connector:{CONNECTOR}#mappings/Event",
     )
     return preset, adapter
+
+
+async def _assert_source_refuses(page, match):
+    from test_event_feeds import CONNECTOR, FakeEventSession, _tool_descriptor
+
+    from scion_sdk.ports.errors import SourceContractError
+    from scion_sdk.runner.syncing import SyncTarget, sync_stream
+    from scion_sdk.testing.sinks import InMemorySink
+
+    preset, adapter = _platform_source_adapter()
+    session = FakeEventSession(descriptor=_tool_descriptor(preset.tool), pages=[page])
+    sink = InMemorySink()
+    with pytest.raises(SourceContractError, match=match):
+        await sync_stream(session, adapter, SyncTarget(CONNECTOR, sink, max_pages=1))
+    assert not sink.batches
 
 
 def request():
@@ -309,24 +328,13 @@ async def test_governed_http_backends_fallback_and_stop_on_denial():
 @pytest.mark.spec("SCION-SOURCE-INGEST-R012.4")
 @pytest.mark.asyncio
 async def test_platform_refusal_never_becomes_an_accepted_empty_page():
-    from test_event_feeds import CONNECTOR, FakeEventSession, _tool_descriptor
 
     from scion_sdk.adapters.platform_fallback import _refused
-    from scion_sdk.ports.errors import SourceContractError
-    from scion_sdk.runner.syncing import SyncTarget, sync_stream
-    from scion_sdk.testing.sinks import InMemorySink
 
-    preset, adapter = _platform_source_adapter()
     refusal = _refused(
         request(), "chain_exhausted", capability=capability()
     ).model_dump(mode="json")
-    session = FakeEventSession(
-        descriptor=_tool_descriptor(preset.tool), pages=[refusal]
-    )
-    sink = InMemorySink()
-    with pytest.raises(SourceContractError, match="chain_exhausted"):
-        await sync_stream(session, adapter, SyncTarget(CONNECTOR, sink, max_pages=1))
-    assert not sink.batches
+    await _assert_source_refuses(refusal, "chain_exhausted")
 
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R012.2")
@@ -431,8 +439,6 @@ async def test_status_is_isolated_from_other_principal():
 
 @pytest.mark.asyncio
 async def test_rate_limit_waits_then_retries_same_backend_without_fallback():
-    from scion_sdk.adapters.platform_http import PlatformHttpBackend
-    from scion_sdk.http.options import HttpClientOptions
     from scion_sdk.testing.http_server import (
         ScriptedHttpServer,
         ScriptedResponse,
@@ -453,20 +459,7 @@ async def test_rate_limit_waits_then_retries_same_backend_without_fallback():
             update={"allowed_destinations": ("127.0.0.1",)}
         )
         cap = base.model_copy(update={"backends": (first_policy, second_policy)})
-        backends = {
-            policy.backend_id: PlatformHttpBackend(
-                policy,
-                HttpClientOptions(
-                    base_url=server.base_url,
-                    retry=RetryPolicy(max_attempts=1),
-                    pin_egress=True,
-                    allow_loopback=True,
-                ),
-                "/search",
-                output_model=FixtureRecord,
-            )
-            for policy, server in zip(cap.backends, (first, second), strict=True)
-        }
+        backends = loopback_backends(cap.backends, (first, second))
 
         class AdmissionForHttp:
             async def admit(self, actor, request, policy):
@@ -615,8 +608,6 @@ async def test_served_fallback_result_reaches_source_sync_sink(monkeypatch, tmp_
     import json
 
     from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
-    from scion_sdk.adapters.platform_http import PlatformHttpBackend
-    from scion_sdk.http.options import HttpClientOptions
     from scion_sdk.identity import use_actor
     from scion_sdk.manifest.presets import ToolPreset
     from scion_sdk.mcp.server import create_mcp_server
@@ -681,26 +672,7 @@ async def test_served_fallback_result_reaches_source_sync_sink(monkeypatch, tmp_
             ScriptedResponse(body=json.dumps(next_payload).encode()),
         ) as second,
     ):
-        base = capability()
-        policies = tuple(
-            p.model_copy(update={"allowed_destinations": ("127.0.0.1",)})
-            for p in base.backends
-        )
-        cap = base.model_copy(update={"backends": policies})
-        backends = {
-            policy.backend_id: PlatformHttpBackend(
-                policy,
-                HttpClientOptions(
-                    base_url=server.base_url,
-                    retry=RetryPolicy(max_attempts=1),
-                    pin_egress=True,
-                    allow_loopback=True,
-                ),
-                "/search",
-                output_model=FixtureRecord,
-            )
-            for policy, server in zip(policies, (first, second), strict=True)
-        }
+        cap, backends = http_backends(first, second)
 
         class FixtureAuthority(Authority):
             async def verify_continuation(self, actor, request, capability):
@@ -1299,45 +1271,23 @@ async def test_external_cancellation_stops_current_attempt_and_never_falls_back(
 
 @pytest.mark.asyncio
 async def test_source_rejects_platform_result_for_a_different_request():
-    from test_event_feeds import CONNECTOR, FakeEventSession, _tool_descriptor
 
     from scion_sdk.adapters.platform_fallback import _refused
-    from scion_sdk.ports.errors import SourceContractError
-    from scion_sdk.runner.syncing import SyncTarget, sync_stream
-    from scion_sdk.testing.sinks import InMemorySink
 
-    preset, adapter = _platform_source_adapter()
     different = request().model_copy(update={"query": "another query"})
     response = _refused(
         different, "chain_exhausted", capability=capability()
     ).model_dump(mode="json")
-    session = FakeEventSession(
-        descriptor=_tool_descriptor(preset.tool), pages=[response]
-    )
-    sink = InMemorySink()
-    with pytest.raises(SourceContractError, match="does not match the source request"):
-        await sync_stream(session, adapter, SyncTarget(CONNECTOR, sink, max_pages=1))
-    assert not sink.batches
+    await _assert_source_refuses(response, "does not match the source request")
 
 
 @pytest.mark.asyncio
 async def test_source_refuses_oversized_platform_envelope_before_submission():
-    from test_event_feeds import CONNECTOR, FakeEventSession, _tool_descriptor
 
     from scion_sdk.adapters.platform_http import MAX_PLATFORM_RESPONSE_BYTES
-    from scion_sdk.ports.errors import SourceContractError
-    from scion_sdk.runner.syncing import SyncTarget, sync_stream
-    from scion_sdk.testing.sinks import InMemorySink
 
-    preset, adapter = _platform_source_adapter()
     response = {"records": [{"content": "x" * (MAX_PLATFORM_RESPONSE_BYTES + 100_000)}]}
-    session = FakeEventSession(
-        descriptor=_tool_descriptor(preset.tool), pages=[response]
-    )
-    sink = InMemorySink()
-    with pytest.raises(SourceContractError, match="does not match the source request"):
-        await sync_stream(session, adapter, SyncTarget(CONNECTOR, sink, max_pages=1))
-    assert not sink.batches
+    await _assert_source_refuses(response, "does not match the source request")
 
 
 def test_generic_source_response_is_not_reinterpreted_as_platform_envelope():

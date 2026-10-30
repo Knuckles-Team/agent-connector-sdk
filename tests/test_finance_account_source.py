@@ -7,7 +7,7 @@ from dataclasses import replace
 import pytest
 from epistemic_graph.generated.source_ingestion import SourceIngestionMode
 from fastmcp import FastMCP
-from finance_source_support import record_server, served_session
+from finance_source_support import record_server, served_session, sync_page
 from test_finance_csv_import import _CONTEXT, _CSV, _MAPPING
 
 from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
@@ -24,7 +24,6 @@ from scion_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
 )
-from scion_sdk.runner.syncing import SyncTarget, sync_stream
 from scion_sdk.testing.sinks import InMemorySink
 
 POSITION = {
@@ -89,9 +88,7 @@ async def test_snapshot_and_position_validate_before_sink():
             assert (
                 await adapter.extract(session, None)
             ).mode is SourceIngestionMode.DELTA
-            result = await sync_stream(
-                session, adapter, SyncTarget("finance", sink, max_pages=1)
-            )
+            result = await sync_page(session, adapter, sink, "finance")
             assert result.accepted == 1
             with pytest.raises(SourceContractError, match="complete reconciliation"):
                 await adapter.reconcile(session, frozenset())
@@ -110,9 +107,7 @@ async def test_wrong_account_and_nonfinite_position_refuse_before_sink():
         )
         async with served_session(_server(record)) as session:
             with pytest.raises(MalformedSourceDataError):
-                await sync_stream(
-                    session, adapter, SyncTarget("finance", sink, max_pages=1)
-                )
+                await sync_page(session, adapter, sink, "finance")
         assert not sink.batches
 
 
@@ -155,5 +150,5 @@ async def test_csv_source_reimport_preserves_scoped_activity_ids():
     sink = InMemorySink()
     async with served_session(server) as session:
         with pytest.raises(MalformedSourceDataError):
-            await sync_stream(session, other, SyncTarget("finance", sink, max_pages=1))
+            await sync_page(session, other, sink, "finance")
     assert not sink.batches

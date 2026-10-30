@@ -1,7 +1,7 @@
 """Market adapters bind provider identity and reject malformed pages."""
 
 import pytest
-from finance_source_support import record_server, served_session
+from finance_source_support import record_server, served_session, sync_page
 
 from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from scion_sdk.finance.market_source import (
@@ -13,7 +13,6 @@ from scion_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
 )
-from scion_sdk.runner.syncing import SyncTarget, sync_stream
 from scion_sdk.testing.sinks import InMemorySink
 
 CASES = {
@@ -107,9 +106,7 @@ def _adapter(kind, *, connector="finance", mode="delta"):
 async def test_served_market_sources_reach_sink(kind):
     sink = InMemorySink()
     async with served_session(_server(CASES[kind][1])) as session:
-        outcome = await sync_stream(
-            session, _adapter(kind), SyncTarget("finance", sink, max_pages=1)
-        )
+        outcome = await sync_page(session, _adapter(kind), sink, "finance")
     assert outcome.accepted == 1
     assert next(iter(sink.batches.values())).records[0].payload == CASES[kind][1]
 
@@ -128,9 +125,7 @@ async def test_invalid_market_records_refuse_before_sink(kind, changes):
     sink = InMemorySink()
     async with served_session(_server({**CASES[kind][1], **changes})) as session:
         with pytest.raises(MalformedSourceDataError):
-            await sync_stream(
-                session, _adapter(kind), SyncTarget("finance", sink, max_pages=1)
-            )
+            await sync_page(session, _adapter(kind), sink, "finance")
     assert not sink.batches
 
 
@@ -142,9 +137,7 @@ async def test_wrong_connector_and_full_sweep_refuse_before_sink():
         sink = InMemorySink()
         async with served_session(_server(CASES[MarketSourceKind.FRED][1])) as session:
             with pytest.raises((MalformedSourceDataError, SourceContractError)):
-                await sync_stream(
-                    session, adapter, SyncTarget("finance", sink, max_pages=1)
-                )
+                await sync_page(session, adapter, sink, "finance")
         assert not sink.batches
 
 
@@ -166,10 +159,8 @@ async def test_fred_vintages_reach_sink_as_distinct_records():
     }
     sink = InMemorySink()
     async with served_session(_fred_server([first, second])) as session:
-        outcome = await sync_stream(
-            session,
-            _adapter(MarketSourceKind.FRED),
-            SyncTarget("finance", sink, max_pages=1),
+        outcome = await sync_page(
+            session, _adapter(MarketSourceKind.FRED), sink, "finance"
         )
     assert outcome.records == 2
     assert [

@@ -1,7 +1,7 @@
 """CoinGlass macro source records are validated before sink submission."""
 
 import pytest
-from finance_source_support import record_server, served_session
+from finance_source_support import record_server, served_session, sync_page
 
 from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from scion_sdk.finance.market_source import (
@@ -10,7 +10,6 @@ from scion_sdk.finance.market_source import (
 )
 from scion_sdk.manifest.presets import ToolPreset
 from scion_sdk.ports.errors import MalformedSourceDataError
-from scion_sdk.runner.syncing import SyncTarget, sync_stream
 from scion_sdk.testing.sinks import InMemorySink
 
 COMMON = {
@@ -66,9 +65,7 @@ def _adapter(kind):
 async def test_macro_sources_keep_source_and_observation_times(kind):
     sink = InMemorySink()
     async with served_session(_server(CASES[kind])) as session:
-        outcome = await sync_stream(
-            session, _adapter(kind), SyncTarget("macro", sink, max_pages=1)
-        )
+        outcome = await sync_page(session, _adapter(kind), sink, "macro")
     assert outcome.accepted == 1
     assert next(iter(sink.batches.values())).records[0].payload == CASES[kind]
 
@@ -85,8 +82,6 @@ async def test_bad_macro_records_refuse_before_sink(kind, changes):
     sink = InMemorySink()
     async with served_session(_server({**CASES[kind], **changes})) as session:
         with pytest.raises(MalformedSourceDataError) as error:
-            await sync_stream(
-                session, _adapter(kind), SyncTarget("macro", sink, max_pages=1)
-            )
+            await sync_page(session, _adapter(kind), sink, "macro")
     assert "private-" not in str(error.value)
     assert not sink.batches
