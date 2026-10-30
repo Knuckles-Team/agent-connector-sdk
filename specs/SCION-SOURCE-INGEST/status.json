@@ -52,6 +52,7 @@
     "SCION-SOURCE-INGEST-R009",
     "SCION-SOURCE-INGEST-R010",
     "SCION-SOURCE-INGEST-R011",
+    "SCION-SOURCE-INGEST-R011.1",
     "SCION-SOURCE-INGEST-R012",
     "SCION-SOURCE-INGEST-R012.1",
     "SCION-SOURCE-INGEST-R012.2",
@@ -1095,13 +1096,23 @@
     {
       "id": "SCION-SOURCE-INGEST-R011",
       "title": "SDK ships the `ingest-worker` command (unblocks `MEDULLA-INGEST-WORKER-R001.15`)",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "e02d323a3394"
       ],
       "verified_by": [
         "tests/runner/test_ingest_worker_cli.py:14"
+      ],
+      "rollup_of": [
+        "SCION-SOURCE-INGEST-R011.1"
       ]
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R011.1",
+      "title": "No placement policy constants in the worker (moved from MEDULLA EG-PLACEMENT-R002.13)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R012",
@@ -1375,7 +1386,7 @@
       "title": "Model",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "ff77228d189d"
+        "81407803b2c1"
       ],
       "verified_by": [
         "tests/test_evm_chain_models.py:51",
@@ -1450,7 +1461,7 @@
       "title": "Model",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "ff77228d189d"
+        "81407803b2c1"
       ],
       "verified_by": [
         "tests/test_workspace_reader.py:318",
@@ -1462,7 +1473,7 @@
       "title": "Behavior",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "04db40ebca21"
+        "0d646274583a"
       ],
       "verified_by": [
         "tests/test_workspace_reader.py:187",
@@ -1481,7 +1492,7 @@
       "title": "Refusal",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "04db40ebca21"
+        "0d646274583a"
       ],
       "verified_by": [
         "tests/test_workspace_reader.py:127",
@@ -1495,7 +1506,7 @@
       "title": "Evidence",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "04db40ebca21"
+        "0d646274583a"
       ],
       "verified_by": [
         "tests/test_workspace_reader.py:188",
