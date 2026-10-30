@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import pandas as pd
 
@@ -51,6 +52,27 @@ class YFinanceProvider:
         return df
 
 
+_AKSHARE_COLUMNS = {
+    "日期": "Date",
+    "开盘": "Open",
+    "收盘": "Close",
+    "最高": "High",
+    "最低": "Low",
+    "成交量": "Volume",
+}
+
+
+def _akshare_frame(ak: Any, symbol: str) -> pd.DataFrame:
+    """A-share daily bars with standard OHLCV columns (empty when none)."""
+    df = ak.stock_zh_a_hist(symbol=symbol, period="daily", adjust="qfq")
+    if df.empty:
+        return pd.DataFrame()
+    df = df.rename(columns=_AKSHARE_COLUMNS)
+    df.set_index("Date", inplace=True)
+    df.index = pd.to_datetime(df.index)
+    return df[["Open", "High", "Low", "Close", "Volume"]]
+
+
 class AKShareProvider:
     """
     AKShare-based market data provider for Chinese equities (A-shares) and index data.
@@ -75,25 +97,7 @@ class AKShareProvider:
             ) from e
 
         try:
-            # Default to A-share daily
-            df = ak.stock_zh_a_hist(symbol=symbol, period="daily", adjust="qfq")
-            if df.empty:
-                return pd.DataFrame()
-
-            # Rename columns from Chinese to standard OHLCV
-            df = df.rename(
-                columns={
-                    "日期": "Date",
-                    "开盘": "Open",
-                    "收盘": "Close",
-                    "最高": "High",
-                    "最低": "Low",
-                    "成交量": "Volume",
-                }
-            )
-            df.set_index("Date", inplace=True)
-            df.index = pd.to_datetime(df.index)
-            return df[["Open", "High", "Low", "Close", "Volume"]]
+            return _akshare_frame(ak, symbol)
         except Exception as e:
             logger.warning(f"AKShare fetch failed for {symbol}: {e}")
             return pd.DataFrame()
