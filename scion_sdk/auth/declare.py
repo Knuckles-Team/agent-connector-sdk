@@ -288,7 +288,7 @@ def open_client(
     base_url: str,
     auth: AuthDeclaration,
     tls: str,
-    delegation: DelegationSettings | None = None,
+    delegation: bool = False,
     allow_plaintext: bool = False,
     headers: Mapping[str, str] | None = None,
     retry: RetryPolicy | None = None,
@@ -297,8 +297,8 @@ def open_client(
 ) -> ManagedClient:
     """Build the governed client for ``base_url`` from a declaration.
 
-    With enabled ``delegation`` settings, the caller's verified token is
-    exchanged per request (RFC 8693) instead of ``auth``.
+    With ``delegation`` and ``ENABLE_DELEGATION`` set, the caller's verified
+    token is exchanged per request (RFC 8693) instead of ``auth``.
 
     Raises:
         AuthConfigurationError: the declaration is incomplete.
@@ -311,7 +311,7 @@ def open_client(
             base_url=base_url,
             auth=auth,
             tls=tls,
-            delegation=delegation,
+            delegation=DelegationSettings.from_settings() if delegation else None,
             allow_plaintext=allow_plaintext,
             headers=headers,
             retry=retry,
@@ -404,9 +404,7 @@ def client_factory(
                         base_url=url.rstrip("/"),
                         auth=auth,
                         tls=tls,
-                        delegation=(
-                            DelegationSettings.from_settings() if delegation else None
-                        ),
+                        delegation=delegation,
                         allow_plaintext=plaintext,
                         headers=headers,
                     )
