@@ -52,6 +52,7 @@ from agent_connector_sdk.testing.http_server import ScriptedHttpServer, Scripted
         ),
     ],
 )
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 async def test_reads_real_provider_shapes(
     provider, identifier, body, expected_path, parent
 ):

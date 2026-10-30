@@ -55,9 +55,26 @@ def test_unmatched_capability_resolves_empty_fail_closed() -> None:
     assert catalog_entitled_resources([], _KEYCLOAK_CATALOG) == ()
 
 
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R036")
 def test_super_capability_grants_every_namespace_in_catalog() -> None:
     assert catalog_entitled_resources(["admin"], _KEYCLOAK_CATALOG) == (
         "realm-prod",
         "realm-staging",
         "client-webui",
     )
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R036")
+def test_sdk_entitlements_do_not_import_agent_utilities() -> None:
+    import ast
+    import inspect
+
+    import agent_connector_sdk.entitlements as module
+
+    imported = {
+        node.module or alias.name
+        for node in ast.walk(ast.parse(inspect.getsource(module)))
+        if isinstance(node, (ast.Import, ast.ImportFrom))
+        for alias in getattr(node, "names", [])
+    }
+    assert not any(name.startswith("agent_utilities") for name in imported if name)
