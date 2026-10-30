@@ -12,47 +12,28 @@ from __future__ import annotations
 from typing import Any
 
 from scion_sdk.ingest import ChangeSet, Entity
+from scion_sdk.vendor_extractors._extract_common import (
+    _call_dict_rows,
+    _client_changeset,
+    _entity_of,
+)
 from scion_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "lgtm"
 
 
-def _get(config: Any, key: str) -> Any:
-    return config.get(key) if isinstance(config, dict) else getattr(config, key, None)
-
-
-def _call(client: Any, name: str) -> list[dict[str, Any]]:
-    method = getattr(client, name, None)
-    try:
-        result = method() if callable(method) else None
-    except Exception:
-        return []
-    if isinstance(result, dict):
-        result = result.get("data") or result.get("value") or list(result.values())
-    return (
-        [row for row in result if isinstance(row, dict)]
-        if isinstance(result, list)
-        else []
-    )
-
-
 def _dashboards(client: Any) -> list[Entity]:
     entities: list[Entity] = []
-    for dashboard in _call(client, "get_dashboards"):
+    for dashboard in _call_dict_rows(client, "get_dashboards", unwrap=True):
         uid = dashboard.get("uid") or dashboard.get("id") or dashboard.get("title")
         if not uid:
             continue
-        entities.append(
-            Entity(
-                id=f"lgtm_dash:{uid}",
-                node_type="Dashboard",
-                properties={
-                    "name": dashboard.get("title") or str(uid),
-                    "externalToolId": str(uid),
-                    "domain": CATEGORY,
-                },
-            )
-        )
+        fields = {
+            "name": dashboard.get("title") or str(uid),
+            "externalToolId": str(uid),
+            "domain": CATEGORY,
+        }
+        entities.append(_entity_of(f"lgtm_dash:{uid}", "Dashboard", fields))
     return entities
 
 
@@ -65,25 +46,18 @@ def _alert_id(alert: Any) -> Any:
 
 
 def _alert_entity(alert: Any, alert_id: Any) -> Entity:
-    return Entity(
-        id=f"lgtm_alert:{alert_id}",
-        node_type="Alert",
-        properties={
-            key: value
-            for key, value in {
-                "name": (alert.get("labels") or {}).get("alertname") or str(alert_id),
-                "state": alert.get("status") or alert.get("state"),
-                "externalToolId": str(alert_id),
-                "domain": CATEGORY,
-            }.items()
-            if value is not None
-        },
-    )
+    fields = {
+        "name": (alert.get("labels") or {}).get("alertname") or str(alert_id),
+        "state": alert.get("status") or alert.get("state"),
+        "externalToolId": str(alert_id),
+        "domain": CATEGORY,
+    }
+    return _entity_of(f"lgtm_alert:{alert_id}", "Alert", fields)
 
 
 def _alerts(client: Any) -> list[Entity]:
     entities: list[Entity] = []
-    for alert in _call(client, "get_alerts"):
+    for alert in _call_dict_rows(client, "get_alerts", unwrap=True):
         alert_id = _alert_id(alert)
         if not alert_id:
             continue
@@ -93,35 +67,25 @@ def _alerts(client: Any) -> list[Entity]:
 
 def _datasources(client: Any) -> list[Entity]:
     entities: list[Entity] = []
-    for datasource in _call(client, "list_datasources"):
+    for datasource in _call_dict_rows(client, "list_datasources", unwrap=True):
         ds_id = datasource.get("uid") or datasource.get("id") or datasource.get("name")
         if not ds_id:
             continue
-        entities.append(
-            Entity(
-                id=f"lgtm_ds:{ds_id}",
-                node_type="DataSource",
-                properties={
-                    key: value
-                    for key, value in {
-                        "name": datasource.get("name") or str(ds_id),
-                        "ds_type": datasource.get("type"),
-                        "externalToolId": str(ds_id),
-                        "domain": CATEGORY,
-                    }.items()
-                    if value is not None
-                },
-            )
-        )
+        fields = {
+            "name": datasource.get("name") or str(ds_id),
+            "ds_type": datasource.get("type"),
+            "externalToolId": str(ds_id),
+            "domain": CATEGORY,
+        }
+        entities.append(_entity_of(f"lgtm_ds:{ds_id}", "DataSource", fields))
     return entities
 
 
 def extract(config: Any) -> ChangeSet:
-    client = _get(config, "client")
-    if client is None:
-        return ChangeSet()
-    entities = [*_dashboards(client), *_alerts(client), *_datasources(client)]
-    return ChangeSet(entities=tuple(entities))
+    return _client_changeset(
+        config,
+        lambda client: [*_dashboards(client), *_alerts(client), *_datasources(client)],
+    )
 
 
 register_vendor_extractor(

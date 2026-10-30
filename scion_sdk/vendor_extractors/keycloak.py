@@ -14,25 +14,12 @@ from __future__ import annotations
 from typing import Any
 
 from scion_sdk.ingest import ChangeSet, Entity
+from scion_sdk.vendor_extractors._extract_common import _entity_of
+from scion_sdk.vendor_extractors._extract_common import _first_dict as _first
+from scion_sdk.vendor_extractors._records import _get
 from scion_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "keycloak"
-
-
-def _get(config: Any, key: str, default: Any = None) -> Any:
-    if isinstance(config, dict):
-        return config.get(key, default)
-    return getattr(config, key, default)
-
-
-def _first(row: Any, *keys: str) -> Any:
-    if not isinstance(row, dict):
-        return None
-    for key in keys:
-        value = row.get(key)
-        if value not in (None, ""):
-            return value
-    return None
 
 
 def _call(client: Any, name: str, *args: Any) -> list[Any]:
@@ -93,13 +80,7 @@ def _entities(client: Any, realm: Any, spec: _Spec) -> list[Entity]:
             continue
         candidates = {name: _first(row, *keys) for name, keys in fields.items()}
         candidates.update(realm=realm, externalToolId=str(row_id), domain=CATEGORY)
-        entities.append(
-            Entity(
-                id=f"{prefix}:{row_id}",
-                node_type=node_type,
-                properties={k: v for k, v in candidates.items() if v is not None},
-            )
-        )
+        entities.append(_entity_of(f"{prefix}:{row_id}", node_type, candidates))
     return entities
 
 

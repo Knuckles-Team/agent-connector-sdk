@@ -82,44 +82,45 @@ def _load_json(path: str) -> list[dict[str, Any]]:
     return _cards_from_data(data)
 
 
+def _raw_items(config: Any) -> list[Any]:
+    if isinstance(config, str):
+        return [config]
+    if isinstance(config, list | tuple):
+        return list(config)
+    raw = _get(config, "cards", []) or []
+    return [raw] if isinstance(raw, str | dict) else raw
+
+
+def _discovered_card(base_url: str, allow_loopback: bool) -> list[dict[str, Any]]:
+    discovered = discover_agent_card(base_url, allow_loopback=allow_loopback)
+    if not isinstance(discovered, DiscoveredAgentCard):
+        return []
+    card = dict(discovered.card)
+    card[_DISCOVERY_KEY] = discovered
+    return [card]
+
+
+def _expand_item(item: Any, allow_loopback: bool) -> list[dict[str, Any]]:
+    if isinstance(item, dict):
+        base_url = item.get("base_url")
+        if isinstance(base_url, str):
+            return _discovered_card(base_url, allow_loopback)
+        return [item]
+    if not isinstance(item, str):
+        return []
+    if "://" in item:
+        return _discovered_card(item, allow_loopback)
+    return _load_json(item) if os.path.exists(item) else []
+
+
 def _collect_cards(config: Any) -> list[dict[str, Any]]:
     """Resolve ``config`` into a flat list of AgentCard dicts.
 
     Accepts a dict carrying ``cards`` (list of card dicts and/or path
     strings), a single path string, or a list of paths/card dicts.
     """
-    raw: Any
-    if isinstance(config, str):
-        raw = [config]
-    elif isinstance(config, list | tuple):
-        raw = list(config)
-    else:
-        raw = _get(config, "cards", []) or []
-        if isinstance(raw, str | dict):
-            raw = [raw]
-
     allow_loopback = _get(config, "allow_loopback", False) is True
     cards: list[dict[str, Any]] = []
-    for item in raw:
-        if isinstance(item, dict):
-            base_url = item.get("base_url")
-            if isinstance(base_url, str):
-                discovered = discover_agent_card(
-                    base_url, allow_loopback=allow_loopback
-                )
-                if isinstance(discovered, DiscoveredAgentCard):
-                    card = dict(discovered.card)
-                    card[_DISCOVERY_KEY] = discovered
-                    cards.append(card)
-            else:
-                cards.append(item)
-        elif isinstance(item, str):
-            if "://" in item:
-                discovered = discover_agent_card(item, allow_loopback=allow_loopback)
-                if isinstance(discovered, DiscoveredAgentCard):
-                    card = dict(discovered.card)
-                    card[_DISCOVERY_KEY] = discovered
-                    cards.append(card)
-            elif os.path.exists(item):
-                cards.extend(_load_json(item))
+    for item in _raw_items(config):
+        cards.extend(_expand_item(item, allow_loopback))
     return cards

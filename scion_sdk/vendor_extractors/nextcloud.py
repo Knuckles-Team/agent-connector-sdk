@@ -15,25 +15,11 @@ from __future__ import annotations
 from typing import Any
 
 from scion_sdk.ingest import ChangeSet, Entity
+from scion_sdk.vendor_extractors._extract_common import _first_dict as _first
+from scion_sdk.vendor_extractors._records import _get, _props
 from scion_sdk.vendor_extractors.contract import register_vendor_extractor
 
 CATEGORY = "nextcloud"
-
-
-def _get(config: Any, key: str) -> Any:
-    if isinstance(config, dict):
-        return config.get(key)
-    return getattr(config, key, None)
-
-
-def _first(row: Any, *keys: str) -> Any:
-    if not isinstance(row, dict):
-        return None
-    for key in keys:
-        value = row.get(key)
-        if value not in (None, ""):
-            return value
-    return None
 
 
 def _call(client: Any, name: str, *args: Any) -> list[Any]:
@@ -44,10 +30,6 @@ def _call(client: Any, name: str, *args: Any) -> list[Any]:
         return list(method(*args) or [])
     except Exception:
         return []
-
-
-def _props(**fields: Any) -> dict[str, Any]:
-    return {key: value for key, value in fields.items() if value is not None}
 
 
 def _event_entity(event: Any, calendar_url: Any, seen: set[str]) -> Entity | None:
