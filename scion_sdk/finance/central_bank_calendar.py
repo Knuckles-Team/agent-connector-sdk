@@ -44,7 +44,7 @@ def _announcement_event_id(calendar_id: str, event_type: str, vintage: str) -> s
     return f"{calendar_id}:{event_type}:{vintage}"
 
 
-def _check_vintage(vintage: object) -> None:
+def _check_vintage(vintage: object) -> str:
     if not isinstance(vintage, str):
         raise ValueError("calendar vintage must be a canonical date")
     try:
@@ -53,6 +53,7 @@ def _check_vintage(vintage: object) -> None:
         canonical = False
     if not canonical:
         raise ValueError("calendar vintage must be a canonical date")
+    return vintage
 
 
 def _parse_announcement_time(timestamp: object) -> datetime:
@@ -85,7 +86,7 @@ def _announcement_from_source(
     timestamp = raw.get("announcement_time_utc")
     if not isinstance(event_type, str) or not event_type.strip():
         raise ValueError("calendar event type is required")
-    _check_vintage(vintage)
+    vintage = _check_vintage(vintage)
     announcement_time = _parse_announcement_time(timestamp)
     event_id = _announcement_event_id(calendar_id, event_type, vintage)
     return CentralBankAnnouncement(
