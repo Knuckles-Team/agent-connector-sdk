@@ -26,6 +26,7 @@ from agent_connector_sdk.manifest.tool_schema import (
 )
 from agent_connector_sdk.ports.session import TransportEndpoint
 from agent_connector_sdk.ports.transport import Transport
+from agent_connector_sdk.testing.successor_parity import compare_successor_tools
 
 __all__ = ["CertificationReport", "certify_connector"]
 
@@ -164,8 +165,7 @@ def _exact_names(
         return False, "tool listing has no names"
     if len(set(previous)) != len(previous) or len(set(current)) != len(current):
         return False, "tool listing contains duplicate names"
-    if not set(previous) <= set(current):
-        return False, "predecessor tool name is missing"
+    dispatch: list[str] = []
     for tool in tools:
         try:
             schema = canonical_input_schema(tool, include_presentation=False)
@@ -175,5 +175,10 @@ def _exact_names(
         if not isinstance(properties, dict):
             return False, "successor tool schema is invalid"
         if "action" in properties:
-            return False, "successor contains an action-dispatch tool"
-    return True, "exact names only; split and operation equivalence are not checked"
+            dispatch.append(tool_name(tool))
+    parity = compare_successor_tools(previous, current, dispatch_tools=dispatch)
+    if parity.lost:
+        return False, f"predecessor tool name is missing: {', '.join(parity.lost)}"
+    if parity.dispatch_remaining:
+        return False, "successor contains an action-dispatch tool"
+    return True, "kept or split; per-operation coverage is not checked"

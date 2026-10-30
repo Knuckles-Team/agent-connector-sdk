@@ -9,10 +9,12 @@ The stdio child receives only the MCP client's minimal environment plus
 ``--placeholder NAME`` (a fixed non-secret value) and ``--env NAME=REFERENCE``
 (a resolved ``env://`` or ``openbao://`` reference).
 
-``--predecessor-url`` adds a conservative exact-name check against a separately
-supplied live endpoint. The operator must authenticate that endpoint as the
-actual predecessor. This does not establish release parity for split tools or
-equivalent operations; no connector release gate is implied.
+``--predecessor-url`` adds the successor tool parity check
+(SCION-CONNECTOR-CONTROL-R020.4) against a separately supplied live endpoint:
+every predecessor tool must be kept or split into ``<tool>_<action>`` tools, and
+no action-dispatch tool may remain; a lost tool fails certification. The
+operator must authenticate that endpoint as the actual predecessor.
+Per-operation coverage of a renamed tool is not checked.
 
 Exit ``0``: every declared preset tool is valid. ``1``: a tool is missing or
 invalid. ``2``: the server could not list its tools or declaration.
@@ -78,7 +80,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--predecessor-url",
         default="",
-        help="predecessor endpoint for exact-name check",
+        help="predecessor endpoint for the successor tool parity check",
     )
     parser.add_argument(
         "--predecessor-bearer-token", default="", help="predecessor token reference"

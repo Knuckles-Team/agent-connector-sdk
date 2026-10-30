@@ -227,6 +227,36 @@ def test_certify_exact_predecessor_names_over_live_mcp() -> None:
     anyio.run(run)
 
 
+def test_certification_gate_refuses_lost_tool_and_accepts_split() -> None:
+    async def run() -> None:
+        predecessor = _server()
+        successor = _server()
+
+        @predecessor.tool
+        def router() -> str:
+            return "old"
+
+        endpoint = TransportEndpoint(in_process=successor)
+        prior = TransportEndpoint(in_process=predecessor)
+        lost = await certify_connector(
+            McpTransport(), endpoint, timeout_seconds=10, predecessor=prior
+        )
+        assert lost.exact_name_check is False
+        assert not lost.passed
+        assert "router" in lost.exact_name_reason
+
+        @successor.tool
+        def router_get() -> str:
+            return "get"
+
+        split = await certify_connector(
+            McpTransport(), endpoint, timeout_seconds=10, predecessor=prior
+        )
+        assert split.exact_name_check is True
+
+    anyio.run(run)
+
+
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R072")
 def test_checkout_names_exactly_one_server() -> None:
     declaration = build_declaration("demo-mcp", registered_tools(_server()).values())
