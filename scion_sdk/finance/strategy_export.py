@@ -153,26 +153,18 @@ class PineScriptExporter:
             "// === Entry Conditions ===",
         ]
 
-        # Entry long
-        if spec.entry_long:
-            conditions = " and ".join(_condition_to_pine(c) for c in spec.entry_long)
-            lines.append(f"longCondition = {conditions}")
-            lines.append("if longCondition")
-            lines.append('    strategy.entry("Long", strategy.long)')
-
-        # Entry short
-        if spec.entry_short:
-            conditions = " and ".join(_condition_to_pine(c) for c in spec.entry_short)
-            lines.append(f"shortCondition = {conditions}")
-            lines.append("if shortCondition")
-            lines.append('    strategy.entry("Short", strategy.short)')
-
-        # Exit long
-        if spec.exit_long:
-            conditions = " and ".join(_condition_to_pine(c) for c in spec.exit_long)
-            lines.append(f"exitLongCondition = {conditions}")
-            lines.append("if exitLongCondition")
-            lines.append('    strategy.close("Long")')
+        for conds, var, action in (
+            (spec.entry_long, "longCondition", 'strategy.entry("Long", strategy.long)'),
+            (
+                spec.entry_short,
+                "shortCondition",
+                'strategy.entry("Short", strategy.short)',
+            ),
+            (spec.exit_long, "exitLongCondition", 'strategy.close("Long")'),
+        ):
+            if conds:
+                joined = " and ".join(_condition_to_pine(c) for c in conds)
+                lines += [f"{var} = {joined}", f"if {var}", f"    {action}"]
 
         # Stop loss / take profit
         if spec.stop_loss_pct > 0:

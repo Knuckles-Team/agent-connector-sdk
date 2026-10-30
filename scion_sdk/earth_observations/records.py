@@ -13,9 +13,10 @@ available; NOAA daily extrema and broader storm acceptance remain open.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Self
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import Field
+
+from scion_sdk._utc_records import _FrozenRecord, _UtcTimestampedRecord
 
 __all__ = [
     "EARTH_OBSERVATION_SCHEMA_VERSION",
@@ -31,17 +32,7 @@ __all__ = [
 EARTH_OBSERVATION_SCHEMA_VERSION = "scion-sdk.earth-observations/1"
 
 
-class _Frozen(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
-
-
-def _require_utc(value: datetime, *, field_name: str) -> datetime:
-    if value.tzinfo is None:
-        raise ValueError(f"{field_name} must be timezone-aware UTC")
-    return value
-
-
-class Region(_Frozen):
+class Region(_FrozenRecord):
     """A named geographic region a ``Place`` can be located in."""
 
     region_id: str = Field(min_length=1)
@@ -49,7 +40,7 @@ class Region(_Frozen):
     kind: str = Field(min_length=1)
 
 
-class Place(_Frozen):
+class Place(_FrozenRecord):
     """A located point, such as a weather station, located in a ``Region``."""
 
     place_id: str = Field(min_length=1)
@@ -63,7 +54,7 @@ class Place(_Frozen):
         return self.region_id == region.region_id
 
 
-class EarthObservationRecordBase(_Frozen):
+class EarthObservationRecordBase(_UtcTimestampedRecord):
     """Fields every normalized earth-observation source record carries."""
 
     tenant_id: str = Field(min_length=1)
@@ -75,12 +66,6 @@ class EarthObservationRecordBase(_Frozen):
     schema_version: str = EARTH_OBSERVATION_SCHEMA_VERSION
     license_tag: str = Field(min_length=1)
     source_digest: str = Field(min_length=1)
-
-    @model_validator(mode="after")
-    def _timestamps_are_utc(self) -> Self:
-        _require_utc(self.event_time_utc, field_name="event_time_utc")
-        _require_utc(self.observed_at_utc, field_name="observed_at_utc")
-        return self
 
 
 class OrganismObservation(EarthObservationRecordBase):

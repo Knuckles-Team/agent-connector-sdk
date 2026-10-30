@@ -44,6 +44,32 @@ def _announcement_event_id(calendar_id: str, event_type: str, vintage: str) -> s
     return f"{calendar_id}:{event_type}:{vintage}"
 
 
+def _check_vintage(vintage: object) -> None:
+    if not isinstance(vintage, str):
+        raise ValueError("calendar vintage must be a canonical date")
+    try:
+        canonical = date.fromisoformat(vintage).isoformat() == vintage
+    except ValueError:
+        canonical = False
+    if not canonical:
+        raise ValueError("calendar vintage must be a canonical date")
+
+
+def _parse_announcement_time(timestamp: object) -> datetime:
+    if not isinstance(timestamp, str) or not any(c in timestamp for c in ("T", " ")):
+        raise ValueError("calendar announcement time must include a time")
+    try:
+        parsed = datetime.fromisoformat(timestamp)
+    except (ValueError, OverflowError):
+        raise ValueError("calendar announcement time is invalid") from None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=UTC)
+    try:
+        return parsed.astimezone(UTC)
+    except (ValueError, OverflowError):
+        raise ValueError("calendar announcement time is invalid") from None
+
+
 def _announcement_from_source(
     raw: Mapping[str, Any],
     *,
@@ -59,23 +85,8 @@ def _announcement_from_source(
     timestamp = raw.get("announcement_time_utc")
     if not isinstance(event_type, str) or not event_type.strip():
         raise ValueError("calendar event type is required")
-    if not isinstance(vintage, str):
-        raise ValueError("calendar vintage must be a canonical date")
-    try:
-        if date.fromisoformat(vintage).isoformat() != vintage:
-            raise ValueError
-    except ValueError:
-        raise ValueError("calendar vintage must be a canonical date") from None
-    if not isinstance(timestamp, str) or not any(c in timestamp for c in ("T", " ")):
-        raise ValueError("calendar announcement time must include a time")
-    try:
-        announcement_time = datetime.fromisoformat(timestamp)
-        if announcement_time.tzinfo is None:
-            announcement_time = announcement_time.replace(tzinfo=UTC)
-        else:
-            announcement_time = announcement_time.astimezone(UTC)
-    except (ValueError, OverflowError):
-        raise ValueError("calendar announcement time is invalid") from None
+    _check_vintage(vintage)
+    announcement_time = _parse_announcement_time(timestamp)
     event_id = _announcement_event_id(calendar_id, event_type, vintage)
     return CentralBankAnnouncement(
         tenant_id=tenant_id,
