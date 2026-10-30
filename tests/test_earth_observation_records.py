@@ -35,6 +35,7 @@ def _base_fields(**overrides: object) -> dict[str, object]:
     return fields
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 def test_organism_observation_carries_schema_version_and_base_fields() -> None:
     observation = OrganismObservation(
         **_base_fields(),
@@ -50,6 +51,7 @@ def test_organism_observation_carries_schema_version_and_base_fields() -> None:
     assert observation.schema_version == EARTH_OBSERVATION_SCHEMA_VERSION
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 def test_naive_timestamp_is_rejected() -> None:
     with pytest.raises(ValidationError, match="timezone-aware"):
         WeatherObservation(
@@ -61,6 +63,7 @@ def test_naive_timestamp_is_rejected() -> None:
         )
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 def test_weather_event_names_its_weather_system() -> None:
     event = WeatherEvent(
         **_base_fields(),
@@ -73,6 +76,7 @@ def test_weather_event_names_its_weather_system() -> None:
     assert event.weather_system_name == "Storm Forty Two"
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 def test_place_is_located_in_its_declared_region() -> None:
     region = Region(region_id="region-1", name="Great Plains", kind="climate_region")
     station = Place(
@@ -85,6 +89,7 @@ def test_place_is_located_in_its_declared_region() -> None:
     assert station.is_located_in(region)
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 def test_place_rejects_latitude_out_of_range() -> None:
     with pytest.raises(ValidationError):
         Place(

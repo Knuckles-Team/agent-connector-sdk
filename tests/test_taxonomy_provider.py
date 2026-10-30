@@ -15,6 +15,7 @@ from agent_connector_sdk.testing.http_server import ScriptedHttpServer, Scripted
 
 
 @pytest.mark.asyncio
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 @pytest.mark.parametrize(
     ("provider", "identifier", "body", "expected_path", "parent"),
     [
@@ -82,6 +83,7 @@ async def test_reads_real_provider_shapes(
         assert len(server.requests) == 1
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 @pytest.mark.asyncio
 async def test_rejects_mismatched_or_oversized_provider_data():
     @asynccontextmanager

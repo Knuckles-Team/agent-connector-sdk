@@ -16,6 +16,7 @@ from agent_connector_sdk.earth_observations.weather_location import (
 )
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 def test_admitted_quality_adds_ontology_edge_and_approved_unit():
     timestamp = datetime(2025, 1, 1, tzinfo=UTC)
     row = WeatherObservation(
