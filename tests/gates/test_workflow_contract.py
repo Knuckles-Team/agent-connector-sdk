@@ -114,7 +114,11 @@ def test_ci_triggers_follow_the_fleet_standard_and_cancel_superseded_runs() -> N
     assert not (GATES.parent / "gates-skip.yml").exists()
     patterns = workflow["jobs"]["gates"]["with"]["docs-only-paths"].split()
     assert patterns == ["specs/*", "docs/*", "*.md", "plans/*", "LICENSE"]
-    assert workflow["concurrency"]["cancel-in-progress"] is True
+    # Only superseded pull-request runs are cancelled; main runs always finish.
+    assert (
+        workflow["concurrency"]["cancel-in-progress"]
+        == "${{ github.event_name == 'pull_request' }}"
+    )
 
 
 def test_ci_required_aggregates_every_blocking_job() -> None:
