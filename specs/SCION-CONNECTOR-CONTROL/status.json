@@ -3605,9 +3605,13 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R067.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "7c95ed1960af"
+      ],
+      "verified_by": [
+        "tests/test_pack_declaration.py:41"
+      ]
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R067.2",
