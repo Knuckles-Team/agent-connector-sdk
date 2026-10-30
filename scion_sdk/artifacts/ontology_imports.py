@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable, Collection
+from functools import partial
 
 from epistemic_graph.generated.connector_pack import PackAnnotations
 
@@ -105,18 +106,14 @@ def _rewrite_turtle(text: str, keep: Callable[[str], bool], dropped: list[str]) 
         (_TURTLE_PRECEDED, _ImportSeparators(preceding=True)),
         (_TURTLE_FINAL, _ImportSeparators(preceding=True)),
     ):
-        text = _masked_sub(
-            text,
-            pattern,
-            lambda match, original, separators=separators: _rewrite_import_match(
-                match,
-                original,
-                keep=keep,
-                parsed=parsed,
-                dropped=dropped,
-                separators=separators,
-            ),
+        rewrite = partial(
+            _rewrite_import_match,
+            keep=keep,
+            parsed=parsed,
+            dropped=dropped,
+            separators=separators,
         )
+        text = _masked_sub(text, pattern, rewrite)
     return text
 
 
