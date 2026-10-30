@@ -163,19 +163,25 @@ grant. A refused platform result cannot advance source synchronization.
 ## Caller identity
 
 A connector never binds an actor at startup. Call `scion_sdk.identity.current_actor()`
-inside a tool and it resolves the caller per request. There are three identity modes:
+inside a tool and it resolves the caller per request. There is one resolution path for
+every transport: the factory installs the same `ActorBindingMiddleware` on stdio and
+HTTP, and the transport only supplies the credential.
 
 | mode | how it is started | actor |
 |---|---|---|
 | stdio | `--transport stdio`, an in-process client, startup, background work | `SYSTEM_ACTOR` (every resource) |
-| no-auth HTTP | `--transport streamable-http --auth-type none` | `SYSTEM_ACTOR` (every resource) |
+| no-auth HTTP | `--transport streamable-http --auth-type none` (explicit) | `SYSTEM_ACTOR` (every resource) |
 | authenticated HTTP | any other `--auth-type` | the token's subject, tenant, roles and groups |
 
-With `--auth-type none` the operator has chosen no authentication, so the server trusts
-its deployment boundary (for example arbora in front of it) the same way stdio trusts
-the local process. Run it only behind such a boundary. A server with auth configured
-binds `ANONYMOUS_ACTOR` (no entitlements) to an HTTP request without a token; a plain
-FastMCP server without the factory middleware does the same.
+`--auth-type none` must be chosen explicitly; with the auth type unset the factory
+refuses to serve HTTP. On a non-loopback address a no-auth listener logs one warning
+and serves: run it only behind a boundary such as arbora. With an auth provider, a
+request without a token gets HTTP 401. A token that names no tenant claim is in its
+issuer's tenant.
+
+Grant a principal capabilities through config, not code: its IdP roles and groups, or
+`CONNECTOR_PRINCIPAL_GRANTS`, for example `arbora=ssh:*;backup-bot=ssh:nas`. A
+principal matches the token's `sub`, `client_id`, `azp` or `preferred_username`.
 
 ### Entitlements
 

@@ -192,11 +192,12 @@ These are required future tests. None ran during definition authoring.
 <!-- /spec-definition-patch -->
 
 <!-- spec-definition-patch:sdk-confirmation-r026-1 -->
-## Request actor binding (SCION-CONNECTOR-CONTROL-R025.1-R025.4)
+## Request actor binding (SCION-CONNECTOR-CONTROL-R025-R025.5)
 
+- `SCION-CONNECTOR-CONTROL-R025`: `tests/test_actor_binding_served.py::test_every_transport_gets_the_same_binding_stack`.
 - `SCION-CONNECTOR-CONTROL-R025.1`: `tests/test_actor_binding_served.py::test_local_transport_binds_the_system_actor`.
-- `SCION-CONNECTOR-CONTROL-R025.2`: `tests/test_actor_binding_served.py::test_authenticated_http_binds_the_token_actor_with_inherited_roles`.
-- `SCION-CONNECTOR-CONTROL-R025.3`: `tests/test_actor_binding_served.py::test_unauthenticated_http_binds_the_anonymous_actor` and `::test_a_no_auth_http_server_binds_the_trusted_local_actor`.
+- `SCION-CONNECTOR-CONTROL-R025.2`: `tests/test_actor_binding_served.py::test_authenticated_http_binds_the_token_actor_with_inherited_roles`, `::test_a_service_principal_is_entitled_by_config` and `::test_a_jwt_server_answers_a_tokenless_request_401` and `::test_a_tenantless_token_is_in_its_issuers_tenant`.
+- `SCION-CONNECTOR-CONTROL-R025.3`: `tests/test_actor_binding_served.py::test_a_no_auth_http_server_binds_the_trusted_local_actor`, `::test_an_implicit_auth_mode_still_refuses_http`, `::test_unauthenticated_http_binds_the_anonymous_actor` and `tests/test_network_serving.py::test_an_exposed_no_auth_listener_serves_with_one_warning`.
 - `SCION-CONNECTOR-CONTROL-R025.4`: `tests/test_actor_binding_served.py::test_a_mutation_without_authentication_is_a_typed_refusal` and `::test_the_binding_middleware_refuses_typed_on_a_bare_server`.
 - `SCION-CONNECTOR-CONTROL-R025.5`: `tests/test_actor_binding_served.py::test_current_actor_resolves_system_outside_any_request`, `::test_a_bare_no_auth_server_serves_without_use_actor` and `::test_a_bare_authenticated_server_uses_the_token_identity_and_denies`.
 

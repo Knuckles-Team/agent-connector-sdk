@@ -71,10 +71,10 @@ def _parse_arguments(
 def _authentication(
     args: argparse.Namespace, resolver: CredentialResolver | None
 ) -> tuple[Any, bool]:
-    """The auth provider, and whether the network config chose no auth."""
+    """The auth provider, and whether the operator explicitly chose auth type none."""
     try:
-        network = build_network_serving_config(args)
-        no_auth = network is not None and network.auth_type == "none"
+        build_network_serving_config(args)
+        no_auth = args.auth_type == "none"
         return configure_auth(args, resolver=resolver), no_auth
     except (NetworkExposureError, AuthConfigurationError) as exc:
         _logger.error("Refusing to build MCP server: %s", exc)
@@ -158,6 +158,7 @@ def create_mcp_server(
             mcp=mcp,
             audience=args.token_audience,
             override=served_security_override,
+            explicit_no_auth=no_auth,
         )
     except ServedSecurityError as exc:
         _logger.error("Refusing to build MCP server: %s", exc)
