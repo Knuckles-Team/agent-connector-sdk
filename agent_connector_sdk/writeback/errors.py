@@ -11,6 +11,7 @@ __all__ = [
     "OutcomeUncertainError",
     "ReconciliationRequiredError",
     "SourceVersionConflictError",
+    "WalletProofRefusedError",
     "WriteBackError",
     "WriteBackPersistenceError",
 ]
@@ -54,3 +55,11 @@ class ReconciliationRequiredError(WriteBackError):
 
 class WriteBackPersistenceError(WriteBackError):
     """EG's durable write-back record is missing, malformed or inconsistent."""
+
+
+class WalletProofRefusedError(WriteBackError, PermissionError):
+    """A wallet proof was missing or refused; no source effect was attempted."""
+
+    def __init__(self, reason: str) -> None:
+        super().__init__(f"wallet proof refused: {reason}")
+        self.reason = reason

@@ -51,6 +51,7 @@ def _request():
     )
 
 
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.5")
 def test_exact_bytes_and_canonical_change_set():
     request = _request()
     assert (
@@ -83,6 +84,7 @@ def test_exact_bytes_and_canonical_change_set():
         ("action", "delete"),
     ],
 )
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.5")
 def test_invalid_effect_is_refused(field, value):
     data = _intent()
     data[field] = value
@@ -90,6 +92,7 @@ def test_invalid_effect_is_refused(field, value):
         RepositorySourceEffectIntent.model_validate(data)
 
 
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.5")
 def test_change_set_binding_distinguishes_boolean_from_integer():
     request = _request()
     patch = {
@@ -148,6 +151,7 @@ def test_receipt_digest_binds_actual_revision_and_readback():
         RepositorySourceEffectReceipt.model_validate(fields)
 
 
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.5")
 def test_wire_parser_refuses_duplicate_keys_and_over_limit():
     request = _request()
     wire = request.model_dump_json().encode()

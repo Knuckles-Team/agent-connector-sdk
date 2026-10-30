@@ -26,6 +26,7 @@ from agent_connector_sdk.writeback.recovery import (
 )
 from agent_connector_sdk.writeback.service import GovernedWriteBack
 from agent_connector_sdk.writeback.validation import require_effect
+from agent_connector_sdk.writeback.wallet_proof import WalletProofGate
 
 __all__ = ["DurableWritableConnector"]
 
@@ -47,6 +48,7 @@ class DurableWritableConnector:
         *,
         audit: AuditReservationPort,
         authorization_verifier: AuthorizationVerifier | None = None,
+        proof_gate: WalletProofGate | None = None,
     ) -> None:
         if not connector_id:
             raise ValueError("connector_id must not be empty")
@@ -58,6 +60,7 @@ class DurableWritableConnector:
             transport,
             authorization_verifier or DurableAuthorizationResolver(ledger),
             audit,
+            proof_gate=proof_gate,
         )
 
     async def register(self, change_set: SourceChangeSet) -> SourceChangeSet:

@@ -42,6 +42,7 @@ def _approval(change, now):
     }
 
 
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.1")
 async def test_graph_recorded_approval_permits_exact_effect(tmp_path):
     fixture = make_writeback_fixture()
     now = time.time_ns() // 1_000_000
@@ -71,6 +72,7 @@ async def test_graph_recorded_approval_permits_exact_effect(tmp_path):
         ("proposer", "other"),
     ],
 )
+@pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.1")
 async def test_missing_or_mismatched_record_refuses_before_effect(
     tmp_path, field, value
 ):

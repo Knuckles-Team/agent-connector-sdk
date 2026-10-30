@@ -69,6 +69,7 @@ def _adapter(kind):
     )
 
 
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R005.1")
 @pytest.mark.parametrize("kind", list(CASES))
 async def test_macro_sources_keep_source_and_observation_times(kind):
     sink = InMemorySink()

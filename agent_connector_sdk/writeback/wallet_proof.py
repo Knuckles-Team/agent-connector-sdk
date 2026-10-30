@@ -8,7 +8,7 @@ import hashlib
 import json
 import re
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
@@ -146,6 +146,19 @@ class WalletKeyTrust:
 class WalletKeyResolver(Protocol):
     async def resolve(self, binding: WalletProofBinding) -> WalletKeyTrust | None:
         """Resolve the binding from the current trusted account authority."""
+        ...
+
+
+class WalletProofGate(Protocol):
+    """Supplies the verified proof fact for one durable change set.
+
+    The gate pairs the request received with the call, the authenticated
+    binding and a verifier. It returns a fact only; approval, confirmation and
+    audit reservation remain independent checks in ``GovernedWriteBack.apply``.
+    """
+
+    async def verify(self, change_set: Any) -> WalletProofResult:
+        """Return the verification fact for this exact change set."""
         ...
 
 

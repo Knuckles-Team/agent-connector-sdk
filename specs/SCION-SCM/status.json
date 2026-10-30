@@ -23,9 +23,17 @@
     {
       "id": "SCION-SCM-R001",
       "title": "Source client",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6bca045bd474"
+      ],
+      "verified_by": [
+        "tests/test_source_client.py:113",
+        "tests/test_source_client.py:143",
+        "tests/test_source_client.py:158",
+        "tests/test_source_client.py:225",
+        "tests/test_source_client.py:87"
+      ],
       "rollup_of": [
         "SCION-SCM-R001.1",
         "SCION-SCM-R001.2",
@@ -38,44 +46,69 @@
     {
       "id": "SCION-SCM-R001.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6bca045bd474"
+      ],
+      "verified_by": [
+        "tests/test_source_client.py:87"
+      ]
     },
     {
       "id": "SCION-SCM-R001.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6bca045bd474"
+      ],
+      "verified_by": [
+        "tests/test_source_client.py:113",
+        "tests/test_source_client.py:143"
+      ]
     },
     {
       "id": "SCION-SCM-R001.3",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6bca045bd474"
+      ],
+      "verified_by": [
+        "tests/test_source_client_served.py:149"
+      ]
     },
     {
       "id": "SCION-SCM-R001.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6bca045bd474"
+      ],
+      "verified_by": [
+        "tests/test_source_client.py:158"
+      ]
     },
     {
       "id": "SCION-SCM-R001.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6bca045bd474"
+      ],
+      "verified_by": [
+        "tests/test_source_client.py:225"
+      ]
     },
     {
       "id": "SCION-SCM-R001.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "6bca045bd474"
+      ],
+      "verified_by": [
+        "tests/test_source_client_served.py:150"
+      ]
     },
     {
       "id": "SCION-SCM-R002",
@@ -95,16 +128,24 @@
     {
       "id": "SCION-SCM-R002.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "93d7a4c56b49"
+      ],
+      "verified_by": [
+        "tests/test_source_mount.py:45"
+      ]
     },
     {
       "id": "SCION-SCM-R002.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "93d7a4c56b49"
+      ],
+      "verified_by": [
+        "tests/test_source_mount.py:78"
+      ]
     },
     {
       "id": "SCION-SCM-R002.3",
@@ -116,23 +157,35 @@
     {
       "id": "SCION-SCM-R002.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "93d7a4c56b49"
+      ],
+      "verified_by": [
+        "tests/test_source_mount.py:108"
+      ]
     },
     {
       "id": "SCION-SCM-R002.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "93d7a4c56b49"
+      ],
+      "verified_by": [
+        "tests/test_source_mount.py:164"
+      ]
     },
     {
       "id": "SCION-SCM-R002.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "93d7a4c56b49"
+      ],
+      "verified_by": [
+        "tests/test_source_mount_served.py:72"
+      ]
     }
   ]
 }

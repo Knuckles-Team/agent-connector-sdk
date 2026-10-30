@@ -32,6 +32,7 @@ from agent_connector_sdk.writeback.errors import (
     ChangeSetValidationError,
     OutcomeUncertainError,
     ReconciliationRequiredError,
+    WalletProofRefusedError,
 )
 from agent_connector_sdk.writeback.models import DryRunObservation, SourceSnapshot
 from agent_connector_sdk.writeback.validation import (
@@ -39,6 +40,10 @@ from agent_connector_sdk.writeback.validation import (
     require_base,
     require_effect,
     require_reconciliation,
+)
+from agent_connector_sdk.writeback.wallet_proof import (
+    WalletProofGate,
+    WalletProofResult,
 )
 
 __all__ = ["GovernedWriteBack"]
@@ -54,11 +59,13 @@ class GovernedWriteBack:
         audit: AuditReservationPort,
         *,
         clock_ms: Callable[[], int] | None = None,
+        proof_gate: WalletProofGate | None = None,
     ) -> None:
         self._transport = transport
         self._verifier = verifier
         self._audit = audit
         self._clock_ms = clock_ms or (lambda: time.time_ns() // 1_000_000)
+        self._proof_gate = proof_gate
         self._unresolved: dict[str, str] = {}
 
     async def current_version(self, change_set: SourceChangeSet) -> SourceSnapshot:
@@ -115,6 +122,7 @@ class GovernedWriteBack:
         self._validate(change_set)
         self._require_reconciled(change_set)
         await self._authorize(change_set)
+        await self._require_wallet_proof(change_set)
         if isinstance(self._transport, ReservableWriteBackTransport):
             await self._transport.prepare_writeback(change_set)
         prior = await self._transport.prior_effect(change_set)
@@ -159,6 +167,22 @@ class GovernedWriteBack:
         except OutcomeUncertainError:
             self._unresolved[change_set.idempotency_key] = change_set.change_set_digest
             return self._uncertain(change_set, current.source_version)
+
+    async def _require_wallet_proof(self, change_set: SourceChangeSet) -> None:
+        """Refuse before any transport call unless the wallet proof verified."""
+        if self._proof_gate is None:
+            return
+        try:
+            result = await self._proof_gate.verify(change_set)
+        except Exception:
+            raise WalletProofRefusedError("verification_unavailable") from None
+        if not isinstance(result, WalletProofResult) or result.outcome != "verified":
+            reason = (
+                result.reason
+                if isinstance(result, WalletProofResult)
+                else "missing_signature"
+            )
+            raise WalletProofRefusedError(reason)
 
     async def _authorize(self, change_set: SourceChangeSet) -> None:
         self._validate(change_set)

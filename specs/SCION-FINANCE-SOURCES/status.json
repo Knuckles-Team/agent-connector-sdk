@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "SCION-FINANCE-SOURCES",
   "owner_repo": "scion-sdk",
-  "delivery_state": "SPECIFIED",
+  "delivery_state": "VERIFIED",
   "requirement_ids": [
     "SCION-FINANCE-SOURCES-R001",
     "SCION-FINANCE-SOURCES-R001.1",
@@ -86,7 +86,7 @@
         "02b449199739"
       ],
       "verified_by": [
-        "tests/test_finance_fred_series.py:99"
+        "tests/test_finance_fred_series.py:100"
       ]
     },
     {
@@ -121,7 +121,7 @@
         "6207abe94df2"
       ],
       "verified_by": [
-        "tests/test_finance_fred_series.py:115"
+        "tests/test_finance_fred_series.py:116"
       ]
     },
     {
@@ -132,7 +132,7 @@
         "e8c4bbcddb3e"
       ],
       "verified_by": [
-        "tests/test_finance_fred_series.py:125"
+        "tests/test_finance_fred_series.py:126"
       ]
     },
     {
@@ -143,7 +143,7 @@
         "a2b8b7ce3da3"
       ],
       "verified_by": [
-        "tests/test_finance_fred_series.py:148"
+        "tests/test_finance_fred_series.py:149"
       ]
     },
     {
@@ -381,19 +381,20 @@
     {
       "id": "SCION-FINANCE-SOURCES-R005",
       "title": "Macro and liquidity panels: FRED series, ETF flows, sentiment, on-chain",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "077a14c9f3d3",
+        "1499fb6075af",
+        "1a4bb4a2d385",
         "36f3c76a370c",
-        "840bd894c581",
-        "887c201cbff5",
-        "fad5328aee62"
+        "840bd894c581"
       ],
       "verified_by": [
         "tests/test_finance_etf_flows.py:49",
         "tests/test_finance_etf_flows.py:58",
-        "tests/test_finance_etf_flows.py:67",
-        "tests/test_finance_fred_series.py:40"
+        "tests/test_finance_etf_flows.py:59",
+        "tests/test_finance_etf_flows.py:68",
+        "tests/test_finance_etf_flows.py:83"
       ],
       "rollup_of": [
         "SCION-FINANCE-SOURCES-R005.1",
@@ -404,9 +405,16 @@
     {
       "id": "SCION-FINANCE-SOURCES-R005.1",
       "title": "Complete macro panel sources",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1499fb6075af"
+      ],
+      "verified_by": [
+        "tests/test_finance_etf_flows.py:59",
+        "tests/test_finance_fred_series.py:41",
+        "tests/test_finance_liquidity_panel.py:126",
+        "tests/test_finance_macro_source.py:72"
+      ]
     },
     {
       "id": "SCION-FINANCE-SOURCES-R005.3",
@@ -416,7 +424,7 @@
         "93a80ac12f39"
       ],
       "verified_by": [
-        "tests/test_finance_etf_flows.py:82"
+        "tests/test_finance_etf_flows.py:83"
       ]
     },
     {
@@ -427,7 +435,7 @@
         "1a4bb4a2d385"
       ],
       "verified_by": [
-        "tests/test_finance_etf_flows.py:92"
+        "tests/test_finance_etf_flows.py:93"
       ]
     },
     {

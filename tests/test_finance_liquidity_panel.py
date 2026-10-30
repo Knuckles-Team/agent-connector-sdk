@@ -121,3 +121,22 @@ async def test_missing_fred_value_is_not_fabricated():
         "wdtgal",
         "rrpontsyd",
     ]
+
+
+@pytest.mark.spec("SCION-FINANCE-SOURCES-R005.1")
+async def test_versioned_request_returns_engine_composite_and_heat_strip_unchanged():
+    graph = Graph(nodes())
+    panel = {"version": 1, "composite": {"score": 3}, "heat_strip": [{"cell": "x"}]}
+
+    async def market(op, **kwargs):
+        graph.calls.append((op, kwargs))
+        return panel
+
+    graph.finance = SimpleNamespace(market=market)
+    result = await read_liquidity_panel(
+        graph, as_of=datetime(2026, 10, 28, tzinfo=UTC), max_age=timedelta(days=14)
+    )
+    assert result is panel
+    op, kwargs = graph.calls[-1]
+    assert op == "liquidity_panel"
+    assert kwargs["request"]["version"] == 1
