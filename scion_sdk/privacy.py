@@ -15,13 +15,12 @@ secret behind ``PERSISTENCE_IDENTITY_HMAC_KEY_REF`` when set.
 
 from __future__ import annotations
 
-import ipaddress
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
-from urllib.parse import SplitResult, urlsplit
 
+from scion_sdk._privacy_urls import _public_hostname, _split_http_url
 from scion_sdk.privacy_reference import persistence_reference
 from scion_sdk.privacy_rules import (
     PATTERNS,
@@ -59,30 +58,6 @@ class PrivacyReport:
             "redactions": self.redactions,
             "detected_types": list(self.detected_types),
         }
-
-
-_NON_PUBLIC_SUFFIXES = (".local", ".localhost", ".internal", ".arpa", ".lan", ".home")
-
-
-def _public_hostname(host: str) -> bool:
-    try:
-        address = ipaddress.ip_address(host)
-    except ValueError:
-        return (
-            "." in host
-            and host not in {"localhost"}
-            and not host.endswith(_NON_PUBLIC_SUFFIXES)
-        )
-    return address.is_global
-
-
-def _split_http_url(value: Any) -> SplitResult | None:
-    if not isinstance(value, str) or any(c in value for c in "\r\n\t "):
-        return None
-    try:
-        return urlsplit(value)
-    except ValueError:
-        return None
 
 
 def public_http_url(value: Any) -> bool:
