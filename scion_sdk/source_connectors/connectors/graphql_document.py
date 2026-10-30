@@ -25,18 +25,6 @@ from typing import Any
 from urllib.parse import urlparse
 
 import httpx
-from graphql import GraphQLError, parse
-from graphql.language import (
-    ArgumentNode,
-    FieldNode,
-    FragmentDefinitionNode,
-    InlineFragmentNode,
-    Node,
-    OperationDefinitionNode,
-    OperationType,
-    SelectionNode,
-    VariableNode,
-)
 
 from scion_sdk.adapters.document_sources import access_properties
 from scion_sdk.credentials.resolution import resolve_secret_reference
@@ -60,6 +48,15 @@ from ..http_safety import (
     require_safe_source_url,
 )
 from ..registry import register_source
+from ._graphql_base import (
+    GraphQLDocumentError,
+    _reject_json_constant,
+)
+from ._graphql_query import (
+    _query_binds_row_bound,
+    _validate_query_document,
+)
+from ._graphql_response import _bounded_transport_payload
 
 #: One governed change: an upsert entity or a withdrawal.
 GovernedChange = Entity | Withdrawal
@@ -133,7 +130,6 @@ _BLOCKED_REQUEST_HEADERS = frozenset(
     }
 )
 _MAX_PROFILE_BYTES = 8 * 1024 * 1024
-_MAX_GRAPHQL_TOKENS = 20_000
 _CHECKPOINT_FORMAT = "graphql-snapshot-checkpoint/v1"
 _ENTITY_KINDS = ("entity", "hierarchy", "document", "application", "dependency")
 _MAPPING_KEYS = {
@@ -150,14 +146,6 @@ _DEFAULT_ENTITY_TYPES = {
     "application": "Application",
     "dependency": "Dependency",
 }
-
-
-class GraphQLDocumentError(RuntimeError):
-    """A source-safe GraphQL connector failure with no upstream payload text."""
-
-
-def _reject_json_constant(_value: str) -> None:
-    raise ValueError("non-finite JSON constants are not supported")
 
 
 @dataclass(frozen=True)
@@ -383,191 +371,6 @@ def _errors_are_allowlisted(
     return all(
         _error_is_allowlisted(error, codes=codes, paths=paths) for error in errors
     )
-
-
-def _parse_bounded_query(query: str) -> Any:
-    """Enforce the size/emptiness bounds, then parse via the GraphQL AST."""
-    if len(query.encode("utf-8")) > 200_000:
-        raise GraphQLDocumentError("GraphQL query exceeds the configured bound")
-    if not query:
-        raise GraphQLDocumentError("GraphQL operation must be a read query")
-    try:
-        return parse(
-            query,
-            no_location=True,
-            max_tokens=_MAX_GRAPHQL_TOKENS,
-            # graphql-core 3.3.0 removed the deprecated `allow_legacy_fragment_variables`
-            # parser option (GraphQL.js v17); its replacement defaults to the same
-            # deny-by-default posture this bounded parse relies on.
-            experimental_fragment_arguments=False,
-        )
-    except (GraphQLError, RecursionError, TypeError, ValueError):
-        raise GraphQLDocumentError(
-            "GraphQL operation is not a valid document"
-        ) from None
-
-
-def _ensure_single_read_query(document: Any) -> None:
-    operations = [
-        definition
-        for definition in document.definitions
-        if isinstance(definition, OperationDefinitionNode)
-    ]
-    if len(operations) != 1 or operations[0].operation is not OperationType.QUERY:
-        raise GraphQLDocumentError("GraphQL operation must be a read query")
-    if any(
-        not isinstance(definition, OperationDefinitionNode | FragmentDefinitionNode)
-        for definition in document.definitions
-    ):
-        raise GraphQLDocumentError("GraphQL operation contains unsupported definitions")
-
-
-def _document_selections(document: Any) -> list[SelectionNode]:
-    selections: list[SelectionNode] = []
-    for definition in document.definitions:
-        if isinstance(definition, OperationDefinitionNode | FragmentDefinitionNode):
-            selections.extend(definition.selection_set.selections)
-    return selections
-
-
-def _reject_introspection(document: Any, *, allow_introspection: bool) -> None:
-    selections = _document_selections(document)
-    while selections:
-        selection = selections.pop()
-        if (
-            isinstance(selection, FieldNode)
-            and selection.name.value in {"__schema", "__type"}
-            and not allow_introspection
-        ):
-            raise GraphQLDocumentError(
-                "GraphQL introspection is not an ingest operation"
-            )
-        if isinstance(selection, FieldNode | InlineFragmentNode):
-            selection_set = selection.selection_set
-            if selection_set is not None:
-                selections.extend(selection_set.selections)
-
-
-def _validate_query_document(value: Any, *, allow_introspection: bool = False) -> str:
-    """Accept exactly one bounded query operation without echoing its text.
-
-    The AST is the authority.  Keyword regexes are not sufficient here: operation
-    names, comments, string literals, fragments, and multi-operation documents can
-    all make a lexical classifier disagree with what a GraphQL server executes.
-    """
-    query = str(value or "").strip()
-    document = _parse_bounded_query(query)
-    _ensure_single_read_query(document)
-    _reject_introspection(document, allow_introspection=allow_introspection)
-    return query
-
-
-def _is_row_bound_argument(node: Node, variable: str) -> bool:
-    return (
-        isinstance(node, ArgumentNode)
-        and node.name.value in {"first", "limit"}
-        and isinstance(node.value, VariableNode)
-        and node.value.name.value == variable
-    )
-
-
-def _node_children(node: Node) -> list[Node]:
-    children: list[Node] = []
-    for key in node.keys:
-        child = getattr(node, key, None)
-        if isinstance(child, tuple):
-            children.extend(item for item in child if isinstance(item, Node))
-        elif isinstance(child, Node):
-            children.append(child)
-    return children
-
-
-def _query_binds_row_bound(query: str, variable: str) -> bool:
-    """Prove the variable is used by a conventional row-bound argument."""
-
-    try:
-        document = parse(
-            query,
-            no_location=True,
-            max_tokens=_MAX_GRAPHQL_TOKENS,
-            # graphql-core 3.3.0 removed the deprecated `allow_legacy_fragment_variables`
-            # parser option (GraphQL.js v17); its replacement defaults to the same
-            # deny-by-default posture this bounded parse relies on.
-            experimental_fragment_arguments=False,
-        )
-    except (GraphQLError, RecursionError, TypeError, ValueError):
-        return False
-    stack: list[Node] = [
-        definition
-        for definition in document.definitions
-        if isinstance(definition, Node)
-    ]
-    while stack:
-        node = stack.pop()
-        if _is_row_bound_argument(node, variable):
-            return True
-        stack.extend(_node_children(node))
-    return False
-
-
-def _collect_bounded_iterator_bytes(iterator: Any, limit: int) -> bytes:
-    chunks: list[bytes] = []
-    total = 0
-    try:
-        for chunk in iterator():
-            if not isinstance(chunk, bytes):
-                raise TypeError("response chunk is not bytes")
-            total += len(chunk)
-            if total > limit:
-                raise GraphQLDocumentError(
-                    "GraphQL response exceeds the configured bound"
-                )
-            chunks.append(chunk)
-    except GraphQLDocumentError:
-        raise
-    except Exception:
-        raise GraphQLDocumentError("GraphQL transport byte stream is invalid") from None
-    return b"".join(chunks)
-
-
-def _response_raw_bytes(response: Any, limit: int) -> bytes:
-    content = getattr(response, "content", None)
-    if isinstance(content, bytes):
-        return content
-    if isinstance(content, bytearray):
-        return bytes(content)
-    iterator = getattr(response, "iter_bytes", None)
-    if not callable(iterator):
-        raise GraphQLDocumentError(
-            "GraphQL transport must expose a bounded byte response"
-        )
-    return _collect_bounded_iterator_bytes(iterator, limit)
-
-
-def _decode_bounded_json(raw: bytes) -> dict[str, Any]:
-    try:
-        payload = json.loads(raw, parse_constant=_reject_json_constant)
-    except (TypeError, ValueError, RecursionError, UnicodeDecodeError):
-        raise GraphQLDocumentError("GraphQL response is not valid JSON") from None
-    if not isinstance(payload, dict):
-        raise GraphQLDocumentError("GraphQL response is not an object")
-    return payload
-
-
-def _bounded_transport_payload(response: Any, limit: int) -> tuple[dict[str, Any], int]:
-    """Decode a transport response only after enforcing its raw byte bound.
-
-    Custom transports are production-capable injection points, not test-only
-    shortcuts.  Requiring bytes (or a bounded byte iterator) prevents ``.json()``
-    from allocating an arbitrarily large object before the connector can apply its
-    configured response limit.
-    """
-
-    raw = _response_raw_bytes(response, limit)
-    if len(raw) > limit:
-        raise GraphQLDocumentError("GraphQL response exceeds the configured bound")
-    payload = _decode_bounded_json(raw)
-    return payload, len(raw)
 
 
 def _access_from_config(value: Any) -> ExternalAccess:
