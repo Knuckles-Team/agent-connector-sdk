@@ -282,10 +282,10 @@ Runtime work and test execution remain outstanding.
 - [ ] **SCION-CONNECTOR-CONTROL-R074:** A connector pack declares every surface and the source contracts for virtual access (rollup).
 - [x] **SCION-CONNECTOR-CONTROL-R074.1:** Model.
 - [x] **SCION-CONNECTOR-CONTROL-R074.2:** Prompt role.
-- [ ] **SCION-CONNECTOR-CONTROL-R074.3:** Behavior.
-- [ ] **SCION-CONNECTOR-CONTROL-R074.4:** Wiring.
+- [x] **SCION-CONNECTOR-CONTROL-R074.3:** Behavior.
+- [x] **SCION-CONNECTOR-CONTROL-R074.4:** Wiring.
 - [x] **SCION-CONNECTOR-CONTROL-R074.5:** Refusal.
-- [ ] **SCION-CONNECTOR-CONTROL-R074.6:** Hot-path proof.
+- [x] **SCION-CONNECTOR-CONTROL-R074.6:** Hot-path proof.
 - [x] **SCION-CONNECTOR-CONTROL-R074.7:** Default declarations.
 - [ ] **SCION-CONNECTOR-CONTROL-R075:** The connector's MCP server is the only place its metadata is read from (rollup).
 - [ ] **SCION-CONNECTOR-CONTROL-R075.1:** No file fallback.
