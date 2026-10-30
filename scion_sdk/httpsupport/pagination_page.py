@@ -22,3 +22,18 @@ def _require_items(value: Any) -> list[Any]:
             )
         )
     return value
+
+
+def _dig(obj: Any, path: str) -> Any:
+    """Resolve a dotted path inside nested dicts; ``None`` when absent."""
+    current = obj
+    for part in path.split("."):
+        if not isinstance(current, dict):
+            return None
+        current = current.get(part)
+    return current
+
+
+def _items_at(data: Any, path: str) -> list[Any]:
+    """The item list at dotted ``path`` (or ``data`` itself when no path)."""
+    return _require_items(_dig(data, path) if path else data)

@@ -24,10 +24,10 @@ import httpx
 
 from scion_sdk.config import csv_values, setting
 from scion_sdk.http.egress import (
-    MAX_RESOLVED_ADDRESSES,
     validate_base_url,
     validate_base_url_resolved,
 )
+from scion_sdk.http.egress_validation import MAX_RESOLVED_ADDRESSES
 
 DEFAULT_MAX_RESPONSE_BYTES = 10 * 1024 * 1024
 DEFAULT_MAX_REQUEST_BYTES = 10 * 1024 * 1024
