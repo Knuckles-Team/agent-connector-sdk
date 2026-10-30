@@ -3,8 +3,8 @@
 import pytest
 from rdflib import BNode, Graph, Literal, URIRef
 
-from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
-from agent_connector_sdk.manifest.release_identity import release_identity_digest
+from scion_sdk.ingest.sources import IngestSourceDeclaration
+from scion_sdk.manifest.release_identity import release_identity_digest
 
 
 def graph(reverse: bool = False) -> Graph:

@@ -4,10 +4,10 @@
 - [x] Complete generated-type pack publisher, deterministic idempotency, and published-wheel release lock (SCION-CONNECTOR-CONTROL-R001, SCION-QUALITY-RELEASE-R001, SCION-CONNECTOR-CONTROL-R005, SCION-SOURCE-INGEST-R001).
 - [x] Add annotation and proposal-only contracts to synthetic fixture (SCION-CONNECTOR-CONTROL-R006, SCION-CONNECTOR-CONTROL-R007, SCION-CONNECTOR-CONTROL-R008).
 - [x] Migrate connector packages in five independent alphabetical batches (SCION-CONNECTOR-CONTROL-R009–SCION-CONNECTOR-CONTROL-R013).
-  - [x] Shared per-package import scan (`agent_connector_sdk.testing.fleet_migration.scan_for_agent_utilities_imports`, AST-based) each batch's verification column asks for, owned once by the SDK's own test kit rather than re-derived per batch.
+  - [x] Shared per-package import scan (`scion_sdk.testing.fleet_migration.scan_for_agent_utilities_imports`, AST-based) each batch's verification column asks for, owned once by the SDK's own test kit rather than re-derived per batch.
   - [x] Run it against the live fleet: as of this scan, 2 of 74 `agents/*` packages (`market-data-mcp`, `world-reference-mcp`) carry zero `agent_utilities` imports, but both are scaffolded clean from their first commit, not migrated from an agent_utilities base — no batch (A-E, F-J, K-O, P-S, T-Z) has an actual migration commit yet. SCION-CONNECTOR-CONTROL-R009–R013 remain SPECIFIED; those migration commits land in each connector package's own repository.
 - [x] Retire duplicate toolkit/certification/config paths only after consumer import scans (SCION-CONNECTOR-CONTROL-R014, SCION-CONNECTOR-CONTROL-R015, SCION-CONNECTOR-CONTROL-R016).
-- [ ] **R014.1:** Add `scan_many_packages` to `agent_connector_sdk.testing.fleet_migration` — one call site that scans several package roots and keys each `PackageScanResult` by name, reused by R014's fleet census and every R009-R013 batch scan.
+- [ ] **R014.1:** Add `scan_many_packages` to `scion_sdk.testing.fleet_migration` — one call site that scans several package roots and keys each `PackageScanResult` by name, reused by R014's fleet census and every R009-R013 batch scan.
 - [x] **R014.2:** Cross-platform advisory file locks. Moved from agent-utilities so connectors depend only on the SDK.
 - [x] **R014.3:** Tool version metadata. Moved from agent-utilities so connectors depend only on the SDK.
 - [x] **R014.4:** Reference-only CLI secrets. Moved from agent-utilities so connectors depend only on the SDK.
@@ -27,17 +27,18 @@
 - [x] **R014.16:** DNS-pinned egress (`pin_egress`, `allowed_private_hosts`) on `HttpClientOptions`. Moved from agent-utilities so connectors depend only on the SDK.
 - [x] **R014.17:** MCP-free base install; `fastmcp` and `mcp` move to the `mcp` extra.
 - [x] **R014.18:** Default fail-closed served security profile (`apply_served_security_profile`) for every connector MCP server.
-- [x] **R014.19:** Selected-provider credential profile in `agent_connector_sdk.credentials.provider_profile`.
-- [x] **R014.20:** Entry-point groups renamed to `agent_connector_sdk.<x>`.
-- [x] **R014.22:** External embedding API client (`agent_connector_sdk.embeddings`). Moved from agent-utilities so connectors depend only on the SDK.
-- [x] **R014.23:** Typed epistemic-graph compute adapter with ontology-driven algorithm selection (`agent_connector_sdk.compute`). Replaces connector-local finance computation imported from agent-utilities.
-- [ ] **R015.1:** Add `scan_for_duplicate_manifest_or_certify_definitions` to `agent_connector_sdk.testing.duplicate_symbol_scan` — flags a connector package that locally defines `ConnectorManifest`/`CertificationReport`/`certify_connector` instead of importing them from the SDK.
-  - [x] Port `agent_utilities.security.entitlements.identity_scoped_resources` to `agent_connector_sdk.entitlements`, over the SDK's own `identity.ActorContext` (SCION-CONNECTOR-CONTROL-R025). A fleet consumer (`vector-mcp`, `documentdb-mcp`, `sql-mcp`, `dockerhub-api`, `keycloak-agent`, `openbao-mcp`, `portainer-agent`, `tunnel-manager`, `systems-manager`, `container-manager-mcp` and others) can now swap its import with no call-site change.
+- [x] **R014.19:** Selected-provider credential profile in `scion_sdk.credentials.provider_profile`.
+- [x] **R014.20:** Entry-point groups renamed to `scion_sdk.<x>`.
+- [x] **R014.22:** External embedding API client (`scion_sdk.embeddings`). Moved from agent-utilities so connectors depend only on the SDK.
+- [x] **R014.23:** Typed epistemic-graph compute adapter with ontology-driven algorithm selection (`scion_sdk.compute`). Replaces connector-local finance computation imported from agent-utilities.
+- [ ] **R015.1:** Add `scan_for_duplicate_manifest_or_certify_definitions` to `scion_sdk.testing.duplicate_symbol_scan` — flags a connector package that locally defines `ConnectorManifest`/`CertificationReport`/`certify_connector` instead of importing them from the SDK.
+  - [x] Port `agent_utilities.security.entitlements.identity_scoped_resources` to `scion_sdk.entitlements`, over the SDK's own `identity.ActorContext` (SCION-CONNECTOR-CONTROL-R025). A fleet consumer (`vector-mcp`, `documentdb-mcp`, `sql-mcp`, `dockerhub-api`, `keycloak-agent`, `openbao-mcp`, `portainer-agent`, `tunnel-manager`, `systems-manager`, `container-manager-mcp` and others) can now swap its import with no call-site change.
   - [x] Bind the request actor in the standard middleware (SCION-CONNECTOR-CONTROL-R025.1 to R025.4). A local transport gets SYSTEM. Authenticated HTTP gets the token actor. Unauthenticated HTTP gets ANONYMOUS. Work that needs authentication refuses typed.
+  - [x] Resolve an unbound actor from the transport; drop the `use_actor` bootstrap requirement (SCION-CONNECTOR-CONTROL-R025.5).
 - [ ] **R020.1:** Extend `scan_many_packages` to inventory JSON tag loaders and prove parity across source and replacement registration.
 - [ ] **R050.9:** Add the bounded request-local cache primitive (SCION-CONNECTOR-CONTROL-R050.9).
 - [ ] **R050.7:** Add visual observation transport between ordered steps within a run, with frame provenance and ordered reference passing.
-  - [x] Add `agent_connector_sdk.mcp.method_tools.register_method_tools`, an explicit opt-in primitive deriving one tool per public client-class method (SCION-CONNECTOR-CONTROL-R026). `data-science-mcp`'s `mcp_server.py` stays on `agent_utilities.mcp.verbose_tools.register_tool_surface` for exactly this (its own code comment names the gap as SCION-CONNECTOR-CONTROL-R009). It can now migrate without losing its per-`MLEngine`-method tool surface.
+  - [x] Add `scion_sdk.mcp.method_tools.register_method_tools`, an explicit opt-in primitive deriving one tool per public client-class method (SCION-CONNECTOR-CONTROL-R026). `data-science-mcp`'s `mcp_server.py` stays on `agent_utilities.mcp.verbose_tools.register_tool_surface` for exactly this (its own code comment names the gap as SCION-CONNECTOR-CONTROL-R009). It can now migrate without losing its per-`MLEngine`-method tool surface.
 - [ ] Attach exact merged commit, artifact digest, CI result, typed SQL receipt and live redacted pack receipt. Mark accepted only when CC-01–CC-10 pass.
 - [x] Verify every connector uses the shared TLS profile with no bare verify-bypass, and that the full test suite, strict type check and docs build pass cleanly from a fresh checkout (SCION-CONNECTOR-CONTROL-R017, SCION-CONNECTOR-CONTROL-R018).
 - [x] Expose `ontology_resources` and `register_ontology_resources` for host servers; reuse them in `register_connector_content` (SCION-CONNECTOR-CONTROL-R019).
@@ -52,7 +53,7 @@
 - [x] Fall back to a synthesized template when the server rejects a bound placeholder for a typed required argument, without masking a genuine transport failure (SCION-CONNECTOR-CONTROL-R024).
 - [ ] Type the cross-source connector operation contracts and declare MCP, A2A, API, GraphQL and virtual-graph access kinds (SCION-CONNECTOR-CONTROL-R037 to SCION-CONNECTOR-CONTROL-R044).
 - [x] Parse all five access kinds through the typed contract and reject invalid kinds and literal credentials (SCION-CONNECTOR-CONTROL-R040 to SCION-CONNECTOR-CONTROL-R044).
-- [ ] **R045.1:** Add the frozen `ToolContractFacts` model with its five fields in `agent_connector_sdk/artifacts/tool_facts.py`. (SCION-CONNECTOR-CONTROL-R045.1).
+- [ ] **R045.1:** Add the frozen `ToolContractFacts` model with its five fields in `scion_sdk/artifacts/tool_facts.py`. (SCION-CONNECTOR-CONTROL-R045.1).
 - [ ] **R045.2:** Add the closed `SideEffect` enum and the read-only consistency refusal. (SCION-CONNECTOR-CONTROL-R045.2).
 - [ ] **R045.3:** Add `schema_tokens` over the canonical body already built in `_tool_entry`. (SCION-CONNECTOR-CONTROL-R045.3).
 - [ ] **R045.4:** Add `facts_from_declaration` with the safe defaults and no name-based inference. (SCION-CONNECTOR-CONTROL-R045.4).

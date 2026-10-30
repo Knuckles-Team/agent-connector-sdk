@@ -2,8 +2,8 @@
 
 import pytest
 
-from agent_connector_sdk.taxonomy.graph_stream import _entities
-from agent_connector_sdk.taxonomy.records import TaxonRecord
+from scion_sdk.taxonomy.graph_stream import _entities
+from scion_sdk.taxonomy.records import TaxonRecord
 
 
 def rows():
@@ -62,7 +62,7 @@ def test_refuses_missing_authority_or_parent(case):
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 def test_crosswalk_is_complete_one_to_one_and_bound_to_provider_ids():
-    from agent_connector_sdk.taxonomy.graph_stream import _validate_crosswalk
+    from scion_sdk.taxonomy.graph_stream import _validate_crosswalk
 
     identifiers = ["1", "2"]
     _validate_crosswalk(
@@ -86,11 +86,11 @@ async def test_served_taxonomy_graph_authorizes_and_checks_policy_before_egress(
     from fastmcp import Client, FastMCP
     from fastmcp.exceptions import ToolError
 
-    from agent_connector_sdk.http.options import HttpClientOptions
-    from agent_connector_sdk.http.retry import RetryPolicy
-    from agent_connector_sdk.taxonomy.graph_stream import register_taxonomy_graph_stream
-    from agent_connector_sdk.taxonomy.provider import TaxonomyProvider
-    from agent_connector_sdk.testing.http_server import (
+    from scion_sdk.http.options import HttpClientOptions
+    from scion_sdk.http.retry import RetryPolicy
+    from scion_sdk.taxonomy.graph_stream import register_taxonomy_graph_stream
+    from scion_sdk.taxonomy.provider import TaxonomyProvider
+    from scion_sdk.testing.http_server import (
         ScriptedHttpServer,
         ScriptedResponse,
     )
@@ -163,7 +163,7 @@ async def test_served_taxonomy_graph_authorizes_and_checks_policy_before_egress(
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 def test_taxonomy_graph_bound_counts_rank_nodes_too():
-    from agent_connector_sdk.taxonomy._graph_policy import _validate_policy
+    from scion_sdk.taxonomy._graph_policy import _validate_policy
 
     identifiers = [str(value) for value in range(1, 1001)]
     ranks = {str(value): str(value) for value in range(25)}

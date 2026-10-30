@@ -12,10 +12,10 @@ import pytest
 
 pytest.importorskip("graphql")
 
-from agent_connector_sdk.ingest.model import Entity, Withdrawal
-from agent_connector_sdk.source_connectors import build_connector, http_safety
-from agent_connector_sdk.source_connectors.connectors import graphql_document
-from agent_connector_sdk.source_connectors.connectors.graphql_document import (
+from scion_sdk.ingest.model import Entity, Withdrawal
+from scion_sdk.source_connectors import build_connector, http_safety
+from scion_sdk.source_connectors.connectors import graphql_document
+from scion_sdk.source_connectors.connectors.graphql_document import (
     GraphQLDocumentConnector,
     GraphQLDocumentError,
     GraphQLHierarchyBatch,

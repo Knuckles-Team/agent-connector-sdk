@@ -21,8 +21,8 @@ Create `connector.py`:
 ```python
 from typing import Literal
 
-from agent_connector_sdk.mcp.server import create_mcp_server
-from agent_connector_sdk.mcp.tool_surface import register_tool_surface
+from scion_sdk.mcp.server import create_mcp_server
+from scion_sdk.mcp.tool_surface import register_tool_surface
 
 
 def register_status_tools(server) -> None:

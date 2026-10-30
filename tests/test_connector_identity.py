@@ -7,15 +7,15 @@ from pathlib import Path
 
 import pytest
 
-from agent_connector_sdk import connector_identity as identity
-from agent_connector_sdk.connector_identity import (
+from scion_sdk import connector_identity as identity
+from scion_sdk.connector_identity import (
     CONNECTOR_ENTRY_POINT_GROUP,
     ConnectorIdentityError,
     connector_name,
     declared_connector_name,
 )
-from agent_connector_sdk.ingest.model import IngestBinding
-from agent_connector_sdk.mcp.content import ConnectorContent
+from scion_sdk.ingest.model import IngestBinding
+from scion_sdk.mcp.content import ConnectorContent
 
 pytestmark = pytest.mark.spec("SCION-CONNECTOR-CONTROL-R071")
 

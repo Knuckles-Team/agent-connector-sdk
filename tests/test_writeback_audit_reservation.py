@@ -9,14 +9,14 @@ from typing import Any
 import pytest
 from epistemic_graph.generated.write_back import WriteBackEffectStatus
 
-from agent_connector_sdk.testing.writeback import make_writeback_fixture
-from agent_connector_sdk.testing.writeback_audit import InMemoryAuditReservation
-from agent_connector_sdk.writeback.authorization import (
+from scion_sdk.testing.writeback import make_writeback_fixture
+from scion_sdk.testing.writeback_audit import InMemoryAuditReservation
+from scion_sdk.writeback.authorization import (
     DeterministicAuthorizationVerifier,
 )
-from agent_connector_sdk.writeback.errors import AuditReservationUnavailableError
-from agent_connector_sdk.writeback.service import GovernedWriteBack
-from agent_connector_sdk.writeback_sinks.governed import FileAuditReservation
+from scion_sdk.writeback.errors import AuditReservationUnavailableError
+from scion_sdk.writeback.service import GovernedWriteBack
+from scion_sdk.writeback_sinks.governed import FileAuditReservation
 
 
 @pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004")
@@ -95,7 +95,7 @@ async def test_file_reservation_refuses_a_different_change_set(tmp_path: Path) -
 @pytest.mark.spec("SCION-GOVERNED-WRITEBACK-R004.3")
 @pytest.mark.parametrize("binding", ["key", "digest", "blank", "unavailable"])
 async def test_bound_reservation_refuses_before_mutation(binding: str) -> None:
-    from agent_connector_sdk.ports.audit_reservation import AuditReservation
+    from scion_sdk.ports.audit_reservation import AuditReservation
 
     fixture = make_writeback_fixture()
     verifier = DeterministicAuthorizationVerifier()
@@ -122,7 +122,7 @@ async def test_bound_reservation_refuses_before_mutation(binding: str) -> None:
 async def test_file_reservation_is_reused_after_no_effect_retry(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from agent_connector_sdk.writeback.memory import FixtureUncertainty
+    from scion_sdk.writeback.memory import FixtureUncertainty
 
     fixture = make_writeback_fixture()
     verifier = DeterministicAuthorizationVerifier()
@@ -159,7 +159,7 @@ async def test_file_reservation_is_reused_after_no_effect_retry(
 async def test_file_sync_failure_prevents_source_effect(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    import agent_connector_sdk.writeback_sinks.governed as governed
+    import scion_sdk.writeback_sinks.governed as governed
 
     fixture = make_writeback_fixture()
     verifier = DeterministicAuthorizationVerifier()

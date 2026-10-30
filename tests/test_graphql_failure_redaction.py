@@ -7,12 +7,12 @@ import traceback
 
 import pytest
 
-from agent_connector_sdk.mcp.graphql import (
+from scion_sdk.mcp.graphql import (
     ctx_graphql_get_type_details,
     ctx_graphql_list_types,
 )
-from agent_connector_sdk.tls.resolve import resolve_tls_profile
-from agent_connector_sdk.transports.graphql import GraphQLClient, GraphQLExecutionError
+from scion_sdk.tls.resolve import resolve_tls_profile
+from scion_sdk.transports.graphql import GraphQLClient, GraphQLExecutionError
 
 _MARKER = "private-upstream-marker"
 

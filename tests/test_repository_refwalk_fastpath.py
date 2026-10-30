@@ -13,9 +13,9 @@ from pathlib import Path
 
 import pytest
 
-from agent_connector_sdk.repository.errors import RepositoryTransportError
-from agent_connector_sdk.repository.local_git import LocalGitRepositoryProvider
-from agent_connector_sdk.repository.walk import RefTree, walk_refs
+from scion_sdk.repository.errors import RepositoryTransportError
+from scion_sdk.repository.local_git import LocalGitRepositoryProvider
+from scion_sdk.repository.walk import RefTree, walk_refs
 
 pytestmark = pytest.mark.usefixtures("isolated_git_environment")
 

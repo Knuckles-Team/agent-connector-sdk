@@ -8,14 +8,14 @@ from pathlib import Path
 import pytest
 from fastmcp import Client
 
-from agent_connector_sdk.artifacts.pack import build_content_pack
-from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
-from agent_connector_sdk.artifacts.skills import SkillArtifactKind
-from agent_connector_sdk.mcp.content import ConnectorContent
-from agent_connector_sdk.mcp.server import create_mcp_server
-from agent_connector_sdk.ports.errors import MalformedArtifactError
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.artifacts.pack import build_content_pack
+from scion_sdk.artifacts.resources import ResourceArtifactKind
+from scion_sdk.artifacts.skills import SkillArtifactKind
+from scion_sdk.mcp.content import ConnectorContent
+from scion_sdk.mcp.server import create_mcp_server
+from scion_sdk.ports.errors import MalformedArtifactError
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.transports.mcp import McpTransport
 
 
 # spec: ARBORA-FLEET-R007.1

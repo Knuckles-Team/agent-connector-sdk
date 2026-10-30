@@ -1,4 +1,4 @@
-# Contributing to agent-connector-sdk
+# Contributing to scion-sdk
 
 [`AGENTS.md`](AGENTS.md) is the engineering contract: what this repository
 owns, its module map, and the rules every change preserves. This page covers

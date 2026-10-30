@@ -18,16 +18,16 @@ from epistemic_graph.generated.connector_pack import PackEntryKind
 from packaging.requirements import Requirement
 from packaging.version import Version
 
-import agent_connector_sdk
-from agent_connector_sdk.artifacts import pack as pack_module
-from agent_connector_sdk.artifacts.pack import build_content_pack
-from agent_connector_sdk.artifacts.prompts import PromptArtifactKind
-from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
-from agent_connector_sdk.artifacts.skills import SkillArtifactKind
-from agent_connector_sdk.artifacts.tools import ToolArtifactKind
-from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
-from agent_connector_sdk.ports.errors import MalformedArtifactError
-from agent_connector_sdk.testing.results import SessionFactory
+import scion_sdk
+from scion_sdk.artifacts import pack as pack_module
+from scion_sdk.artifacts.pack import build_content_pack
+from scion_sdk.artifacts.prompts import PromptArtifactKind
+from scion_sdk.artifacts.resources import ResourceArtifactKind
+from scion_sdk.artifacts.skills import SkillArtifactKind
+from scion_sdk.artifacts.tools import ToolArtifactKind
+from scion_sdk.contracts import CapturedArtifact, ServerIdentity
+from scion_sdk.ports.errors import MalformedArtifactError
+from scion_sdk.testing.results import SessionFactory
 
 ROOT = Path(__file__).resolve().parent.parent
 EG_FLOOR = Version("2.27.10")
@@ -55,12 +55,10 @@ def test_tested_engine_is_the_declared_floor_or_newer() -> None:
 def test_every_sdk_module_imports_against_the_engine() -> None:
     names = [
         info.name
-        for info in pkgutil.walk_packages(
-            agent_connector_sdk.__path__, prefix="agent_connector_sdk."
-        )
+        for info in pkgutil.walk_packages(scion_sdk.__path__, prefix="scion_sdk.")
     ]
-    assert "agent_connector_sdk.artifacts.pack" in names
-    assert "agent_connector_sdk.ports.sink" in names
+    assert "scion_sdk.artifacts.pack" in names
+    assert "scion_sdk.ports.sink" in names
     for name in names:
         importlib.import_module(name)
 

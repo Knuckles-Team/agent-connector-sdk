@@ -38,24 +38,24 @@ from runner_support import (
     services,
 )
 
-from agent_connector_sdk.artifacts.pack import CapturedConnectorPack
-from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
-from agent_connector_sdk.ports.session import McpSession, TransportEndpoint
-from agent_connector_sdk.runner.descriptors import EndpointSpec
-from agent_connector_sdk.runner.endpoints import CredentialEndpoints
-from agent_connector_sdk.runner.errors import SinkReceiptError
-from agent_connector_sdk.runner.plans import load_sync_adapters
-from agent_connector_sdk.runner.provisioning import ProvisionOutcome, provision_content
-from agent_connector_sdk.runner.supervisor import ConnectorSyncRunner
-from agent_connector_sdk.runner.syncing import (
+from scion_sdk.artifacts.pack import CapturedConnectorPack
+from scion_sdk.credentials.resolver import EnvironmentCredentialResolver
+from scion_sdk.ports.session import McpSession, TransportEndpoint
+from scion_sdk.runner.descriptors import EndpointSpec
+from scion_sdk.runner.endpoints import CredentialEndpoints
+from scion_sdk.runner.errors import SinkReceiptError
+from scion_sdk.runner.plans import load_sync_adapters
+from scion_sdk.runner.provisioning import ProvisionOutcome, provision_content
+from scion_sdk.runner.supervisor import ConnectorSyncRunner
+from scion_sdk.runner.syncing import (
     SyncOutcome,
     SyncTarget,
     commit_page,
     sync_stream,
 )
-from agent_connector_sdk.runner.worker import ConnectorWorker
-from agent_connector_sdk.testing.sinks import InMemorySink
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.runner.worker import ConnectorWorker
+from scion_sdk.testing.sinks import InMemorySink
+from scion_sdk.transports.mcp import McpTransport
 
 STREAM = "archivebox-snapshots"
 

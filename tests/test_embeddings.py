@@ -7,8 +7,8 @@ import json
 import httpx
 import pytest
 
-from agent_connector_sdk import embeddings
-from agent_connector_sdk.embeddings import (
+from scion_sdk import embeddings
+from scion_sdk.embeddings import (
     EmbeddingSettings,
     clear_embedding_model_cache,
     create_embedding_model,
@@ -147,7 +147,7 @@ def test_real_client_is_dns_pinned_without_redirects(monkeypatch):
 
 
 def test_providers_and_model_type_are_the_public_surface(monkeypatch):
-    from agent_connector_sdk.embeddings import PROVIDERS, EmbeddingModel
+    from scion_sdk.embeddings import PROVIDERS, EmbeddingModel
 
     assert PROVIDERS == ("openai", "ollama")
     monkeypatch.setenv("EMBEDDING_MODEL", "nomic-embed")

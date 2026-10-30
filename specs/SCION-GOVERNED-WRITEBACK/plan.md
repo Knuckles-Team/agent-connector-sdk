@@ -10,8 +10,8 @@
 ## Wallet signature verification (SCION-GOVERNED-WRITEBACK-R001)
 
 Data flow: Arbora confirmed plan -> authenticated connector operation -> SDK verifier -> existing authorization/audit -> source effect -> durable receipt.
-Existing code: `GovernedWriteBack.apply` (`agent_connector_sdk/writeback/service.py:74`) resolves authorization and reserves audit before transport apply.
-`DurableWritableConnector.apply` (`agent_connector_sdk/writeback/connector.py:75`) reads durable prior effects; its reconciliation path handles uncertainty.
+Existing code: `GovernedWriteBack.apply` (`scion_sdk/writeback/service.py:74`) resolves authorization and reserves audit before transport apply.
+`DurableWritableConnector.apply` (`scion_sdk/writeback/connector.py:75`) reads durable prior effects; its reconciliation path handles uncertainty.
 Reachable today: no wallet verification path exists. The ordinary governed apply composition is reachable.
 Add one shared verifier and a typed proof input to that composition; do not duplicate authorization or replay storage.
 Expose the verifier through the admitted connector's authenticated operation so Arbora imports one SDK contract, not cryptographic code.
@@ -117,9 +117,9 @@ SDK maps unavailable binding to `verification_unavailable`; mismatched intent or
 
 ### Existing seams and missing production path
 
-`agent_connector_sdk/ports/writeback.py` already defines current_version, dry_run, apply and reconcile. `GovernedWriteBack.apply` in `agent_connector_sdk/writeback/service.py` validates the canonical set and reads prior effects and current version. It verifies authorization, reserves audit, then invokes `WriteBackTransport.apply(change_set, expected_version)`. `DurableWritableConnector.apply` in `agent_connector_sdk/writeback/connector.py` reads graph receipts and records attempts. These are integration seams, not proof of a production repository writer. A preflight version verification alone cannot prevent a later conflicting write. The current service discards the reservation ID returned by reserve.
+`scion_sdk/ports/writeback.py` already defines current_version, dry_run, apply and reconcile. `GovernedWriteBack.apply` in `scion_sdk/writeback/service.py` validates the canonical set and reads prior effects and current version. It verifies authorization, reserves audit, then invokes `WriteBackTransport.apply(change_set, expected_version)`. `DurableWritableConnector.apply` in `scion_sdk/writeback/connector.py` reads graph receipts and records attempts. These are integration seams, not proof of a production repository writer. A preflight version verification alone cannot prevent a later conflicting write. The current service discards the reservation ID returned by reserve.
 
-Add the proposed SDK-only contracts in `agent_connector_sdk/writeback/repository_effect.py` and export them through the existing SDK contract surface. An admitted provider transport must implement the existing `agent_connector_sdk/ports/writeback_transport.py`. Before activation, evidence must name its production module and registered operation ID. Do not invent a current Git adapter or operation. Reuse the existing operation phases `WriteBackPort.dry_run`, `apply` and `reconcile`; no new approval authority or ingestion write route is permitted.
+Add the proposed SDK-only contracts in `scion_sdk/writeback/repository_effect.py` and export them through the existing SDK contract surface. An admitted provider transport must implement the existing `scion_sdk/ports/writeback_transport.py`. Before activation, evidence must name its production module and registered operation ID. Do not invent a current Git adapter or operation. Reuse the existing operation phases `WriteBackPort.dry_run`, `apply` and `reconcile`; no new approval authority or ingestion write route is permitted.
 
 ### Closed request and generated change-set projection
 

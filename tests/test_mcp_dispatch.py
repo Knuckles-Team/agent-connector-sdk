@@ -9,7 +9,7 @@ from typing import Any
 import pytest
 from mcp.types import ElicitResult, InputRequiredResult
 
-from agent_connector_sdk.mcp.action_dispatch import (
+from scion_sdk.mcp.action_dispatch import (
     DISCOVERY_ACTIONS,
     canonicalize,
     dispatch,
@@ -21,12 +21,12 @@ from agent_connector_sdk.mcp.action_dispatch import (
     suggest,
     unknown_action_error,
 )
-from agent_connector_sdk.mcp.concurrency import (
+from scion_sdk.mcp.concurrency import (
     fold_body_arguments,
     invoke_client_method,
     run_blocking,
 )
-from agent_connector_sdk.mcp.context import ctx_confirm_destructive, ctx_log
+from scion_sdk.mcp.context import ctx_confirm_destructive, ctx_log
 
 
 class Client:

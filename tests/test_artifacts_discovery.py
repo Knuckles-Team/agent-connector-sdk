@@ -14,23 +14,23 @@ import mcp_types
 import pytest
 from epistemic_graph.generated.connector_pack import PackAnnotations
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.artifacts.common import (
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.artifacts.common import (
     canonical_json,
     front_matter,
     json_object,
     mime_type,
     require_kind,
 )
-from agent_connector_sdk.artifacts.pack import build_content_pack
-from agent_connector_sdk.artifacts.prompts import PromptArtifactKind
-from agent_connector_sdk.artifacts.resources import (
+from scion_sdk.artifacts.pack import build_content_pack
+from scion_sdk.artifacts.prompts import PromptArtifactKind
+from scion_sdk.artifacts.resources import (
     ResourceArtifactKind,
 )
-from agent_connector_sdk.artifacts.skills import SkillArtifactKind
-from agent_connector_sdk.artifacts.tools import ToolArtifactKind
-from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
-from agent_connector_sdk.discovery import (
+from scion_sdk.artifacts.skills import SkillArtifactKind
+from scion_sdk.artifacts.tools import ToolArtifactKind
+from scion_sdk.contracts import CapturedArtifact, ServerIdentity
+from scion_sdk.discovery import (
     ARTIFACT_KIND_GROUP,
     EXTENSION_GROUPS,
     SINK_GROUP,
@@ -45,19 +45,19 @@ from agent_connector_sdk.discovery import (
     load_extension,
     sdk_reference_extensions,
 )
-from agent_connector_sdk.mcp.content import ConnectorContent
-from agent_connector_sdk.ports.artifact_kind import ArtifactKind
-from agent_connector_sdk.ports.errors import MalformedArtifactError
-from agent_connector_sdk.runner.provisioning import provision_connector_content
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
-from agent_connector_sdk.testing.artifact_kinds import (
+from scion_sdk.mcp.content import ConnectorContent
+from scion_sdk.ports.artifact_kind import ArtifactKind
+from scion_sdk.ports.errors import MalformedArtifactError
+from scion_sdk.runner.provisioning import provision_connector_content
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.testing.artifact_kinds import (
     check_artifact_kind,
     check_artifact_rejects_malformed,
     check_tool_contract_pin_normalization,
 )
-from agent_connector_sdk.testing.results import SessionFactory, assert_conformant
-from agent_connector_sdk.testing.sinks import InMemorySink
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.testing.results import SessionFactory, assert_conformant
+from scion_sdk.testing.sinks import InMemorySink
+from scion_sdk.transports.mcp import McpTransport
 
 SERVER = ServerIdentity(name="demo-mcp", version="1.4.0")
 KINDS: tuple[ArtifactKind, ...] = (
@@ -520,7 +520,7 @@ def test_artifact_helpers() -> None:
 
 
 def test_reference_extensions_are_discoverable_and_certified() -> None:
-    from agent_connector_sdk.discovery import PLATFORM_BACKEND_GROUP
+    from scion_sdk.discovery import PLATFORM_BACKEND_GROUP
 
     policy: ActivationPolicy = sdk_reference_extensions()
     assert set(EXTENSION_GROUPS) == {
@@ -563,7 +563,7 @@ def test_activation_fails_closed() -> None:
             SOURCE_ADAPTER_GROUP, "unknown", policy=sdk_reference_extensions()
         )
     with pytest.raises(ValueError):
-        discover_extensions("agent_connector_sdk.unknown")
+        discover_extensions("scion_sdk.unknown")
 
 
 def test_discovery_rejects_ambiguous_metadata(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -576,14 +576,12 @@ def test_discovery_rejects_ambiguous_metadata(monkeypatch: pytest.MonkeyPatch) -
         return SimpleNamespace(name="dup", value="pkg:Adapter", dist=dist)
 
     monkeypatch.setattr(
-        "agent_connector_sdk.discovery.entry_points",
+        "scion_sdk.discovery.entry_points",
         lambda group: [entry("one"), entry("two")],
     )
     with pytest.raises(ExtensionDiscoveryError, match="declared by both"):
         discover_extensions(SOURCE_ADAPTER_GROUP)
-    monkeypatch.setattr(
-        "agent_connector_sdk.discovery.entry_points", lambda group: [entry(None)]
-    )
+    monkeypatch.setattr("scion_sdk.discovery.entry_points", lambda group: [entry(None)])
     with pytest.raises(ExtensionDiscoveryError, match="no distribution"):
         discover_extensions(SOURCE_ADAPTER_GROUP)
 
@@ -591,7 +589,7 @@ def test_discovery_rejects_ambiguous_metadata(monkeypatch: pytest.MonkeyPatch) -
 def test_activation_refuses_entry_point_metadata_change(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from agent_connector_sdk.discovery import PLATFORM_BACKEND_GROUP
+    from scion_sdk.discovery import PLATFORM_BACKEND_GROUP
 
     def entry(version: str) -> SimpleNamespace:
         distribution = SimpleNamespace(
@@ -605,7 +603,7 @@ def test_activation_refuses_entry_point_metadata_change(
         )
 
     monkeypatch.setattr(
-        "agent_connector_sdk.discovery.entry_points",
+        "scion_sdk.discovery.entry_points",
         lambda group, name=None: [entry("1" if name is None else "2")],
     )
     policy = CertifiedExtensions(

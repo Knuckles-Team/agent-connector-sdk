@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.testing.major_version import (
+from scion_sdk.testing.major_version import (
     MajorVersionTransition,
     PackageCompatibilityReceipt,
     PackageInventoryEntry,

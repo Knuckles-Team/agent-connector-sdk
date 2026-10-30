@@ -4,10 +4,10 @@ from contextlib import asynccontextmanager
 import pytest
 from weather_test_helpers import weather_provider, weather_request
 
-from agent_connector_sdk.earth_observations.weather import (
+from scion_sdk.earth_observations.weather import (
     WeatherProviderError,
 )
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 @pytest.mark.asyncio

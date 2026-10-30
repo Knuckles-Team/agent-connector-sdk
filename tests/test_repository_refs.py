@@ -7,16 +7,16 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.repository.errors import RepositoryTransportError
-from agent_connector_sdk.repository.local_git import LocalGitRepositoryProvider
-from agent_connector_sdk.repository.models import RepositoryRevision
-from agent_connector_sdk.repository.provider import RepositoryRefWalkProvider
-from agent_connector_sdk.repository.refs import (
+from scion_sdk.repository.errors import RepositoryTransportError
+from scion_sdk.repository.local_git import LocalGitRepositoryProvider
+from scion_sdk.repository.models import RepositoryRevision
+from scion_sdk.repository.provider import RepositoryRefWalkProvider
+from scion_sdk.repository.refs import (
     RepositoryRef,
     RepositoryTreeEntry,
     RepositoryTreePage,
 )
-from agent_connector_sdk.repository.walk import walk_refs
+from scion_sdk.repository.walk import walk_refs
 
 
 def _revision() -> RepositoryRevision:

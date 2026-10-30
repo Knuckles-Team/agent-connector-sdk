@@ -15,28 +15,28 @@ from epistemic_graph.generated.connector_pack import (
     McpCatalogSnapshotBinding,
 )
 
-from agent_connector_sdk import decide
-from agent_connector_sdk.decide.epistemic_graph import EpistemicGraphDecisionRunner
-from agent_connector_sdk.decide.transport import GeneratedTransport
-from agent_connector_sdk.discovery import (
+from scion_sdk import decide
+from scion_sdk.decide.epistemic_graph import EpistemicGraphDecisionRunner
+from scion_sdk.decide.transport import GeneratedTransport
+from scion_sdk.discovery import (
     TRANSPORT_GROUP,
     CertifiedExtensions,
     ExtensionActivationError,
     ExtensionDiscoveryError,
     sdk_reference_extensions,
 )
-from agent_connector_sdk.runner.cli import build_parser, default_state_dir, main
-from agent_connector_sdk.runner.composition import default_services, extension_instance
-from agent_connector_sdk.runner.descriptors import RunnerSettings
-from agent_connector_sdk.runner.logs import (
+from scion_sdk.runner.cli import build_parser, default_state_dir, main
+from scion_sdk.runner.composition import default_services, extension_instance
+from scion_sdk.runner.descriptors import RunnerSettings
+from scion_sdk.runner.logs import (
     RUNNER_LOGGER,
     JsonLogFormatter,
     configure_logging,
     structured,
 )
-from agent_connector_sdk.runner.services import RunnerServices
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.runner.services import RunnerServices
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.transports.mcp import McpTransport
 
 
 async def _pack_import_authority(
@@ -151,7 +151,7 @@ def test_decide_runner_logs_nothing_for_a_non_eg_sink(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """No verified session at all is unremarkable -- nothing to warn about."""
-    from agent_connector_sdk.runner.composition import _decide_runner
+    from scion_sdk.runner.composition import _decide_runner
 
     with caplog.at_level(logging.WARNING):
         assert (
@@ -185,7 +185,7 @@ def test_default_services_installs_the_eg_backed_decide_runner_with_a_tenant(
 
 
 def test_decide_runner_is_never_built_for_a_non_eg_sink_or_missing_inputs() -> None:
-    from agent_connector_sdk.runner.composition import _decide_runner
+    from scion_sdk.runner.composition import _decide_runner
 
     assert (
         _decide_runner(
@@ -210,7 +210,7 @@ def test_decide_runner_is_never_built_for_a_non_eg_sink_or_missing_inputs() -> N
 def test_resolve_decide_tenant_env_override_wins(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from agent_connector_sdk.runner.cli import _resolve_decide_tenant
+    from scion_sdk.runner.cli import _resolve_decide_tenant
 
     monkeypatch.delenv("RUNNER_DECIDE_TENANT", raising=False)
     assert _resolve_decide_tenant("injected-tenant") == "injected-tenant"

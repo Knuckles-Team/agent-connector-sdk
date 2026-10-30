@@ -8,12 +8,12 @@ from live_engine import live_ingest, scoped_client  # noqa: F401
 from test_contracts_and_sink import _catalog
 from test_event_feeds import CONNECTOR
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
-from agent_connector_sdk.taxonomy.provider import TaxonomyProvider
-from agent_connector_sdk.taxonomy.stream import register_taxonomy_stream
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.taxonomy.provider import TaxonomyProvider
+from scion_sdk.taxonomy.stream import register_taxonomy_stream
 
 
 async def exercise(url, provider_name):

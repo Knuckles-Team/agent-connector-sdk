@@ -9,7 +9,7 @@ from typing import Any
 
 import pytest
 
-from agent_connector_sdk.runner import ingest_worker_cli as cli
+from scion_sdk.runner import ingest_worker_cli as cli
 
 pytestmark = pytest.mark.spec("SCION-SOURCE-INGEST-R011")
 ARGS = ["--engine-endpoint", "tls://engine:1"]

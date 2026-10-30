@@ -9,19 +9,19 @@ from pathlib import Path
 
 import pytest
 
-from agent_connector_sdk.writeback.errors import (
+from scion_sdk.writeback.errors import (
     AuthorizationDeniedError,
     SourceVersionConflictError,
 )
-from agent_connector_sdk.writeback_sinks import core, run_writeback, spec_link
-from agent_connector_sdk.writeback_sinks.governed import (
+from scion_sdk.writeback_sinks import core, run_writeback, spec_link
+from scion_sdk.writeback_sinks.governed import (
     PATCH_FIELD,
     SinkGrant,
     build_change_set,
     execute_governed,
 )
-from agent_connector_sdk.writeback_sinks.models import GraphNode
-from agent_connector_sdk.writeback_sinks.sinks.capability import push_capabilities
+from scion_sdk.writeback_sinks.models import GraphNode
+from scion_sdk.writeback_sinks.sinks.capability import push_capabilities
 
 DOMAIN = "governedfake"
 
@@ -66,9 +66,7 @@ def flag(monkeypatch):
 @pytest.fixture
 def ledger(monkeypatch, tmp_path) -> Path:
     root = tmp_path / "ledger"
-    monkeypatch.setattr(
-        "agent_connector_sdk.writeback_sinks.governed.ledger_root", lambda: root
-    )
+    monkeypatch.setattr("scion_sdk.writeback_sinks.governed.ledger_root", lambda: root)
     return root
 
 
@@ -184,7 +182,7 @@ def test_writeback_wiring_uses_preflight_and_approval_queue(fake_sink, flag):
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R600.3")
 def test_writeback_package_has_no_harness_import_or_duplicate_entrypoint():
-    package = Path(__file__).parents[1] / "agent_connector_sdk"
+    package = Path(__file__).parents[1] / "scion_sdk"
     imported_harness_modules = []
     duplicate_entrypoints = []
     for path in package.rglob("*.py"):
@@ -606,12 +604,12 @@ def test_spec_link_dry_run_live_refusal_and_pull(monkeypatch):
 
 # --- the sink registry: every vendor sink is registered under its domain ---
 
-from agent_connector_sdk.writeback_sinks import (  # noqa: E402
+from scion_sdk.writeback_sinks import (  # noqa: E402
     WritebackSink,
     get_sink,
     list_sinks,
 )
-from agent_connector_sdk.writeback_sinks.sinks import (  # noqa: E402
+from scion_sdk.writeback_sinks.sinks import (  # noqa: E402
     ansible,
     archimate,
     capability,

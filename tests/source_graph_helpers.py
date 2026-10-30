@@ -98,10 +98,10 @@ async def sync_failure_cycle(
     """Run one accepted page, one refusal, resume, and optionally replay."""
     import pytest
 
-    from agent_connector_sdk.ports.errors import McpTransportError
-    from agent_connector_sdk.ports.session import TransportEndpoint
-    from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-    from agent_connector_sdk.transports.mcp import McpTransport
+    from scion_sdk.ports.errors import McpTransportError
+    from scion_sdk.ports.session import TransportEndpoint
+    from scion_sdk.runner.syncing import SyncTarget, sync_stream
+    from scion_sdk.transports.mcp import McpTransport
 
     target = SyncTarget(connector, sink, max_pages=1)
     async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
@@ -120,8 +120,8 @@ async def sync_failure_cycle(
 
 
 def loopback_options(url):
-    from agent_connector_sdk.http.options import HttpClientOptions
-    from agent_connector_sdk.http.retry import RetryPolicy
+    from scion_sdk.http.options import HttpClientOptions
+    from scion_sdk.http.retry import RetryPolicy
 
     return HttpClientOptions(
         base_url=url,
@@ -132,7 +132,7 @@ def loopback_options(url):
 
 
 def source_adapter(preset, connector, mapping_reference):
-    from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
+    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
 
     return McpToolSourceAdapter(
         preset,
@@ -150,7 +150,7 @@ async def collect_source_cycle(engine, server, sink, connector, stream, adapter)
 
 
 def paged_preset(connector, name):
-    from agent_connector_sdk.manifest.presets import ToolPreset
+    from scion_sdk.manifest.presets import ToolPreset
 
     return ToolPreset(
         name=name,
@@ -171,7 +171,7 @@ def paged_preset(connector, name):
 def scripted_page_cycle(exercise, body, provider, loop):
     import asyncio
 
-    from agent_connector_sdk.testing.http_server import (
+    from scion_sdk.testing.http_server import (
         ScriptedHttpServer,
         ScriptedResponse,
     )

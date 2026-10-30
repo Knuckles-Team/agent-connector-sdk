@@ -13,10 +13,10 @@ pa = pytest.importorskip(
     reason="NE-114 Arrow contract requires the explicit [dataprep] extra",
 )
 
-from agent_connector_sdk.data_prep._classification import (  # noqa: E402
+from scion_sdk.data_prep._classification import (  # noqa: E402
     DataClassification,
 )
-from agent_connector_sdk.data_prep.certification import (  # noqa: E402
+from scion_sdk.data_prep.certification import (  # noqa: E402
     AdapterObservation,
     ArtifactPolicy,
     AuthorizedArrowSample,
@@ -185,7 +185,7 @@ def test_optional_provider_wrappers_are_lazy_and_do_not_run_without_provider() -
     # optional provider runtimes into the base import path.
     probe = (
         "import sys; "
-        "import agent_connector_sdk.data_prep.certification; "
+        "import scion_sdk.data_prep.certification; "
         "roots = {name.split('.', 1)[0] for name in sys.modules}; "
         "forbidden = {'great_expectations', 'pandera', 'pandas', 'numpy', 'pyarrow'}; "
         "assert not roots & forbidden, sorted(roots & forbidden)"
@@ -211,7 +211,7 @@ from typing import get_args  # noqa: E402
 
 from pydantic import TypeAdapter  # noqa: E402
 
-from agent_connector_sdk.data_prep.certification import (  # noqa: E402
+from scion_sdk.data_prep.certification import (  # noqa: E402
     CertificationAdapter,
     CertificationBackend,
     CertificationSigner,
@@ -220,7 +220,7 @@ from agent_connector_sdk.data_prep.certification import (  # noqa: E402
     PanderaAdapter,
     mark_not_requested,
 )
-from agent_connector_sdk.data_prep.certification.models import (  # noqa: E402
+from scion_sdk.data_prep.certification.models import (  # noqa: E402
     OpaqueRef,
     Signature,
 )

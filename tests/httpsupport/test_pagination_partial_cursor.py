@@ -2,7 +2,7 @@
 
 import pytest
 
-from agent_connector_sdk.httpsupport.pagination import (
+from scion_sdk.httpsupport.pagination import (
     AsyncPaginationIterator,
     PaginationIterator,
 )

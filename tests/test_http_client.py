@@ -11,22 +11,22 @@ from pathlib import Path
 import httpx
 import pytest
 
-from agent_connector_sdk.adapters.mcp_tool_paging import next_position
-from agent_connector_sdk.auth.static import ApiKeyAuth, BearerAuth
-from agent_connector_sdk.http.bodies import (
+from scion_sdk.adapters.mcp_tool_paging import next_position
+from scion_sdk.auth.static import ApiKeyAuth, BearerAuth
+from scion_sdk.http.bodies import (
     DEFAULT_MAX_RESPONSE_BYTES,
     aiter_bounded,
     aread_bounded,
     iter_bounded,
     read_bounded,
 )
-from agent_connector_sdk.http.client import (
+from scion_sdk.http.client import (
     HTTP_LOGGER_NAME,
     create_async_http_client,
     create_http_client,
     default_ssl_context,
 )
-from agent_connector_sdk.http.errors import (
+from scion_sdk.http.errors import (
     HttpProblemError,
     HttpRateLimitedError,
     ResponseTooLargeError,
@@ -35,35 +35,35 @@ from agent_connector_sdk.http.errors import (
     UpstreamTimeoutError,
     UpstreamUnavailableError,
 )
-from agent_connector_sdk.http.options import DEFAULT_TIMEOUT_SECONDS, HttpClientOptions
-from agent_connector_sdk.http.pagination import (
+from scion_sdk.http.options import DEFAULT_TIMEOUT_SECONDS, HttpClientOptions
+from scion_sdk.http.pagination import (
     ToolPage,
     cursor_target,
     next_link_cursor,
     preset_pagination,
 )
-from agent_connector_sdk.http.problems import PROBLEM_JSON
-from agent_connector_sdk.http.responses import (
+from scion_sdk.http.problems import PROBLEM_JSON
+from scion_sdk.http.responses import (
     ERROR_BODY_BYTES,
     aensure_success,
     arequest_json,
     ensure_success,
     request_json,
 )
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.http.transport import AsyncGovernedTransport, GovernedTransport
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.testing.certificates import (
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.http.transport import AsyncGovernedTransport, GovernedTransport
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.testing.certificates import (
     CertificateSet,
     issue_test_certificates,
 )
-from agent_connector_sdk.testing.http_server import (
+from scion_sdk.testing.http_server import (
     ReceivedRequest,
     ScriptedHttpServer,
     ScriptedResponse,
 )
-from agent_connector_sdk.tls.profile import ResolvedTLSProfile
-from agent_connector_sdk.tls.resolve import resolve_tls_profile
+from scion_sdk.tls.profile import ResolvedTLSProfile
+from scion_sdk.tls.resolve import resolve_tls_profile
 
 _FAST = RetryPolicy(backoff_base=0.01, max_backoff=0.02)
 _JSON = {"Content-Type": "application/json"}
@@ -189,7 +189,7 @@ def test_retries_rate_limits_and_success() -> None:
         assert request_json(client, "GET", "/items", params={"page": 1}) == {"ok": True}
     assert [request.method for request in server.requests] == ["GET", "GET", "GET"]
     assert isinstance(server.requests[0], ReceivedRequest)
-    assert server.requests[0].headers["user-agent"].startswith("agent-connector-sdk/")
+    assert server.requests[0].headers["user-agent"].startswith("scion-sdk/")
 
 
 def test_non_idempotent_rate_limit_is_raised_not_retried() -> None:

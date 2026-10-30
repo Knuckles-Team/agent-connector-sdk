@@ -12,17 +12,17 @@ import pytest
 from fastmcp import Client, FastMCP
 from pydantic import ValidationError
 
-from agent_connector_sdk.adapters.bookmark_models import (
+from scion_sdk.adapters.bookmark_models import (
     BookmarkEnvelope,
     BookmarkRequest,
     BookmarkResult,
 )
-from agent_connector_sdk.adapters.bookmark_source import (
+from scion_sdk.adapters.bookmark_source import (
     BookmarkReader,
     BookmarkReadError,
     register_bookmark_tool,
 )
-from agent_connector_sdk.vendor_extractors import social
+from scion_sdk.vendor_extractors import social
 
 
 def _request(path: str = "bookmarks.json") -> BookmarkRequest:

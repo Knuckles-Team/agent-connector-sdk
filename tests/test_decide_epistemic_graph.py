@@ -11,10 +11,10 @@ from typing import Any
 
 import pytest
 
-from agent_connector_sdk.decide import Option
-from agent_connector_sdk.decide.epistemic_graph import EpistemicGraphDecisionRunner
-from agent_connector_sdk.decide.outcome import Reading, read_batch, request_for, sampled
-from agent_connector_sdk.decide.points import (
+from scion_sdk.decide import Option
+from scion_sdk.decide.epistemic_graph import EpistemicGraphDecisionRunner
+from scion_sdk.decide.outcome import Reading, read_batch, request_for, sampled
+from scion_sdk.decide.points import (
     CONNECTOR_TOOL,
     CONNECTOR_TRIAGE,
     CONNECTOR_WRITEBACK,
@@ -27,7 +27,7 @@ from agent_connector_sdk.decide.points import (
     StaticBindings,
     point,
 )
-from agent_connector_sdk.decide.transport import (
+from scion_sdk.decide.transport import (
     DEFAULT_SYNC_TIMEOUT_S,
     DecideTransport,
     DecideUnavailable,

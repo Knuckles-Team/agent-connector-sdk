@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.finance.strategy_export import (
+from scion_sdk.finance.strategy_export import (
     ExportPlatform,
     ExportResult,
     MQL5Exporter,

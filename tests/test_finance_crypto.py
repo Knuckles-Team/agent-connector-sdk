@@ -6,13 +6,13 @@ from typing import Any
 
 import pytest
 
-from agent_connector_sdk.finance import crypto
-from agent_connector_sdk.finance.crypto import (
+from scion_sdk.finance import crypto
+from scion_sdk.finance.crypto import (
     CryptoDerivatives,
     FundingRate,
     OnChainAnalytics,
 )
-from agent_connector_sdk.finance.errors import (
+from scion_sdk.finance.errors import (
     FinanceProviderError,
     InvalidIntervalError,
     ProviderNotConfigured,

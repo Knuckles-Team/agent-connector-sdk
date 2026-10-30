@@ -1,6 +1,6 @@
 # SCION-OBSERVABILITY-FEEDS — Operational event feeds through the source adapter contract
 
-**Requirement ID:** SCION-OBSERVABILITY-FEEDS-R001. **Owner:** agent-connector-sdk contract; each event connector owns provider transport. **Delivery state:** SPECIFIED. **Acceptance state:** OPEN.
+**Requirement ID:** SCION-OBSERVABILITY-FEEDS-R001. **Owner:** scion-sdk contract; each event connector owns provider transport. **Delivery state:** SPECIFIED. **Acceptance state:** OPEN.
 
 ## Outcome and model
 

@@ -4,14 +4,14 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from agent_connector_sdk.artifacts.readable_form import (
+from scion_sdk.artifacts.readable_form import (
     FittedAnalysis,
     FittedTerm,
     ReadableForm,
     default_readable_renderer,
     render_readable,
 )
-from agent_connector_sdk.artifacts.tool_facts import SideEffect, ToolContractFacts
+from scion_sdk.artifacts.tool_facts import SideEffect, ToolContractFacts
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R048.2")

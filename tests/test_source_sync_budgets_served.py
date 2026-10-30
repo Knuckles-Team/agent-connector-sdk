@@ -9,12 +9,12 @@ from fastmcp import Client, FastMCP
 from live_engine import live_ingest, scoped_client  # noqa: F401
 from test_source_sync_served import _ClientSession
 
-from agent_connector_sdk.ingest.source_sync import (
+from scion_sdk.ingest.source_sync import (
     KvSourceCheckpoints,
     SourceSyncRunner,
     SyncBudget,
 )
-from agent_connector_sdk.ingest.sources import IngestSourceSpec
+from scion_sdk.ingest.sources import IngestSourceSpec
 
 
 async def _exercise(ingest):

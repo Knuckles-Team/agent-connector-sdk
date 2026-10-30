@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """The SDK's wiring gates: no orphan package module, and every public name tested.
 
-``orphans`` -- a tracked module under ``agent_connector_sdk/`` is reachable when it
-is a declared root (a module in ``[tool.agent_connector_sdk.wiring]
+``orphans`` -- a tracked module under ``scion_sdk/`` is reachable when it
+is a declared root (a module in ``[tool.scion_sdk.wiring]
 public_modules`` or the target module of a ``[project.entry-points]`` value), or
 is imported, directly or transitively, by a reachable module (absolute and
 relative imports, including function-local and ``TYPE_CHECKING`` imports:
@@ -29,7 +29,7 @@ import sys
 import tomllib
 from pathlib import Path
 
-PACKAGE = "agent_connector_sdk"
+PACKAGE = "scion_sdk"
 
 
 class GateError(RuntimeError):

@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.ingest import ChangeSet
-from agent_connector_sdk.vendor_extractors import (
+from scion_sdk.ingest import ChangeSet
+from scion_sdk.vendor_extractors import (
     VendorExtractFn,
     VendorExtractor,
     discover_vendor_extractors,

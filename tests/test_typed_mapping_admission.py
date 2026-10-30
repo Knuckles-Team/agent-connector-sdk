@@ -11,8 +11,8 @@ from epistemic_graph.connector_pack import (
 from epistemic_graph.generated.connector_pack import PackEntryKind
 from live_engine import live_ingest, scoped_client  # noqa: F401
 
-from agent_connector_sdk.artifacts.pack import CapturedConnectorPack
-from agent_connector_sdk.sinks.epistemic_graph import (
+from scion_sdk.artifacts.pack import CapturedConnectorPack
+from scion_sdk.sinks.epistemic_graph import (
     EpistemicGraphSink,
     _require_supported_mapping_contract,
 )

@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
 
-from agent_connector_sdk.adapters.web_fetch import fetch_page
+from scion_sdk.adapters.web_fetch import fetch_page
 
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R005.55")

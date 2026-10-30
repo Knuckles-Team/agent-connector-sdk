@@ -7,8 +7,8 @@ import logging
 import httpx
 import pytest
 
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.http.transport import AsyncGovernedTransport, GovernedTransport
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.http.transport import AsyncGovernedTransport, GovernedTransport
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.6")

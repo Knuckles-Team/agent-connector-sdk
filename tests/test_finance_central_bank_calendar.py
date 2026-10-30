@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from agent_connector_sdk.finance.central_bank_calendar import (
+from scion_sdk.finance.central_bank_calendar import (
     CentralBankAnnouncement,
     central_bank_calendar_from_source,
 )
@@ -103,7 +103,7 @@ def test_empty_events_yields_no_records() -> None:
 
 @pytest.mark.spec("SCION-FINANCE-SOURCES-R001.3")
 def test_same_vintage_distinct_announcements_refuse_identity_collision() -> None:
-    from agent_connector_sdk.finance.central_bank_calendar import (
+    from scion_sdk.finance.central_bank_calendar import (
         CalendarIdentityConflictError,
     )
 

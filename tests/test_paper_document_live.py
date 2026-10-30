@@ -4,18 +4,18 @@ from pathlib import Path
 from fastmcp import Client, FastMCP
 from live_engine import live_ingest, scoped_client  # noqa: F401
 
-from agent_connector_sdk.adapters.paper_download import (
+from scion_sdk.adapters.paper_download import (
     DocumentAdmission,
     DocumentRefusal,
     DocumentRequest,
     PaperDocumentService,
 )
-from agent_connector_sdk.adapters.paper_models import DocumentOffer, DocumentReceipt
-from agent_connector_sdk.adapters.paper_quota import PaperQuotaPolicy, SharedPaperQuota
-from agent_connector_sdk.adapters.paper_tool import register_paper_download_tool
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.adapters.paper_models import DocumentOffer, DocumentReceipt
+from scion_sdk.adapters.paper_quota import PaperQuotaPolicy, SharedPaperQuota
+from scion_sdk.adapters.paper_tool import register_paper_download_tool
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 async def exercise(url, root):
@@ -231,10 +231,10 @@ def test_complete_pdf(live_ingest, tmp_path):  # noqa: F811
 
 
 def test_metadata_fallback_preserves_provider_fields(live_ingest, tmp_path):  # noqa: F811
-    from agent_connector_sdk.adapters.paper_document_metadata import (
+    from scion_sdk.adapters.paper_document_metadata import (
         apply_document_fallback,
     )
-    from agent_connector_sdk.adapters.paper_models import (
+    from scion_sdk.adapters.paper_models import (
         FieldEvidence,
         PaperRecord,
         ProviderReference,

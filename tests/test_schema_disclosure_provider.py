@@ -11,13 +11,13 @@ from fastmcp.tools import Tool
 from jsonschema import Draft202012Validator
 from mcp.shared.exceptions import MCPError
 
-from agent_connector_sdk.mcp.schema_disclosure import (
+from scion_sdk.mcp.schema_disclosure import (
     SchemaFragment,
     SchemaManifest,
     build_schema_disclosure,
     reconstruct_schema,
 )
-from agent_connector_sdk.mcp.schema_disclosure_provider import (
+from scion_sdk.mcp.schema_disclosure_provider import (
     describe_schema_tools,
     register_schema_resources,
 )

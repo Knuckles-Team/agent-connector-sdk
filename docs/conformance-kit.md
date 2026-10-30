@@ -1,7 +1,7 @@
 # Conformance kit
 
 Every source adapter and artifact kind passes the same checks before it may be
-activated. The kit lives in `agent_connector_sdk.testing`.
+activated. The kit lives in `scion_sdk.testing`.
 
 ## Source adapters
 

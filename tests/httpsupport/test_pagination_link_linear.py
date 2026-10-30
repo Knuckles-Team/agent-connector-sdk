@@ -7,8 +7,8 @@ import re
 
 import pytest
 
-from agent_connector_sdk.httpsupport.pagination import PaginationIterator
-from agent_connector_sdk.httpsupport.pagination_link import next_link
+from scion_sdk.httpsupport.pagination import PaginationIterator
+from scion_sdk.httpsupport.pagination_link import next_link
 
 
 @pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R004.3")

@@ -1,7 +1,7 @@
 # SCION-SCM — SDK source client and virtual workspace
 
 **Requirement IDs:** SCION-SCM-R001, SCION-SCM-R002, and child rows SCION-SCM-R001.1 through SCION-SCM-R001.6 and SCION-SCM-R002.1 through SCION-SCM-R002.6.
-**Owner:** agent-connector-sdk.
+**Owner:** scion-sdk.
 
 ## Outcome and boundary
 

@@ -7,13 +7,13 @@ import json
 import pytest
 from epistemic_graph.generated.connector_pack import PackEntryKind
 
-from agent_connector_sdk.artifacts.pack import build_content_pack
-from agent_connector_sdk.artifacts.prompts import PromptArtifactKind
-from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
-from agent_connector_sdk.artifacts.skills import SkillArtifactKind
-from agent_connector_sdk.artifacts.tools import ToolArtifactKind
-from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
-from agent_connector_sdk.testing.results import SessionFactory
+from scion_sdk.artifacts.pack import build_content_pack
+from scion_sdk.artifacts.prompts import PromptArtifactKind
+from scion_sdk.artifacts.resources import ResourceArtifactKind
+from scion_sdk.artifacts.skills import SkillArtifactKind
+from scion_sdk.artifacts.tools import ToolArtifactKind
+from scion_sdk.ingest.sources import IngestSourceDeclaration
+from scion_sdk.testing.results import SessionFactory
 
 KINDS = (
     ToolArtifactKind(),

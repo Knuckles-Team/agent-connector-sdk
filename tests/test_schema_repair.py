@@ -2,7 +2,7 @@
 
 The SDK's whole job here is recording a proposal and reading a pause: it never
 constructs a candidate graph schema, validates instances, performs a shadow
-ingest, or activates a repair (:class:`~agent_connector_sdk.ports.
+ingest, or activates a repair (:class:`~scion_sdk.ports.
 repair_proposals.RepairProposalStore` declares exactly two methods -- there is
 no activation call this test, or anything else in the SDK, could make).
 """
@@ -17,27 +17,27 @@ from epistemic_graph.generated.source_ingestion import (
     SourceRecordProvenance,
 )
 
-from agent_connector_sdk.contracts import (
+from scion_sdk.contracts import (
     CapabilityDescriptor,
     ReconciliationReport,
     RecordPage,
     StreamDescriptor,
 )
-from agent_connector_sdk.ports.repair_proposals import RepairProposalStore
-from agent_connector_sdk.ports.session import McpSession
-from agent_connector_sdk.runner.errors import StreamPaused
-from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-from agent_connector_sdk.schema_drift import (
+from scion_sdk.ports.repair_proposals import RepairProposalStore
+from scion_sdk.ports.session import McpSession
+from scion_sdk.runner.errors import StreamPaused
+from scion_sdk.runner.syncing import SyncTarget, sync_stream
+from scion_sdk.schema_drift import (
     DriftClassification,
     EvolutionPolicy,
     SchemaContract,
     SchemaDriftReport,
     classify_schema_drift,
 )
-from agent_connector_sdk.schema_repair import RepairProposal, propose_repair
-from agent_connector_sdk.testing.repair_proposals import InMemoryRepairProposalStore
-from agent_connector_sdk.testing.results import SessionFactory
-from agent_connector_sdk.testing.sinks import InMemorySink
+from scion_sdk.schema_repair import RepairProposal, propose_repair
+from scion_sdk.testing.repair_proposals import InMemoryRepairProposalStore
+from scion_sdk.testing.results import SessionFactory
+from scion_sdk.testing.sinks import InMemorySink
 
 SCHEMA = {
     "type": "object",

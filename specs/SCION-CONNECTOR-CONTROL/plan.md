@@ -29,7 +29,7 @@ Operation contracts for erpnext, uptime and container-manager are recorded as `a
 
 ## Tool contract facts (SCION-CONNECTOR-CONTROL-R045)
 
-Data flow: tool declaration (`eg.annotations` in `_meta`, or MCP `ToolAnnotations`) → `_annotations_from_mcp` (`agent_connector_sdk/artifacts/annotations.py:94`) → `ToolContractFacts` builder → `_tool_entry` (`agent_connector_sdk/artifacts/tools.py:34`) → `build_content_pack` (`agent_connector_sdk/artifacts/pack.py:127`) → `ConnectorPackClient` (R001) → engine tool-subset decision and the agent-utilities run loop.
+Data flow: tool declaration (`eg.annotations` in `_meta`, or MCP `ToolAnnotations`) → `_annotations_from_mcp` (`scion_sdk/artifacts/annotations.py:94`) → `ToolContractFacts` builder → `_tool_entry` (`scion_sdk/artifacts/tools.py:34`) → `build_content_pack` (`scion_sdk/artifacts/pack.py:127`) → `ConnectorPackClient` (R001) → engine tool-subset decision and the agent-utilities run loop.
 
 Types and fields. `ToolContractFacts` holds `read_only` (boolean), `side_effects` (closed set `none`, `workspace_write`, `external_write`, `network`), `arg_schema`, `schema_tokens` and `declared_by` (`connector`, `mcp_hint`, `default`). The engine and the run loop read these names. They define no second spelling.
 
@@ -37,7 +37,7 @@ Attach point. `_tool_entry` already builds the canonical body and the annotation
 
 Failure and refusal. An undeclared tool gets `read_only = false` and `side_effects = {external_write}` with `declared_by = default`. A contradictory declaration (read-only with a write effect) raises `MalformedArtifactError`. A self-declared `read_only` without a fixture yields the `unproven` verdict and no pin. A fixture that records a write yields the `read_only_violation` verdict.
 
-Reuse. `_TOOL_HINTS` (`annotations.py:15`) maps `readOnlyHint`, `destructiveHint` and `idempotentHint` already. `is_destructive_action` (`agent_connector_sdk/mcp/action_dispatch.py:88`) classifies destructive operations. `canonical_json` and `canonical_input_schema` supply the body that `schema_tokens` measures. No token size exists in the SDK today, so `schema_tokens` is new. `_TOOL_HINTS` also drops `read_only_hint` into the generated `PackAnnotations`, which lacks `side_effects` and `schema_tokens`. The generated type is new work in the engine.
+Reuse. `_TOOL_HINTS` (`annotations.py:15`) maps `readOnlyHint`, `destructiveHint` and `idempotentHint` already. `is_destructive_action` (`scion_sdk/mcp/action_dispatch.py:88`) classifies destructive operations. `canonical_json` and `canonical_input_schema` supply the body that `schema_tokens` measures. No token size exists in the SDK today, so `schema_tokens` is new. `_TOOL_HINTS` also drops `read_only_hint` into the generated `PackAnnotations`, which lacks `side_effects` and `schema_tokens`. The generated type is new work in the engine.
 
 New. `ToolContractFacts`, `SideEffect`, `schema_tokens`, `ToolFixture`, `check_read_only`, and the manifest rendering. The SDK records no fixtures today (`certify_connector`, `certification.py:75`, compares pins only). R045.9 therefore creates the fixture type before the check.
 
@@ -64,9 +64,9 @@ EG remains the decision and durable grant authority. The SDK validates injected 
 The exact binding includes tenant, owner principal, requesting principal/client, connector, provider, audience, scope set, resource and operation.
 Compare each field against qualified request authority and the current grant before resolving either environment or vault references.
 The authority port is injected by trusted host composition, not supplied as request JSON or inferred from host/process identity.
-`CredentialProvider.get_secret` at `agent_connector_sdk/credentials/provider.py:33` currently scopes vault paths by connector and treats environment references as process-wide.
+`CredentialProvider.get_secret` at `scion_sdk/credentials/provider.py:33` currently scopes vault paths by connector and treats environment references as process-wide.
 It lacks tenant/client reuse grants. Extend that boundary; retain the existing credential resolver.
-The existing `resolve_secret_reference` at `agent_connector_sdk/credentials/resolution.py:43` remains the underlying resolution path.
+The existing `resolve_secret_reference` at `scion_sdk/credentials/resolution.py:43` remains the underlying resolution path.
 Missing qualified authority yields `authority_unavailable`; missing usable credentials yields `credential_unavailable`.
 Map `scope_denied` and `binding_mismatch` to host `reuse_denied`. Map `grant_expired` to expired; preserve revoked and unavailable dependency distinctions.
 Never return resolved values to an agent transcript or public tool result. Inject them only into the approved transport's transient memory.
@@ -89,10 +89,10 @@ Readiness requires a confirmed host vault persistence receipt and fresh grant. F
 Refresh and restart use host-owned vault versioning and current grants; the SDK has no independent token cache authority.
 Static-token connectors retain their mode but still require the scoped credential boundary when hosted for multiple callers.
 
-The actual certify call site is `agent_connector_sdk/certify/cli.py:124` invoking _oidc_auth at `agent_connector_sdk/certify/options.py:26`.
+The actual certify call site is `scion_sdk/certify/cli.py:124` invoking _oidc_auth at `scion_sdk/certify/options.py:26`.
 _run_certification at cli.py:169 drives the existing command. _oidc_auth currently returns client-credentials authentication only.
 The previous `build_outbound_auth` reference names no production function. Add the PKCE selection to the real options composition.
-Register connector credential-missing handling through `register_tool_surface` at `agent_connector_sdk/mcp/tool_surface.py:121` and existing `dispatch_async`.
+Register connector credential-missing handling through `register_tool_surface` at `scion_sdk/mcp/tool_surface.py:121` and existing `dispatch_async`.
 Reuse governed HTTP, endpoint validation and credential references. PkceAuthManager and its host ports remain unimplemented.
 For `no_credential`, the host projects `credential_missing`; preserve the shared challenge error names unchanged.
 All new R035 children and the refined R046 children require real local issuer/callback and served connector evidence.
@@ -115,15 +115,15 @@ The in-process card cache uses a named entry limit and least-recently-used
 eviction. Cache hits and insertions detach their nested JSON from callers. The
 absolute discovery deadline covers DNS and response streaming.
 
-Data flow: `extract` (`agent_connector_sdk/vendor_extractors/a2a.py:98`) -> `_collect_cards` (`agent_connector_sdk/vendor_extractors/a2a_helpers.py:79`) -> `discover_agent_card` (new) -> governed HTTP client -> `A2AAgentCard` entity with provenance.
+Data flow: `extract` (`scion_sdk/vendor_extractors/a2a.py:98`) -> `_collect_cards` (`scion_sdk/vendor_extractors/a2a_helpers.py:79`) -> `discover_agent_card` (new) -> governed HTTP client -> `A2AAgentCard` entity with provenance.
 
-Types. `DiscoveredAgentCard` and `AgentCardRefused` are new. The entity shape is the existing one from `_card_entity` (`agent_connector_sdk/vendor_extractors/a2a.py:34`) plus three provenance fields.
+Types. `DiscoveredAgentCard` and `AgentCardRefused` are new. The entity shape is the existing one from `_card_entity` (`scion_sdk/vendor_extractors/a2a.py:34`) plus three provenance fields.
 
 Attach point and caller. `_collect_cards` is called by `extract`, which the vendor extractor registry runs.
 
 Failure behavior. A refusal skips that agent and reports the reason. The remaining cards still enter the change set.
 
-Reused: `create_http_client` (`agent_connector_sdk/http/client.py:84`) supplies the egress policy. New: the fetch, the etag cache and the provenance fields.
+Reused: `create_http_client` (`scion_sdk/http/client.py:84`) supplies the egress policy. New: the fetch, the etag cache and the provenance fields.
 
 Decision. Discovery is a pull at extractor time. The rejected alternative is a push registry that each agent must call. That fails for agents that do not know the platform.
 
@@ -131,7 +131,7 @@ Cross-repository rows. The delegation rule that decides when to invoke an agent 
 
 ## Agent-readable tool output (SCION-CONNECTOR-CONTROL-R048)
 
-Data flow: certify command run loop -> `certify_connector` (`agent_connector_sdk/certify/certification.py:75`) -> `check_readable_form` (new) -> verdict; and `ToolArtifactKind.list_entries` (`agent_connector_sdk/artifacts/tools.py:64`) -> `_tool_entry` (`agent_connector_sdk/artifacts/tools.py:25`) -> pack annotations.
+Data flow: certify command run loop -> `certify_connector` (`scion_sdk/certify/certification.py:75`) -> `check_readable_form` (new) -> verdict; and `ToolArtifactKind.list_entries` (`scion_sdk/artifacts/tools.py:64`) -> `_tool_entry` (`scion_sdk/artifacts/tools.py:25`) -> pack annotations.
 
 Types. `ReadableForm` is new and extends `ToolContractFacts`. The question set is a list of question and expected-answer pairs held in a fixture file.
 
@@ -157,7 +157,7 @@ reference alone is not a score. Grading and pack wiring remain open.
 
 ## Payment challenge handling (SCION-CONNECTOR-CONTROL-R049)
 
-Data flow: served operation -> governed client from `create_http_client` (`agent_connector_sdk/http/client.py:84`) -> 402 response hook -> `PaymentGate.decide` (new) -> `ctx_confirm_destructive` (`agent_connector_sdk/mcp/context.py:49`) -> retry with payment header -> `PaymentRecord` entity.
+Data flow: served operation -> governed client from `create_http_client` (`scion_sdk/http/client.py:84`) -> 402 response hook -> `PaymentGate.decide` (new) -> `ctx_confirm_destructive` (`scion_sdk/mcp/context.py:49`) -> retry with payment header -> `PaymentRecord` entity.
 
 Types. `PaymentChallenge`, `PaymentBudget`, `PaymentRecord` and `PaymentRefused` are new.
 
@@ -176,13 +176,13 @@ Cross-repository rows. The graph node type for a transaction belongs to the know
 Data flow: served `tools/call` -> registered tool -> authenticated context binding ->
 `dispatch_async` -> connector method -> ordered notifications -> terminal result.
 
-Existing code: `create_mcp_server` in `agent_connector_sdk/mcp/server.py:88`
+Existing code: `create_mcp_server` in `scion_sdk/mcp/server.py:88`
 builds the served MCP boundary. `_register_condensed` in
-`agent_connector_sdk/mcp/tool_surface.py:97` invokes connector registrars.
-`_build_tool` in `agent_connector_sdk/mcp/method_tools.py:133` receives a context
+`scion_sdk/mcp/tool_surface.py:97` invokes connector registrars.
+`_build_tool` in `scion_sdk/mcp/method_tools.py:133` receives a context
 and calls the client method. `dispatch_async` in
-`agent_connector_sdk/mcp/action_dispatch.py:194` guards destructive actions.
-`ctx_confirm_destructive` in `agent_connector_sdk/mcp/context.py:49` denies
+`scion_sdk/mcp/action_dispatch.py:194` guards destructive actions.
+`ctx_confirm_destructive` in `scion_sdk/mcp/context.py:49` denies
 missing context; `ctx_log` at line 71 forwards client logs.
 
 Reachable today: no. Registration, dispatch, logging and elicitation are reachable.
@@ -236,8 +236,8 @@ Until those producer requirements and their SDK binding exist, reconnect recover
 It must not synthesize a result, reconstruct one from transient progress or repeat a source effect.
 
 Existing effect recovery is narrower: `EpistemicGraphWriteBackLedger.get` and `receipts`
-in `agent_connector_sdk/writeback/epistemic_graph.py:43` and line 73 read generated EG records.
-`DurableWritableConnector.apply` at `agent_connector_sdk/writeback/connector.py:75`
+in `scion_sdk/writeback/epistemic_graph.py:43` and line 73 read generated EG records.
+`DurableWritableConnector.apply` at `scion_sdk/writeback/connector.py:75`
 uses those records to prevent repeated effects. Its `reconcile` method at line 96
 records a reconciliation observation. These methods do not map an MCP request to its terminal result.
 Keep governed effect recovery; do not present it as served reconnect result retrieval.
@@ -362,7 +362,7 @@ R007.1 precedes R007.2; R007.2 precedes R007.3. R007.3 and R007.4 precede R007.6
 ### SCION-CONNECTOR-CONTROL-R051
 1. SCION-CONNECTOR-CONTROL-R051.1: Define SandboxProvisioner. It consumes Arbora ProvisionRequest. It returns ProvisionResult with allocation ID, actual instances, observed image/platform, state, timestamps, and provider receipt.
 2. SCION-CONNECTOR-CONTROL-R051.2: Allocate once per stable operation ID. Reconcile uncertain results before retry. Transport loss never proves no allocation.
-3. SCION-CONNECTOR-CONTROL-R051.3: Plan agent_connector_sdk.ports.sandbox.SandboxProvisioner. Route AU sandbox access through Arbora agents.run and NativeWorkItemAdmissionProtocol/CapacityLedger. Call the SDK adapter, then return its receipt to Arbora. This producer and binding are absent.
+3. SCION-CONNECTOR-CONTROL-R051.3: Plan scion_sdk.ports.sandbox.SandboxProvisioner. Route AU sandbox access through Arbora agents.run and NativeWorkItemAdmissionProtocol/CapacityLedger. Call the SDK adapter, then return its receipt to Arbora. This producer and binding are absent.
 4. SCION-CONNECTOR-CONTROL-R051.4: Refuse unsupported profiles, missing grants, expired requests, and conflicting replay IDs before provider calls. Reconcile unresolved outcomes before retry. Unsupported combinations allocate nothing.
 5. SCION-CONNECTOR-CONTROL-R051.5: Bind request/result digests, adapter version, matrix revision, operation/allocation IDs, instances, state, timestamps, and reconciliation. Exclude credentials and secret values.
 6. SCION-CONNECTOR-CONTROL-R051.6: Future served tests enter Arbora agents.run. Use a disposable certified adapter. Observe instances and independent readback. Test unsupported profiles and response loss without duplicates.
@@ -381,15 +381,15 @@ Component: SDK environment declaration producer
 
 Depends-on: SCION-CONNECTOR-CONTROL-R016, SCION-CONNECTOR-CONTROL-R029, [Arbora host contract](https://github.com/Knuckles-Team/arbora/blob/7af96428d92ffbdd963515f7b129d1ad4132e462/specs/host-composition-boundary/spec.md)
 
-Code: ../../agent_connector_sdk/config.py:35
+Code: ../../scion_sdk/config.py:35
 
-Code: ../../agent_connector_sdk/config.py:75
+Code: ../../scion_sdk/config.py:75
 
-Code: ../../agent_connector_sdk/credentials/resolver.py:36
+Code: ../../scion_sdk/credentials/resolver.py:36
 
-Code: ../../agent_connector_sdk/mcp/tool_surface.py:102
+Code: ../../scion_sdk/mcp/tool_surface.py:102
 
-Code: ../../agent_connector_sdk/config_git.py:8
+Code: ../../scion_sdk/config_git.py:8
 
 Implement environment_declarations(*, source_revision, dynamic_bindings=()) in the existing public config module.
 Return EnvironmentDeclarationExport with the immutable declarations tuple and EnvironmentDeclarationReceipt.
@@ -447,15 +447,15 @@ SDK-only census checks cannot substitute for host launcher acceptance or claim A
 Component: Connector registration
 Depends-on: SCION-CONNECTOR-CONTROL-R020, SCION-CONNECTOR-CONTROL-R026, SCION-CONNECTOR-CONTROL-R026.1, SCION-CONNECTOR-CONTROL-R032
 
-Code: ../../agent_connector_sdk/testing/fleet_migration.py:90
+Code: ../../scion_sdk/testing/fleet_migration.py:90
 
-Code: ../../agent_connector_sdk/mcp/server.py:88
+Code: ../../scion_sdk/mcp/server.py:88
 
-Code: ../../agent_connector_sdk/mcp/tool_surface.py:121
+Code: ../../scion_sdk/mcp/tool_surface.py:121
 
-Code: ../../agent_connector_sdk/mcp/method_tools.py:157
+Code: ../../scion_sdk/mcp/method_tools.py:157
 
-Code: ../../agent_connector_sdk/mcp/action_dispatch.py:196
+Code: ../../scion_sdk/mcp/action_dispatch.py:196
 
 Existing code: `scan_many_packages` supplies the import scan. It does not list JSON registration loaders.
 Existing registration and dispatch functions own both supported surfaces.
@@ -574,9 +574,9 @@ EG supplies scaled-hosting proposals based on load and headroom premises. Arbora
 
 Every connector ships one OWL/RDF ontology pack. The pack holds the domain ontology, the ingest contract, and the connector's features, tools, prompts and skills. The engine imports it as native relationships (`MEDULLA-TYPED-PACKS-R101`, `MEDULLA-TYPED-PACKS-R102`). Selection is an engine decision over that ontology. The SDK authors the pack and does not decide.
 
-One typed `ConnectorPackDeclaration` per connector is the single source of truth. `ontology/mappings/source.yaml` is a generated view of it. Call path: certification command → `ConnectorPackDeclaration` → `emit_pack_turtle` → engine `ShaclValidate` preflight → `build_connector_content_pack` (`agent_connector_sdk/artifacts/pack.py:159`) → `ConnectorPackClient` import → engine `ConnectorPack.Import`. A runtime domain ontology revision goes through the engine's `ImportOntology` operation (`MEDULLA-TYPED-PACKS-R103`).
+One typed `ConnectorPackDeclaration` per connector is the single source of truth. `ontology/mappings/source.yaml` is a generated view of it. Call path: certification command → `ConnectorPackDeclaration` → `emit_pack_turtle` → engine `ShaclValidate` preflight → `build_connector_content_pack` (`scion_sdk/artifacts/pack.py:159`) → `ConnectorPackClient` import → engine `ConnectorPack.Import`. A runtime domain ontology revision goes through the engine's `ImportOntology` operation (`MEDULLA-TYPED-PACKS-R103`).
 
-Current state: the SDK compiles manifest YAML into ontology classes only (`agent_connector_sdk/manifest/ontology_pack.py:190`). Mappings, keys, cursors, access, privacy and provenance stay in YAML and JSON. The SDK keeps a separate `ac:` access vocabulary that R067.2 retires. The tool fingerprint domain at `agent_connector_sdk/manifest/tool_schema.py:31` names another package; R067.3 replaces it.
+Current state: the SDK compiles manifest YAML into ontology classes only (`scion_sdk/manifest/ontology_pack.py:190`). Mappings, keys, cursors, access, privacy and provenance stay in YAML and JSON. The SDK keeps a separate `ac:` access vocabulary that R067.2 retires. The tool fingerprint domain at `scion_sdk/manifest/tool_schema.py:31` names another package; R067.3 replaces it.
 ## SCION-CONNECTOR-CONTROL-R068 — connect-time contract resources
 
 References: [MEDULLA-TYPED-PACKS-R104](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/typed-packs-and-catalog/spec.md), [ARBORA-FLEET-R036](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SCION-CONNECTOR-CONTROL-R019, SCION-CONNECTOR-CONTROL-R067
@@ -597,20 +597,20 @@ MCP and A2A have two roles each. MCP serving by a connector uses the SDK `[mcp]`
 
 | Protocol | Authentication | Paging or streaming | Pushdown | Contract term | SDK transport |
 |---|---|---|---|---|---|
-| REST with OpenAPI | API key, OAuth 2.0, mutual TLS | cursor, offset, page | filter, project, sort, limit | `http_endpoint` | `agent_connector_sdk/http` |
-| GraphQL | bearer token, OAuth 2.0 | connection cursors | filter, project, limit | `graphql_query` | `agent_connector_sdk/mcp/graphql.py` |
+| REST with OpenAPI | API key, OAuth 2.0, mutual TLS | cursor, offset, page | filter, project, sort, limit | `http_endpoint` | `scion_sdk/http` |
+| GraphQL | bearer token, OAuth 2.0 | connection cursors | filter, project, limit | `graphql_query` | `scion_sdk/mcp/graphql.py` |
 | gRPC | mutual TLS, bearer token | server streaming | filter, limit | `grpc_method` | to add |
 | OData | OAuth 2.0, basic | `$skip` and `$top` | filter, project, sort, limit, aggregate | `odata_entity_set` | to add |
 | SOAP with WSDL | WS-Security, basic | declared page elements | filter | `soap_operation` | to add |
 | JSON-RPC | bearer token | declared page parameters | filter | `jsonrpc_method` | to add |
-| MCP, consuming | OAuth 2.0, bearer token | result pages | filter, limit | `mcp_tool` | `agent_connector_sdk/transports/mcp.py`, `agent_connector_sdk/adapters/mcp_tool.py` |
-| A2A, consuming | OAuth 2.0, bearer token | task artifacts, streams | filter | `a2a_skill` | to add beside `agent_connector_sdk/ports/transport.py` |
+| MCP, consuming | OAuth 2.0, bearer token | result pages | filter, limit | `mcp_tool` | `scion_sdk/transports/mcp.py`, `scion_sdk/adapters/mcp_tool.py` |
+| A2A, consuming | OAuth 2.0, bearer token | task artifacts, streams | filter | `a2a_skill` | to add beside `scion_sdk/ports/transport.py` |
 | SPARQL endpoint | basic, bearer token | bind-join batches | filter, project, join, limit, sort | `sparql_endpoint` | to add |
 | openCypher or Gremlin endpoint | basic, bearer token | result pages | filter, project, join, aggregate, limit | `graph_endpoint` | to add |
 | SQL through ODBC or JDBC, PostgreSQL wire, Arrow Flight SQL | password, mutual TLS, token | cursors, record batches | filter, project, join, aggregate, limit, time_range | `virtual_graph` | `SCION-CONNECTOR-CONTROL-R044` |
 | AMQP, MQTT, Kafka-protocol streams | SASL, mutual TLS | stream offsets | time_range | `stream_topic` | to add |
 | Change data capture | source credentials | change positions | time_range | `change_feed` | to add |
-| Webhooks | HMAC signature | pushed events | none | `webhook_event` | `agent_connector_sdk/adapters/event_feed.py` |
+| Webhooks | HMAC signature | pushed events | none | `webhook_event` | `scion_sdk/adapters/event_feed.py` |
 | WebSocket and server-sent events | bearer token | stream frames | time_range | `event_stream` | to add |
 | HTTP object API, SFTP, WebDAV | access key, SSH key, basic | listing pages, range reads | filter, project | `file_store` | to add |
 | LDAP | simple bind, SASL | paged results control | filter, project, limit | `directory` | to add |
@@ -635,7 +635,7 @@ R902 lets a tool declare that it needs an acting user. arbora forwards a delegat
 
 ## Amendment: 2026-10-23 declared auth client factory (R028.4)
 
-The fleet inventory found nine hand-written auth shapes across 63 `auth.py` files. The SDK keeps the best variant of each in `agent_connector_sdk.auth.declare`.
+The fleet inventory found nine hand-written auth shapes across 63 `auth.py` files. The SDK keeps the best variant of each in `scion_sdk.auth.declare`.
 
 Static, client-credentials and delegation auth already refresh and redact. This amendment adds a rotated-secret retry for static credentials, the refresh-token grant and a cookie-session login. It adds one declaration surface over the TLS profile resolver.
 

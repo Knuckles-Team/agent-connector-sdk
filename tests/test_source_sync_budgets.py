@@ -8,8 +8,8 @@ from typing import Any
 import pytest
 from test_source_sync import ITEMS, _Checkpoints, _Ingest, _runner, _Session, _spec
 
-from agent_connector_sdk.ingest.source_sync import SourceCheckpointState, SyncBudget
-from agent_connector_sdk.runner.backoff import Backoff
+from scion_sdk.ingest.source_sync import SourceCheckpointState, SyncBudget
+from scion_sdk.runner.backoff import Backoff
 
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.53")
@@ -98,7 +98,7 @@ async def test_record_limit_never_partially_applies_a_page() -> None:
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.53")
 async def test_retry_sleep_respects_remaining_source_deadline() -> None:
-    from agent_connector_sdk.ingest.source_sync import SourceSyncRunner
+    from scion_sdk.ingest.source_sync import SourceSyncRunner
 
     session, ingest, checkpoints = _Session(ITEMS), _Ingest(), _Checkpoints()
     session.failures = 10
@@ -117,7 +117,7 @@ async def test_retry_sleep_respects_remaining_source_deadline() -> None:
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.53")
 async def test_partial_flush_refusal_does_not_advance_checkpoint() -> None:
-    from agent_connector_sdk.ingest.errors import IngestError
+    from scion_sdk.ingest.errors import IngestError
 
     class RefusingIngest(_Ingest):
         async def submit(self, binding, changes):

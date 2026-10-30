@@ -11,28 +11,28 @@ from fleet_fixtures import FRESHRSS_READING_LIST
 from pydantic import ValidationError
 from runner_support import DeclaredSession, freshrss_descriptor
 
-from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
-from agent_connector_sdk.ports.change_source import ChangeEvent
-from agent_connector_sdk.ports.connector_registry import ConnectorRegistry
-from agent_connector_sdk.runner.backoff import Backoff
-from agent_connector_sdk.runner.descriptors import (
+from scion_sdk.credentials.resolver import EnvironmentCredentialResolver
+from scion_sdk.ports.change_source import ChangeEvent
+from scion_sdk.ports.connector_registry import ConnectorRegistry
+from scion_sdk.runner.backoff import Backoff
+from scion_sdk.runner.descriptors import (
     ConnectorDescriptor,
     EndpointSpec,
     RunnerConfig,
     RunnerSettings,
 )
-from agent_connector_sdk.runner.endpoints import CredentialEndpoints, EndpointFactory
-from agent_connector_sdk.runner.errors import (
+from scion_sdk.runner.endpoints import CredentialEndpoints, EndpointFactory
+from scion_sdk.runner.errors import (
     CredentialResolutionError,
     RunnerConfigurationError,
 )
-from agent_connector_sdk.runner.plans import (
+from scion_sdk.runner.plans import (
     CyclePlan,
     change_plan,
     full_plan,
     load_sync_adapters,
 )
-from agent_connector_sdk.runner.static_registry import (
+from scion_sdk.runner.static_registry import (
     StaticConfigRegistry,
     load_runner_config,
 )

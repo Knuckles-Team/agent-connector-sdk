@@ -5,13 +5,13 @@ from xml.etree import ElementTree
 
 import pytest
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.finance.stock_image import (
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.finance.stock_image import (
     GeneratedStockImage,
     generate_stock_image,
 )
-from agent_connector_sdk.finance.stock_source import StockSourceAdapter, StockSourceKind
-from agent_connector_sdk.manifest.presets import ToolPreset
+from scion_sdk.finance.stock_source import StockSourceAdapter, StockSourceKind
+from scion_sdk.manifest.presets import ToolPreset
 
 
 @pytest.mark.spec("SCION-FINANCE-SOURCES-R002.1")

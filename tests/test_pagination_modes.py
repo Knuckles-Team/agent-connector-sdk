@@ -16,14 +16,14 @@ from fleet_fixtures import (
 )
 from pydantic import ValidationError
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.adapters.mcp_tool_paging import next_position, page_params
-from agent_connector_sdk.manifest.model import SchemaMapping, SyncSpec
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.ports.session import McpSession, TransportEndpoint
-from agent_connector_sdk.testing.results import SessionFactory, assert_conformant
-from agent_connector_sdk.testing.source_adapters import run_source_adapter_suite
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.adapters.mcp_tool_paging import next_position, page_params
+from scion_sdk.manifest.model import SchemaMapping, SyncSpec
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.ports.session import McpSession, TransportEndpoint
+from scion_sdk.testing.results import SessionFactory, assert_conformant
+from scion_sdk.testing.source_adapters import run_source_adapter_suite
+from scion_sdk.transports.mcp import McpTransport
 
 TABLE_WIRE_SHA256 = "55996ec96eb3987015ce7d6ec11cb177141c802577ed087d0c07f70a36d37b16"
 SERVICENOW_STYLE: dict[str, Any] = {

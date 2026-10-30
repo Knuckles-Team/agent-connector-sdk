@@ -9,12 +9,12 @@ from typing import Any
 import pytest
 from mcp.shared.exceptions import MCPError
 
-from agent_connector_sdk.httpsupport.rate_limit import RateLimiter
-from agent_connector_sdk.ports.errors import McpTransportError
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.transports import mcp as mcp_transport
-from agent_connector_sdk.transports.mcp_changes import ChangeFeed
-from agent_connector_sdk.transports.mcp_session import McpClientSession
+from scion_sdk.httpsupport.rate_limit import RateLimiter
+from scion_sdk.ports.errors import McpTransportError
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.transports import mcp as mcp_transport
+from scion_sdk.transports.mcp_changes import ChangeFeed
+from scion_sdk.transports.mcp_session import McpClientSession
 
 pytestmark = pytest.mark.spec("SCION-CENTRALIZED-CAPABILITIES-R005")
 

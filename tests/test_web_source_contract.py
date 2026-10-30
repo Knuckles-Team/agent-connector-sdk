@@ -13,7 +13,7 @@ import pytest
 from fastmcp import Client, FastMCP
 from pydantic import ValidationError
 
-from agent_connector_sdk.ports.web_source import (
+from scion_sdk.ports.web_source import (
     REFUSAL_REASONS,
     DomainRateLimiter,
     RobotsRules,
@@ -25,7 +25,7 @@ from agent_connector_sdk.ports.web_source import (
     content_digest,
     register_web_source_tools,
 )
-from agent_connector_sdk.testing.web_source_conformance import (
+from scion_sdk.testing.web_source_conformance import (
     check_web_source,
     fastmcp_caller,
     fixture_site,
@@ -332,15 +332,15 @@ async def test_a_refusal_is_a_result_and_a_bad_digest_is_refused() -> None:
 async def test_contract_defaults_protocol_and_kit_surface() -> None:
     from typing import get_args
 
-    from agent_connector_sdk.ports.web_source import (
+    from scion_sdk.ports.web_source import (
         DEFAULT_ACCEPTED_TYPES,
         DEFAULT_MAX_BYTES,
         DEFAULT_MIN_INTERVAL_S,
         RefusalReason,
         WebSource,
     )
-    from agent_connector_sdk.testing.http_server import RoutedHttpServer, RoutedRequest
-    from agent_connector_sdk.testing.web_source_conformance import (
+    from scion_sdk.testing.http_server import RoutedHttpServer, RoutedRequest
+    from scion_sdk.testing.web_source_conformance import (
         ARTICLE_SENTENCE,
         Caller,
         ConformanceReport,

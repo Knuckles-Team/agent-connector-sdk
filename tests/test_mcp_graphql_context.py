@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from agent_connector_sdk.mcp.context import (
+from scion_sdk.mcp.context import (
     GraphQLField,
     GraphQLFieldArgument,
     GraphQLTypeDetails,

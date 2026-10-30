@@ -7,8 +7,8 @@ from datetime import date
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.adapters.paper_merge import merge_paper_records
-from agent_connector_sdk.adapters.paper_models import (
+from scion_sdk.adapters.paper_merge import merge_paper_records
+from scion_sdk.adapters.paper_models import (
     DocumentOffer,
     DocumentReceipt,
     FieldAlternative,
@@ -20,7 +20,7 @@ from agent_connector_sdk.adapters.paper_models import (
     ProviderReference,
     ProviderReport,
 )
-from agent_connector_sdk.adapters.paper_provider import ProviderPaper
+from scion_sdk.adapters.paper_provider import ProviderPaper
 
 
 def _query(**changes):

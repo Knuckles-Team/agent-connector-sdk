@@ -35,7 +35,7 @@ jobs:
       runner: ${{ github.event.pull_request.head.repo.full_name == github.repository && '["self-hosted", "homelab"]' || '"ubuntu-latest"' }}
       timeout-minutes: 45
       test-scope: tests
-      src-root: agent_connector_sdk
+      src-root: scion_sdk
       setup-command: bash scripts/ci_setup.sh
       uv-cache-local-path: .ci/uv-cache-${{ github.run_id }}-${{ github.run_attempt }}
       # fast-tests duplicates the shared affected-test step; a fork cannot read the identity catalog.
@@ -56,7 +56,7 @@ jobs:
       timeout-minutes: 60
       # Tests run once, in `full`; this job keeps the hook, wheel and docs checks.
       test-scope: ''
-      src-root: agent_connector_sdk
+      src-root: scion_sdk
       setup-command: bash scripts/ci_setup.sh
       uv-cache-local-path: .ci/uv-cache-${{ github.run_id }}-${{ github.run_attempt }}
       skip-hooks: fast-tests
@@ -69,7 +69,7 @@ jobs:
     uses: Knuckles-Team/pipelines/.github/workflows/main_pipeline.yml@main
     with:
       backward-python: "3.12"
-      backward-module: agent_connector_sdk
+      backward-module: scion_sdk
       runner: '["self-hosted", "homelab"]'
       setup-command: bash scripts/ci_full_setup.sh
 

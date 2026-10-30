@@ -1,6 +1,6 @@
 # SCION-CENTRALIZED-CAPABILITIES — Centralized connector capabilities
 
-Owner: agent-connector-sdk. Cross-repo IDs: none.
+Owner: scion-sdk. Cross-repo IDs: none.
 Public provenance: operator request of 2026-10-22 to track everything the SDK centralizes for connectors.
 
 ## Purpose and user stories

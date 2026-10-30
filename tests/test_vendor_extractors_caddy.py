@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.ingest import ChangeSet, Entity
-from agent_connector_sdk.vendor_extractors import (
+from scion_sdk.ingest import ChangeSet, Entity
+from scion_sdk.vendor_extractors import (
     get_vendor_extractor,
     list_vendor_extractors,
 )
-from agent_connector_sdk.vendor_extractors.caddy import CATEGORY, extract
+from scion_sdk.vendor_extractors.caddy import CATEGORY, extract
 
 _CONFIG = {
     "apps": {

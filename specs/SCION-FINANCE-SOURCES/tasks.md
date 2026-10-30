@@ -2,7 +2,7 @@
 
 - [x] Stock history, quote, stream, adjustment, corporate-action, profile, generated illustration, news and calendars (SCION-FINANCE-SOURCES-R002).
 - [x] FRED/ALFRED vintage and FOMC calendar plus other market feed sources (SCION-FINANCE-SOURCES-R001).
-  - [x] Central-bank announcement calendar (`agent_connector_sdk.finance.central_bank_calendar`): one record per published vintage of a scheduled announcement, so a reschedule is a new record, never an overwrite (SCION-FINANCE-SOURCES-R001).
+  - [x] Central-bank announcement calendar (`scion_sdk.finance.central_bank_calendar`): one record per published vintage of a scheduled announcement, so a reschedule is a new record, never an overwrite (SCION-FINANCE-SOURCES-R001).
   - [x] Exchange history retrieval fix and a CoinMarketCap market-data adapter (SCION-FINANCE-SOURCES-R001).
 - [x] Refuse same-page calendar identity collisions (SCION-FINANCE-SOURCES-R001.3).
 - [x] Verify exchange, CoinMarketCap, FRED vintage and FOMC announcement records through the shared source contract (SCION-FINANCE-SOURCES-R001.2).
@@ -12,8 +12,8 @@
 - [x] Account/position reads and idempotent CSV import with preview (SCION-FINANCE-SOURCES-R004).
 - [x] Bind account, position and CSV sources and replay them into the graph (SCION-FINANCE-SOURCES-R004.1).
 - [x] Macro and liquidity panels: FRED series, ETF flows, sentiment, on-chain, each tagged with source and observation time (SCION-FINANCE-SOURCES-R005).
-  - [x] FRED/ALFRED macro series preserving reporting vintage (`agent_connector_sdk.finance.fred_series`) (SCION-FINANCE-SOURCES-R005).
-  - [x] ETF fund-flow panel: net flow and AUM per fund per trading day (`agent_connector_sdk.finance.etf_flows`) (SCION-FINANCE-SOURCES-R005).
+  - [x] FRED/ALFRED macro series preserving reporting vintage (`scion_sdk.finance.fred_series`) (SCION-FINANCE-SOURCES-R005).
+  - [x] ETF fund-flow panel: net flow and AUM per fund per trading day (`scion_sdk.finance.etf_flows`) (SCION-FINANCE-SOURCES-R005).
   - [x] Versioned liquidity composite and heat-strip panel, sentiment data, and on-chain position data (SCION-FINANCE-SOURCES-R005).
 - [ ] Attach exact merged commits, offline CI and opt-in licensed source receipts before acceptance.
 

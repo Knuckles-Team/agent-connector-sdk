@@ -7,7 +7,7 @@ import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-from agent_connector_sdk.writeback import (
+from scion_sdk.writeback import (
     WalletKeyResolver,
     WalletKeyTrust,
     WalletProofBinding,

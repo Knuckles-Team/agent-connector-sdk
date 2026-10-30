@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from agent_connector_sdk.mcp import schema_disclosure as fragments
+from scion_sdk.mcp import schema_disclosure as fragments
 
 
 def encoded(value):

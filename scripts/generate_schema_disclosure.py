@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from agent_connector_sdk.mcp.schema_disclosure import SchemaFragment, SchemaManifest
+from scion_sdk.mcp.schema_disclosure import SchemaFragment, SchemaManifest
 
 
 def schema_documents():

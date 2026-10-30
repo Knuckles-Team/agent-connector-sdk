@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.privacy import (
+from scion_sdk.privacy import (
     PersistencePrivacyGuard,
     PrivacyReport,
     persistence_reference,
     sanitize_for_persistence,
 )
-from agent_connector_sdk.privacy_rules import (
+from scion_sdk.privacy_rules import (
     PATTERNS,
     STRUCTURAL_ID_FIELDS,
     field_name,

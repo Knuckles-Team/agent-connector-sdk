@@ -9,7 +9,7 @@ import pytest
 from fastmcp import Client, FastMCP
 from pydantic import BaseModel
 
-from agent_connector_sdk.mcp.method_tools import (
+from scion_sdk.mcp.method_tools import (
     GATED_TAG,
     GRANULAR_TAG,
     OPERATION_TAG,
@@ -19,7 +19,7 @@ from agent_connector_sdk.mcp.method_tools import (
     operation_verb,
     register_method_tools,
 )
-from agent_connector_sdk.mcp.tool_surface import (
+from scion_sdk.mcp.tool_surface import (
     ACTION_DISPATCH_TAG,
     gated_tool_names,
     operation_prefix,

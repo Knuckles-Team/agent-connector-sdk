@@ -11,12 +11,12 @@ from test_event_feeds import (
     _tool_descriptor,
 )
 
-from agent_connector_sdk.adapters.event_feed_bindings import rum_source_adapter
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.ports.errors import SourceContractError
-from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-from agent_connector_sdk.testing.sinks import InMemorySink
+from scion_sdk.adapters.event_feed_bindings import rum_source_adapter
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.ports.errors import SourceContractError
+from scion_sdk.runner.syncing import SyncTarget, sync_stream
+from scion_sdk.testing.sinks import InMemorySink
 
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.50")
@@ -67,7 +67,7 @@ async def test_repeated_cursor_refuses_page_before_checkpoint(kind):
 
 
 def test_explicit_end_with_repeated_cursor_is_allowed():
-    from agent_connector_sdk.adapters.mcp_tool_paging import next_position
+    from scion_sdk.adapters.mcp_tool_paging import next_position
 
     preset = ToolPreset(
         name="s",
@@ -90,7 +90,7 @@ def test_explicit_end_with_repeated_cursor_is_allowed():
 
 
 def test_empty_cursor_page_still_requires_progress():
-    from agent_connector_sdk.adapters.mcp_tool_paging import next_position
+    from scion_sdk.adapters.mcp_tool_paging import next_position
 
     preset = ToolPreset(
         name="s",

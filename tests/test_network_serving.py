@@ -13,13 +13,13 @@ from starlette.routing import Route, WebSocketRoute
 from starlette.testclient import TestClient
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
-from agent_connector_sdk.mcp.exposure import NetworkExposureError, is_loopback_host
-from agent_connector_sdk.mcp.network import (
+from scion_sdk.mcp.exposure import NetworkExposureError, is_loopback_host
+from scion_sdk.mcp.network import (
     NetworkServingConfig,
     build_network_serving_config,
 )
-from agent_connector_sdk.mcp.parser import create_mcp_parser
-from agent_connector_sdk.mcp.server import create_mcp_server
+from scion_sdk.mcp.parser import create_mcp_parser
+from scion_sdk.mcp.server import create_mcp_server
 
 
 def _args(*argv: str) -> argparse.Namespace:

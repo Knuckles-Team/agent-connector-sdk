@@ -8,8 +8,8 @@ import pytest
 from epistemic_graph.generated.source_ingestion import SourceCheckpoint
 from fixture_server import CONNECTOR, ITEMS, build_reader_server
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.adapters.mcp_tool_paging import (
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.adapters.mcp_tool_paging import (
     checkpoint_after_page,
     dig_path,
     next_position,
@@ -17,27 +17,27 @@ from agent_connector_sdk.adapters.mcp_tool_paging import (
     set_path,
     tool_arguments,
 )
-from agent_connector_sdk.adapters.mcp_tool_records import (
+from scion_sdk.adapters.mcp_tool_records import (
     raw_records,
     raw_relationships,
     source_record,
 )
-from agent_connector_sdk.contracts import CapabilityDescriptor
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.ports.errors import (
+from scion_sdk.contracts import CapabilityDescriptor
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
 )
-from agent_connector_sdk.ports.session import McpSession, TransportEndpoint
-from agent_connector_sdk.ports.source_adapter import SourceAdapter
-from agent_connector_sdk.ports.transport import Transport
-from agent_connector_sdk.testing.results import (
+from scion_sdk.ports.session import McpSession, TransportEndpoint
+from scion_sdk.ports.source_adapter import SourceAdapter
+from scion_sdk.ports.transport import Transport
+from scion_sdk.testing.results import (
     ConformanceFailure,
     ConformanceResult,
     SessionFactory,
     assert_conformant,
 )
-from agent_connector_sdk.testing.source_adapters import (
+from scion_sdk.testing.source_adapters import (
     Sweep,
     check_capability_descriptor,
     check_checkpoint_resume,
@@ -48,8 +48,8 @@ from agent_connector_sdk.testing.source_adapters import (
     run_source_adapter_suite,
     sweep,
 )
-from agent_connector_sdk.transports.mcp import McpTransport, client_target
-from agent_connector_sdk.transports.mcp_session import (
+from scion_sdk.transports.mcp import McpTransport, client_target
+from scion_sdk.transports.mcp_session import (
     McpClientSession,
     McpTransportError,
     decode_tool_result,

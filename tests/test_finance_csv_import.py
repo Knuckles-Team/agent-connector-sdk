@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.finance.csv_import import (
+from scion_sdk.finance.csv_import import (
     AccountContext,
     AmbiguousColumnMappingError,
     AmbiguousCurrencyError,

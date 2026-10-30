@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.testing.successor_parity import (
+from scion_sdk.testing.successor_parity import (
     SuccessorToolParity,
     compare_successor_tools,
 )

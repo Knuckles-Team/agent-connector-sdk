@@ -19,38 +19,38 @@ from runner_support import (
     services,
 )
 
-from agent_connector_sdk.auth.oidc import ClientCredentialsConfig
-from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
-from agent_connector_sdk.ports.sink import Sink, SinkReadiness
-from agent_connector_sdk.runner.credentialed_endpoint import resolve_endpoint
-from agent_connector_sdk.runner.descriptors import ConnectorDescriptor, EndpointSpec
-from agent_connector_sdk.runner.endpoints import CredentialEndpoints
-from agent_connector_sdk.runner.errors import (
+from scion_sdk.auth.oidc import ClientCredentialsConfig
+from scion_sdk.credentials.resolver import EnvironmentCredentialResolver
+from scion_sdk.ports.sink import Sink, SinkReadiness
+from scion_sdk.runner.credentialed_endpoint import resolve_endpoint
+from scion_sdk.runner.descriptors import ConnectorDescriptor, EndpointSpec
+from scion_sdk.runner.endpoints import CredentialEndpoints
+from scion_sdk.runner.errors import (
     CredentialResolutionError,
     RunnerConfigurationError,
 )
-from agent_connector_sdk.runner.health_reporting import (
+from scion_sdk.runner.health_reporting import (
     note_credentials,
     note_cycle_failure,
     note_cycle_success,
     note_heartbeat,
     note_registry_loaded,
 )
-from agent_connector_sdk.runner.health_server import (
+from scion_sdk.runner.health_server import (
     DEFAULT_HEALTH_HOST,
     HealthServer,
     parse_health_address,
 )
-from agent_connector_sdk.runner.health_state import (
+from scion_sdk.runner.health_state import (
     ConnectorHealth,
     HealthReport,
     RunnerHealth,
 )
-from agent_connector_sdk.runner.sink_probe import probe_sink_readiness, sink_reason
-from agent_connector_sdk.runner.supervisor import ConnectorSyncRunner
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
-from agent_connector_sdk.testing.sinks import InMemorySink
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.runner.sink_probe import probe_sink_readiness, sink_reason
+from scion_sdk.runner.supervisor import ConnectorSyncRunner
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.testing.sinks import InMemorySink
+from scion_sdk.transports.mcp import McpTransport
 
 
 def _health(

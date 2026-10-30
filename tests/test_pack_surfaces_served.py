@@ -10,16 +10,16 @@ import pytest
 from fastmcp import Client
 from pydantic import BaseModel
 
-from agent_connector_sdk.access_contract import parse_access_contracts
-from agent_connector_sdk.artifacts.pack import build_content_pack
-from agent_connector_sdk.artifacts.prompts import PromptArtifactKind
-from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
-from agent_connector_sdk.artifacts.skills import SkillArtifactKind
-from agent_connector_sdk.artifacts.tools import ToolArtifactKind
-from agent_connector_sdk.mcp.content import ConnectorContent
-from agent_connector_sdk.mcp.server import create_mcp_server
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.access_contract import parse_access_contracts
+from scion_sdk.artifacts.pack import build_content_pack
+from scion_sdk.artifacts.prompts import PromptArtifactKind
+from scion_sdk.artifacts.resources import ResourceArtifactKind
+from scion_sdk.artifacts.skills import SkillArtifactKind
+from scion_sdk.artifacts.tools import ToolArtifactKind
+from scion_sdk.mcp.content import ConnectorContent
+from scion_sdk.mcp.server import create_mcp_server
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.transports.mcp import McpTransport
 
 
 class Widget(BaseModel):
@@ -158,7 +158,7 @@ async def test_factory_serves_and_packs_every_surface_with_a_parseable_contract(
 
 
 async def test_source_metadata_overrides_live_descriptor(tmp_path: Path) -> None:
-    from agent_connector_sdk.ingest.live_declaration import source_meta
+    from scion_sdk.ingest.live_declaration import source_meta
 
     _, server = _widget_server(tmp_path)
 
@@ -226,7 +226,7 @@ async def test_source_metadata_overrides_live_descriptor(tmp_path: Path) -> None
 
 
 def test_contract_renderer_refuses_noncanonical_resource_identity() -> None:
-    from agent_connector_sdk.artifacts.source_contract import render_source_contract
+    from scion_sdk.artifacts.source_contract import render_source_contract
 
     descriptor = {
         "name": "widgets",
@@ -243,7 +243,7 @@ def test_contract_renderer_refuses_noncanonical_resource_identity() -> None:
 
 
 def test_contract_renderer_refuses_values_that_cannot_round_trip() -> None:
-    from agent_connector_sdk.artifacts.source_contract import render_source_contract
+    from scion_sdk.artifacts.source_contract import render_source_contract
 
     descriptor = {
         "name": "widgets",
@@ -260,7 +260,7 @@ def test_contract_renderer_refuses_values_that_cannot_round_trip() -> None:
 
 
 def test_each_resource_has_a_distinct_stable_foreign_source_id() -> None:
-    from agent_connector_sdk.artifacts.source_contract import render_source_contract
+    from scion_sdk.artifacts.source_contract import render_source_contract
 
     def descriptor(name: str) -> dict[str, object]:
         return {
@@ -309,7 +309,7 @@ def test_each_resource_has_a_distinct_stable_foreign_source_id() -> None:
 def test_paging_and_result_declarations_round_trip(
     mode: str, extra: dict[str, object]
 ) -> None:
-    from agent_connector_sdk.artifacts.source_contract import render_source_contract
+    from scion_sdk.artifacts.source_contract import render_source_contract
 
     descriptor = {
         "name": "widgets",

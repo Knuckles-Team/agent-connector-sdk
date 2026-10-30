@@ -7,15 +7,15 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from rdflib import Graph
 
-from agent_connector_sdk.credentials.provider import CredentialProvider
-from agent_connector_sdk.credentials.references import parse_secret_reference
-from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
-from agent_connector_sdk.manifest import (
+from scion_sdk.credentials.provider import CredentialProvider
+from scion_sdk.credentials.references import parse_secret_reference
+from scion_sdk.ingest.sources import IngestSourceDeclaration
+from scion_sdk.manifest import (
     MAX_RELEASE_LOCK_BYTES,
     create_release_key_lock,
     load_release_key_lock,
 )
-from agent_connector_sdk.manifest.release_signature import (
+from scion_sdk.manifest.release_signature import (
     ReleaseSigningError,
     sign_release,
     verify_release,

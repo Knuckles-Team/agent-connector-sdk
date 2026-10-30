@@ -7,8 +7,8 @@ from typing import Any
 
 import pytest
 
-from agent_connector_sdk.writeback_sinks.core import WritebackContext
-from agent_connector_sdk.writeback_sinks.sinks.process import (
+from scion_sdk.writeback_sinks.core import WritebackContext
+from scion_sdk.writeback_sinks.sinks.process import (
     INTELLIGENCE_KEY,
     GraphComputeReader,
     ProcessSink,

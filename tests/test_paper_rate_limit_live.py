@@ -4,10 +4,10 @@ import asyncio
 
 from live_engine import live_ingest, scoped_client  # noqa: F401
 
-from agent_connector_sdk.adapters.paper_models import PaperQuery
-from agent_connector_sdk.adapters.paper_provider import ProviderFailure, ProviderPage
-from agent_connector_sdk.adapters.paper_quota import PaperQuotaPolicy, SharedPaperQuota
-from agent_connector_sdk.adapters.paper_search import (
+from scion_sdk.adapters.paper_models import PaperQuery
+from scion_sdk.adapters.paper_provider import ProviderFailure, ProviderPage
+from scion_sdk.adapters.paper_quota import PaperQuotaPolicy, SharedPaperQuota
+from scion_sdk.adapters.paper_search import (
     PaperSearchService,
     ProviderBinding,
 )

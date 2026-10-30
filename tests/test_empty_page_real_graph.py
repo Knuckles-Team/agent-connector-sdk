@@ -10,13 +10,13 @@ from live_engine import live_ingest, scoped_client  # noqa: F401
 from test_event_feeds import CONNECTOR
 from test_event_replay_checkpoint import _import_mapping
 
-from agent_connector_sdk.ingest import (
+from scion_sdk.ingest import (
     IngestBinding,
     KnowledgeIngest,
     RecordMap,
     SourceStream,
 )
-from agent_connector_sdk.ingest.transport import EpistemicGraphIngestTransport
+from scion_sdk.ingest.transport import EpistemicGraphIngestTransport
 
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.33")

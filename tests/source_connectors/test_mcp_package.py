@@ -7,13 +7,13 @@ from typing import Any
 
 import pytest
 
-from agent_connector_sdk.source_connectors import ConnectorCheckpoint, build_connector
-from agent_connector_sdk.source_connectors.connectors import mcp_package
-from agent_connector_sdk.source_connectors.connectors.mcp_package import (
+from scion_sdk.source_connectors import ConnectorCheckpoint, build_connector
+from scion_sdk.source_connectors.connectors import mcp_package
+from scion_sdk.source_connectors.connectors.mcp_package import (
     CallToolFn,
     MCPPackageConnector,
 )
-from agent_connector_sdk.source_connectors.connectors.package_manifest import get_preset
+from scion_sdk.source_connectors.connectors.package_manifest import get_preset
 
 
 def _caller(*pages: Any) -> tuple[list[tuple[str, dict[str, Any]]], CallToolFn]:

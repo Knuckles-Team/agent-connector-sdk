@@ -4,6 +4,19 @@
 
 ### Changed
 
+- **Breaking (0.6.0):** the import package moves from `agent_connector_sdk`
+  to `scion_sdk`. Each entry-point group now starts with `scion_sdk.`. The pytest plugin
+  is `scion_sdk.testing.plugin`. The pyproject table is `[tool.scion_sdk]`. The bundled
+  skill is `scion-sdk-development`. Config lives in `$XDG_CONFIG_HOME/scion-sdk`.
+  No alias module exists. Wire identifiers keep their values: the access ontology IRI,
+  the tool-contract fingerprint domains and the problem-type URN prefix.
+
+- `current_actor()` needs no prior `use_actor(...)` call. With no bound actor, it
+  resolves the caller from the request transport. A request without HTTP gets
+  `SYSTEM_ACTOR`. An authenticated HTTP request gets its token actor. An unauthenticated
+  HTTP request gets `ANONYMOUS_ACTOR`. Remove any `use_actor(SYSTEM_ACTOR)` bootstrap.
+  `use_actor` stays as an explicit override (SCION-CONNECTOR-CONTROL-R025.5).
+
 - The OAuth file store now uses complete-key digests. Its old filenames
   collided, so existing file-store users must sign in again.
 
@@ -12,7 +25,9 @@
 
 ### Removed
 
-- `agent_connector_sdk.paths` no longer reads `GRAPH_OS_CONFIG_DIR`, `AGENT_UTILITIES_CONFIG_DIR`, `~/.config/graph-os` or `~/.config/agent-utilities`; the platform config lives under `ARBORA_CONFIG_DIR` / `~/.config/arbora` only. `legacy_platform_config_dir(s)` are removed.
+- The `agent-connector-sdk` forwarder distribution (`compat/`) and its build and publish
+  jobs are gone. Depend on `scion-sdk>=0.6.0,<0.7.0` directly.
+- `scion_sdk.paths` no longer reads `GRAPH_OS_CONFIG_DIR`, `AGENT_UTILITIES_CONFIG_DIR`, `~/.config/graph-os` or `~/.config/agent-utilities`; the platform config lives under `ARBORA_CONFIG_DIR` / `~/.config/arbora` only. `legacy_platform_config_dir(s)` are removed.
 
 ## 0.5.5
 
@@ -30,7 +45,7 @@
 
 ### Fixed
 
-- `agent_connector_sdk.artifacts.pack` no longer maps `manifest://` resources
+- `scion_sdk.artifacts.pack` no longer maps `manifest://` resources
   to `PackEntryKind.MANIFEST`, which `epistemic-graph` 2.27.6 removed. The SDK
   imported with `AttributeError` on a fresh install. A `manifest://` resource
   now has no pack entry kind and `build_content_pack` refuses it
@@ -49,12 +64,12 @@
   `tool_registry`, `action_tools` with `action_prefixes`, `inline_tools`,
   `routes` (`Route`), `readiness` (`Readiness` at `GET /ready`) and
   `content_root`. `build_server` applies each through the fastmcp API.
-- `RegistrationContext` in `agent_connector_sdk.connector_hooks`. It carries
+- `RegistrationContext` in `scion_sdk.connector_hooks`. It carries
   the server, the fleet name, the version and the parsed settings. It also
   carries the client factory and the authentication provider.
 - `register_action_tools(mcp, entries, prefixes=...)` and a `prefix` argument
   on `split_action_tool`.
-- `agent_connector_sdk.config_mounts` holds the schema and the validation of
+- `scion_sdk.config_mounts` holds the schema and the validation of
   `[[tool.pipelines.container.config_mounts]]` (SDK-CONNECTOR-CONTROL-R019.3).
   The `config_mounts` conformance check runs it.
 - `ConnectorContentDirs.content`, the directory that holds the content kinds.

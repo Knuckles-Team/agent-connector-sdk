@@ -8,27 +8,27 @@ import json
 from fastmcp import Client, FastMCP
 from live_engine import live_ingest, scoped_client  # noqa: F401
 
-from agent_connector_sdk.adapters.paper_models import (
+from scion_sdk.adapters.paper_models import (
     FieldEvidence,
     PaperQuery,
     ProviderReference,
 )
-from agent_connector_sdk.adapters.paper_provider import (
+from scion_sdk.adapters.paper_provider import (
     PaperProvider,
     ProviderFailure,
     ProviderPage,
     ProviderPaper,
 )
-from agent_connector_sdk.adapters.paper_quota import PaperQuotaPolicy, SharedPaperQuota
-from agent_connector_sdk.adapters.paper_search import (
+from scion_sdk.adapters.paper_quota import PaperQuotaPolicy, SharedPaperQuota
+from scion_sdk.adapters.paper_search import (
     PaperSearchService,
     ProviderBinding,
 )
-from agent_connector_sdk.adapters.paper_tool import register_paper_search_tool
-from agent_connector_sdk.http.client import create_async_http_client
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.adapters.paper_tool import register_paper_search_tool
+from scion_sdk.http.client import create_async_http_client
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 class _HttpProvider:

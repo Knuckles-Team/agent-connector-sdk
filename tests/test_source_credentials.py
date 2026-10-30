@@ -9,9 +9,9 @@ from typing import Any
 
 import pytest
 
-from agent_connector_sdk.credentials import source as source_module
-from agent_connector_sdk.credentials.references import SecretReference
-from agent_connector_sdk.credentials.source import (
+from scion_sdk.credentials import source as source_module
+from scion_sdk.credentials.references import SecretReference
+from scion_sdk.credentials.source import (
     CREDENTIAL_TYPES,
     ApiKeyCredential,
     AuthMaterial,
@@ -152,7 +152,7 @@ def test_source_registry_wires_secret_and_tls_resolvers_for_refresh(
 
     monkeypatch.setattr(source_module, "resolve_secret_reference", resolve_secret)
 
-    tls_module = importlib.import_module("agent_connector_sdk.tls.resolve")
+    tls_module = importlib.import_module("scion_sdk.tls.resolve")
     tls_calls: list[str] = []
     real_resolve_tls = tls_module.resolve_tls_profile
 

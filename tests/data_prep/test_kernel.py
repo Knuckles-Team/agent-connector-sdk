@@ -10,7 +10,7 @@ import pyarrow as pa
 import pytest
 from pydantic import ConfigDict, ValidationError, create_model
 
-from agent_connector_sdk.data_prep import (
+from scion_sdk.data_prep import (
     CleanPipeline,
     CleanPlan,
     InvalidRowsError,
@@ -555,7 +555,7 @@ from typing import get_args  # noqa: E402
 
 from pydantic import TypeAdapter  # noqa: E402
 
-from agent_connector_sdk.data_prep import (  # noqa: E402
+from scion_sdk.data_prep import (  # noqa: E402
     STEP_VERBS,
     ArrowAdapter,
     ArrowTypeName,
@@ -580,7 +580,7 @@ from agent_connector_sdk.data_prep import (  # noqa: E402
     SchemaVersion,
     StepEvidence,
 )
-from agent_connector_sdk.data_prep._base import ProtocolModel  # noqa: E402
+from scion_sdk.data_prep._base import ProtocolModel  # noqa: E402
 
 
 def test_step_union_dispatches_every_allowlisted_verb_to_its_model() -> None:

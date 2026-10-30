@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.access_contract import (
+from scion_sdk.access_contract import (
     AC,
     ACCESS_KINDS,
     PAGINATION_MODES,

@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from agent_connector_sdk.library_state import file_lock, get_library_file_path
+from scion_sdk.library_state import file_lock, get_library_file_path
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R034")

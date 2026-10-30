@@ -5,17 +5,17 @@ from __future__ import annotations
 import pytest
 from fastmcp import FastMCP
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.finance.multi_asset_source import (
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.finance.multi_asset_source import (
     MultiAssetKind,
     MultiAssetSourceAdapter,
 )
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.ports.errors import MalformedSourceDataError
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-from agent_connector_sdk.testing.sinks import InMemorySink
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.ports.errors import MalformedSourceDataError
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.runner.syncing import SyncTarget, sync_stream
+from scion_sdk.testing.sinks import InMemorySink
+from scion_sdk.transports.mcp import McpTransport
 
 
 def _base(event):
@@ -302,7 +302,7 @@ async def test_provider_records_cross_the_sdk_source_boundary():
 @pytest.mark.spec("SCION-FINANCE-SOURCES-R003.4")
 async def test_bounded_provider_source_cannot_reconcile():
     """A single provider observation is not a complete live set."""
-    from agent_connector_sdk.ports.errors import SourceContractError
+    from scion_sdk.ports.errors import SourceContractError
 
     server = FastMCP("finance", version="1.0.0")
 

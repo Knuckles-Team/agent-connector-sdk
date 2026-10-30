@@ -13,39 +13,39 @@ from fastmcp.server.auth import AccessToken as FastMcpAccessToken
 from mcp.server.auth.middleware.auth_context import auth_context_var
 from mcp.server.auth.middleware.bearer_auth import AuthenticatedUser
 
-from agent_connector_sdk.auth.client_credentials import (
+from scion_sdk.auth.client_credentials import (
     ClientCredentialsAuth,
     ClientCredentialsTokenProvider,
 )
-from agent_connector_sdk.auth.delegation import (
+from scion_sdk.auth.delegation import (
     DelegatedTokenAuth,
     DelegationSettings,
     current_user_identity,
     current_user_token,
     exchange_token,
 )
-from agent_connector_sdk.auth.static import (
+from scion_sdk.auth.static import (
     ApiKeyAuth,
     BearerAuth,
     api_key_auth,
     basic_auth,
     bearer_auth,
 )
-from agent_connector_sdk.auth.tokens import (
+from scion_sdk.auth.tokens import (
     AccessToken,
     TokenRequestError,
     parse_token_response,
     request_access_token,
 )
-from agent_connector_sdk.auth.values import header_safe, resolved_credential
-from agent_connector_sdk.credentials.references import SecretReferenceError
-from agent_connector_sdk.credentials.resolver import CredentialUnavailableError
-from agent_connector_sdk.exceptions import LoginRequiredError
-from agent_connector_sdk.http.client import create_http_client
-from agent_connector_sdk.http.errors import HttpProblemError
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.auth.values import header_safe, resolved_credential
+from scion_sdk.credentials.references import SecretReferenceError
+from scion_sdk.credentials.resolver import CredentialUnavailableError
+from scion_sdk.exceptions import LoginRequiredError
+from scion_sdk.http.client import create_http_client
+from scion_sdk.http.errors import HttpProblemError
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 _JSON = {"Content-Type": "application/json"}
 #: The verified caller access token the fixture MCP context carries.

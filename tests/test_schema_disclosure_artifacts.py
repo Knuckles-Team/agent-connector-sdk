@@ -9,7 +9,7 @@ import pytest
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
-from agent_connector_sdk.mcp.schema_disclosure import (
+from scion_sdk.mcp.schema_disclosure import (
     SchemaFragment,
     SchemaManifest,
     build_schema_disclosure,

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.http.errors import HttpProblemError
-from agent_connector_sdk.httpsupport import PaginationOriginError as Exported
-from agent_connector_sdk.httpsupport.pagination import (
+from scion_sdk.http.errors import HttpProblemError
+from scion_sdk.httpsupport import PaginationOriginError as Exported
+from scion_sdk.httpsupport.pagination import (
     AsyncPaginationIterator,
     PaginationIterator,
     PaginationOriginError,

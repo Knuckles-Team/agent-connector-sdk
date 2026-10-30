@@ -12,7 +12,7 @@ from test_contracts_and_sink import _catalog, _mutation_context
 from test_event_feeds import CONNECTOR, _rum_event
 from test_event_replay_checkpoint import _sync
 
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
 
 
 async def run(socket_path: str) -> None:

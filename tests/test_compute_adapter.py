@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from agent_connector_sdk.compute import (
+from scion_sdk.compute import (
     COMPUTE_SCOPES,
     AlgorithmBinding,
     ComputeUnavailableError,
@@ -14,7 +14,7 @@ from agent_connector_sdk.compute import (
     MethodNotServedError,
     connect_compute,
 )
-from agent_connector_sdk.ingest.engine import EngineSettings
+from scion_sdk.ingest.engine import EngineSettings
 
 pytestmark = pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.23")
 

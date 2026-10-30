@@ -4,8 +4,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from agent_connector_sdk.mcp.context import ToolExecutionContext
-from agent_connector_sdk.mcp.request_cache import (
+from scion_sdk.mcp.context import ToolExecutionContext
+from scion_sdk.mcp.request_cache import (
     DEFAULT_REQUEST_CACHE_ENTRIES,
     RequestCache,
     RequestCacheKey,
@@ -59,7 +59,7 @@ def test_request_cache_is_bounded_scoped_and_expires() -> None:
 
 
 def test_deadline_is_rechecked_after_admission(monkeypatch) -> None:
-    from agent_connector_sdk.mcp import request_cache
+    from scion_sdk.mcp import request_cache
 
     context = _context("during-admission")
     current = [context.deadline - timedelta(seconds=1)]

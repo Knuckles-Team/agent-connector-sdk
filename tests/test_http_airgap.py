@@ -3,12 +3,12 @@
 import httpx
 import pytest
 
-from agent_connector_sdk.http.client import (
+from scion_sdk.http.client import (
     AirgapViolation,
     create_async_http_client,
     create_http_client,
 )
-from agent_connector_sdk.http.options import HttpClientOptions
+from scion_sdk.http.options import HttpClientOptions
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.7")
@@ -51,8 +51,8 @@ async def test_airgap_async_client_blocks_external_before_transport(monkeypatch)
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.7")
 def test_airgap_refuses_proxy_even_for_local_destination(monkeypatch):
-    from agent_connector_sdk.http.client import default_ssl_context
-    from agent_connector_sdk.tls.profile import ResolvedTLSProfile
+    from scion_sdk.http.client import default_ssl_context
+    from scion_sdk.tls.profile import ResolvedTLSProfile
 
     profile = ResolvedTLSProfile(
         name="proxy",

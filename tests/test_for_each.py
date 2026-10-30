@@ -11,20 +11,20 @@ import pytest
 from fastmcp import FastMCP
 from pydantic import ValidationError
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.ingest.for_each import MAX_FAN_OUT, ForEach
-from agent_connector_sdk.ingest.source_sync import (
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.ingest.for_each import MAX_FAN_OUT, ForEach
+from scion_sdk.ingest.source_sync import (
     SourceCheckpointState,
     SourceSyncRunner,
     SyncBudget,
 )
-from agent_connector_sdk.ingest.sources import (
+from scion_sdk.ingest.sources import (
     IngestSourceDeclaration,
     IngestSourceSpec,
 )
-from agent_connector_sdk.manifest.declaration import contract_from_declaration
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.manifest.declaration import contract_from_declaration
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.transports.mcp import McpTransport
 
 PARENTS = [{"id": f"p{i}", "name": f"project-{i}"} for i in range(1, 4)]
 CHILDREN = {
@@ -233,7 +233,7 @@ async def test_preset_adapter_fans_out_and_pages_each_parent() -> None:
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.28")
 def test_preset_adapter_refuses_unknown_parent() -> None:
     items = _source("items", "list_items", for_each=LINK, preset={"doc_type": "item"})
-    from agent_connector_sdk.manifest.declaration import _sync_spec
+    from scion_sdk.manifest.declaration import _sync_spec
 
     spec = _sync_spec(items, "fan")
     with pytest.raises(ValueError, match="unknown_parent_source"):
@@ -247,9 +247,9 @@ def test_preset_adapter_refuses_unknown_parent() -> None:
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.28")
 def test_check_for_each_and_parent_presets_refuse_by_code() -> None:
-    from agent_connector_sdk.adapters import mcp_tool_fanout
-    from agent_connector_sdk.ingest.for_each import ForEachRefusal, check_for_each
-    from agent_connector_sdk.manifest.presets import ToolPreset
+    from scion_sdk.adapters import mcp_tool_fanout
+    from scion_sdk.ingest.for_each import ForEachRefusal, check_for_each
+    from scion_sdk.manifest.presets import ToolPreset
 
     link = ForEach(source="b", argument="x")
     with pytest.raises(ForEachRefusal) as missing:

@@ -4,14 +4,14 @@ import time
 
 import pytest
 
-from agent_connector_sdk.testing.writeback import make_writeback_fixture
-from agent_connector_sdk.writeback import (
+from scion_sdk.testing.writeback import make_writeback_fixture
+from scion_sdk.writeback import (
     RecordedApprovalResolver,
     write_back_approval_target,
 )
-from agent_connector_sdk.writeback.durable_ledger import FileWriteBackLedger
-from agent_connector_sdk.writeback.errors import AuthorizationDeniedError
-from agent_connector_sdk.writeback.service import GovernedWriteBack
+from scion_sdk.writeback.durable_ledger import FileWriteBackLedger
+from scion_sdk.writeback.errors import AuthorizationDeniedError
+from scion_sdk.writeback.service import GovernedWriteBack
 
 
 class _GraphClient:
@@ -136,7 +136,7 @@ async def test_revoked_during_audit_reservation_never_applies(tmp_path):
 
 
 async def test_durable_connector_uses_injected_recorded_approval(tmp_path):
-    from agent_connector_sdk.writeback.connector import DurableWritableConnector
+    from scion_sdk.writeback.connector import DurableWritableConnector
 
     fixture = make_writeback_fixture()
     now = time.time_ns() // 1_000_000

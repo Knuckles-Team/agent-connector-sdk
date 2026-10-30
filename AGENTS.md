@@ -1,4 +1,4 @@
-# agent-connector-sdk engineering contract
+# scion-sdk engineering contract
 
 <!-- agent-contract:start -->
 ## Agent contract
@@ -26,7 +26,7 @@ Route every feature with the [ecosystem boundaries standard](https://github.com/
 
 ## What this repository owns
 
-`agent-connector-sdk` is the connector control and transport layer. It owns:
+`scion-sdk` is the connector control and transport layer. It owns:
 
 - secure FastMCP server construction, authentication, network-exposure checks,
   visibility, rate limiting, action dispatch, and tool registration;
@@ -51,26 +51,26 @@ the `phase-direction` gate.
 
 | Path | Responsibility |
 |---|---|
-| `agent_connector_sdk/mcp/` | server factory, auth composition, visibility, content, tools, subscriptions, registry leases |
-| `agent_connector_sdk/manifest/` | manifest models, loaders, sync presets, live-contract validation, fingerprints |
-| `agent_connector_sdk/ports/` | one typed protocol per extension boundary |
-| `agent_connector_sdk/discovery.py` | entry-point discovery and explicit activation policy |
-| `agent_connector_sdk/adapters/` | reference source adapters |
-| `agent_connector_sdk/artifacts/` | MCP content capture and canonical pack construction |
-| `agent_connector_sdk/transports/` | authenticated connector sessions |
-| `agent_connector_sdk/sinks/` | graph-bound sink adapters and readiness reporting |
-| `agent_connector_sdk/repository/` | authenticated immutable snapshot paging, manifests, and bounded transport to EG IndexRepository; no semantic writer |
-| `agent_connector_sdk/runner/` | `connector-sync` composition, workers, scheduling, durable EG status reads, health |
-| `agent_connector_sdk/writeback/` | governed dry-run, authorization, version checks, idempotency, reconciliation |
-| `agent_connector_sdk/http/`, `tls/`, `auth/` | governed outbound requests and identity boundaries |
-| `agent_connector_sdk/credentials/` | `env://` and `openbao://` references and resolvers |
-| `agent_connector_sdk/testing/` | reusable connector conformance suites |
+| `scion_sdk/mcp/` | server factory, auth composition, visibility, content, tools, subscriptions, registry leases |
+| `scion_sdk/manifest/` | manifest models, loaders, sync presets, live-contract validation, fingerprints |
+| `scion_sdk/ports/` | one typed protocol per extension boundary |
+| `scion_sdk/discovery.py` | entry-point discovery and explicit activation policy |
+| `scion_sdk/adapters/` | reference source adapters |
+| `scion_sdk/artifacts/` | MCP content capture and canonical pack construction |
+| `scion_sdk/transports/` | authenticated connector sessions |
+| `scion_sdk/sinks/` | graph-bound sink adapters and readiness reporting |
+| `scion_sdk/repository/` | authenticated immutable snapshot paging, manifests, and bounded transport to EG IndexRepository; no semantic writer |
+| `scion_sdk/runner/` | `connector-sync` composition, workers, scheduling, durable EG status reads, health |
+| `scion_sdk/writeback/` | governed dry-run, authorization, version checks, idempotency, reconciliation |
+| `scion_sdk/http/`, `tls/`, `auth/` | governed outbound requests and identity boundaries |
+| `scion_sdk/credentials/` | `env://` and `openbao://` references and resolvers |
+| `scion_sdk/testing/` | reusable connector conformance suites |
 | `tests/` | unit, integration, contract, and gate tests |
 | `docs/` | public GitHub Pages sources and generated shared-theme assets |
 | `.config/mkdocs-overrides/` | shared MkDocs Material template overrides |
 
 The public Python surface is declared in
-`pyproject.toml` under `[tool.agent_connector_sdk.wiring]`. Every module must be
+`pyproject.toml` under `[tool.scion_sdk.wiring]`. Every module must be
 reachable from a public module or an entry point, and every public name must be
 exercised by a test.
 

@@ -7,10 +7,10 @@ import socket
 import httpx
 import pytest
 
-from agent_connector_sdk.http.client import create_async_http_client, create_http_client
-from agent_connector_sdk.http.egress import PinnedEgressViolation
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.http.client import create_async_http_client, create_http_client
+from scion_sdk.http.egress import PinnedEgressViolation
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.2")

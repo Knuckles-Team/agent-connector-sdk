@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
 
-from agent_connector_sdk.vendor_extractors import a2a_discovery as discovery
+from scion_sdk.vendor_extractors import a2a_discovery as discovery
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R047.2")

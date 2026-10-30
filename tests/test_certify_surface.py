@@ -8,31 +8,31 @@ import anyio
 import pytest
 from fastmcp import FastMCP
 
-from agent_connector_sdk.certify.certification import CertificationReport, _exact_names
-from agent_connector_sdk.certify.checkout import ConnectorCheckout
-from agent_connector_sdk.certify.cli import (
+from scion_sdk.certify.certification import CertificationReport, _exact_names
+from scion_sdk.certify.checkout import ConnectorCheckout
+from scion_sdk.certify.cli import (
     PLACEHOLDER_VALUE,
     build_endpoint,
     parse_arguments,
 )
-from agent_connector_sdk.certify.fingerprints import (
+from scion_sdk.certify.fingerprints import (
     EmptyToolSchemaError,
     is_empty_schema_pin,
     output_schema_digest,
     tool_fingerprint,
 )
-from agent_connector_sdk.certify.listing import (
+from scion_sdk.certify.listing import (
     ToolListing,
     ToolListingError,
     list_server_tools,
 )
-from agent_connector_sdk.certify.verdicts import ToolStatus, ToolVerdict
-from agent_connector_sdk.manifest.live_contract import (
+from scion_sdk.certify.verdicts import ToolStatus, ToolVerdict
+from scion_sdk.manifest.live_contract import (
     LiveToolContract,
     validate_live_tool_contract,
 )
-from agent_connector_sdk.manifest.model import ResourceRelation
-from agent_connector_sdk.manifest.tool_schema import (
+from scion_sdk.manifest.model import ResourceRelation
+from scion_sdk.manifest.tool_schema import (
     COMPATIBILITY_FINGERPRINT_ALGORITHM,
     ToolSchemaContractError,
     canonical_input_schema,
@@ -42,8 +42,8 @@ from agent_connector_sdk.manifest.tool_schema import (
     read_field,
     schema_fingerprint,
 )
-from agent_connector_sdk.signing import canonical
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.signing import canonical
+from scion_sdk.transports.mcp import McpTransport
 
 TOOL = SimpleNamespace(
     name="t",
@@ -88,7 +88,7 @@ def test_listing_reads_tools_and_declaration() -> None:
 
     class _Transport:
         def session(self, endpoint: object):
-            from agent_connector_sdk.ports.session import TransportEndpoint
+            from scion_sdk.ports.session import TransportEndpoint
 
             return McpTransport().session(TransportEndpoint(in_process=mcp))
 

@@ -7,13 +7,13 @@ from datetime import UTC, datetime, timedelta, timezone
 import pytest
 from weather_test_helpers import weather_request
 
-from agent_connector_sdk.earth_observations.weather import (
+from scion_sdk.earth_observations.weather import (
     WeatherProvider,
     WeatherProviderError,
 )
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 @pytest.mark.asyncio

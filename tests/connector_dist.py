@@ -18,7 +18,7 @@ demo:DemoLeaf a owl:Class ; rdfs:subClassOf demo:DemoItem .
 ORPHAN = ONTOLOGY + "demo:Lonely a owl:Class .\n"
 
 INIT = """\
-from agent_connector_sdk.connector import Connector
+from scion_sdk.connector import Connector
 
 from democonn.client import Api, get_client
 
@@ -40,7 +40,7 @@ def get_client() -> Api:
 '''
 
 SOURCES = """\
-from agent_connector_sdk.ingest.live_declaration import source_meta
+from scion_sdk.ingest.live_declaration import source_meta
 
 SCHEMA_VERSION = 2
 FIELD_SETS = {"common": {"name": "xsd:string", "created": "xsd:dateTime"}}
@@ -97,7 +97,7 @@ def build(
         f"Metadata-Version: 2.1\nName: democonn\nVersion: {version}\n"
     )
     (dist / "entry_points.txt").write_text(
-        "[agent_connector_sdk.connector]\ndemo-mcp = democonn:connector\n"
+        "[scion_sdk.connector]\ndemo-mcp = democonn:connector\n"
         + (f"[{extra_group}]\ndemo-mcp = democonn.skills\n" if extra_group else "")
     )
     extra = (
@@ -112,7 +112,7 @@ def build(
             name = "democonn"
             version = "{version}"
 
-            [project.entry-points."agent_connector_sdk.connector"]
+            [project.entry-points."scion_sdk.connector"]
             demo-mcp = "democonn:connector"
             {extra}
             """

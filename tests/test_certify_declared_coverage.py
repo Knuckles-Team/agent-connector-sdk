@@ -1,6 +1,6 @@
 import pytest
 
-from agent_connector_sdk.certify.declared_coverage import (
+from scion_sdk.certify.declared_coverage import (
     REQUIRED_PROVENANCE_PATHS,
     DeclaredSemanticCoverage,
     DeclaredSemanticCoverageError,

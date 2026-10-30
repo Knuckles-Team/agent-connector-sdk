@@ -17,26 +17,26 @@ from starlette.requests import Request
 from starlette.responses import PlainTextResponse, Response
 from starlette.testclient import TestClient
 
-from agent_connector_sdk.config_mounts import (
+from scion_sdk.config_mounts import (
     CONFIG_MOUNTS_SCHEMA,
     CONFIG_ROOT,
     ConfigMount,
     ConfigMountError,
     config_mounts,
 )
-from agent_connector_sdk.connector import (
+from scion_sdk.connector import (
     Connector,
     build_server,
     content_dirs,
     resolve_connector,
 )
-from agent_connector_sdk.connector_hooks import (
+from scion_sdk.connector_hooks import (
     Readiness,
     RegistrationContext,
     Route,
 )
-from agent_connector_sdk.mcp.action_split import split_action_tool
-from agent_connector_sdk.testing.conformance import ConformanceFailure, run_check
+from scion_sdk.mcp.action_split import split_action_tool
+from scion_sdk.testing.conformance import ConformanceFailure, run_check
 
 
 @pytest.fixture
@@ -313,12 +313,12 @@ def test_config_mounts_parse_interpolated_and_absolute_sources() -> None:
         _pyproject(
             'config_mounts = [{source = "${CONNECTOR_CONFIG_DIR:?set-it}", '
             'target = "/etc/connector"}, {source = "${AGENT_CONFIG_DIR:-/etc/sdk}", '
-            'target = "/etc/agent-connector-sdk"}, {source = "/srv/conf", target = "/etc/x"}]'
+            'target = "/etc/scion-sdk"}, {source = "/srv/conf", target = "/etc/x"}]'
         )
     )
     assert mounts == (
         ConfigMount("${CONNECTOR_CONFIG_DIR:?set-it}", "/etc/connector"),
-        ConfigMount("${AGENT_CONFIG_DIR:-/etc/sdk}", "/etc/agent-connector-sdk"),
+        ConfigMount("${AGENT_CONFIG_DIR:-/etc/sdk}", "/etc/scion-sdk"),
         ConfigMount("/srv/conf", "/etc/x"),
     )
     assert config_mounts({}) == ()
@@ -370,7 +370,7 @@ def test_conformance_check_fails_an_unsafe_config_mount(democonn) -> None:
 # --- the hook helpers, used directly ---------------------------------------------------------------
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R019.2")
 def test_hook_helpers_serve_on_a_plain_server() -> None:
-    from agent_connector_sdk.connector_hooks import (
+    from scion_sdk.connector_hooks import (
         READINESS_PATH,
         RESERVED_PATHS,
         InlineTool,
@@ -383,7 +383,7 @@ def test_hook_helpers_serve_on_a_plain_server() -> None:
         serve_readiness,
         serve_routes,
     )
-    from agent_connector_sdk.mcp.tool_surface import register_action_tools
+    from scion_sdk.mcp.tool_surface import register_action_tools
 
     registrar: ServerRegistrar = register_router_tools
     entry: ToolRegistryEntry = ("router", "ROUTERTOOL", registrar)

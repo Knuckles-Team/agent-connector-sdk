@@ -5,11 +5,11 @@ from types import SimpleNamespace
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.adapters.event_envelope import FeedKind
-from agent_connector_sdk.adapters.event_feed import EventFeedSourceAdapter
-from agent_connector_sdk.adapters.evm_chain import EvmLogDescriptor, EvmTrade
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.ports.errors import SourceContractError
+from scion_sdk.adapters.event_envelope import FeedKind
+from scion_sdk.adapters.event_feed import EventFeedSourceAdapter
+from scion_sdk.adapters.evm_chain import EvmLogDescriptor, EvmTrade
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.ports.errors import SourceContractError
 
 ADDRESS = "0x" + "a" * 40
 HASH = "0x" + "b" * 64

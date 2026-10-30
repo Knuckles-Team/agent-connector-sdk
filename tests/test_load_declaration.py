@@ -8,11 +8,11 @@ from pathlib import Path
 import pytest
 from connector_dist import build
 
-from agent_connector_sdk.ingest import DeclarationError, load_declaration
-from agent_connector_sdk.ingest.live_declaration import expand_field_sets
+from scion_sdk.ingest import DeclarationError, load_declaration
+from scion_sdk.ingest.live_declaration import expand_field_sets
 
 V1 = """\
-from agent_connector_sdk.ingest.live_declaration import source_meta
+from scion_sdk.ingest.live_declaration import source_meta
 
 SOURCES = (source_meta(tool="demo_list_items", source_id="demo-items", record_type="DemoItem", id_field="id"),)
 SCHEMA_MAPPINGS = {"DemoItem": {"ontology_class": "DemoItem", "fields": {"name": "xsd:string"}}}
@@ -78,6 +78,6 @@ def test_a_package_without_sources_is_refused(tmp_path, monkeypatch) -> None:
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.29")
 def test_reader_accepts_schema_versions_one_and_two() -> None:
-    from agent_connector_sdk.ingest.live_declaration import DECLARATION_SCHEMA_VERSIONS
+    from scion_sdk.ingest.live_declaration import DECLARATION_SCHEMA_VERSIONS
 
     assert DECLARATION_SCHEMA_VERSIONS == (1, 2)

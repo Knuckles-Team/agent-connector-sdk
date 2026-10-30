@@ -6,14 +6,14 @@ import json
 
 import pytest
 
-from agent_connector_sdk.ingest import ChangeSet
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
-from agent_connector_sdk.vendor_extractors.a2a import CATEGORY as A2A_CATEGORY
-from agent_connector_sdk.vendor_extractors.a2a import extract as a2a_extract
-from agent_connector_sdk.vendor_extractors.archer import CATEGORY as ARCHER_CATEGORY
-from agent_connector_sdk.vendor_extractors.archer import extract as archer_extract
-from agent_connector_sdk.vendor_extractors.infra import CATEGORY as INFRA_CATEGORY
-from agent_connector_sdk.vendor_extractors.infra import extract as infra_extract
+from scion_sdk.ingest import ChangeSet
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.vendor_extractors.a2a import CATEGORY as A2A_CATEGORY
+from scion_sdk.vendor_extractors.a2a import extract as a2a_extract
+from scion_sdk.vendor_extractors.archer import CATEGORY as ARCHER_CATEGORY
+from scion_sdk.vendor_extractors.archer import extract as archer_extract
+from scion_sdk.vendor_extractors.infra import CATEGORY as INFRA_CATEGORY
+from scion_sdk.vendor_extractors.infra import extract as infra_extract
 
 
 class _FakeClient:

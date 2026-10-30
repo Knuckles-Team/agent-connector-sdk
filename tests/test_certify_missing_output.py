@@ -7,18 +7,18 @@ from types import SimpleNamespace
 import pytest
 from fastmcp import Client, FastMCP
 
-from agent_connector_sdk.certify.certification import certify_connector
-from agent_connector_sdk.certify.fingerprints import (
+from scion_sdk.certify.certification import certify_connector
+from scion_sdk.certify.fingerprints import (
     output_schema_digest,
     tool_fingerprint,
 )
-from agent_connector_sdk.certify.verdicts import ToolStatus
-from agent_connector_sdk.ingest.live_declaration import (
+from scion_sdk.certify.verdicts import ToolStatus
+from scion_sdk.ingest.live_declaration import (
     register_live_declaration,
     source_meta,
 )
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.transports.mcp import McpTransport
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R003")

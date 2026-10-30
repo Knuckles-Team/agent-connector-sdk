@@ -1,7 +1,7 @@
 # SCION-REPOSITORY-TRANSPORT — Authenticated immutable repository transport
 
 **Requirement IDs:** SCION-REPOSITORY-TRANSPORT-R001, SCION-REPOSITORY-TRANSPORT-R002, SCION-REPOSITORY-TRANSPORT-R003, SCION-REPOSITORY-TRANSPORT-R004, SCION-REPOSITORY-TRANSPORT-R005.
-**Owner:** agent-connector-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
+**Owner:** scion-sdk. **Delivery state:** UNKNOWN. **Acceptance state:** OPEN.
 
 ## Outcome and boundary
 

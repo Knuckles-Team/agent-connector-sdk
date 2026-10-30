@@ -7,8 +7,8 @@ import requests
 from requests.adapters import BaseAdapter
 from requests.models import Response
 
-from agent_connector_sdk.http.client import AirgapViolation
-from agent_connector_sdk.http.requests import create_requests_session
+from scion_sdk.http.client import AirgapViolation
+from scion_sdk.http.requests import create_requests_session
 
 
 class _Adapter(BaseAdapter):

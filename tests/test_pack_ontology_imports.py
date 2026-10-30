@@ -6,11 +6,11 @@ import pytest
 from rdflib import Graph, URIRef
 from rdflib.namespace import OWL
 
-from agent_connector_sdk.artifacts.ontology_imports import (
+from scion_sdk.artifacts.ontology_imports import (
     IMPORT_REQUIREMENT_PREFIX,
     scope_ontology_imports,
 )
-from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
+from scion_sdk.contracts import CapturedArtifact, ServerIdentity
 
 HUB = "http://knuckles.team/kg"
 SELF = "ontology://demo/demo.ttl"

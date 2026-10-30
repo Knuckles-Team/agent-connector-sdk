@@ -6,9 +6,9 @@ import hashlib
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.ports.writeback_transport import AuditBoundWriteBackTransport
-from agent_connector_sdk.testing.writeback import make_writeback_fixture
-from agent_connector_sdk.writeback import (
+from scion_sdk.ports.writeback_transport import AuditBoundWriteBackTransport
+from scion_sdk.testing.writeback import make_writeback_fixture
+from scion_sdk.writeback import (
     RepositorySourceEffectIntent,
     RepositorySourceEffectReceipt,
     RepositorySourceEffectRequest,
@@ -202,7 +202,7 @@ def test_request_revalidates_unchecked_copied_intent():
 
 
 def test_receipt_binds_approved_request_and_reservation():
-    from agent_connector_sdk.ports.audit_reservation import AuditReservation
+    from scion_sdk.ports.audit_reservation import AuditReservation
 
     request = _request()
     change, intent = request.change_set, request.intent
@@ -243,7 +243,7 @@ def test_receipt_binds_approved_request_and_reservation():
 
 
 async def test_audit_bound_transport_never_receives_unreserved_effect(monkeypatch):
-    from agent_connector_sdk.writeback.errors import AuditReservationUnavailableError
+    from scion_sdk.writeback.errors import AuditReservationUnavailableError
 
     fixture = make_writeback_fixture()
     fixture.audit.deny_next(fixture.change_set.idempotency_key)

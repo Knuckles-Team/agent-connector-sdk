@@ -8,14 +8,14 @@ from pathlib import Path
 import pytest
 from connector_dist import ORPHAN, build
 
-from agent_connector_sdk.connector import resolve_connector
-from agent_connector_sdk.testing.conformance import (
+from scion_sdk.connector import resolve_connector
+from scion_sdk.testing.conformance import (
     CHECKS,
     REMOVED_PROVIDER_GROUPS,
     run_check,
 )
-from agent_connector_sdk.testing.ontology_rollup import orphan_classes
-from agent_connector_sdk.testing.plugin import declared_package
+from scion_sdk.testing.ontology_rollup import orphan_classes
+from scion_sdk.testing.plugin import declared_package
 
 pytest_plugins = ["pytester"]
 
@@ -58,7 +58,7 @@ def test_every_check_passes_for_a_conforming_connector(tmp_path, monkeypatch) ->
         ),
         (
             "one_entry_point",
-            {"extra_group": "agent_connector_sdk.skill_providers"},
+            {"extra_group": "scion_sdk.skill_providers"},
             "remove entry-point groups",
         ),
         (
@@ -133,7 +133,7 @@ def test_plugin_is_inert_without_a_declaration_and_for_explicit_node_ids(
 
 @pytest.mark.spec("SCION-QUALITY-RELEASE-R005.1")
 def test_ontology_parser_and_namespace(tmp_path) -> None:
-    from agent_connector_sdk.testing.ontology_rollup import (
+    from scion_sdk.testing.ontology_rollup import (
         CORE_NAMESPACE,
         parse_triples,
     )
@@ -144,8 +144,8 @@ def test_ontology_parser_and_namespace(tmp_path) -> None:
 
 @pytest.mark.spec("SCION-QUALITY-RELEASE-R005.1")
 def test_generated_items_carry_the_check_and_spec_marker(tmp_path, monkeypatch) -> None:
-    from agent_connector_sdk.testing.conformance import Check
-    from agent_connector_sdk.testing.plugin import ConformanceItem
+    from scion_sdk.testing.conformance import Check
+    from scion_sdk.testing.plugin import ConformanceItem
 
     assert all(isinstance(check, Check) for check in CHECKS)
     assert ConformanceItem.__mro__[1] is pytest.Item
@@ -155,7 +155,7 @@ def test_generated_items_carry_the_check_and_spec_marker(tmp_path, monkeypatch) 
 def test_startup_check_requires_the_health_route_to_answer(
     tmp_path, monkeypatch
 ) -> None:
-    from agent_connector_sdk.testing import conformance
+    from scion_sdk.testing import conformance
 
     resolved = _install(tmp_path, monkeypatch)
     assert conformance._health_status(conformance._server(resolved)) == 200

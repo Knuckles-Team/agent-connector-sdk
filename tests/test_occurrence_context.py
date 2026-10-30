@@ -4,16 +4,16 @@ from datetime import UTC, datetime
 
 import pytest
 
-from agent_connector_sdk.earth_observations.occurrence_context import (
+from scion_sdk.earth_observations.occurrence_context import (
     OccurrenceContext,
     _occurrence_entities,
 )
-from agent_connector_sdk.earth_observations.records import (
+from scion_sdk.earth_observations.records import (
     OrganismObservation,
     Place,
     Region,
 )
-from agent_connector_sdk.taxonomy.records import TaxonRecord
+from scion_sdk.taxonomy.records import TaxonRecord
 
 
 def _row():

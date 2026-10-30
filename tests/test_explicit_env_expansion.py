@@ -2,7 +2,7 @@
 
 import pytest
 
-from agent_connector_sdk.utilities import expand_env_vars, to_integer
+from scion_sdk.utilities import expand_env_vars, to_integer
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.12")

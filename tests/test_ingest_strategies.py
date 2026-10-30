@@ -11,8 +11,8 @@ import anyio
 import pytest
 from fastmcp import Client, FastMCP
 
-from agent_connector_sdk.connector_hooks import RegistrationContext
-from agent_connector_sdk.ingest import (
+from scion_sdk.connector_hooks import RegistrationContext
+from scion_sdk.ingest import (
     ChangeSet,
     CursorStrategy,
     Entity,
@@ -30,7 +30,7 @@ from agent_connector_sdk.ingest import (
     TimeWindowCursor,
     ingest_registration,
 )
-from agent_connector_sdk.ingest.tools import INGEST_TOOL_TAGS
+from scion_sdk.ingest.tools import INGEST_TOOL_TAGS
 
 BINDING = IngestBinding(connector="demo-mcp", stream="demo")
 
@@ -261,7 +261,7 @@ def test_ingest_tools_register_with_standard_annotations_and_run() -> None:
 
     sink = _Ingest()
     stream = _stream()
-    from agent_connector_sdk.ingest import install_ingest
+    from scion_sdk.ingest import install_ingest
 
     install_ingest(sink)  # type: ignore[arg-type]
     try:

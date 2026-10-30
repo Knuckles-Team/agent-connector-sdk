@@ -8,20 +8,20 @@ from test_contracts_and_sink import _catalog
 from test_event_feeds import CONNECTOR
 from test_paper_search_served import _HttpProvider
 
-from agent_connector_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from agent_connector_sdk.adapters.paper_ingest_tool import (
+from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+from scion_sdk.adapters.paper_ingest_tool import (
     register_paper_provider_stream,
 )
-from agent_connector_sdk.adapters.paper_models import PaperQuery
-from agent_connector_sdk.adapters.paper_provider import ProviderPage
-from agent_connector_sdk.adapters.paper_quota import PaperQuotaPolicy, SharedPaperQuota
-from agent_connector_sdk.adapters.paper_search import (
+from scion_sdk.adapters.paper_models import PaperQuery
+from scion_sdk.adapters.paper_provider import ProviderPage
+from scion_sdk.adapters.paper_quota import PaperQuotaPolicy, SharedPaperQuota
+from scion_sdk.adapters.paper_search import (
     PaperSearchService,
     ProviderBinding,
 )
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.sinks.epistemic_graph import EpistemicGraphSink
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.sinks.epistemic_graph import EpistemicGraphSink
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 async def exercise(url):

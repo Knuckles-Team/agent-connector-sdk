@@ -9,9 +9,9 @@ from typing import Any
 import pytest
 from gql.transport.exceptions import TransportQueryError, TransportServerError
 
-from agent_connector_sdk.exceptions import ParameterError
-from agent_connector_sdk.tls.resolve import resolve_tls_profile
-from agent_connector_sdk.transports.graphql import (
+from scion_sdk.exceptions import ParameterError
+from scion_sdk.tls.resolve import resolve_tls_profile
+from scion_sdk.transports.graphql import (
     RETRYABLE_STATUS,
     GraphQLAuth,
     GraphQLClient,
@@ -228,7 +228,7 @@ def test_close_suppresses_upstream_details_and_cleans_tls(caplog, tmp_path) -> N
             raise RuntimeError("private bearer-token and response-body")
 
     client._client = BrokenClient()
-    with caplog.at_level("DEBUG", logger="agent_connector_sdk.transports.graphql"):
+    with caplog.at_level("DEBUG", logger="scion_sdk.transports.graphql"):
         client.close()
     assert not material.exists()
     assert "GraphQL client close failed" in caplog.text

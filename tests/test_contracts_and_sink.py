@@ -25,9 +25,9 @@ from epistemic_graph.generated.source_ingestion import (
 )
 from pydantic import ValidationError
 
-import agent_connector_sdk.contracts as sdk_contracts
-from agent_connector_sdk.artifacts.pack import CapturedConnectorPack
-from agent_connector_sdk.contracts import (
+import scion_sdk.contracts as sdk_contracts
+from scion_sdk.artifacts.pack import CapturedConnectorPack
+from scion_sdk.contracts import (
     SEAM_SCHEMA_VERSION,
     CapabilityDescriptor,
     ReconciliationReport,
@@ -35,13 +35,13 @@ from agent_connector_sdk.contracts import (
     ServerIdentity,
     StreamDescriptor,
 )
-from agent_connector_sdk.ports.sink import Sink
-from agent_connector_sdk.sinks.epistemic_graph import (
+from scion_sdk.ports.sink import Sink
+from scion_sdk.sinks.epistemic_graph import (
     EpistemicGraphSink,
     PackImportAuthorityResolver,
 )
-from agent_connector_sdk.testing.results import assert_conformant
-from agent_connector_sdk.testing.sinks import InMemorySink, run_sink_suite
+from scion_sdk.testing.results import assert_conformant
+from scion_sdk.testing.sinks import InMemorySink, run_sink_suite
 
 SERVER = ServerIdentity(name="demo-mcp", version="1.0.0")
 _DIGEST = "a" * 64

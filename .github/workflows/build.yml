@@ -70,33 +70,3 @@ jobs:
             dist/*.tar.gz
           if-no-files-found: error
           retention-days: 7
-
-  build-compat:
-    name: build-compat
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ inputs.ref }}
-          persist-credentials: false
-      - name: Set up the pinned Python toolchain
-        uses: ./.github/actions/setup-uv
-      - name: Build the metadata-only old-name compatibility distribution
-        run: |
-          set -euo pipefail
-          mkdir dist-compat
-          (cd compat/agent-connector-sdk && uv build --wheel --sdist --out-dir "$GITHUB_WORKSPACE/dist-compat")
-          python3 scripts/check_compatibility_distribution.py \
-            --dist-dir dist-compat \
-            --source compat/agent-connector-sdk
-      - name: Upload the compatibility publish candidate
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: agent-connector-sdk-compat
-          path: |
-            dist-compat/*.whl
-            dist-compat/*.tar.gz
-          if-no-files-found: error
-          retention-days: 7

@@ -7,12 +7,12 @@ import socket
 import time
 from pathlib import Path
 
-from agent_connector_sdk.adapters.workspace_models import (
+from scion_sdk.adapters.workspace_models import (
     WorkspaceFile,
     WorkspaceOutcome,
     WorkspaceRequest,
 )
-from agent_connector_sdk.adapters.workspace_reader import WorkspaceReader
+from scion_sdk.adapters.workspace_reader import WorkspaceReader
 
 
 def offline_read(file: WorkspaceFile, request: WorkspaceRequest) -> WorkspaceOutcome:

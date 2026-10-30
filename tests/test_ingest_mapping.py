@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.ingest import (
+from scion_sdk.ingest import (
     EdgeMap,
     IngestError,
     Mapped,

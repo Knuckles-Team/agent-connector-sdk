@@ -1,6 +1,6 @@
 """SCION-SOURCE-INGEST-R006.17/18/19: wger, Okta, Twenty vendor extractor ports.
 
-Also exercises the shared :mod:`agent_connector_sdk.vendor_extractors.contract`
+Also exercises the shared :mod:`scion_sdk.vendor_extractors.contract`
 names (``VendorExtractor``, ``VendorExtractFn``, ``register_vendor_extractor``,
 ``discover_vendor_extractors``) that SCION-SOURCE-INGEST-R006.1 introduced but
 left untested, so ``scripts/check_wiring.py public-api`` has a real test for
@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.ingest import ChangeSet
-from agent_connector_sdk.vendor_extractors import (
+from scion_sdk.ingest import ChangeSet
+from scion_sdk.vendor_extractors import (
     VendorExtractFn,
     VendorExtractor,
     discover_vendor_extractors,
@@ -20,12 +20,12 @@ from agent_connector_sdk.vendor_extractors import (
     list_vendor_extractors,
     register_vendor_extractor,
 )
-from agent_connector_sdk.vendor_extractors.okta import CATEGORY as OKTA_CATEGORY
-from agent_connector_sdk.vendor_extractors.okta import extract as okta_extract
-from agent_connector_sdk.vendor_extractors.twenty import CATEGORY as TWENTY_CATEGORY
-from agent_connector_sdk.vendor_extractors.twenty import extract as twenty_extract
-from agent_connector_sdk.vendor_extractors.wger import CATEGORY as WGER_CATEGORY
-from agent_connector_sdk.vendor_extractors.wger import extract as wger_extract
+from scion_sdk.vendor_extractors.okta import CATEGORY as OKTA_CATEGORY
+from scion_sdk.vendor_extractors.okta import extract as okta_extract
+from scion_sdk.vendor_extractors.twenty import CATEGORY as TWENTY_CATEGORY
+from scion_sdk.vendor_extractors.twenty import extract as twenty_extract
+from scion_sdk.vendor_extractors.wger import CATEGORY as WGER_CATEGORY
+from scion_sdk.vendor_extractors.wger import extract as wger_extract
 
 
 class _FakeClient:

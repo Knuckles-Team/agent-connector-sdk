@@ -30,10 +30,10 @@ from epistemic_graph.generated.write_back import (
     WriteBackEffectStatus,
 )
 
-from agent_connector_sdk.testing.writeback_audit import InMemoryAuditReservation
-from agent_connector_sdk.writeback.connector import DurableWritableConnector
-from agent_connector_sdk.writeback.durable_ledger import FileWriteBackLedger
-from agent_connector_sdk.writeback.durable_transport import FileWriteBackTransport
+from scion_sdk.testing.writeback_audit import InMemoryAuditReservation
+from scion_sdk.writeback.connector import DurableWritableConnector
+from scion_sdk.writeback.durable_ledger import FileWriteBackLedger
+from scion_sdk.writeback.durable_transport import FileWriteBackTransport
 
 
 def _reference_change_set() -> SourceChangeSet:

@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from agent_connector_sdk.runner.ingest_worker import (
+from scion_sdk.runner.ingest_worker import (
     IngestWorkerEngine,
     WorkerGrant,
     WorkerStopped,

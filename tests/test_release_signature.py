@@ -8,13 +8,13 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from rdflib import Graph, Literal, URIRef
 
-from agent_connector_sdk.credentials.provider import (
+from scion_sdk.credentials.provider import (
     CredentialProvider,
     CredentialScopeError,
 )
-from agent_connector_sdk.credentials.references import parse_secret_reference
-from agent_connector_sdk.ingest.sources import IngestSourceDeclaration
-from agent_connector_sdk.manifest.release_signature import (
+from scion_sdk.credentials.references import parse_secret_reference
+from scion_sdk.ingest.sources import IngestSourceDeclaration
+from scion_sdk.manifest.release_signature import (
     ReleaseSignature,
     ReleaseSigningError,
     sign_release,

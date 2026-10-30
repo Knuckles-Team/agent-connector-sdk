@@ -9,19 +9,19 @@ from email.utils import format_datetime
 
 import pytest
 
-from agent_connector_sdk.httpsupport.auth import (
+from scion_sdk.httpsupport.auth import (
     AuthHeaderInjector,
     BasicAuth,
     QueryApiKeyAuth,
     TokenAuth,
 )
-from agent_connector_sdk.httpsupport.rate_limit import (
+from scion_sdk.httpsupport.rate_limit import (
     RateLimitCapture,
     RateLimitSnapshot,
     backoff_seconds,
     parse_rate_limit,
 )
-from agent_connector_sdk.httpsupport.redaction import REDACTED, LogRedactor, redact_text
+from scion_sdk.httpsupport.redaction import REDACTED, LogRedactor, redact_text
 
 pytestmark = [
     pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.10"),
@@ -214,7 +214,7 @@ def test_log_redactor_provider_failure_never_breaks_logging():
 
 # --- neutral client protocol: response snapshot and the error taxonomy ---
 
-from agent_connector_sdk.httpsupport.client_protocol import (  # noqa: E402
+from scion_sdk.httpsupport.client_protocol import (  # noqa: E402
     AsyncHttpClient,
     HttpClient,
     HttpConnectError,
@@ -226,10 +226,10 @@ from agent_connector_sdk.httpsupport.client_protocol import (  # noqa: E402
     map_transport_error,
     normalize_response,
 )
-from agent_connector_sdk.httpsupport.rate_limit import (  # noqa: E402
+from scion_sdk.httpsupport.rate_limit import (  # noqa: E402
     DEFAULT_RETRY_AFTER_CAP_S,
 )
-from agent_connector_sdk.httpsupport.redaction import contains_secret  # noqa: E402
+from scion_sdk.httpsupport.redaction import contains_secret  # noqa: E402
 
 
 def test_normalize_response_copies_fields_and_defers_json():

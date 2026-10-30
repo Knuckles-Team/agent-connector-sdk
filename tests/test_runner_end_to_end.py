@@ -40,19 +40,19 @@ from runner_support import (
     services,
 )
 
-from agent_connector_sdk.certify.checkout import checkout_from_resources
-from agent_connector_sdk.certify.verdicts import ToolStatus, tool_verdicts
-from agent_connector_sdk.manifest.live_contract import (
+from scion_sdk.certify.checkout import checkout_from_resources
+from scion_sdk.certify.verdicts import ToolStatus, tool_verdicts
+from scion_sdk.manifest.live_contract import (
     validate_live_tool_contract,
     validate_preset_tool_contract,
 )
-from agent_connector_sdk.mcp.change_events import (
+from scion_sdk.mcp.change_events import (
     announce_content_changed,
     announce_resource_updated,
 )
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.runner.supervisor import ConnectorSyncRunner
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.runner.supervisor import ConnectorSyncRunner
+from scion_sdk.transports.mcp import McpTransport
 
 LAST_PUBLISHED = str(freshrss_items(249, 1)[0]["published"])
 

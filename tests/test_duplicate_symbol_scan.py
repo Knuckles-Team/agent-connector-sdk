@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from agent_connector_sdk.testing.duplicate_symbol_scan import (
+from scion_sdk.testing.duplicate_symbol_scan import (
     MANIFEST_AND_CERTIFY_SURFACE_SYMBOLS,
     DuplicateDefinitionResult,
     scan_for_duplicate_manifest_or_certify_definitions,
@@ -30,7 +30,7 @@ def test_the_tracked_surface_names_the_sdks_manifest_and_certify_exports() -> No
 def test_a_package_importing_the_sdk_symbol_is_clean(tmp_path: Path) -> None:
     _write(
         tmp_path / "clean_pkg" / "server.py",
-        "from agent_connector_sdk.manifest import ConnectorManifest\n",
+        "from scion_sdk.manifest import ConnectorManifest\n",
     )
 
     result = scan_for_duplicate_manifest_or_certify_definitions(tmp_path / "clean_pkg")

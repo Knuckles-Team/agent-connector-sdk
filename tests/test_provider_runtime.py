@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.manifest.provider_runtime import (
+from scion_sdk.manifest.provider_runtime import (
     ProviderRuntimeProfile,
     UnknownProviderRuntimeError,
     resolve_selected_provider_runtime_profile,

@@ -14,41 +14,41 @@ from typing import Any
 import pytest
 from epistemic_graph.generated.source_ingestion import SourceCheckpoint
 
-from agent_connector_sdk.adapters.event_envelope import (
+from scion_sdk.adapters.event_envelope import (
     EventEnvelope,
     FeedKind,
     VisibilityLabel,
     compute_payload_digest,
 )
-from agent_connector_sdk.adapters.event_errors import (
+from scion_sdk.adapters.event_errors import (
     EventIdentityConflictError,
     FeedBackpressureError,
     FeedRetentionExpiredError,
 )
-from agent_connector_sdk.adapters.event_feed import EventFeedSourceAdapter
-from agent_connector_sdk.adapters.event_feed_bindings import (
+from scion_sdk.adapters.event_feed import EventFeedSourceAdapter
+from scion_sdk.adapters.event_feed_bindings import (
     ci_cd_source_adapter,
     rum_source_adapter,
     security_audit_source_adapter,
 )
-from agent_connector_sdk.adapters.event_identity import (
+from scion_sdk.adapters.event_identity import (
     EventIdentityOutcome,
     EventIdentityTracker,
 )
-from agent_connector_sdk.adapters.tool_contract import (
+from scion_sdk.adapters.tool_contract import (
     describe_preset_adapter,
     discover_tool_backed_stream,
 )
-from agent_connector_sdk.manifest.live_contract import validate_live_tool_contract
-from agent_connector_sdk.manifest.presets import ToolPreset
-from agent_connector_sdk.ports.errors import (
+from scion_sdk.manifest.live_contract import validate_live_tool_contract
+from scion_sdk.manifest.presets import ToolPreset
+from scion_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
 )
-from agent_connector_sdk.ports.page_completion import PageCompletionAdapter
-from agent_connector_sdk.runner.errors import SchemaDriftQuarantined, SinkReceiptError
-from agent_connector_sdk.runner.syncing import SyncTarget, sync_stream
-from agent_connector_sdk.testing.sinks import InMemorySink
+from scion_sdk.ports.page_completion import PageCompletionAdapter
+from scion_sdk.runner.errors import SchemaDriftQuarantined, SinkReceiptError
+from scion_sdk.runner.syncing import SyncTarget, sync_stream
+from scion_sdk.testing.sinks import InMemorySink
 
 CONNECTOR = "observability-demo"
 _T0 = datetime(2026, 9, 30, tzinfo=UTC)

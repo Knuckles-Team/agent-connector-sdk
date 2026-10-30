@@ -25,25 +25,25 @@ from fleet_fixtures import (
     FRESHRSS_READING_LIST,
 )
 
-from agent_connector_sdk.artifacts.pack import CapturedConnectorPack
-from agent_connector_sdk.artifacts.prompts import PromptArtifactKind
-from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
-from agent_connector_sdk.artifacts.skills import SkillArtifactKind
-from agent_connector_sdk.artifacts.tools import ToolArtifactKind
-from agent_connector_sdk.ports.artifact_kind import ArtifactKind
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.ports.sink import SinkReadiness
-from agent_connector_sdk.runner.descriptors import (
+from scion_sdk.artifacts.pack import CapturedConnectorPack
+from scion_sdk.artifacts.prompts import PromptArtifactKind
+from scion_sdk.artifacts.resources import ResourceArtifactKind
+from scion_sdk.artifacts.skills import SkillArtifactKind
+from scion_sdk.artifacts.tools import ToolArtifactKind
+from scion_sdk.ports.artifact_kind import ArtifactKind
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.ports.sink import SinkReadiness
+from scion_sdk.runner.descriptors import (
     ConnectorDescriptor,
     EndpointSpec,
     RunnerSettings,
 )
-from agent_connector_sdk.runner.endpoints import EndpointFactory
-from agent_connector_sdk.runner.errors import RunnerConfigurationError
-from agent_connector_sdk.runner.services import RunnerServices
-from agent_connector_sdk.runner.supervisor import ConnectorSyncRunner
-from agent_connector_sdk.testing.sinks import InMemorySink
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.runner.endpoints import EndpointFactory
+from scion_sdk.runner.errors import RunnerConfigurationError
+from scion_sdk.runner.services import RunnerServices
+from scion_sdk.runner.supervisor import ConnectorSyncRunner
+from scion_sdk.testing.sinks import InMemorySink
+from scion_sdk.transports.mcp import McpTransport
 
 KINDS: tuple[ArtifactKind, ...] = (
     ToolArtifactKind(),
@@ -228,4 +228,4 @@ def logged(caplog: pytest.LogCaptureFixture, event: str) -> list[dict[str, Any]]
 
 def capture_runner_logs(caplog: pytest.LogCaptureFixture) -> None:
     """Capture runner logs at INFO."""
-    caplog.set_level(logging.INFO, logger="agent_connector_sdk.runner")
+    caplog.set_level(logging.INFO, logger="scion_sdk.runner")

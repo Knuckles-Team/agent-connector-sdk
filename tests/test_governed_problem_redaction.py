@@ -7,11 +7,11 @@ import json
 import httpx
 import pytest
 
-from agent_connector_sdk.http.client import create_async_http_client, create_http_client
-from agent_connector_sdk.http.errors import HttpProblemError, HttpRateLimitedError
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.http.responses import arequest_json, request_json
-from agent_connector_sdk.http.retry import RetryPolicy
+from scion_sdk.http.client import create_async_http_client, create_http_client
+from scion_sdk.http.errors import HttpProblemError, HttpRateLimitedError
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.http.responses import arequest_json, request_json
+from scion_sdk.http.retry import RetryPolicy
 
 _MARKER = "private-upstream-value"
 _BODY = json.dumps(

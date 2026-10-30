@@ -7,7 +7,7 @@ import json
 import pyarrow as pa
 import pytest
 
-from agent_connector_sdk.data_prep import (
+from scion_sdk.data_prep import (
     CleanPipeline,
     CleanPlan,
     ProfileEvidenceDenied,
@@ -202,7 +202,7 @@ from typing import get_args  # noqa: E402
 
 from pydantic import TypeAdapter, ValidationError  # noqa: E402
 
-from agent_connector_sdk.data_prep import (  # noqa: E402
+from scion_sdk.data_prep import (  # noqa: E402
     ColumnProfile,
     ProfileClient,
     ProfileDeadlineError,

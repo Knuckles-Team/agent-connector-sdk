@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from agent_connector_sdk.testing import fleet_migration
-from agent_connector_sdk.testing.fleet_migration import (
+from scion_sdk.testing import fleet_migration
+from scion_sdk.testing.fleet_migration import (
     PackageScanResult,
     scan_for_agent_utilities_imports,
     scan_many_packages,
@@ -23,7 +23,7 @@ def _write(path: Path, source: str) -> None:
 def test_a_clean_package_is_reported_migrated(tmp_path: Path) -> None:
     _write(
         tmp_path / "clean_pkg" / "server.py",
-        "from agent_connector_sdk.mcp.server import build_server\n",
+        "from scion_sdk.mcp.server import build_server\n",
     )
 
     result = scan_for_agent_utilities_imports(tmp_path / "clean_pkg")
@@ -174,7 +174,7 @@ def test_scan_many_packages_reports_each_root_by_name(tmp_path: Path) -> None:
     cross-repository census is one function call, not a hand-rolled loop."""
     _write(
         tmp_path / "clean_pkg" / "server.py",
-        "from agent_connector_sdk.mcp.server import build_server\n",
+        "from scion_sdk.mcp.server import build_server\n",
     )
     _write(tmp_path / "legacy_pkg" / "a.py", "import agent_utilities.core.config\n")
 

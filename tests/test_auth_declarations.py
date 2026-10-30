@@ -11,7 +11,7 @@ from typing import Any
 import httpx
 import pytest
 
-from agent_connector_sdk.auth.declare import (
+from scion_sdk.auth.declare import (
     ApiKey,
     AuthConfigurationError,
     AuthDeclaration,
@@ -24,10 +24,10 @@ from agent_connector_sdk.auth.declare import (
     client_factory,
     open_client,
 )
-from agent_connector_sdk.auth.tokens import TokenRequestError
-from agent_connector_sdk.http.errors import TlsVerificationError
-from agent_connector_sdk.testing.certificates import issue_test_certificates
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.auth.tokens import TokenRequestError
+from scion_sdk.http.errors import TlsVerificationError
+from scion_sdk.testing.certificates import issue_test_certificates
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 _JSON = {"Content-Type": "application/json"}
 _SECRET = "s3cr3t-value"
@@ -235,9 +235,9 @@ def test_session_login_reuses_cookie_and_relogs_once(
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.5")
 def test_session_cookies_respect_path_and_auth_is_bound_to_origin() -> None:
-    from agent_connector_sdk.auth.rotating import SessionLoginAuth
-    from agent_connector_sdk.http.client import create_http_client
-    from agent_connector_sdk.http.options import HttpClientOptions
+    from scion_sdk.auth.rotating import SessionLoginAuth
+    from scion_sdk.http.client import create_http_client
+    from scion_sdk.http.options import HttpClientOptions
 
     requests: list[httpx.Request] = []
 
@@ -264,12 +264,12 @@ def test_session_cookies_respect_path_and_auth_is_bound_to_origin() -> None:
 async def test_session_cross_origin_redirect_is_never_dispatched(
     asynchronous: bool,
 ) -> None:
-    from agent_connector_sdk.auth.rotating import SessionLoginAuth
-    from agent_connector_sdk.http.client import (
+    from scion_sdk.auth.rotating import SessionLoginAuth
+    from scion_sdk.http.client import (
         create_async_http_client,
         create_http_client,
     )
-    from agent_connector_sdk.http.options import HttpClientOptions
+    from scion_sdk.http.options import HttpClientOptions
 
     requests: list[httpx.Request] = []
 
@@ -302,7 +302,7 @@ async def test_session_cross_origin_redirect_is_never_dispatched(
 
 
 def test_session_auth_refuses_plain_httpx_client() -> None:
-    from agent_connector_sdk.auth.rotating import SessionLoginAuth
+    from scion_sdk.auth.rotating import SessionLoginAuth
 
     requests: list[httpx.Request] = []
     auth = SessionLoginAuth(login_path="/login", username="user", password=lambda: "pw")
@@ -320,9 +320,9 @@ def test_session_auth_refuses_plain_httpx_client() -> None:
 
 
 def test_session_allows_same_origin_redirect() -> None:
-    from agent_connector_sdk.auth.rotating import SessionLoginAuth
-    from agent_connector_sdk.http.client import create_http_client
-    from agent_connector_sdk.http.options import HttpClientOptions
+    from scion_sdk.auth.rotating import SessionLoginAuth
+    from scion_sdk.http.client import create_http_client
+    from scion_sdk.http.options import HttpClientOptions
 
     requests: list[httpx.Request] = []
 
@@ -346,9 +346,9 @@ def test_session_allows_same_origin_redirect() -> None:
 
 @pytest.mark.parametrize("without_auth", [False, True])
 def test_guarded_request_cannot_be_reused_with_plain_httpx(without_auth: bool) -> None:
-    from agent_connector_sdk.auth.rotating import SessionLoginAuth
-    from agent_connector_sdk.http.client import create_http_client
-    from agent_connector_sdk.http.options import HttpClientOptions
+    from scion_sdk.auth.rotating import SessionLoginAuth
+    from scion_sdk.http.client import create_http_client
+    from scion_sdk.http.options import HttpClientOptions
 
     requests: list[httpx.Request] = []
 
@@ -446,9 +446,9 @@ def test_client_factory_builds_once_and_closes(monkeypatch: pytest.MonkeyPatch) 
 def test_no_auth_and_the_building_blocks_are_public(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from agent_connector_sdk.auth.declare import BuildContext, NoAuth
-    from agent_connector_sdk.auth.refresh_token import RefreshTokenProvider
-    from agent_connector_sdk.auth.rotating import RotatingAuth, SessionLoginAuth
+    from scion_sdk.auth.declare import BuildContext, NoAuth
+    from scion_sdk.auth.refresh_token import RefreshTokenProvider
+    from scion_sdk.auth.rotating import RotatingAuth, SessionLoginAuth
 
     with ScriptedHttpServer(ScriptedResponse(body=b"{}", headers=_JSON)) as server:
         declaration: AuthDeclaration = NoAuth()

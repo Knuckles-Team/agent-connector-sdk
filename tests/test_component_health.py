@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.host import ComponentHealthState, should_alert
+from scion_sdk.host import ComponentHealthState, should_alert
 
 
 def _health(**changes: object) -> ComponentHealthState:

@@ -14,7 +14,7 @@ import pytest
 from fastmcp import Client, FastMCP
 from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
 
-from agent_connector_sdk.mcp.content import (
+from scion_sdk.mcp.content import (
     ConnectorContent,
     ContentError,
     ContentRegistration,
@@ -22,12 +22,12 @@ from agent_connector_sdk.mcp.content import (
     register_connector_content,
     register_ontology_resources,
 )
-from agent_connector_sdk.mcp.middleware import (
+from scion_sdk.mcp.middleware import (
     build_middleware,
     caller_bucket,
     rate_limit_client_id,
 )
-from agent_connector_sdk.mcp.registry import (
+from scion_sdk.mcp.registry import (
     DEFAULT_LEASE_TTL_SECONDS,
     MIN_LEASE_TTL_SECONDS,
     EpistemicGraphServerRegistry,
@@ -38,14 +38,14 @@ from agent_connector_sdk.mcp.registry import (
     maintain_registration,
     registration_lifespan,
 )
-from agent_connector_sdk.mcp.visibility import VisibilityTransform
-from agent_connector_sdk.mcp.visibility_filters import (
+from scion_sdk.mcp.visibility import VisibilityTransform
+from scion_sdk.mcp.visibility_filters import (
     EMPTY_INTERSECTION,
     bounded_filter_values,
     narrow_values,
     request_values,
 )
-from agent_connector_sdk.mcp.visibility_policy import (
+from scion_sdk.mcp.visibility_policy import (
     HEADER_KEYS,
     QUERY_KEYS,
     VisibilityPolicy,

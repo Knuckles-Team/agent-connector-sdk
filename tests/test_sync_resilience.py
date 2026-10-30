@@ -4,8 +4,8 @@ import ssl
 
 import pytest
 
-from agent_connector_sdk.http.retry import RetryPolicy
-from agent_connector_sdk.resilience import run_with_resilience_sync
+from scion_sdk.http.retry import RetryPolicy
+from scion_sdk.resilience import run_with_resilience_sync
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.11")

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk import paths
+from scion_sdk import paths
 
 
 @pytest.fixture(autouse=True)

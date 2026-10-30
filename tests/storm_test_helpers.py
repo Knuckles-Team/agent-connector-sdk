@@ -2,7 +2,7 @@
 
 import hashlib
 
-from agent_connector_sdk.earth_observations.storm import StormArchivePolicy
+from scion_sdk.earth_observations.storm import StormArchivePolicy
 
 
 def archive_policy(

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_connector_sdk.streaming import (
+from scion_sdk.streaming import (
     CallbackSubscriber,
     StreamBus,
     StreamMessage,

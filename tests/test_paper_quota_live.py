@@ -7,7 +7,7 @@ import asyncio
 import pytest
 from live_engine import live_ingest, scoped_client  # noqa: F401
 
-from agent_connector_sdk.adapters.paper_quota import (
+from scion_sdk.adapters.paper_quota import (
     PaperQuotaPolicy,
     QuotaSlot,
     QuotaUnavailable,

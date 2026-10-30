@@ -52,7 +52,7 @@ intact, and makes zero unauthorized effects.
 
 Run the focused client tests: `uv run --frozen python -m pytest -q tests/test_source_client*`.
 Run the mount tests: `uv run --frozen python -m pytest -q tests/test_source_mount*`.
-Run strict mypy over `agent_connector_sdk`.
+Run strict mypy over `scion_sdk`.
 Run Ruff check and format over the changed files.
 Run the spec gates `spec-standard`, `spec-decomposition`, `spec-status`, and `spec-trailers` through `pipelines-hook`.
 Record the exact source revision, the command output, and the served test receipts for each acceptance run.

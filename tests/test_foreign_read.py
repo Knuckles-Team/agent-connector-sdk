@@ -10,8 +10,8 @@ from typing import Any
 
 import pytest
 
-import agent_connector_sdk.adapters.foreign_read as foreign_read_module
-from agent_connector_sdk.adapters.foreign_read import (
+import scion_sdk.adapters.foreign_read as foreign_read_module
+from scion_sdk.adapters.foreign_read import (
     FOREIGN_READ_SCHEMA_VERSION,
     AbortRequest,
     AbortResult,

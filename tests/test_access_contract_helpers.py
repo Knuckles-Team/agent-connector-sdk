@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from agent_connector_sdk._contract_fields import COST_HINTS, integer
-from agent_connector_sdk._turtle import RDF_TYPE, parse_graph
+from scion_sdk._contract_fields import COST_HINTS, integer
+from scion_sdk._turtle import RDF_TYPE, parse_graph
 
 
 def test_parse_graph_reads_typed_subjects_with_rdf_type() -> None:

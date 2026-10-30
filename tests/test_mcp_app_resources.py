@@ -5,12 +5,12 @@ from __future__ import annotations
 import pytest
 from fastmcp import FastMCP
 
-from agent_connector_sdk.artifacts.pack import build_content_pack
-from agent_connector_sdk.artifacts.resources import ResourceArtifactKind
-from agent_connector_sdk.contracts import CapturedArtifact, ServerIdentity
-from agent_connector_sdk.ports.errors import MalformedArtifactError
-from agent_connector_sdk.ports.session import TransportEndpoint
-from agent_connector_sdk.transports.mcp import McpTransport
+from scion_sdk.artifacts.pack import build_content_pack
+from scion_sdk.artifacts.resources import ResourceArtifactKind
+from scion_sdk.contracts import CapturedArtifact, ServerIdentity
+from scion_sdk.ports.errors import MalformedArtifactError
+from scion_sdk.ports.session import TransportEndpoint
+from scion_sdk.transports.mcp import McpTransport
 
 APP_URI = "ui://searxng-mcp/search.html"
 APP_HTML = "<!doctype html><html><body><main>SearXNG</main></body></html>"

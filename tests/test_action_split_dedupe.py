@@ -18,9 +18,9 @@ import pytest
 from fastmcp import Client, FastMCP
 from pydantic import Field
 
-from agent_connector_sdk.mcp.action_split import SplitDecision, action_split_report
-from agent_connector_sdk.mcp.method_tools import operation_tool_names
-from agent_connector_sdk.mcp.tool_surface import register_tool_surface
+from scion_sdk.mcp.action_split import SplitDecision, action_split_report
+from scion_sdk.mcp.method_tools import operation_tool_names
+from scion_sdk.mcp.tool_surface import register_tool_surface
 
 
 async def run_blocking(fn: Any, *args: Any, **kwargs: Any) -> Any:

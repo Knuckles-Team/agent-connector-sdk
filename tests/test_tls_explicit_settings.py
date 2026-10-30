@@ -7,8 +7,8 @@ import os
 
 import pytest
 
-from agent_connector_sdk.tls.errors import TransportSecurityError
-from agent_connector_sdk.tls.resolve import resolve_tls_profile
+from scion_sdk.tls.errors import TransportSecurityError
+from scion_sdk.tls.resolve import resolve_tls_profile
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R780.13")

@@ -12,17 +12,17 @@ from fastmcp import Client, FastMCP
 from pydantic import ValidationError
 from pypdf import PdfWriter
 
-from agent_connector_sdk.adapters.workspace_models import (
+from scion_sdk.adapters.workspace_models import (
     WorkspaceFile,
     WorkspaceLocation,
     WorkspaceOutcome,
     WorkspaceRequest,
 )
-from agent_connector_sdk.adapters.workspace_parse import (
+from scion_sdk.adapters.workspace_parse import (
     WorkspaceParseError,
     parse_workspace,
 )
-from agent_connector_sdk.adapters.workspace_reader import (
+from scion_sdk.adapters.workspace_reader import (
     WorkspaceReader,
     register_workspace_tool,
 )
@@ -388,7 +388,7 @@ def test_parser_public_contract() -> None:
 async def test_process_start_failure_is_reported_per_file(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from agent_connector_sdk.adapters import workspace_reader
+    from scion_sdk.adapters import workspace_reader
 
     good = _entry(tmp_path, "good.txt", "text", b"good")
     failed = _entry(tmp_path, "failed.txt", "text", b"failed")

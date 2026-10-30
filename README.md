@@ -1,7 +1,7 @@
 # Scion SDK
 
 <p align="center">
-  <img src="docs/assets/brands/agent-connector-sdk-logo-v1.png" alt="Scion SDK logo" width="180">
+  <img src="docs/assets/brands/scion-sdk-logo-v1.png" alt="Scion SDK logo" width="180">
 </p>
 
 <p align="center">
@@ -41,7 +41,7 @@
 ## Quick Start
 
 Install Scion SDK as `scion-sdk` and import it as
-`agent_connector_sdk`. The repository is `scion-sdk`; package, CLI and API
+`scion_sdk`. The repository is `scion-sdk`; package, CLI and API
 identifiers remain unchanged.
 
 Create a project and install the SDK:

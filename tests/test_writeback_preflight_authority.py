@@ -2,15 +2,15 @@
 
 import pytest
 
-from agent_connector_sdk.ports.writeback_transport import ReservableWriteBackTransport
-from agent_connector_sdk.testing.writeback import make_writeback_fixture
-from agent_connector_sdk.writeback.authorization import (
+from scion_sdk.ports.writeback_transport import ReservableWriteBackTransport
+from scion_sdk.testing.writeback import make_writeback_fixture
+from scion_sdk.writeback.authorization import (
     DeterministicAuthorizationVerifier,
 )
-from agent_connector_sdk.writeback.connector import DurableWritableConnector
-from agent_connector_sdk.writeback.durable_ledger import FileWriteBackLedger
-from agent_connector_sdk.writeback.errors import AuthorizationDeniedError
-from agent_connector_sdk.writeback.service import GovernedWriteBack
+from scion_sdk.writeback.connector import DurableWritableConnector
+from scion_sdk.writeback.durable_ledger import FileWriteBackLedger
+from scion_sdk.writeback.errors import AuthorizationDeniedError
+from scion_sdk.writeback.service import GovernedWriteBack
 
 
 @pytest.mark.asyncio
@@ -72,7 +72,7 @@ async def test_denied_durable_approval_refuses_before_source_reads(
 
 @pytest.mark.asyncio
 async def test_authorized_reuse_of_key_for_different_effect_still_refuses():
-    from agent_connector_sdk.writeback.errors import IdempotencyConflictError
+    from scion_sdk.writeback.errors import IdempotencyConflictError
 
     fixture = make_writeback_fixture()
     verifier = DeterministicAuthorizationVerifier()

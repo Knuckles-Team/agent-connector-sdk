@@ -11,7 +11,7 @@ from epistemic_graph.generated.source_ingestion import (
     SourceMappingReceipt,
 )
 
-from agent_connector_sdk.ingest import (
+from scion_sdk.ingest import (
     AcceptedContract,
     ChangeSet,
     ContractEvidence,
@@ -24,9 +24,9 @@ from agent_connector_sdk.ingest import (
     UndeclaredNestedValueError,
     contract_evidence,
 )
-from agent_connector_sdk.ingest.contract import ContractTransport, require_accepted
-from agent_connector_sdk.ingest.request import build_request
-from agent_connector_sdk.testing.sinks import InMemorySink
+from scion_sdk.ingest.contract import ContractTransport, require_accepted
+from scion_sdk.ingest.request import build_request
+from scion_sdk.testing.sinks import InMemorySink
 
 DIGEST = "a" * 64
 IRI = "contract:demo-mcp"

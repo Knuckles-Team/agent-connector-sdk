@@ -7,24 +7,24 @@ import argparse
 import httpx
 import pytest
 
-from agent_connector_sdk.credentials.openbao import OpenBaoCredentialResolver
-from agent_connector_sdk.credentials.references import (
+from scion_sdk.credentials.openbao import OpenBaoCredentialResolver
+from scion_sdk.credentials.references import (
     SecretReference,
     SecretReferenceError,
     parse_secret_reference,
 )
-from agent_connector_sdk.credentials.resolution import (
+from scion_sdk.credentials.resolution import (
     SecretReferenceAction,
     default_credential_resolver,
     resolve_secret_reference,
 )
-from agent_connector_sdk.credentials.resolver import (
+from scion_sdk.credentials.resolver import (
     CompositeCredentialResolver,
     CredentialResolver,
     CredentialUnavailableError,
     EnvironmentCredentialResolver,
 )
-from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
+from scion_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
 def _openbao_client(requests: list[httpx.Request], status: int = 200) -> httpx.Client:

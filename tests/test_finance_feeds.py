@@ -6,8 +6,8 @@ from datetime import UTC, datetime
 
 import pytest
 
-from agent_connector_sdk.finance import feeds
-from agent_connector_sdk.finance.feeds import (
+from scion_sdk.finance import feeds
+from scion_sdk.finance.feeds import (
     LiveBar,
     MarketFeedBus,
     Tick,

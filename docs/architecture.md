@@ -1,6 +1,6 @@
 # Architecture
 
-The Agent Connector SDK is the connector transport and lifecycle layer between
+The Scion SDK is the connector transport and lifecycle layer between
 MCP clients, vendor systems, Arbora, and epistemic-graph. It keeps vendor `I/O`
 replaceable while one generated graph contract owns durable identity and state.
 
@@ -10,26 +10,12 @@ replaceable while one generated graph contract owns durable identity and state.
 
 ## Responsibility boundary
 
-<div class="site-ownership">
-  <div class="site-ownership__grid">
-    <div class="site-ownership__item">
-      <div class="site-ownership__label">Connector</div>
-      <div class="site-ownership__value">Vendor API models, requests, paging tokens, source versions, and external effects.</div>
-    </div>
-    <div class="site-ownership__item">
-      <div class="site-ownership__label">Agent Connector SDK</div>
-      <div class="site-ownership__value">MCP serving, source capture, bounded transport, certification, scheduling, and governed effect execution.</div>
-    </div>
-    <div class="site-ownership__item">
-      <div class="site-ownership__label">epistemic-graph</div>
-      <div class="site-ownership__value">Generated contracts, graph schemas, source checkpoints, content identity, provenance, reasoning, and durable receipts.</div>
-    </div>
-    <div class="site-ownership__item">
-      <div class="site-ownership__label">Arbora</div>
-      <div class="site-ownership__value">Verified runtime identity, authority injection, service composition, and external protocol exposure.</div>
-    </div>
-  </div>
-</div>
+| Layer | Owns |
+|---|---|
+| Connector | Vendor API models, requests, paging tokens, source versions, and external effects. |
+| Scion SDK | MCP serving, source capture, bounded transport, certification, scheduling, and governed effect execution. |
+| epistemic-graph | Generated contracts, graph schemas, source checkpoints, content identity, provenance, reasoning, and durable receipts. |
+| Arbora | Verified runtime identity, authority injection, service composition, and external protocol exposure. |
 
 The SDK depends directly on `epistemic-graph>=2.27`. Generated SourceIngest,
 ConnectorPack, and WriteBack models and clients are the sole graph boundary. The

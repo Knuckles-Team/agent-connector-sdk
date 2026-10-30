@@ -9,7 +9,7 @@ import sys
 import httpx
 import pytest
 
-from agent_connector_sdk.a2a import (
+from scion_sdk.a2a import (
     A2AClient,
     A2AMessage,
     A2ATask,
@@ -166,7 +166,7 @@ def test_r014_21_app_factory_names_the_a2a_extra(monkeypatch) -> None:
 
     monkeypatch.delitem(sys.modules, "fasta2a", raising=False)
     monkeypatch.setattr(builtins, "__import__", blocked)
-    from agent_connector_sdk.a2a.app import require_a2a_extra
+    from scion_sdk.a2a.app import require_a2a_extra
 
     with pytest.raises(ImportError, match=r"scion-sdk\[a2a\]"):
         require_a2a_extra("create_a2a_app")
@@ -176,8 +176,8 @@ def test_r014_21_base_import_does_not_load_the_server_stack() -> None:
     import subprocess
 
     probe = (
-        "import sys, agent_connector_sdk.a2a; "
-        "assert 'agent_connector_sdk.a2a.app' not in sys.modules; "
+        "import sys, scion_sdk.a2a; "
+        "assert 'scion_sdk.a2a.app' not in sys.modules; "
         "assert 'fasta2a' not in sys.modules"
     )
     subprocess.run([sys.executable, "-c", probe], check=True)
@@ -186,8 +186,8 @@ def test_r014_21_base_import_does_not_load_the_server_stack() -> None:
 def test_r014_21_status_parts_and_result_shapes() -> None:
     from typing import get_args
 
-    from agent_connector_sdk.a2a import A2AResult, A2ATaskStatus, TaskState, TextPart
-    from agent_connector_sdk.a2a.client import CARD_PATH
+    from scion_sdk.a2a import A2AResult, A2ATaskStatus, TaskState, TextPart
+    from scion_sdk.a2a.client import CARD_PATH
 
     assert A2ATaskStatus().state == "unknown"
     assert "completed" in get_args(TaskState)
@@ -201,7 +201,7 @@ def test_r014_21_status_parts_and_result_shapes() -> None:
 
 def test_r014_21_app_factory_builds_with_the_extra() -> None:
     pytest.importorskip("fasta2a")
-    from agent_connector_sdk.a2a import create_a2a_app
+    from scion_sdk.a2a import create_a2a_app
 
     assert callable(create_a2a_app)
 
@@ -209,7 +209,7 @@ def test_r014_21_app_factory_builds_with_the_extra() -> None:
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R014.21.1")
 @pytest.mark.parametrize("path", ("card", "send", "poll"))
 async def test_streaming_response_stops_at_bound(path: str) -> None:
-    from agent_connector_sdk.a2a.client import _MAX_RESPONSE_BYTES
+    from scion_sdk.a2a.client import _MAX_RESPONSE_BYTES
 
     class Oversized(httpx.AsyncByteStream):
         def __init__(self) -> None:
@@ -286,7 +286,7 @@ def test_a2a_app_serves_tasks_using_caller_broker_and_storage() -> None:
     from pydantic_ai.models.test import TestModel
     from starlette.testclient import TestClient
 
-    from agent_connector_sdk.a2a import create_a2a_app
+    from scion_sdk.a2a import create_a2a_app
 
     storage = InMemoryStorage()
     broker = InMemoryBroker()

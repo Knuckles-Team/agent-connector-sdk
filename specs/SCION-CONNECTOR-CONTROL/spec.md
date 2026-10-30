@@ -1,14 +1,14 @@
 # SCION-CONNECTOR-CONTROL — SDK connector control, certification, and pack publication
 
 **Requirement IDs:** SCION-CONNECTOR-CONTROL-R001 through SCION-CONNECTOR-CONTROL-R054.
-**Owner:** agent-connector-sdk.
+**Owner:** scion-sdk.
 **Boundary:** This SDK owns source-side connector hosting, discovery, certification, pack construction, and submission. A graph service owns durable pack records and receipts; a control-plane service owns routing and activation policy. Vendor packages own their API calls.
 
 ## Outcome and scope
 
 A connector package can use one SDK server factory, manifest, credential reference, HTTP/TLS stack, certification command, and generated graph client. Its published pack and tool pins are reproducible from the connector artifact. The runner refuses uncertified or mismatched packages. Every migrated connector builds without importing `agent_utilities`. This is an SDK contract, not a requirement to copy any private fleet inventory.
 
-The migration is five independently reviewable alphabetical batches: A–E (SCION-CONNECTOR-CONTROL-R009), F–J (SCION-CONNECTOR-CONTROL-R010), K–O (SCION-CONNECTOR-CONTROL-R011), P–S (SCION-CONNECTOR-CONTROL-R012), and T–Z (SCION-CONNECTOR-CONTROL-R013). Packages in a batch are selected from public connector repositories at implementation time, not from a hard-coded count. Those packages own their migration commits. SCION-CONNECTOR-CONTROL-R014 removes an old duplicate toolkit in the control-plane repository after consumers have migrated. SCION-CONNECTOR-CONTROL-R015 establishes the SDK as source lifecycle and certification owner while retiring the duplicate there. Connector base settings move into `agent_connector_sdk/config.py`. Deployment settings and agent/model settings stay with their owners (SCION-CONNECTOR-CONTROL-R016).
+The migration is five independently reviewable alphabetical batches: A–E (SCION-CONNECTOR-CONTROL-R009), F–J (SCION-CONNECTOR-CONTROL-R010), K–O (SCION-CONNECTOR-CONTROL-R011), P–S (SCION-CONNECTOR-CONTROL-R012), and T–Z (SCION-CONNECTOR-CONTROL-R013). Packages in a batch are selected from public connector repositories at implementation time, not from a hard-coded count. Those packages own their migration commits. SCION-CONNECTOR-CONTROL-R014 removes an old duplicate toolkit in the control-plane repository after consumers have migrated. SCION-CONNECTOR-CONTROL-R015 establishes the SDK as source lifecycle and certification owner while retiring the duplicate there. Connector base settings move into `scion_sdk/config.py`. Deployment settings and agent/model settings stay with their owners (SCION-CONNECTOR-CONTROL-R016).
 
 ## Architecture and contracts
 
@@ -55,7 +55,7 @@ Requirement IDs are defined in [requirements.md](requirements.md); delivery stat
 
 ## Access contracts (SCION-CONNECTOR-CONTROL-R021)
 
-Each connector ontology declares how a consumer reads each class live. The `ac:` vocabulary in `agent_connector_sdk/ontology/access_contract.ttl` defines `ac:AccessContract` and `ac:PropertyBinding`. A contract names the class, the source, the entity and the key field. It names the access kind: `mcp_tool`, `http_endpoint`, `graphql_query` or `a2a_skill`. It names the operation, its parameters, the pagination mode and the pushdown operations. Pushdown operations are `filter`, `sort`, `limit` and `project`. `ac:authRef` holds an `env://` or `openbao://` reference, never a secret. Rate limit, freshness and cost hints let a consumer choose a live read or a copied hot slice. A missing hint means unknown.
+Each connector ontology declares how a consumer reads each class live. The `ac:` vocabulary in `scion_sdk/ontology/access_contract.ttl` defines `ac:AccessContract` and `ac:PropertyBinding`. A contract names the class, the source, the entity and the key field. It names the access kind: `mcp_tool`, `http_endpoint`, `graphql_query` or `a2a_skill`. It names the operation, its parameters, the pagination mode and the pushdown operations. Pushdown operations are `filter`, `sort`, `limit` and `project`. `ac:authRef` holds an `env://` or `openbao://` reference, never a secret. Rate limit, freshness and cost hints let a consumer choose a live read or a copied hot slice. A missing hint means unknown.
 
 `parse_access_contracts` reads the flat Turtle profile and returns typed `AccessContract` values. `virtual_mapping_fields` returns the agent-utilities `VirtualMapping` arguments. arbora onboarding imports these contracts as unapproved mappings. MEDULLA-UNIFIED-DATA-PLANE-R037/R038 and MEDULLA-FEDERATED-QUERY-R072/R073 consume the result.
 
@@ -119,13 +119,13 @@ Evaluate the target artifact in an isolated candidate environment for every pack
 
 Use this producer-to-consumer order:
 
-1. `agent_connector_sdk.testing.fleet_migration.evaluate_major_version_compatibility(inventory, transition)` produces receipts for the complete inventory.
+1. `scion_sdk.testing.fleet_migration.evaluate_major_version_compatibility(inventory, transition)` produces receipts for the complete inventory.
 2. `authorize_major_version_pin_changes(transition, inventory, receipts)` validates exact membership and freshness. It authorizes only a complete, passing set.
 3. Each package writer calls `require_package_pin_change(gate, package_id, pin_preimage)` before its first pin write. R009-R013 use this same gate.
 
 The gate checks transition, artifact, inventory, package source, current pin, and preimage. Fleet preflight refuses missing, duplicate, extra, failed, incomplete, cancelled, stale, or mismatched receipts before the first pin write. That refusal preserves every pin byte-for-byte. Each writer rechecks package authorization and preimage before its first write. A race may reject package B after package A commits. B's writer refuses its write and reports exact applied/refused package IDs. The partial outcome requires reconciliation. Align it with `PIPE-RELEASE-R001.8` through `PIPE-RELEASE-R001.12`. Do not claim the system restored A's previous pin. One package's receipt cannot authorize another package.
 
-**Implementation boundary:** `agent_connector_sdk.testing.fleet_migration.scan_many_packages` and `PackageScanResult` currently report import-scan findings only. They do not produce compatibility receipts, evaluate a target artifact, authorize rollout, or gate pin writes. The producer, gate, rollout command, and R009-R013 writer attachments remain unimplemented. R007.6 describes future proof; this definition claims no runtime behavior or test result. Existing R007 fingerprint and live-contract checks, plus R009-R013 migration obligations, remain in force.
+**Implementation boundary:** `scion_sdk.testing.fleet_migration.scan_many_packages` and `PackageScanResult` currently report import-scan findings only. They do not produce compatibility receipts, evaluate a target artifact, authorize rollout, or gate pin writes. The producer, gate, rollout command, and R009-R013 writer attachments remain unimplemented. R007.6 describes future proof; this definition claims no runtime behavior or test result. Existing R007 fingerprint and live-contract checks, plus R009-R013 migration obligations, remain in force.
 <!-- /spec-definition-patch -->
 
 <!-- spec-definition-patch:sdk-consolidated-primary-20261012-spec -->
@@ -138,7 +138,7 @@ The SDK provisions and reconciles admitted sandbox requests through one typed po
 
 **SCION-CONNECTOR-CONTROL-R051.2 — Behavior.** Allocate once per stable operation ID. Reconcile uncertain results before retry. Transport loss never proves no allocation.
 
-**SCION-CONNECTOR-CONTROL-R051.3 — Wiring.** Plan agent_connector_sdk.ports.sandbox.SandboxProvisioner. Route AU sandbox access through Arbora agents.run and NativeWorkItemAdmissionProtocol/CapacityLedger. Call the SDK adapter, then return its receipt to Arbora. This producer and binding are absent.
+**SCION-CONNECTOR-CONTROL-R051.3 — Wiring.** Plan scion_sdk.ports.sandbox.SandboxProvisioner. Route AU sandbox access through Arbora agents.run and NativeWorkItemAdmissionProtocol/CapacityLedger. Call the SDK adapter, then return its receipt to Arbora. This producer and binding are absent.
 
 **SCION-CONNECTOR-CONTROL-R051.4 — Refusal.** Refuse unsupported profiles, missing grants, expired requests, and conflicting replay IDs before provider calls. Reconcile unresolved outcomes before retry. Unsupported combinations allocate nothing.
 
@@ -164,7 +164,7 @@ The SDK transports visual observations and provenance between steps. EG owns dur
 
 ## SDK environment declaration export
 
-R053 defines the planned public environment_declarations operation in agent_connector_sdk.config.
+R053 defines the planned public environment_declarations operation in scion_sdk.config.
 It exports only SDK-owned declarations and deterministic census evidence.
 Arbora composes the host manifest and owns all startup validation and admission decisions.
 The SDK must preserve configuration precedence, typed coercion and value-free diagnostics.
@@ -199,7 +199,7 @@ The current SDK tree lacks these four producers and bindings. This packet adds d
 
 **Behavior.** Select the path from the live negotiated protocol. For 2026-07-28 and later, return an input-required result. Continue only when a matching retry accepts the form and supplies `confirmed is True`. For supported handshake-era versions, call `Context.elicit` with a `StrictBool` response model. Accept only when `confirmed is True`. The pending modern result converts to false in boolean contexts. This keeps legacy `if not await` guards fail-closed. SDK dispatchers propagate the pending result and proceed only on exact `True`. Never retry through another protocol after refusal or failure.
 
-**Wiring.** The shared gate is `agent_connector_sdk/mcp/context.py::ctx_confirm_destructive`. `action_dispatch.dispatch_async` and generated method dispatch pass operation arguments to that gate. Both dispatchers propagate pending results. They call `invoke_client_method` only after explicit acceptance.
+**Wiring.** The shared gate is `scion_sdk/mcp/context.py::ctx_confirm_destructive`. `action_dispatch.dispatch_async` and generated method dispatch pass operation arguments to that gate. Both dispatchers propagate pending results. They call `invoke_client_method` only after explicit acceptance.
 
 **Refusal.** Refuse before the connector effect when context or protocol identity is missing or capability is unsupported. Refuse false, nonboolean, and missing fields. Refuse decline, cancellation, binding mismatch, transport error, or malformed response. Nondestructive operations never ask for confirmation.
 

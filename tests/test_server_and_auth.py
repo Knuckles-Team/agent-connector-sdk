@@ -13,10 +13,10 @@ from fastmcp.server.auth import OAuthProxy, RemoteAuthProvider, TokenVerifier
 from fastmcp.server.auth.providers.jwt import RSAKeyPair
 from starlette.testclient import TestClient
 
-from agent_connector_sdk.credentials.resolver import EnvironmentCredentialResolver
-from agent_connector_sdk.mcp.auth.factory import configure_auth
-from agent_connector_sdk.mcp.auth.jwt import _key_material, configure_jwt_auth
-from agent_connector_sdk.mcp.auth.policy import (
+from scion_sdk.credentials.resolver import EnvironmentCredentialResolver
+from scion_sdk.mcp.auth.factory import configure_auth
+from scion_sdk.mcp.auth.jwt import _key_material, configure_jwt_auth
+from scion_sdk.mcp.auth.policy import (
     AUTH_TYPES,
     AuthConfigurationError,
     AuthInputs,
@@ -25,28 +25,28 @@ from agent_connector_sdk.mcp.auth.policy import (
     resolve_auth_secret,
     secure_auth_url,
 )
-from agent_connector_sdk.mcp.auth.proxies import (
+from scion_sdk.mcp.auth.proxies import (
     configure_oauth_proxy,
     configure_oidc_proxy,
     configure_remote_oauth,
 )
-from agent_connector_sdk.mcp.auth.static import (
+from scion_sdk.mcp.auth.static import (
     configure_static_auth,
     validated_static_tokens,
 )
-from agent_connector_sdk.mcp.auth.verifiers import (
+from scion_sdk.mcp.auth.verifiers import (
     any_realm_verifier,
     claims_are_current,
     hardened_jwt_verifier,
 )
-from agent_connector_sdk.mcp.content import ConnectorContent
-from agent_connector_sdk.mcp.parser import (
+from scion_sdk.mcp.content import ConnectorContent
+from scion_sdk.mcp.parser import (
     DEFAULT_HOST,
     DEFAULT_PORT,
     TRANSPORTS,
     create_mcp_parser,
 )
-from agent_connector_sdk.mcp.server import create_mcp_server
+from scion_sdk.mcp.server import create_mcp_server
 
 ISSUER = "https://issuer.example.invalid"
 TOKEN = "t" * 40
