@@ -63,14 +63,7 @@ def test_next_bump_updates_the_forwarder_version_with_the_target() -> None:
 
 def test_bump_updates_all_compatibility_dependency_pins(tmp_path: Path) -> None:
     executable = shutil.which("bump2version")
-    if executable is None:
-        pytest.skip("bump2version CLI is not installed")
-    probe = subprocess.run(
-        [executable, "--help"], capture_output=True, text=True, check=False
-    )
-    if probe.returncode != 0:
-        # A user-site install is not importable under PYTHONNOUSERSITE=1.
-        pytest.skip("bump2version CLI is installed but not runnable in this env")
+    assert executable is not None, "bump2version is a test dependency"
     compat = tmp_path / "compat" / "agent-connector-sdk"
     compat.mkdir(parents=True)
     for source, target in (
