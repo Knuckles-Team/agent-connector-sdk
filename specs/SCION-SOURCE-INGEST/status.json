@@ -526,11 +526,21 @@
     {
       "id": "SCION-SOURCE-INGEST-R006",
       "title": "SDK packs own vendor enrichment extraction and write-back",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
-        "b55555566da2"
+        "10376b1e9728",
+        "1cbd1de01d83",
+        "35871f3b2b8e",
+        "36d2c92e439c",
+        "3735e4434463"
       ],
-      "verified_by": [],
+      "verified_by": [
+        "tests/test_enterprise_adapters_served.py:21",
+        "tests/test_enterprise_contract.py:107",
+        "tests/test_enterprise_contract.py:173",
+        "tests/test_enterprise_contract.py:65",
+        "tests/test_enterprise_dispatch.py:114"
+      ],
       "rollup_of": [
         "SCION-SOURCE-INGEST-R006.1",
         "SCION-SOURCE-INGEST-R006.2",
@@ -1791,37 +1801,62 @@
     {
       "id": "SCION-SOURCE-INGEST-R006.33",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "97f4f86e9aaa"
+      ],
+      "verified_by": [
+        "tests/test_enterprise_dispatch.py:157",
+        "tests/test_enterprise_dispatch.py:83"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R006.34",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "97f4f86e9aaa"
+      ],
+      "verified_by": [
+        "tests/test_enterprise_dispatch.py:114",
+        "tests/test_enterprise_dispatch.py:257"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R006.35",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "97f4f86e9aaa"
+      ],
+      "verified_by": [
+        "tests/test_enterprise_dispatch.py:380",
+        "tests/test_enterprise_dispatch.py:97"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R006.36",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "97f4f86e9aaa"
+      ],
+      "verified_by": [
+        "tests/test_enterprise_dispatch.py:158",
+        "tests/test_enterprise_dispatch.py:264",
+        "tests/test_enterprise_dispatch.py:84"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R006.37",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "97f4f86e9aaa"
+      ],
+      "verified_by": [
+        "tests/test_enterprise_adapters_served.py:21"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.7",
