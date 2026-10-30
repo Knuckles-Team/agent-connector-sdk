@@ -19,9 +19,7 @@ belt for feeds with missing/equal dates.
 
 from __future__ import annotations
 
-import time
-from collections.abc import Callable, Iterator
-from typing import Any
+from collections.abc import Iterator
 
 from ..base import (
     CheckpointedBatch,
@@ -31,57 +29,20 @@ from ..base import (
     SourceDocument,
     default_external_access,
 )
-from ..http_safety import require_safe_source_url, safe_get_text
+from ..http_safety import require_safe_source_url
 from ..registry import register_source
+from ._feed_common import _checkpointed_delta
+from ._rss_entries import (
+    FetchFn,
+    _build_safe_fetch,
+    _entry_document,
+    _normalize_feed_urls,
+    _parse_feed,
+)
 
-FetchFn = Callable[[str], str]
-#: Cap the persisted seen-id belt so the checkpoint can't grow unbounded; the
-#: publish-date watermark is the primary delta, seen_ids only guards same-date dupes.
-_SEEN_CAP = 5000
-#: Per-feed HTTP fetch timeout (seconds). A feed slower than this in a sweep is
-#: skipped rather than stalling the whole pass; with concurrent fetch the sweep's
-#: wall-clock is bounded by this, not by Nxtimeout. (CONCEPT:AU-KG.ingest.rss-feed-connector)
-_FEED_FETCH_TIMEOUT_S = 20.0
 #: Max feeds fetched concurrently per sweep (bounds sockets/threads; the sweep
 #: scales to many feeds without a serial stall — the 2000-reviews/hr path).
 _FEED_FETCH_CONCURRENCY = 12
-
-
-def _parse(content: str) -> Any:
-    """Parse feed content with lazy ``feedparser``."""
-    try:
-        import feedparser
-    except ImportError as exc:  # pragma: no cover - dependency declared in pyproject
-        raise RuntimeError(
-            "RssConnector needs 'feedparser' to parse feeds (declared in "
-            "pyproject dependencies)."
-        ) from exc
-    return feedparser.parse(content)
-
-
-def _entry_date(entry: Any) -> str | None:
-    """Normalize an entry's publish/updated date to an ISO-8601 UTC string.
-
-    ISO-8601 sorts lexicographically == chronologically, so the connector's
-    watermark comparison is a plain string compare.
-    """
-    for key in ("published_parsed", "updated_parsed"):
-        st = entry.get(key)
-        if st:
-            try:
-                return time.strftime("%Y-%m-%dT%H:%M:%SZ", st)
-            except (TypeError, ValueError):
-                continue
-    return None
-
-
-def _entry_text(entry: Any) -> str:
-    content = entry.get("content")
-    if isinstance(content, list) and content:
-        val = content[0].get("value") if isinstance(content[0], dict) else None
-        if val:
-            return str(val)
-    return str(entry.get("summary") or entry.get("description") or "")
 
 
 @register_source("rss")
@@ -111,12 +72,7 @@ class RssConnector(LoadConnector, PollConnector):
         max_response_bytes: int = 10 * 1024 * 1024,
         **_: object,
     ) -> None:
-        urls = [feed_urls] if isinstance(feed_urls, str) else list(feed_urls or [])
-        self.feed_urls = [u for u in (s.strip() for s in urls) if u]
-        if not self.feed_urls:
-            raise ValueError("RssConnector requires one or more 'feed_urls'")
-        if len(self.feed_urls) > 1000:
-            raise ValueError("RssConnector accepts at most 1000 feed URLs")
+        self.feed_urls = _normalize_feed_urls(feed_urls)
         private_hosts = list(allowed_private_hosts or [])
         for url in self.feed_urls:
             require_safe_source_url(
@@ -126,22 +82,11 @@ class RssConnector(LoadConnector, PollConnector):
         self.doc_type = doc_type
         self.source_name = source_name
         self.external_access = default_external_access()
-        if fetch_fn is not None:
-            self._fetch = fetch_fn
-        else:
-            redirect_hosts = list(allowed_redirect_hosts or [])
-
-            def _safe_fetch(url: str) -> str:
-                return safe_get_text(
-                    url,
-                    timeout=_FEED_FETCH_TIMEOUT_S,
-                    headers={"User-Agent": "agent-utilities-rss/1.0"},
-                    max_bytes=max_response_bytes,
-                    allowed_private_hosts=private_hosts,
-                    allowed_redirect_hosts=redirect_hosts,
-                )
-
-            self._fetch = _safe_fetch
+        self._fetch = fetch_fn or _build_safe_fetch(
+            allowed_private_hosts=private_hosts,
+            allowed_redirect_hosts=list(allowed_redirect_hosts or []),
+            max_response_bytes=max_response_bytes,
+        )
 
     def health_check(self) -> bool:
         return bool(self.feed_urls)
@@ -154,47 +99,23 @@ class RssConnector(LoadConnector, PollConnector):
             content = self._fetch(url)
         except Exception:
             return [], False
-        parsed = _parse(content)
+        parsed = _parse_feed(content)
         feed_title = str((parsed.feed or {}).get("title") or url)
-        out: list[SourceDocument] = []
-        for entry in (parsed.entries or [])[: self.max_items]:
-            eid = entry.get("id") or entry.get("link") or entry.get("title") or ""
-            if not eid:
-                continue
-            published = _entry_date(entry)
-            link = str(entry.get("link") or "")
-            cats = [
-                str(t.get("term"))
-                for t in (entry.get("tags") or [])
-                if isinstance(t, dict) and t.get("term")
-            ]
-            text = _entry_text(entry)
-            record = {
-                "id": str(eid),
-                "title": str(entry.get("title") or ""),
-                "published": published,
-                "categories": cats,
-                # ``canonical`` + ``origin`` mirror the GReader shape the gate reads,
-                # so RssConnector items route through the SAME router as FreshRSS.
-                "canonical": [{"href": link}] if link else [],
-                "origin": {
-                    "htmlUrl": link,
-                    "streamId": url,
-                    "title": feed_title,
-                },
-            }
-            out.append(
-                SourceDocument(
-                    id=str(eid),
-                    source_uri=url,
-                    title=str(entry.get("title") or "")[:300],
-                    text=text,
+        out = [
+            doc
+            for entry in (parsed.entries or [])[: self.max_items]
+            if (
+                doc := _entry_document(
+                    entry,
+                    url=url,
+                    feed_title=feed_title,
                     doc_type=self.doc_type,
-                    updated_at=published,
-                    metadata={"record": record, "source_system": self.source_name},
-                    external_access=self.external_access.model_copy(deep=True),
+                    source_name=self.source_name,
+                    external_access=self.external_access,
                 )
             )
+            is not None
+        ]
         return out, not bool(parsed.bozo)
 
     def _all_documents(self) -> tuple[list[SourceDocument], bool]:
@@ -235,21 +156,5 @@ class RssConnector(LoadConnector, PollConnector):
         delta; the seen-id belt catches feeds with missing or identical dates so a
         re-poll never re-emits an unchanged entry.
         """
-        prior_ids = set(checkpoint.seen_ids) if checkpoint else set()
-        wm = checkpoint.watermark if checkpoint else None
         all_docs, complete = self._all_documents()
-        # ``>= wm`` (not ``>``) so a new entry sharing the watermark second is still
-        # emitted; the seen-id belt is what prevents re-emitting one already sent.
-        fresh = [
-            d
-            for d in all_docs
-            if d.id not in prior_ids
-            and (wm is None or not d.updated_at or d.updated_at >= wm)
-        ]
-        dates = [d.updated_at for d in all_docs if d.updated_at]
-        if wm:
-            dates.append(wm)
-        new_wm = (max(dates) if dates else wm) if complete else wm
-        new_ids = sorted(prior_ids | {d.id for d in fresh})[-_SEEN_CAP:]
-        cp = ConnectorCheckpoint(has_more=False, watermark=new_wm, seen_ids=new_ids)
-        return CheckpointedBatch(documents=fresh, checkpoint=cp)
+        return _checkpointed_delta(checkpoint, all_docs, complete=complete)

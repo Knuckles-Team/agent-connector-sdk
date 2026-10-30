@@ -26,7 +26,6 @@ so this connector only ever WIDENS the funnel's mouth, never bypasses its throat
 from __future__ import annotations
 
 import logging
-import time
 from collections.abc import Callable, Iterator
 from typing import Any
 
@@ -40,6 +39,8 @@ from ..base import (
 )
 from ..http_safety import require_safe_source_url, safe_get_text
 from ..registry import register_source
+from ._arxiv_entries import _entry_document
+from ._feed_common import _checkpointed_delta
 
 FetchFn = Callable[[str, dict[str, Any]], str]
 
@@ -49,60 +50,10 @@ FetchFn = Callable[[str, dict[str, Any]], str]
 logger = logging.getLogger(__name__)
 
 _ARXIV_API_URL = "https://export.arxiv.org/api/query"
-#: Cap the persisted seen-id belt so the checkpoint can't grow unbounded.
-_SEEN_CAP = 5000
 #: Hard ceiling on ``max_results`` — arXiv's own API caps a single page at 2000, but
 #: nothing here needs to approach that; the operator-facing default is far lower.
 _MAX_RESULTS_CEILING = 500
 _FETCH_TIMEOUT_S = 20.0
-
-
-def _entry_date(entry: dict[str, Any]) -> str | None:
-    """Normalize an Atom entry's submitted/updated date to ISO-8601 UTC."""
-    for key in ("published_parsed", "updated_parsed"):
-        st = entry.get(key)
-        if st:
-            try:
-                return time.strftime("%Y-%m-%dT%H:%M:%SZ", st)
-            except (TypeError, ValueError):
-                continue
-    return None
-
-
-def _arxiv_bare_id(raw_id: str) -> str:
-    """Strip the ``https://arxiv.org/abs/`` prefix and version suffix from an entry id."""
-    tail = str(raw_id or "").rsplit("/", 1)[-1]
-    if "v" in tail:
-        head, _, version = tail.rpartition("v")
-        if version.isdigit():
-            tail = head
-    return tail
-
-
-def _pdf_url(entry: dict[str, Any]) -> str:
-    for link in entry.get("links") or []:
-        if not isinstance(link, dict):
-            continue
-        if link.get("type") == "application/pdf" or link.get("title") == "pdf":
-            return str(link.get("href") or "")
-    return ""
-
-
-def _authors(entry: dict[str, Any]) -> list[str]:
-    out = []
-    for author in entry.get("authors") or []:
-        name = author.get("name") if isinstance(author, dict) else None
-        if name:
-            out.append(str(name))
-    return out
-
-
-def _categories(entry: dict[str, Any]) -> list[str]:
-    return [
-        str(t.get("term"))
-        for t in (entry.get("tags") or [])
-        if isinstance(t, dict) and t.get("term")
-    ]
 
 
 @register_source("arxiv")
@@ -212,43 +163,20 @@ class ArxivConnector(LoadConnector, PollConnector):
         if parsed.bozo:
             logger.warning("arXiv category %s returned a malformed feed", category)
             return [], False
-        out: list[SourceDocument] = []
-        for entry in parsed.entries or []:
-            raw_id = str(entry.get("id") or "")
-            aid = _arxiv_bare_id(raw_id)
-            if not aid:
-                continue
-            published = _entry_date(entry)
-            title = str(entry.get("title") or "").strip()
-            abstract = str(entry.get("summary") or "").strip()
-            pdf_url = _pdf_url(entry)
-            abs_url = raw_id or f"https://arxiv.org/abs/{aid}"
-            record = {
-                "id": aid,
-                "title": title,
-                "published": published,
-                "categories": _categories(entry) or [category],
-                "authors": _authors(entry),
-                "pdf_url": pdf_url,
-                "canonical": [{"href": abs_url}],
-                "origin": {
-                    "htmlUrl": abs_url,
-                    "streamId": "arxiv:api",
-                    "title": f"arXiv {category}",
-                },
-            }
-            out.append(
-                SourceDocument(
-                    id=f"arxiv:{aid}",
-                    source_uri=abs_url,
-                    title=title[:300],
-                    text=abstract,
+        out = [
+            doc
+            for entry in parsed.entries or []
+            if (
+                doc := _entry_document(
+                    entry,
+                    category=category,
                     doc_type=self.doc_type,
-                    updated_at=published,
-                    metadata={"record": record, "source_system": self.source_name},
-                    external_access=self.external_access.model_copy(deep=True),
+                    source_name=self.source_name,
+                    external_access=self.external_access,
                 )
             )
+            is not None
+        ]
         return out, True
 
     def _all_documents(self) -> tuple[list[SourceDocument], bool]:
@@ -283,19 +211,5 @@ class ArxivConnector(LoadConnector, PollConnector):
         (bounded) most-recent page per category and filters client-side — the
         ``max_results`` cap is what keeps this a bounded read, not a full re-scan.
         """
-        prior_ids = set(checkpoint.seen_ids) if checkpoint else set()
-        wm = checkpoint.watermark if checkpoint else None
         all_docs, complete = self._all_documents()
-        fresh = [
-            d
-            for d in all_docs
-            if d.id not in prior_ids
-            and (wm is None or not d.updated_at or d.updated_at >= wm)
-        ]
-        dates = [d.updated_at for d in all_docs if d.updated_at]
-        if wm:
-            dates.append(wm)
-        new_wm = (max(dates) if dates else wm) if complete else wm
-        new_ids = sorted(prior_ids | {d.id for d in fresh})[-_SEEN_CAP:]
-        cp = ConnectorCheckpoint(has_more=False, watermark=new_wm, seen_ids=new_ids)
-        return CheckpointedBatch(documents=fresh, checkpoint=cp)
+        return _checkpointed_delta(checkpoint, all_docs, complete=complete)

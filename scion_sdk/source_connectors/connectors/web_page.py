@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import logging
 import re
+from collections.abc import Callable
 
+from ..http_safety import safe_get_text
 from .web_frontier_types import _URL_LIMIT
+
+logger = logging.getLogger(__name__)
 
 
 def _check_base_url(url: str) -> None:
@@ -33,3 +38,30 @@ def _convert_html(html: str) -> str:
         tmp.write(html)
         tmp.flush()
         return str(MarkItDown().convert(tmp.name).text_content)
+
+
+def _fetch_page_or_none(fetch: Callable[[str], str], url: str) -> str | None:
+    """Fetch one page; an unreachable page yields ``None`` and must not stop a crawl."""
+    try:
+        return fetch(url)
+    except Exception as exc:
+        logger.warning("web crawl skipped %s: %s", url, exc)
+        return None
+
+
+def _build_safe_fetch(
+    *,
+    allowed_private_hosts: list[str],
+    allowed_redirect_hosts: list[str],
+    max_response_bytes: int,
+) -> Callable[[str], str]:
+    def _safe_fetch(url: str) -> str:
+        return safe_get_text(
+            url,
+            timeout=60.0,
+            max_bytes=max_response_bytes,
+            allowed_private_hosts=allowed_private_hosts,
+            allowed_redirect_hosts=allowed_redirect_hosts,
+        )
+
+    return _safe_fetch
