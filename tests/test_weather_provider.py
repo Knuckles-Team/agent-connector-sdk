@@ -11,6 +11,7 @@ from agent_connector_sdk.testing.http_server import ScriptedHttpServer, Scripted
 
 
 @pytest.mark.asyncio
+@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 @pytest.mark.parametrize(
     ("provider", "body", "unit", "expected"),
     [
@@ -73,6 +74,7 @@ async def test_hourly_sources_preserve_units_and_grid_coordinates(
         assert len({row.source_event_id for row in rows}) == 2
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 @pytest.mark.asyncio
 async def test_noaa_missing_or_unapproved_values_fail():
     @asynccontextmanager
