@@ -1330,13 +1330,15 @@
       "landed_in": [
         "5d4848e2ff0f",
         "629ef53c29f0",
+        "ab48ad476607",
         "bac65b612ced"
       ],
       "verified_by": [
         "tests/test_entitlement_catalogs.py:26",
         "tests/test_entitlement_catalogs.py:35",
         "tests/test_entitlement_catalogs.py:42",
-        "tests/test_entitlement_catalogs.py:49"
+        "tests/test_entitlement_catalogs.py:49",
+        "tests/test_entitlement_catalogs.py:58"
       ]
     },
     {
@@ -3982,9 +3984,21 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R074",
       "title": "A connector pack declares every surface and the source contracts for virtual access (rollup)",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "1ac640f88ad4",
+        "52111adb6bf2",
+        "5a0965f9c2e8",
+        "9571c94146e2",
+        "ab48ad476607"
+      ],
+      "verified_by": [
+        "tests/test_pack_surfaces_served.py:59",
+        "tests/test_pack_surfaces_served.py:60",
+        "tests/test_pack_surfaces_served.py:61",
+        "tests/test_prompt_role.py:12",
+        "tests/test_resource_declarations.py:32"
+      ],
       "rollup_of": [
         "SCION-CONNECTOR-CONTROL-R074.1",
         "SCION-CONNECTOR-CONTROL-R074.2",
@@ -4020,8 +4034,10 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R074.3",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ab48ad476607"
+      ],
       "verified_by": [
         "tests/test_pack_surfaces_served.py:59"
       ]
@@ -4029,8 +4045,10 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R074.4",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ab48ad476607"
+      ],
       "verified_by": [
         "tests/test_pack_surfaces_served.py:60"
       ]
@@ -4050,8 +4068,10 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R074.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "ab48ad476607"
+      ],
       "verified_by": [
         "tests/test_pack_surfaces_served.py:61"
       ]
