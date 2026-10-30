@@ -11,7 +11,6 @@ from agent_connector_sdk.earth_observations.storm import (
 )
 
 
-@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 def test_storm_episode_and_local_time_are_host_admitted(tmp_path):
     body = b"BEGIN_YEARMONTH,BEGIN_DAY,BEGIN_TIME,EPISODE_ID,EVENT_ID,CZ_TIMEZONE,EVENT_TYPE\n202503,1,1630,22,33,CST-6,Tornado\n"
     compressed = gzip.compress(body)
@@ -37,7 +36,6 @@ def test_storm_episode_and_local_time_are_host_admitted(tmp_path):
     assert record.source_digest == policy.sha256
 
 
-@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 def test_storm_refuses_missing_episode_and_archive_mutation(tmp_path):
     body = b"BEGIN_YEARMONTH,BEGIN_DAY,BEGIN_TIME,EPISODE_ID,EVENT_ID,CZ_TIMEZONE,EVENT_TYPE\n202503,1,1630,,33,CST-6,Tornado\n"
     compressed = gzip.compress(body)
@@ -54,7 +52,6 @@ def test_storm_refuses_missing_episode_and_archive_mutation(tmp_path):
         source.read(["33"], tenant="tenant", source="storm", max_records=1)
 
 
-@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 def test_storm_refuses_traversal_and_expansion_limit(tmp_path):
     compressed = gzip.compress(b"x" * 4096)
     path = tmp_path / "source.csv.gz"
