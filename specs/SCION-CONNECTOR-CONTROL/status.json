@@ -852,9 +852,9 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "5a476653a386",
+        "c1a0f0b11a29",
         "d7d1ff0fb276",
-        "e266bf988bb9",
-        "e619a6e18aa8"
+        "e266bf988bb9"
       ],
       "verified_by": [
         "tests/test_actor_binding_served.py:118",
@@ -921,7 +921,7 @@
       "title": "No actor bootstrap: an unbound context resolves from the transport",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "e619a6e18aa8"
+        "c1a0f0b11a29"
       ],
       "verified_by": [
         "tests/test_actor_binding_served.py:189",
