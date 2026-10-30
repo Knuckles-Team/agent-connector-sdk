@@ -3291,7 +3291,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/source_connectors/test_universal.py:40"
+        "tests/source_connectors/test_universal.py:43"
       ]
     },
     {
@@ -3337,7 +3337,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/source_connectors/test_universal.py:83"
+        "tests/source_connectors/test_universal.py:86"
       ]
     },
     {
