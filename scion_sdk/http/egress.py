@@ -197,33 +197,53 @@ def egress_ip_is_blocked(ip: str, *, allow_loopback: bool) -> bool:
     return str(addr) in {"169.254.169.254", "fd00:ec2::254"}
 
 
+def _url_host(url: str) -> tuple[str, str]:
+    """The URL's host, or ``("", reason)`` when it is syntactically unacceptable."""
+    if not url or not isinstance(url, str):
+        return "", "empty url"
+    parsed = urlparse(url)
+    if parsed.scheme not in {"http", "https"}:
+        return "", f"unsupported scheme: {parsed.scheme!r}"
+    if parsed.username is not None or parsed.password is not None:
+        return "", "embedded URL credentials are not allowed"
+    host = parsed.hostname
+    if not host:
+        return "", "missing host"
+    try:
+        _ = parsed.port
+    except ValueError:
+        return "", "invalid port"
+    return host, ""
+
+
 def validate_base_url(url: str, *, allow_loopback: bool = True) -> EgressDecision:
     """Syntactic check: scheme + host present, and an IP *literal* host is not in a blocked range.
 
     Does not perform DNS resolution — use :func:`validate_base_url_resolved` for that.
     """
-    if not url or not isinstance(url, str):
-        return EgressDecision(False, "empty url")
-    parsed = urlparse(url)
-    if parsed.scheme not in {"http", "https"}:
-        return EgressDecision(False, f"unsupported scheme: {parsed.scheme!r}")
-    if parsed.username is not None or parsed.password is not None:
-        return EgressDecision(False, "embedded URL credentials are not allowed")
-    host = parsed.hostname
-    if not host:
-        return EgressDecision(False, "missing host")
-    try:
-        _ = parsed.port
-    except ValueError:
-        return EgressDecision(False, "invalid port")
-    # If the host is an IP literal, check it directly.
-    try:
-        ipaddress.ip_address(host)
-    except ValueError:
+    host, rejection = _url_host(url)
+    if rejection:
+        return EgressDecision(False, rejection)
+    if not _is_ip_literal(host):
         return EgressDecision(True, "hostname (resolve to verify)")
     if egress_ip_is_blocked(host, allow_loopback=allow_loopback):
         return EgressDecision(False, "blocked IP literal")
     return EgressDecision(True, "allowed IP literal", (host,))
+
+
+def _collect_resolved_ips(infos: Any) -> tuple[list[str], str]:
+    """Unique compressed IPs from getaddrinfo answers, or a failure reason."""
+    ips: list[str] = []
+    for answer_count, info in enumerate(infos, start=1):
+        if answer_count > MAX_RESOLVED_ADDRESSES:
+            return [], "too many addresses resolved"
+        try:
+            rendered = ipaddress.ip_address(str(info[4][0])).compressed
+        except (IndexError, TypeError, ValueError):
+            return [], "invalid address resolved"
+        if rendered not in ips:
+            ips.append(rendered)
+    return ips, ""
 
 
 def validate_base_url_resolved(
@@ -249,22 +269,19 @@ def validate_base_url_resolved(
         infos = getaddrinfo(host, None)
     except OSError:
         return EgressDecision(False, "DNS resolution failed")
-    ips: list[str] = []
-    for answer_count, info in enumerate(infos, start=1):
-        if answer_count > MAX_RESOLVED_ADDRESSES:
-            return EgressDecision(False, "too many addresses resolved")
-        try:
-            sockaddr = info[4]
-            rendered = ipaddress.ip_address(str(sockaddr[0])).compressed
-        except (IndexError, TypeError, ValueError):
-            return EgressDecision(False, "invalid address resolved")
-        if rendered not in ips:
-            ips.append(rendered)
-    if not ips:
-        return EgressDecision(False, "no addresses resolved")
-    for ip in ips:
-        if egress_ip_is_blocked(ip, allow_loopback=allow_loopback):
-            return EgressDecision(False, "resolves to blocked address")
+    return _decide_resolved(infos, allow_loopback=allow_loopback)
+
+
+def _decide_resolved(infos: Any, *, allow_loopback: bool) -> EgressDecision:
+    ips, failure = _collect_resolved_ips(infos)
+    if not failure and not ips:
+        failure = "no addresses resolved"
+    if not failure and any(
+        egress_ip_is_blocked(ip, allow_loopback=allow_loopback) for ip in ips
+    ):
+        failure = "resolves to blocked address"
+    if failure:
+        return EgressDecision(False, failure)
     return EgressDecision(True, "all resolved IPs allowed", tuple(ips))
 
 
@@ -335,6 +352,32 @@ def _label_is_valid(label: str) -> bool:
     )
 
 
+def _is_ip_literal(host: str) -> bool:
+    try:
+        ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return True
+
+
+def _normalize_private_host(raw: object) -> str:
+    host = str(raw).strip().lower().rstrip(".")
+    if not host.isascii():
+        raise ValueError("private egress hosts must be ASCII")
+    if (
+        not host
+        or len(host) > 253
+        or any(ord(c) < 33 for c in host)
+        or any(c in host for c in "/@*?#[]")
+    ):
+        raise ValueError("private egress hosts must be exact hostnames")
+    if not _is_ip_literal(host) and not all(
+        _label_is_valid(label) for label in host.split(".")
+    ):
+        raise ValueError("private egress hosts must be exact hostnames")
+    return host
+
+
 def normalize_private_hosts(hosts: Collection[str]) -> frozenset[str]:
     """Validate the explicit private-host allow-list into exact lowercase names.
 
@@ -342,26 +385,7 @@ def normalize_private_hosts(hosts: Collection[str]) -> frozenset[str]:
         ValueError: a host is not an exact ASCII hostname or IP literal (no
             wildcards, paths, credentials or brackets), or there are over 256.
     """
-    normalized: set[str] = set()
-    for raw in hosts:
-        host = str(raw).strip().lower().rstrip(".")
-        if not host.isascii():
-            raise ValueError("private egress hosts must be ASCII")
-        if (
-            not host
-            or len(host) > 253
-            or any(ord(c) < 33 for c in host)
-            or any(c in host for c in "/@*?#[]")
-        ):
-            raise ValueError("private egress hosts must be exact hostnames")
-        try:
-            ipaddress.ip_address(host)
-        except ValueError:
-            if not all(_label_is_valid(label) for label in host.split(".")):
-                raise ValueError(
-                    "private egress hosts must be exact hostnames"
-                ) from None
-        normalized.add(host)
+    normalized = {_normalize_private_host(raw) for raw in hosts}
     if len(normalized) > 256:
         raise ValueError("private egress host allowlist is too large")
     return frozenset(normalized)
@@ -372,22 +396,54 @@ def _resolve_private_host(host: str, port: int | None) -> list[str]:
         answers = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
     except OSError as exc:
         raise PinnedEgressViolation("outbound DNS resolution failed") from exc
-    ips: list[str] = []
-    for count, answer in enumerate(answers, start=1):
-        if count > MAX_RESOLVED_ADDRESSES:
-            raise PinnedEgressViolation("outbound DNS result exceeded its boundary")
-        try:
-            rendered = ipaddress.ip_address(str(answer[4][0])).compressed
-        except (IndexError, TypeError, ValueError) as exc:
-            raise PinnedEgressViolation("outbound DNS result was invalid") from exc
-        if rendered not in ips:
-            ips.append(rendered)
+    ips, failure = _collect_resolved_ips(answers)
+    if failure:
+        raise PinnedEgressViolation(
+            "outbound DNS result exceeded its boundary"
+            if failure.startswith("too many")
+            else "outbound DNS result was invalid"
+        )
     if not ips:
         raise PinnedEgressViolation("outbound DNS resolution returned no address")
     if any(not _is_allowed_private_address(ipaddress.ip_address(ip)) for ip in ips):
         raise PinnedEgressViolation(
             "configured private host resolved outside the private boundary"
         )
+    return ips
+
+
+def _checked_logical_target(logical_url: httpx.URL) -> tuple[str, str]:
+    """The (scheme, host) of a request URL that passed the syntactic boundary."""
+    if len(str(logical_url)) > _MAX_URL_LENGTH:
+        raise PinnedEgressViolation("outbound URL exceeded its security boundary")
+    scheme = logical_url.scheme.lower()
+    host = (logical_url.host or "").lower().rstrip(".")
+    if scheme not in {"http", "https"} or not host:
+        raise PinnedEgressViolation("outbound URL was rejected")
+    parsed = urlsplit(str(logical_url))
+    if parsed.username is not None or parsed.password is not None:
+        raise PinnedEgressViolation("embedded outbound credentials are not permitted")
+    return scheme, host
+
+
+def _candidate_ips(
+    logical_url: httpx.URL,
+    host: str,
+    *,
+    allowed_private_hosts: frozenset[str],
+    allow_loopback: bool,
+) -> list[str]:
+    """Resolve ``host`` under the private-host or public-destination policy."""
+    if host in allowed_private_hosts:
+        return _resolve_private_host(host, logical_url.port)
+    decision = validate_base_url_resolved(
+        str(logical_url), allow_loopback=allow_loopback
+    )
+    if not decision.allowed or not decision.resolved_ips:
+        raise PinnedEgressViolation("outbound destination was rejected")
+    ips = list(decision.resolved_ips)
+    if any(ipaddress.ip_address(ip) in _SHARED_ADDRESS_SPACE for ip in ips):
+        raise PinnedEgressViolation("outbound destination was rejected")
     return ips
 
 
@@ -398,29 +454,14 @@ def _resolve_pinned_request(
     allow_loopback: bool,
 ) -> tuple[str, str, tuple[str, int]]:
     """Resolve one request once and rewrite it to the chosen IP, keeping Host/SNI."""
-    if len(str(request.url)) > _MAX_URL_LENGTH:
-        raise PinnedEgressViolation("outbound URL exceeded its security boundary")
     logical_url = request.url
-    scheme = logical_url.scheme.lower()
-    host = (logical_url.host or "").lower().rstrip(".")
-    if scheme not in {"http", "https"} or not host:
-        raise PinnedEgressViolation("outbound URL was rejected")
-    parsed = urlsplit(str(logical_url))
-    if parsed.username is not None or parsed.password is not None:
-        raise PinnedEgressViolation("embedded outbound credentials are not permitted")
-
-    if host in allowed_private_hosts:
-        ips = _resolve_private_host(host, logical_url.port)
-    else:
-        decision = validate_base_url_resolved(
-            str(logical_url), allow_loopback=allow_loopback
-        )
-        if not decision.allowed or not decision.resolved_ips:
-            raise PinnedEgressViolation("outbound destination was rejected")
-        ips = list(decision.resolved_ips)
-        if any(ipaddress.ip_address(ip) in _SHARED_ADDRESS_SPACE for ip in ips):
-            raise PinnedEgressViolation("outbound destination was rejected")
-
+    scheme, host = _checked_logical_target(logical_url)
+    ips = _candidate_ips(
+        logical_url,
+        host,
+        allowed_private_hosts=allowed_private_hosts,
+        allow_loopback=allow_loopback,
+    )
     pinned_ip = ips[0]
     address = ipaddress.ip_address(pinned_ip)
     if scheme == "http" and not (address.is_loopback or host in allowed_private_hosts):
@@ -487,18 +528,12 @@ class _PinState:
         return pinned_ip
 
 
-class DnsPinnedEgressTransport(httpx.BaseTransport):
-    """Resolves each request once, validates it, and dials only that address.
-
-    Public destinations must resolve to public addresses. A host named in
-    ``allowed_private_hosts`` must resolve into loopback, RFC 1918, RFC 6598 or
-    IPv6 ULA space. The original name stays in ``Host`` and TLS SNI. Unless
-    ``verify_peer`` is off, the connected peer must equal the pinned address.
-    """
+class _PinnedTransportBase:
+    """Shared construction for the sync and async DNS-pinned transports."""
 
     def __init__(
         self,
-        inner: httpx.BaseTransport,
+        inner: Any,
         *,
         allowed_private_hosts: Collection[str] = (),
         allow_loopback: bool = False,
@@ -510,6 +545,16 @@ class DnsPinnedEgressTransport(httpx.BaseTransport):
             allow_loopback=allow_loopback,
             verify_peer=verify_peer,
         )
+
+
+class DnsPinnedEgressTransport(_PinnedTransportBase, httpx.BaseTransport):
+    """Resolves each request once, validates it, and dials only that address.
+
+    Public destinations must resolve to public addresses. A host named in
+    ``allowed_private_hosts`` must resolve into loopback, RFC 1918, RFC 6598 or
+    IPv6 ULA space. The original name stays in ``Host`` and TLS SNI. Unless
+    ``verify_peer`` is off, the connected peer must equal the pinned address.
+    """
 
     def handle_request(self, request: httpx.Request) -> httpx.Response:
         pinned_ip = self._state.pin(request)
@@ -526,23 +571,8 @@ class DnsPinnedEgressTransport(httpx.BaseTransport):
         self._inner.close()
 
 
-class AsyncDnsPinnedEgressTransport(httpx.AsyncBaseTransport):
+class AsyncDnsPinnedEgressTransport(_PinnedTransportBase, httpx.AsyncBaseTransport):
     """The asynchronous :class:`DnsPinnedEgressTransport`."""
-
-    def __init__(
-        self,
-        inner: httpx.AsyncBaseTransport,
-        *,
-        allowed_private_hosts: Collection[str] = (),
-        allow_loopback: bool = False,
-        verify_peer: bool = True,
-    ) -> None:
-        self._inner = inner
-        self._state = _PinState(
-            allowed_private_hosts=allowed_private_hosts,
-            allow_loopback=allow_loopback,
-            verify_peer=verify_peer,
-        )
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
         probe = httpx.Request(

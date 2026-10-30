@@ -2,30 +2,20 @@
 
 from __future__ import annotations
 
-import threading
-
 import httpx
 
-from scion_sdk.auth.tokens import (
-    AccessToken,
-    TokenRequestError,
-    request_access_token,
+from scion_sdk.auth._cached_provider import (
+    CachedTokenProvider,
+    resolve_or_unavailable,
 )
+from scion_sdk.auth.tokens import AccessToken, request_access_token
 from scion_sdk.auth.values import header_safe
-from scion_sdk.credentials.references import SecretReferenceError
-from scion_sdk.credentials.resolution import resolve_secret_reference
-from scion_sdk.credentials.resolver import (
-    CredentialResolver,
-    CredentialUnavailableError,
-)
+from scion_sdk.credentials.resolver import CredentialResolver
 
 __all__ = ["RefreshTokenProvider"]
 
-#: Refresh a cached token this many seconds before it expires.
-REFRESH_SKEW_SECONDS = 30.0
 
-
-class RefreshTokenProvider:
+class RefreshTokenProvider(CachedTokenProvider):
     """A thread-safe, self-refreshing refresh-token grant token cache.
 
     It has the same ``get_token(force=...)`` surface as
@@ -48,6 +38,7 @@ class RefreshTokenProvider:
         scope: str = "",
         resolver: CredentialResolver | None = None,
     ) -> None:
+        super().__init__()
         self._token_url = token_url
         self._client_id = header_safe(client_id, what="client id")
         self._refresh_ref = refresh_token_ref
@@ -55,15 +46,10 @@ class RefreshTokenProvider:
         self._scope = scope
         self._client = http_client
         self._resolver = resolver
-        self._lock = threading.Lock()
-        self._token: AccessToken | None = None
         self._rotated: str | None = None
 
     def _secret(self, reference: str, what: str) -> str:
-        try:
-            return resolve_secret_reference(reference, self._resolver)
-        except (SecretReferenceError, CredentialUnavailableError) as exc:
-            raise TokenRequestError(f"{what} is unavailable") from exc
+        return resolve_or_unavailable(reference, self._resolver, what)
 
     def _mint(self) -> AccessToken:
         refresh = self._rotated or self._secret(self._refresh_ref, "refresh token")
@@ -84,18 +70,3 @@ class RefreshTokenProvider:
         if token.refresh_token:
             self._rotated = token.refresh_token
         return token
-
-    def get_token(self, *, force: bool = False) -> str:
-        """A cached token, minted when missing, near expiry or ``force``d.
-
-        Raises:
-            TokenRequestError: minting failed.
-        """
-        with self._lock:
-            if (
-                force
-                or self._token is None
-                or not self._token.fresh(REFRESH_SKEW_SECONDS)
-            ):
-                self._token = self._mint()
-            return self._token.value
