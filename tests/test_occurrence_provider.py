@@ -16,6 +16,7 @@ from agent_connector_sdk.testing.http_server import ScriptedHttpServer, Scripted
 
 
 @pytest.mark.asyncio
+@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 @pytest.mark.parametrize(
     ("provider", "body", "path", "taxon"),
     [
@@ -84,6 +85,7 @@ async def test_occurrence_read(provider, body, path, taxon):
         assert admitted == [provider]
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R008")
 @pytest.mark.asyncio
 async def test_ambiguous_time_and_unapproved_license_refused():
     @asynccontextmanager

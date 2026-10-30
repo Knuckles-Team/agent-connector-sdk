@@ -26,6 +26,7 @@ _GBIF_HUMAN = {
 }
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 def test_ncbi_taxon_carries_one_term_curie_and_one_scientific_name() -> None:
     taxon = taxon_from_ncbi(_NCBI_HUMAN)
 
@@ -36,6 +37,7 @@ def test_ncbi_taxon_carries_one_term_curie_and_one_scientific_name() -> None:
     assert taxon.parent_term_curie == "NCBITaxon:9605"
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 def test_gbif_taxon_carries_its_own_term_curie_and_parent() -> None:
     taxon = taxon_from_gbif(_GBIF_HUMAN)
 
@@ -45,11 +47,13 @@ def test_gbif_taxon_carries_its_own_term_curie_and_parent() -> None:
     assert taxon.parent_term_curie == "GBIF:2436436"
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 def test_a_taxon_without_a_parent_leaves_parent_term_curie_unset() -> None:
     root = taxon_from_ncbi({**_NCBI_HUMAN, "parent_tax_id": None})
     assert root.parent_term_curie is None
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 def test_ncbi_taxon_id_must_be_decimal() -> None:
     with pytest.raises(ValidationError, match="decimal"):
         TaxonRecord(
@@ -59,6 +63,7 @@ def test_ncbi_taxon_id_must_be_decimal() -> None:
         )
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 def test_scientific_name_and_term_curie_are_required() -> None:
     with pytest.raises(ValidationError):
         TaxonRecord(scientific_name="", term_curie="NCBITaxon:9606")

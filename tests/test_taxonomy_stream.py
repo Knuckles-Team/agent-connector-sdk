@@ -14,6 +14,7 @@ from agent_connector_sdk.taxonomy.stream import register_taxonomy_stream
 from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 @pytest.mark.asyncio
 async def test_served_pages_preserve_state_on_refusal():
     @asynccontextmanager

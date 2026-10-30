@@ -24,6 +24,7 @@ def rows():
     )
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 def test_admitted_subgraph_contains_cross_identifiers_and_typed_edges():
     records, edges = _entities(
         rows(),
@@ -40,6 +41,7 @@ def test_admitted_subgraph_contains_cross_identifiers_and_typed_edges():
     assert len(edges) == 3
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 @pytest.mark.parametrize("case", ["crosswalk", "rank", "root", "parent"])
 def test_refuses_missing_authority_or_parent(case):
     selected = rows()
@@ -58,6 +60,7 @@ def test_refuses_missing_authority_or_parent(case):
         _entities(selected, crosswalk=crosswalk, ranks=ranks, roots=roots)
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 def test_crosswalk_is_complete_one_to_one_and_bound_to_provider_ids():
     from agent_connector_sdk.taxonomy.graph_stream import _validate_crosswalk
 
@@ -74,6 +77,7 @@ def test_crosswalk_is_complete_one_to_one_and_bound_to_provider_ids():
             _validate_crosswalk("ncbi", identifiers, invalid)
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 @pytest.mark.asyncio
 async def test_served_taxonomy_graph_authorizes_and_checks_policy_before_egress():
     import json
@@ -157,6 +161,7 @@ async def test_served_taxonomy_graph_authorizes_and_checks_policy_before_egress(
             assert len(http.requests) == 2
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R009")
 def test_taxonomy_graph_bound_counts_rank_nodes_too():
     from agent_connector_sdk.taxonomy._graph_policy import _validate_policy
 
