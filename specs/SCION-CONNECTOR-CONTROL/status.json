@@ -688,7 +688,7 @@
         "b0c376748245"
       ],
       "verified_by": [
-        "tests/gates/test_workflow_contract.py:369"
+        "tests/gates/test_workflow_contract.py:373"
       ]
     },
     {
@@ -852,8 +852,8 @@
       "title": "SDK provides identity-scoped resource entitlement resolution",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "53f79beb0dcc",
         "5a476653a386",
-        "909de393d3cc",
         "c1a0f0b11a29",
         "d7d1ff0fb276",
         "e266bf988bb9"
@@ -900,7 +900,7 @@
       "title": "No-auth HTTP binds the trusted local actor; a tokenless request under auth binds ANONYMOUS",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "909de393d3cc",
+        "53f79beb0dcc",
         "d7d1ff0fb276"
       ],
       "verified_by": [
