@@ -3629,7 +3629,8 @@
         "7c95ed1960af"
       ],
       "verified_by": [
-        "tests/test_pack_declaration.py:41"
+        "tests/test_pack_declaration.py:48",
+        "tests/test_pack_declaration.py:72"
       ]
     },
     {
