@@ -14,6 +14,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
+from scion_sdk.compute._selection import _iri, _is_not_served, _selection_query
 from scion_sdk.credentials.resolution import resolve_secret_reference
 from scion_sdk.credentials.resolver import CredentialResolver
 from scion_sdk.ingest.engine import EngineSettings
@@ -31,9 +32,6 @@ __all__ = [
 #: SPARQL reads of its ontology pack.
 COMPUTE_SCOPES = ("compute:finance", "sparql:read")
 
-#: Error code the engine returns for a declared but unserved method.
-_NOT_SERVED_CODE = "METHOD_NOT_YET_SERVED"
-_IRI = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:[^\s<>\"{}|\\^`]+$")
 _CLIENT_PATH = re.compile(r"^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$")
 
 
@@ -69,27 +67,6 @@ class AlgorithmBinding:
     algorithm: str
     method: str
     op: str = ""
-
-
-def _iri(value: str, what: str) -> str:
-    if not _IRI.match(value):
-        raise ValueError(f"{what} must be an absolute IRI")
-    return value
-
-
-def _selection_query(analysis: str, vocabulary: str) -> str:
-    return (
-        "SELECT ?algorithm ?method ?op WHERE { "
-        f"<{analysis}> <{vocabulary}appliesAlgorithm> ?algorithm . "
-        f"?algorithm <{vocabulary}servedBy> ?method . "
-        f"OPTIONAL {{ ?algorithm <{vocabulary}servedOp> ?op }} "
-        "} ORDER BY ?algorithm"
-    )
-
-
-def _is_not_served(exc: BaseException) -> bool:
-    code = getattr(exc, "code", None) or getattr(exc, "error_code", None)
-    return str(code) == _NOT_SERVED_CODE or _NOT_SERVED_CODE in str(exc)
 
 
 class EngineCompute:
@@ -170,6 +147,26 @@ class EngineCompute:
         )
 
 
+def _connect_client(
+    settings: EngineSettings | None,
+    scopes: tuple[str, ...],
+    resolver: CredentialResolver | None,
+) -> Any:
+    resolved = settings or EngineSettings.from_settings()
+    if resolved is None:
+        raise ComputeUnavailableError("EPISTEMIC_GRAPH_ENDPOINT is not configured")
+    secret = resolve_secret_reference(resolved.auth_secret_ref, resolver)
+    address = resolved.address()
+    from epistemic_graph.client import SyncEpistemicGraphClient
+
+    return SyncEpistemicGraphClient.connect(
+        auth_secret=secret,
+        graph_name=resolved.graph,
+        verified_context=resolved.verified_context(scopes),
+        **address,
+    )
+
+
 def connect_compute(
     settings: EngineSettings | None = None,
     *,
@@ -183,19 +180,7 @@ def connect_compute(
             secret or connection is unavailable.
     """
     try:
-        resolved = settings or EngineSettings.from_settings()
-        if resolved is None:
-            raise ComputeUnavailableError("EPISTEMIC_GRAPH_ENDPOINT is not configured")
-        secret = resolve_secret_reference(resolved.auth_secret_ref, resolver)
-        address = resolved.address()
-        from epistemic_graph.client import SyncEpistemicGraphClient
-
-        client = SyncEpistemicGraphClient.connect(
-            auth_secret=secret,
-            graph_name=resolved.graph,
-            verified_context=resolved.verified_context(scopes),
-            **address,
-        )
+        client = _connect_client(settings, scopes, resolver)
     except ComputeUnavailableError:
         raise
     except Exception as exc:

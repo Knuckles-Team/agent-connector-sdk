@@ -20,6 +20,7 @@ from scion_sdk.ports.repair_proposals import RepairProposalStore
 from scion_sdk.ports.session import McpSession
 from scion_sdk.ports.sink import Sink
 from scion_sdk.ports.source_adapter import SourceAdapter
+from scion_sdk.runner._page_checks import _is_delta_noop, _receipt_binds_request
 from scion_sdk.runner.errors import (
     RunnerConfigurationError,
     SchemaDriftQuarantined,
@@ -98,19 +99,6 @@ def _empty_approval(page: RecordPage, target: SyncTarget) -> str | None:
     )
 
 
-def _is_delta_noop(page: RecordPage, checkpoint: SourceCheckpoint | None) -> bool:
-    """Whether a polling response carries neither effects nor checkpoint progress."""
-    return (
-        checkpoint is not None
-        and page.exhausted
-        and page.mode is SourceIngestionMode.DELTA
-        and page.checkpoint == checkpoint
-        and not page.records
-        and not page.relationships
-        and not page.withdrawals
-    )
-
-
 async def commit_page(
     page: RecordPage,
     target: SyncTarget,
@@ -170,16 +158,6 @@ def _source_request(
         ),
         empty_authoritative_approval=_empty_approval(page, target),
         withdrawals=list(page.withdrawals),
-    )
-
-
-def _receipt_binds_request(
-    request: SourceIngestionRequest, receipt: SourceIngestionReceipt
-) -> bool:
-    return not (
-        receipt.batch_digest != request.canonical_digest()
-        or receipt.accepted_checkpoint != request.provider_checkpoint
-        or receipt.mode != request.mode
     )
 
 
