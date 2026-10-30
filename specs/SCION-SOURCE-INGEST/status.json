@@ -1095,9 +1095,20 @@
     {
       "id": "SCION-SOURCE-INGEST-R012",
       "title": "Platform reads and searches use declared backend fallback chains",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": [],
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "27aa0ca2e9ae",
+        "5436800bcc12",
+        "8d984764c9d8",
+        "8eacf9ba10b6"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback.py:1010",
+        "tests/test_platform_fallback.py:1213",
+        "tests/test_platform_fallback.py:1244",
+        "tests/test_platform_fallback.py:1245",
+        "tests/test_platform_fallback.py:155"
+      ],
       "rollup_of": [
         "SCION-SOURCE-INGEST-R012.1",
         "SCION-SOURCE-INGEST-R012.2",
@@ -1111,44 +1122,84 @@
     {
       "id": "SCION-SOURCE-INGEST-R012.1",
       "title": "Model",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5436800bcc12"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback_models.py:119",
+        "tests/test_platform_fallback_models.py:146",
+        "tests/test_platform_fallback_models.py:180",
+        "tests/test_platform_fallback_models.py:85"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012.2",
       "title": "Behavior",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5436800bcc12"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback.py:1244",
+        "tests/test_platform_fallback.py:155",
+        "tests/test_platform_fallback.py:194",
+        "tests/test_platform_fallback.py:221",
+        "tests/test_platform_fallback.py:318"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012.3",
       "title": "Wiring",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5436800bcc12"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback.py:1010",
+        "tests/test_platform_fallback.py:597"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012.4",
       "title": "Refusal",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5436800bcc12"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback.py:1213",
+        "tests/test_platform_fallback.py:1245",
+        "tests/test_platform_fallback.py:195",
+        "tests/test_platform_fallback.py:222",
+        "tests/test_platform_fallback.py:278"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012.5",
       "title": "Evidence",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5436800bcc12"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback.py:357",
+        "tests/test_platform_fallback.py:385",
+        "tests/test_platform_fallback.py:474",
+        "tests/test_platform_fallback_models.py:181",
+        "tests/test_platform_fallback_models.py:231"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012.6",
       "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "5436800bcc12"
+      ],
+      "verified_by": [
+        "tests/test_platform_fallback_served.py:75"
+      ]
     },
     {
       "id": "SCION-SOURCE-INGEST-R012.7",

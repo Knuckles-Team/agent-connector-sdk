@@ -58,6 +58,7 @@ class FixtureActorBinding(Middleware):
             return await call_next(context)
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R012.4")
 @pytest.mark.asyncio
 async def test_verified_mcp_token_scope_gates_the_real_http_backend(
     monkeypatch, tmp_path
