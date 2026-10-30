@@ -78,7 +78,7 @@ class _FakeServer:
 def _patched(monkeypatch, transport: str) -> _FakeServer:
     from types import SimpleNamespace
 
-    import scion_sdk.connector as module
+    import scion_sdk._connector_serve as module
 
     fake = _FakeServer()
     args = SimpleNamespace(
