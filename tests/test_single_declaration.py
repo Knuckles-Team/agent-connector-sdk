@@ -26,7 +26,8 @@ from scion_sdk.manifest.declaration import (
     contract_from_declaration,
     contract_from_document,
 )
-from scion_sdk.mcp.content import PROMPT_META_KEY, _register_prompt
+from scion_sdk.mcp._content_prompts import _register_prompt
+from scion_sdk.mcp.content import PROMPT_META_KEY
 from scion_sdk.mcp.tool_surface import registered_tools
 from scion_sdk.ports.session import TransportEndpoint
 from scion_sdk.runner.descriptors import ConnectorDescriptor, EndpointSpec
@@ -360,7 +361,7 @@ def test_prompt_carries_declared_title_tags_use_case_and_system_target(
 
 
 def test_prompt_tags_are_declared_tags_plus_surface_kind() -> None:
-    from scion_sdk.mcp.content import _prompt_tags
+    from scion_sdk.mcp._content_prompts import _prompt_tags
 
     assert _prompt_tags({"tags": ["a", "b"]}) == {"a", "b", "prompt"}
     assert _prompt_tags({"tags": ["a"], "serves": "x:Y"}) == {"a", "prompt", "system"}
