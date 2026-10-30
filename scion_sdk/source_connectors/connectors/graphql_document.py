@@ -46,6 +46,7 @@ from scion_sdk.privacy import PersistencePrivacyGuard
 from scion_sdk.tls.errors import TransportSecurityError
 from scion_sdk.tls.resolve import resolve_tls_profile
 
+from .._http_client import _read_bounded
 from ..base import (
     CheckpointedBatch,
     ConnectorCheckpoint,
@@ -55,7 +56,6 @@ from ..base import (
     SourceDocument,
 )
 from ..http_safety import (
-    _read_bounded,
     configured_source_http_policy,
     require_safe_source_url,
 )

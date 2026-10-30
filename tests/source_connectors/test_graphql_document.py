@@ -13,7 +13,7 @@ import pytest
 pytest.importorskip("graphql")
 
 from scion_sdk.ingest.model import Entity, Withdrawal
-from scion_sdk.source_connectors import build_connector, http_safety
+from scion_sdk.source_connectors import build_connector
 from scion_sdk.source_connectors.connectors import graphql_document
 from scion_sdk.source_connectors.connectors.graphql_document import (
     GraphQLDocumentConnector,
@@ -307,7 +307,7 @@ def test_default_graphql_wiring_uses_sdk_resolvers(
     def fake_getaddrinfo(*_: object, **__: object) -> list[tuple[object, ...]]:
         return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 0))]
 
-    monkeypatch.setattr(http_safety.socket, "getaddrinfo", fake_getaddrinfo)
+    monkeypatch.setattr(socket, "getaddrinfo", fake_getaddrinfo)
 
     class _Response:
         def __init__(self) -> None:
