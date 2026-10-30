@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 from fastmcp import FastMCP
+from finance_source_support import record_server, served_session
 
 from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from scion_sdk.finance.multi_asset_source import (
@@ -12,10 +13,8 @@ from scion_sdk.finance.multi_asset_source import (
 )
 from scion_sdk.manifest.presets import ToolPreset
 from scion_sdk.ports.errors import MalformedSourceDataError
-from scion_sdk.ports.session import TransportEndpoint
 from scion_sdk.runner.syncing import SyncTarget, sync_stream
 from scion_sdk.testing.sinks import InMemorySink
-from scion_sdk.transports.mcp import McpTransport
 
 
 def _base(event):
@@ -33,13 +32,7 @@ def _base(event):
 
 
 def _server(records):
-    server = FastMCP("finance", version="1.0.0")
-
-    @server.tool()
-    def read() -> list[dict[str, object]]:
-        return records
-
-    return server
+    return record_server(records, takes_mode=False, many=True)
 
 
 def _adapter(kind, *, age=None):
@@ -67,9 +60,7 @@ def _adapter(kind, *, age=None):
 async def _sync(kind, records, *, age=None):
     adapter = _adapter(kind, age=age)
     sink = InMemorySink()
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server(records))
-    ) as session:
+    async with served_session(_server(records)) as session:
         outcome = await sync_stream(
             session, adapter, SyncTarget("finance", sink, max_pages=1)
         )
@@ -188,9 +179,7 @@ async def test_served_sources_preserve_fx_direction_futures_and_staleness():
 async def test_bad_domain_records_refuse_before_sink(kind, record, age):
     adapter = _adapter(kind, age=age)
     sink = InMemorySink()
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server([record]))
-    ) as session:
+    async with served_session(_server([record])) as session:
         with pytest.raises(MalformedSourceDataError) as error:
             await sync_stream(
                 session, adapter, SyncTarget("finance", sink, max_pages=1)
@@ -209,9 +198,7 @@ async def test_duplicate_page_identity_refuses_before_sink():
     }
     adapter = _adapter(MultiAssetKind.FX)
     sink = InMemorySink()
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server([record, record]))
-    ) as session:
+    async with served_session(_server([record, record])) as session:
         with pytest.raises(MalformedSourceDataError, match="duplicate"):
             await sync_stream(
                 session, adapter, SyncTarget("finance", sink, max_pages=1)
@@ -228,16 +215,12 @@ async def test_reconciliation_validates_source_before_comparing_ids():
         "rate": 1,
     }
     adapter = _adapter(MultiAssetKind.FX)
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server([record]))
-    ) as session:
+    async with served_session(_server([record])) as session:
         report = await adapter.reconcile(session, frozenset({"old"}))
     assert report.missing_from_source == ("old",)
     assert report.unknown_to_sink == ("fx-1",)
     record["rate"] = 0
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server([record]))
-    ) as session:
+    async with served_session(_server([record])) as session:
         with pytest.raises(MalformedSourceDataError):
             await adapter.reconcile(session, frozenset({"old"}))
 
@@ -341,7 +324,7 @@ async def test_bounded_provider_source_cannot_reconcile():
         tenant_id="tenant-1",
         source_id="finance-source",
     )
-    async with McpTransport().session(TransportEndpoint(in_process=server)) as session:
+    async with served_session(server) as session:
         await adapter.discover(session)
         assert len((await adapter.extract(session, None)).records) == 1
         with pytest.raises(SourceContractError, match="do not support reconciliation"):

@@ -1,7 +1,7 @@
 """CoinGlass macro source records are validated before sink submission."""
 
 import pytest
-from fastmcp import FastMCP
+from finance_source_support import record_server, served_session
 
 from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from scion_sdk.finance.market_source import (
@@ -10,10 +10,8 @@ from scion_sdk.finance.market_source import (
 )
 from scion_sdk.manifest.presets import ToolPreset
 from scion_sdk.ports.errors import MalformedSourceDataError
-from scion_sdk.ports.session import TransportEndpoint
 from scion_sdk.runner.syncing import SyncTarget, sync_stream
 from scion_sdk.testing.sinks import InMemorySink
-from scion_sdk.transports.mcp import McpTransport
 
 COMMON = {
     "record_id": "1",
@@ -43,13 +41,7 @@ CASES = {
 
 
 def _server(record):
-    server = FastMCP("macro", version="1.0.0")
-
-    @server.tool()
-    def read(mode: str) -> list[dict]:
-        return [record]
-
-    return server
+    return record_server(record, name="macro")
 
 
 def _adapter(kind):
@@ -73,9 +65,7 @@ def _adapter(kind):
 @pytest.mark.parametrize("kind", list(CASES))
 async def test_macro_sources_keep_source_and_observation_times(kind):
     sink = InMemorySink()
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server(CASES[kind]))
-    ) as session:
+    async with served_session(_server(CASES[kind])) as session:
         outcome = await sync_stream(
             session, _adapter(kind), SyncTarget("macro", sink, max_pages=1)
         )
@@ -93,9 +83,7 @@ async def test_macro_sources_keep_source_and_observation_times(kind):
 )
 async def test_bad_macro_records_refuse_before_sink(kind, changes):
     sink = InMemorySink()
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server({**CASES[kind], **changes}))
-    ) as session:
+    async with served_session(_server({**CASES[kind], **changes})) as session:
         with pytest.raises(MalformedSourceDataError) as error:
             await sync_stream(
                 session, _adapter(kind), SyncTarget("macro", sink, max_pages=1)

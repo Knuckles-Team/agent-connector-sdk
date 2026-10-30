@@ -20,11 +20,8 @@ from packaging.version import Version
 
 import scion_sdk
 from scion_sdk.artifacts import pack as pack_module
+from scion_sdk.artifacts import prompts, resources, skills, tools
 from scion_sdk.artifacts.pack import build_content_pack
-from scion_sdk.artifacts.prompts import PromptArtifactKind
-from scion_sdk.artifacts.resources import ResourceArtifactKind
-from scion_sdk.artifacts.skills import SkillArtifactKind
-from scion_sdk.artifacts.tools import ToolArtifactKind
 from scion_sdk.contracts import CapturedArtifact, ServerIdentity
 from scion_sdk.ports.errors import MalformedArtifactError
 from scion_sdk.testing.results import SessionFactory
@@ -95,10 +92,10 @@ def test_a_manifest_resource_has_no_pack_entry_kind() -> None:
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R075.7")
 async def test_a_pack_builds_against_the_engine(sessions: SessionFactory) -> None:
     kinds = (
-        ToolArtifactKind(),
-        SkillArtifactKind(),
-        PromptArtifactKind(),
-        ResourceArtifactKind(),
+        tools.ToolArtifactKind(),
+        skills.SkillArtifactKind(),
+        prompts.PromptArtifactKind(),
+        resources.ResourceArtifactKind(),
     )
     async with sessions() as session:
         pack = await build_content_pack(session, connector="demo-agent", kinds=kinds)

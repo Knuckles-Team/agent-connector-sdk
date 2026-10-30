@@ -233,10 +233,9 @@ def test_session_login_reuses_cookie_and_relogs_once(
     assert seen[5].headers["cookie"] == "SID=two"
 
 
-@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.5")
-def test_session_cookies_respect_path_and_auth_is_bound_to_origin() -> None:
+def _session_login(cookie: str, other=None):
+    """Serve a ``/login`` that sets ``cookie``; ``other`` answers any other path."""
     from scion_sdk.auth.rotating import SessionLoginAuth
-    from scion_sdk.http.client import create_http_client
     from scion_sdk.http.options import HttpClientOptions
 
     requests: list[httpx.Request] = []
@@ -244,11 +243,19 @@ def test_session_cookies_respect_path_and_auth_is_bound_to_origin() -> None:
     def serve(request: httpx.Request) -> httpx.Response:
         requests.append(request)
         if request.url.path == "/login":
-            return httpx.Response(200, headers={"Set-Cookie": "SID=secret; Path=/api"})
-        return httpx.Response(200)
+            return httpx.Response(200, headers={"Set-Cookie": cookie})
+        return other(request) if other else httpx.Response(200)
 
     auth = SessionLoginAuth(login_path="/login", username="user", password=lambda: "pw")
     options = HttpClientOptions(base_url="https://one.example.test", auth=auth)
+    return requests, serve, auth, options
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R028.5")
+def test_session_cookies_respect_path_and_auth_is_bound_to_origin() -> None:
+    from scion_sdk.http.client import create_http_client
+
+    requests, serve, _auth, options = _session_login("SID=secret; Path=/api", None)
     with create_http_client(options, transport=httpx.MockTransport(serve)) as client:
         client.get("https://one.example.test/api/resource")
         client.get("https://one.example.test/other")
@@ -264,25 +271,17 @@ def test_session_cookies_respect_path_and_auth_is_bound_to_origin() -> None:
 async def test_session_cross_origin_redirect_is_never_dispatched(
     asynchronous: bool,
 ) -> None:
-    from scion_sdk.auth.rotating import SessionLoginAuth
     from scion_sdk.http.client import (
         create_async_http_client,
         create_http_client,
     )
-    from scion_sdk.http.options import HttpClientOptions
 
-    requests: list[httpx.Request] = []
-
-    def serve(request: httpx.Request) -> httpx.Response:
-        requests.append(request)
-        if request.url.path == "/login":
-            return httpx.Response(
-                200, headers={"Set-Cookie": "SID=secret; Domain=example.test; Path=/"}
-            )
+    def other(request: httpx.Request) -> httpx.Response:
         return httpx.Response(302, headers={"Location": "https://two.example.test/api"})
 
-    auth = SessionLoginAuth(login_path="/login", username="user", password=lambda: "pw")
-    options = HttpClientOptions(base_url="https://one.example.test", auth=auth)
+    requests, serve, _auth, options = _session_login(
+        "SID=secret; Domain=example.test; Path=/", other
+    )
     if asynchronous:
         async with create_async_http_client(
             options, transport=httpx.MockTransport(serve)
@@ -320,24 +319,16 @@ def test_session_auth_refuses_plain_httpx_client() -> None:
 
 
 def test_session_allows_same_origin_redirect() -> None:
-    from scion_sdk.auth.rotating import SessionLoginAuth
     from scion_sdk.http.client import create_http_client
-    from scion_sdk.http.options import HttpClientOptions
 
-    requests: list[httpx.Request] = []
-
-    def serve(request: httpx.Request) -> httpx.Response:
-        requests.append(request)
-        if request.url.path == "/login":
-            return httpx.Response(
-                200, headers={"Set-Cookie": "SID=secret; Path=/; Secure"}
-            )
+    def other(request: httpx.Request) -> httpx.Response:
         if request.url.path == "/start":
             return httpx.Response(302, headers={"Location": "/target"})
         return httpx.Response(200)
 
-    auth = SessionLoginAuth(login_path="/login", username="user", password=lambda: "pw")
-    options = HttpClientOptions(base_url="https://one.example.test", auth=auth)
+    requests, serve, _auth, options = _session_login(
+        "SID=secret; Path=/; Secure", other
+    )
     with create_http_client(options, transport=httpx.MockTransport(serve)) as client:
         assert client.get("/start", follow_redirects=True).status_code == 200
     assert requests[-1].url.path == "/target"
@@ -346,20 +337,9 @@ def test_session_allows_same_origin_redirect() -> None:
 
 @pytest.mark.parametrize("without_auth", [False, True])
 def test_guarded_request_cannot_be_reused_with_plain_httpx(without_auth: bool) -> None:
-    from scion_sdk.auth.rotating import SessionLoginAuth
     from scion_sdk.http.client import create_http_client
-    from scion_sdk.http.options import HttpClientOptions
 
-    requests: list[httpx.Request] = []
-
-    def serve(request: httpx.Request) -> httpx.Response:
-        requests.append(request)
-        if request.url.path == "/login":
-            return httpx.Response(200, headers={"Set-Cookie": "SID=secret; Path=/"})
-        return httpx.Response(200)
-
-    auth = SessionLoginAuth(login_path="/login", username="user", password=lambda: "pw")
-    options = HttpClientOptions(base_url="https://one.example.test", auth=auth)
+    requests, serve, auth, options = _session_login("SID=secret; Path=/", None)
     request = httpx.Request("GET", "https://one.example.test/api")
     with create_http_client(options, transport=httpx.MockTransport(serve)) as client:
         response = (

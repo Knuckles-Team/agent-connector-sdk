@@ -1,7 +1,7 @@
 """Market adapters bind provider identity and reject malformed pages."""
 
 import pytest
-from fastmcp import FastMCP
+from finance_source_support import record_server, served_session
 
 from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from scion_sdk.finance.market_source import (
@@ -13,10 +13,8 @@ from scion_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
 )
-from scion_sdk.ports.session import TransportEndpoint
 from scion_sdk.runner.syncing import SyncTarget, sync_stream
 from scion_sdk.testing.sinks import InMemorySink
-from scion_sdk.transports.mcp import McpTransport
 
 CASES = {
     MarketSourceKind.EXCHANGE_CANDLE: (
@@ -78,23 +76,11 @@ CASES = {
 
 
 def _server(record):
-    server = FastMCP("finance", version="1.0.0")
-
-    @server.tool()
-    def read(mode: str) -> list[dict]:
-        return [record]
-
-    return server
+    return record_server(record)
 
 
 def _fred_server(records):
-    server = FastMCP("finance", version="1.0.0")
-
-    @server.tool()
-    def read(mode: str) -> list[dict]:
-        return records
-
-    return server
+    return record_server(records, many=True)
 
 
 def _adapter(kind, *, connector="finance", mode="delta"):
@@ -120,9 +106,7 @@ def _adapter(kind, *, connector="finance", mode="delta"):
 @pytest.mark.parametrize("kind", tuple(CASES))
 async def test_served_market_sources_reach_sink(kind):
     sink = InMemorySink()
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server(CASES[kind][1]))
-    ) as session:
+    async with served_session(_server(CASES[kind][1])) as session:
         outcome = await sync_stream(
             session, _adapter(kind), SyncTarget("finance", sink, max_pages=1)
         )
@@ -142,9 +126,7 @@ async def test_served_market_sources_reach_sink(kind):
 )
 async def test_invalid_market_records_refuse_before_sink(kind, changes):
     sink = InMemorySink()
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server({**CASES[kind][1], **changes}))
-    ) as session:
+    async with served_session(_server({**CASES[kind][1], **changes})) as session:
         with pytest.raises(MalformedSourceDataError):
             await sync_stream(
                 session, _adapter(kind), SyncTarget("finance", sink, max_pages=1)
@@ -158,9 +140,7 @@ async def test_wrong_connector_and_full_sweep_refuse_before_sink():
         _adapter(MarketSourceKind.FRED, mode="full"),
     ):
         sink = InMemorySink()
-        async with McpTransport().session(
-            TransportEndpoint(in_process=_server(CASES[MarketSourceKind.FRED][1]))
-        ) as session:
+        async with served_session(_server(CASES[MarketSourceKind.FRED][1])) as session:
             with pytest.raises((MalformedSourceDataError, SourceContractError)):
                 await sync_stream(
                     session, adapter, SyncTarget("finance", sink, max_pages=1)
@@ -169,9 +149,7 @@ async def test_wrong_connector_and_full_sweep_refuse_before_sink():
 
 
 async def test_bounded_sources_never_claim_full_reconciliation():
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server(CASES[MarketSourceKind.FRED][1]))
-    ) as session:
+    async with served_session(_server(CASES[MarketSourceKind.FRED][1])) as session:
         with pytest.raises(SourceContractError, match="complete reconciliation"):
             await _adapter(MarketSourceKind.FRED).reconcile(session, frozenset({"old"}))
 
@@ -187,9 +165,7 @@ async def test_fred_vintages_reach_sink_as_distinct_records():
         "value": 11,
     }
     sink = InMemorySink()
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_fred_server([first, second]))
-    ) as session:
+    async with served_session(_fred_server([first, second])) as session:
         outcome = await sync_stream(
             session,
             _adapter(MarketSourceKind.FRED),

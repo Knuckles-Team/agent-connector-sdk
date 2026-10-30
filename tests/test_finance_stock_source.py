@@ -6,7 +6,7 @@ import base64
 import hashlib
 
 import pytest
-from fastmcp import FastMCP
+from finance_source_support import record_server, served_session
 
 from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
 from scion_sdk.finance.stock_source import StockSourceAdapter, StockSourceKind
@@ -15,10 +15,8 @@ from scion_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
 )
-from scion_sdk.ports.session import TransportEndpoint
 from scion_sdk.runner.syncing import SyncTarget, sync_stream
 from scion_sdk.testing.sinks import InMemorySink
-from scion_sdk.transports.mcp import McpTransport
 
 PNG = b"\x89PNG\r\n\x1a\nfixture"
 COMMON = {"symbol": "AAPL", "license_tag": "operator-license"}
@@ -96,26 +94,16 @@ CASES = {
         "image_sha256": hashlib.sha256(PNG).hexdigest(),
     },
 }
-IDS = {
+IDS = {kind: "record_id" for kind in StockSourceKind} | {
     StockSourceKind.BAR: "bar_id",
     StockSourceKind.QUOTE: "quote_id",
     StockSourceKind.NEWS: "news_id",
     StockSourceKind.DIVIDEND: "dividend_id",
-    StockSourceKind.PROFILE: "record_id",
-    StockSourceKind.INCOME: "record_id",
-    StockSourceKind.EARNINGS: "record_id",
-    StockSourceKind.LOGO: "record_id",
 }
 
 
 def _server(record):
-    server = FastMCP("finance", version="1.0.0")
-
-    @server.tool()
-    def read(mode: str) -> list[dict]:
-        return [record]
-
-    return server
+    return record_server(record)
 
 
 def _adapter(kind, *, mode="delta"):
@@ -142,9 +130,7 @@ def _adapter(kind, *, mode="delta"):
 @pytest.mark.parametrize("kind", list(StockSourceKind))
 async def test_served_stock_records_reach_sink(kind):
     sink = InMemorySink()
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server(CASES[kind]))
-    ) as session:
+    async with served_session(_server(CASES[kind])) as session:
         outcome = await sync_stream(
             session, _adapter(kind), SyncTarget("finance", sink, max_pages=1)
         )
@@ -165,9 +151,7 @@ async def test_served_stock_records_reach_sink(kind):
 )
 async def test_bad_records_refuse_before_sink(kind, changes):
     sink = InMemorySink()
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server({**CASES[kind], **changes}))
-    ) as session:
+    async with served_session(_server({**CASES[kind], **changes})) as session:
         with pytest.raises(MalformedSourceDataError) as error:
             await sync_stream(
                 session, _adapter(kind), SyncTarget("finance", sink, max_pages=1)
@@ -177,18 +161,14 @@ async def test_bad_records_refuse_before_sink(kind, changes):
 
 
 async def test_bounded_source_never_claims_full_reconciliation():
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server(CASES[StockSourceKind.BAR]))
-    ) as session:
+    async with served_session(_server(CASES[StockSourceKind.BAR])) as session:
         with pytest.raises(SourceContractError, match="complete reconciliation"):
             await _adapter(StockSourceKind.BAR).reconcile(session, frozenset({"old"}))
 
 
 async def test_bounded_source_refuses_full_mode_before_sink():
     sink = InMemorySink()
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server(CASES[StockSourceKind.BAR]))
-    ) as session:
+    async with served_session(_server(CASES[StockSourceKind.BAR])) as session:
         with pytest.raises(SourceContractError, match="delta pages"):
             await sync_stream(
                 session,
@@ -212,9 +192,7 @@ async def test_stock_source_preserves_adjustment_and_calendar_session(
         "session": session_label,
     }
     sink = InMemorySink()
-    async with McpTransport().session(
-        TransportEndpoint(in_process=_server(record))
-    ) as session:
+    async with served_session(_server(record)) as session:
         outcome = await sync_stream(
             session,
             _adapter(StockSourceKind.BAR),

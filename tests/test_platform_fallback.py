@@ -97,6 +97,58 @@ def capability():
     )
 
 
+def http_backends(first, second):
+    from scion_sdk.adapters.platform_http import PlatformHttpBackend
+    from scion_sdk.http.options import HttpClientOptions
+
+    base = capability()
+    policies = tuple(
+        p.model_copy(update={"allowed_destinations": ("127.0.0.1",)})
+        for p in base.backends
+    )
+    cap = base.model_copy(update={"backends": policies})
+    backends = {
+        policy.backend_id: PlatformHttpBackend(
+            policy,
+            HttpClientOptions(
+                base_url=server.base_url,
+                retry=RetryPolicy(max_attempts=1),
+                pin_egress=True,
+                allow_loopback=True,
+            ),
+            "/search",
+            output_model=FixtureRecord,
+        )
+        for policy, server in zip(policies, (first, second), strict=True)
+    }
+    return cap, backends
+
+
+def _platform_source_adapter():
+    from test_event_feeds import CONNECTOR
+
+    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+    from scion_sdk.manifest.presets import ToolPreset
+
+    preset = ToolPreset(
+        name="stream",
+        server="demo",
+        tool="platform_search",
+        records_path="records",
+        result_contract="platform",
+        params_style="args",
+        arguments={"request": request().model_dump(mode="json")},
+        id_field="id",
+        pagination="none",
+    )
+    adapter = McpToolSourceAdapter(
+        preset,
+        connector=CONNECTOR,
+        mapping_reference=f"connector:{CONNECTOR}#mappings/Event",
+    )
+    return preset, adapter
+
+
 def request():
     return PlatformRequest(
         request_id="request",
@@ -222,8 +274,6 @@ async def test_denied_and_terminal_failure_do_not_fallback():
 @pytest.mark.spec("SCION-SOURCE-INGEST-R012.4")
 @pytest.mark.asyncio
 async def test_governed_http_backends_fallback_and_stop_on_denial():
-    from scion_sdk.adapters.platform_http import PlatformHttpBackend
-    from scion_sdk.http.options import HttpClientOptions
     from scion_sdk.testing.http_server import (
         ScriptedHttpServer,
         ScriptedResponse,
@@ -235,26 +285,7 @@ async def test_governed_http_backends_fallback_and_stop_on_denial():
         ) as first,
         ScriptedHttpServer(ScriptedResponse(body=b'{"records":[]}')) as second,
     ):
-        base = capability()
-        policies = tuple(
-            p.model_copy(update={"allowed_destinations": ("127.0.0.1",)})
-            for p in base.backends
-        )
-        cap = base.model_copy(update={"backends": policies})
-        backends = {
-            policy.backend_id: PlatformHttpBackend(
-                policy,
-                HttpClientOptions(
-                    base_url=server.base_url,
-                    retry=RetryPolicy(max_attempts=1),
-                    pin_egress=True,
-                    allow_loopback=True,
-                ),
-                "/search",
-                output_model=FixtureRecord,
-            )
-            for policy, server in zip(policies, (first, second), strict=True)
-        }
+        cap, backends = http_backends(first, second)
 
         class HttpAdmission:
             async def admit(self, actor, request, policy):
@@ -280,29 +311,12 @@ async def test_governed_http_backends_fallback_and_stop_on_denial():
 async def test_platform_refusal_never_becomes_an_accepted_empty_page():
     from test_event_feeds import CONNECTOR, FakeEventSession, _tool_descriptor
 
-    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
     from scion_sdk.adapters.platform_fallback import _refused
-    from scion_sdk.manifest.presets import ToolPreset
     from scion_sdk.ports.errors import SourceContractError
     from scion_sdk.runner.syncing import SyncTarget, sync_stream
     from scion_sdk.testing.sinks import InMemorySink
 
-    preset = ToolPreset(
-        name="stream",
-        server="demo",
-        tool="platform_search",
-        records_path="records",
-        result_contract="platform",
-        params_style="args",
-        arguments={"request": request().model_dump(mode="json")},
-        id_field="id",
-        pagination="none",
-    )
-    adapter = McpToolSourceAdapter(
-        preset,
-        connector=CONNECTOR,
-        mapping_reference=f"connector:{CONNECTOR}#mappings/Event",
-    )
+    preset, adapter = _platform_source_adapter()
     refusal = _refused(
         request(), "chain_exhausted", capability=capability()
     ).model_dump(mode="json")
@@ -1287,29 +1301,12 @@ async def test_external_cancellation_stops_current_attempt_and_never_falls_back(
 async def test_source_rejects_platform_result_for_a_different_request():
     from test_event_feeds import CONNECTOR, FakeEventSession, _tool_descriptor
 
-    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
     from scion_sdk.adapters.platform_fallback import _refused
-    from scion_sdk.manifest.presets import ToolPreset
     from scion_sdk.ports.errors import SourceContractError
     from scion_sdk.runner.syncing import SyncTarget, sync_stream
     from scion_sdk.testing.sinks import InMemorySink
 
-    preset = ToolPreset(
-        name="stream",
-        server="demo",
-        tool="platform_search",
-        records_path="records",
-        result_contract="platform",
-        params_style="args",
-        arguments={"request": request().model_dump(mode="json")},
-        id_field="id",
-        pagination="none",
-    )
-    adapter = McpToolSourceAdapter(
-        preset,
-        connector=CONNECTOR,
-        mapping_reference=f"connector:{CONNECTOR}#mappings/Event",
-    )
+    preset, adapter = _platform_source_adapter()
     different = request().model_copy(update={"query": "another query"})
     response = _refused(
         different, "chain_exhausted", capability=capability()
@@ -1327,29 +1324,12 @@ async def test_source_rejects_platform_result_for_a_different_request():
 async def test_source_refuses_oversized_platform_envelope_before_submission():
     from test_event_feeds import CONNECTOR, FakeEventSession, _tool_descriptor
 
-    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
     from scion_sdk.adapters.platform_http import MAX_PLATFORM_RESPONSE_BYTES
-    from scion_sdk.manifest.presets import ToolPreset
     from scion_sdk.ports.errors import SourceContractError
     from scion_sdk.runner.syncing import SyncTarget, sync_stream
     from scion_sdk.testing.sinks import InMemorySink
 
-    preset = ToolPreset(
-        name="stream",
-        server="demo",
-        tool="platform_search",
-        records_path="records",
-        result_contract="platform",
-        params_style="args",
-        arguments={"request": request().model_dump(mode="json")},
-        id_field="id",
-        pagination="none",
-    )
-    adapter = McpToolSourceAdapter(
-        preset,
-        connector=CONNECTOR,
-        mapping_reference=f"connector:{CONNECTOR}#mappings/Event",
-    )
+    preset, adapter = _platform_source_adapter()
     response = {"records": [{"content": "x" * (MAX_PLATFORM_RESPONSE_BYTES + 100_000)}]}
     session = FakeEventSession(
         descriptor=_tool_descriptor(preset.tool), pages=[response]

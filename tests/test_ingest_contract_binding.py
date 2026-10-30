@@ -4,12 +4,10 @@ from __future__ import annotations
 
 import pytest
 from epistemic_graph.generated.source_ingestion import (
-    SourceIngestionReceipt,
-    SourceIngestionRequest,
-    SourceIngestStatus,
     SourceMappingKind,
     SourceMappingReceipt,
 )
+from ingest_fakes import SinkBackedEngine
 
 from scion_sdk.ingest import (
     AcceptedContract,
@@ -26,7 +24,6 @@ from scion_sdk.ingest import (
 )
 from scion_sdk.ingest.contract import ContractTransport, require_accepted
 from scion_sdk.ingest.request import build_request
-from scion_sdk.testing.sinks import InMemorySink
 
 DIGEST = "a" * 64
 IRI = "contract:demo-mcp"
@@ -46,26 +43,20 @@ def _binding(**over: object) -> IngestBinding:
     return IngestBinding(**fields)  # type: ignore[arg-type]
 
 
-class _Engine:
+class _Engine(SinkBackedEngine):
     """Fake engine: an in-memory sink plus the accepted-contract read."""
 
     def __init__(self, accepted: AcceptedContract | None) -> None:
-        self.sink = InMemorySink()
+        super().__init__()
         self.accepted = accepted
-        self.requests: list[SourceIngestionRequest] = []
         self.refuse: str | None = None
 
     async def accepted_contract(self, connector: str) -> AcceptedContract | None:
         return self.accepted
 
-    async def submit(self, request: SourceIngestionRequest) -> SourceIngestionReceipt:
-        self.requests.append(request)
+    def _gate(self) -> None:
         if self.refuse:
             raise RuntimeError(self.refuse)
-        return await self.sink.submit(request)
-
-    async def source_status(self, connector: str, stream: str) -> SourceIngestStatus:
-        return await self.sink.source_status(connector, stream)
 
     async def store_blob(self, data: bytes) -> str:
         return "0" * 64
