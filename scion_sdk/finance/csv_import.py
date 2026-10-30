@@ -96,16 +96,24 @@ def _is_currency_code(value: str) -> bool:
     )
 
 
+def _mapping_problems(
+    headers: tuple[str, ...], mapping: ColumnMapping
+) -> tuple[list[str], list[str], list[str]] | None:
+    mapped_fields = list(mapping.header_to_field.values())
+    missing = [field for field in _REQUIRED_FIELDS if field not in mapped_fields]
+    duplicated = sorted({f for f in mapped_fields if mapped_fields.count(f) > 1})
+    unknown = [h for h in mapping.header_to_field if h not in headers]
+    return (missing, duplicated, unknown) if missing or duplicated or unknown else None
+
+
 def _require_unambiguous_mapping(
     headers: tuple[str, ...], mapping: ColumnMapping
 ) -> None:
     if len(headers) != len(set(headers)):
         raise AmbiguousColumnMappingError("CSV header names must be unique")
-    mapped_fields = list(mapping.header_to_field.values())
-    missing = [field for field in _REQUIRED_FIELDS if field not in mapped_fields]
-    duplicated = sorted({f for f in mapped_fields if mapped_fields.count(f) > 1})
-    unknown = [h for h in mapping.header_to_field if h not in headers]
-    if missing or duplicated or unknown:
+    problems = _mapping_problems(headers, mapping)
+    if problems:
+        missing, duplicated, unknown = problems
         raise AmbiguousColumnMappingError(
             f"missing={missing} duplicated={duplicated} unknown_headers={unknown}"
         )

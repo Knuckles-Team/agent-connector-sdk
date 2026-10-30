@@ -24,7 +24,7 @@ _PERIODS = {
 
 
 def _fetch_crypto_history(
-    exchange: Any, symbol: str, period: str, interval: str
+    exchange: Any, symbol: str, *, period: str, interval: str
 ) -> pd.DataFrame:
     """Fetch a requested time window, refusing malformed or incomplete pages."""
     if period not in _PERIODS or interval not in _INTERVAL_MS:
@@ -43,13 +43,15 @@ def _fetch_crypto_history(
             raise ProviderRequestError("invalid exchange history page")
         if not page:
             return _frame(rows)
-        cursor = _append_page(rows, page, cursor, end)
+        cursor = _append_page(rows, page, cursor=cursor, end=end)
         if cursor > end - _INTERVAL_MS[interval]:
             return _frame(rows)
     raise ProviderRequestError("exchange history exceeds page limit")
 
 
-def _append_page(rows: list[list[Any]], page: list[Any], cursor: int, end: int) -> int:
+def _append_page(
+    rows: list[list[Any]], page: list[Any], *, cursor: int, end: int
+) -> int:
     previous = cursor - 1
     for bar in page:
         if not isinstance(bar, (list, tuple)) or len(bar) != 6:

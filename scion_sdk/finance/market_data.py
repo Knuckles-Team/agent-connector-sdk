@@ -18,6 +18,12 @@ try:
 except ImportError as e:
     raise ImportError('market data needs pandas; install "scion-sdk[market]"') from e
 
+from scion_sdk.finance._market_providers import (
+    AKShareProvider,
+    CryptoProvider,
+    YFinanceProvider,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -54,123 +60,15 @@ class MarketDataProvider(Protocol):
         return False
 
 
-class YFinanceProvider:
-    """
-    yfinance-based market data provider for global equities, ETFs, indices, and crypto.
-    """
-
-    @property
-    def name(self) -> str:
-        return "yfinance"
-
-    def supports(self, symbol: str) -> bool:
-        """yfinance supports most ticker formats."""
-        return bool(symbol and len(symbol) <= 20)
-
-    def fetch(
-        self, symbol: str, period: str = "1y", interval: str = "1d"
-    ) -> pd.DataFrame:
-        """
-        Fetch OHLCV data from yfinance.
-
-        Args:
-            symbol: Ticker symbol (e.g., 'AAPL', 'BTC-USD').
-            period: Data period ('1mo', '3mo', '1y', '5y', 'max').
-            interval: Bar interval ('1d', '1h', '5m').
-        """
-        try:
-            import yfinance as yf
-        except ImportError as e:
-            raise ImportError("yfinance is required. install scion-sdk[market]") from e
-
-        ticker = yf.Ticker(symbol)
-        df = ticker.history(period=period, interval=interval)
-
-        if df.empty:
-            logger.warning(f"No data returned for {symbol} from yfinance")
-            return pd.DataFrame()
-
-        # Normalize columns
-        df = df[["Open", "High", "Low", "Close", "Volume"]].copy()
-        df.dropna(inplace=True)
-        return df
-
-
-class AKShareProvider:
-    """
-    AKShare-based market data provider for Chinese equities (A-shares) and index data.
-    """
-
-    @property
-    def name(self) -> str:
-        return "akshare"
-
-    def supports(self, symbol: str) -> bool:
-        """AKShare supports 6-digit Chinese tickers."""
-        return bool(symbol and symbol.isdigit() and len(symbol) == 6)
-
-    def fetch(
-        self, symbol: str, period: str = "1y", interval: str = "1d"
-    ) -> pd.DataFrame:
-        try:
-            import akshare as ak
-        except ImportError as e:
-            raise ImportError(
-                "akshare is required for Chinese markets. install scion-sdk[market]"
-            ) from e
-
-        try:
-            # Default to A-share daily
-            df = ak.stock_zh_a_hist(symbol=symbol, period="daily", adjust="qfq")
-            if df.empty:
-                return pd.DataFrame()
-
-            # Rename columns from Chinese to standard OHLCV
-            df = df.rename(
-                columns={
-                    "日期": "Date",
-                    "开盘": "Open",
-                    "收盘": "Close",
-                    "最高": "High",
-                    "最低": "Low",
-                    "成交量": "Volume",
-                }
-            )
-            df.set_index("Date", inplace=True)
-            df.index = pd.to_datetime(df.index)
-            return df[["Open", "High", "Low", "Close", "Volume"]]
-        except Exception as e:
-            logger.warning(f"AKShare fetch failed for {symbol}: {e}")
-            return pd.DataFrame()
-
-
-class CryptoProvider:
-    """
-    CCXT-based provider for global cryptocurrency exchange data (Binance, Coinbase, etc.).
-    """
-
-    @property
-    def name(self) -> str:
-        return "crypto"
-
-    def supports(self, symbol: str) -> bool:
-        """Crypto usually formatted as BASE/QUOTE (e.g. BTC/USDT)."""
-        return "/" in symbol
-
-    def fetch(
-        self, symbol: str, period: str = "1y", interval: str = "1d"
-    ) -> pd.DataFrame:
-        try:
-            import ccxt
-        except ImportError as e:
-            raise ImportError(
-                "ccxt is required for crypto markets; install the ccxt package"
-            ) from e
-
-        from scion_sdk.finance.crypto_history import _fetch_crypto_history
-
-        exchange = ccxt.binance({"enableRateLimit": True})
-        return _fetch_crypto_history(exchange, symbol, period, interval)
+__all__ = [
+    "AKShareProvider",
+    "CryptoProvider",
+    "DataFetchResult",
+    "DataRegistry",
+    "MarketDataProvider",
+    "YFinanceProvider",
+    "normalize_ohlcv",
+]
 
 
 class DataRegistry:
@@ -207,36 +105,46 @@ class DataRegistry:
         """
         Fetch data using the fallback chain. Returns the first successful result.
         """
-        warnings = []
+        warnings: list[str] = []
 
         for provider in self._providers:
-            if not provider.supports(symbol):
-                warnings.append(f"{provider.name}: does not support {symbol}")
-                continue
-
-            try:
-                df = provider.fetch(symbol, period=period, interval=interval)
-                if df is not None and not df.empty:
-                    logger.info(
-                        f"Fetched {len(df)} bars for {symbol} from {provider.name}"
-                    )
-                    return DataFetchResult(
-                        data=df,
-                        provider=provider.name,
-                        symbol=symbol,
-                        interval=interval,
-                        warnings=warnings,
-                    )
-                else:
-                    warnings.append(f"{provider.name}: returned empty data")
-            except Exception as e:
-                warnings.append(f"{provider.name}: {e}")
-                logger.warning(f"Provider {provider.name} failed for {symbol}: {e}")
+            result = self._try_provider(provider, symbol, period, interval, warnings)
+            if result is not None:
+                return result
 
         logger.error(f"All providers failed for {symbol}")
         return DataFetchResult(
             data=pd.DataFrame(),
             provider="none",
+            symbol=symbol,
+            interval=interval,
+            warnings=warnings,
+        )
+
+    @staticmethod
+    def _try_provider(
+        provider: MarketDataProvider,
+        symbol: str,
+        period: str,
+        interval: str,
+        warnings: list[str],
+    ) -> DataFetchResult | None:
+        if not provider.supports(symbol):
+            warnings.append(f"{provider.name}: does not support {symbol}")
+            return None
+        try:
+            df = provider.fetch(symbol, period=period, interval=interval)
+        except Exception as e:
+            warnings.append(f"{provider.name}: {e}")
+            logger.warning(f"Provider {provider.name} failed for {symbol}: {e}")
+            return None
+        if df is None or df.empty:
+            warnings.append(f"{provider.name}: returned empty data")
+            return None
+        logger.info(f"Fetched {len(df)} bars for {symbol} from {provider.name}")
+        return DataFetchResult(
+            data=df,
+            provider=provider.name,
             symbol=symbol,
             interval=interval,
             warnings=warnings,

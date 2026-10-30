@@ -43,6 +43,13 @@ class MultiAssetKind(StrEnum):
     REAL_ESTATE = "real_estate"
 
 
+_MODELS = {
+    MultiAssetKind.FX: FxRate,
+    MultiAssetKind.COMMODITY: CommodityPrice,
+    MultiAssetKind.REAL_ESTATE: RealEstateValuation,
+}
+
+
 class MultiAssetSourceAdapter:
     """Read one canonical FX, commodity or real-estate stream through MCP.
 
@@ -91,43 +98,40 @@ class MultiAssetSourceAdapter:
         return await self._source.discover(session)
 
     def _validated(self, record: SourceRecord) -> SourceRecord:
-        model: Any = {
-            MultiAssetKind.FX: FxRate,
-            MultiAssetKind.COMMODITY: CommodityPrice,
-            MultiAssetKind.REAL_ESTATE: RealEstateValuation,
-        }[self._asset_kind]
+        model: Any = _MODELS[self._asset_kind]
         try:
             value = model.model_validate(record.payload)
-            if (
-                value.tenant_id != self._tenant_id
-                or value.source_id != self._source_id
-                or value.source_event_id != record.record_id
-            ):
-                raise ValueError("source identity mismatch")
-            if self._asset_kind is MultiAssetKind.REAL_ESTATE:
-                if (
-                    value.estimated_value is None
-                    or value.valuation_date.utcoffset() is None
-                ):
-                    raise ValueError("valuation time needs a timezone")
-                age = (
-                    value.observed_at_utc.astimezone(UTC).date()
-                    - value.valuation_date.astimezone(UTC).date()
-                ).days
-                if (
-                    self._max_age is None
-                    or age < 0
-                    or age != value.staleness_days
-                    or value.stale != (age > self._max_age)
-                ):
-                    raise ValueError("valuation freshness mismatch")
-            return record.model_copy(
-                update={"payload": value.model_dump(mode="json", exclude_none=True)}
-            )
+            self._check_value(value, record)
         except (ValidationError, ValueError, TypeError, AttributeError):
             raise MalformedSourceDataError(
                 "invalid multi-asset source record"
             ) from None
+        return record.model_copy(
+            update={"payload": value.model_dump(mode="json", exclude_none=True)}
+        )
+
+    def _check_value(self, value: Any, record: SourceRecord) -> None:
+        if (
+            value.tenant_id != self._tenant_id
+            or value.source_id != self._source_id
+            or value.source_event_id != record.record_id
+        ):
+            raise ValueError("source identity mismatch")
+        if self._asset_kind is not MultiAssetKind.REAL_ESTATE:
+            return
+        if value.estimated_value is None or value.valuation_date.utcoffset() is None:
+            raise ValueError("valuation time needs a timezone")
+        age = (
+            value.observed_at_utc.astimezone(UTC).date()
+            - value.valuation_date.astimezone(UTC).date()
+        ).days
+        if (
+            self._max_age is None
+            or age < 0
+            or age != value.staleness_days
+            or value.stale != (age > self._max_age)
+        ):
+            raise ValueError("valuation freshness mismatch")
 
     def _is_bounded(self) -> bool:
         return bool(

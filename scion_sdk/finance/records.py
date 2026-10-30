@@ -14,7 +14,9 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Self
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import Field, model_validator
+
+from scion_sdk._utc_records import _UtcTimestampedRecord
 
 __all__ = [
     "FINANCE_SCHEMA_VERSION",
@@ -28,10 +30,6 @@ __all__ = [
 
 #: Version of the SDK-side normalized finance record shapes.
 FINANCE_SCHEMA_VERSION = "scion-sdk.finance/1"
-
-
-class _Frozen(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
 
 
 class AdjustmentMode(StrEnum):
@@ -49,13 +47,7 @@ class Completeness(StrEnum):
     GAP = "gap"
 
 
-def _require_utc(value: datetime, *, field_name: str) -> datetime:
-    if value.tzinfo is None:
-        raise ValueError(f"{field_name} must be timezone-aware UTC")
-    return value
-
-
-class FinanceRecordBase(_Frozen):
+class FinanceRecordBase(_UtcTimestampedRecord):
     """Fields every normalized finance source record carries."""
 
     tenant_id: str = Field(min_length=1)
@@ -68,12 +60,6 @@ class FinanceRecordBase(_Frozen):
     schema_version: str = FINANCE_SCHEMA_VERSION
     license_tag: str = Field(min_length=1)
     source_digest: str = Field(min_length=1)
-
-    @model_validator(mode="after")
-    def _timestamps_are_utc(self) -> Self:
-        _require_utc(self.event_time_utc, field_name="event_time_utc")
-        _require_utc(self.observed_at_utc, field_name="observed_at_utc")
-        return self
 
 
 class OhlcvBar(FinanceRecordBase):

@@ -67,6 +67,29 @@ def _bar_from_alpaca(
     )
 
 
+def _page_token(payload: Mapping[str, Any]) -> str | None:
+    if "next_page_token" not in payload:
+        raise ValueError("Alpaca bars require a pagination token")
+    token = payload["next_page_token"]
+    if token is not None and (not isinstance(token, str) or not token):
+        raise ValueError(
+            "Alpaca bars pagination token must be a nonempty string or null"
+        )
+    return token
+
+
+def _page_completeness(payload: Mapping[str, Any], symbol: str) -> Completeness:
+    raw_bars = payload.get("bars")
+    if not isinstance(raw_bars, Sequence) or isinstance(raw_bars, (str, bytes)):
+        raise ValueError("Alpaca bars must be an array")
+    if payload.get("symbol") != symbol:
+        raise ValueError("Alpaca bars symbol must match the request")
+    token = _page_token(payload)
+    if not raw_bars and token is not None:
+        raise ValueError("Alpaca empty page has a continuation token")
+    return Completeness.PARTIAL if token else Completeness.COMPLETE
+
+
 def ohlcv_bars_from_alpaca(
     payload: Mapping[str, Any],
     *,
@@ -82,25 +105,8 @@ def ohlcv_bars_from_alpaca(
     observed_at_utc: datetime,
 ) -> tuple[OhlcvBar, ...]:
     """Normalize one Alpaca bars page; never fabricates a complete series."""
-    raw_bars = payload.get("bars")
-    if not isinstance(raw_bars, Sequence) or isinstance(raw_bars, (str, bytes)):
-        raise ValueError("Alpaca bars must be an array")
-    if payload.get("symbol") != symbol:
-        raise ValueError("Alpaca bars symbol must match the request")
-    if "next_page_token" not in payload:
-        raise ValueError("Alpaca bars require a pagination token")
-    token = payload["next_page_token"]
-    if token is not None and (not isinstance(token, str) or not token):
-        raise ValueError(
-            "Alpaca bars pagination token must be a nonempty string or null"
-        )
-    if not raw_bars and token is not None:
-        raise ValueError("Alpaca empty page has a continuation token")
-    completeness = (
-        Completeness.PARTIAL
-        if payload.get("next_page_token")
-        else Completeness.COMPLETE
-    )
+    completeness = _page_completeness(payload, symbol)
+    raw_bars = payload["bars"]
     return tuple(
         _bar_from_alpaca(
             raw,

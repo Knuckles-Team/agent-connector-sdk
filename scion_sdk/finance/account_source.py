@@ -5,7 +5,6 @@ from __future__ import annotations
 import hashlib
 import json
 from enum import StrEnum
-from typing import Any
 
 from epistemic_graph.generated.source_ingestion import (
     SourceCheckpoint,
@@ -21,8 +20,9 @@ from scion_sdk.contracts import (
     RecordPage,
     StreamDescriptor,
 )
+from scion_sdk.finance._account_rules import _currency, _identity, _position, _positions
+from scion_sdk.finance._stock_fields import _number, _text
 from scion_sdk.finance.account import AccountActivity
-from scion_sdk.finance.stock_source import _number, _text
 from scion_sdk.ports.errors import (
     MalformedSourceDataError,
     SourceContractError,
@@ -38,39 +38,6 @@ class AccountSourceKind(StrEnum):
     ACCOUNT = "account"
     POSITION = "position"
     ACTIVITY = "activity"
-
-
-def _position(data: dict[str, Any]) -> None:
-    _text(data, "symbol")
-    if data.get("exchange") != "alpaca" or data.get("side") not in {"long", "short"}:
-        raise ValueError("invalid position identity")
-    for field in ("qty", "avg_entry_price", "current_price", "unrealized_pnl"):
-        _number(data.get(field))
-    _number(data.get("avg_entry_price"), nonnegative=True)
-    _number(data.get("current_price"), nonnegative=True)
-
-
-def _currency(value: str) -> None:
-    if (
-        len(value) != 3
-        or not value.isascii()
-        or not value.isalpha()
-        or not value.isupper()
-    ):
-        raise ValueError("invalid account currency")
-
-
-def _positions(value: Any) -> None:
-    if not isinstance(value, list) or not all(isinstance(item, dict) for item in value):
-        raise ValueError("invalid account positions")
-    for item in value:
-        _position(item)
-    if len({item["symbol"] for item in value}) != len(value):
-        raise ValueError("duplicate account positions")
-
-
-def _identity(values: list[str]) -> str:
-    return hashlib.sha256(json.dumps(values, ensure_ascii=True).encode()).hexdigest()
 
 
 class AccountSourceAdapter:
@@ -147,17 +114,20 @@ class AccountSourceAdapter:
 
     def _validated(self, record: SourceRecord) -> SourceRecord:
         try:
-            if record.payload.get("account_id") != self._account_id:
-                raise ValueError("account identity mismatch")
-            validator = {
-                AccountSourceKind.ACCOUNT: self._validate_account,
-                AccountSourceKind.POSITION: self._validate_position,
-                AccountSourceKind.ACTIVITY: self._validate_activity,
-            }[self._kind]
-            validator(record)
-            return record
+            self._check(record)
         except (ValidationError, ValueError, TypeError, KeyError, OverflowError):
             raise MalformedSourceDataError("invalid account source record") from None
+        return record
+
+    def _check(self, record: SourceRecord) -> None:
+        if record.payload.get("account_id") != self._account_id:
+            raise ValueError("account identity mismatch")
+        validator = {
+            AccountSourceKind.ACCOUNT: self._validate_account,
+            AccountSourceKind.POSITION: self._validate_position,
+            AccountSourceKind.ACTIVITY: self._validate_activity,
+        }[self._kind]
+        validator(record)
 
     async def extract(
         self, session: McpSession, checkpoint: SourceCheckpoint | None

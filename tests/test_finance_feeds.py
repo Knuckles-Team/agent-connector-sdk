@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from scion_sdk.finance import feeds
+from scion_sdk.finance import _feed_aggregator, feeds
 from scion_sdk.finance.feeds import (
     LiveBar,
     MarketFeedBus,
@@ -86,7 +86,7 @@ async def test_bar_subscriptions_use_independent_intervals(
             del tz
             return datetime.fromtimestamp(cls.second, UTC)
 
-    monkeypatch.setattr(feeds, "datetime", Clock)
+    monkeypatch.setattr(_feed_aggregator, "datetime", Clock)
     bus = MarketFeedBus()
     short: list[object] = []
     short_second: list[object] = []

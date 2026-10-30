@@ -8,143 +8,22 @@ from __future__ import annotations
 import logging
 import math
 from collections.abc import Callable
-from dataclasses import dataclass
-from datetime import UTC, datetime
 from typing import Any
 
+from scion_sdk.finance._feed_aggregator import TickAggregator
+from scion_sdk.finance._feed_types import (
+    LiveBar,
+    Tick,
+    _crossed,
+    _require_bar_size,
+    _validate_tick,
+)
 from scion_sdk.streaming import CallbackSubscriber, StreamBus, StreamMessage
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class Tick:
-    """A single market tick (price update)."""
-
-    symbol: str
-    price: float
-    volume: float = 0.0
-    bid: float = 0.0
-    ask: float = 0.0
-    timestamp: str = ""
-
-    def __post_init__(self) -> None:
-        _validate_tick(self)
-        if not self.timestamp:
-            self.timestamp = datetime.now(UTC).isoformat()
-
-
-def _validate_tick(tick: Tick) -> None:
-    if not all(
-        math.isfinite(value) for value in (tick.price, tick.volume, tick.bid, tick.ask)
-    ):
-        raise ValueError("market tick values must be finite")
-
-
-@dataclass
-class LiveBar:
-    """A live OHLCV bar being aggregated from ticks."""
-
-    symbol: str
-    open: float = 0.0
-    high: float = 0.0
-    low: float = float("inf")
-    close: float = 0.0
-    volume: float = 0.0
-    tick_count: int = 0
-    bar_start: str = ""
-    bar_end: str = ""
-
-    def update(self, tick: Tick) -> None:
-        """Update the bar with a new tick."""
-        _validate_tick(tick)
-        if self.tick_count == 0:
-            self.open = tick.price
-            self.bar_start = tick.timestamp
-
-        self.high = max(self.high, tick.price)
-        self.low = min(self.low, tick.price)
-        self.close = tick.price
-        self.volume += tick.volume
-        self.tick_count += 1
-        self.bar_end = tick.timestamp
-
-    @property
-    def is_empty(self) -> bool:
-        return self.tick_count == 0
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "symbol": self.symbol,
-            "open": self.open,
-            "high": self.high,
-            "low": self.low,
-            "close": self.close,
-            "volume": self.volume,
-            "tick_count": self.tick_count,
-        }
-
-
-def _require_bar_size(bar_size: int) -> None:
-    if isinstance(bar_size, bool) or not isinstance(bar_size, int) or bar_size <= 0:
-        raise ValueError("bar size must be a positive integer")
-
-
-class TickAggregator:
-    """
-    Aggregates raw ticks into OHLCV bars at configurable intervals.
-
-    Usage:
-        agg = TickAggregator(bar_size=60)  # 60-second bars
-        agg.on_tick(tick)
-        completed_bars = agg.get_completed_bars()
-    """
-
-    def __init__(self, symbol: str, bar_size_seconds: int = 60):
-        _require_bar_size(bar_size_seconds)
-        self.symbol = symbol
-        self.bar_size = bar_size_seconds
-        self._current_bar = LiveBar(symbol=symbol)
-        self._completed_bars: list[LiveBar] = []
-        self._tick_count = 0
-        self._bar_start_time: float | None = None
-
-    def on_tick(self, tick: Tick) -> LiveBar | None:
-        """
-        Process a tick. Returns a completed bar if the current bar
-        has been closed by the time boundary.
-        """
-        _validate_tick(tick)
-        now = datetime.now(UTC).timestamp()
-
-        if self._bar_start_time is None:
-            self._bar_start_time = now
-
-        # Check if current bar should be closed
-        elapsed = now - self._bar_start_time
-        completed = None
-
-        if elapsed >= self.bar_size and not self._current_bar.is_empty:
-            completed = self._current_bar
-            self._completed_bars.append(completed)
-            self._current_bar = LiveBar(symbol=self.symbol)
-            self._bar_start_time = now
-
-        self._current_bar.update(tick)
-        self._tick_count += 1
-        return completed
-
-    @property
-    def current_bar(self) -> LiveBar:
-        return self._current_bar
-
-    @property
-    def completed_bars(self) -> list[LiveBar]:
-        return list(self._completed_bars)
-
-    @property
-    def total_ticks(self) -> int:
-        return self._tick_count
+__all__ = ["LiveBar", "MarketFeedBus", "Tick", "TickAggregator"]
 
 
 class MarketFeedBus:
@@ -215,7 +94,6 @@ class MarketFeedBus:
         _validate_tick(tick)
         self._tick_count += 1
 
-        # Publish raw tick
         msg = StreamMessage(
             topic=f"market.{tick.symbol}.ticks",
             data={
@@ -228,7 +106,12 @@ class MarketFeedBus:
         )
         delivered = await self.bus.publish(msg)
 
-        # Process aggregation
+        delivered += await self._publish_bars(tick)
+        self._fire_alerts(tick)
+        return delivered
+
+    async def _publish_bars(self, tick: Tick) -> int:
+        delivered = 0
         for agg in self._aggregators.get(tick.symbol, {}).values():
             completed = agg.on_tick(tick)
             if completed:
@@ -238,19 +121,16 @@ class MarketFeedBus:
                     source="market_feed_aggregator",
                 )
                 delivered += await self.bus.publish(bar_msg)
+        return delivered
 
-        # Check price alerts
+    def _fire_alerts(self, tick: Tick) -> None:
         for alert in self._alerts:
             if alert["triggered"] or alert["symbol"] != tick.symbol:
                 continue
-            if (alert["direction"] == "above" and tick.price >= alert["price"]) or (
-                alert["direction"] == "below" and tick.price <= alert["price"]
-            ):
+            if _crossed(alert, tick):
                 alert["triggered"] = True
                 if alert["callback"]:
                     alert["callback"](tick)
-
-        return delivered
 
     @property
     def total_ticks(self) -> int:
