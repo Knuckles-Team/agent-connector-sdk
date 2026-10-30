@@ -48,17 +48,27 @@ def parse_triples(text: str) -> list[tuple[str, str, str]]:
     triples: list[tuple[str, str, str]] = []
     for statement in _END.split(body):
         terms = statement.replace(";", " ; ").replace(",", " , ").split()
-        subject, predicate, fresh = "", "", True
-        for index, term in enumerate(terms):
-            if index == 0:
-                subject = expand(term)
-            elif term == ";":
-                fresh = True
-            elif term != ",":
-                if fresh:
-                    predicate, fresh = expand(term), False
-                else:
-                    triples.append((subject, predicate, expand(term)))
+        triples.extend(_statement_triples([expand(t) for t in terms], terms))
+    return triples
+
+
+def _statement_triples(
+    expanded: list[str], terms: list[str]
+) -> list[tuple[str, str, str]]:
+    """Triples of one statement: ``;`` starts a predicate, ``,`` repeats it."""
+    triples: list[tuple[str, str, str]] = []
+    if not terms:
+        return triples
+    subject, predicate, fresh = expanded[0], "", True
+    for term, value in zip(terms[1:], expanded[1:], strict=True):
+        if term == ";":
+            fresh = True
+        elif term == ",":
+            continue
+        elif fresh:
+            predicate, fresh = value, False
+        else:
+            triples.append((subject, predicate, value))
     return triples
 
 
@@ -66,15 +76,21 @@ def orphan_classes(path: Path) -> set[str]:
     """Classes declared in ``path`` that do not reach the core namespace."""
     triples = parse_triples(path.read_text(encoding="utf-8"))
     declared = {s for s, p, o in triples if p == _RDF_TYPE and o == _OWL_CLASS}
+    supers: dict[str, set[str]] = {}
+    for s, p, o in triples:
+        if p == _SUBCLASS:
+            supers.setdefault(s, set()).add(o)
     linked: set[str] = set()
     changed = True
     while changed:
-        changed = False
-        for cls in declared - linked:
-            if cls.startswith(CORE_NAMESPACE):
-                continue
-            ups = {o for s, p, o in triples if s == cls and p == _SUBCLASS}
-            if any(u.startswith(CORE_NAMESPACE) or u in linked for u in ups):
-                linked.add(cls)
-                changed = True
+        newly = {
+            cls
+            for cls in declared - linked
+            if not cls.startswith(CORE_NAMESPACE)
+            and any(
+                u.startswith(CORE_NAMESPACE) or u in linked for u in supers.get(cls, ())
+            )
+        }
+        linked |= newly
+        changed = bool(newly)
     return {c for c in declared - linked if not c.startswith(CORE_NAMESPACE)}
