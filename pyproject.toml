@@ -108,6 +108,7 @@ Documentation = "https://knuckles-team.github.io/scion-sdk/"
 [project.scripts]
 connector-sync = "agent_connector_sdk.runner.cli:main"
 connector-certify = "agent_connector_sdk.certify.cli:main"
+ingest-worker = "agent_connector_sdk.runner.ingest_worker_cli:main"
 
 [project.entry-points.pytest11]
 agent_connector_sdk = "agent_connector_sdk.testing.plugin"
@@ -233,6 +234,7 @@ exclude_dirs = ["tests", "scripts"]
 # every entry-point target as roots; every other module must be imported by one.
 public_modules = [
     "agent_connector_sdk.cli",
+    "agent_connector_sdk.runner.ingest_worker_cli",
     "agent_connector_sdk.auth.declare",
     "agent_connector_sdk.transports.graphql",
     "agent_connector_sdk.ingest.source_sync",
@@ -448,6 +450,7 @@ public_modules = [
     "agent_connector_sdk.testing.artifact_kinds",
     "agent_connector_sdk.testing.certificates",
     "agent_connector_sdk.testing.duplicate_symbol_scan",
+    "agent_connector_sdk.testing.successor_parity",
     "agent_connector_sdk.testing.fleet_migration",
     "agent_connector_sdk.testing.http_clients",
     "agent_connector_sdk.testing.http_server",

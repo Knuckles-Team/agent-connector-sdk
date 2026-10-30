@@ -21,11 +21,15 @@ from dataclasses import dataclass
 from pathlib import Path
 
 __all__ = [
+    "JsonTagLoaderEntry",
+    "OperationMapping",
     "PackageScanResult",
+    "loader_parity_problems",
     "scan_for_agent_utilities_imports",
     "scan_many_packages",
 ]
 
+_REGISTRATION_KINDS = frozenset({"operation", "callback", "action_dispatch"})
 _DEFAULT_EXCLUDED_DIRS = frozenset({".venv", "build", "__pycache__"})
 
 
@@ -188,3 +192,66 @@ def scan_many_packages(
             root, exclude_dirs=exclude_dirs
         )
     return results
+
+
+@dataclass(frozen=True)
+class OperationMapping:
+    """One source-to-target operation binding with the facts that must match."""
+
+    source_operation_id: str
+    target_operation_id: str
+    source_input_schema: str
+    target_input_schema: str
+    source_output_schema: str
+    target_output_schema: str
+    source_tags: frozenset[str] = frozenset()
+    target_tags: frozenset[str] = frozenset()
+    source_authorization: str = ""
+    target_authorization: str = ""
+
+
+@dataclass(frozen=True)
+class JsonTagLoaderEntry:
+    """SCION-CONNECTOR-CONTROL-R020.1: one JSON tag loader and its target mapping."""
+
+    package: str
+    source_revision: str
+    loader_path: str
+    json_path: str
+    json_digest: str
+    registration: str
+    mappings: tuple[OperationMapping, ...] = ()
+
+
+def loader_parity_problems(
+    entries: Iterable[JsonTagLoaderEntry], inventory: Iterable[tuple[str, str]]
+) -> list[str]:
+    """Return every reason the loader inventory cannot gate a replacement.
+
+    ``inventory`` lists the ``(package, loader_path)`` pairs found by a scan.
+    An empty result means complete and schema, tag and authorization parity.
+    """
+    problems: list[str] = []
+    entries = list(entries)
+    seen = {(e.package, e.loader_path) for e in entries}
+    for pair in sorted(set(inventory) - seen):
+        problems.append(f"loader not inventoried: {pair[0]}:{pair[1]}")
+    for entry in entries:
+        where = f"{entry.package}:{entry.loader_path}"
+        if entry.registration not in _REGISTRATION_KINDS:
+            problems.append(f"{where}: unknown registration {entry.registration!r}")
+        if not (entry.source_revision and entry.json_digest and entry.json_path):
+            problems.append(f"{where}: incomplete entry")
+        if not entry.mappings:
+            problems.append(f"{where}: no operation mapping")
+        for m in entry.mappings:
+            op = f"{where}: {m.source_operation_id}->{m.target_operation_id}"
+            if m.source_input_schema != m.target_input_schema:
+                problems.append(f"{op}: input schema differs")
+            if m.source_output_schema != m.target_output_schema:
+                problems.append(f"{op}: output schema differs")
+            if m.source_tags != m.target_tags:
+                problems.append(f"{op}: tags differ")
+            if m.source_authorization != m.target_authorization:
+                problems.append(f"{op}: authorization differs")
+    return problems
