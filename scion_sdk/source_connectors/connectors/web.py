@@ -26,12 +26,17 @@ from ..base import (
     SourceDocument,
     default_external_access,
 )
-from ..http_safety import require_safe_source_url, safe_get_text
+from ..http_safety import require_safe_source_url
 from ..registry import register_source
 from .web_frontier import _FrontierRunner
 from .web_frontier_codec import _FrontierCodec
 from .web_frontier_types import _URL_LIMIT
-from .web_page import _check_base_url, _html_to_text
+from .web_page import (
+    _build_safe_fetch,
+    _check_base_url,
+    _fetch_page_or_none,
+    _html_to_text,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -65,8 +70,8 @@ class WebCrawlerConnector(LoadConnector, PollConnector):
         max_pages: int = 50,
         same_domain: bool = True,
         fetch_fn: FetchFn | None = None,
-        allowed_private_hosts: list[str] | None = None,
         allowed_redirect_hosts: list[str] | None = None,
+        allowed_private_hosts: list[str] | None = None,
         max_response_bytes: int = 10 * 1024 * 1024,
         **_: object,
     ) -> None:
@@ -83,21 +88,11 @@ class WebCrawlerConnector(LoadConnector, PollConnector):
         self.max_pages = min(10_000, max(1, int(max_pages)))
         self.same_domain = same_domain
         self.external_access = default_external_access()
-        if fetch_fn is not None:
-            self._fetch = fetch_fn
-        else:
-            redirect_hosts = list(allowed_redirect_hosts or [])
-
-            def _safe_fetch(url: str) -> str:
-                return safe_get_text(
-                    url,
-                    timeout=60.0,
-                    max_bytes=max_response_bytes,
-                    allowed_private_hosts=allowed_private_hosts,
-                    allowed_redirect_hosts=redirect_hosts,
-                )
-
-            self._fetch = _safe_fetch
+        self._fetch = fetch_fn or _build_safe_fetch(
+            allowed_private_hosts=allowed_private_hosts,
+            allowed_redirect_hosts=list(allowed_redirect_hosts or []),
+            max_response_bytes=max_response_bytes,
+        )
 
     def health_check(self) -> bool:
         return bool(self.base_url)
@@ -130,19 +125,17 @@ class WebCrawlerConnector(LoadConnector, PollConnector):
             if url in seen:
                 continue
             seen.add(url)
-            try:
-                html = self._fetch(url)
-            except Exception as exc:  # one unreachable page must not stop the crawl
-                logger.warning("web crawl skipped %s: %s", url, exc)
+            html = _fetch_page_or_none(self._fetch, url)
+            if html is None:
                 continue
             document = self._document(url, depth, html)
             if document is not None and url not in skip:
                 yield document
-            if depth >= self.max_depth:
-                continue
-            for link in self._extract_links(url, html):
-                if link not in seen:
-                    queue.append((link, depth + 1))
+            if depth < self.max_depth:
+                queue.extend((u, depth + 1) for u in self._new_links(url, html, seen))
+
+    def _new_links(self, url: str, html: str, seen: set[str]) -> list[str]:
+        return [link for link in self._extract_links(url, html) if link not in seen]
 
     # -- LoadConnector -----------------------------------------------------
 
