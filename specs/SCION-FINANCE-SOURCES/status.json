@@ -384,9 +384,9 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "077a14c9f3d3",
+        "1499fb6075af",
         "1a4bb4a2d385",
         "36f3c76a370c",
-        "46eba95e8766",
         "840bd894c581"
       ],
       "verified_by": [
@@ -407,7 +407,7 @@
       "title": "Complete macro panel sources",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "46eba95e8766"
+        "1499fb6075af"
       ],
       "verified_by": [
         "tests/test_finance_etf_flows.py:59",

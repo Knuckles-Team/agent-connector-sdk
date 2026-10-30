@@ -157,7 +157,7 @@
       "title": "Generic approval residual",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "431f3cf70f80"
+        "e757979b6dbb"
       ],
       "verified_by": [
         "tests/test_writeback_recorded_approval.py:45",
@@ -169,7 +169,7 @@
       "title": "Generic deterministic replay residual",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "431f3cf70f80"
+        "e757979b6dbb"
       ],
       "verified_by": [
         "tests/test_writeback.py:202",
@@ -203,7 +203,7 @@
       "title": "Typed repository effect request",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "431f3cf70f80"
+        "e757979b6dbb"
       ],
       "verified_by": [
         "tests/test_repository_effect_contract.py:154",
