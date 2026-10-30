@@ -79,6 +79,7 @@ from ._graphql_profile_op import (
 from ._graphql_query import (
     _validate_query_document,
 )
+from ._graphql_render import _DocumentRenderer, _Governance
 from ._graphql_response import _bounded_transport_payload
 from ._graphql_settings import (
     _access_from_config,
@@ -93,7 +94,6 @@ from ._graphql_values import (
     _policy_values,
     _private_digest,
     _safe_alias,
-    _safe_document_type,
     _safe_entity_type,
     _validate_governance_classification,
 )
@@ -791,185 +791,6 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
             "partial_errors": partial_errors,
         }
 
-    def _render_title(
-        self, record: dict[str, Any], operation: dict[str, Any], raw_id: Any
-    ) -> tuple[str, Any]:
-        raw_title = _dig(record, str(operation.get("title_path") or "title"), raw_id)
-        return self._privacy.sanitize_text(str(raw_title))
-
-    def _render_content_lines(
-        self, record: dict[str, Any], operation: dict[str, Any]
-    ) -> tuple[list[str], Any]:
-        content_path = str(operation.get("content_path") or "")
-        if not content_path:
-            return [], None
-        clean_content, content_report = self._privacy.sanitize_text(
-            str(_dig(record, content_path, "") or "")
-        )
-        lines: list[str] = []
-        if clean_content.strip():
-            lines = ["", clean_content.strip()]
-        return lines, content_report
-
-    def _render_frontmatter_lines(self, frontmatter: Any) -> tuple[list[str], Any]:
-        if frontmatter in (None, "", {}, []):
-            return [], None
-        clean_frontmatter, report = self._privacy.sanitize(frontmatter)
-        if isinstance(clean_frontmatter, str):
-            return ["", clean_frontmatter], report
-        return (
-            [
-                "",
-                json.dumps(
-                    clean_frontmatter,
-                    sort_keys=True,
-                    ensure_ascii=False,
-                    default=str,
-                ),
-            ],
-            report,
-        )
-
-    def _render_one_section(
-        self,
-        section: Any,
-        *,
-        title_field: str,
-        level_field: str,
-        content_field: str,
-    ) -> tuple[list[str] | None, Any]:
-        if not isinstance(section, dict):
-            return None, None
-        clean_section, report = self._privacy.sanitize(section)
-        if not isinstance(clean_section, dict):
-            return None, report
-        section_title = str(clean_section.get(title_field) or "Section")
-        try:
-            level = max(2, min(int(clean_section.get(level_field) or 2) + 1, 6))
-        except (TypeError, ValueError):
-            level = 2
-        content = str(clean_section.get(content_field) or "").strip()
-        lines = ["", f"{'#' * level} {section_title}"]
-        if content:
-            lines.extend(["", content])
-        return lines, report
-
-    def _render_sections(
-        self, sections: list[Any], operation: dict[str, Any]
-    ) -> tuple[list[str], list[Any]]:
-        title_field = str(operation.get("section_title_field") or "title")
-        level_field = str(operation.get("section_level_field") or "level")
-        content_field = str(operation.get("section_content_field") or "content")
-        lines: list[str] = []
-        reports: list[Any] = []
-        for section in sections[: self.max_sections]:
-            section_lines, report = self._render_one_section(
-                section,
-                title_field=title_field,
-                level_field=level_field,
-                content_field=content_field,
-            )
-            if report is not None:
-                reports.append(report)
-            if section_lines is not None:
-                lines.extend(section_lines)
-        return lines, reports
-
-    def _render_governance_fields(
-        self,
-        governance: tuple[
-            ExternalAccess,
-            DataClassification,
-            str | None,
-            bool,
-            str,
-            str,
-            str,
-        ]
-        | None,
-    ) -> tuple[ExternalAccess, DataClassification, str | None, bool]:
-        if governance is None:
-            return self.external_access, DataClassification.INTERNAL, None, False
-        return governance[0], governance[1], governance[2], governance[3]
-
-    def _render_body(
-        self, record: dict[str, Any], operation: dict[str, Any]
-    ) -> tuple[Any, str, str, list[Any]] | None:
-        """(raw_id, clean_title, text, reports), or None if there is no body."""
-        raw_id = _dig(record, str(operation.get("id_path") or "id"))
-        if raw_id in (None, ""):
-            return None
-        frontmatter = _dig(
-            record,
-            str(operation.get("frontmatter_path") or "document.frontmatter"),
-            None,
-        )
-        sections = _dig(
-            record,
-            str(operation.get("sections_path") or "document.sections"),
-            [],
-        )
-        if not isinstance(sections, list):
-            sections = []
-
-        clean_title, title_report = self._render_title(record, operation, raw_id)
-        body: list[str] = [f"# {clean_title}"]
-        reports: list[Any] = [title_report]
-
-        content_lines, content_report = self._render_content_lines(record, operation)
-        body.extend(content_lines)
-        if content_report is not None:
-            reports.append(content_report)
-
-        frontmatter_lines, frontmatter_report = self._render_frontmatter_lines(
-            frontmatter
-        )
-        body.extend(frontmatter_lines)
-        if frontmatter_report is not None:
-            reports.append(frontmatter_report)
-
-        section_lines, section_reports = self._render_sections(sections, operation)
-        body.extend(section_lines)
-        reports.extend(section_reports)
-
-        text = "\n".join(body)[: self.max_content_chars].strip()
-        if not text:
-            return None
-        return raw_id, clean_title, text, reports
-
-    def _render_digests(
-        self,
-        record: dict[str, Any],
-        operation: dict[str, Any],
-        identity_key: str,
-        raw_id: Any,
-        text: str,
-        reports: list[Any],
-    ) -> tuple[str, str, str, list[str], int]:
-        document_id = _private_digest(
-            identity_key, self.source_alias, self.operation, "document", str(raw_id)
-        )
-        updated_path = str(operation.get("updated_path") or "")
-        raw_updated = _dig(record, updated_path) if updated_path else None
-        clean_updated, updated_report = self._privacy.sanitize_text(
-            str(raw_updated or "")
-        )
-        reports.append(updated_report)
-        detected = sorted(
-            {item for report in reports for item in report.detected_types}
-        )
-        redactions = sum(report.redactions for report in reports)
-        content_digest = _digest(text)
-        version_digest = _private_digest(
-            identity_key,
-            self.source_alias,
-            self.operation,
-            "document-version",
-            str(raw_id),
-            clean_updated or content_digest,
-        )
-        return document_id, content_digest, version_digest, detected, redactions
-
     def _render_document(
         self,
         record: dict[str, Any],
@@ -978,54 +799,23 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
         *,
         profile_digest: str = "",
         entity_id: str | None = None,
-        governance: tuple[
-            ExternalAccess,
-            DataClassification,
-            str | None,
-            bool,
-            str,
-            str,
-            str,
-        ]
-        | None = None,
+        governance: _Governance | None = None,
     ) -> SourceDocument | None:
-        rendered = self._render_body(record, operation)
-        if rendered is None:
-            return None
-        raw_id, clean_title, text, reports = rendered
-        document_id, content_digest, version_digest, detected, redactions = (
-            self._render_digests(record, operation, identity_key, raw_id, text, reports)
+        renderer = _DocumentRenderer(
+            privacy=self._privacy,
+            max_sections=self.max_sections,
+            max_content_chars=self.max_content_chars,
+            source_alias=self.source_alias,
+            operation=self.operation,
+            external_access=self.external_access,
         )
-        access, classification, retention, legal_hold = self._render_governance_fields(
-            governance
-        )
-        governed_entity_id = entity_id or (
-            f"doc:graphql_document:{hashlib.sha256(document_id.encode('utf-8')).hexdigest()[:24]}"
-        )
-        return SourceDocument(
-            id=document_id,
-            source_uri=f"external-source://{self.source_alias}/{document_id}",
-            title=clean_title,
-            text=text,
-            doc_type=_safe_document_type(operation.get("doc_type")),
-            metadata={
-                "source_alias": self.source_alias,
-                "source_kind": "graphql",
-                "operation": self.operation,
-                "governed_entity_id": governed_entity_id,
-                "profile_digest": profile_digest,
-                "content_digest": content_digest,
-                "classification": classification.value,
-                "retention": retention,
-                "legal_hold": legal_hold,
-                "embedding_handoff": True,
-                "privacy": {
-                    "redactions": redactions,
-                    "detected_types": detected,
-                },
-            },
-            external_access=access,
-            updated_at=version_digest,
+        return renderer.render_document(
+            record,
+            operation,
+            identity_key,
+            profile_digest=profile_digest,
+            entity_id=entity_id,
+            governance=governance,
         )
 
     @staticmethod
