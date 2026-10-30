@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.3
+
+### Fixed
+
+- The MCP rate limiter runs after the actor binding and keys on the bound actor, so
+  stdio and every HTTP mode share one middleware stack and one identity decision. The
+  trusted local principal (`SYSTEM_ACTOR`: stdio, in-process, `--auth-type none`) is not
+  throttled; other principals keep 10 requests/s, burst 20, each in their own bucket
+  (SCION-CONNECTOR-CONTROL-R025.6).
+- New `scion_sdk.privacy.sanitize_tool_response` redacts only secrets from tool results
+  and errors and keeps local paths visible; connectors use it instead of
+  `sanitize_for_persistence` for responses (SCION-CONNECTOR-CONTROL-R025.7).
+
 ## 0.6.2
 
 ### Fixed

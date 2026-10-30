@@ -31,12 +31,18 @@ from scion_sdk.identity import (
     current_actor,
     is_anonymous,
     require_authenticated_actor,
+    use_actor,
 )
 from scion_sdk.mcp.actor_binding import (
     PRINCIPAL_GRANTS_SETTING,
     ActorBindingMiddleware,
     request_actor,
     token_actor,
+)
+from scion_sdk.mcp.middleware import (
+    ActorRateLimitingMiddleware,
+    build_middleware,
+    rate_limit_client_id,
 )
 from scion_sdk.mcp.server import create_mcp_server
 
@@ -256,8 +262,57 @@ def test_every_transport_gets_the_same_binding_stack() -> None:
         "--token-issuer", ISSUER, "--token-audience", AUDIENCE,
         "--token-public-key", keys.public_key,
     )  # fmt: skip
-    assert stack("--transport", "stdio") == stack(*http)
+    none = ("--transport", "streamable-http", "--auth-type", "none")
+    assert stack("--transport", "stdio") == stack(*http) == stack(*none)
     assert ActorBindingMiddleware in stack("--transport", "stdio")
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.6")
+def test_the_rate_limiter_runs_after_the_binding_and_keys_on_the_bound_actor() -> None:
+    stack = [type(m) for m in build_middleware()]
+    assert stack.index(ActorBindingMiddleware) < stack.index(
+        ActorRateLimitingMiddleware
+    )
+    with use_actor(ANONYMOUS_ACTOR):
+        assert rate_limit_client_id(None) == "anonymous"
+    alice = token_actor(SimpleNamespace(client_id="c", claims={"sub": "alice"}))
+    bob = token_actor(SimpleNamespace(client_id="c", claims={"sub": "bob"}))
+    with use_actor(alice):
+        alice_bucket = rate_limit_client_id(None)
+    with use_actor(bob):
+        assert rate_limit_client_id(None) not in (alice_bucket, "anonymous")
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.6")
+async def test_the_trusted_local_principal_is_not_throttled_on_stdio() -> None:
+    async with Client(_server("--transport", "stdio")) as client:
+        for _ in range(100):
+            assert (await client.call_tool("whoami", {})).data["actor_id"] == "system"
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.6")
+async def test_the_trusted_local_principal_is_not_throttled_on_http_none() -> None:
+    mcp = _server("--transport", "streamable-http", "--auth-type", "none")
+    with _serving(mcp) as endpoint:
+        async with Client(endpoint) as client:
+            for _ in range(100):
+                who = await client.call_tool("whoami", {})
+                assert who.data["actor_id"] == "system"
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.6")
+async def test_an_untrusted_actor_keeps_its_rate_limit() -> None:
+    mcp: FastMCP[Any] = FastMCP("limited")
+    _register_host_tools(mcp)
+    for middleware in build_middleware():
+        mcp.add_middleware(middleware)
+    with _serving(mcp) as endpoint:
+        async with Client(endpoint) as client:
+            with pytest.raises(
+                MCPError, match="Rate limit exceeded for client: anonymous"
+            ):
+                for _ in range(100):
+                    await client.call_tool("whoami", {})
 
 
 @pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.2")

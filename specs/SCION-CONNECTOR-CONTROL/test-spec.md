@@ -200,6 +200,8 @@ These are required future tests. None ran during definition authoring.
 - `SCION-CONNECTOR-CONTROL-R025.3`: `tests/test_actor_binding_served.py::test_a_no_auth_http_server_binds_the_trusted_local_actor`, `::test_an_implicit_auth_mode_still_refuses_http`, `::test_unauthenticated_http_binds_the_anonymous_actor` and `tests/test_network_serving.py::test_an_exposed_no_auth_listener_serves_with_one_warning`.
 - `SCION-CONNECTOR-CONTROL-R025.4`: `tests/test_actor_binding_served.py::test_a_mutation_without_authentication_is_a_typed_refusal` and `::test_the_binding_middleware_refuses_typed_on_a_bare_server`.
 - `SCION-CONNECTOR-CONTROL-R025.5`: `tests/test_actor_binding_served.py::test_current_actor_resolves_system_outside_any_request`, `::test_a_bare_no_auth_server_serves_without_use_actor` and `::test_a_bare_authenticated_server_uses_the_token_identity_and_denies`.
+- `SCION-CONNECTOR-CONTROL-R025.6`: `tests/test_actor_binding_served.py::test_the_rate_limiter_runs_after_the_binding_and_keys_on_the_bound_actor`, `::test_the_trusted_local_principal_is_not_throttled_on_stdio`, `::test_the_trusted_local_principal_is_not_throttled_on_http_none` and `::test_an_untrusted_actor_keeps_its_rate_limit`.
+- `SCION-CONNECTOR-CONTROL-R025.7`: `tests/test_tool_response_redaction.py::test_a_tool_error_keeps_the_local_path_that_caused_it` and `::test_a_tool_response_redacts_secrets`.
 
 All five tests serve a real `create_mcp_server` server. A fastmcp client calls it in memory or over streamable HTTP. No test fakes the identity layer.
 
