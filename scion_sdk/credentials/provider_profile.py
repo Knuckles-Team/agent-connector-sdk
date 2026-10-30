@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Any
@@ -118,6 +118,25 @@ def _references(raw: Any) -> dict[str, str]:
     return out
 
 
+def _check_consistency(profile: ProviderProfile) -> None:
+    invalid = (
+        (profile.tls_profile and profile.tls_profile_ref)
+        or (
+            profile.endpoint_ref
+            and not (profile.tls_profile or profile.tls_profile_ref)
+        )
+        or (set(profile.credential_refs) & set(profile.selector_refs))
+        or (
+            profile.enabled
+            and not (
+                profile.endpoint_ref or profile.credential_refs or profile.selector_refs
+            )
+        )
+    )
+    if invalid:
+        raise ProviderProfileError("provider_profiles_invalid")
+
+
 def _profile(raw: Any) -> ProviderProfile:
     if not isinstance(raw, Mapping) or not set(raw) <= {
         "enabled",
@@ -150,16 +169,7 @@ def _profile(raw: Any) -> ProviderProfile:
         tls_profile=tls_name,
         tls_profile_ref=tls_ref,
     )
-    if profile.tls_profile and profile.tls_profile_ref:
-        raise ProviderProfileError("provider_profiles_invalid")
-    if profile.endpoint_ref and not (profile.tls_profile or profile.tls_profile_ref):
-        raise ProviderProfileError("provider_profiles_invalid")
-    if set(profile.credential_refs) & set(profile.selector_refs):
-        raise ProviderProfileError("provider_profiles_invalid")
-    if profile.enabled and not (
-        profile.endpoint_ref or profile.credential_refs or profile.selector_refs
-    ):
-        raise ProviderProfileError("provider_profiles_invalid")
+    _check_consistency(profile)
     return profile
 
 
@@ -226,6 +236,24 @@ def _secure_endpoint(value: str) -> str:
     return rendered
 
 
+def _resolved_triplet(
+    profile: ProviderProfile, one: Callable[[str], str]
+) -> tuple[str | None, dict[str, str], dict[str, str]]:
+    endpoint = (
+        _secure_endpoint(one(profile.endpoint_ref)) if profile.endpoint_ref else None
+    )
+    credentials = {a: one(r) for a, r in profile.credential_refs.items()}
+    selectors: dict[str, str] = {}
+    for alias, reference in profile.selector_refs.items():
+        value = one(reference)
+        if len(value.encode("utf-8")) > _MAX_SELECTOR_BYTES or any(
+            c in value for c in "\x00\r\n"
+        ):
+            raise ProviderProfileError("provider_selector_invalid")
+        selectors[alias] = value
+    return endpoint, credentials, selectors
+
+
 def _resolve_values(
     profile: ProviderProfile, resolver: CredentialResolver | None
 ) -> tuple[str | None, dict[str, str], dict[str, str]]:
@@ -233,25 +261,11 @@ def _resolve_values(
         return resolve_runtime_secret_reference(reference, resolver=resolver)
 
     try:
-        endpoint = (
-            _secure_endpoint(one(profile.endpoint_ref))
-            if profile.endpoint_ref
-            else None
-        )
-        credentials = {a: one(r) for a, r in profile.credential_refs.items()}
-        selectors: dict[str, str] = {}
-        for alias, reference in profile.selector_refs.items():
-            value = one(reference)
-            if len(value.encode("utf-8")) > _MAX_SELECTOR_BYTES or any(
-                c in value for c in "\x00\r\n"
-            ):
-                raise ProviderProfileError("provider_selector_invalid")
-            selectors[alias] = value
+        return _resolved_triplet(profile, one)
     except ProviderProfileError:
         raise
     except Exception:
         raise ProviderProfileError("provider_runtime_reference_unavailable") from None
-    return endpoint, credentials, selectors
 
 
 def resolve_provider_profile(

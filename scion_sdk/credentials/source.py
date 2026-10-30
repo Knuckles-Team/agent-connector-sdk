@@ -253,6 +253,24 @@ class BasicAuthCredential(SourceCredential):
         return cls(username, _resolve(resolver, descriptor.get("password_secret")))
 
 
+def _post_form(
+    trust: Any,
+    timeout: float,
+    url: str,
+    form: dict[str, str],
+    auth: tuple[str, str] | None,
+) -> Mapping[str, Any]:
+    with httpx.Client(timeout=timeout, **trust.httpx_kwargs()) as client:
+        response = client.post(
+            url,
+            data=form,
+            auth=auth if auth is not None else httpx.USE_CLIENT_DEFAULT,
+        )
+        response.raise_for_status()
+        payload: Mapping[str, Any] = response.json()
+        return payload
+
+
 def _default_token_poster(tls_service: str, timeout: float) -> TokenPoster:
     def post(
         url: str, form: dict[str, str], auth: tuple[str, str] | None
@@ -261,19 +279,20 @@ def _default_token_poster(tls_service: str, timeout: float) -> TokenPoster:
 
         trust = resolve_tls_profile(tls_service)
         try:
-            with httpx.Client(timeout=timeout, **trust.httpx_kwargs()) as client:
-                response = client.post(
-                    url,
-                    data=form,
-                    auth=auth if auth is not None else httpx.USE_CLIENT_DEFAULT,
-                )
-                response.raise_for_status()
-                payload: Mapping[str, Any] = response.json()
-                return payload
+            return _post_form(trust, timeout, url, form, auth)
         finally:
             trust.cleanup()
 
     return post
+
+
+def _token_fields(raw: str | None) -> tuple[Any, Any, float | None]:
+    """Access token, refresh token and lifetime of a raw secret (JSON or bare)."""
+    if not (raw and raw.strip().startswith("{")):
+        return raw, None, None
+    token = json.loads(raw)
+    expires = float(token["expires_in"]) if token.get("expires_in") else None
+    return token.get("access_token"), token.get("refresh_token"), expires
 
 
 class OAuth2Credential(SourceCredential):
@@ -361,12 +380,7 @@ class OAuth2Credential(SourceCredential):
         if "verify" in descriptor or "allow_insecure" in descriptor:
             raise ValueError("TLS verification cannot be turned off")
         raw = _resolve(resolver, descriptor.get("secret"))
-        access_token, refresh_token, expires_in = raw, None, None
-        if raw and raw.strip().startswith("{"):
-            token = json.loads(raw)
-            access_token = token.get("access_token")
-            refresh_token = token.get("refresh_token")
-            expires_in = float(token["expires_in"]) if token.get("expires_in") else None
+        access_token, refresh_token, expires_in = _token_fields(raw)
         refresh_ref = descriptor.get("refresh_token_secret")
         if refresh_ref:
             refresh_token = _resolve(resolver, refresh_ref)
