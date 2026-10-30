@@ -18,15 +18,13 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Iterator, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 import httpx
 
-from scion_sdk.adapters.document_sources import access_properties
 from scion_sdk.credentials.resolution import resolve_secret_reference
 from scion_sdk.data_prep._classification import DataClassification
-from scion_sdk.ingest.model import Entity, Withdrawal
 from scion_sdk.privacy import PersistencePrivacyGuard
 from scion_sdk.tls.errors import TransportSecurityError
 from scion_sdk.tls.resolve import resolve_tls_profile
@@ -46,7 +44,6 @@ from ..http_safety import (
 )
 from ..registry import register_source
 from ._graphql_base import (
-    _CHECKPOINT_FORMAT,
     _DEFAULT_ENTITY_TYPES,
     _ENTITY_KINDS,
     _ERROR_CODE_RE,
@@ -54,11 +51,11 @@ from ._graphql_base import (
     _MAPPING_KEYS,
     _MAX_PROFILE_BYTES,
     _OPERATION_RE,
-    _RETENTION_RE,
     _SECRET_REF_RE,
     GraphQLDocumentError,
     _reject_json_constant,
 )
+from ._graphql_change import GovernedChange, GraphQLHierarchyBatch, _governed_change
 from ._graphql_errors import _errors_are_allowlisted
 from ._graphql_paths import _dig, _dig_many, _is_invalid_next_cursor
 from ._graphql_profile_conn import (
@@ -88,6 +85,7 @@ from ._graphql_settings import (
     _cfg_int,
     _parse_configured_tls,
 )
+from ._graphql_snapshot import _SnapshotReconciler
 from ._graphql_values import (
     _classification,
     _digest,
@@ -97,60 +95,6 @@ from ._graphql_values import (
     _safe_entity_type,
     _validate_governance_classification,
 )
-
-#: One governed change: an upsert entity or a withdrawal.
-GovernedChange = Entity | Withdrawal
-
-
-def _governed_change(
-    *,
-    source_object_id: str,
-    source_version: str,
-    operation: str = "upsert",
-    typed_payload: dict[str, Any] | None = None,
-    source_acl: ExternalAccess | None = None,
-    classification: DataClassification = DataClassification.INTERNAL,
-    retention: str | None = None,
-    legal_hold: bool = False,
-    tenant: str = "",
-    schema_version: str = "",
-    ontology_mapping_version: str = "",
-    provenance: dict[str, Any] | None = None,
-    source_instance: str = "",
-    **_: Any,
-) -> GovernedChange:
-    """Render one governed change as an SDK entity or withdrawal."""
-    if operation == "delete":
-        return Withdrawal(id=source_object_id, reason=f"absent at {source_version}")
-    payload = dict(typed_payload or {})
-    governance = {
-        "source_instance": source_instance,
-        "source_version": source_version,
-        "tenant": tenant,
-        "schema_version": schema_version,
-        "ontology_mapping_version": ontology_mapping_version,
-        "classification": DataClassification(classification).value,
-        "retention": retention,
-        "legal_hold": legal_hold,
-        "provenance": dict(provenance or {}),
-    }
-    if source_acl is not None:
-        governance.update(access_properties(source_acl))
-    return Entity(
-        id=source_object_id,
-        node_type=str(payload.get("type") or "Entity"),
-        properties={**payload, **governance},
-    )
-
-
-@dataclass(frozen=True)
-class GraphQLHierarchyBatch:
-    """One bounded GraphQL read mapped to embedding documents and envelopes."""
-
-    documents: tuple[SourceDocument, ...] = ()
-    envelopes: tuple[GovernedChange, ...] = ()
-    checkpoint: ConnectorCheckpoint = field(default_factory=ConnectorCheckpoint)
-    diagnostics: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -1075,410 +1019,14 @@ class GraphQLDocumentConnector(LoadConnector, PollConnector):
                 links.append(dependency_link)
         return links
 
-    def _checkpoint_batch(
-        self,
-        *,
-        documents: list[SourceDocument],
-        envelopes: list[GovernedChange],
-        versions: dict[str, str],
-        checkpoint: ConnectorCheckpoint | None,
-        profile_digest: str,
-        diagnostics: dict[str, Any],
-        governance: tuple[
-            ExternalAccess,
-            DataClassification,
-            str | None,
-            bool,
-            str,
-            str,
-            str,
-        ],
-        snapshot_authoritative: bool,
-        allow_empty_snapshot: bool,
-    ) -> GraphQLHierarchyBatch:
-        prior_state, baseline, prior_sequence = self._load_prior_checkpoint_state(
-            checkpoint
+    def _checkpoint_batch(self, **batch: Any) -> GraphQLHierarchyBatch:
+        reconciler = _SnapshotReconciler(
+            source_alias=self.source_alias,
+            operation=self.operation,
+            max_entities=self.max_entities,
+            max_documents=self.max_documents,
         )
-        self._validate_snapshot_completeness(
-            diagnostics,
-            snapshot_authoritative,
-            baseline,
-            versions,
-            allow_empty_snapshot,
-        )
-        governance_state = self._governance_state_dict(governance)
-        changed, changed_documents, changed_envelopes = self._changed_entities(
-            documents,
-            envelopes,
-            versions,
-            baseline,
-            prior_state,
-            profile_digest,
-            governance_state,
-        )
-        tombstones = self._build_tombstones(
-            baseline,
-            versions,
-            prior_state,
-            snapshot_authoritative,
-            allow_empty_snapshot,
-            prior_sequence,
-        )
-        next_checkpoint = self._build_next_checkpoint(
-            prior_state,
-            baseline,
-            versions,
-            profile_digest,
-            governance_state,
-            snapshot_authoritative,
-            allow_empty_snapshot,
-            prior_sequence,
-        )
-        diagnostics = self._finalize_diagnostics(
-            diagnostics, versions, documents, changed, changed_documents, tombstones
-        )
-        return GraphQLHierarchyBatch(
-            documents=tuple(changed_documents),
-            envelopes=tuple((*changed_envelopes, *tombstones)),
-            checkpoint=next_checkpoint,
-            diagnostics=diagnostics,
-        )
-
-    def _validate_checkpoint_scope(self, prior_state: dict[str, Any]) -> None:
-        if prior_state and prior_state.get("checkpoint_format") != _CHECKPOINT_FORMAT:
-            raise GraphQLDocumentError("GraphQL checkpoint format is invalid")
-        if prior_state and (
-            prior_state.get("source_alias") != self.source_alias
-            or prior_state.get("operation") != self.operation
-        ):
-            raise GraphQLDocumentError("GraphQL checkpoint scope is invalid")
-
-    def _validate_checkpoint_baseline(
-        self, prior_state: dict[str, Any]
-    ) -> dict[str, str]:
-        baseline_raw = prior_state.get("versions")
-        baseline = baseline_raw if isinstance(baseline_raw, dict) else {}
-        if len(baseline) > max(self.max_entities, self.max_documents) or any(
-            not isinstance(node_id, str)
-            or not isinstance(version, str)
-            or not node_id
-            or not version
-            for node_id, version in baseline.items()
-        ):
-            raise GraphQLDocumentError("GraphQL checkpoint state is invalid")
-        return baseline
-
-    @staticmethod
-    def _validate_checkpoint_sequence(prior_state: dict[str, Any]) -> int:
-        try:
-            prior_sequence = int(prior_state.get("snapshot_sequence") or 0)
-        except (TypeError, ValueError):
-            raise GraphQLDocumentError("GraphQL checkpoint state is invalid") from None
-        if prior_sequence < 0:
-            raise GraphQLDocumentError("GraphQL checkpoint state is invalid")
-        return prior_sequence
-
-    def _load_prior_checkpoint_state(
-        self, checkpoint: ConnectorCheckpoint | None
-    ) -> tuple[dict[str, Any], dict[str, str], int]:
-        prior_state = checkpoint.state if checkpoint else {}
-        self._validate_checkpoint_scope(prior_state)
-        baseline = self._validate_checkpoint_baseline(prior_state)
-        prior_sequence = self._validate_checkpoint_sequence(prior_state)
-        return prior_state, baseline, prior_sequence
-
-    @staticmethod
-    def _validate_snapshot_completeness(
-        diagnostics: dict[str, Any],
-        snapshot_authoritative: bool,
-        baseline: dict[str, str],
-        versions: dict[str, str],
-        allow_empty_snapshot: bool,
-    ) -> None:
-        incomplete_reasons = sum(
-            int(diagnostics.get(key) or 0)
-            for key in ("truncated", "partial_errors", "invalid_records")
-        )
-        if snapshot_authoritative and incomplete_reasons:
-            raise GraphQLDocumentError(
-                "GraphQL authoritative snapshot did not complete within its bounds"
-            )
-        if (
-            snapshot_authoritative
-            and baseline
-            and not versions
-            and not allow_empty_snapshot
-        ):
-            raise GraphQLDocumentError(
-                "GraphQL empty authoritative snapshot requires explicit approval"
-            )
-
-    @staticmethod
-    def _governance_state_dict(
-        governance: tuple[
-            ExternalAccess,
-            DataClassification,
-            str | None,
-            bool,
-            str,
-            str,
-            str,
-        ],
-    ) -> dict[str, Any]:
-        (
-            access,
-            classification,
-            retention,
-            legal_hold,
-            tenant,
-            schema_version,
-            mapping_version,
-        ) = governance
-        return {
-            "access": access.model_dump(mode="json"),
-            "classification": classification.value,
-            "retention": retention,
-            "legal_hold": legal_hold,
-            "tenant": tenant,
-            "schema_version": schema_version,
-            "ontology_mapping_version": mapping_version,
-        }
-
-    @staticmethod
-    def _changed_node_ids(
-        versions: dict[str, str],
-        baseline: dict[str, str],
-        prior_state: dict[str, Any],
-        profile_digest: str,
-        governance_state: dict[str, Any],
-    ) -> set[str]:
-        changed = {
-            node_id
-            for node_id, version in versions.items()
-            if str(baseline.get(node_id) or "") != version
-        }
-        if prior_state and (
-            prior_state.get("profile_digest") != profile_digest
-            or prior_state.get("governance") != governance_state
-        ):
-            changed.update(versions)
-        return changed
-
-    @staticmethod
-    def _changed_entities(
-        documents: list[SourceDocument],
-        envelopes: list[GovernedChange],
-        versions: dict[str, str],
-        baseline: dict[str, str],
-        prior_state: dict[str, Any],
-        profile_digest: str,
-        governance_state: dict[str, Any],
-    ) -> tuple[set[str], list[SourceDocument], list[GovernedChange]]:
-        changed = GraphQLDocumentConnector._changed_node_ids(
-            versions, baseline, prior_state, profile_digest, governance_state
-        )
-        changed_documents = [
-            document
-            for document in documents
-            if str(document.metadata.get("governed_entity_id") or "") in changed
-        ]
-        changed_envelopes = [
-            envelope for envelope in envelopes if envelope.id in changed
-        ]
-        return changed, changed_documents, changed_envelopes
-
-    @staticmethod
-    def _parse_previous_governance_fields(
-        previous_governance: Mapping[str, Any],
-    ) -> tuple[ExternalAccess, DataClassification, str | None, bool, str, str, str]:
-        try:
-            previous_access = _access_from_config(previous_governance.get("access"))
-            previous_classification = _classification(
-                previous_governance.get("classification")
-            )
-            previous_retention = (
-                str(previous_governance.get("retention") or "").strip() or None
-            )
-            previous_legal_hold = bool(previous_governance.get("legal_hold", False))
-            previous_tenant = str(previous_governance.get("tenant") or "")
-            previous_schema = str(previous_governance.get("schema_version") or "1")
-            previous_mapping = str(
-                previous_governance.get("ontology_mapping_version") or "1"
-            )
-        except (TypeError, ValueError, GraphQLDocumentError):
-            raise GraphQLDocumentError(
-                "GraphQL checkpoint governance state is invalid"
-            ) from None
-        return (
-            previous_access,
-            previous_classification,
-            previous_retention,
-            previous_legal_hold,
-            previous_tenant,
-            previous_schema,
-            previous_mapping,
-        )
-
-    @classmethod
-    def _resolve_previous_governance(
-        cls,
-        previous_governance: Any,
-    ) -> tuple[ExternalAccess, DataClassification, str | None, bool, str, str, str]:
-        if not isinstance(previous_governance, Mapping):
-            raise GraphQLDocumentError("GraphQL checkpoint governance state is invalid")
-        fields = cls._parse_previous_governance_fields(previous_governance)
-        previous_retention = fields[2]
-        previous_tenant = fields[4]
-        if previous_tenant:
-            _safe_alias(previous_tenant, label="tenant")
-        if previous_retention and not _RETENTION_RE.fullmatch(previous_retention):
-            raise GraphQLDocumentError("GraphQL checkpoint governance state is invalid")
-        return fields
-
-    def _tombstone_for_node(
-        self,
-        node_id: str,
-        baseline: dict[str, str],
-        next_snapshot_digest: str,
-        previous_fields: tuple[
-            ExternalAccess, DataClassification, str | None, bool, str, str, str
-        ],
-        prior_state: dict[str, Any],
-        versions: dict[str, str],
-        allow_empty_snapshot: bool,
-    ) -> GovernedChange:
-        (
-            previous_access,
-            previous_classification,
-            previous_retention,
-            previous_legal_hold,
-            previous_tenant,
-            previous_schema,
-            previous_mapping,
-        ) = previous_fields
-        delete_version = _digest(
-            "graphql-snapshot-delete",
-            baseline[node_id],
-            next_snapshot_digest,
-        )
-        return _governed_change(
-            operation="delete",
-            tenant=previous_tenant,
-            source_instance=self.source_alias,
-            source_object_id=node_id,
-            source_version=delete_version,
-            schema_version=previous_schema,
-            ontology_mapping_version=previous_mapping,
-            source_acl=previous_access,
-            classification=previous_classification,
-            retention=previous_retention,
-            legal_hold=previous_legal_hold,
-            provenance={
-                "profile_digest": str(prior_state.get("profile_digest") or ""),
-                "privacy_gate": True,
-                "identity_scheme": "hmac-sha256",
-                "snapshot_reconciliation": True,
-                "authoritative_empty_approved": bool(
-                    not versions and allow_empty_snapshot
-                ),
-            },
-            checkpoint=delete_version,
-        )
-
-    def _build_tombstones(
-        self,
-        baseline: dict[str, str],
-        versions: dict[str, str],
-        prior_state: dict[str, Any],
-        snapshot_authoritative: bool,
-        allow_empty_snapshot: bool,
-        prior_sequence: int,
-    ) -> list[GovernedChange]:
-        missing = sorted(set(baseline).difference(versions))
-        if not (snapshot_authoritative and missing):
-            return []
-        previous_governance = prior_state.get("governance")
-        previous_fields = self._resolve_previous_governance(previous_governance)
-        next_snapshot_digest = _digest(
-            self.source_alias,
-            self.operation,
-            prior_sequence + 1,
-            sorted(versions.items()),
-        )
-        return [
-            self._tombstone_for_node(
-                node_id,
-                baseline,
-                next_snapshot_digest,
-                previous_fields,
-                prior_state,
-                versions,
-                allow_empty_snapshot,
-            )
-            for node_id in missing
-        ]
-
-    def _build_next_checkpoint(
-        self,
-        prior_state: dict[str, Any],
-        baseline: dict[str, str],
-        versions: dict[str, str],
-        profile_digest: str,
-        governance_state: dict[str, Any],
-        snapshot_authoritative: bool,
-        allow_empty_snapshot: bool,
-        prior_sequence: int,
-    ) -> ConnectorCheckpoint:
-        checkpoint_changed = not prior_state or any(
-            (
-                baseline != versions,
-                prior_state.get("profile_digest") != profile_digest,
-                prior_state.get("governance") != governance_state,
-                prior_state.get("snapshot_authoritative") != snapshot_authoritative,
-                prior_state.get("allow_empty_snapshot") != allow_empty_snapshot,
-            )
-        )
-        sequence = prior_sequence + int(checkpoint_changed)
-        watermark = _digest(
-            self.source_alias,
-            self.operation,
-            sequence,
-            sorted(versions.items()),
-        )
-        return ConnectorCheckpoint(
-            has_more=False,
-            watermark=watermark,
-            seen_ids=sorted(versions)[-self.max_entities :],
-            state={
-                "checkpoint_format": _CHECKPOINT_FORMAT,
-                "source_alias": self.source_alias,
-                "operation": self.operation,
-                "profile_digest": profile_digest,
-                "snapshot_sequence": sequence,
-                "snapshot_authoritative": snapshot_authoritative,
-                "allow_empty_snapshot": allow_empty_snapshot,
-                "governance": governance_state,
-                "versions": dict(sorted(versions.items())),
-            },
-        )
-
-    @staticmethod
-    def _finalize_diagnostics(
-        diagnostics: dict[str, Any],
-        versions: dict[str, str],
-        documents: list[SourceDocument],
-        changed: set[str],
-        changed_documents: list[SourceDocument],
-        tombstones: list[GovernedChange],
-    ) -> dict[str, Any]:
-        return {
-            **diagnostics,
-            "entities": len(versions),
-            "documents": len(documents),
-            "changed_entities": len(changed),
-            "changed_documents": len(changed_documents),
-            "tombstones": len(tombstones),
-        }
+        return reconciler.reconcile(**batch)
 
     def _batch_base(
         self, profile: dict[str, Any], operation: dict[str, Any]
