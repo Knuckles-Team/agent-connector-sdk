@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.6.2
+
+### Fixed
+
+- `--auth-type none` (or `AUTH_TYPE=none`) over streamable HTTP starts and serves, on
+  loopback or any address; a non-loopback listener logs one warning. Every request is
+  `SYSTEM_ACTOR`, the same principal as stdio. An unset auth type still refuses HTTP
+  (SCION-CONNECTOR-CONTROL-R025.3).
+- One token-to-actor resolution (`actor_binding.token_actor`) serves both the request
+  binding and the served security profile. A token without a tenant claim is in its
+  issuer's tenant, so an IdP client-credentials token is no longer refused with an
+  opaque `access denied`; refusals now read `access denied: <reason>`
+  (SCION-CONNECTOR-CONTROL-R025.2, R014.18).
+- `CONNECTOR_PRINCIPAL_GRANTS` entitles a token principal by config
+  (SCION-CONNECTOR-CONTROL-R025).
+
 ## 0.6.1
 
 ### Fixed

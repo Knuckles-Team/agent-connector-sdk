@@ -1,4 +1,4 @@
-"""The served MCP stack binds one actor per request, by transport and auth mode (SCION-CONNECTOR-CONTROL-R025.1-R025.5).
+"""The served MCP stack binds one actor per request through one path (SCION-CONNECTOR-CONTROL-R025.1-R025.5).
 
 Each test builds a real connector server with ``create_mcp_server`` and calls an
 actor-gated tool through a real fastmcp client: in memory (the stdio-equivalent
@@ -11,6 +11,7 @@ from __future__ import annotations
 import threading
 from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager, contextmanager
+from types import SimpleNamespace
 from typing import Any
 from unittest.mock import AsyncMock
 
@@ -31,8 +32,12 @@ from scion_sdk.identity import (
     is_anonymous,
     require_authenticated_actor,
 )
-from scion_sdk.mcp.actor_binding import ActorBindingMiddleware, request_actor
-from scion_sdk.mcp.served_security import ServedSecurityOverride
+from scion_sdk.mcp.actor_binding import (
+    PRINCIPAL_GRANTS_SETTING,
+    ActorBindingMiddleware,
+    request_actor,
+    token_actor,
+)
 from scion_sdk.mcp.server import create_mcp_server
 
 INVENTORY = ("prod-a", "prod-b", "lab", "edge")
@@ -65,16 +70,9 @@ def _register_host_tools(mcp: FastMCP[Any]) -> None:
         return f"{actor.actor_id} added {alias}"
 
 
-def _server(*argv: str, override: bool = False) -> FastMCP[Any]:
+def _server(*argv: str) -> FastMCP[Any]:
     _args, mcp, middlewares = create_mcp_server(
-        "fixture-hosts",
-        version="0.0.0",
-        command_args=list(argv),
-        served_security_override=(
-            ServedSecurityOverride("fixture serves HTTP without auth")
-            if override
-            else None
-        ),
+        "fixture-hosts", version="0.0.0", command_args=list(argv)
     )
     _register_host_tools(mcp)
     for middleware in middlewares:
@@ -108,7 +106,7 @@ def _serving(mcp: FastMCP[Any]) -> Iterator[str]:
 
 @asynccontextmanager
 async def _anonymous_http() -> AsyncIterator[Client[Any]]:
-    """A tokenless request to a binding in auth mode (no ``--auth-type none``)."""
+    """A tokenless HTTP request to a bare server carrying the binding."""
     mcp: FastMCP[Any] = FastMCP("auth-mode")
     _register_host_tools(mcp)
     mcp.add_middleware(ActorBindingMiddleware())
@@ -180,15 +178,101 @@ async def test_unauthenticated_http_binds_the_anonymous_actor() -> None:
         assert "Internal error" not in denied.value.message
 
 
-@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.3")
-async def test_a_no_auth_http_server_binds_the_trusted_local_actor() -> None:
-    mcp = _server(
-        "--transport", "streamable-http", "--auth-type", "none", override=True
+def _jwt_server(keys: RSAKeyPair) -> FastMCP[Any]:
+    return _server(
+        "--transport",
+        "streamable-http",
+        "--auth-type",
+        "jwt",
+        "--token-issuer",
+        ISSUER,
+        "--token-audience",
+        AUDIENCE,
+        "--token-public-key",
+        keys.public_key,
     )
+
+
+def _service_principal_token(keys: RSAKeyPair) -> str:
+    """A client-credentials token shaped like the IdP issues one: no tenant claim."""
+    return keys.create_token(
+        subject="7f1c2b9e-service-account",
+        issuer=ISSUER,
+        audience=AUDIENCE,
+        additional_claims={
+            "azp": "arbora",
+            "client_id": "arbora",
+            "preferred_username": "service-account-arbora",
+            "realm_access": {"roles": ["offline_access", "uma_authorization"]},
+        },
+    )
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.3")
+@pytest.mark.parametrize("host", ["127.0.0.1", "0.0.0.0"])
+async def test_a_no_auth_http_server_binds_the_trusted_local_actor(host: str) -> None:
+    argv = ["--transport", "streamable-http", "--auth-type", "none", "--host", host]
+    if host == "0.0.0.0":
+        argv += ["--allowed-hosts", "127.0.0.1:0,localhost"]
+    mcp = _server(*argv)
     with _serving(mcp) as endpoint:
         async with Client(endpoint) as client:
             who = await client.call_tool("whoami", {})
             assert who.data == {"actor_id": SYSTEM_ACTOR.actor_id, "anonymous": False}
+            assert (await client.call_tool("list_hosts", {})).data == list(INVENTORY)
+            assert (await client.call_tool("get_host", {"alias": "lab"})).data == "lab"
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.3")
+def test_an_implicit_auth_mode_still_refuses_http(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("AUTH_TYPE", raising=False)
+    with pytest.raises(SystemExit):
+        _server("--transport", "streamable-http")
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.2")
+async def test_a_jwt_server_answers_a_tokenless_request_401() -> None:
+    import httpx
+
+    keys = RSAKeyPair.generate()
+    with _serving(_jwt_server(keys)) as endpoint:
+        response = httpx.post(endpoint, json={})
+    assert response.status_code == 401
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025")
+def test_every_transport_gets_the_same_binding_stack() -> None:
+    def stack(*argv: str) -> list[type]:
+        return [
+            type(m)
+            for m in create_mcp_server("s", version="0", command_args=list(argv))[2]
+        ]
+
+    keys = RSAKeyPair.generate()
+    http = (
+        "--transport", "streamable-http", "--auth-type", "jwt",
+        "--token-issuer", ISSUER, "--token-audience", AUDIENCE,
+        "--token-public-key", keys.public_key,
+    )  # fmt: skip
+    assert stack("--transport", "stdio") == stack(*http)
+    assert ActorBindingMiddleware in stack("--transport", "stdio")
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.2")
+async def test_a_service_principal_is_entitled_by_config(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    keys = RSAKeyPair.generate()
+    token = _service_principal_token(keys)
+    with _serving(_jwt_server(keys)) as endpoint:
+        async with Client(endpoint, auth=token) as client:
+            assert (await client.call_tool("list_hosts", {})).data == []
+            with pytest.raises(MCPError) as denied:
+                await client.call_tool("get_host", {"alias": "lab"})
+            assert denied.value.message == "not_entitled: not entitled to ssh:lab"
+            monkeypatch.setenv(PRINCIPAL_GRANTS_SETTING, "other=admin;arbora=ssh:*")
             assert (await client.call_tool("list_hosts", {})).data == list(INVENTORY)
             assert (await client.call_tool("get_host", {"alias": "lab"})).data == "lab"
 
@@ -258,3 +342,17 @@ async def test_the_binding_middleware_refuses_typed_on_a_bare_server() -> None:
     bare.add_middleware(ActorBindingMiddleware())
     async with Client(bare) as client:
         assert (await client.call_tool("whoami", {})).data == SYSTEM_ACTOR.actor_id
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.2")
+def test_a_tenantless_token_is_in_its_issuers_tenant(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(PRINCIPAL_GRANTS_SETTING, "arbora=ssh:*")
+    token = SimpleNamespace(
+        client_id="arbora",
+        claims={"sub": "svc-1", "iss": ISSUER, "azp": "arbora"},
+    )
+    actor = token_actor(token)
+    assert (actor.actor_id, actor.tenant_id) == ("svc-1", ISSUER)
+    assert "ssh:*" in actor.roles
