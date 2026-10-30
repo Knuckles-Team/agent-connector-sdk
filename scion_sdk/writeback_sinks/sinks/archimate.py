@@ -90,7 +90,9 @@ class ArchimateSink(WritebackClientMixin):
         """Apply one inferences op.."""
         src = resolve(edge.get("source"))
         tgt = resolve(edge.get("target"))
-        rel = _REL_TYPE.get(edge.get("rel_type") or edge.get("type"), "Association")
+        rel = _REL_TYPE.get(
+            str(edge.get("rel_type") or edge.get("type")), "Association"
+        )
         if not (src and tgt):
             result.skipped += 1
             return
