@@ -17,7 +17,7 @@ from scion_sdk.auth.tokens import AccessToken, TokenRequestError
 
 class _Counting(CachedTokenProvider):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(self._mint)
         self.mints = 0
 
     def _mint(self) -> AccessToken:

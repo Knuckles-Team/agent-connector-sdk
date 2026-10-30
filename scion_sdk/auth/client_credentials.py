@@ -64,7 +64,7 @@ class ClientCredentialsTokenProvider(CachedTokenProvider):
         scope: str = "",
         resolver: CredentialResolver | None = None,
     ) -> None:
-        super().__init__()
+        super().__init__(self._mint)
         if bool(client_secret_ref) == (client_secret is not None):
             raise ValueError(
                 "exactly one of client_secret_ref and client_secret must be set"
