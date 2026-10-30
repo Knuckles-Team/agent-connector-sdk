@@ -60,6 +60,8 @@ def _request(files: tuple[WorkspaceFile, ...]) -> WorkspaceRequest:
     )
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.20")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.23")
 @pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_served_workspace_formats_and_immutable_inputs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -122,6 +124,7 @@ async def test_served_workspace_formats_and_immutable_inputs(
     )
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.22")
 @pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_refusals_are_per_file_and_snapshot_bound(tmp_path: Path) -> None:
     good = _entry(tmp_path, "a.txt", "text", b"hello")
@@ -144,6 +147,7 @@ async def test_refusals_are_per_file_and_snapshot_bound(tmp_path: Path) -> None:
         await WorkspaceReader(tmp_path, authority="other").read(_request((good,)))
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.22")
 @pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_workspace_rejects_zip_bombs_and_unknown_parser(tmp_path: Path) -> None:
     bomb = _zip({"[Content_Types].xml": "<Types/>", "word/document.xml": "x" * 10_000})
@@ -180,6 +184,8 @@ async def test_workspace_refuses_changed_digest_and_xml_entities(
     assert outcome.reason == "invalid_content"
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.20")
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.23")
 @pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_workspace_reads_overlap_and_respect_task_limit(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -197,6 +203,7 @@ async def test_workspace_reads_overlap_and_respect_task_limit(
     assert maximum_parallelism(tmp_path, files) == 2
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.22")
 @pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_workspace_traversal_is_a_per_file_refusal(tmp_path: Path) -> None:
     good = _entry(tmp_path, "safe.txt", "text", b"good")
@@ -207,6 +214,7 @@ async def test_workspace_traversal_is_a_per_file_refusal(tmp_path: Path) -> None
     assert [value.reason for value in values] == [None, "access_denied"]
 
 
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.22")
 @pytest.mark.spec("SCION-SOURCE-INGEST-R005.56")
 async def test_workspace_deadline_reports_cancelled_files(tmp_path: Path) -> None:
     files = tuple(
@@ -217,6 +225,38 @@ async def test_workspace_deadline_reports_cancelled_files(tmp_path: Path) -> Non
         update={"deadline_seconds": 0.001, "max_tasks": 1}
     )
     assert all(item.reason == "cancelled" for item in await reader.read(request))
+
+
+@pytest.mark.spec("SCION-SOURCE-INGEST-R005.23")
+async def test_workspace_evidence_binds_file_identity_and_stays_private(
+    tmp_path: Path,
+) -> None:
+    body = b"line one\nline two\n"
+    good = _entry(tmp_path, "ok.txt", "text", body)
+    broken = _entry(tmp_path, "bad.pdf", "pdf", b"not a pdf")
+    (ok, bad) = await WorkspaceReader(tmp_path, authority="root").read(
+        _request((good, broken))
+    )
+    assert ok.outcome == "ok"
+    assert ok.file == good
+    assert ok.elapsed_seconds >= 0
+    assert [(location.text, location.line) for location in ok.locations] == [
+        ("line one", 1),
+        ("line two", 2),
+    ]
+    assert bad.outcome == "failed"
+    assert bad.reason == "invalid_content"
+    assert bad.locations == ()
+    evidence = ok.model_dump_json() + bad.model_dump_json()
+    assert str(tmp_path) not in evidence
+    assert (tmp_path / "ok.txt").read_bytes() == body
+    (repeat,) = await WorkspaceReader(tmp_path, authority="root").read(
+        _request((good,))
+    )
+    assert repeat.file.sha256 == ok.file.sha256
+    assert [(location.text, location.line) for location in repeat.locations] == [
+        (location.text, location.line) for location in ok.locations
+    ]
 
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R005.57")
