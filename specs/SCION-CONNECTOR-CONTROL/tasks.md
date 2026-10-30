@@ -35,6 +35,8 @@
   - [x] Port `agent_utilities.security.entitlements.identity_scoped_resources` to `scion_sdk.entitlements`, over the SDK's own `identity.ActorContext` (SCION-CONNECTOR-CONTROL-R025). A fleet consumer (`vector-mcp`, `documentdb-mcp`, `sql-mcp`, `dockerhub-api`, `keycloak-agent`, `openbao-mcp`, `portainer-agent`, `tunnel-manager`, `systems-manager`, `container-manager-mcp` and others) can now swap its import with no call-site change.
   - [x] Bind the request actor in the standard middleware (SCION-CONNECTOR-CONTROL-R025.1 to R025.4). A local transport gets SYSTEM. Authenticated HTTP gets the token actor. Unauthenticated HTTP gets ANONYMOUS. Work that needs authentication refuses typed.
   - [x] Resolve an unbound actor from the transport; drop the `use_actor` bootstrap requirement (SCION-CONNECTOR-CONTROL-R025.5).
+  - [x] Key the rate limiter on the bound actor after the binding; exempt the trusted local principal (SCION-CONNECTOR-CONTROL-R025.6).
+  - [x] Add `sanitize_tool_response`: redact secrets only in tool results and errors (SCION-CONNECTOR-CONTROL-R025.7).
 - [ ] **R020.1:** Extend `scan_many_packages` to inventory JSON tag loaders and prove parity across source and replacement registration.
 - [ ] **R050.9:** Add the bounded request-local cache primitive (SCION-CONNECTOR-CONTROL-R050.9).
 - [ ] **R050.7:** Add visual observation transport between ordered steps within a run, with frame provenance and ordered reference passing.

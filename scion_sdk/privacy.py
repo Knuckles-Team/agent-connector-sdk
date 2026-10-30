@@ -21,8 +21,10 @@ from dataclasses import dataclass
 from typing import Any
 
 from scion_sdk._privacy_urls import _public_hostname, _split_http_url
+from scion_sdk.httpsupport.redaction import redact_text
 from scion_sdk.privacy_reference import persistence_reference
 from scion_sdk.privacy_rules import (
+    _SECRET_FIELDS,
     PATTERNS,
     STRUCTURAL_ID_FIELDS,
     field_name,
@@ -37,6 +39,7 @@ __all__ = [
     "persistence_reference",
     "public_http_url",
     "sanitize_for_persistence",
+    "sanitize_tool_response",
 ]
 
 
@@ -151,3 +154,28 @@ def sanitize_for_persistence(
 ) -> tuple[Any, PrivacyReport]:
     """Sanitize ``value``; the report carries only counts and types."""
     return PersistencePrivacyGuard(deny_terms=deny_terms).sanitize(value)
+
+
+def sanitize_tool_response(value: Any) -> Any:
+    """Redact only secrets from a tool response or tool error; keep the cause visible.
+
+    A tool result goes back to the caller that asked for it, not into a store,
+    so it is not scrubbed like :func:`sanitize_for_persistence`. Local file
+    paths, host names and addresses named in a result or an error stay, because
+    they are usually the cause the caller needs (SCION-CONNECTOR-CONTROL-R025.7).
+    Removed: values under secret-named fields (``password``, ``token``,
+    ``api_key``, ...), scheme credentials (``Bearer ...``), credentials embedded
+    in URLs, well-known token shapes and ``key=value`` secret assignments.
+    """
+    if isinstance(value, str):
+        return redact_text(value)
+    if isinstance(value, dict):
+        return {
+            key: "[REDACTED_SECRET]"
+            if field_name(str(key)) in _SECRET_FIELDS and item not in (None, "")
+            else sanitize_tool_response(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, list | tuple):
+        return [sanitize_tool_response(item) for item in value]
+    return value

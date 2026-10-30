@@ -43,6 +43,8 @@
     "SCION-CONNECTOR-CONTROL-R025.3",
     "SCION-CONNECTOR-CONTROL-R025.4",
     "SCION-CONNECTOR-CONTROL-R025.5",
+    "SCION-CONNECTOR-CONTROL-R025.6",
+    "SCION-CONNECTOR-CONTROL-R025.7",
     "SCION-CONNECTOR-CONTROL-R020.1",
     "SCION-CONNECTOR-CONTROL-R020.2",
     "SCION-CONNECTOR-CONTROL-R020.3",
@@ -850,27 +852,29 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R025",
       "title": "One actor-resolution and entitlement path for every transport",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
+        "3d00cd288402",
         "5a476653a386",
         "6a459cc1ce9c",
-        "6f19c7e2cf1f",
-        "71c6dc734b3f",
-        "c1a0f0b11a29"
+        "c1a0f0b11a29",
+        "e266bf988bb9"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:118",
-        "tests/test_actor_binding_served.py:130",
-        "tests/test_actor_binding_served.py:167",
-        "tests/test_actor_binding_served.py:211",
-        "tests/test_actor_binding_served.py:226"
+        "tests/test_actor_binding_served.py:251",
+        "tests/test_entitlements.py:111",
+        "tests/test_entitlements.py:36",
+        "tests/test_entitlements.py:41",
+        "tests/test_entitlements.py:49"
       ],
       "rollup_of": [
         "SCION-CONNECTOR-CONTROL-R025.1",
         "SCION-CONNECTOR-CONTROL-R025.2",
         "SCION-CONNECTOR-CONTROL-R025.3",
         "SCION-CONNECTOR-CONTROL-R025.4",
-        "SCION-CONNECTOR-CONTROL-R025.5"
+        "SCION-CONNECTOR-CONTROL-R025.5",
+        "SCION-CONNECTOR-CONTROL-R025.6",
+        "SCION-CONNECTOR-CONTROL-R025.7"
       ]
     },
     {
@@ -881,7 +885,7 @@
         "d7d1ff0fb276"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:118"
+        "tests/test_actor_binding_served.py:124"
       ]
     },
     {
@@ -889,14 +893,14 @@
       "title": "Authenticated HTTP binds the token's principal with inherited IdP roles and configured grants",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "71c6dc734b3f",
+        "3d00cd288402",
         "d7d1ff0fb276"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:130",
-        "tests/test_actor_binding_served.py:235",
-        "tests/test_actor_binding_served.py:263",
-        "tests/test_actor_binding_served.py:347"
+        "tests/test_actor_binding_served.py:136",
+        "tests/test_actor_binding_served.py:241",
+        "tests/test_actor_binding_served.py:316",
+        "tests/test_actor_binding_served.py:400"
       ]
     },
     {
@@ -904,14 +908,14 @@
       "title": "Auth type `none` is a supported HTTP mode; it is the trusted local principal",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "3d00cd288402",
         "6a459cc1ce9c",
-        "71c6dc734b3f",
         "d7d1ff0fb276"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:167",
-        "tests/test_actor_binding_served.py:211",
-        "tests/test_actor_binding_served.py:226",
+        "tests/test_actor_binding_served.py:173",
+        "tests/test_actor_binding_served.py:217",
+        "tests/test_actor_binding_served.py:232",
         "tests/test_network_serving.py:224"
       ]
     },
@@ -923,8 +927,8 @@
         "d7d1ff0fb276"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:280",
-        "tests/test_actor_binding_served.py:332"
+        "tests/test_actor_binding_served.py:333",
+        "tests/test_actor_binding_served.py:385"
       ]
     },
     {
@@ -935,10 +939,29 @@
         "c1a0f0b11a29"
       ],
       "verified_by": [
-        "tests/test_actor_binding_served.py:290",
-        "tests/test_actor_binding_served.py:299",
-        "tests/test_actor_binding_served.py:309"
+        "tests/test_actor_binding_served.py:343",
+        "tests/test_actor_binding_served.py:352",
+        "tests/test_actor_binding_served.py:362"
       ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R025.6",
+      "title": "The rate limiter keys on the bound actor; the trusted local principal is not throttled",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_actor_binding_served.py:270",
+        "tests/test_actor_binding_served.py:286",
+        "tests/test_actor_binding_served.py:293",
+        "tests/test_actor_binding_served.py:303"
+      ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R025.7",
+      "title": "Tool responses and tool errors redact secrets only",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R020.1",
@@ -3122,7 +3145,7 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "15b099abed9d",
-        "71c6dc734b3f",
+        "3d00cd288402",
         "81ea3e4bedac"
       ],
       "verified_by": [
