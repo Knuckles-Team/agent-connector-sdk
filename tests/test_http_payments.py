@@ -10,6 +10,7 @@ from pydantic import ValidationError
 from agent_connector_sdk.http.payments import (
     PaymentBudget,
     PaymentChallenge,
+    PaymentDecision,
     PaymentGate,
     PaymentRecord,
 )
@@ -70,4 +71,6 @@ def test_decide_applies_named_limits() -> None:
     used = budget.model_copy(update={"spent_today": Decimal(4)})
     over_day = gate.decide(_challenge("5"), used)
     assert (over_day.allowed, over_day.limit) == (False, "per_day")
-    assert gate.decide(_challenge("4"), used).allowed is True
+    assert gate.decide(_challenge("4"), used) == PaymentDecision(
+        allowed=True, limit="per_day"
+    )

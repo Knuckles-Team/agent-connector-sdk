@@ -344,6 +344,7 @@ public_modules = [
     "agent_connector_sdk.http.egress",
     "agent_connector_sdk.http.errors",
     "agent_connector_sdk.http.options",
+    "agent_connector_sdk.http.payments",
     "agent_connector_sdk.http.pagination",
     "agent_connector_sdk.http.problems",
     "agent_connector_sdk.http.redaction",
