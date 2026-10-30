@@ -18,7 +18,7 @@ on:
 
 concurrency:
   group: ${{ github.event_name == 'pull_request' && format('pr-{0}-{1}', github.workflow, github.event.pull_request.number) || format('main-{0}-{1}', github.workflow, github.ref) }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -38,9 +38,8 @@ jobs:
       src-root: scion_sdk
       setup-command: bash scripts/ci_setup.sh
       uv-cache-local-path: .ci/uv-cache-${{ github.run_id }}-${{ github.run_attempt }}
-      # fast-tests duplicates the shared affected-test step; a fork cannot read the identity catalog.
-      skip-hooks: ${{ github.event.pull_request.head.repo.fork && 'fast-tests,tracked-privacy' || 'fast-tests' }}
-      extra-manual-hooks: tracked-privacy
+      # tests-fast duplicates the shared affected-test step; a fork cannot read the identity catalog.
+      skip-hooks: ${{ github.event.pull_request.head.repo.fork && 'tests-fast,tracked-privacy' || 'tests-fast' }}
       # Bash patterns (`*` crosses `/`).
       docs-only-paths: 'specs/* docs/* *.md plans/* LICENSE'
 
@@ -59,8 +58,8 @@ jobs:
       src-root: scion_sdk
       setup-command: bash scripts/ci_setup.sh
       uv-cache-local-path: .ci/uv-cache-${{ github.run_id }}-${{ github.run_attempt }}
-      skip-hooks: fast-tests
-      extra-manual-hooks: tracked-privacy wheel-build mkdocs-build
+      skip-hooks: tests-fast
+      extra-manual-hooks: wheel-build mkdocs-build
 
   full:
     if: github.event_name != 'pull_request'
