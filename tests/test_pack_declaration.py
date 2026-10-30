@@ -5,7 +5,14 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from agent_connector_sdk.manifest.pack_declaration import ConnectorPackDeclaration
+from agent_connector_sdk.manifest.pack_declaration import (
+    AccessPolicy,
+    ConnectorPackDeclaration,
+    CursorPolicy,
+    DeclaredNode,
+    FieldMapping,
+    SourceObject,
+)
 
 _DECLARATION = {
     "connector": "widget-mcp",
@@ -60,3 +67,32 @@ def test_declaration_round_trip_and_nested_property_refusal() -> None:
     unmapped["sources"][0]["key_fields"] = ["id"]  # type: ignore[index]
     with pytest.raises(ValidationError, match="no field mapping"):
         ConnectorPackDeclaration.model_validate(unmapped)
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R067.1")
+def test_components_build_a_declaration_directly() -> None:
+    source = SourceObject(
+        name="widgets",
+        class_iri="http://knuckles.team/kg#Widget",
+        field_mappings=(
+            FieldMapping(
+                field="serial", property_iri="http://knuckles.team/kg#serialNumber"
+            ),
+        ),
+        key_fields=("serial",),
+        cursor=CursorPolicy(mode="cursor", field="next"),
+        access=AccessPolicy(method="mcp_tool", operation="list_widgets"),
+        served_by=("list_widgets",),
+    )
+    node = DeclaredNode(
+        kind="tool",
+        name="list_widgets",
+        domain_class_iri="http://knuckles.team/kg#Widget",
+    )
+    declaration = ConnectorPackDeclaration(
+        connector="widget-mcp",
+        contract_version="1",
+        sources=(source,),
+        nodes=(node,),
+    )
+    assert declaration.sources[0].cursor.mode == "cursor"

@@ -370,6 +370,7 @@ public_modules = [
     "agent_connector_sdk.library_state",
     "agent_connector_sdk.manifest.live_contract",
     "agent_connector_sdk.manifest.model",
+    "agent_connector_sdk.manifest.pack_declaration",
     "agent_connector_sdk.manifest.presets",
     "agent_connector_sdk.manifest.provider_runtime",
     "agent_connector_sdk.manifest.tool_schema",
