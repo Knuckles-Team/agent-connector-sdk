@@ -159,12 +159,6 @@ def _log_report(report: CertificationReport) -> None:
         )
 
 
-def _outcome(report: CertificationReport) -> int:
-    if not report.listed:
-        return 2
-    return 0 if report.passed else 1
-
-
 def _predecessor_endpoint(args: argparse.Namespace) -> TransportEndpoint | None:
     if not args.predecessor_url:
         return None
@@ -220,4 +214,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.report is not None:
         document = json.dumps(report.document(), indent=2, sort_keys=True)
         args.report.write_text(document + "\n", encoding="utf-8")
-    return _outcome(report)
+    if not report.listed:
+        return 2
+    return 0 if report.passed else 1

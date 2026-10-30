@@ -55,6 +55,15 @@ def _validate_timeout(timeout_seconds: float | None) -> None:
         raise ValueError("timeout must be finite and positive")
 
 
+async def _timed[T](
+    call: Callable[[], Awaitable[T]], timeout_seconds: float | None
+) -> T:
+    if timeout_seconds is None:
+        return await call()
+    with anyio.fail_after(timeout_seconds):
+        return await call()
+
+
 async def _attempt[T](
     call: Callable[[], Awaitable[T]],
     timeout_seconds: float | None,
@@ -63,10 +72,7 @@ async def _attempt[T](
     retry_on: tuple[type[Exception], ...],
 ) -> tuple[bool, T | None]:
     try:
-        if timeout_seconds is None:
-            return True, await call()
-        with anyio.fail_after(timeout_seconds):
-            return True, await call()
+        return True, await _timed(call, timeout_seconds)
     except Exception as exc:
         if last or not _retryable(exc, retry_on):
             raise

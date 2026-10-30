@@ -55,6 +55,7 @@ def _validate_refs(
 def _absorb_page(
     entries: dict[str, RepositoryTreeEntry],
     page: RepositoryTreePage,
+    *,
     revision: RepositoryRevision,
     page_size: int,
 ) -> None:
@@ -78,7 +79,7 @@ async def _walk_tree(
     while True:
         page = await provider.list_tree(revision, cursor=cursor, page_size=page_size)
         pages += 1
-        _absorb_page(entries, page, revision, page_size)
+        _absorb_page(entries, page, revision=revision, page_size=page_size)
         cursor = page.next_cursor
         if cursor is None:
             return tuple(entries[path] for path in sorted(entries)), pages

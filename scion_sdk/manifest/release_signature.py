@@ -121,7 +121,9 @@ def verify_release(
     if public_key is None:
         return False
     try:
-        return _signature_valid(declaration, graph, evidence, public_key)
+        return _signature_valid(
+            declaration, graph, evidence=evidence, public_key=public_key
+        )
     except (ValueError, TypeError, InvalidSignature):
         return False
 
@@ -129,6 +131,7 @@ def verify_release(
 def _signature_valid(
     declaration: IngestSourceDeclaration,
     graph: Graph,
+    *,
     evidence: ReleaseSignature,
     public_key: bytes,
 ) -> bool:

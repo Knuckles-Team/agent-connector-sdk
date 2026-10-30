@@ -5,12 +5,11 @@ from __future__ import annotations
 import base64
 import logging
 import uuid
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
 from scion_sdk.exceptions import ParameterError
-from scion_sdk.tls.profile import ResolvedTLSProfile
 
 _logger = logging.getLogger("scion_sdk.transports.graphql")
 
@@ -84,6 +83,7 @@ def _status_of(exc: BaseException) -> int | None:
 def _retry_or_failure(
     exc: BaseException,
     attempt: int,
+    *,
     max_retries: int,
     backoff: float,
     sleep: Callable[[float], None],
@@ -94,65 +94,3 @@ def _retry_or_failure(
         sleep(backoff * (2**attempt))
         return None
     return GraphQLExecutionError(exc, retryable=retryable)
-
-
-def _build_profiled_client(
-    endpoint: str,
-    *,
-    headers: dict[str, str],
-    profile: ResolvedTLSProfile,
-    timeout: float,
-    fetch_schema: bool,
-) -> Any:
-    """Build the protocol client whose session carries the TLS profile."""
-    from gql import Client
-    from gql.transport.requests import RequestsHTTPTransport
-
-    class _ProfiledTransport(RequestsHTTPTransport):
-        def connect(self) -> None:
-            super().connect()  # type: ignore[no-untyped-call]
-            if self.session is not None:
-                profile.configure_requests_session(self.session)
-
-    request_kwargs = profile.requests_kwargs()
-    verify = request_kwargs.pop("verify")
-    transport = _ProfiledTransport(
-        url=endpoint,
-        headers=headers,
-        verify=verify,
-        timeout=max(1, round(timeout)),
-        **request_kwargs,
-    )
-    return Client(
-        transport=transport,
-        fetch_schema_from_transport=fetch_schema,
-        execute_timeout=timeout,
-    )
-
-
-def _connection_at(data: Any, path: Sequence[str]) -> dict[str, Any] | None:
-    """The connection object ``path`` keys below ``data``, or ``None``."""
-    for key in path:
-        data = data.get(key) if isinstance(data, dict) else None
-    return data if isinstance(data, dict) else None
-
-
-def _connection_nodes(connection: dict[str, Any]) -> Iterator[dict[str, Any]]:
-    """Each node of a connection's ``nodes`` (or ``edges[].node``)."""
-    nodes = connection.get("nodes")
-    if nodes is None:
-        nodes = [
-            edge.get("node")
-            for edge in connection.get("edges") or []
-            if isinstance(edge, dict)
-        ]
-    for node in nodes or []:
-        if isinstance(node, dict):
-            yield node
-
-
-def _next_cursor(connection: dict[str, Any]) -> str | None:
-    """The ``endCursor`` when another page follows, else ``None``."""
-    page_info = connection.get("pageInfo") or {}
-    cursor = page_info.get("endCursor")
-    return cursor if page_info.get("hasNextPage") and cursor else None
