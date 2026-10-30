@@ -556,6 +556,8 @@ class DnsPinnedEgressTransport(_PinnedTransportBase, httpx.BaseTransport):
     ``verify_peer`` is off, the connected peer must equal the pinned address.
     """
 
+    _inner: httpx.BaseTransport
+
     def handle_request(self, request: httpx.Request) -> httpx.Response:
         pinned_ip = self._state.pin(request)
         response = self._inner.handle_request(request)
@@ -573,6 +575,8 @@ class DnsPinnedEgressTransport(_PinnedTransportBase, httpx.BaseTransport):
 
 class AsyncDnsPinnedEgressTransport(_PinnedTransportBase, httpx.AsyncBaseTransport):
     """The asynchronous :class:`DnsPinnedEgressTransport`."""
+
+    _inner: httpx.AsyncBaseTransport
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
         probe = httpx.Request(
