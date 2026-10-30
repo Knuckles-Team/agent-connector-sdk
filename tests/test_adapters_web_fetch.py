@@ -9,11 +9,9 @@ import pytest
 
 from agent_connector_sdk.adapters.web_fetch import (
     FetchedPage,
-    WebFetchSourceAdapter,
     extract_og_metadata,
     fetch_page,
 )
-from agent_connector_sdk.ports.errors import SourceContractError
 from agent_connector_sdk.testing.http_server import ScriptedHttpServer, ScriptedResponse
 
 _HTML = b"""
@@ -87,11 +85,6 @@ def test_og_metadata_decodes_html_entities() -> None:
 async def test_fetch_rejects_loopback_without_explicit_allowlist() -> None:
     with ScriptedHttpServer(ScriptedResponse(body=_HTML)) as server:
         assert await fetch_page(server.base_url) is None
-        adapter = WebFetchSourceAdapter(
-            (server.base_url,), connector="test", mapping_reference="v1"
-        )
-        with pytest.raises(SourceContractError, match="web fetch failed"):
-            await adapter.extract(None, None)  # type: ignore[arg-type]
         assert server.requests == []
 
 
@@ -182,14 +175,7 @@ async def test_legacy_fetch_stops_on_oversized_or_compressed_response(
     assert streams[-1].reads == 0 and streams[-1].closed
     declared[0] = None
     encoding[0] = "gzip"
-    adapter = WebFetchSourceAdapter(
-        (url,),
-        connector="test",
-        mapping_reference="v1",
-        allowed_private_hosts=("127.0.0.1",),
-    )
-    with pytest.raises(SourceContractError, match="web fetch failed"):
-        await adapter.extract(None, None)
+    assert await fetch_page(url, allowed_private_hosts=("127.0.0.1",)) is None
     assert streams[-1].reads == 0 and streams[-1].closed
 
 
