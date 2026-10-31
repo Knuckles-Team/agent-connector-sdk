@@ -26,7 +26,7 @@
     },
     {
       "id": "SCION-REPOSITORY-TRANSPORT-R002",
-      "title": "SDK is the sole path for repository-native codebase hydration",
+      "title": "SDK is the sole path for repository hydration",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []

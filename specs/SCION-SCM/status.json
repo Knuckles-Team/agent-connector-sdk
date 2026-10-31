@@ -112,7 +112,7 @@
     },
     {
       "id": "SCION-SCM-R002",
-      "title": "Virtual workspace mount",
+      "title": "Virtual workspace mount (rollup)",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": [],
@@ -149,7 +149,7 @@
     },
     {
       "id": "SCION-SCM-R002.3",
-      "title": "Wiring",
+      "title": "Wiring and backend selection",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
