@@ -28,14 +28,16 @@ import anyio
 from scion_sdk.exceptions import ParameterError
 from scion_sdk.tls.profile import ResolvedTLSProfile
 from scion_sdk.tls.resolve import resolve_tls_profile
+from scion_sdk.transports._graphql_client import _build_profiled_client
+from scion_sdk.transports._graphql_pagination import (
+    _connection_at,
+    _connection_nodes,
+    _next_cursor,
+)
 from scion_sdk.transports._graphql_support import (
     RETRYABLE_STATUS,
     GraphQLAuth,
     GraphQLExecutionError,
-    _build_profiled_client,
-    _connection_at,
-    _connection_nodes,
-    _next_cursor,
     _retry_or_failure,
 )
 
@@ -178,7 +180,11 @@ class GraphQLClient:
                 return self._attempt(document, variables, operation_name, allow_partial)
             except Exception as exc:
                 failure = _retry_or_failure(
-                    exc, attempt, self.max_retries, self.backoff, self._sleep
+                    exc,
+                    attempt,
+                    max_retries=self.max_retries,
+                    backoff=self.backoff,
+                    sleep=self._sleep,
                 )
             if failure is not None:
                 raise failure

@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import asyncio
 import concurrent.futures
-from collections.abc import Awaitable
 from typing import TypeVar
 
 from epistemic_graph.generated.source_ingestion import (
@@ -22,6 +21,12 @@ from epistemic_graph.generated.source_ingestion import (
     SourceIngestStatus,
 )
 
+from scion_sdk.ingest._service_support import (
+    _guard,
+    _require_rebuildable,
+    _running_loop,
+    _validate_status,
+)
 from scion_sdk.ingest.contract import require_accepted
 from scion_sdk.ingest.errors import (
     IngestConflictError,
@@ -39,23 +44,6 @@ DEFAULT_ATTEMPTS = 3
 DEFAULT_SYNC_TIMEOUT_S = 30.0
 _MESSAGE_LIMIT = 300
 _T = TypeVar("_T")
-
-
-def _validate_status(binding: IngestBinding, status: SourceIngestStatus) -> None:
-    if status.connector != binding.connector or status.stream != binding.stream:
-        raise IngestError("source status does not match the requested stream")
-    if (
-        status.accepted_checkpoint is not None
-        and status.accepted_checkpoint.stream != binding.stream
-    ):
-        raise IngestError("accepted checkpoint does not match the requested stream")
-
-
-def _running_loop() -> asyncio.AbstractEventLoop | None:
-    try:
-        return asyncio.get_running_loop()
-    except RuntimeError:
-        return None
 
 
 class KnowledgeIngest:
@@ -104,9 +92,7 @@ class KnowledgeIngest:
 
     async def source_status(self, binding: IngestBinding) -> SourceIngestStatus:
         """Read the bound stream's status without advancing its checkpoint."""
-        call = self._guard(
-            self._transport.source_status(binding.connector, binding.stream)
-        )
+        call = _guard(self._transport.source_status(binding.connector, binding.stream))
         loop = self._loop
         if loop is None or loop is _running_loop():
             status = await call
@@ -166,7 +152,7 @@ class KnowledgeIngest:
     async def _commit(
         self, binding: IngestBinding, changes: ChangeSet
     ) -> SourceIngestionReceipt:
-        media = await self._guard(self._store_media(binding, changes))
+        media = await _guard(self._store_media(binding, changes))
         key = (binding.connector, binding.stream)
         async with self._locks.setdefault(key, asyncio.Lock()):
             return await self._retrying(binding, changes, media)
@@ -177,12 +163,8 @@ class KnowledgeIngest:
         for _ in range(self._attempts):
             try:
                 return await self._attempt(binding, changes, media)
-            except IngestConflictError:
-                # Opaque source cursors cannot be ordered against the winner's
-                # checkpoint. The caller must re-read before retrying this page.
-                if changes.cursor is not None or changes.source_page:
-                    raise
-                continue
+            except IngestConflictError as conflict:
+                _require_rebuildable(changes, conflict)
         raise IngestConflictError(
             f"stream {binding.stream!r} checkpoint moved {self._attempts} times"
         )
@@ -190,8 +172,8 @@ class KnowledgeIngest:
     async def _attempt(
         self, binding: IngestBinding, changes: ChangeSet, media: tuple[Entity, ...]
     ) -> SourceIngestionReceipt:
-        await self._guard(require_accepted(self._transport, binding))
-        status = await self._guard(
+        await _guard(require_accepted(self._transport, binding))
+        status = await _guard(
             self._transport.source_status(binding.connector, binding.stream)
         )
         _validate_status(binding, status)
@@ -201,7 +183,7 @@ class KnowledgeIngest:
             previous=status.accepted_checkpoint,
             extra_entities=media,
         )
-        return await self._guard(self._transport.submit(request))
+        return await _guard(self._transport.submit(request))
 
     async def _store_media(
         self, binding: IngestBinding, changes: ChangeSet
@@ -213,16 +195,3 @@ class KnowledgeIngest:
             digest = await self._transport.store_blob(asset.data)
             stored.append(media_entity(binding, asset, digest))
         return tuple(stored)
-
-    @staticmethod
-    async def _guard(call: Awaitable[_T]) -> _T:
-        try:
-            return await call
-        except IngestError:
-            raise
-        except Exception as exc:
-            detail = (str(exc).splitlines() or [type(exc).__name__])[0]
-            raise IngestError(
-                "epistemic-graph did not commit the change set: "
-                + detail[:_MESSAGE_LIMIT]
-            ) from exc

@@ -198,7 +198,7 @@ This repository is a shared multi-worktree checkout.
   operations and each requires its own completed gates and authority.
 - Work on a topic branch, push it, and open a pull request against `main`
   (draft until the gates pass). The `gates` and `build` jobs must be green
-  before merge; `scanner-quality` is advisory.
+  before merge; scanners report weekly in `advisory.yml`.
 
 ## Specs: extend first
 

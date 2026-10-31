@@ -1,0 +1,19 @@
+name: Advisory
+
+# Weekly advisory scanner report (pipelines reference/gate-standard.md, "Advisory
+# checks"). Complexity, clone and other metric scanners report here and never
+# gate a merge or main (SCION-QUALITY-RELEASE-R006).
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  advisory:
+    permissions:
+      contents: read
+    uses: Knuckles-Team/pipelines/.github/workflows/advisory_pipeline.yml@main

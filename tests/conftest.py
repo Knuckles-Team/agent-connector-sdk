@@ -6,23 +6,24 @@ import os
 from collections.abc import Callable
 from contextlib import AbstractAsyncContextManager
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
-from fixture_server import (
-    CONNECTOR,
-    PACKAGE_ROOT,
-    build_malformed_server,
-    build_reader_server,
-)
 
-from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
-from scion_sdk.manifest.model import ResourceSpec, SchemaMapping, SyncSpec
-from scion_sdk.ports.session import McpSession, TransportEndpoint
-from scion_sdk.testing.results import SessionFactory
-from scion_sdk.transports.mcp import McpTransport
+# The SDK and fixture server are imported inside the fixtures that use them:
+# importing them here costs several seconds of pydantic model building for every
+# pytest process that loads this file, including the nested runs the gate tests
+# start, which have no use for them.
+if TYPE_CHECKING:
+    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+    from scion_sdk.ports.session import McpSession
+    from scion_sdk.testing.results import SessionFactory
 
 
 def _factory(build: Callable[[], object]) -> SessionFactory:
+    from scion_sdk.ports.session import TransportEndpoint
+    from scion_sdk.transports.mcp import McpTransport
+
     def open_session() -> AbstractAsyncContextManager[McpSession]:
         return McpTransport().session(TransportEndpoint(in_process=build()))
 
@@ -32,18 +33,24 @@ def _factory(build: Callable[[], object]) -> SessionFactory:
 @pytest.fixture
 def sessions() -> SessionFactory:
     """Fresh sessions to the well-formed fixture connector."""
+    from fixture_server import build_reader_server
+
     return _factory(build_reader_server)
 
 
 @pytest.fixture
 def malformed_sessions() -> SessionFactory:
     """Fresh sessions to a connector whose records are malformed."""
+    from fixture_server import build_malformed_server
+
     return _factory(build_malformed_server)
 
 
 @pytest.fixture
 def package_root() -> Path:
     """The fixture connector package directory."""
+    from fixture_server import PACKAGE_ROOT
+
     return PACKAGE_ROOT
 
 
@@ -70,6 +77,11 @@ DEMO_PRESET: dict[str, object] = {
 @pytest.fixture
 def adapter() -> McpToolSourceAdapter:
     """The ``mcp_tool`` adapter for the fixture connector's declared source."""
+    from fixture_server import CONNECTOR
+
+    from scion_sdk.adapters.mcp_tool import McpToolSourceAdapter
+    from scion_sdk.manifest.model import ResourceSpec, SchemaMapping, SyncSpec
+
     spec = SyncSpec(
         preset="demo", server="demo-mcp", tool="demo_reader", raw=DEMO_PRESET
     )

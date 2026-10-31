@@ -206,11 +206,11 @@ async def test_visibility_transform_filters_served_components(
 
 def test_middleware() -> None:
     middlewares = build_middleware()
-    assert isinstance(middlewares[1], RateLimitingMiddleware)
+    assert isinstance(middlewares[2], RateLimitingMiddleware)
     assert caller_bucket(None, None) == "anonymous"
     assert caller_bucket("svc", {"sub": "u"}).startswith("caller_")
     assert caller_bucket("svc", {}) != caller_bucket("svc", {"tenant_id": "t"})
-    assert rate_limit_client_id(None) == "anonymous"
+    assert rate_limit_client_id(None).startswith("caller_")  # unbound: SYSTEM
 
 
 async def test_connector_content_is_served(package_root: Path) -> None:

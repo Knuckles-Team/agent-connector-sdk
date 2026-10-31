@@ -24,6 +24,7 @@ class NetworkConfigInputs(TypedDict):
     host: str
     port: int
     auth_type: str
+    auth_explicit: bool
     allowed_hosts: tuple[str, ...]
     allowed_origins: tuple[str, ...]
     tls_certfile: str | None
@@ -43,6 +44,7 @@ class _ListenerInputs(TypedDict):
     host: str
     port: int
     auth_type: str
+    auth_explicit: bool
 
 
 class _SecurityInputs(TypedDict):
@@ -183,6 +185,7 @@ def _listener_inputs(args: argparse.Namespace, transport: str) -> _ListenerInput
             getattr(args, "port", -1), name="port", minimum=0, maximum=65_535
         ),
         auth_type=str(getattr(args, "auth_type", "none") or "none").lower(),
+        auth_explicit=getattr(args, "auth_type", None) is not None,
     )
 
 

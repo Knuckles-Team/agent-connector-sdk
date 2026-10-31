@@ -51,3 +51,22 @@ def source_meta(
     if tool is not None:
         entry["tool"] = tool
     return {META_KEY: [entry]}
+
+
+def _cursor_delta_preset() -> dict[str, Any]:
+    """Describe the shared checkpointed cursor stream contract."""
+    return {
+        "params_style": "args",
+        "params": {"mode": "delta"},
+        "pagination": "cursor",
+        "cursor_param": "cursor",
+        "cursor_path": "next",
+        "updated_since_param": "state",
+        "checkpoint_path": "checkpoint",
+    }
+
+
+def _entries(tool: Any) -> list[dict[str, Any]]:
+    meta = getattr(tool, "meta", None) or {}
+    value = meta.get(META_KEY) if isinstance(meta, dict) else None
+    return [e for e in value or () if isinstance(e, dict)]

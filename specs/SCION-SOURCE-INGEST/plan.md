@@ -177,8 +177,8 @@ No new durable store, semantic planner, authorization service or scheduler is in
 
 Component: Source ingestion
 Depends-on: SCION-GOVERNED-WRITEBACK-R001, SCION-CONNECTOR-CONTROL-R021
-Depends-on: [Source ingestion authority](https://github.com/Knuckles-Team/epistemic-graph/blob/fe6982b29d0b60ad2a10092c959c238eeb74e919/specs/repository-index-and-ingestion/requirements.md)
-Depends-on: [Approved query execution](https://github.com/Knuckles-Team/epistemic-graph/blob/fe6982b29d0b60ad2a10092c959c238eeb74e919/specs/federated-query-and-reasoning/requirements.md)
+Depends-on: [Source ingestion authority](https://github.com/Knuckles-Team/medulla/blob/fe6982b29d0b60ad2a10092c959c238eeb74e919/specs/repository-index-and-ingestion/requirements.md)
+Depends-on: [Approved query execution](https://github.com/Knuckles-Team/medulla/blob/fe6982b29d0b60ad2a10092c959c238eeb74e919/specs/federated-query-and-reasoning/requirements.md)
 Code: `../../scion_sdk/runner/worker.py:150` `../../scion_sdk/runner/syncing.py:200`
 Code: `../../scion_sdk/mcp/action_dispatch.py:194` `../../scion_sdk/ports/source_adapter.py:21`
 
@@ -200,7 +200,7 @@ Data flow: connector tools/call -> register_tool_surface -> dispatch_async -> co
 The ingestion entry is connector-sync --once at `scion_sdk/runner/cli.py:153`.
 ConnectorWorker._sync at `scion_sdk/runner/worker.py:180` calls sync_stream at `scion_sdk/runner/syncing.py:200`.
 sync_stream reads source_status before extraction and submits each page through commit_page at line 106.
-EpistemicGraphSink at `scion_sdk/sinks/epistemic_graph.py:91` bridges the generated source contract.
+EpistemicGraphSink at `scion_sdk/sinks/medulla.py:91` bridges the generated source contract.
 SourceAdapter at `scion_sdk/ports/source_adapter.py:21` remains the common discovery, extraction and reconciliation interface.
 Connector registrars attach tools through `scion_sdk/mcp/tool_surface.py:121`.
 Their handlers use dispatch_async at `scion_sdk/mcp/action_dispatch.py:194`.
@@ -218,10 +218,10 @@ Dependencies:
 - R006.34 depends on R006.32 and R006.33; R006.37 requires R006.34 through R006.36.
 
 Cross-repository rows:
-- [MEDULLA-REPO-INGEST-R002](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/repository-index-and-ingestion/requirements.md) owns generated SourceIngest authority.
-- [MEDULLA-FEDERATED-QUERY-R015](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/requirements.md) owns read-only SQL enforcement.
-- [MEDULLA-FEDERATED-QUERY-R043](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/requirements.md) owns outbound SQL connection admission.
-- [MEDULLA-FEDERATED-QUERY-R069](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/requirements.md) owns semantic SQL pushdown and shared rendering.
+- [MEDULLA-REPO-INGEST-R002](https://github.com/Knuckles-Team/medulla/blob/main/specs/repository-index-and-ingestion/requirements.md) owns generated SourceIngest authority.
+- [MEDULLA-FEDERATED-QUERY-R015](https://github.com/Knuckles-Team/medulla/blob/main/specs/federated-query-and-reasoning/requirements.md) owns read-only SQL enforcement.
+- [MEDULLA-FEDERATED-QUERY-R043](https://github.com/Knuckles-Team/medulla/blob/main/specs/federated-query-and-reasoning/requirements.md) owns outbound SQL connection admission.
+- [MEDULLA-FEDERATED-QUERY-R069](https://github.com/Knuckles-Team/medulla/blob/main/specs/federated-query-and-reasoning/requirements.md) owns semantic SQL pushdown and shared rendering.
 - [SCION-GOVERNED-WRITEBACK-R001](../SCION-GOVERNED-WRITEBACK/requirements.md) owns the governed write-back transport prerequisite for enterprise effects.
 - [SCION-CONNECTOR-CONTROL-R021](../SCION-CONNECTOR-CONTROL/requirements.md) owns declared source access contracts.
 
@@ -515,7 +515,7 @@ A lost execution requires explicit new execution against the same verified snaps
 Retain accepted-page receipts and duplicate protection; do not claim resumable driver state survives process loss.
 
 Depends-on: SCION-CONNECTOR-CONTROL-R021
-Depends-on: [MEDULLA-FEDERATED-QUERY-R085](https://github.com/Knuckles-Team/epistemic-graph/blob/c67bad3d6326da3b7c161c21fbd6cf78fec4cc6d/specs/federated-query-and-reasoning/requirements.md)
+Depends-on: [MEDULLA-FEDERATED-QUERY-R085](https://github.com/Knuckles-Team/medulla/blob/c67bad3d6326da3b7c161c21fbd6cf78fec4cc6d/specs/federated-query-and-reasoning/requirements.md)
 Producer prerequisite: MEDULLA-FEDERATED-QUERY-R085.1 through R085.8.
 Within R004, .8 depends on .7; .9 binds both into production; .12 requires .7 through .11.
 Decision: reuse authenticated dispatch, generated verification, native parameter binding and the existing ingestion bridge.

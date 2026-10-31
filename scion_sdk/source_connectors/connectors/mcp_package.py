@@ -18,17 +18,9 @@ Two ways to supply the transport:
 
 from __future__ import annotations
 
-import asyncio
-import concurrent.futures
-import json
 import logging
-import os
-from collections.abc import Callable, Coroutine, Iterator
-from pathlib import Path
+from collections.abc import Iterator
 from typing import Any
-
-from scion_sdk.config import setting
-from scion_sdk.paths import platform_config_file
 
 from ..base import (
     CheckpointedBatch,
@@ -39,7 +31,16 @@ from ..base import (
     default_external_access,
 )
 from ..registry import register_source
-from .rest import _dig
+from ._mcp_records import _merge_preset, _next_cursor_of
+from ._mcp_stdio import (
+    CallToolFn,
+    McpStdioProhibitedError,
+    _default_call_tool,
+    configured_mcp_server,
+    load_mcp_servers,
+    run_sync,
+)
+from ._rest_support import _dig
 
 __all__ = [
     "CallToolFn",
@@ -51,98 +52,6 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
-
-#: An injected tool caller: ``(tool_name, arguments) -> decoded result``.
-CallToolFn = Callable[[str, dict[str, Any]], Any]
-
-
-class McpStdioProhibitedError(PermissionError):
-    """This process may not spawn stdio MCP children (``MCP_STDIO_PROHIBITED``)."""
-
-
-def run_sync(coro: Coroutine[Any, Any, Any], *, timeout: float | None = None) -> Any:
-    """Run ``coro`` to completion from synchronous code.
-
-    Inside a running event loop, or with a ``timeout``, the coroutine runs on
-    a fresh loop in a worker thread. On timeout the caller is released and the
-    worker thread is abandoned, not joined.
-    """
-    try:
-        asyncio.get_running_loop()
-    except RuntimeError:
-        if timeout is None:
-            return asyncio.run(coro)
-    pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-    try:
-        return pool.submit(asyncio.run, coro).result(timeout=timeout)
-    finally:
-        pool.shutdown(wait=False)
-
-
-def load_mcp_servers() -> dict[str, Any]:
-    """The ``mcpServers`` map of the configured ``mcp_config.json`` (empty if unreadable)."""
-    path = setting("MCP_CONFIG") or platform_config_file("mcp_config.json")
-    try:
-        servers = json.loads(Path(path).read_text(encoding="utf-8")).get("mcpServers")
-    except (OSError, ValueError, AttributeError):
-        logger.warning("the configured MCP catalog could not be read")
-        return {}
-    return servers if isinstance(servers, dict) else {}
-
-
-def configured_mcp_server(
-    servers: dict[str, Any], server_name: str
-) -> tuple[str, dict[str, Any]] | None:
-    """Select a configured server by name, then ``<name>-mcp``, then the
-    ``*-api``/``*-agent`` to ``*-mcp`` deployment alias. Never synthesizes one.
-    """
-    requested = str(server_name or "").strip()
-    if not requested:
-        return None
-    candidates = [requested, f"{requested}-mcp"]
-    for suffix in ("-api", "-agent"):
-        if requested.endswith(suffix):
-            candidates.append(f"{requested[: -len(suffix)]}-mcp")
-            break
-    for candidate in dict.fromkeys(candidates):
-        config = servers.get(candidate)
-        if isinstance(config, dict):
-            return candidate, dict(config)
-    return None
-
-
-def _default_call_tool(server_name: str) -> CallToolFn:
-    """A stdio tool caller for ``server_name``: one short session per call."""
-    if setting("MCP_STDIO_PROHIBITED", default=False):
-        raise McpStdioProhibitedError(
-            f"stdio MCP server {server_name!r} is prohibited in this process"
-        )
-    resolved = configured_mcp_server(load_mcp_servers(), server_name)
-    if resolved is None or not resolved[1].get("command"):
-        raise KeyError(
-            f"no MCP server {server_name!r} with a 'command' in mcp_config.json; "
-            "pass call_tool=... to use this connector offline"
-        )
-    config = resolved[1]
-    from scion_sdk.ports.session import TransportEndpoint
-    from scion_sdk.transports.mcp import McpTransport
-
-    endpoint = TransportEndpoint(
-        command=str(config["command"]),
-        args=tuple(str(arg) for arg in config.get("args", [])),
-        env={
-            k: os.path.expandvars(str(v)) for k, v in (config.get("env") or {}).items()
-        },
-    )
-
-    def _call(tool_name: str, arguments: dict[str, Any]) -> Any:
-        async def _run() -> Any:
-            async with McpTransport().session(endpoint) as session:
-                return await session.call_tool(tool_name, arguments)
-
-        return run_sync(_run())
-
-    return _call
 
 
 @register_source("mcp")
@@ -188,44 +97,41 @@ class MCPPackageConnector(LoadConnector, PollConnector):
         call_tool: CallToolFn | None = None,
         **_: object,
     ) -> None:
-        # Merge a preset from the parity catalog when only a package is named.
+        fields: dict[str, Any] = {
+            "server": server,
+            "tool": tool,
+            "args": args,
+            "query_arg": query_arg,
+            "records_field": records_field,
+            "id_field": id_field,
+            "title_field": title_field,
+            "text_field": text_field,
+            "updated_field": updated_field,
+            "cursor_arg": cursor_arg,
+            "cursor_field": cursor_field,
+            "doc_type": doc_type,
+        }
         if package and not tool:
-            from .package_manifest import get_preset
-
-            preset = get_preset(package)
-            if preset:
-                server = server or preset.get("server", "")
-                tool = tool or preset.get("tool", "")
-                records_field = records_field or preset.get("records_field", "")
-                id_field = preset.get("id_field", id_field)
-                title_field = preset.get("title_field", title_field)
-                text_field = preset.get("text_field", text_field)
-                updated_field = updated_field or preset.get("updated_field", "")
-                cursor_field = cursor_field or preset.get("cursor_field", "")
-                cursor_arg = cursor_arg or preset.get("cursor_arg", "")
-                query_arg = query_arg or preset.get("query_arg", "")
-                doc_type = preset.get("doc_type", doc_type)
-                args = {**preset.get("args", {}), **(args or {})}
-
-        if not tool:
+            fields = _merge_preset(package, fields)
+        if not fields["tool"]:
             raise ValueError(
                 "MCPPackageConnector requires a 'tool' (or a known 'package' preset)"
             )
 
         self.package = package
-        self.server = server or (f"{package}-mcp" if package else "")
-        self.tool = tool
-        self.args = dict(args or {})
-        self.query_arg = query_arg
+        self.server = fields["server"] or (f"{package}-mcp" if package else "")
+        self.tool = fields["tool"]
+        self.args = dict(fields["args"] or {})
+        self.query_arg = fields["query_arg"]
         self.query = query
-        self.records_field = records_field
-        self.id_field = id_field
-        self.title_field = title_field
-        self.text_field = text_field
-        self.updated_field = updated_field
-        self.cursor_arg = cursor_arg
-        self.cursor_field = cursor_field
-        self.doc_type = doc_type
+        self.records_field = fields["records_field"]
+        self.id_field = fields["id_field"]
+        self.title_field = fields["title_field"]
+        self.text_field = fields["text_field"]
+        self.updated_field = fields["updated_field"]
+        self.cursor_arg = fields["cursor_arg"]
+        self.cursor_field = fields["cursor_field"]
+        self.doc_type = fields["doc_type"]
         self._call_tool = call_tool
 
     @property
@@ -290,10 +196,7 @@ class MCPPackageConnector(LoadConnector, PollConnector):
         result = self._caller()(self.tool, arguments)
         records = self._records(result)
         docs = [d for d in (self._to_document(r) for r in records) if d is not None]
-        next_cursor = None
-        if self.cursor_field:
-            top = _dig(result, self.cursor_field) if isinstance(result, dict) else None
-            next_cursor = str(top) if top else None
+        next_cursor = _next_cursor_of(result, self.cursor_field)
         return docs, next_cursor
 
     # -- LoadConnector / PollConnector -------------------------------------

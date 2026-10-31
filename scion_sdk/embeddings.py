@@ -29,11 +29,11 @@ from __future__ import annotations
 import json
 import math
 import threading
-from collections.abc import Callable
 from dataclasses import dataclass
 
 import httpx
 
+from scion_sdk._embedding_providers import _EMBED_FNS, EmbedFn
 from scion_sdk.auth.static import BearerAuth
 from scion_sdk.config import csv_values, setting
 from scion_sdk.credentials.runtime_references import (
@@ -55,37 +55,6 @@ __all__ = [
 PROVIDERS = ("openai", "ollama")
 _OPENAI_DEFAULT_BASE_URL = "https://api.openai.com/v1"
 _MAX_TIMEOUT_SECONDS = 3_600.0
-
-EmbedFn = Callable[[httpx.Client, list[str], str], list[list[float]]]
-
-
-def _raise_for_status(response: httpx.Response) -> None:
-    if response.status_code >= 400:
-        # The body may echo request text or provider detail; never surface it.
-        raise ValueError(f"embedding request failed with HTTP {response.status_code}")
-
-
-def _openai_embed(
-    client: httpx.Client, texts: list[str], model: str
-) -> list[list[float]]:
-    response = client.post("embeddings", json={"model": model, "input": texts})
-    _raise_for_status(response)
-    rows = response.json()["data"]
-    return [row["embedding"] for row in sorted(rows, key=lambda row: row["index"])]
-
-
-def _ollama_embed(
-    client: httpx.Client, texts: list[str], model: str
-) -> list[list[float]]:
-    response = client.post("api/embed", json={"model": model, "input": texts})
-    _raise_for_status(response)
-    embeddings = response.json().get("embeddings")
-    if embeddings is None:
-        raise ValueError("Ollama embeddings response is missing 'embeddings'")
-    return [[float(value) for value in vector] for vector in embeddings]
-
-
-_EMBED_FNS: dict[str, EmbedFn] = {"openai": _openai_embed, "ollama": _ollama_embed}
 
 
 class EmbeddingModel:
@@ -158,6 +127,7 @@ class EmbeddingSettings:
     @classmethod
     def resolve(
         cls,
+        *,
         provider: str | None = None,
         model: str | None = None,
         base_url: str | None = None,
@@ -234,12 +204,12 @@ def _build(
 
 
 def create_embedding_model(
+    *,
     provider: str | None = None,
     model: str | None = None,
     base_url: str | None = None,
     api_key_ref: str | None = None,
     timeout: float = 300.0,
-    *,
     transport: httpx.BaseTransport | None = None,
 ) -> EmbeddingModel:
     """A cached embedding client for the resolved endpoint.
@@ -251,7 +221,11 @@ def create_embedding_model(
         ValueError: the provider, model, endpoint, credentials or timeout is invalid.
     """
     settings = EmbeddingSettings.resolve(
-        provider, model, base_url, api_key_ref, timeout
+        provider=provider,
+        model=model,
+        base_url=base_url,
+        api_key_ref=api_key_ref,
+        timeout=timeout,
     )
     if transport is not None:
         return _build(settings, transport)

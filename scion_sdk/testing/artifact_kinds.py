@@ -104,6 +104,17 @@ def _pin_problems(
     tools: Sequence[Any], entries: Sequence[CapturedArtifact]
 ) -> list[str]:
     by_name = {tool_name(tool): tool for tool in tools}
+    problems = _count_problems(tools, entries)
+    for entry in entries:
+        tool = by_name.get(entry.name)
+        if tool is not None:
+            problems.extend(_pin_problem(entry, tool))
+    return problems
+
+
+def _count_problems(
+    tools: Sequence[Any], entries: Sequence[CapturedArtifact]
+) -> list[str]:
     problems: list[str] = []
     live_counts = Counter(tool_name(tool) for tool in tools)
     entry_counts = Counter(entry.name for entry in entries)
@@ -115,11 +126,6 @@ def _pin_problems(
                 f"{name!r}: expected one live tool and one captured entry; "
                 f"found {live_counts[name]} and {entry_counts[name]}"
             )
-    for entry in entries:
-        tool = by_name.get(entry.name)
-        if tool is None:
-            continue
-        problems.extend(_pin_problem(entry, tool))
     return problems
 
 

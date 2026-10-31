@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from typing import Any
 
 __all__ = ["SuccessorToolParity", "compare_successor_tools"]
 
@@ -50,12 +51,24 @@ def compare_successor_tools(
         if name in served:
             kept.append(name)
             continue
-        parts = tuple(sorted(n for n in served if n.startswith(f"{name}_")))
-        if parts:
-            split[name] = parts
-        elif covers.get(name) in served:
-            covered[name] = covers[name]
+        kind, value = _classify_missing(name, served, covers)
+        if kind == "split":
+            split[name] = value
+        elif kind == "covered":
+            covered[name] = value
         else:
             lost.append(name)
     remaining = tuple(sorted(served & set(dispatch_tools)))
     return SuccessorToolParity(tuple(kept), split, covered, tuple(lost), remaining)
+
+
+def _classify_missing(
+    name: str, served: set[str], covers: Mapping[str, str]
+) -> tuple[str, Any]:
+    """Classify a predecessor tool absent from the successor."""
+    parts = tuple(sorted(n for n in served if n.startswith(f"{name}_")))
+    if parts:
+        return "split", parts
+    if covers.get(name) in served:
+        return "covered", covers[name]
+    return "lost", None

@@ -7,7 +7,7 @@
 
 ## R005 published-wheel provenance
 
-Pin `epistemic-graph` to its PyPI wheels in `uv.lock`, by SHA-256. Forbid a
+Pin `medulla` to its PyPI wheels in `uv.lock`, by SHA-256. Forbid a
 source build with `[tool.uv] no-build-package`. Bootstrap installs the locked
 environment with `uv sync --frozen`. Graph inspection requires SDK-consumed
 Python modules from the installed wheel package. The release record names one
@@ -35,7 +35,7 @@ during storage stalls.
 
 R001 and R005 retain their released-wheel qualification gates. The local
 candidate requires `medulla>=2.27.10,<3.0.0` instead of the retired distribution.
-Imports remain `epistemic_graph`. Candidate-wheel experiments must not install
+Imports remain `medulla`. Candidate-wheel experiments must not install
 both distributions into that shared namespace. The exact hosted Medulla wheel
 is prerelease evidence here, not a published-release claim. Fresh lock, release
 record and isolated installed acceptance remain required before release or

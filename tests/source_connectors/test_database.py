@@ -10,10 +10,10 @@ import pytest
 
 from scion_sdk.source_connectors import (
     ConnectorCheckpoint,
+    _universal_connect,
     build_connector,
-    universal,
 )
-from scion_sdk.source_connectors.connectors import database
+from scion_sdk.source_connectors.connectors import _database_watermark, database
 from scion_sdk.source_connectors.connectors.database import (
     DatabaseConnector,
     RowVersionEvidenceUnavailable,
@@ -101,9 +101,13 @@ def test_poll_orders_offset_timestamps_by_instant(tmp_path: Path) -> None:
 
 def test_poll_refuses_incomparable_timestamps() -> None:
     with pytest.raises(ValueError, match="incomparable"):
-        database._watermark_after("2026-01-01T10:00:00", "2026-01-01T09:00:00Z")
+        _database_watermark._watermark_after(
+            "2026-01-01T10:00:00", "2026-01-01T09:00:00Z"
+        )
     with pytest.raises(ValueError, match="incomparable"):
-        database._watermark_after("2026-01-99T10:00:00Z", "2026-01-01T09:00:00Z")
+        _database_watermark._watermark_after(
+            "2026-01-99T10:00:00Z", "2026-01-01T09:00:00Z"
+        )
 
 
 def test_poll_refuses_invalid_initial_timestamp(tmp_path: Path) -> None:
@@ -229,7 +233,7 @@ def test_database_profile_resolution_reaches_the_tls_governed_connection(
     driver = SimpleNamespace(connect=lambda dsn, **kwargs: (dsn, kwargs))
     monkeypatch.setattr(database, "default_credential_resolver", lambda: resolver)
     monkeypatch.setattr(database, "resolve_secret_reference", resolve_secret)
-    monkeypatch.setattr(universal, "resolve_tls_profile", resolve_tls)
+    monkeypatch.setattr(_universal_connect, "resolve_tls_profile", resolve_tls)
 
     source = build_connector(
         "database",

@@ -21,8 +21,15 @@ import importlib.util
 import re
 import tomllib
 from dataclasses import dataclass
-from importlib.metadata import PackageNotFoundError, entry_points, version
+from importlib.metadata import entry_points
 from pathlib import Path
+
+from scion_sdk._connector_metadata import (
+    CONNECTOR_ENTRY_POINT_GROUP,
+    ConnectorIdentityError,
+    _entry_point_group,
+    distribution_version,
+)
 
 __all__ = [
     "CONNECTOR_ENTRY_POINT_GROUP",
@@ -36,12 +43,7 @@ __all__ = [
     "distribution_version",
 ]
 
-CONNECTOR_ENTRY_POINT_GROUP = "scion_sdk.connector"
 _NAME = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
-
-
-class ConnectorIdentityError(ValueError):
-    """A connector declares no fleet name, several, or an invalid one."""
 
 
 def _checked(name: str, where: str) -> str:
@@ -108,11 +110,7 @@ def declared_connector_name(pyproject: Path) -> str | None:
     tools and the pipelines name gate read the identity through this.
     """
     document = tomllib.loads(pyproject.read_text(encoding="utf-8"))
-    group = (
-        document.get("project", {})
-        .get("entry-points", {})
-        .get(CONNECTOR_ENTRY_POINT_GROUP, {})
-    )
+    group = _entry_point_group(document)
     if not group:
         return None
     if len(group) != 1:
@@ -120,25 +118,6 @@ def declared_connector_name(pyproject: Path) -> str | None:
             f"{pyproject}: declares {len(group)} connector names; exactly one allowed"
         )
     return _checked(next(iter(group)), str(pyproject))
-
-
-def distribution_version(distribution: str) -> str:
-    """Return the installed version of ``distribution`` from package metadata.
-
-    This is the one place a version is read. A package spells its version once,
-    in ``pyproject.toml``; ``__version__``, the server version and the health
-    report all come from here (SCION-CONNECTOR-CONTROL-R071.2).
-
-    Raises:
-        ConnectorIdentityError: the distribution is not installed.
-    """
-    try:
-        return version(distribution)
-    except PackageNotFoundError as exc:
-        raise ConnectorIdentityError(
-            f"distribution {distribution!r} is not installed; install it "
-            "(editable installs included) so its metadata carries the version"
-        ) from exc
 
 
 @dataclass(frozen=True)
@@ -210,11 +189,7 @@ def _checkout_point(top: str) -> ConnectorPoint | None:
         if not pyproject.is_file():
             continue
         document = tomllib.loads(pyproject.read_text(encoding="utf-8"))
-        group = (
-            document.get("project", {})
-            .get("entry-points", {})
-            .get(CONNECTOR_ENTRY_POINT_GROUP, {})
-        )
+        group = _entry_point_group(document)
         if len(group) == 1:
             name, value = next(iter(group.items()))
             module, attribute = _split_value(str(value))

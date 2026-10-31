@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pytest
 
-from scion_sdk.testing import fleet_migration
 from scion_sdk.testing.fleet_migration import (
     PackageScanResult,
     scan_for_agent_utilities_imports,
@@ -131,7 +130,7 @@ def test_traversal_error_prevents_migration(
         onerror(PermissionError(13, "denied", str(root / "private")))
         yield str(root), [], ["good.py"]
 
-    monkeypatch.setattr(fleet_migration.os, "walk", broken_walk)
+    monkeypatch.setattr("os.walk", broken_walk)
     result = scan_for_agent_utilities_imports(root)
     assert result.unscanned_files == ("private",)
     assert not result.migrated

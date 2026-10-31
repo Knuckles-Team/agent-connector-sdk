@@ -95,7 +95,10 @@ def _add_typed_flags(parser: argparse.ArgumentParser) -> None:
         default=setting("MCP_TLS_TERMINATED", False),
     )
     parser.add_argument(
-        "--auth-type", default=setting("AUTH_TYPE", "none"), choices=list(AUTH_TYPES)
+        "--auth-type",
+        default=setting("AUTH_TYPE", None),
+        choices=list(AUTH_TYPES),
+        help="Auth mode; none must be chosen explicitly to serve HTTP without auth.",
     )
     _add_network_bound_flags(parser)
     parser.add_argument(
