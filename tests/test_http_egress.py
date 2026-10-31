@@ -109,3 +109,18 @@ def test_pinned_transport_verifies_original_tls_hostname(tmp_path: Path) -> None
     assert response.status_code == 200
     assert observed_sni == ["invalid.example", "localhost"]
     assert server.requests[0].headers["host"] == "localhost"
+
+
+def test_resolution_over_the_address_limit_is_refused() -> None:
+    from scion_sdk.http.egress import validate_base_url_resolved
+    from scion_sdk.http.egress_validation import MAX_RESOLVED_ADDRESSES
+
+    answers = [
+        (2, 1, 6, "", (f"93.184.{n // 250}.{n % 250 + 1}", 0))
+        for n in range(MAX_RESOLVED_ADDRESSES + 1)
+    ]
+    decision = validate_base_url_resolved(
+        "https://api.example.test", resolver=lambda host, port: answers
+    )
+    assert not decision.allowed
+    assert decision.reason == "too many addresses resolved"
