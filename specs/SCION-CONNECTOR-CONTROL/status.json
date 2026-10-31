@@ -66,6 +66,7 @@
     "SCION-CONNECTOR-CONTROL-R032",
     "SCION-CONNECTOR-CONTROL-R033",
     "SCION-CONNECTOR-CONTROL-R034",
+    "SCION-CONNECTOR-CONTROL-R034.1",
     "SCION-CONNECTOR-CONTROL-R035",
     "SCION-CONNECTOR-CONTROL-R035.1",
     "SCION-CONNECTOR-CONTROL-R035.2",
@@ -857,7 +858,7 @@
         "3d00cd288402",
         "5a476653a386",
         "6a459cc1ce9c",
-        "9cc9481782d9",
+        "b2c914e2882c",
         "c1a0f0b11a29"
       ],
       "verified_by": [
@@ -949,7 +950,7 @@
       "title": "The rate limiter keys on the bound actor; the trusted local principal is not throttled",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "9cc9481782d9"
+        "b2c914e2882c"
       ],
       "verified_by": [
         "tests/test_actor_binding_served.py:270",
@@ -963,7 +964,7 @@
       "title": "Tool responses and tool errors redact secrets only",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "9cc9481782d9"
+        "b2c914e2882c"
       ],
       "verified_by": [
         "tests/test_tool_response_redaction.py:10",
@@ -1280,7 +1281,7 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R034",
       "title": "SDK provides shared library-file-path resolution and cross-process file locking utilities",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "2c4e8ae0f172",
         "629ef53c29f0",
@@ -1289,7 +1290,17 @@
       "verified_by": [
         "tests/test_library_state.py:14",
         "tests/test_library_state.py:24"
+      ],
+      "rollup_of": [
+        "SCION-CONNECTOR-CONTROL-R034.1"
       ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R034.1",
+      "title": "The SDK imports and runs on Windows",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R035",

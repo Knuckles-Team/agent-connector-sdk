@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.4
+
+### Fixed
+
+- The SDK is Windows-portable. `library_state.file_lock` uses the shared
+  `scion_sdk.file_lock` primitives instead of a module-level `import fcntl`; the OAuth
+  token store no longer needs `os.fchmod`, `O_NOFOLLOW` or `O_NONBLOCK` (it refuses
+  symlinks by path check instead); TLS runtime roots fall back to the login name when
+  `os.getuid` is missing; paper artifact and bookmark reads fall back from `dir_fd` to
+  resolve-confine-refuse-symlink via the new `scion_sdk.adapters.safe_dir`
+  (SCION-CONNECTOR-CONTROL-R034.1).
+
 ## 0.6.3
 
 ### Fixed
