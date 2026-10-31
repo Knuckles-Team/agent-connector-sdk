@@ -289,7 +289,9 @@
     "SCION-SOURCE-INGEST-R805.6",
     "SCION-SOURCE-INGEST-R805.7",
     "SCION-SOURCE-INGEST-R004.50",
-    "SCION-SOURCE-INGEST-R903"
+    "SCION-SOURCE-INGEST-R903",
+    "SCION-SOURCE-INGEST-R904",
+    "SCION-SOURCE-INGEST-R905"
   ],
   "requirements": [
     {
@@ -3714,6 +3716,20 @@
     {
       "id": "SCION-SOURCE-INGEST-R903",
       "title": "Raw-corpus search operations",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R904",
+      "title": "Paper retrieval stages papers for admission",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R905",
+      "title": "SQL sources send a column profile",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
