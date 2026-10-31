@@ -6,6 +6,8 @@ from collections.abc import AsyncIterator, Iterator
 from contextlib import contextmanager
 from typing import Any
 
+from scion_sdk.httpsupport.pagination_page import _items_at
+
 
 @contextmanager
 def _claim(owner: Any) -> Iterator[None]:
@@ -24,7 +26,7 @@ def _iterate(owner: Any) -> Iterator[Any]:
         while request is not None:
             url, params = request
             data, headers = owner._fetch_page(url, params or None)
-            items = owner._extract_items(data)
+            items = _items_at(data, owner.items_path)
             to_yield, request = owner._consume_page(items, data, headers)
             yield from to_yield
 
@@ -36,7 +38,7 @@ async def _iterate_async(owner: Any) -> AsyncIterator[Any]:
         while request is not None:
             url, params = request
             data, headers = await owner._fetch_page(url, params or None)
-            items = owner._extract_items(data)
+            items = _items_at(data, owner.items_path)
             to_yield, request = owner._consume_page(items, data, headers)
             for item in to_yield:
                 yield item

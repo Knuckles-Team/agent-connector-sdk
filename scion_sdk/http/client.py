@@ -39,8 +39,8 @@ from scion_sdk.http.egress import (
     AsyncDnsPinnedEgressTransport,
     DnsPinnedEgressTransport,
     EgressOptions,
-    _check_pinned_base_host,
 )
+from scion_sdk.http.egress_resolution import _check_pinned_base_host
 from scion_sdk.http.options import HttpClientOptions
 from scion_sdk.http.redaction import redact_origin
 from scion_sdk.http.transport import AsyncGovernedTransport, GovernedTransport

@@ -306,41 +306,68 @@ def open_client(
     """
     resources = ExitStack()
     try:
-        profile = resolve_tls_profile(tls, resolver=resolver)
-        resources.callback(profile.cleanup)
-        origin = urlsplit(base_url)
-        token_client = create_http_client(
-            HttpClientOptions(
-                base_url=f"{origin.scheme}://{origin.netloc}",
-                tls=profile,
-                allow_plaintext=allow_plaintext,
-            )
-        )
-        resources.callback(token_client.close)
-        context = BuildContext(base_url, token_client, resolver)
-        settings = DelegationSettings.from_settings() if delegation else None
-        if settings is not None and settings.enabled:
-            built: httpx.Auth | None = DelegatedTokenAuth(
-                settings, http_client=token_client, resolver=resolver
-            )
-        else:
-            built = auth.build(context)
-        client = create_http_client(
-            HttpClientOptions(
-                base_url=base_url,
-                tls=profile,
-                auth=built,
-                headers=dict(headers or {}),
-                retry=retry or RetryPolicy(),
-                allow_plaintext=allow_plaintext,
-            ),
+        client = _assemble_client(
+            resources,
+            base_url=base_url,
+            auth=auth,
+            tls=tls,
+            delegation=DelegationSettings.from_settings() if delegation else None,
+            allow_plaintext=allow_plaintext,
+            headers=headers,
+            retry=retry,
+            resolver=resolver,
             transport=transport,
         )
-        resources.callback(client.close)
-        return ManagedClient(client, resources)
     except BaseException:
         resources.close()
         raise
+    return ManagedClient(client, resources)
+
+
+def _assemble_client(
+    resources: ExitStack,
+    *,
+    base_url: str,
+    auth: AuthDeclaration,
+    tls: str,
+    delegation: DelegationSettings | None,
+    allow_plaintext: bool,
+    headers: Mapping[str, str] | None,
+    retry: RetryPolicy | None,
+    resolver: CredentialResolver | None,
+    transport: httpx.BaseTransport | None,
+) -> httpx.Client:
+    profile = resolve_tls_profile(tls, resolver=resolver)
+    resources.callback(profile.cleanup)
+    origin = urlsplit(base_url)
+    token_client = create_http_client(
+        HttpClientOptions(
+            base_url=f"{origin.scheme}://{origin.netloc}",
+            tls=profile,
+            allow_plaintext=allow_plaintext,
+        )
+    )
+    resources.callback(token_client.close)
+    built: httpx.Auth | None
+    if delegation is not None and delegation.enabled:
+        built = DelegatedTokenAuth(
+            delegation, http_client=token_client, resolver=resolver
+        )
+    else:
+        built = auth.build(BuildContext(base_url, token_client, resolver))
+    client = create_http_client(
+        HttpClientOptions(
+            base_url=base_url,
+            tls=profile,
+            auth=built,
+            headers=dict(headers or {}),
+            retry=retry or RetryPolicy(),
+            allow_plaintext=allow_plaintext,
+        ),
+        transport=transport,
+    )
+    resources.callback(client.close)
+    return client
 
 
 def client_factory(

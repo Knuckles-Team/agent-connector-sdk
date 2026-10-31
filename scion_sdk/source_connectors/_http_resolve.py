@@ -9,10 +9,10 @@ from typing import Any
 from urllib.parse import urlsplit
 
 from scion_sdk.http.egress import (
-    MAX_RESOLVED_ADDRESSES,
     validate_base_url,
     validate_base_url_resolved,
 )
+from scion_sdk.http.egress_validation import MAX_RESOLVED_ADDRESSES
 
 from ._http_types import _METADATA_ADDRESSES, ResolvedSourceURL, SourceEgressError
 from ._http_urls import _normalize_hostname, _validate_url_shape
