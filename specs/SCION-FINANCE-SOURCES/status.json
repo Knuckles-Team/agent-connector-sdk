@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "SCION-FINANCE-SOURCES",
   "owner_repo": "scion-sdk",
-  "delivery_state": "VERIFIED",
+  "delivery_state": "SPECIFIED",
   "requirement_ids": [
     "SCION-FINANCE-SOURCES-R001",
     "SCION-FINANCE-SOURCES-R001.1",
@@ -45,7 +45,11 @@
     "SCION-FINANCE-SOURCES-R900.11",
     "SCION-FINANCE-SOURCES-R001.7",
     "SCION-FINANCE-SOURCES-R001.8",
-    "SCION-FINANCE-SOURCES-R001.9"
+    "SCION-FINANCE-SOURCES-R001.9",
+    "SCION-FINANCE-SOURCES-R901",
+    "SCION-FINANCE-SOURCES-R902",
+    "SCION-FINANCE-SOURCES-R903",
+    "SCION-FINANCE-SOURCES-R904"
   ],
   "requirements": [
     {
@@ -631,6 +635,34 @@
         "tests/test_finance_central_bank_calendar.py:159",
         "tests/test_finance_central_bank_calendar.py:179"
       ]
+    },
+    {
+      "id": "SCION-FINANCE-SOURCES-R901",
+      "title": "Probabilistic series forecast provider contract",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-FINANCE-SOURCES-R902",
+      "title": "Compute adapter binds quant analyses to NumericEvaluate",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-FINANCE-SOURCES-R903",
+      "title": "Strategy research record sink",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-FINANCE-SOURCES-R904",
+      "title": "Typed finance compute facade",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
