@@ -41,3 +41,6 @@ scratch/
 # in .config/kiss.toml.
 .kiss/
 *maturin.lock
+
+# Spec status is computed at read time (pipelines-hook spec-status --write), never committed.
+specs/*/status.json
