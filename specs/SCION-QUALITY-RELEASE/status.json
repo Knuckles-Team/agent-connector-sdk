@@ -120,7 +120,9 @@
       "title": "Metric scanners report weekly and never gate CI",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "46aa916ea427"
+        "04bded523c0b",
+        "b818f9c7ead2",
+        "da344355e750"
       ],
       "verified_by": [
         "tests/gates/test_workflow_contract.py:339"
