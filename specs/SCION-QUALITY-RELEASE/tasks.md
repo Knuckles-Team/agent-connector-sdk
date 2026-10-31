@@ -7,3 +7,4 @@
 - [x] Confirm the locally pinned install command reproduces hosted CI's exact dependency import graph (SCION-QUALITY-RELEASE-R005).
 - [x] Bind the EG release source, wheel, import origins, and requested extras under R005. Record the graph only after positive and negative probes pass.
 - [x] Generate connector conformance tests from the declared connector with a pytest plugin (SCION-QUALITY-RELEASE-R005.1).
+- [x] Move metric scanners from CI to the weekly shared advisory workflow (SCION-QUALITY-RELEASE-R006).

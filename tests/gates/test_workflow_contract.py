@@ -31,6 +31,17 @@ PRE_COMMIT = ROOT / ".config" / "pre-commit.yaml"
 BOOTSTRAP = ROOT / "scripts" / "bootstrap.sh"
 CONTRACT = ROOT / "scripts" / "bootstrap_epistemic_graph_contract.sh"
 SCANNERS = ROOT / "scripts" / "install_scanners.sh"
+ADVISORY = ROOT / ".github" / "workflows" / "advisory.yml"
+DEPRECATED_SCANNER_HOOKS = {
+    "complexity-census",
+    "complexity-staged",
+    "kiss-census",
+    "kiss-staged",
+    "dupehound-changed",
+    "jscpd-differential",
+    "jscpd-census",
+    "scanner-versions",
+}
 PIPELINES = "https://github.com/Knuckles-Team/pipelines"
 PIPELINES_USES_RE = re.compile(r"^Knuckles-Team/pipelines(?:/|$)", re.IGNORECASE)
 COMMIT = re.compile(r"[0-9a-f]{40}")
@@ -325,22 +336,24 @@ def test_workflow_actions_are_pinned_to_immutable_commits() -> None:
                     assert COMMIT.fullmatch(ref), (path.name, line.strip())
 
 
-def test_scanner_toolchain_comes_from_the_single_install_script() -> None:
-    scanner = _yaml(GATES)["jobs"]["scanner-quality"]
-    runs = "\n".join(_runs(scanner))
-    caches = [
-        step
-        for step in scanner["steps"]
-        if str(step.get("uses", "")).startswith("actions/cache@")
-    ]
+@pytest.mark.spec("SCION-QUALITY-RELEASE-R006")
+def test_advisory_scanners_run_only_in_the_shared_weekly_workflow() -> None:
+    """SCION-QUALITY-RELEASE-R006: no deprecated scanner hook gates CI."""
+    jobs = _yaml(GATES)["jobs"]
+    advisory = _yaml(ADVISORY)
+    hooks = {
+        hook["id"] for repo in _yaml(PRE_COMMIT)["repos"] for hook in repo["hooks"]
+    }
+    triggers = advisory.get("on") or advisory.get(True)
     script = SCANNERS.read_text(encoding="utf-8")
     cccc_rev = re.search(r"^CCCC_REV=(\S+)$", script, re.MULTILINE)
 
-    assert "bash scripts/install_scanners.sh" in runs
-    assert "cargo install" not in runs
-    assert "npm install" not in runs
-    assert caches
-    assert "hashFiles('scripts/install_scanners.sh')" in caches[0]["with"]["key"]
+    assert "scanner-quality" not in jobs
+    assert not hooks & DEPRECATED_SCANNER_HOOKS
+    assert advisory["jobs"]["advisory"]["uses"] == (
+        "Knuckles-Team/pipelines/.github/workflows/advisory_pipeline.yml@main"
+    )
+    assert set(triggers) == {"schedule", "workflow_dispatch"}
     assert "bash scripts/install_scanners.sh" in BOOTSTRAP.read_text(encoding="utf-8")
     # cccc 1.6 is not on crates.io; it must come from an immutable upstream commit.
     assert cccc_rev

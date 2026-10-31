@@ -4,7 +4,8 @@ The tracked hook configuration is `.config/pre-commit.yaml`, and hosted CI
 (`.github/workflows/release.yml`) runs that same file: its whole pre-commit
 stage, then its pre-push stage (tests, wheel build, secret history, patch
 safety). Native scanners, tracked privacy, and the fleet dependency gates are in
-the manual stage; CI runs the scanners in the advisory `scanner-quality` job.
+the manual stage; the scanners report weekly in the advisory workflow
+(`.github/workflows/advisory.yml`) and never gate a merge.
 Run `scripts/bootstrap.sh` once to make every default-stage hook runnable.
 
 ## Scanners
