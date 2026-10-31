@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import atexit
+import getpass
 import os
 import re
 import tempfile
@@ -58,13 +59,25 @@ def existing_path(value: object, *, directory: bool = False) -> Path:
     return candidate
 
 
+def _user_token() -> str:
+    """The numeric uid where it exists, else the sanitized login name."""
+    getuid = getattr(os, "getuid", None)
+    if getuid is not None:
+        return str(getuid())
+    try:
+        name = getpass.getuser()
+    except Exception:
+        name = "user"
+    return re.sub(r"[^A-Za-z0-9_.-]", "_", name).strip(".") or "user"
+
+
 def default_runtime_root() -> Path:
     """``$XDG_RUNTIME_DIR/scion-sdk/tls``, else a per-user temp directory."""
     runtime = setting("XDG_RUNTIME_DIR")
     base = (
         Path(runtime)
         if runtime
-        else Path(tempfile.gettempdir()) / f"scion-sdk-{os.getuid()}"
+        else Path(tempfile.gettempdir()) / f"scion-sdk-{_user_token()}"
     )
     return base / "scion-sdk" / "tls"
 

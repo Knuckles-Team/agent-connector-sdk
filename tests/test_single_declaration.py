@@ -26,7 +26,8 @@ from scion_sdk.manifest.declaration import (
     contract_from_declaration,
     contract_from_document,
 )
-from scion_sdk.mcp.content import PROMPT_META_KEY, _register_prompt
+from scion_sdk.mcp._content_prompts import _register_prompt
+from scion_sdk.mcp.content import PROMPT_META_KEY
 from scion_sdk.mcp.tool_surface import registered_tools
 from scion_sdk.ports.session import TransportEndpoint
 from scion_sdk.runner.descriptors import ConnectorDescriptor, EndpointSpec
@@ -360,7 +361,7 @@ def test_prompt_carries_declared_title_tags_use_case_and_system_target(
 
 
 def test_prompt_tags_are_declared_tags_plus_surface_kind() -> None:
-    from scion_sdk.mcp.content import _prompt_tags
+    from scion_sdk.mcp._content_prompts import _prompt_tags
 
     assert _prompt_tags({"tags": ["a", "b"]}) == {"a", "b", "prompt"}
     assert _prompt_tags({"tags": ["a"], "serves": "x:Y"}) == {"a", "prompt", "system"}
@@ -397,7 +398,7 @@ def test_connector_sources_module_declares_by_tool_name(
     declared = load_sources_module(pkg)
     assert declared is not None
     tools = registered_tools(_server()).values()
-    declaration = build_declaration("demo-mcp", tools, (), declared)
+    declaration = build_declaration("demo-mcp", tools, (), declared=declared)
     by_name = declaration.source("by-name")
     assert by_name is not None and by_name.tools == ("demo_reader",)
     assert declaration.schema_mappings["Thing"].ontology_class == "demo:Thing"
@@ -410,5 +411,5 @@ def test_connector_sources_module_declares_by_tool_name(
             "demo-mcp",
             tools,
             (),
-            {"SOURCES": ({"connector_sources": [{"tool": "nope"}]},)},
+            declared={"SOURCES": ({"connector_sources": [{"tool": "nope"}]},)},
         )

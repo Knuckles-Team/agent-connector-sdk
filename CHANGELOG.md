@@ -1,6 +1,61 @@
 # Changelog
 
-## Unreleased
+## 0.6.4
+
+### Fixed
+
+- The SDK is Windows-portable. `library_state.file_lock` uses the shared
+  `scion_sdk.file_lock` primitives instead of a module-level `import fcntl`; the OAuth
+  token store no longer needs `os.fchmod`, `O_NOFOLLOW` or `O_NONBLOCK` (it refuses
+  symlinks by path check instead); TLS runtime roots fall back to the login name when
+  `os.getuid` is missing; paper artifact and bookmark reads fall back from `dir_fd` to
+  resolve-confine-refuse-symlink via the new `scion_sdk.adapters.safe_dir`
+  (SCION-CONNECTOR-CONTROL-R034.1).
+
+## 0.6.3
+
+### Fixed
+
+- The MCP rate limiter runs after the actor binding and keys on the bound actor, so
+  stdio and every HTTP mode share one middleware stack and one identity decision. The
+  trusted local principal (`SYSTEM_ACTOR`: stdio, in-process, `--auth-type none`) is not
+  throttled; other principals keep 10 requests/s, burst 20, each in their own bucket
+  (SCION-CONNECTOR-CONTROL-R025.6).
+- New `scion_sdk.privacy.sanitize_tool_response` redacts only secrets from tool results
+  and errors and keeps local paths visible; connectors use it instead of
+  `sanitize_for_persistence` for responses (SCION-CONNECTOR-CONTROL-R025.7).
+
+## 0.6.2
+
+### Fixed
+
+- `--auth-type none` (or `AUTH_TYPE=none`) over streamable HTTP starts and serves, on
+  loopback or any address; a non-loopback listener logs one warning. Every request is
+  `SYSTEM_ACTOR`, the same principal as stdio. An unset auth type still refuses HTTP
+  (SCION-CONNECTOR-CONTROL-R025.3).
+- One token-to-actor resolution (`actor_binding.token_actor`) serves both the request
+  binding and the served security profile. A token without a tenant claim is in its
+  issuer's tenant, so an IdP client-credentials token is no longer refused with an
+  opaque `access denied`; refusals now read `access denied: <reason>`
+  (SCION-CONNECTOR-CONTROL-R025.2, R014.18).
+- `CONNECTOR_PRINCIPAL_GRANTS` entitles a token principal by config
+  (SCION-CONNECTOR-CONTROL-R025).
+
+## 0.6.1
+
+### Fixed
+
+- A server started with `--auth-type none` binds `SYSTEM_ACTOR` to every HTTP request,
+  the same as stdio, so a no-auth deployment behind a gateway reaches its resources
+  again. `ANONYMOUS_ACTOR` stays for a tokenless request to a server with auth
+  configured. The auth mode comes from the network serving config
+  (SCION-CONNECTOR-CONTROL-R025.3).
+- Entitlement refusals name their cause: `anonymous_caller`, `authentication_required`,
+  `tenant_required` or `not entitled to <namespace>:<resource>`. New
+  `scion_sdk.entitlements.require_entitled` raises `EntitlementError` with that reason
+  (SCION-CONNECTOR-CONTROL-R025).
+
+## 0.6.0
 
 ### Changed
 

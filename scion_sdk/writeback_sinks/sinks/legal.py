@@ -45,15 +45,7 @@ class LegalSink(WritebackClientMixin):
         result = WritebackResult(target=self.domain)
         filings = ops.get("filings") or ops.get("creations") or []
 
-        proposals = []
-        for f in filings:
-            ftype = (f.get("type") or "").lower()
-            mapped = _FILING.get(ftype)
-            if not mapped:
-                result.skipped += 1
-                continue
-            op, method = mapped
-            proposals.append({"op": op, "method": method, "details": f})
+        proposals = _filing_proposals(filings, result)
         if dry_run:
             result.proposals.extend(proposals)
             return result
@@ -64,18 +56,35 @@ class LegalSink(WritebackClientMixin):
             result.skipped += len(proposals)
             return result
         for p in proposals:
-            fn = getattr(client, p["method"], None)
-            if not callable(fn):
-                result.skipped += 1
-                continue
-            try:
-                fn(**{k: v for k, v in p["details"].items() if k != "type"})
-                result.created += 1
-            except Exception:
-                logger.debug("legal filing %s failed", p["op"], exc_info=True)
-                result.errors += 1
-
+            _file_one(client, p, result)
         return result
+
+
+def _filing_proposals(
+    filings: list[dict[str, Any]], result: WritebackResult
+) -> list[dict[str, Any]]:
+    proposals: list[dict[str, Any]] = []
+    for f in filings:
+        mapped = _FILING.get((f.get("type") or "").lower())
+        if not mapped:
+            result.skipped += 1
+            continue
+        op, method = mapped
+        proposals.append({"op": op, "method": method, "details": f})
+    return proposals
+
+
+def _file_one(client: Any, p: dict[str, Any], result: WritebackResult) -> None:
+    fn = getattr(client, p["method"], None)
+    if not callable(fn):
+        result.skipped += 1
+        return
+    try:
+        fn(**{k: v for k, v in p["details"].items() if k != "type"})
+        result.created += 1
+    except Exception:
+        logger.debug("legal filing %s failed", p["op"], exc_info=True)
+        result.errors += 1
 
 
 register_sink(LegalSink())

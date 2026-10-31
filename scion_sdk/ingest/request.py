@@ -7,9 +7,7 @@ content, so every submission differs from the checkpoint it replaces.
 
 from __future__ import annotations
 
-import hashlib
-import json
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from typing import Any
 from urllib.parse import quote
 
@@ -25,6 +23,7 @@ from epistemic_graph.generated.source_ingestion import (
 )
 from pydantic import JsonValue, TypeAdapter, ValidationError
 
+from scion_sdk.ingest._request_checkpoint import _checkpoint
 from scion_sdk.ingest.errors import IngestError, UndeclaredNestedValueError
 from scion_sdk.ingest.model import (
     ChangeSet,
@@ -133,54 +132,6 @@ def _relationship(
         ),
         provenance=_provenance(binding, uri),
     )
-
-
-def _prior_sequence(position: object) -> int:
-    if not isinstance(position, dict):
-        return 0
-    sequence = position.get("sequence")
-    if "sequence" in position and (
-        isinstance(sequence, bool) or not isinstance(sequence, int) or sequence < 0
-    ):
-        raise IngestError("accepted checkpoint sequence must be a non-negative integer")
-    return sequence if isinstance(sequence, int) else 0
-
-
-def _preserved_cursor(position: object) -> str | None:
-    if not isinstance(position, dict):
-        raise IngestError("accepted checkpoint position must be an object")
-    prior_cursor = position.get("cursor")
-    if prior_cursor is not None and not isinstance(prior_cursor, str):
-        raise IngestError("accepted checkpoint cursor must be a string")
-    return prior_cursor
-
-
-def _checkpoint(
-    binding: IngestBinding,
-    previous: SourceCheckpoint | None,
-    content: Iterable[Any],
-    *,
-    cursor: str | None = None,
-    preserve_cursor: bool = False,
-) -> SourceCheckpoint:
-    position = previous.position if previous is not None else None
-    sequence = _prior_sequence(position)
-    encoded = json.dumps(
-        [item.model_dump(mode="json") for item in content],
-        sort_keys=True,
-        separators=(",", ":"),
-    )
-    advanced: dict[str, JsonValue] = {
-        "sequence": sequence + 1,
-        "batch": hashlib.sha256(encoded.encode("utf-8")).hexdigest(),
-    }
-    if preserve_cursor and previous is not None:
-        cursor = _preserved_cursor(position)
-    if cursor is not None:
-        advanced["cursor"] = cursor
-    if binding.cursor_policy_iri:
-        advanced["cursor_policy"] = binding.cursor_policy_iri
-    return SourceCheckpoint(stream=binding.stream, position=advanced)
 
 
 def expand_nested(

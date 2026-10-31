@@ -19,19 +19,24 @@ helpers for the first two; the connector supplies how ``robots.txt`` is read.
 
 from __future__ import annotations
 
-import asyncio
 import hashlib
-import ipaddress
 import logging
-import time
-import urllib.robotparser
-from collections.abc import Awaitable, Callable
-from dataclasses import dataclass, field
+from collections.abc import Callable
 from typing import Any, Literal, Protocol, runtime_checkable
-from urllib.parse import urlsplit
 
-import httpx
 from pydantic import BaseModel, ConfigDict, Field
+
+from scion_sdk.ports._web_policy import (
+    DEFAULT_MIN_INTERVAL_S,
+    DomainRateLimiter,
+    RobotsRules,
+)
+from scion_sdk.ports._web_refusal import (
+    REFUSAL_REASONS,
+    RefusalReason,
+    WebFetchRefusal,
+    WebSourceRefused,
+)
 
 __all__ = [
     "DEFAULT_ACCEPTED_TYPES",
@@ -55,8 +60,6 @@ _logger = logging.getLogger(__name__)
 
 #: The default byte cap of one page: 5 MiB.
 DEFAULT_MAX_BYTES = 5 * 1024 * 1024
-#: The default per-domain spacing: one request per second.
-DEFAULT_MIN_INTERVAL_S = 1.0
 #: Media types a page connector accepts unless the request narrows them.
 DEFAULT_ACCEPTED_TYPES = (
     "text/html",
@@ -64,19 +67,6 @@ DEFAULT_ACCEPTED_TYPES = (
     "text/plain",
     "text/markdown",
 )
-
-RefusalReason = Literal[
-    "robots_disallowed",
-    "rate_limited",
-    "size_exceeded",
-    "unsupported_type",
-    "egress_denied",
-    "policy_refused",
-    "extract_empty",
-    "upstream_failed",
-]
-#: The closed refusal reasons, in contract order.
-REFUSAL_REASONS: tuple[str, ...] = RefusalReason.__args__  # type: ignore[attr-defined]
 
 
 class WebFetchRequest(BaseModel):
@@ -121,30 +111,6 @@ class WebPageResult(BaseModel):
     text_markdown: str
     #: The connector that produced the page, recorded in provenance.
     backend: str = Field(min_length=1, max_length=128)
-
-
-class WebFetchRefusal(BaseModel):
-    """A connector's refusal of one page, with a closed reason."""
-
-    model_config = ConfigDict(frozen=True, extra="forbid")
-
-    kind: Literal["refusal"] = "refusal"
-    reason: RefusalReason
-    detail: str = Field(default="", max_length=2000)
-
-
-class WebSourceRefused(Exception):
-    """Raised by a :class:`WebSource`; the tools return it as a refusal."""
-
-    def __init__(self, reason: str, detail: str = "") -> None:
-        if reason not in REFUSAL_REASONS:
-            raise ValueError(f"unknown web-source refusal reason {reason!r}")
-        self.reason = reason
-        self.detail = detail
-        super().__init__(f"{reason}: {detail}" if detail else reason)
-
-    def refusal(self) -> WebFetchRefusal:
-        return WebFetchRefusal(reason=self.reason, detail=self.detail[:2000])  # type: ignore[arg-type]
 
 
 def content_digest(text: str) -> str:
@@ -225,130 +191,3 @@ def register_web_source_tools(
             tags={"web-source"},
         )(function)
     return ("web_fetch", "web_extract")
-
-
-# --------------------------------------------------------------------- policy
-
-
-def _origin(url: str) -> str:
-    try:
-        parts = httpx.URL(url)
-        host = parts.raw_host.decode("ascii").rstrip(".")
-        if parts.scheme not in {"http", "https"} or not host:
-            raise ValueError("absolute URL required")
-        try:
-            address = ipaddress.ip_address(host)
-        except ValueError:
-            authority = host.lower()
-        else:
-            authority = f"[{address}]" if address.version == 6 else str(address)
-        port = f":{parts.port}" if parts.port is not None else ""
-        return f"{parts.scheme}://{authority}{port}"
-    except (httpx.InvalidURL, UnicodeError, ValueError) as exc:
-        raise WebSourceRefused("policy_refused", "invalid web URL") from exc
-
-
-def _rate_limit_domain(url: str) -> str:
-    try:
-        parts = urlsplit(url)
-        host = parts.hostname
-        _ = parts.port
-        if parts.scheme not in {"http", "https"} or not host:
-            raise ValueError("absolute URL required")
-        host = httpx.URL(url).raw_host.decode("ascii").rstrip(".")
-        if not host or any(char.isspace() for char in host):
-            raise ValueError("invalid host")
-        try:
-            return str(ipaddress.ip_address(host))
-        except ValueError:
-            return host.lower()
-    except (httpx.InvalidURL, UnicodeError, ValueError) as exc:
-        raise WebSourceRefused("policy_refused", "invalid web URL") from exc
-
-
-@dataclass
-class DomainRateLimiter:
-    """Space requests to one host at least ``min_interval_s`` apart."""
-
-    min_interval_s: float = DEFAULT_MIN_INTERVAL_S
-    clock: Callable[[], float] = time.monotonic
-    sleep: Callable[[float], Awaitable[None]] = asyncio.sleep
-    _next: dict[str, float] = field(default_factory=dict)
-    _locks: dict[str, asyncio.Lock] = field(default_factory=dict)
-
-    async def acquire(self, url: str) -> None:
-        domain = _rate_limit_domain(url)
-        lock = self._locks.setdefault(domain, asyncio.Lock())
-        async with lock:
-            now = self.clock()
-            wait = self._next.get(domain, now) - now
-            if wait > 0:
-                await self.sleep(wait)
-                now = self.clock()
-            self._next[domain] = now + self.min_interval_s
-
-
-RobotsLoader = Callable[[str], Awaitable[tuple[int, str]]]
-
-
-@dataclass
-class RobotsRules:
-    """``robots.txt`` per origin, cached for ``ttl_s`` (one hour by default).
-
-    ``loader`` reads one ``robots.txt`` URL and returns ``(status, body)``; the
-    connector supplies it, so the SDK makes no request itself. A 4xx file allows
-    everything (RFC 9309 section 2.3.1.3); a 5xx or failed read disallows
-    everything until the entry expires.
-    """
-
-    loader: RobotsLoader
-    user_agent: str
-    ttl_s: float = 3600.0
-    clock: Callable[[], float] = time.monotonic
-    _rules: dict[str, tuple[float, urllib.robotparser.RobotFileParser]] = field(
-        default_factory=dict
-    )
-    _locks: dict[str, asyncio.Lock] = field(default_factory=dict)
-
-    async def check(self, url: str) -> None:
-        """Raise ``robots_disallowed`` unless ``url`` may be fetched."""
-        if not await self.allowed(url):
-            raise WebSourceRefused(
-                "robots_disallowed", "robots policy disallows the page"
-            )
-
-    async def allowed(self, url: str) -> bool:
-        origin = _origin(url)
-        cached = self._rules.get(origin)
-        if cached is None or cached[0] < self.clock():
-            lock = self._locks.setdefault(origin, asyncio.Lock())
-            async with lock:
-                cached = self._rules.get(origin)
-                if cached is None or cached[0] < self.clock():
-                    parser = await self._load(origin)
-                    cached = (self.clock() + self.ttl_s, parser)
-                    self._rules[origin] = cached
-        return cached[1].can_fetch(self.user_agent, url)
-
-    async def _load(self, origin: str) -> urllib.robotparser.RobotFileParser:
-        parser = urllib.robotparser.RobotFileParser()
-        try:
-            status, body = await self.loader(f"{origin}/robots.txt")
-        except WebSourceRefused as refused:
-            if refused.reason in {"egress_denied", "policy_refused"}:
-                raise
-            status, body = 503, ""
-        except Exception as exc:
-            # RFC 9309: an unreachable robots.txt disallows the whole origin.
-            _logger.info(
-                "robots.txt for %s is unreadable: %s", origin, type(exc).__name__
-            )
-            status, body = 503, ""
-        if status >= 500:
-            # RobotFileParser's documented switches are not in its type stubs.
-            vars(parser).update(disallow_all=True)
-        elif status >= 400:
-            vars(parser).update(allow_all=True)
-        else:
-            parser.parse(body.splitlines())
-        return parser

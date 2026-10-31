@@ -364,18 +364,22 @@ def _normalize_private_host(raw: object) -> str:
     host = str(raw).strip().lower().rstrip(".")
     if not host.isascii():
         raise ValueError("private egress hosts must be ASCII")
+    if not _is_exact_hostname(host):
+        raise ValueError("private egress hosts must be exact hostnames")
+    return host
+
+
+def _is_exact_hostname(host: str) -> bool:
     if (
         not host
         or len(host) > 253
         or any(ord(c) < 33 for c in host)
         or any(c in host for c in "/@*?#[]")
     ):
-        raise ValueError("private egress hosts must be exact hostnames")
-    if not _is_ip_literal(host) and not all(
+        return False
+    return _is_ip_literal(host) or all(
         _label_is_valid(label) for label in host.split(".")
-    ):
-        raise ValueError("private egress hosts must be exact hostnames")
-    return host
+    )
 
 
 def normalize_private_hosts(hosts: Collection[str]) -> frozenset[str]:

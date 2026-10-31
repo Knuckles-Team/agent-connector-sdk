@@ -16,27 +16,34 @@ unchanged is never submitted again.
 
 from __future__ import annotations
 
-import hashlib
-import json
 import time
-from collections.abc import Awaitable, Callable, Mapping, Sequence
-from dataclasses import dataclass, field
-from typing import Any, Literal, Protocol, runtime_checkable
+from collections.abc import Awaitable, Callable, Mapping
+from typing import Any
 
 import anyio
-from pydantic import BaseModel, ConfigDict, Field
 
 from scion_sdk.ingest import source_budget as _budget
-from scion_sdk.ingest.errors import IngestError
-from scion_sdk.ingest.for_each import MAX_FAN_OUT
 from scion_sdk.ingest.model import (
     Entity,
-    EntityRef,
     IngestBinding,
-    Relationship,
 )
-from scion_sdk.ingest.sources import EdgeSpec, IngestSourceSpec
-from scion_sdk.runner.backoff import Backoff
+from scion_sdk.ingest.source_calls import _SourceCalls
+from scion_sdk.ingest.sources import IngestSourceSpec
+
+from ._sync_models import (
+    CHECKPOINT_NAMESPACE,
+    KvSourceCheckpoints,
+    SourceCheckpointState,
+    SourceSession,
+    SourceSyncError,
+    SourceSyncReport,
+    SyncBudget,
+    SyncState,
+    checkpoint_key,
+    record_digest,
+)
+from ._sync_records import _edges, _properties, _records
+from ._sync_run import _is_unchanged, _Run
 
 __all__ = [
     "CHECKPOINT_NAMESPACE",
@@ -51,302 +58,10 @@ __all__ = [
     "record_digest",
 ]
 
-#: The KV namespace every source checkpoint lives in.
-CHECKPOINT_NAMESPACE = "scion-sdk"
 _MAX_DIGESTS = 50_000
-_SCALARS = (str, int, float, bool)
-
-SyncState = Literal["completed", "partial", "failed"]
 
 
-class SourceSyncError(IngestError):
-    """A sync refused or failed; ``reason`` is a stable machine code."""
-
-    def __init__(self, reason: str, message: str) -> None:
-        super().__init__(f"{reason}: {message}")
-        self.reason = reason
-
-
-@runtime_checkable
-class SourceSession(Protocol):
-    """The tool calls a source sync needs from an MCP session."""
-
-    async def call_tool(self, name: str, arguments: Mapping[str, Any]) -> Any:
-        """``tools/call``, returning the decoded result."""
-        ...
-
-    async def tool_is_read_only(self, name: str) -> bool:
-        """Whether the server marks ``name`` read-only."""
-        ...
-
-
-class SourceCheckpointState(BaseModel):
-    """The durable checkpoint of one source."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    connector: str
-    source_id: str
-    cursor: str | None = None
-    digests: dict[str, str] = Field(default_factory=dict)
-    state: str = "never"
-    records: int = 0
-    last_job_id: str | None = None
-    last_report: dict[str, Any] | None = None
-
-
-class SourceSyncReport(BaseModel):
-    """What one sync run did. Holds no credential and no record payload."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    connector: str
-    source_id: str
-    mode: str
-    state: SyncState
-    pages: int = 0
-    records_seen: int = 0
-    submitted: int = 0
-    unchanged: int = 0
-    batch_digests: tuple[str, ...] = ()
-    cursor_before: str | None = None
-    cursor_after: str | None = None
-    reason: str | None = None
-    #: The engine's refusal code (for example ``UNKNOWN_MAPPING_REFERENCE``)
-    #: when ``reason`` is ``ingest_refused``; never a payload.
-    engine_code: str | None = None
-
-
-@dataclass(frozen=True)
-class SyncBudget:
-    """Bounds of one run: pages, records, batch size, seconds, tool retries."""
-
-    max_pages: int = 50
-    max_records: int = 5_000
-    batch_size: int = 200
-    max_seconds: float = 120.0
-    max_fan_out: int = MAX_FAN_OUT
-    attempts: int = 3
-    backoff_initial_seconds: float = 0.5
-    backoff_max_seconds: float = 8.0
-
-    def __post_init__(self) -> None:
-        _budget._validate_budget(self)
-
-
-def checkpoint_key(connector: str, source_id: str) -> str:
-    """The shared KV key of one source checkpoint."""
-    return f"ingest-source/{connector}/{source_id}"
-
-
-def record_digest(record: Mapping[str, Any]) -> str:
-    """SHA-256 of the canonical JSON of one record."""
-    encoded = json.dumps(record, sort_keys=True, separators=(",", ":"), default=str)
-    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
-
-
-class KvSourceCheckpoints:
-    """Source checkpoints in engine KV, shared scope, compare-and-swap writes."""
-
-    def __init__(self, client: Any, *, namespace: str = CHECKPOINT_NAMESPACE) -> None:
-        self._client = client
-        self._namespace = namespace
-
-    async def load(
-        self, connector: str, source_id: str
-    ) -> tuple[SourceCheckpointState, int]:
-        """The checkpoint and its KV version; version 0 when none is stored."""
-        from epistemic_graph.generated import storage
-
-        entry = storage.decode_kv_get(
-            await storage.send_kv_get(
-                self._client,
-                {
-                    "namespace": self._namespace,
-                    "key": checkpoint_key(connector, source_id),
-                    "shared": True,
-                },
-            )
-        )
-        if entry is None:
-            return SourceCheckpointState(connector=connector, source_id=source_id), 0
-        state = SourceCheckpointState.model_validate_json(entry.value)
-        return state, entry.version
-
-    async def store(self, state: SourceCheckpointState, version: int) -> int:
-        """Swap in ``state`` if the stored version is still ``version``.
-
-        Raises:
-            SourceSyncError: ``checkpoint_conflict`` when another writer moved it.
-        """
-        from epistemic_graph.generated import storage
-
-        outcome = storage.decode_kv_cas(
-            await storage.send_kv_cas(
-                self._client,
-                {
-                    "namespace": self._namespace,
-                    "key": checkpoint_key(state.connector, state.source_id),
-                    "expected_version": version,
-                    "new": state.model_dump_json().encode("utf-8"),
-                    "shared": True,
-                },
-            )
-        )
-        if not outcome.swapped:
-            raise SourceSyncError(
-                "checkpoint_conflict", "another writer moved the source checkpoint"
-            )
-        return outcome.version
-
-
-def _path(value: Any, path: str) -> Any:
-    for part in [p for p in path.split(".") if p]:
-        if isinstance(value, Mapping):
-            value = value.get(part)
-        elif (
-            isinstance(value, Sequence)
-            and not isinstance(value, str)
-            and part.isdigit()
-        ):
-            index = int(part)
-            value = value[index] if index < len(value) else None
-        else:
-            return None
-    return value
-
-
-def _records(result: Any, spec: IngestSourceSpec) -> list[Mapping[str, Any]]:
-    found = _path(result, spec.records_path) if spec.records_path else result
-    if not isinstance(found, Sequence) or isinstance(found, str | bytes):
-        raise SourceSyncError(
-            "malformed_result", f"{spec.records_path or 'result'} is not a record list"
-        )
-    records: list[Mapping[str, Any]] = []
-    for item in found:
-        if not isinstance(item, Mapping):
-            raise SourceSyncError(
-                "malformed_result", "page contains a non-object record"
-            )
-        identifier = item.get(spec.id_field)
-        if (
-            identifier is None
-            or isinstance(identifier, Mapping | list)
-            or not str(identifier).strip()
-        ):
-            raise SourceSyncError(
-                "malformed_result", "record has no usable declared ID"
-            )
-        records.append(item)
-    return records
-
-
-def _properties(record: Mapping[str, Any], spec: IngestSourceSpec) -> dict[str, Any]:
-    kept: dict[str, Any] = {
-        key: value
-        for key, value in record.items()
-        if isinstance(value, _SCALARS)
-        or (isinstance(value, list) and all(isinstance(v, _SCALARS) for v in value))
-    }
-    for name, field_name in (("title", spec.title_field), ("text", spec.text_field)):
-        value = record.get(field_name) if field_name else None
-        if isinstance(value, _SCALARS):
-            kept.setdefault(name, value)
-    return kept
-
-
-def _references(value: Any) -> list[Any]:
-    if value is None or value == "":
-        return []
-    if isinstance(value, list):
-        return [item for item in value if item is not None and item != ""]
-    return [value]
-
-
-def _step_into(values: list[Any], part: str) -> list[Any]:
-    items = [
-        item
-        for value in values
-        for item in (value if isinstance(value, list) else [value])
-    ]
-    return [item[part] for item in items if isinstance(item, Mapping) and part in item]
-
-
-def _resolve(record: Mapping[str, Any], path: str) -> list[Any]:
-    """The values at dotted ``path``; a list on the way is mapped element-wise."""
-    values: list[Any] = [record]
-    for part in path.split("."):
-        values = _step_into(values, part)
-    return [ref for value in values for ref in _references(value)]
-
-
-def _edges(
-    record_id: str, record: Mapping[str, Any], spec: IngestSourceSpec
-) -> list[tuple[Entity | None, Relationship]]:
-    """The target records and relationships ``spec.edges`` declare for ``record``."""
-    out: list[tuple[Entity | None, Relationship]] = []
-    for edge in spec.edges:
-        for ref in _resolve(record, edge.target_field):
-            out.extend(_edge(record_id, spec.record_type, edge, ref))
-    return out
-
-
-def _edge(
-    record_id: str, record_type: str, edge: EdgeSpec, ref: Any
-) -> list[tuple[Entity | None, Relationship]]:
-    element = ref if isinstance(ref, Mapping) else {}
-    raw = element.get(edge.target_id_key) if edge.target_id_key and element else ref
-    if raw is None or isinstance(raw, Mapping | list) or not str(raw).strip():
-        return []
-    target_id = edge.target_id_template.format(type=edge.target_type, id=raw)
-    if edge.target_stream is not None:
-        reference = EntityRef(id=target_id, stream=edge.target_stream)
-        return [
-            (
-                None,
-                Relationship(
-                    source=EntityRef(id=record_id, node_type=record_type),
-                    target=reference,
-                    relationship=edge.relationship,
-                ),
-            )
-        ]
-    properties = {
-        name: element.get(key)
-        for name, key in edge.target_fields.items()
-        if isinstance(element.get(key), _SCALARS)
-    }
-    target = Entity(id=target_id, node_type=edge.target_type, properties=properties)
-    relationship = Relationship(
-        source=EntityRef(id=record_id, node_type=record_type),
-        target=target_id,
-        relationship=edge.relationship,
-    )
-    return [(target, relationship)]
-
-
-@dataclass
-class _Run:
-    spec: IngestSourceSpec
-    state: SourceCheckpointState
-    version: int
-    mode: str
-    started: float
-    pages: int = 0
-    seen: int = 0
-    submitted: int = 0
-    unchanged: int = 0
-    batches: list[str] = field(default_factory=list)
-    pending: list[tuple[Entity, str]] = field(default_factory=list)
-    pending_tool: str | None = None
-    pending_edges: list[tuple[Entity | None, Relationship]] = field(
-        default_factory=list
-    )
-    cursor: str | None = None
-    cursor_before: str | None = None
-
-
-class SourceSyncRunner(_budget._SourceBudgetMixin):
+class SourceSyncRunner(_budget._SourceBudgetMixin, _SourceCalls):
     """Run declared connector sources into epistemic-graph.
 
     Args:
@@ -509,54 +224,6 @@ class SourceSyncRunner(_budget._SourceBudgetMixin):
                 )
         return values
 
-    def _exhausted(self, run: _Run) -> bool:
-        budget = self._budget
-        return (
-            run.pages >= budget.max_pages
-            or run.seen >= budget.max_records
-            or self._clock() - run.started >= budget.max_seconds
-        )
-
-    @staticmethod
-    def _arguments(
-        spec: IngestSourceSpec, page: int, scope: Mapping[str, Any] | None = None
-    ) -> dict[str, Any]:
-        arguments: dict[str, Any] = {**spec.arguments, **(scope or {})}
-        if spec.pagination == "page" and spec.page_param:
-            arguments[spec.page_param] = page
-            if spec.page_size_param:
-                arguments[spec.page_size_param] = spec.page_size
-        return arguments
-
-    async def _call(self, tool: str, arguments: Mapping[str, Any]) -> Any:
-        budget = self._budget
-        backoff = Backoff(budget.backoff_initial_seconds, budget.backoff_max_seconds)
-        for attempt in range(budget.attempts):
-            try:
-                return await self._session.call_tool(tool, arguments)
-            except Exception as exc:
-                if attempt + 1 >= budget.attempts:
-                    raise SourceSyncError(
-                        "tool_failed", f"{tool} failed ({type(exc).__name__})"
-                    ) from exc
-                await self._sleep(backoff.next_delay())
-        raise AssertionError("unreachable")
-
-    @staticmethod
-    def _is_unchanged(
-        run: _Run, record_id: str, cursor: str | None, record: Any
-    ) -> bool:
-        spec = run.spec
-        if (
-            spec.incremental
-            and run.mode != "full"
-            and cursor is not None
-            and run.state.cursor is not None
-            and cursor <= run.state.cursor
-        ):
-            return True
-        return run.state.digests.get(record_id) == record_digest(record)
-
     async def _take(self, run: _Run, record: Mapping[str, Any], tool: str) -> None:
         spec = run.spec
         run.seen += 1
@@ -566,7 +233,7 @@ class SourceSyncRunner(_budget._SourceBudgetMixin):
         record_id = str(raw_id)
         cursor_value = record.get(spec.cursor_field) if spec.cursor_field else None
         cursor = None if cursor_value is None else str(cursor_value)
-        if self._is_unchanged(run, record_id, cursor, record):
+        if _is_unchanged(run, record_id, cursor=cursor, record=record):
             run.unchanged += 1
             return
         entity = Entity(

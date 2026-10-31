@@ -16,13 +16,13 @@ from typing import Any, Protocol
 
 from pydantic import ValidationError
 
+from ._profile_authority import ProfileEvidenceAuthority
 from .models import (
     ColumnProfile,
     ProfileEvidenceReference,
     ProfileLimits,
     ProfileRequest,
     ProfileResult,
-    ProfileTarget,
 )
 
 
@@ -39,18 +39,6 @@ class ProfileClient(Protocol):
 
     def profile(self, request: ProfileRequest) -> ProfileResult:
         """Return the profile for exactly ``request.target``."""
-
-
-class ProfileEvidenceAuthority(Protocol):
-    """Separate native authority for profile-as-evidence references."""
-
-    def authorize_profile_evidence(
-        self,
-        *,
-        profile_digest: str,
-        target: ProfileTarget,
-    ) -> ProfileEvidenceReference:
-        """Create a ChangeEnvelope-backed reference after policy admission."""
 
 
 def _canonical_json(value: Any) -> bytes:

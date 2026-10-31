@@ -18,7 +18,7 @@ import ast
 from dataclasses import dataclass
 from pathlib import Path
 
-from scion_sdk.testing.fleet_migration import (
+from scion_sdk.testing._fleet_walk import (
     _DEFAULT_EXCLUDED_DIRS,
     _scan_python_sources,
 )

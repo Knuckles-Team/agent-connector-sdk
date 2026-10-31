@@ -22,7 +22,7 @@ from ..core import (
 logger = logging.getLogger(__name__)
 
 
-def _ics(uid: str, summary: str, start: str | None, end: str | None) -> str:
+def _ics(uid: str, summary: str, *, start: str | None, end: str | None) -> str:
     lines = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
@@ -60,9 +60,7 @@ class NextcloudSink(WritebackClientMixin):
 
     def _run(self, invocation: WritebackInvocation) -> WritebackResult:
         _, ops, client, result, dry_run = invocation.unpack()
-
-        # creations — schedule calendar events.
-        cal_url = None
+        cal_url: str | None = None
         for c in ops.get("creations") or []:
             name = c.get("name")
             if not name:
@@ -73,36 +71,50 @@ class NextcloudSink(WritebackClientMixin):
                 )
                 continue
             cal_url = cal_url or self._calendar_url(client, ops)
-            if not cal_url:
-                result.skipped += 1
-                continue
-            try:
-                uid = c.get("node") or name
-                ics = _ics(str(uid), name, c.get("start"), c.get("end"))
-                client.create_calendar_event(cal_url, ics)  # type: ignore[union-attr]
-                result.created += 1
-            except Exception:
-                logger.debug("nextcloud create_calendar_event failed", exc_info=True)
-                result.errors += 1
-
-        # enrichments — publish a KG report/file ({path, content}).
+            self._create_event(client, result, c, name, cal_url)
         for item in ops.get("enrichments") or []:
-            path = item.get("path")
-            content = item.get("content")
-            if not (path and content is not None):
-                result.skipped += 1
-                continue
-            if dry_run:
-                result.proposals.append({"op": "write_file", "path": path})
-                continue
-            try:
-                client.write_file(path, content)  # type: ignore[union-attr]
-                result.enriched += 1
-            except Exception:
-                logger.debug("nextcloud write_file failed", exc_info=True)
-                result.errors += 1
-
+            self._publish_file(client, result, item, dry_run=dry_run)
         return result
+
+    @staticmethod
+    def _create_event(
+        client: Any,
+        result: WritebackResult,
+        c: dict[str, Any],
+        name: str,
+        cal_url: str | None,
+    ) -> None:
+        if not cal_url:
+            result.skipped += 1
+            return
+        try:
+            uid = c.get("node") or name
+            ics = _ics(str(uid), name, start=c.get("start"), end=c.get("end"))
+            client.create_calendar_event(cal_url, ics)
+            result.created += 1
+        except Exception:
+            logger.debug("nextcloud create_calendar_event failed", exc_info=True)
+            result.errors += 1
+
+    @staticmethod
+    def _publish_file(
+        client: Any, result: WritebackResult, item: dict[str, Any], *, dry_run: bool
+    ) -> None:
+        """Publish a KG report/file ({path, content})."""
+        path = item.get("path")
+        content = item.get("content")
+        if not (path and content is not None):
+            result.skipped += 1
+            return
+        if dry_run:
+            result.proposals.append({"op": "write_file", "path": path})
+            return
+        try:
+            client.write_file(path, content)
+            result.enriched += 1
+        except Exception:
+            logger.debug("nextcloud write_file failed", exc_info=True)
+            result.errors += 1
 
 
 register_sink(NextcloudSink())

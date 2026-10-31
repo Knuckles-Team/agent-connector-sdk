@@ -45,6 +45,13 @@ class AccessToken:
         return time.monotonic() < self.expires_at - skew_seconds
 
 
+def _token_ttl(raw_ttl: object) -> float:
+    """``raw_ttl`` as seconds, or ``-1.0`` when it is not a real number."""
+    if isinstance(raw_ttl, int | float) and not isinstance(raw_ttl, bool):
+        return float(raw_ttl)
+    return -1.0
+
+
 def parse_token_response(body: bytes) -> AccessToken:
     """Validate a token endpoint's JSON response.
 
@@ -59,12 +66,7 @@ def parse_token_response(body: bytes) -> AccessToken:
     token = payload.get("access_token") if isinstance(payload, dict) else None
     if not isinstance(token, str) or not 1 <= len(token) <= 65_536:
         raise TokenRequestError("token response has no valid access_token")
-    raw_ttl = payload.get("expires_in", _DEFAULT_TTL_SECONDS)
-    ttl = (
-        float(raw_ttl)
-        if isinstance(raw_ttl, int | float) and not isinstance(raw_ttl, bool)
-        else -1.0
-    )
+    ttl = _token_ttl(payload.get("expires_in", _DEFAULT_TTL_SECONDS))
     if not (math.isfinite(ttl) and 1.0 <= ttl <= _MAX_TTL_SECONDS):
         raise TokenRequestError("token response has an invalid expires_in")
     rotated = payload.get("refresh_token")
@@ -72,6 +74,13 @@ def parse_token_response(body: bytes) -> AccessToken:
         rotated if isinstance(rotated, str) and 1 <= len(rotated) <= 65_536 else None
     )
     return AccessToken(token, ttl, time.monotonic() + ttl, refresh)
+
+
+def _read_token_body(response: httpx.Response) -> bytes:
+    if 300 <= response.status_code < 400:
+        raise TokenRequestError("token endpoint redirected")
+    ensure_success(response)
+    return read_bounded(response, _MAX_TOKEN_RESPONSE_BYTES)
 
 
 def request_access_token(
@@ -91,10 +100,7 @@ def request_access_token(
         with client.stream(
             "POST", url, data=dict(form), auth=client_auth, follow_redirects=False
         ) as response:
-            if 300 <= response.status_code < 400:
-                raise TokenRequestError("token endpoint redirected")
-            ensure_success(response)
-            body = read_bounded(response, _MAX_TOKEN_RESPONSE_BYTES)
+            body = _read_token_body(response)
     except (HttpProblemError, httpx.HTTPError) as exc:
         raise TokenRequestError("token request failed") from exc
     return parse_token_response(body)

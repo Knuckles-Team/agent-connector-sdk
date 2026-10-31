@@ -42,5 +42,5 @@ See [`docs/quality-gates.md`](docs/quality-gates.md) for what each gate checks.
    `--no-verify`.
 3. Push the branch and open a pull request against `main`, as a draft until
    the gates pass locally.
-4. The `gates` and `build` jobs must pass before merge; `scanner-quality` is
-   advisory. Releases are cut from `vX.Y.Z` tags by maintainers.
+4. The `gates` and `build` jobs must pass before merge; complexity and clone scanners
+   report weekly in the advisory workflow (`advisory.yml`). Releases are cut from `vX.Y.Z` tags by maintainers.

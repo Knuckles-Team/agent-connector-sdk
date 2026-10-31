@@ -77,15 +77,19 @@ def _validate_request(principal: str, refs: tuple[str, ...]) -> None:
         raise ValueError("invalid access-check record references")
 
 
-def _validate_answer(answer: AccessCheckAnswer, refs: tuple[str, ...]) -> None:
+def _answer_is_well_typed(answer: object) -> bool:
     if not isinstance(answer, AccessCheckAnswer):
-        raise ValueError("invalid access-check answer")
-    if (
-        not isinstance(answer.allowed, tuple)
-        or not isinstance(answer.denied, tuple)
-        or not isinstance(answer.checked_at, datetime)
-        or any(not isinstance(ref, str) for ref in (*answer.allowed, *answer.denied))
-    ):
+        return False
+    return (
+        isinstance(answer.allowed, tuple)
+        and isinstance(answer.denied, tuple)
+        and isinstance(answer.checked_at, datetime)
+        and all(isinstance(ref, str) for ref in (*answer.allowed, *answer.denied))
+    )
+
+
+def _validate_answer(answer: AccessCheckAnswer, refs: tuple[str, ...]) -> None:
+    if not _answer_is_well_typed(answer):
         raise ValueError("invalid access-check answer")
     all_refs = (*answer.allowed, *answer.denied)
     if (

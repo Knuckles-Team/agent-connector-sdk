@@ -252,7 +252,7 @@ def test_batch_media_and_raw_submit_share_one_path() -> None:
 
 @pytest.mark.spec("SCION-SOURCE-INGEST-R004.40")
 def test_sync_rejects_continuation_cycle_before_offending_page(monkeypatch) -> None:
-    import scion_sdk.ingest.stream as module
+    import scion_sdk.ingest._stream_paging as module
 
     sink = _Ingest()
     calls = []

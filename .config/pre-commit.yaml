@@ -1,7 +1,6 @@
 # Combined pre-commit and pre-push scan suite for scion-sdk.
 #
-# Repository-agnostic complexity, clone, security, privacy, supply-chain,
-# hygiene, code-shape, and documentation gates come from the shared
+# Repository-agnostic census, secret, and spec gates come from the shared
 # Knuckles-Team/pipelines repository at a pinned commit. Repository-specific
 # settings live in `pyproject.toml` under `[tool.pipelines_hooks]`.
 #
@@ -79,83 +78,16 @@ repos:
 - repo: https://github.com/Knuckles-Team/pipelines
   rev: main # sanctioned exception to immutable pins; shared gate repository tracked at head
   hooks:
-  # Native scanners (pinned versions; never installed by a hook). Manual only:
-  # install them with `scripts/bootstrap.sh --scanners`; hosted CI runs them
-  # in the advisory scanner-quality job.
-  - id: complexity-staged
-    stages: [manual]
-  - id: kiss-staged
-    stages: [manual]
-  - id: dupehound-changed
-    stages: [manual]
-  - id: complexity-census
-    stages: [manual]
-  - id: kiss-census
-    stages: [manual]
-  - id: jscpd-differential
-    stages: [manual]
-  - id: jscpd-census
-    stages: [manual]
-  - id: scanner-versions
-    stages: [manual]
-  # spec-status lifecycle: schema_version 2 status.json, decomposition size
-  # caps, and (pre-push) the delivering-commit `Spec: <ID>` trailer.
-  - id: spec-status
+  # One secret-and-identity check; `tracked-privacy` needs the operator-owned
+  # identity catalog, which CI supplies through PROHIBITED_IDENTITY_CATALOG.
+  - id: secrets
+    stages: [pre-commit, pre-push, manual]
+  # One spec check: standard, decomposition, generated status, commit trailers.
+  - id: spec
     stages: [pre-push, manual]
-  - id: spec-decomposition
-    stages: [pre-push, manual]
-  - id: spec-standard
-    stages: [pre-commit, manual]
-  - id: spec-trailers
-    stages: [pre-push, manual]
-  # affected tests only, 120 s cap; CI runs the same subset in the shared gates step
-  - id: fast-tests
+  # Affected tests only, 120 s cap.
+  - id: tests-fast
     stages: [pre-push]
-  # code shape
-  - id: no-stub
-    stages: [pre-push, manual]
-  - id: stubs
-    stages: [pre-push, manual]
-    exclude: ^tests/
-  - id: env-sprawl
-    stages: [pre-push, manual]
-  - id: stdout-writes
-    stages: [pre-push, manual]
-  # public documentation
-  - id: public-surface
-    stages: [pre-commit, manual]
-  - id: ste-staged
-    stages: [pre-commit, manual]
-  - id: ste-staleness-staged
-    stages: [pre-push, manual]
-  - id: swallowed-errors
-    stages: [pre-push, manual]
-  - id: event-loop-blocking
-    stages: [pre-push, manual]
-  - id: import-cycles
-    stages: [pre-push, manual]
-  # supply chain, secrets, privacy, hygiene. No gate calls an external
-  # service: the OSV dependency-audit hook is deliberately not enabled.
-  - id: supply-chain
-    stages: [pre-push, manual]
-  - id: secret-history
-    stages: [pre-push, manual]
-  - id: security-sanitizer
-    stages: [pre-push, manual]
-  # Needs the operator-owned identity catalog, which is never committed; CI
-  # runs it when the PROHIBITED_IDENTITY_CATALOG repository variable is set.
-  - id: tracked-privacy
-    stages: [manual]
-  - id: root-hygiene
-    stages: [pre-push, manual]
-  - id: gitignore-convergence
-    stages: [pre-push, manual]
-  - id: sprawl
-    stages: [pre-push, manual]
-  - id: mermaid
-    stages: [pre-push, manual]
-  - id: pre-commit-patch-safety
-    stages: [pre-push, manual]
 - repo: local
   hooks:
   # ── Types, tests, build, docs (CI parity) ────────────────────────────────

@@ -244,21 +244,33 @@ def _hint(annotations: Any, name: str) -> Any:
     return getattr(annotations, f"{head}{tail.title()}Hint", None)
 
 
-def _describe(
-    connector: str, tool: Any, terms: OntologyTerms
-) -> tuple[ResourceDescriptor, bool] | None:
+def _readable_shape(
+    tool: Any,
+) -> tuple[str, dict[str, Any], bool, list[tuple[str, str]], str] | None:
+    """(resource, record, is_collection, fields, key) of a readable tool."""
     resource = _resource_name(str(tool.name))
-    shape = _record_schema(getattr(tool, "output_schema", None))
+    output_schema = getattr(tool, "output_schema", None)
+    shape = _record_schema(output_schema)
     if not resource or shape is None:
         return None
     record, is_collection = shape
-    root = getattr(tool, "output_schema", None) or {}
-    fields = _fields(record, root)
+    fields = _fields(record, output_schema or {})
     key = _key_field([n for n, _ in fields], resource)
     if key is None:
         return None
-    params = (getattr(tool, "parameters", None) or {}).get("properties", {})
-    required = (getattr(tool, "parameters", None) or {}).get("required", [])
+    return resource, record, is_collection, fields, key
+
+
+def _describe(
+    connector: str, tool: Any, terms: OntologyTerms
+) -> tuple[ResourceDescriptor, bool] | None:
+    readable = _readable_shape(tool)
+    if readable is None:
+        return None
+    resource, record, is_collection, fields, key = readable
+    schema = getattr(tool, "parameters", None) or {}
+    params = schema.get("properties", {})
+    required = schema.get("required", [])
     pagination, param = _detect_pagination(params, record.get("properties", {}))
     class_iri = _propose_class(resource, terms)
     return (

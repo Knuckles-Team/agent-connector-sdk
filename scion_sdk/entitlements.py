@@ -34,16 +34,23 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass
 
-from scion_sdk.identity import ActorContext, current_actor, is_anonymous
+from scion_sdk.identity import (
+    ActorContext,
+    IdentityRequiredError,
+    current_actor,
+    is_anonymous,
+)
 
 __all__ = [
     "DEFAULT_SUPER_CAPS",
     "CatalogResource",
+    "EntitlementError",
     "catalog_entitled_resources",
     "entitled_resources",
     "grants_all_in_namespace",
     "identity_scoped_resources",
     "is_entitled",
+    "require_entitled",
 ]
 
 #: Capabilities that grant every resource in every namespace.
@@ -159,19 +166,71 @@ def identity_scoped_resources(
     exposed. The anonymous actor holds no entitlements and resolves empty.
 
     Raises:
-        PermissionError: the actor is unauthenticated or lacks a tenant.
+        EntitlementError: the actor is unauthenticated or lacks a tenant; the
+            message names which (a :class:`PermissionError`).
     """
     ctx = actor if actor is not None else current_actor()
     if isinstance(ctx, ActorContext) and is_anonymous(ctx):
         return ()
-    actor_id = str(getattr(ctx, "actor_id", "") or "").strip()
-    tenant_id = str(getattr(ctx, "tenant_id", "") or "").strip()
-    if not getattr(ctx, "authenticated", False) or not actor_id or not tenant_id:
-        raise PermissionError(
-            "Identity-scoped resource loading requires an authenticated, tenant-bound actor"
-        )
+    _require_identity(ctx)
     capabilities = (*getattr(ctx, "roles", ()), *getattr(ctx, "groups", ()))
     return entitled_resources(capabilities, namespace, available, super_caps=super_caps)
+
+
+class EntitlementError(IdentityRequiredError):
+    """An entitlement refusal that names its cause and never a secret.
+
+    ``reason`` is one of ``anonymous_caller``, ``authentication_required``,
+    ``tenant_required`` or ``not_entitled``. Under the served actor binding the
+    refusal reaches the client as a typed ``-32000`` error with that reason.
+    """
+
+    def __init__(self, reason: str, message: str) -> None:
+        super().__init__(message)
+        self.reason = reason
+
+
+def _require_identity(ctx: object) -> None:
+    """Refuse an actor that cannot hold entitlements, naming why."""
+    if isinstance(ctx, ActorContext) and is_anonymous(ctx):
+        raise EntitlementError(
+            "anonymous_caller",
+            "anonymous caller: the request carried no access token on a server "
+            "with authentication configured",
+        )
+    if (
+        not getattr(ctx, "authenticated", False)
+        or not str(getattr(ctx, "actor_id", "") or "").strip()
+    ):
+        raise EntitlementError(
+            "authentication_required", "unauthenticated actor: no verified identity"
+        )
+    if not str(getattr(ctx, "tenant_id", "") or "").strip():
+        raise EntitlementError(
+            "tenant_required", "actor has no tenant: the identity names no tenant"
+        )
+
+
+def require_entitled(
+    namespace: str,
+    resource: str,
+    *,
+    actor: ActorContext | None = None,
+    super_caps: Iterable[str] = DEFAULT_SUPER_CAPS,
+) -> None:
+    """Refuse unless the actor may reach ``namespace:resource``, naming the cause.
+
+    Raises:
+        EntitlementError: the actor is anonymous, unauthenticated, has no
+            tenant, or is ``not entitled to <namespace>:<resource>``.
+    """
+    ctx = actor if actor is not None else current_actor()
+    _require_identity(ctx)
+    capabilities = (*getattr(ctx, "roles", ()), *getattr(ctx, "groups", ()))
+    if not is_entitled(capabilities, namespace, resource, super_caps=super_caps):
+        raise EntitlementError(
+            "not_entitled", f"not entitled to {namespace}:{resource}"
+        )
 
 
 @dataclass(frozen=True)

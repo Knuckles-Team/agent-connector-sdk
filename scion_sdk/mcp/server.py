@@ -70,10 +70,12 @@ def _parse_arguments(
 
 def _authentication(
     args: argparse.Namespace, resolver: CredentialResolver | None
-) -> Any:
+) -> tuple[Any, bool]:
+    """The auth provider, and whether the operator explicitly chose auth type none."""
     try:
         build_network_serving_config(args)
-        return configure_auth(args, resolver=resolver)
+        no_auth = args.auth_type == "none"
+        return configure_auth(args, resolver=resolver), no_auth
     except (NetworkExposureError, AuthConfigurationError) as exc:
         _logger.error("Refusing to build MCP server: %s", exc)
         raise SystemExit(1) from exc
@@ -141,11 +143,12 @@ def create_mcp_server(
     args = _parse_arguments(
         create_mcp_parser(transport_choices=transport_choices), command_args
     )
+    auth, no_auth = _authentication(args, credential_resolver)
     mcp: FastMCP[Any] = FastMCP(
         name,
         instructions=instructions,
         version=version,
-        auth=_authentication(args, credential_resolver),
+        auth=auth,
         lifespan=_lifespan(args, name=name, registry=server_registry),
     )
     try:
@@ -155,6 +158,7 @@ def create_mcp_server(
             mcp=mcp,
             audience=args.token_audience,
             override=served_security_override,
+            explicit_no_auth=no_auth,
         )
     except ServedSecurityError as exc:
         _logger.error("Refusing to build MCP server: %s", exc)
@@ -177,7 +181,7 @@ def create_mcp_server(
         register_enterprise_tools(mcp, enterprise_dispatcher)
     if content is not None:
         register_connector_content(mcp, content)
-    return args, mcp, build_middleware()
+    return args, mcp, build_middleware(no_auth=no_auth)
 
 
 def _register_native_primitives(mcp: FastMCP[Any], name: str) -> None:

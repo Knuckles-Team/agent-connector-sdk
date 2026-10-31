@@ -182,8 +182,8 @@ or suppress a failing gate — fix its cause.
 
 Hosted CI is `.github/workflows/release.yml`: `gates` (the whole
 `.config/pre-commit.yaml` suite, pre-commit then pre-push stage) must pass
-before `build` (a byte-identical wheel built twice) runs; `scanner-quality`
-(pinned cccc/KISS/dupehound/jscpd) is advisory; `publish-pypi` runs only on a
+before `build` (a byte-identical wheel built twice) runs; the pinned
+cccc/KISS/dupehound/jscpd scanners report weekly in `advisory.yml`; `publish-pypi` runs only on a
 `v*` tag push, after `uv lock --check`.
 
 This repository is a shared multi-worktree checkout:

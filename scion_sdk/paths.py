@@ -13,6 +13,11 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from scion_sdk._platform_paths import (
+    platform_config_dir,
+    platform_config_file,
+    preferred_platform_config_dir,
+)
 from scion_sdk.config import setting
 
 __all__ = [
@@ -75,44 +80,3 @@ def get_mcp_config_path() -> str | None:
     """The connector's ``mcp_config.json`` under :func:`config_dir`, if present."""
     path = config_dir() / MCP_CONFIG_FILE
     return str(path) if path.is_file() else None
-
-
-# --- Platform (Arbora) configuration directory ---------------------------
-#
-# Arbora owns the platform configuration location: ``ARBORA_CONFIG_DIR``
-# or ``$XDG_CONFIG_HOME/arbora``. There is no fallback to the pre-rename
-# locations (hard cutover).
-
-PLATFORM_CONFIG_DIR_SETTING = "ARBORA_CONFIG_DIR"
-PLATFORM_APP_DIR = "arbora"
-
-
-def _config_home() -> Path:
-    return _xdg("XDG_CONFIG_HOME", ".config").parent
-
-
-def _env_dir(name: str) -> Path | None:
-    raw = os.environ.get(name)
-    return Path(raw).expanduser() if raw else None
-
-
-def preferred_platform_config_dir() -> Path:
-    """``ARBORA_CONFIG_DIR`` or ``$XDG_CONFIG_HOME/arbora``."""
-    return _env_dir(PLATFORM_CONFIG_DIR_SETTING) or _config_home() / PLATFORM_APP_DIR
-
-
-def platform_config_file(name: str) -> Path:
-    """Resolve one platform config file, e.g. ``workspace.yml``.
-
-    Always the path under :func:`preferred_platform_config_dir`; the file may
-    not exist yet, for a writer to create.
-    """
-    return preferred_platform_config_dir() / name
-
-
-def platform_config_dir(probe: str = "config.json") -> Path:
-    """The platform config directory (``probe`` is kept for callers' symmetry).
-
-    The directory is not created.
-    """
-    return platform_config_file(probe).parent

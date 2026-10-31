@@ -9,7 +9,6 @@ convention and locking primitive.
 
 from __future__ import annotations
 
-import fcntl
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -17,6 +16,7 @@ from pathlib import Path
 from typing import IO
 
 from scion_sdk.config import setting
+from scion_sdk.file_lock import lock_exclusive, unlock
 
 __all__ = ["file_lock", "get_library_file_path"]
 
@@ -42,11 +42,7 @@ def get_library_file_path(
 
 
 def _try_lock(handle: IO[str]) -> bool:
-    try:
-        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except BlockingIOError:
-        return False
-    return True
+    return lock_exclusive(handle.fileno(), blocking=False)
 
 
 def _acquire_lock(handle: IO[str], path: Path, deadline: float) -> None:
@@ -73,4 +69,4 @@ def file_lock(path: Path, *, timeout: float = 10.0) -> Iterator[None]:
         try:
             yield
         finally:
-            fcntl.flock(handle, fcntl.LOCK_UN)
+            unlock(handle.fileno())

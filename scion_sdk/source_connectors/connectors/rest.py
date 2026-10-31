@@ -12,7 +12,7 @@ a transport (``httpx.MockTransport``) or a ``fetch_fn`` so no network is require
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from typing import Any
 from urllib.parse import urljoin
 
@@ -27,48 +27,9 @@ from ..base import (
 from ..http_safety import (
     normalize_allowed_hosts,
     require_safe_source_url,
-    safe_get_json,
 )
 from ..registry import register_source
-
-# A fetch returns the decoded JSON for a (url, params) request.
-JsonFetchFn = Callable[[str, dict[str, Any]], Any]
-
-
-def _dig(record: dict[str, Any], dotted: str) -> Any:
-    """Resolve a dotted path (``a.b.c``) within a nested dict; ``None`` if absent."""
-    cur: Any = record
-    for part in dotted.split("."):
-        if isinstance(cur, dict) and part in cur:
-            cur = cur[part]
-        else:
-            return None
-    return cur
-
-
-def _make_httpx_fetch(
-    transport: Any = None,
-    headers: dict[str, str] | None = None,
-    *,
-    allowed_private_hosts: list[str] | None = None,
-    allowed_redirect_hosts: list[str] | None = None,
-    max_response_bytes: int = 10 * 1024 * 1024,
-) -> JsonFetchFn:
-    """Build a bounded, redirect-validating JSON fetcher."""
-
-    def _fetch(url: str, params: dict[str, Any]) -> Any:
-        return safe_get_json(
-            url,
-            params=params,
-            headers=headers,
-            timeout=60.0,
-            max_bytes=max_response_bytes,
-            allowed_private_hosts=allowed_private_hosts,
-            allowed_redirect_hosts=allowed_redirect_hosts,
-            transport=transport,
-        )
-
-    return _fetch
+from ._rest_support import JsonFetchFn, _cursor_value, _dig, _make_httpx_fetch
 
 
 @register_source("rest")
@@ -186,16 +147,13 @@ class RestJsonConnector(LoadConnector, PollConnector):
 
     def _next_cursor(self, body: Any, records: list[dict[str, Any]]) -> str | None:
         """Resolve the next-page cursor from the response or the last record."""
-        if self.cursor_field:
-            top = _dig(body, self.cursor_field)
-            if top or (isinstance(top, int) and not isinstance(top, bool) and top == 0):
-                return str(top)
-            if records:
-                last = _dig(records[-1], self.cursor_field)
-                if last or (
-                    isinstance(last, int) and not isinstance(last, bool) and last == 0
-                ):
-                    return str(last)
+        if not self.cursor_field:
+            return None
+        top = _cursor_value(_dig(body, self.cursor_field))
+        if top is not None:
+            return top
+        if records:
+            return _cursor_value(_dig(records[-1], self.cursor_field))
         return None
 
     def _page(
