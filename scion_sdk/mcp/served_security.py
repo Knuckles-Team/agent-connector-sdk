@@ -7,8 +7,10 @@ When one is served, :func:`apply_served_security_profile`:
 * refuses to start unless an authentication provider was actually constructed
   (a populated JWKS variable is not a substitute) and an audience is configured;
 * installs :class:`ServedSecurityMiddleware`, which rejects every MCP request that
-  lacks a verified identity, a tenant claim, an active session, or the scopes the
-  operator requires (``CONNECTOR_REQUIRED_SCOPES``).
+  lacks a verified identity, a tenant, an active session, or the scopes the
+  operator requires (``CONNECTOR_REQUIRED_SCOPES``). Subject and tenant come from
+  :func:`scion_sdk.mcp.actor_binding.token_actor`, the same resolution the
+  request binding uses.
 
 ``create_mcp_server`` applies it to every server. The only way out is an explicit
 :class:`ServedSecurityOverride` with a written reason, which is logged at warning
@@ -26,6 +28,7 @@ from fastmcp.server.middleware import Middleware, MiddlewareContext
 from mcp.shared.exceptions import MCPError
 
 from scion_sdk.config import csv_values, setting
+from scion_sdk.mcp.actor_binding import token_actor
 
 __all__ = [
     "SERVED_TRANSPORTS",
@@ -38,7 +41,6 @@ __all__ = [
 _logger = logging.getLogger(__name__)
 
 SERVED_TRANSPORTS: frozenset[str] = frozenset({"streamable-http", "sse"})
-_TENANT_CLAIMS = ("tenant_id", "tenant", "org_id", "tid", "org")
 _DENIED = -32001
 
 
@@ -87,14 +89,13 @@ class ServedSecurityMiddleware(Middleware):
         token = get_access_token()
         if token is None:
             return "authenticated identity is required"
-        claims = _claims(token)
-        subject = claims.get("sub") or getattr(token, "client_id", "") or ""
+        try:
+            actor = token_actor(token)
+        except ValueError:
+            return "the token carries no subject"
         checks = (
-            (str(subject).strip(), "the token carries no subject"),
-            (
-                any(str(claims.get(key) or "").strip() for key in _TENANT_CLAIMS),
-                "the token carries no tenant",
-            ),
+            (actor.actor_id, "the token carries no subject"),
+            (actor.tenant_id, "the token carries no tenant and no issuer"),
             (self._required <= _scopes(token), "the token lacks a required scope"),
             (_session_id(context), "an active session is required"),
         )
@@ -104,7 +105,7 @@ class ServedSecurityMiddleware(Middleware):
         reason = self._refusal(context)
         if reason is not None:
             _logger.warning("served security refused %s: %s", context.method, reason)
-            raise MCPError(_DENIED, "access denied")
+            raise MCPError(_DENIED, f"access denied: {reason}")
         return await call_next(context)
 
 
@@ -115,6 +116,7 @@ def apply_served_security_profile(
     mcp: Any = None,
     audience: str | None = None,
     override: ServedSecurityOverride | None = None,
+    explicit_no_auth: bool = False,
 ) -> bool:
     """Enforce the served profile for a network transport.
 
@@ -125,6 +127,8 @@ def apply_served_security_profile(
         audience: The configured token audience; ``CONNECTOR_JWT_AUDIENCE`` and
             ``FASTMCP_SERVER_AUTH_JWT_AUDIENCE`` are read when omitted.
         override: An explicit, logged opt-out.
+        explicit_no_auth: The operator chose auth type ``none``; the server
+            serves, and every request is the trusted local principal.
 
     Returns:
         ``True`` when the profile is active, ``False`` for ``stdio`` or an override.
@@ -141,11 +145,18 @@ def apply_served_security_profile(
             override.reason,
         )
         return False
+    if auth_provider is None and explicit_no_auth:
+        _logger.warning(
+            "served over %s with auth type none: every request is the trusted "
+            "local principal",
+            transport,
+        )
+        return False
     if auth_provider is None:
         raise ServedSecurityError(
             f"Refusing to serve over {transport}: no authentication provider is "
             "configured, so client identity cannot be validated. Set --auth-type "
-            "to a real scheme."
+            "to a real scheme, or to none explicitly."
         )
     resolved = str(
         audience

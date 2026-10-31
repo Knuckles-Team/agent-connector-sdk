@@ -117,8 +117,10 @@ class MultiAssetSourceAdapter:
             or value.source_event_id != record.record_id
         ):
             raise ValueError("source identity mismatch")
-        if self._asset_kind is not MultiAssetKind.REAL_ESTATE:
-            return
+        if self._asset_kind is MultiAssetKind.REAL_ESTATE:
+            self._check_valuation(value)
+
+    def _check_valuation(self, value: Any) -> None:
         if value.estimated_value is None or value.valuation_date.utcoffset() is None:
             raise ValueError("valuation time needs a timezone")
         age = (

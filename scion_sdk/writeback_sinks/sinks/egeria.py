@@ -43,50 +43,59 @@ class EgeriaSink(WritebackClientMixin):
 
     def _run(self, invocation: WritebackInvocation) -> WritebackResult:
         ctx, ops, client, result, dry_run = invocation.unpack()
-
         for c in ops.get("creations") or []:
-            name = c.get("name")
-            if not name:
-                continue
-            asset_type = c.get("asset_type") or _ASSET_TYPE.get(
-                (c.get("type") or "").lower(), "DeployedSoftwareComponent"
-            )
-            qn = c.get("qualified_name") or f"KG::{c.get('type', 'Asset')}::{name}"
-            if dry_run:
-                result.proposals.append(
-                    {"op": "create_asset", "type": asset_type, "name": name}
-                )
-                continue
-            # X5 (CONCEPT:AU-KG.temporal.bi-temporal-memory-layers): additional_properties
-            # is Egeria's free-form provenance channel — the KG-state instant this
-            # asset was derived from rides along in the SAME live payload, not just
-            # our own returned proposal/manifest.
-            additional_properties: dict[str, Any] = {"source": "arbora"}
-            if ctx.as_of:
-                additional_properties["as_of"] = ctx.as_of
-            try:
-                res = client.create_asset(  # type: ignore[union-attr]
-                    asset_type,
-                    qn,
-                    name,
-                    description=c.get("description", "KG-derived asset."),
-                    additional_properties=additional_properties,
-                )
-                if isinstance(res, dict) and res.get("guid"):
-                    result.created += 1
-                    ctx.stamp_external_id(
-                        c.get("node"),
-                        self.domain,
-                        str(res.get("guid")),
-                        node_type=c.get("type", ""),
-                    )
-                else:
-                    result.errors += 1
-            except Exception:
-                logger.debug("egeria create_asset failed", exc_info=True)
-                result.errors += 1
-
+            self._create(ctx, client, result, c, dry_run=dry_run)
         return result
+
+    def _create(
+        self,
+        ctx: Any,
+        client: Any,
+        result: WritebackResult,
+        c: dict[str, Any],
+        *,
+        dry_run: bool,
+    ) -> None:
+        name = c.get("name")
+        if not name:
+            return
+        asset_type = c.get("asset_type") or _ASSET_TYPE.get(
+            (c.get("type") or "").lower(), "DeployedSoftwareComponent"
+        )
+        qn = c.get("qualified_name") or f"KG::{c.get('type', 'Asset')}::{name}"
+        if dry_run:
+            result.proposals.append(
+                {"op": "create_asset", "type": asset_type, "name": name}
+            )
+            return
+        # X5 (CONCEPT:AU-KG.temporal.bi-temporal-memory-layers): additional_properties
+        # is Egeria's free-form provenance channel — the KG-state instant this
+        # asset was derived from rides along in the SAME live payload.
+        props: dict[str, Any] = {"source": "arbora"}
+        if ctx.as_of:
+            props["as_of"] = ctx.as_of
+        try:
+            res = client.create_asset(
+                asset_type,
+                qn,
+                name,
+                description=c.get("description", "KG-derived asset."),
+                additional_properties=props,
+            )
+        except Exception:
+            logger.debug("egeria create_asset failed", exc_info=True)
+            result.errors += 1
+            return
+        if isinstance(res, dict) and res.get("guid"):
+            result.created += 1
+            ctx.stamp_external_id(
+                c.get("node"),
+                self.domain,
+                str(res.get("guid")),
+                node_type=c.get("type", ""),
+            )
+        else:
+            result.errors += 1
 
 
 register_sink(EgeriaSink())

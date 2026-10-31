@@ -23,17 +23,29 @@ No environment mode selects the surface; ``MCP_TOOL_MODE`` does not exist.
 from __future__ import annotations
 
 import re
-import sys
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
 from scion_sdk.config import setting
-from scion_sdk.mcp.action_split import SPLIT_ACTION_TAG, split_action_tool
+from scion_sdk.mcp._tool_surface_actions import _operation_methods, _settle_action_tools
+from scion_sdk.mcp._tool_surface_base import (
+    ACTION_DISPATCH_TAG,
+    GATED_TOOLS_ATTRIBUTE,
+    _gate_operations,
+    _is_action_dispatch,
+    _run_verbose_register,
+    _split_registered,
+    gated_tool_names,
+    registered_tools,
+)
+from scion_sdk.mcp._tool_surface_sources import (
+    _package_root,
+    _register_declared_sources,
+)
 from scion_sdk.mcp.method_tools import (
     GATED_TAG,
     GRANULAR_TAG,
-    operation_tool_names,
     register_method_tools,
 )
 
@@ -53,31 +65,8 @@ __all__ = [
 #: ``(tag, toggle_setting, register_fn)`` for one condensed tool registrar.
 CondensedEntry = tuple[str, str, Callable[[Any], Any]]
 
-#: Tag stamped on a registrar tool kept as an opt-in action-dispatch tool.
-ACTION_DISPATCH_TAG = "action-dispatch"
-#: Server attribute recording the names tagged :data:`GATED_TAG`.
-GATED_TOOLS_ATTRIBUTE = "_intent_gated_tools"
-
 _TOGGLES_ATTRIBUTE = "_condensed_tool_toggles"
 _REGISTRAR_NAME = re.compile(r"register_(.+)_tools")
-
-
-def registered_tools(mcp: Any) -> dict[str, Any]:
-    """``{tool_name: tool}`` currently registered on the server's local provider."""
-    provider = getattr(mcp, "_local_provider", None)
-    components = getattr(provider, "_components", None)
-    if not isinstance(components, dict):
-        return {}
-    return {
-        value.name: value
-        for key, value in components.items()
-        if str(key).startswith("tool:") and getattr(value, "name", None)
-    }
-
-
-def gated_tool_names(mcp: Any) -> set[str]:
-    """Tool names tagged :data:`GATED_TAG`."""
-    return set(getattr(mcp, GATED_TOOLS_ATTRIBUTE, ()) or ())
 
 
 def _entry(item: Any) -> CondensedEntry:
@@ -153,12 +142,6 @@ def operation_prefix(service: str, tool_prefix: str | None = None) -> str:
     return re.sub(r"\W+", "_", name).strip("_").lower()
 
 
-def _is_action_dispatch(tool: Any) -> bool:
-    """Whether a registered tool routes an ``action`` string to client methods."""
-    schema = getattr(tool, "parameters", None) or {}
-    return "action" in (schema.get("properties") or {})
-
-
 def _register_operations(
     mcp: Any,
     *,
@@ -188,117 +171,6 @@ def _register_operations(
             result_coercer=target.get("result_coercer", result_coercer),
         )
     return names
-
-
-def _settle_action_tools(
-    mcp: Any, *, clients: dict[Any, dict[str, str]], keep: bool
-) -> None:
-    """Keep (``keep``) or split every action-routed registrar tool; never drop one.
-
-    ``clients`` maps each served client class and factory to ``{method: tool}`` for
-    the operation tools about to be served; a split action that duplicates one
-    is covered by it and recorded in the registration report.
-    """
-    operations = _flat_operations(clients)
-    gated: set[str] = getattr(mcp, GATED_TOOLS_ATTRIBUTE, set())
-    for name, tool in list(registered_tools(mcp).items()):
-        if not _is_action_dispatch(tool) or SPLIT_ACTION_TAG in (tool.tags or set()):
-            continue
-        if keep:
-            tool.tags.add(ACTION_DISPATCH_TAG)
-            continue
-        added = split_action_tool(
-            mcp,
-            name,
-            tool,
-            operations=operations,
-            taken=set(registered_tools(mcp)) - {name},
-            clients=clients,
-        )
-        if name not in added:
-            gated.discard(name)
-        gated.update(added)
-    setattr(mcp, GATED_TOOLS_ATTRIBUTE, gated)
-
-
-def _operation_methods(
-    prefix: str,
-    client_cls: type | None,
-    get_client: Any,
-    manifest: list[dict[str, Any]] | None,
-    verbose_targets: list[dict[str, Any]] | None,
-) -> dict[Any, dict[str, str]]:
-    """``{client class or factory: {method: tool_name}}`` for every operation tool."""
-    targets = (
-        [(client_cls, get_client, prefix, manifest)] if client_cls is not None else []
-    )
-    targets += [
-        (
-            t["client_cls"],
-            t.get("get_client"),
-            str(t.get("prefix") or prefix),
-            t.get("manifest"),
-        )
-        for t in verbose_targets or []
-        if "client_cls" in t
-    ]
-    clients: dict[Any, dict[str, str]] = {}
-    for cls, factory, target_prefix, target_manifest in targets:
-        names = operation_tool_names(
-            cls, prefix=target_prefix, manifest=target_manifest
-        )
-        clients.setdefault(cls, names)
-        if factory is not None:
-            clients.setdefault(factory, names)
-    return clients
-
-
-def _flat_operations(clients: dict[Any, dict[str, str]]) -> dict[str, str]:
-    names: dict[str, str] = {}
-    for operations in clients.values():
-        for method, tool in operations.items():
-            names.setdefault(method, tool)
-    return names
-
-
-def _package_root(owner: Any) -> Path | None:
-    """The directory of the top-level package that defines ``owner``."""
-    module_name = getattr(owner, "__module__", None) or getattr(owner, "__name__", "")
-    top = str(module_name).split(".", 1)[0]
-    module = sys.modules.get(top)
-    location = getattr(module, "__file__", None)
-    return Path(location).parent if location else None
-
-
-def _declared_connector(root: Path, fallback: str) -> str:
-    from scion_sdk.connector_identity import (
-        ConnectorIdentityError,
-        connector_name,
-    )
-
-    try:
-        return connector_name(root.name)
-    except ConnectorIdentityError:
-        return fallback
-
-
-def _register_declared_sources(mcp: Any, prefix: str, root: Path | None) -> None:
-    """Serve the connector's live source declaration (SCION-CONNECTOR-CONTROL-R075).
-
-    ``connector://resources`` is built from the read tools' ``meta``.
-    """
-    if root is None:
-        return
-    from scion_sdk.ingest.live_declaration import (
-        load_sources_module,
-        register_live_declaration,
-    )
-
-    register_live_declaration(
-        mcp,
-        _declared_connector(root, prefix),
-        declared=load_sources_module(root),
-    )
 
 
 def register_tool_surface(
@@ -370,7 +242,11 @@ def register_tool_surface(
         _settle_action_tools(
             mcp,
             clients=_operation_methods(
-                prefix, client_cls, get_client, manifest, verbose_targets
+                prefix=prefix,
+                client_cls=client_cls,
+                get_client=get_client,
+                manifest=manifest,
+                verbose_targets=verbose_targets,
             ),
             keep=action_dispatch,
         )
@@ -383,23 +259,12 @@ def register_tool_surface(
         verbose_targets=verbose_targets,
         result_coercer=result_coercer,
     )
-    if operations:
-        gated: set[str] = getattr(mcp, GATED_TOOLS_ATTRIBUTE, set())
-        setattr(mcp, GATED_TOOLS_ATTRIBUTE, gated | set(operations))
+    _gate_operations(mcp, operations)
     _register_declared_sources(
         mcp, prefix, package_root or _package_root(client_cls or tools_module)
     )
     if verbose_register is not None:
-        before = registered_tools(mcp)
-        verbose_register(mcp)
-        after = registered_tools(mcp)
-        collisions = {
-            name for name in before if name in after and after[name] is not before[name]
-        }
-        if collisions:
-            raise ValueError(
-                f"verbose tool name collides with a registered tool: {sorted(collisions)}"
-            )
+        _run_verbose_register(mcp, verbose_register)
     return tags
 
 
@@ -424,20 +289,10 @@ def register_action_tools(
     """
     before = set(registered_tools(mcp))
     tags = _register_condensed(mcp, list(entries))
-    gated: set[str] = getattr(mcp, GATED_TOOLS_ATTRIBUTE, set())
     for name, tool in list(registered_tools(mcp).items()):
         if name in before or not _is_action_dispatch(tool):
             continue
-        added = split_action_tool(
-            mcp,
-            name,
-            tool,
-            operations={},
-            taken=set(registered_tools(mcp)) - {name},
-            prefix=(prefixes or {}).get(name),
+        _split_registered(
+            mcp, name, tool, operations={}, prefix=(prefixes or {}).get(name)
         )
-        if name not in added:
-            gated.discard(name)
-        gated.update(added)
-    setattr(mcp, GATED_TOOLS_ATTRIBUTE, gated)
     return tags

@@ -21,6 +21,22 @@ from scion_sdk.tls.profile import ResolvedTLSProfile
 __all__ = ["create_requests_session"]
 
 
+def _checked_timeout(timeout: Any) -> Any:
+    """``timeout`` (or the default) when finite and positive, else ``ValueError``."""
+    if timeout is None:
+        timeout = DEFAULT_TIMEOUT_SECONDS
+    values = timeout if isinstance(timeout, tuple) else (timeout,)
+    if (isinstance(timeout, tuple) and len(timeout) != 2) or not all(
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(value)
+        and value > 0
+        for value in values
+    ):
+        raise ValueError("timeout must be finite and positive")
+    return timeout
+
+
 class _RequestsSession(requests.Session):
     """Enforce the safety boundary even when a caller invokes send directly."""
 
@@ -29,18 +45,7 @@ class _RequestsSession(requests.Session):
     ) -> requests.Response:
         if not self.verify or not kwargs.get("verify", self.verify):
             raise ValueError("TLS verification cannot be disabled")
-        timeout = kwargs.get("timeout")
-        if timeout is None:
-            timeout = DEFAULT_TIMEOUT_SECONDS
-        values = timeout if isinstance(timeout, tuple) else (timeout,)
-        if (isinstance(timeout, tuple) and len(timeout) != 2) or not all(
-            isinstance(value, (int, float))
-            and not isinstance(value, bool)
-            and math.isfinite(value)
-            and value > 0
-            for value in values
-        ):
-            raise ValueError("timeout must be finite and positive")
+        timeout = _checked_timeout(kwargs.get("timeout"))
         kwargs["timeout"] = timeout
         proxies = kwargs.get("proxies") or self.proxies
         _check_airgap(

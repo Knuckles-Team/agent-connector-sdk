@@ -48,33 +48,36 @@ class SecretReference:
             raise SecretReferenceError("secret reference is invalid")
         scheme: object = self.scheme
         if scheme == "env":
-            valid = (
-                _ENV_NAME_RE.fullmatch(self.target) is not None
-                and self.mount == self.path == self.field == ""
-                and self.version is None
-            )
+            valid = self._valid_env()
         elif scheme == "openbao":
-            match = _OPENBAO_RE.fullmatch(self.target)
-            valid = bool(
-                match is not None
-                and all(
-                    segment not in {"", ".", ".."}
-                    for segment in match["path"].split("/")
-                )
-                and self.mount == match["mount"]
-                and self.path == match["path"]
-                and self.field == match["field"]
-                and (
-                    self.version is None
-                    if match["version"] is None
-                    else type(self.version) is int
-                    and self.version == int(match["version"])
-                )
-            )
+            valid = self._valid_openbao()
         else:
             valid = False
         if not valid:
             raise SecretReferenceError("secret reference is invalid")
+
+    def _valid_env(self) -> bool:
+        return (
+            _ENV_NAME_RE.fullmatch(self.target) is not None
+            and self.mount == self.path == self.field == ""
+            and self.version is None
+        )
+
+    def _valid_openbao(self) -> bool:
+        match = _OPENBAO_RE.fullmatch(self.target)
+        if match is None:
+            return False
+        if any(segment in {"", ".", ".."} for segment in match["path"].split("/")):
+            return False
+        if not (
+            self.mount == match["mount"]
+            and self.path == match["path"]
+            and self.field == match["field"]
+        ):
+            return False
+        if match["version"] is None:
+            return self.version is None
+        return type(self.version) is int and self.version == int(match["version"])
 
     def render(self) -> str:
         """Return the canonical reference string."""

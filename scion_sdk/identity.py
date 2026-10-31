@@ -10,7 +10,7 @@ resolves one from the transport of the current request (see
 :mod:`scion_sdk.mcp.actor_binding`): :data:`SYSTEM_ACTOR` for a local
 transport, process startup or background work with no request; the verified
 token's actor for authenticated HTTP; and :data:`ANONYMOUS_ACTOR`, which holds
-no entitlements, for unauthenticated HTTP (including a no-auth HTTP server).
+no entitlements, for HTTP without a verified token.
 :func:`use_actor` is only an explicit override, for tests and embedding.
 
 Actor type is descriptive provenance; it never grants authorization.

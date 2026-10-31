@@ -20,6 +20,7 @@ from ..core import (
     resolve_writeback_client,
 )
 from ..models import GraphNode
+from ._capability_nodes import _name_of, _node_props, _should_push
 
 logger = logging.getLogger(__name__)
 
@@ -32,28 +33,6 @@ def _connector_client(module: str) -> Any | None:
 WritebackFn = Callable[[list[GraphNode]], WritebackResult]
 
 
-def _name_of(node: Any) -> str:
-    props = node.props if isinstance(node, GraphNode) else (node.get("props") or node)
-    nid = node.id if isinstance(node, GraphNode) else node.get("id")
-    return str((props or {}).get("name") or nid)
-
-
-def _props(node: Any) -> dict[str, Any]:
-    return node.props if isinstance(node, GraphNode) else (node.get("props") or {})
-
-
-def _type(node: Any) -> str:
-    return node.type if isinstance(node, GraphNode) else str(node.get("type") or "")
-
-
-def _should_push(node: Any) -> bool:
-    """Only push provisional/code-derived capabilities (not mirrored upstream ones)."""
-    if _type(node) != "BusinessCapability":
-        return False
-    p = _props(node)
-    return bool(p.get("provisional") or p.get("derived_from"))
-
-
 def _push_archi(client: Any, node: Any, result: WritebackResult) -> None:
     add_element = getattr(client, "add_element", None)
     if not callable(add_element):
@@ -62,7 +41,7 @@ def _push_archi(client: Any, node: Any, result: WritebackResult) -> None:
         add_element(
             type="Capability",
             name=_name_of(node),
-            documentation=str(_props(node).get("summary") or ""),
+            documentation=str(_node_props(node).get("summary") or ""),
             properties={"source": "agent-utilities"},
         )
         result.created += 1
@@ -84,13 +63,19 @@ def _push_leanix(client: Any, node: Any, result: WritebackResult) -> None:
     for method_name in ("postbusinesscapability", "create_business_capability"):
         method = getattr(client, method_name, None)
         if callable(method):
-            try:
-                method({"name": _name_of(node), "type": "BusinessCapability"})
-                result.created += 1
-            except Exception as exc:  # pragma: no cover
-                logger.debug("LeanIX %s failed: %s", method_name, exc)
-                result.errors += 1
+            _call_leanix_method(method, method_name, node, result)
             return
+
+
+def _call_leanix_method(
+    method: Any, method_name: str, node: Any, result: WritebackResult
+) -> None:
+    try:
+        method({"name": _name_of(node), "type": "BusinessCapability"})
+        result.created += 1
+    except Exception as exc:  # pragma: no cover
+        logger.debug("LeanIX %s failed: %s", method_name, exc)
+        result.errors += 1
 
 
 def push_capabilities(
@@ -107,19 +92,30 @@ def push_capabilities(
         return result
     seen = {n.strip().lower() for n in (existing_names or []) if n}
     for node in nodes:
-        if not _should_push(node):
-            continue
-        if _name_of(node).strip().lower() in seen:
-            result.skipped += 1
-            continue
-        if dry_run:
-            result.proposals.append({"op": "create_capability", "name": _name_of(node)})
-            continue
-        if archi_client is not None:
-            _push_archi(archi_client, node, result)
-        if leanix_client is not None:
-            _push_leanix(leanix_client, node, result)
+        if _should_push(node):
+            _push_node(node, seen, result, archi_client, leanix_client, dry_run=dry_run)
     return result
+
+
+def _push_node(
+    node: Any,
+    seen: set[str],
+    result: WritebackResult,
+    archi_client: Any | None,
+    leanix_client: Any | None,
+    *,
+    dry_run: bool,
+) -> None:
+    if _name_of(node).strip().lower() in seen:
+        result.skipped += 1
+        return
+    if dry_run:
+        result.proposals.append({"op": "create_capability", "name": _name_of(node)})
+        return
+    if archi_client is not None:
+        _push_archi(archi_client, node, result)
+    if leanix_client is not None:
+        _push_leanix(leanix_client, node, result)
 
 
 def make_writeback_fn(

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
@@ -38,6 +39,7 @@ from scion_sdk.mcp.network_validation import (
 __all__ = ["NetworkServingConfig", "build_network_serving_config"]
 
 _H11_MAX_INCOMPLETE_EVENT_SIZE = 65_536
+_logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, slots=True)
@@ -54,6 +56,7 @@ class NetworkServingConfig:
     port: int
     auth_type: str
     allowed_hosts: tuple[str, ...]
+    auth_explicit: bool = True
     allowed_origins: tuple[str, ...] = ()
     tls_certfile: str | None = None
     tls_keyfile: str | None = None
@@ -110,10 +113,20 @@ class NetworkServingConfig:
     def _validate_remote_boundary(self, *, direct_tls: bool) -> None:
         if is_loopback_host(self.host):
             return
-        if self.auth_type == "none":
+        if self.auth_type == "none" and not self.auth_explicit:
             raise NetworkExposureError(
-                "an exposed MCP listener requires authentication"
+                "an exposed MCP listener requires authentication; "
+                "pass --auth-type none to serve without it"
             )
+        if self.auth_type == "none":
+            # An explicit operator choice: serve, with one clear warning.
+            _logger.warning(
+                "MCP listener on %s:%s has auth type none: every request is the "
+                "trusted local principal; only the deployment boundary protects it",
+                self.host,
+                self.port,
+            )
+            return
         if not direct_tls and not self.tls_terminated:
             raise NetworkExposureError("an exposed MCP listener requires TLS")
 

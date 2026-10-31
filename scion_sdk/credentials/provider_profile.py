@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Any
@@ -118,46 +118,50 @@ def _references(raw: Any) -> dict[str, str]:
     return out
 
 
-def _inconsistencies(profile: ProviderProfile) -> tuple[object, ...]:
-    return (
-        profile.tls_profile and profile.tls_profile_ref,
-        profile.endpoint_ref and not (profile.tls_profile or profile.tls_profile_ref),
-        set(profile.credential_refs) & set(profile.selector_refs),
-        profile.enabled and not _has_reference(profile),
-    )
-
-
-def _has_reference(profile: ProviderProfile) -> bool:
-    return bool(
-        profile.endpoint_ref or profile.credential_refs or profile.selector_refs
-    )
-
-
-def _check_consistency(profile: ProviderProfile) -> None:
-    if any(_inconsistencies(profile)):
-        raise ProviderProfileError("provider_profiles_invalid")
-
-
-def _profile(raw: Any) -> ProviderProfile:
-    if not isinstance(raw, Mapping) or not set(raw) <= {
+_PROFILE_KEYS = frozenset(
+    {
         "enabled",
         "endpoint_ref",
         "credential_refs",
         "selector_refs",
         "tls_profile",
         "tls_profile_ref",
-    }:
-        raise ProviderProfileError("provider_profiles_invalid")
-    endpoint_ref = raw.get("endpoint_ref")
-    tls_ref = raw.get("tls_profile_ref")
-    tls_name = raw.get("tls_profile")
+    }
+)
+
+
+def _optional_reference(value: Any) -> str | None:
     try:
-        endpoint_ref = (
-            validate_runtime_secret_reference(endpoint_ref) if endpoint_ref else None
-        )
-        tls_ref = validate_runtime_secret_reference(tls_ref) if tls_ref else None
+        return validate_runtime_secret_reference(value) if value else None
     except RuntimeSecretReferenceError:
         raise ProviderProfileError("provider_profiles_invalid") from None
+
+
+def _check_profile_consistency(profile: ProviderProfile) -> None:
+    invalid = (
+        (profile.tls_profile and profile.tls_profile_ref)
+        or (
+            profile.endpoint_ref
+            and not (profile.tls_profile or profile.tls_profile_ref)
+        )
+        or set(profile.credential_refs) & set(profile.selector_refs)
+        or (
+            profile.enabled
+            and not (
+                profile.endpoint_ref or profile.credential_refs or profile.selector_refs
+            )
+        )
+    )
+    if invalid:
+        raise ProviderProfileError("provider_profiles_invalid")
+
+
+def _profile(raw: Any) -> ProviderProfile:
+    if not isinstance(raw, Mapping) or not set(raw) <= _PROFILE_KEYS:
+        raise ProviderProfileError("provider_profiles_invalid")
+    endpoint_ref = _optional_reference(raw.get("endpoint_ref"))
+    tls_ref = _optional_reference(raw.get("tls_profile_ref"))
+    tls_name = raw.get("tls_profile")
     if tls_name is not None and (
         not isinstance(tls_name, str) or _TLS_NAME_RE.fullmatch(tls_name) is None
     ):
@@ -170,7 +174,7 @@ def _profile(raw: Any) -> ProviderProfile:
         tls_profile=tls_name,
         tls_profile_ref=tls_ref,
     )
-    _check_consistency(profile)
+    _check_profile_consistency(profile)
     return profile
 
 
@@ -209,50 +213,39 @@ def load_provider_profiles(
     return profiles
 
 
-def _secure_endpoint(value: str) -> str:
-    rendered = value.strip().rstrip("/")
-    bad = (
+def _endpoint_is_bad_text(rendered: str) -> bool:
+    return (
         not rendered
         or len(rendered.encode("utf-8")) > _MAX_ENDPOINT_BYTES
         or any(c.isspace() or ord(c) < 32 for c in rendered)
     )
+
+
+def _endpoint_is_unsafe(parsed: Any, port: int | None) -> bool:
+    scheme = parsed.scheme.casefold()
+    host = (parsed.hostname or "").casefold()
+    return (
+        scheme not in {"http", "https"}
+        or not host
+        or parsed.username is not None
+        or parsed.password is not None
+        or bool(parsed.query)
+        or bool(parsed.fragment)
+        or (port is not None and not 1 <= port <= 65_535)
+        or (scheme == "http" and host not in _LOOPBACK)
+    )
+
+
+def _secure_endpoint(value: str) -> str:
+    rendered = value.strip().rstrip("/")
     try:
         parsed = urlsplit(rendered)
         port = parsed.port
     except ValueError:
         raise ProviderProfileError("provider_endpoint_invalid") from None
-    host = (parsed.hostname or "").casefold()
-    if (
-        bad
-        or parsed.scheme.casefold() not in {"http", "https"}
-        or not host
-        or parsed.username is not None
-        or parsed.password is not None
-        or parsed.query
-        or parsed.fragment
-        or (port is not None and not 1 <= port <= 65_535)
-        or (parsed.scheme.casefold() == "http" and host not in _LOOPBACK)
-    ):
+    if _endpoint_is_bad_text(rendered) or _endpoint_is_unsafe(parsed, port):
         raise ProviderProfileError("provider_endpoint_invalid")
     return rendered
-
-
-def _resolved_triplet(
-    profile: ProviderProfile, one: Callable[[str], str]
-) -> tuple[str | None, dict[str, str], dict[str, str]]:
-    endpoint = (
-        _secure_endpoint(one(profile.endpoint_ref)) if profile.endpoint_ref else None
-    )
-    credentials = {a: one(r) for a, r in profile.credential_refs.items()}
-    selectors: dict[str, str] = {}
-    for alias, reference in profile.selector_refs.items():
-        value = one(reference)
-        if len(value.encode("utf-8")) > _MAX_SELECTOR_BYTES or any(
-            c in value for c in "\x00\r\n"
-        ):
-            raise ProviderProfileError("provider_selector_invalid")
-        selectors[alias] = value
-    return endpoint, credentials, selectors
 
 
 def _resolve_values(
@@ -262,11 +255,25 @@ def _resolve_values(
         return resolve_runtime_secret_reference(reference, resolver=resolver)
 
     try:
-        return _resolved_triplet(profile, one)
+        endpoint = (
+            _secure_endpoint(one(profile.endpoint_ref))
+            if profile.endpoint_ref
+            else None
+        )
+        credentials = {a: one(r) for a, r in profile.credential_refs.items()}
+        selectors: dict[str, str] = {}
+        for alias, reference in profile.selector_refs.items():
+            value = one(reference)
+            if len(value.encode("utf-8")) > _MAX_SELECTOR_BYTES or any(
+                c in value for c in "\x00\r\n"
+            ):
+                raise ProviderProfileError("provider_selector_invalid")
+            selectors[alias] = value
     except ProviderProfileError:
         raise
     except Exception:
         raise ProviderProfileError("provider_runtime_reference_unavailable") from None
+    return endpoint, credentials, selectors
 
 
 def resolve_provider_profile(

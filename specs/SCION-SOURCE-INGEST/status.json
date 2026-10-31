@@ -289,12 +289,27 @@
     "SCION-SOURCE-INGEST-R805.6",
     "SCION-SOURCE-INGEST-R805.7",
     "SCION-SOURCE-INGEST-R004.50",
-    "SCION-SOURCE-INGEST-R903"
+    "SCION-SOURCE-INGEST-R005.41",
+    "SCION-SOURCE-INGEST-R007.1",
+    "SCION-SOURCE-INGEST-R017.7",
+    "SCION-SOURCE-INGEST-R903",
+    "SCION-SOURCE-INGEST-R903.1",
+    "SCION-SOURCE-INGEST-R903.2",
+    "SCION-SOURCE-INGEST-R903.3",
+    "SCION-SOURCE-INGEST-R903.4",
+    "SCION-SOURCE-INGEST-R903.5",
+    "SCION-SOURCE-INGEST-R903.6",
+    "SCION-SOURCE-INGEST-R904",
+    "SCION-SOURCE-INGEST-R905",
+    "SCION-SOURCE-INGEST-R906",
+    "SCION-SOURCE-INGEST-R907",
+    "SCION-SOURCE-INGEST-R908",
+    "SCION-SOURCE-INGEST-R909"
   ],
   "requirements": [
     {
       "id": "SCION-SOURCE-INGEST-R001",
-      "title": "SDK runner completes generated contracts",
+      "title": "Runner runs independent stages concurrently and resumes each from its receipt (rollup)",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": [],
@@ -332,7 +347,7 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R004",
-      "title": "SDK runner performs enterprise source synchronization",
+      "title": "Runner performs enterprise source synchronization",
       "delivery_state": "SPECIFIED",
       "landed_in": [
         "23f241b07560",
@@ -403,7 +418,7 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R005",
-      "title": "SDK adapters cover document, conversation, and feed sources",
+      "title": "SDK adapters cover document, conversation and feed sources (rollup)",
       "delivery_state": "SPECIFIED",
       "landed_in": [
         "0398017fcbb6",
@@ -471,7 +486,8 @@
         "SCION-SOURCE-INGEST-R005.51",
         "SCION-SOURCE-INGEST-R005.52",
         "SCION-SOURCE-INGEST-R005.53",
-        "SCION-SOURCE-INGEST-R005.55"
+        "SCION-SOURCE-INGEST-R005.55",
+        "SCION-SOURCE-INGEST-R005.41"
       ]
     },
     {
@@ -489,35 +505,35 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.2",
-      "title": "Behavior",
+      "title": "Paper providers: search, merge, quota and complete download",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.3",
-      "title": "Wiring",
+      "title": "Register paper operations in a served connector",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.4",
-      "title": "Refusal",
+      "title": "Paper refusals",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.5",
-      "title": "Evidence",
+      "title": "Paper evidence and redaction",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.6",
-      "title": "Hot-path proof",
+      "title": "Hot-path proof for paper sources",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
@@ -1037,12 +1053,15 @@
     {
       "id": "SCION-SOURCE-INGEST-R007",
       "title": "Drift gate runs inside the SDK connector-sync runner",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "ffb9260d7602"
       ],
       "verified_by": [
         "tests/test_schema_drift.py:206"
+      ],
+      "rollup_of": [
+        "SCION-SOURCE-INGEST-R007.1"
       ]
     },
     {
@@ -1098,7 +1117,7 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R011",
-      "title": "SDK ships the `ingest-worker` command (unblocks `MEDULLA-INGEST-WORKER-R001.15`)",
+      "title": "SDK ships the ingest-worker command",
       "delivery_state": "SPECIFIED",
       "landed_in": [
         "e02d323a3394"
@@ -1112,7 +1131,7 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R011.1",
-      "title": "No placement policy constants in the worker (moved from MEDULLA EG-PLACEMENT-R002.13)",
+      "title": "The worker holds no placement policy and runs exactly the granted slots",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
@@ -1253,80 +1272,86 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R001.2",
-      "title": "Behavior",
+      "title": "Stage executor: concurrent, dependency-ordered, resumable",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R001.3",
-      "title": "Wiring",
+      "title": "Wire the stage executor into the worker cycle",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R001.4",
-      "title": "Refusal",
+      "title": "Refuse unsafe stage graphs and ambiguous commits",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R001.5",
-      "title": "Evidence",
+      "title": "Stage reports bind run, receipts and tokens",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R001.6",
-      "title": "Hot-path proof",
+      "title": "Hot-path proof for concurrent stages",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.1",
-      "title": "Model",
-      "delivery_state": "SPECIFIED",
+      "title": "RETIRED: Model of the generic database boundary",
+      "delivery_state": "RETIRED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [],
+      "retired_reason": "Model of the generic database boundary"
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.2",
-      "title": "Behavior",
-      "delivery_state": "SPECIFIED",
+      "title": "RETIRED: Behavior of the generic database boundary",
+      "delivery_state": "RETIRED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [],
+      "retired_reason": "Behavior of the generic database boundary"
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.3",
-      "title": "Wiring",
-      "delivery_state": "SPECIFIED",
+      "title": "RETIRED: Wiring of the generic database boundary",
+      "delivery_state": "RETIRED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [],
+      "retired_reason": "Wiring of the generic database boundary"
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.4",
-      "title": "Refusal",
-      "delivery_state": "SPECIFIED",
+      "title": "RETIRED: Refusal of the generic database boundary",
+      "delivery_state": "RETIRED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [],
+      "retired_reason": "Refusal of the generic database boundary"
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.5",
-      "title": "Evidence",
-      "delivery_state": "SPECIFIED",
+      "title": "RETIRED: Evidence of the generic database boundary",
+      "delivery_state": "RETIRED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [],
+      "retired_reason": "Evidence of the generic database boundary"
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.6",
-      "title": "Hot-path proof",
-      "delivery_state": "SPECIFIED",
+      "title": "RETIRED: Hot-path proof of the generic database boundary",
+      "delivery_state": "RETIRED",
       "landed_in": [],
-      "verified_by": []
+      "verified_by": [],
+      "retired_reason": "Hot-path proof of the generic database boundary"
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.7",
@@ -1358,28 +1383,28 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.9",
-      "title": "Wiring",
+      "title": "Register the offline bookmark reader and feed the sync worker",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.10",
-      "title": "Refusal",
+      "title": "Bookmark refusals",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.11",
-      "title": "Evidence",
+      "title": "Bookmark evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.12",
-      "title": "Hot-path proof",
+      "title": "Hot-path proof for offline bookmark import",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
@@ -1398,35 +1423,35 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.14",
-      "title": "Behavior",
+      "title": "Chain log decoding behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.15",
-      "title": "Wiring",
+      "title": "Wire the chain-log reader into the event-feed path",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.16",
-      "title": "Refusal",
+      "title": "Chain log refusals",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.17",
-      "title": "Evidence",
+      "title": "Chain log evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.18",
-      "title": "Hot-path proof",
+      "title": "Hot-path proof for chain log ingestion",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
@@ -1485,7 +1510,7 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.21",
-      "title": "Wiring",
+      "title": "Register the workspace reader and feed the sync worker",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
@@ -1519,91 +1544,91 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.24",
-      "title": "Hot-path proof",
+      "title": "Hot-path proof for workspace reads",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.25",
-      "title": "Model",
+      "title": "Scheduled paper-intake job model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.26",
-      "title": "Behavior",
+      "title": "Scheduled intake: claim, propose, admit, ingest",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.27",
-      "title": "Wiring",
+      "title": "Wire the scheduled job to the engine scheduler and worker",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.28",
-      "title": "Refusal",
+      "title": "Scheduled intake refusals",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.29",
-      "title": "Evidence",
+      "title": "Scheduled intake evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.30",
-      "title": "Hot-path proof",
+      "title": "Hot-path proof for scheduled paper intake",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.31",
-      "title": "Model",
+      "title": "Paper fact record model with provenance and citation edges",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.32",
-      "title": "Behavior",
+      "title": "Extract paper facts and citation edges for engine assertion",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.33",
-      "title": "Wiring",
+      "title": "Wire paper fact records into the source path",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.34",
-      "title": "Refusal",
+      "title": "Paper fact refusals",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.35",
-      "title": "Evidence",
+      "title": "Paper fact evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.36",
-      "title": "Hot-path proof",
+      "title": "Hot-path proof for paper facts and citation edges",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
@@ -1723,7 +1748,7 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R005.40.6",
-      "title": "Hot-path proof",
+      "title": "Hot-path proof for the web-source contract",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
@@ -1951,42 +1976,42 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.7",
-      "title": "Model",
+      "title": "Approved SQL client: models and delivery envelopes",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.8",
-      "title": "Behavior",
+      "title": "Approved SQL client: checked, bounded streaming",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.9",
-      "title": "Wiring",
+      "title": "Register the approved SQL receiver and feed the sync worker",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.10",
-      "title": "Refusal",
+      "title": "Approved SQL client: terminal failure semantics",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.11",
-      "title": "Evidence",
+      "title": "Approved SQL client: page evidence and redaction",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.12",
-      "title": "Hot-path proof",
+      "title": "Hot-path proof for approved SQL",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
@@ -2172,42 +2197,42 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.13",
-      "title": "Model",
+      "title": "Repository delta index state model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.14",
-      "title": "Behavior",
+      "title": "Repository delta indexing: changed files only, bounded memory",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.15",
-      "title": "Wiring",
+      "title": "Wire delta index state into the worker and the adapter",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.16",
-      "title": "Refusal",
+      "title": "Repository delta index refusals",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.17",
-      "title": "Evidence",
+      "title": "Repository delta index evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R004.18",
-      "title": "Hot-path proof",
+      "title": "Hot-path proof for the repository delta index",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
@@ -2487,49 +2512,49 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R013.1",
-      "title": "Model",
+      "title": "Harness manifest model",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R013.2",
-      "title": "Behavior",
+      "title": "Harness session sync behavior",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R013.3",
-      "title": "Wiring",
+      "title": "Wire harness sessions into the runner and the engine index",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R013.4",
-      "title": "Refusal",
+      "title": "Harness session refusals",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R013.5",
-      "title": "Evidence",
+      "title": "Harness session evidence",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R013.6",
-      "title": "Hot-path proof",
+      "title": "Hot-path proof for harness sessions",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
     },
     {
       "id": "SCION-SOURCE-INGEST-R014",
-      "title": "Meeting transcript and selected summary transport",
+      "title": "Meeting transcript transport and receipt-bound summary dispatch (rollup)",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": [],
@@ -2586,7 +2611,7 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R015",
-      "title": "Paper throughput decision and durable purge obligation",
+      "title": "Paper maintenance order execution (rollup)",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": [],
@@ -2643,7 +2668,7 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R016",
-      "title": "Typed media enrichment with vision inference and attachment",
+      "title": "Typed media tags from a declared producer (rollup)",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": [],
@@ -3291,7 +3316,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/source_connectors/test_universal.py:40"
+        "tests/source_connectors/test_universal.py:43"
       ]
     },
     {
@@ -3337,7 +3362,7 @@
         "4b003b24ce55"
       ],
       "verified_by": [
-        "tests/source_connectors/test_universal.py:83"
+        "tests/source_connectors/test_universal.py:86"
       ]
     },
     {
@@ -3568,7 +3593,8 @@
         "SCION-SOURCE-INGEST-R017.3",
         "SCION-SOURCE-INGEST-R017.4",
         "SCION-SOURCE-INGEST-R017.5",
-        "SCION-SOURCE-INGEST-R017.6"
+        "SCION-SOURCE-INGEST-R017.6",
+        "SCION-SOURCE-INGEST-R017.7"
       ]
     },
     {
@@ -3675,7 +3701,7 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R805.5",
-      "title": "Read-time access lookup port",
+      "title": "Read-time access lookup port and tool",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
@@ -3712,8 +3738,123 @@
       ]
     },
     {
+      "id": "SCION-SOURCE-INGEST-R005.41",
+      "title": "Stream source adapter: read broker records, submit pages, commit offsets after the accepted checkpoint",
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "cb75b1d7a164"
+      ],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R007.1",
+      "title": "The runner holds the checkpoint on SCHEMA_DRIFT_QUARANTINED and keeps the engine report",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R017.7",
+      "title": "Remove the legacy binding without a contract",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
       "id": "SCION-SOURCE-INGEST-R903",
-      "title": "Raw-corpus search operations",
+      "title": "Raw-corpus search operations (rollup)",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "SCION-SOURCE-INGEST-R903.1",
+        "SCION-SOURCE-INGEST-R903.2",
+        "SCION-SOURCE-INGEST-R903.3",
+        "SCION-SOURCE-INGEST-R903.4",
+        "SCION-SOURCE-INGEST-R903.5",
+        "SCION-SOURCE-INGEST-R903.6"
+      ]
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R903.1",
+      "title": "Model",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R903.2",
+      "title": "Behavior",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R903.3",
+      "title": "Wiring",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R903.4",
+      "title": "Refusal",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R903.5",
+      "title": "Evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R903.6",
+      "title": "Hot-path proof",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R904",
+      "title": "Paper retrieval stages papers for admission",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R905",
+      "title": "SQL sources send a column profile",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R906",
+      "title": "Data-prep kernel reads the engine declaration",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R907",
+      "title": "Sync scheduler submits ingest jobs through the engine queue",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R908",
+      "title": "Runner provides an OCR extractor for scanned images",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-SOURCE-INGEST-R909",
+      "title": "External graph and GraphQL discovery probe",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []

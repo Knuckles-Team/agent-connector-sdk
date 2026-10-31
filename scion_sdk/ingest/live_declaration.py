@@ -20,6 +20,7 @@ from scion_sdk.artifacts.resource_descriptor import RESOURCES_URI
 from scion_sdk.ingest.source_metadata import (
     META_KEY,
     SOURCES_MODULE,
+    _entries,
     source_meta,
 )
 from scion_sdk.ingest.sources import (
@@ -41,25 +42,6 @@ __all__ = [
     "register_live_declaration",
     "source_meta",
 ]
-
-
-def _cursor_delta_preset() -> dict[str, Any]:
-    """Describe the shared checkpointed cursor stream contract."""
-    return {
-        "params_style": "args",
-        "params": {"mode": "delta"},
-        "pagination": "cursor",
-        "cursor_param": "cursor",
-        "cursor_path": "next",
-        "updated_since_param": "state",
-        "checkpoint_path": "checkpoint",
-    }
-
-
-def _entries(tool: Any) -> list[dict[str, Any]]:
-    meta = getattr(tool, "meta", None) or {}
-    value = meta.get(META_KEY) if isinstance(meta, dict) else None
-    return [e for e in value or () if isinstance(e, dict)]
 
 
 #: ``SCHEMA_VERSION`` values the reader accepts. 1 spells each mapping's fields
@@ -215,6 +197,7 @@ def build_declaration(
     connector: str,
     tools: Iterable[Any],
     descriptors: Iterable[dict[str, Any]] = (),
+    *,
     declared: Mapping[str, Any] | None = None,
 ) -> IngestSourceDeclaration:
     """Assemble the declaration from the tools' ``meta`` and a sources module.
@@ -250,6 +233,7 @@ def register_live_declaration(
     mcp: Any,
     connector: str,
     descriptors: Callable[[], list[dict[str, Any]]] | None = None,
+    *,
     declared: Mapping[str, Any] | None = None,
     surface_summary: Callable[[list[dict[str, Any]]], Awaitable[dict[str, Any]]]
     | None = None,
@@ -273,7 +257,7 @@ def register_live_declaration(
             connector,
             registered_tools(mcp).values(),
             current_descriptors,
-            declared,
+            declared=declared,
         )
         if surface_summary is not None:
             declaration = IngestSourceDeclaration.model_validate(
