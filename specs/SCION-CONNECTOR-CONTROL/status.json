@@ -350,7 +350,10 @@
     "SCION-CONNECTOR-CONTROL-R075.5",
     "SCION-CONNECTOR-CONTROL-R075.6",
     "SCION-CONNECTOR-CONTROL-R075.7",
-    "SCION-CONNECTOR-CONTROL-R781.1"
+    "SCION-CONNECTOR-CONTROL-R781.1",
+    "SCION-CONNECTOR-CONTROL-R903",
+    "SCION-CONNECTOR-CONTROL-R904",
+    "SCION-CONNECTOR-CONTROL-R905"
   ],
   "requirements": [
     {
@@ -4302,6 +4305,27 @@
         "tests/test_trajectory_recorder.py:47",
         "tests/test_trajectory_recorder.py:90"
       ]
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R903",
+      "title": "Ordered fallback reads the tool-path advisory and reports attempts",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R904",
+      "title": "Apply the ranked path order as the ordered equivalent fallback",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CONNECTOR-CONTROL-R905",
+      "title": "Offline teacher scoring producer",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }

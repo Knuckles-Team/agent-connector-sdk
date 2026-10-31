@@ -31,7 +31,8 @@
     "SCION-GOVERNED-WRITEBACK-R004.15",
     "SCION-GOVERNED-WRITEBACK-R004.16",
     "SCION-GOVERNED-WRITEBACK-R004.17",
-    "SCION-GOVERNED-WRITEBACK-R005"
+    "SCION-GOVERNED-WRITEBACK-R005",
+    "SCION-GOVERNED-WRITEBACK-R006"
   ],
   "requirements": [
     {
@@ -332,6 +333,13 @@
         "tests/test_writeback_durable.py:211",
         "tests/test_writeback_durable.py:232"
       ]
+    },
+    {
+      "id": "SCION-GOVERNED-WRITEBACK-R006",
+      "title": "Execute a released governed change set",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }
