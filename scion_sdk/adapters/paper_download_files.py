@@ -12,14 +12,13 @@ from html.parser import HTMLParser
 from typing import BinaryIO
 
 from scion_sdk.adapters.paper_document_errors import DocumentRefusal
+from scion_sdk.adapters.safe_dir import SafeDir
 
 
-def _verify_existing(directory: int, name: str, *, digest: str, size: int) -> None:
+def _verify_existing(directory: SafeDir, name: str, *, digest: str, size: int) -> None:
     with _directory_fd(directory):
         try:
-            fd = os.open(
-                name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=directory
-            )
+            fd = directory.open_file(name, os.O_RDONLY, nonblock=True)
         except OSError:
             raise DocumentRefusal("storage_denied") from None
         with os.fdopen(fd, "rb") as source:
@@ -99,8 +98,8 @@ def _validate_html(source: BinaryIO) -> None:
 
 
 @contextmanager
-def _directory_fd(directory: int) -> Iterator[None]:
+def _directory_fd(directory: SafeDir) -> Iterator[None]:
     try:
         yield
     finally:
-        os.close(directory)
+        directory.close()

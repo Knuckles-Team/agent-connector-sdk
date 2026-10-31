@@ -15,6 +15,7 @@ from scion_sdk.adapters.paper_models import (
     FieldEvidence,
     PaperRecord,
 )
+from scion_sdk.adapters.safe_dir import SafeDir
 
 
 class _Metadata(HTMLParser):
@@ -83,15 +84,11 @@ def apply_document_fallback(
 
 
 def _read_metadata(root: Path, receipt: DocumentReceipt) -> dict[str, tuple[str, str]]:
-    directory = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    directory = SafeDir.open(root)
     try:
-        fd = os.open(
-            receipt.artifact_ref,
-            os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
-            dir_fd=directory,
-        )
+        fd = directory.open_file(receipt.artifact_ref, os.O_RDONLY, nonblock=True)
     finally:
-        os.close(directory)
+        directory.close()
     with os.fdopen(fd, "rb") as source:
         return _read_verified(source, receipt)
 

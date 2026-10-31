@@ -6,7 +6,6 @@ options. This module does not derive any of these from an MCP request.
 
 from __future__ import annotations
 
-import os
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from functools import partial
@@ -43,6 +42,7 @@ from scion_sdk.adapters.paper_quota import (
     SharedPaperQuota,
 )
 from scion_sdk.adapters.paper_search_attempt import _rate_limit
+from scion_sdk.adapters.safe_dir import SafeDir
 from scion_sdk.http.options import HttpClientOptions
 
 __all__ = [
@@ -173,7 +173,7 @@ async def _save(
     request: DocumentRequest,
     admission: DocumentAdmission,
     *,
-    directory: int,
+    directory: SafeDir,
     name: str,
     fd: int,
     slot: QuotaSlot,
@@ -201,18 +201,12 @@ async def _save(
 
 
 async def _install(
-    directory: int, name: str, *, artifact: str, digest: str, size: int
+    directory: SafeDir, name: str, *, artifact: str, digest: str, size: int
 ) -> None:
     try:
-        os.link(
-            name,
-            artifact,
-            src_dir_fd=directory,
-            dst_dir_fd=directory,
-            follow_symlinks=False,
-        )
+        directory.link(name, artifact)
     except FileExistsError:
-        worker_dir = os.dup(directory)
+        worker_dir = directory.dup()
         await anyio.to_thread.run_sync(
             partial(_verify_existing, worker_dir, artifact, digest=digest, size=size),
             abandon_on_cancel=True,

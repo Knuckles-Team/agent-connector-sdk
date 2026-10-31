@@ -546,3 +546,4 @@ alert delivery remain separate integration work.
 
 `tests/test_trajectory_recorder.py` checks generated method routing and reports
 an uncertain append without retry. It does not claim engine cleanup.
+- `SCION-CONNECTOR-CONTROL-R034.1`: `tests/test_windows_portability.py` (all tests).
