@@ -120,8 +120,8 @@
       "title": "Metric scanners report weekly and never gate CI",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "04bded523c0b",
-        "b818f9c7ead2",
+        "8ea78a285a31",
+        "b779ab88f588",
         "da344355e750"
       ],
       "verified_by": [
