@@ -144,3 +144,13 @@ R006.1 keeps upstream problem body fields out of governed public exceptions. The
 R006.3 limits governed diagnostics to the origin. The public URL redactor remains available when a caller chooses its separate field-based policy.
 
 R006.4 keeps GraphQL exception content out of public results and logs. Diagnostics retain the exception class and a correlation ID.
+
+## North star
+
+Every connector that connects through arbora onboards itself. Its ontology extends the core ontology. Its prompts become system-prompt candidates. Its skills, tools and resources appear as virtual graph entries in the engine. One engine, medulla, holds all facts. There is no second database and no sync. External stores are virtual-graph sources reached through connectors.
+
+## Delivery phase
+
+No new rows. The open rows serve P2, where one SDK ingest connector proves the loop.
+
+Fleet migration: most connectors use the central SDK pattern and the rest migrate one by one. A connector counts as migrated when it passes the SDK conformance gate (`PIPE-GATES-R013`). One connector waits on an SDK capability gap. The gap is recorded here and closed before that connector moves. A connector must not roll to a new release until every consumer runs an SDK version that accepts its source declarations.
