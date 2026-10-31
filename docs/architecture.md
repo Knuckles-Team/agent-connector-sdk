@@ -1,8 +1,8 @@
 # Architecture
 
 The Scion SDK is the connector transport and lifecycle layer between
-MCP clients, vendor systems, Arbora, and epistemic-graph. It keeps vendor `I/O`
-replaceable while one generated graph contract owns durable identity and state.
+MCP clients, vendor systems, Arbora, and Medulla. It keeps vendor `I/O`
+replaceable while Medulla owns durable identity and state.
 
 [![Agent ecosystem runtime architecture](https://raw.githubusercontent.com/Knuckles-Team/medulla/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
 
@@ -14,23 +14,22 @@ replaceable while one generated graph contract owns durable identity and state.
 |---|---|
 | Connector | Vendor API models, requests, paging tokens, source versions, and external effects. |
 | Scion SDK | MCP serving, source capture, bounded transport, certification, scheduling, and governed effect execution. |
-| epistemic-graph | Generated contracts, graph schemas, source checkpoints, content identity, provenance, reasoning, and durable receipts. |
-| Arbora | Verified runtime identity, authority injection, service composition, and external protocol exposure. |
+| Medulla | Graph schemas, source checkpoints, content identity, provenance, reasoning, and durable receipts. |
+| Arbora | Admission, auth, served operations, registry, and MCP and A2A serving. |
 
-The SDK depends directly on `epistemic-graph>=2.27`. Generated SourceIngest,
-ConnectorPack, and WriteBack models and clients are the sole graph boundary. The
-SDK does not copy graph request DTOs, receipt types, or digest algorithms.
+The SDK depends directly on `medulla`. Medulla's Rust serde types are the source
+of truth. Hand-written SourceIngest, ConnectorPack, and WriteBack clients are the
+sole graph boundary, tested on round-trip vectors. The SDK does not copy graph
+request types, receipt types, or digest algorithms.
 
 ## Shared runtime
-
-Super Intelligence (SI) is the Arbora project term for model-backed agents.
 
 <ol class="site-flow">
   <li class="site-flow__step">
     <div class="site-flow__title">Serve</div>
 
     <div class="site-flow__body">
-      An SI agent or MCP client talks MCP to the connector server.
+      A model-backed agent or MCP client talks MCP to the connector server.
       The connector server sends governed HTTP requests to the vendor API.
     </div>
   </li>
@@ -48,7 +47,7 @@ Super Intelligence (SI) is the Arbora project term for model-backed agents.
     <div class="site-flow__title">Write back</div>
 
     <div class="site-flow__body">
-      The runtime's generated EG client receives an authorized change set from epistemic-graph.
+      The runtime's Medulla client receives an authorized change set from Medulla.
       It then previews, applies, and reconciles against the vendor API.
     </div>
   </li>
@@ -71,11 +70,11 @@ authorization model.
   </li>
   <li class="site-flow__step">
     <div class="site-flow__title">Commit</div>
-    <div class="site-flow__body">The SDK submits EG's generated SourceIngestionRequest with a stable idempotency key and the expected durable checkpoint.</div>
+    <div class="site-flow__body">The SDK submits a SourceIngestionRequest with a stable idempotency key and the expected durable checkpoint.</div>
   </li>
   <li class="site-flow__step">
     <div class="site-flow__title">Acknowledge</div>
-    <div class="site-flow__body">epistemic-graph maps, validates, deduplicates, persists provenance and outbox state, compare-and-swaps the checkpoint, and returns the sole receipt.</div>
+    <div class="site-flow__body">Medulla maps, validates, deduplicates, persists provenance and outbox state, compare-and-swaps the checkpoint, and returns the sole receipt.</div>
   </li>
 </ol>
 
@@ -87,12 +86,12 @@ next page starts only from the checkpoint bound by the matching receipt.
 ## ConnectorPack lifecycle
 
 Connector content is listed through its own MCP server and captured once into
-the generated ConnectorPack archive. Ontology and SHACL bodies remain the exact
+the ConnectorPack archive. Ontology and SHACL bodies remain the exact
 served UTF-8/LF `text/turtle` bytes. The SDK does not parse or reserialize
 identity-bearing Turtle.
 
-The generated archive builder owns section hashes, URI ordering, and the
-`mcp-server://<connector>` entry. epistemic-graph binds the archive to the
+The archive builder owns section hashes, URI ordering, and the
+`mcp-server://<connector>` entry. Medulla binds the archive to the
 current catalog snapshot and computes the canonical pack digest. A matching
 head is an acknowledged no-op. A concurrent head change causes one fresh status
 read and a deterministic retry; every other typed rejection fails the cycle.
@@ -105,20 +104,20 @@ version, and served MCP safety hints. Conflicting declarations fail closed.
 <div class="admonition architecture" markdown>
 <p class="admonition-title">Write-back sequence</p>
 
-epistemic-graph hands Arbora an authorized `SourceChangeSet`; Arbora
-passes the Connector SDK a generated contract and verified identity. The SDK
+Medulla hands Arbora an authorized `SourceChangeSet`; Arbora
+passes the Scion SDK the change set and verified identity. The SDK
 reads the vendor source's current version, dry-runs the exact field diff,
 then applies with an idempotency key. When the effect is confirmed, the
 source returns an applied observation directly; when the outcome is
 uncertain, the SDK reconciles using the key and source version, resolving to
 applied, no-effect, or still-uncertain. The SDK reports attempt and
-reconciliation observations back to epistemic-graph, which returns durable
+reconciliation observations back to Medulla, which returns durable
 receipts to Arbora.
 
 </div>
 
-epistemic-graph creates the change set, binds authorization and policy, and
-persists attempt and reconciliation receipts. The SDK validates those generated
+Medulla creates the change set, binds authorization and policy, and
+persists attempt and reconciliation receipts. The SDK validates those
 models, performs source-side preview and mutation through the connector port,
 and blocks a retry while an effect remains uncertain.
 
@@ -129,7 +128,7 @@ and blocks a retry while an effect remains uncertain.
 - Credential values remain in memory and never enter manifests, source records,
   logs, health responses, or receipts.
 - Every accepted source page is attributable to connector identity, stream,
-  mapping, provider checkpoint, raw provenance, and an EG graph version.
+  mapping, provider checkpoint, raw provenance, and a Medulla graph version.
 - Health reflects the scheduler and its injected dependencies; it does not infer
   success from process existence alone.
 
@@ -139,7 +138,7 @@ See [Extension ports](extension-ports.md) for protocol details and
 ## Connector subsystem architecture
 
 Detailed review pages for individual connector families and the ingestion machinery
-they share, relocated here from agent-utilities (the SDK owns
+they share, relocated here from Meristem (the SDK owns
 connectors, transport, repository hydration, and write-back):
 
 - [Connectors & ingestion](architecture/connectors-and-ingestion.md) — the
