@@ -1281,15 +1281,19 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R034",
       "title": "SDK provides shared library-file-path resolution and cross-process file locking utilities",
-      "delivery_state": "SPECIFIED",
+      "delivery_state": "VERIFIED",
       "landed_in": [
         "2c4e8ae0f172",
         "629ef53c29f0",
-        "bac65b612ced"
+        "bac65b612ced",
+        "e8d7a742490a"
       ],
       "verified_by": [
         "tests/test_library_state.py:14",
-        "tests/test_library_state.py:24"
+        "tests/test_library_state.py:24",
+        "tests/test_windows_portability.py:105",
+        "tests/test_windows_portability.py:116",
+        "tests/test_windows_portability.py:136"
       ],
       "rollup_of": [
         "SCION-CONNECTOR-CONTROL-R034.1"
@@ -1298,9 +1302,17 @@
     {
       "id": "SCION-CONNECTOR-CONTROL-R034.1",
       "title": "The SDK imports and runs on Windows",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "e8d7a742490a"
+      ],
+      "verified_by": [
+        "tests/test_windows_portability.py:105",
+        "tests/test_windows_portability.py:116",
+        "tests/test_windows_portability.py:136",
+        "tests/test_windows_portability.py:151",
+        "tests/test_windows_portability.py:36"
+      ]
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R035",
