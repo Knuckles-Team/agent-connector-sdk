@@ -20,10 +20,8 @@ from scion_sdk.adapters.paper_models import (  # noqa: E402
     PaperRecord,
 )
 from scion_sdk.adapters.paper_search import PaperSearchService  # noqa: E402
-from scion_sdk.ingest.live_declaration import (  # noqa: E402
-    _cursor_delta_preset,
-    source_meta,
-)
+from scion_sdk.ingest.live_declaration import source_meta  # noqa: E402
+from scion_sdk.ingest.source_metadata import _cursor_delta_preset  # noqa: E402
 
 
 def register_paper_provider_stream(

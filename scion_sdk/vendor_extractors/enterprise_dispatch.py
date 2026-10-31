@@ -114,6 +114,33 @@ async def _find_receipt(
     raise RuntimeError("governed write receipt unavailable")
 
 
+def _actor_matches(actor: ActorContext, request: EnterpriseOperation) -> bool:
+    return bool(
+        actor.authenticated
+        and actor.tenant_id == request.tenant
+        and actor.actor_id == request.authority
+    )
+
+
+def _schema_reason(capability: Any, request: EnterpriseOperation) -> _Reason | None:
+    declared = next(
+        (
+            item
+            for item in capability.operations
+            if item.operation == request.parameters.operation
+        ),
+        None,
+    )
+    if declared is None:
+        return "unsupported_operation"
+    if (
+        request.contract_revision != capability.contract_revision
+        or declared != enterprise_schema_binding(declared.operation)
+    ):
+        return "schema_mismatch"
+    return None
+
+
 class EnterpriseDispatcher:
     """Dispatch only to the host-configured connector; never select a substitute."""
 
@@ -159,11 +186,7 @@ class EnterpriseDispatcher:
             request_digest = _operation_digest(request)
         except (TypeError, ValueError):
             return "invalid_request"
-        if (
-            not actor.authenticated
-            or actor.tenant_id != request.tenant
-            or actor.actor_id != request.authority
-        ):
+        if not _actor_matches(actor, request):
             return "unauthorized"
         capability = self._capability
         try:
@@ -176,22 +199,7 @@ class EnterpriseDispatcher:
             return "invalid_request"
         if request.company_id not in capability.company_ids:
             return "unauthorized"
-        declared = next(
-            (
-                item
-                for item in capability.operations
-                if item.operation == request.parameters.operation
-            ),
-            None,
-        )
-        if declared is None:
-            return "unsupported_operation"
-        if (
-            request.contract_revision != capability.contract_revision
-            or declared != enterprise_schema_binding(declared.operation)
-        ):
-            return "schema_mismatch"
-        return None
+        return _schema_reason(capability, request)
 
     def _checked_result(
         self, request: EnterpriseOperation, result: object

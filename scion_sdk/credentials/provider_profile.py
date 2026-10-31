@@ -118,26 +118,50 @@ def _references(raw: Any) -> dict[str, str]:
     return out
 
 
-def _profile(raw: Any) -> ProviderProfile:
-    if not isinstance(raw, Mapping) or not set(raw) <= {
+_PROFILE_KEYS = frozenset(
+    {
         "enabled",
         "endpoint_ref",
         "credential_refs",
         "selector_refs",
         "tls_profile",
         "tls_profile_ref",
-    }:
-        raise ProviderProfileError("provider_profiles_invalid")
-    endpoint_ref = raw.get("endpoint_ref")
-    tls_ref = raw.get("tls_profile_ref")
-    tls_name = raw.get("tls_profile")
+    }
+)
+
+
+def _optional_reference(value: Any) -> str | None:
     try:
-        endpoint_ref = (
-            validate_runtime_secret_reference(endpoint_ref) if endpoint_ref else None
-        )
-        tls_ref = validate_runtime_secret_reference(tls_ref) if tls_ref else None
+        return validate_runtime_secret_reference(value) if value else None
     except RuntimeSecretReferenceError:
         raise ProviderProfileError("provider_profiles_invalid") from None
+
+
+def _check_profile_consistency(profile: ProviderProfile) -> None:
+    invalid = (
+        (profile.tls_profile and profile.tls_profile_ref)
+        or (
+            profile.endpoint_ref
+            and not (profile.tls_profile or profile.tls_profile_ref)
+        )
+        or set(profile.credential_refs) & set(profile.selector_refs)
+        or (
+            profile.enabled
+            and not (
+                profile.endpoint_ref or profile.credential_refs or profile.selector_refs
+            )
+        )
+    )
+    if invalid:
+        raise ProviderProfileError("provider_profiles_invalid")
+
+
+def _profile(raw: Any) -> ProviderProfile:
+    if not isinstance(raw, Mapping) or not set(raw) <= _PROFILE_KEYS:
+        raise ProviderProfileError("provider_profiles_invalid")
+    endpoint_ref = _optional_reference(raw.get("endpoint_ref"))
+    tls_ref = _optional_reference(raw.get("tls_profile_ref"))
+    tls_name = raw.get("tls_profile")
     if tls_name is not None and (
         not isinstance(tls_name, str) or _TLS_NAME_RE.fullmatch(tls_name) is None
     ):
@@ -150,16 +174,7 @@ def _profile(raw: Any) -> ProviderProfile:
         tls_profile=tls_name,
         tls_profile_ref=tls_ref,
     )
-    if profile.tls_profile and profile.tls_profile_ref:
-        raise ProviderProfileError("provider_profiles_invalid")
-    if profile.endpoint_ref and not (profile.tls_profile or profile.tls_profile_ref):
-        raise ProviderProfileError("provider_profiles_invalid")
-    if set(profile.credential_refs) & set(profile.selector_refs):
-        raise ProviderProfileError("provider_profiles_invalid")
-    if profile.enabled and not (
-        profile.endpoint_ref or profile.credential_refs or profile.selector_refs
-    ):
-        raise ProviderProfileError("provider_profiles_invalid")
+    _check_profile_consistency(profile)
     return profile
 
 
@@ -198,30 +213,37 @@ def load_provider_profiles(
     return profiles
 
 
-def _secure_endpoint(value: str) -> str:
-    rendered = value.strip().rstrip("/")
-    bad = (
+def _endpoint_is_bad_text(rendered: str) -> bool:
+    return (
         not rendered
         or len(rendered.encode("utf-8")) > _MAX_ENDPOINT_BYTES
         or any(c.isspace() or ord(c) < 32 for c in rendered)
     )
+
+
+def _endpoint_is_unsafe(parsed: Any, port: int | None) -> bool:
+    scheme = parsed.scheme.casefold()
+    host = (parsed.hostname or "").casefold()
+    return (
+        scheme not in {"http", "https"}
+        or not host
+        or parsed.username is not None
+        or parsed.password is not None
+        or bool(parsed.query)
+        or bool(parsed.fragment)
+        or (port is not None and not 1 <= port <= 65_535)
+        or (scheme == "http" and host not in _LOOPBACK)
+    )
+
+
+def _secure_endpoint(value: str) -> str:
+    rendered = value.strip().rstrip("/")
     try:
         parsed = urlsplit(rendered)
         port = parsed.port
     except ValueError:
         raise ProviderProfileError("provider_endpoint_invalid") from None
-    host = (parsed.hostname or "").casefold()
-    if (
-        bad
-        or parsed.scheme.casefold() not in {"http", "https"}
-        or not host
-        or parsed.username is not None
-        or parsed.password is not None
-        or parsed.query
-        or parsed.fragment
-        or (port is not None and not 1 <= port <= 65_535)
-        or (parsed.scheme.casefold() == "http" and host not in _LOOPBACK)
-    ):
+    if _endpoint_is_bad_text(rendered) or _endpoint_is_unsafe(parsed, port):
         raise ProviderProfileError("provider_endpoint_invalid")
     return rendered
 

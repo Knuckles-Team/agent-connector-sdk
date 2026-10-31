@@ -6,12 +6,14 @@ import pytest
 
 from scion_sdk.entitlements import (
     DEFAULT_SUPER_CAPS,
+    EntitlementError,
     entitled_resources,
     grants_all_in_namespace,
     identity_scoped_resources,
     is_entitled,
+    require_entitled,
 )
-from scion_sdk.identity import ActorContext, ActorType
+from scion_sdk.identity import ANONYMOUS_ACTOR, ActorContext, ActorType
 
 
 def _actor(
@@ -84,3 +86,28 @@ def test_identity_scoped_resources_rejects_a_tenant_less_actor() -> None:
     actor = _actor(roles=("k8s:prod",), tenant_id="")
     with pytest.raises(PermissionError):
         identity_scoped_resources("k8s", ["prod"], actor=actor)
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025")
+@pytest.mark.parametrize(
+    ("actor", "reason", "message"),
+    [
+        (ANONYMOUS_ACTOR, "anonymous_caller", "anonymous caller"),
+        (_actor(authenticated=False), "authentication_required", "unauthenticated"),
+        (_actor(tenant_id=""), "tenant_required", "no tenant"),
+        (_actor(roles=("ssh:lab",)), "not_entitled", "not entitled to ssh:prod"),
+    ],
+)
+def test_a_refusal_names_its_cause(
+    actor: ActorContext, reason: str, message: str
+) -> None:
+    with pytest.raises(EntitlementError) as refused:
+        require_entitled("ssh", "prod", actor=actor)
+    assert refused.value.reason == reason
+    assert message in str(refused.value)
+    assert isinstance(refused.value, PermissionError)
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025")
+def test_an_entitled_actor_passes_require_entitled() -> None:
+    require_entitled("ssh", "lab", actor=_actor(roles=("ssh:lab",)))

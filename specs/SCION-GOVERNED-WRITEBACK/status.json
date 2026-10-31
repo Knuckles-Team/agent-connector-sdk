@@ -31,12 +31,13 @@
     "SCION-GOVERNED-WRITEBACK-R004.15",
     "SCION-GOVERNED-WRITEBACK-R004.16",
     "SCION-GOVERNED-WRITEBACK-R004.17",
-    "SCION-GOVERNED-WRITEBACK-R005"
+    "SCION-GOVERNED-WRITEBACK-R005",
+    "SCION-GOVERNED-WRITEBACK-R006"
   ],
   "requirements": [
     {
       "id": "SCION-GOVERNED-WRITEBACK-R001",
-      "title": "Write-back proposals route through governed authorization, not direct action",
+      "title": "Write-back proposals route through governed authorization (rollup)",
       "delivery_state": "SPECIFIED",
       "landed_in": [
         "daeb199f91c0",
@@ -122,7 +123,7 @@
     },
     {
       "id": "SCION-GOVERNED-WRITEBACK-R004",
-      "title": "Governed write-back: approval, idempotency, and an audit reservation",
+      "title": "Governed write-back approval, idempotency and audit reservation (rollup)",
       "delivery_state": "SPECIFIED",
       "landed_in": [
         "6ef04661acc2",
@@ -332,6 +333,13 @@
         "tests/test_writeback_durable.py:211",
         "tests/test_writeback_durable.py:232"
       ]
+    },
+    {
+      "id": "SCION-GOVERNED-WRITEBACK-R006",
+      "title": "Execute a released governed change set",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }

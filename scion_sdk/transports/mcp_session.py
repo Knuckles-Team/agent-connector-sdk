@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
@@ -17,6 +16,7 @@ from scion_sdk.contracts import ServerIdentity
 from scion_sdk.httpsupport.rate_limit import RateLimiter
 from scion_sdk.ports.change_source import ChangeEvent
 from scion_sdk.ports.errors import McpPromptRejectedError, McpTransportError
+from scion_sdk.transports._mcp_results import decode_tool_result
 from scion_sdk.transports.mcp_changes import (
     ChangeFeed,
     forward_listen_events,
@@ -28,22 +28,6 @@ __all__ = [
     "McpTransportError",
     "decode_tool_result",
 ]
-
-
-def decode_tool_result(result: Any) -> Any:
-    """Decode a ``tools/call`` result: JSON text content first, then structured content."""
-    texts = [
-        block.text
-        for block in getattr(result, "content", None) or []
-        if isinstance(getattr(block, "text", None), str)
-    ]
-    joined = "\n".join(texts).strip()
-    if not joined:
-        return getattr(result, "structured_content", None)
-    try:
-        return json.loads(joined)
-    except json.JSONDecodeError:
-        return joined
 
 
 @dataclass(eq=False, repr=False)

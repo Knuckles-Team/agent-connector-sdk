@@ -9,36 +9,32 @@ from contextlib import contextmanager, suppress
 from pathlib import Path
 
 from scion_sdk.adapters.paper_document_errors import DocumentRefusal
+from scion_sdk.adapters.safe_dir import SafeDir
 
 
-def _open_validation(directory: int, name: str) -> int:
+def _open_validation(directory: SafeDir, name: str) -> int:
     try:
-        return os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=directory)
+        return directory.open_file(name, os.O_RDONLY)
     except OSError:
         raise DocumentRefusal("storage_denied") from None
 
 
 @contextmanager
-def _temporary(root: Path) -> Iterator[tuple[int, str, int]]:
+def _temporary(root: Path) -> Iterator[tuple[SafeDir, str, int]]:
     try:
-        directory = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        directory = SafeDir.open(root)
     except OSError:
         raise DocumentRefusal("storage_denied") from None
     try:
         yield from _open_temporary(directory)
     finally:
-        os.close(directory)
+        directory.close()
 
 
-def _open_temporary(directory: int) -> Iterator[tuple[int, str, int]]:
+def _open_temporary(directory: SafeDir) -> Iterator[tuple[SafeDir, str, int]]:
     name = ".paper-" + uuid.uuid4().hex
     try:
-        fd = os.open(
-            name,
-            os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW,
-            0o600,
-            dir_fd=directory,
-        )
+        fd = directory.open_file(name, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     except OSError:
         raise DocumentRefusal("storage_denied") from None
     try:
@@ -46,4 +42,4 @@ def _open_temporary(directory: int) -> Iterator[tuple[int, str, int]]:
     finally:
         os.close(fd)
         with suppress(FileNotFoundError):
-            os.unlink(name, dir_fd=directory)
+            directory.unlink(name)

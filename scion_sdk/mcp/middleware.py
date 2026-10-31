@@ -1,9 +1,13 @@
 """The standard connector middleware stack.
 
-Extracted from ``agent_utilities.mcp.server_factory``: privacy-safe error
-handling and a per-caller rate limit. Without a caller key, FastMCP's rate limiter
-puts every request from every client into one global bucket, so a few clients
-handshaking at once starve each other.
+One stack for every transport (SCION-CONNECTOR-CONTROL-R025.6): privacy-safe
+error handling, then the actor binding, then a per-actor rate limit. The rate
+limiter keys on the actor the binding resolved through
+:func:`scion_sdk.identity.current_actor`, never on its own credential lookup, so
+a stdio caller and an HTTP caller with the same principal share one bucket and
+one identity decision. The trusted local principal
+(:data:`~scion_sdk.identity.SYSTEM_ACTOR`: stdio, an in-process client, or HTTP
+with auth type ``none``) is not throttled; every other actor gets its own bucket.
 """
 
 from __future__ import annotations
@@ -11,13 +15,19 @@ from __future__ import annotations
 import hashlib
 from typing import Any
 
-from fastmcp.server.dependencies import get_access_token
+from fastmcp.server.middleware import MiddlewareContext
 from fastmcp.server.middleware.error_handling import ErrorHandlingMiddleware
 from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
 
+from scion_sdk.identity import ActorType, current_actor
 from scion_sdk.mcp.actor_binding import ActorBindingMiddleware
 
-__all__ = ["build_middleware", "caller_bucket", "rate_limit_client_id"]
+__all__ = [
+    "ActorRateLimitingMiddleware",
+    "build_middleware",
+    "caller_bucket",
+    "rate_limit_client_id",
+]
 
 
 def caller_bucket(client_id: object, claims: object) -> str:
@@ -34,21 +44,39 @@ def caller_bucket(client_id: object, claims: object) -> str:
 
 
 def rate_limit_client_id(_context: Any) -> str:
-    """Rate-limit key for the current request's authenticated caller."""
-    token = get_access_token()
-    if token is None:
+    """Rate-limit key for the current request: the bound actor's bucket."""
+    actor = current_actor()
+    if actor.actor_type is ActorType.ANONYMOUS and not actor.authenticated:
         return "anonymous"
-    return caller_bucket(token.client_id, token.claims)
+    return caller_bucket(actor.actor_id, {"tenant_id": actor.tenant_id})
 
 
-def build_middleware() -> list[Any]:
-    """Error handling without tracebacks, 10 requests/s per caller (burst 20), then the actor binding."""
+def _trusted_local() -> bool:
+    actor = current_actor()
+    return actor.actor_type is ActorType.SYSTEM and actor.authenticated
+
+
+class ActorRateLimitingMiddleware(RateLimitingMiddleware):
+    """Per-actor token bucket that never throttles the trusted local principal."""
+
+    async def on_request(self, context: MiddlewareContext[Any], call_next: Any) -> Any:
+        if _trusted_local():
+            return await call_next(context)
+        return await super().on_request(context, call_next)
+
+
+def build_middleware(*, no_auth: bool = False) -> list[Any]:
+    """Error handling without tracebacks, the actor binding, then 10 requests/s per actor (burst 20).
+
+    ``no_auth`` is true when the network config's auth type is ``none``. The
+    returned stack has the same classes in the same order for every transport.
+    """
     return [
         ErrorHandlingMiddleware(include_traceback=False, transform_errors=True),
-        RateLimitingMiddleware(
+        ActorBindingMiddleware(no_auth=no_auth),
+        ActorRateLimitingMiddleware(
             max_requests_per_second=10.0,
             burst_capacity=20,
             get_client_id=rate_limit_client_id,
         ),
-        ActorBindingMiddleware(),
     ]

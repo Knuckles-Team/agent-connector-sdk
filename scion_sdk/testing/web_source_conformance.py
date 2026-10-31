@@ -20,17 +20,22 @@ result; :func:`fastmcp_caller` builds one for an in-process FastMCP client.
 
 from __future__ import annotations
 
-import itertools
 import json
-from collections.abc import Awaitable, Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
 from scion_sdk.ports.web_source import (
     DEFAULT_MIN_INTERVAL_S,
-    WebFetchRefusal,
-    WebPageResult,
-    content_digest,
+)
+from scion_sdk.testing._web_source_checks import (
+    Caller,
+    _content_digest_problem,
+    _content_type_problem,
+    _max_bytes_problem,
+    _rate_limit_problem,
+    _robots_problem,
+    _tool_surface_problem,
 )
 from scion_sdk.testing.http_server import RoutedHttpServer, ScriptedResponse
 
@@ -61,8 +66,6 @@ _ARTICLE = (
     + '<p>See <a href="https://example.org/reference">the reference</a>.</p>'
     "</article><footer>Fixture footer</footer></body></html>"
 ).encode()
-
-Caller = Callable[[str, dict[str, Any]], Awaitable[Mapping[str, Any]]]
 
 
 def fixture_site() -> RoutedHttpServer:
@@ -151,27 +154,6 @@ def fastmcp_caller(client: Any) -> Caller:
     return call
 
 
-def _parsed(body: Mapping[str, Any]) -> WebPageResult | WebFetchRefusal | str:
-    try:
-        if body.get("kind") == "refusal":
-            return WebFetchRefusal.model_validate(body)
-        return WebPageResult.model_validate(body)
-    except Exception as exc:
-        return f"result does not match the contract: {exc}"[:300]
-
-
-def _refused(outcome: Any, reason: str) -> str | None:
-    if isinstance(outcome, str):
-        return outcome
-    if not isinstance(outcome, WebFetchRefusal):
-        return f"expected a {reason} refusal, got a page"
-    return (
-        None
-        if outcome.reason == reason
-        else f"refused with {outcome.reason}, not {reason}"
-    )
-
-
 async def check_web_source(
     call: Caller,
     site: RoutedHttpServer,
@@ -191,60 +173,19 @@ async def check_web_source(
     """
     report = ConformanceReport()
     expected = await contract_tool_schemas()
-    mismatched = [
-        name for name, schema in expected.items() if served_tools.get(name) != schema
-    ]
-    report.record(
-        "tool_surface",
-        f"schemas differ from the contract for {mismatched}" if mismatched else None,
-    )
+    report.record("tool_surface", await _tool_surface_problem(expected, served_tools))
     paths = fetched_paths or (lambda: (request.path for request in site.requests))
     base = site.base_url
-
-    private = _parsed(
-        await call("web_extract", {"request": {"url": f"{base}/private/page"}})
-    )
-    problem = _refused(private, "robots_disallowed")
-    if problem is None and "/private/page" in set(paths()):
-        problem = "the disallowed page was fetched"
-    report.record("robots", problem)
-
-    huge = _parsed(
-        await call("web_fetch", {"request": {"url": f"{base}/huge", "max_bytes": 1024}})
-    )
-    report.record("max_bytes", _refused(huge, "size_exceeded"))
-
-    image = _parsed(await call("web_fetch", {"request": {"url": f"{base}/image.png"}}))
-    report.record("content_type", _refused(image, "unsupported_type"))
-
-    page = _parsed(await call("web_extract", {"request": {"url": f"{base}/article"}}))
-    if isinstance(page, WebPageResult):
-        problems = []
-        if page.content_digest != content_digest(page.text_markdown):
-            problems.append("content_digest is not the SHA-256 of text_markdown")
-        if page.backend != backend:
-            problems.append(f"backend is {page.backend!r}, not {backend!r}")
-        if ARTICLE_SENTENCE.split(" may ")[0] not in page.text_markdown:
-            problems.append("the main content is missing")
-        report.record("content_digest", "; ".join(problems) or None)
-    else:
-        report.record(
-            "content_digest",
-            page if isinstance(page, str) else f"refused: {page.reason}",
-        )
-
-    await call("web_extract", {"request": {"url": f"{base}/article-two"}})
-    times = sorted(
-        request.at
-        for request in site.requests
-        if request.path in {"/article", "/article-two"}
-    )
-    spaced = len(times) >= 2 and all(
-        later - earlier >= min_interval_s * 0.9
-        for earlier, later in itertools.pairwise(times)
+    report.record("robots", await _robots_problem(call, base, paths))
+    report.record("max_bytes", await _max_bytes_problem(call, base))
+    report.record("content_type", await _content_type_problem(call, base))
+    marker = ARTICLE_SENTENCE.split(" may ")[0]
+    report.record(
+        "content_digest",
+        await _content_digest_problem(call, base, backend=backend, marker=marker),
     )
     report.record(
         "rate_limit",
-        None if spaced else f"pages were not spaced {min_interval_s}s apart",
+        await _rate_limit_problem(call, site, base, min_interval_s=min_interval_s),
     )
     return report

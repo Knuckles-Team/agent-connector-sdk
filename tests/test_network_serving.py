@@ -79,7 +79,7 @@ def test_loopback_defaults_are_exact_and_bounded() -> None:
 @pytest.mark.parametrize(
     ("overrides", "message"),
     [
-        ({"auth_type": "none"}, "requires authentication"),
+        ({"auth_type": "none", "auth_explicit": False}, "requires authentication"),
         ({"tls_terminated": False, "trusted_proxy_cidrs": ()}, "requires TLS"),
         ({"allowed_hosts": ()}, "requires exact allowed hosts"),
         ({"allowed_hosts": ("*.example.invalid",)}, "invalid name"),
@@ -219,3 +219,16 @@ def test_factory_invokes_network_contract_before_building_server() -> None:
             ],
         )
     assert failure.value.code == 1
+
+
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R025.3")
+def test_an_exposed_no_auth_listener_serves_with_one_warning(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    with caplog.at_level("WARNING"):
+        config = _terminated_config(
+            auth_type="none", tls_terminated=False, trusted_proxy_cidrs=()
+        )
+    assert config.auth_type == "none"
+    warnings = [r for r in caplog.records if "auth type none" in r.getMessage()]
+    assert len(warnings) == 1

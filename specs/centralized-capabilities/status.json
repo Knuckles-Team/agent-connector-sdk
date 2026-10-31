@@ -56,7 +56,10 @@
     "SCION-CENTRALIZED-CAPABILITIES-R004.5",
     "SCION-CENTRALIZED-CAPABILITIES-R004.8",
     "SCION-CENTRALIZED-CAPABILITIES-R004.7",
-    "SCION-CENTRALIZED-CAPABILITIES-R004.6"
+    "SCION-CENTRALIZED-CAPABILITIES-R004.6",
+    "SCION-CENTRALIZED-CAPABILITIES-R017.1",
+    "SCION-CENTRALIZED-CAPABILITIES-R017.2",
+    "SCION-CENTRALIZED-CAPABILITIES-R041"
   ],
   "requirements": [
     {
@@ -359,12 +362,16 @@
     {
       "id": "SCION-CENTRALIZED-CAPABILITIES-R017",
       "title": "A2A protocol",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "SPECIFIED",
       "landed_in": [
         "499b2eb7ebb7"
       ],
       "verified_by": [
         "tests/test_centralized_capability_index.py:85"
+      ],
+      "rollup_of": [
+        "SCION-CENTRALIZED-CAPABILITIES-R017.1",
+        "SCION-CENTRALIZED-CAPABILITIES-R017.2"
       ]
     },
     {
@@ -690,6 +697,27 @@
         "tests/httpsupport/test_pagination_invalid_page.py:30",
         "tests/httpsupport/test_pagination_invalid_page.py:53"
       ]
+    },
+    {
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R017.1",
+      "title": "SDK A2A server takes a durable storage and serves tasks/list",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R017.2",
+      "title": "SDK A2A server streams turn events with a cursor",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "SCION-CENTRALIZED-CAPABILITIES-R041",
+      "title": "connector-certify submits conformance evidence",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
     }
   ]
 }

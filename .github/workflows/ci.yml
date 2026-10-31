@@ -4,7 +4,7 @@ name: CI
 # runs one diff-scoped `gates` job (Python 3.14, affected tests); the caller
 # aggregate `CI required` is the one required status check. Main and nightly run
 # the full suite, supply-chain audit, Python 3.12 backward smoke, the full-tree
-# gates, the advisory scanner-quality job and the reproducible build. Never
+# gates and the reproducible build. Advisory scanners run weekly in advisory.yml. Never
 # publishes (release.yml, v* tag only).
 
 on:
@@ -71,64 +71,6 @@ jobs:
       backward-module: scion_sdk
       runner: '["self-hosted", "homelab"]'
       setup-command: bash scripts/ci_full_setup.sh
-
-  scanner-quality:
-    name: scanner-quality
-    if: github.event_name != 'pull_request'
-    continue-on-error: true
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
-        with:
-          python-version: '3.14'
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: '20'
-      - uses: dtolnay/rust-toolchain@fa04a1451ff1842e2626ccb99004d0195b455a88 # master
-        with:
-          toolchain: stable
-      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
-        with:
-          version: '0.11.7'
-          enable-cache: true
-          cache-dependency-glob: uv.lock
-      # scripts/install_scanners.sh is the one place the scanner pins live, so
-      # its hash keys the cache: a pin change rebuilds, nothing else does.
-      - name: Cache the pinned scanner toolchain
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.local/share/pipelines-scanners
-          key: scanners-${{ runner.os }}-${{ hashFiles('scripts/install_scanners.sh') }}
-      - name: Provision pinned scanner toolchain
-        run: |
-          bash scripts/install_scanners.sh
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-      - name: Resolve the published base
-        run: |
-          set -euo pipefail
-          BASE="${{ github.event.before }}"
-          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE" 2>/dev/null; then
-            BASE="$(git rev-list --max-parents=0 HEAD)"
-          fi
-          echo "PRE_COMMIT_FROM_REF=$BASE" >> "$GITHUB_ENV"
-          echo "CX_DUP_BASE_REF=$BASE" >> "$GITHUB_ENV"
-      # Advisory: every hook runs and reports; the job result is informational.
-      - name: Shared scanner hooks (versions, staged, censuses, clone differentials)
-        run: |
-          set -uo pipefail
-          failed=()
-          for hook in scanner-versions complexity-staged kiss-staged dupehound-changed complexity-census kiss-census jscpd-differential jscpd-census; do
-            uvx --from pre-commit==4.6.0 pre-commit run --config .config/pre-commit.yaml "$hook" --hook-stage manual --all-files || failed+=("$hook")
-          done
-          if [ "${#failed[@]}" -gt 0 ]; then
-            echo "::warning title=scanner-quality::advisory scanner findings: ${failed[*]}"
-            exit 1
-          fi
 
   build:
     needs: [main-gates]

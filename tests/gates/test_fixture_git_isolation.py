@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 def _git(root: Path, *args: str) -> str:
     result = subprocess.run(
@@ -58,23 +60,30 @@ def test_fixture_modules_preserve_invoking_worktree(tmp_path: Path) -> None:
         "GIT_PREFIX": "caller/",
     }
     root = Path(__file__).resolve().parents[2]
-    result = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pytest",
-            "-q",
-            "--tb=short",
-            "tests/gates/test_gates_fire.py",
-            "tests/test_repository_refwalk_fastpath.py",
-        ],
-        cwd=root,
-        env=env,
-        capture_output=True,
-        text=True,
-        timeout=90,
-        check=False,
-    )
+    # faulthandler_timeout dumps every thread's stack into the captured output
+    # well before the inner timeout, so a stall names its own cause.
+    try:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "-q",
+                "--tb=short",
+                "-o",
+                "faulthandler_timeout=45",
+                "tests/gates/test_gates_fire.py",
+                "tests/test_repository_refwalk_fastpath.py",
+            ],
+            cwd=root,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=90,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as stalled:
+        pytest.fail(f"nested pytest stalled:\n{stalled.stdout}\n{stalled.stderr}")
     after = (config.read_bytes(), index.read_bytes(), sentinel.read_bytes())
     assert after == before, "fixture Git commands changed the invoking repository"
     assert result.returncode == 0, result.stdout + result.stderr

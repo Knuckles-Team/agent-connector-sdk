@@ -27,15 +27,7 @@ class EmeraldSink:
         if client is not None:
             return client
         try:
-            from emerald_exchange.backends import TradingMode, create_backend
-
-            backend = create_backend(
-                name=ops.get("backend_name", "paper"), config={}, mode=TradingMode.PAPER
-            )
-            connect = getattr(backend, "connect", None)
-            if callable(connect):
-                connect()
-            return backend
+            return _paper_backend(ops.get("backend_name", "paper"))
         except Exception:
             logger.debug("emerald backend unavailable", exc_info=True)
             return None
@@ -45,26 +37,8 @@ class EmeraldSink:
     ) -> WritebackResult:
         result = WritebackResult(target=self.domain)
         orders = ops.get("orders") or ops.get("creations") or []
-
         # Build proposals first (this is the dry-run / queued preview path).
-        proposals = []
-        for o in orders:
-            symbol = o.get("symbol")
-            side = (o.get("side") or "buy").lower()
-            qty = o.get("qty") or o.get("quantity")
-            if not symbol or not qty:
-                result.skipped += 1
-                continue
-            proposals.append(
-                {
-                    "op": "submit_order",
-                    "symbol": symbol,
-                    "side": side,
-                    "qty": qty,
-                    "order_type": (o.get("order_type") or "market").lower(),
-                    "limit_price": o.get("limit_price"),
-                }
-            )
+        proposals = _order_proposals(orders, result)
         if dry_run:
             result.proposals.extend(proposals)
             return result
@@ -75,29 +49,68 @@ class EmeraldSink:
         if client is None:
             result.skipped += len(proposals)
             return result
-        try:
-            from emerald_exchange.backends import OrderSide, OrderType
-        except Exception:
-            OrderSide = OrderType = None
         for p in proposals:
-            try:
-                side = OrderSide[p["side"].upper()] if OrderSide else p["side"]
-                otype = (
-                    OrderType[p["order_type"].upper()] if OrderType else p["order_type"]
-                )
-                client.submit_order(
-                    p["symbol"],
-                    side,
-                    float(p["qty"]),
-                    order_type=otype,
-                    limit_price=p.get("limit_price"),
-                )
-                result.created += 1
-            except Exception:
-                logger.debug("emerald submit_order failed", exc_info=True)
-                result.errors += 1
-
+            _submit_order(client, p, result)
         return result
+
+
+def _paper_backend(name: str) -> Any:
+    from emerald_exchange.backends import TradingMode, create_backend
+
+    backend = create_backend(name=name, config={}, mode=TradingMode.PAPER)
+    connect = getattr(backend, "connect", None)
+    if callable(connect):
+        connect()
+    return backend
+
+
+def _order_proposals(
+    orders: list[dict[str, Any]], result: WritebackResult
+) -> list[dict[str, Any]]:
+    proposals: list[dict[str, Any]] = []
+    for o in orders:
+        symbol = o.get("symbol")
+        qty = o.get("qty") or o.get("quantity")
+        if not symbol or not qty:
+            result.skipped += 1
+            continue
+        proposals.append(
+            {
+                "op": "submit_order",
+                "symbol": symbol,
+                "side": (o.get("side") or "buy").lower(),
+                "qty": qty,
+                "order_type": (o.get("order_type") or "market").lower(),
+                "limit_price": o.get("limit_price"),
+            }
+        )
+    return proposals
+
+
+def _order_enums() -> tuple[Any, Any]:
+    try:
+        from emerald_exchange.backends import OrderSide, OrderType
+    except Exception:
+        return None, None
+    return OrderSide, OrderType
+
+
+def _submit_order(client: Any, p: dict[str, Any], result: WritebackResult) -> None:
+    order_side, order_type = _order_enums()
+    try:
+        side = order_side[p["side"].upper()] if order_side else p["side"]
+        otype = order_type[p["order_type"].upper()] if order_type else p["order_type"]
+        client.submit_order(
+            p["symbol"],
+            side,
+            float(p["qty"]),
+            order_type=otype,
+            limit_price=p.get("limit_price"),
+        )
+        result.created += 1
+    except Exception:
+        logger.debug("emerald submit_order failed", exc_info=True)
+        result.errors += 1
 
 
 register_sink(EmeraldSink())

@@ -44,6 +44,16 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
+def _flag(name: str) -> int:
+    """An ``os.O_*`` flag, or ``0`` where the platform lacks it (Windows)."""
+    return int(getattr(os, name, 0))
+
+
+def _refuse_symlink(path: Path) -> bool:
+    """Without ``O_NOFOLLOW`` the open cannot refuse a symlink, so check first."""
+    return not hasattr(os, "O_NOFOLLOW") and os.path.islink(path)
+
+
 class TokenStore(Protocol):
     """Where a manager keeps its serialized token set."""
 
@@ -74,7 +84,10 @@ class FileTokenStore:
 
     def get(self, key: str) -> str | None:
         try:
-            fd = os.open(self._path(key), os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+            path = self._path(key)
+            if _refuse_symlink(path):
+                return None
+            fd = os.open(path, os.O_RDONLY | _flag("O_NOFOLLOW") | _flag("O_NONBLOCK"))
             with os.fdopen(fd, "r", encoding="utf-8") as handle:
                 if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
                     return None
@@ -84,12 +97,18 @@ class FileTokenStore:
 
     def set(self, key: str, value: str) -> None:
         self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
-        flags = os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK
-        fd = os.open(self._path(key), flags, 0o600)
+        path = self._path(key)
+        if _refuse_symlink(path):
+            raise ValueError("token path must not be a symlink")
+        flags = os.O_WRONLY | os.O_CREAT | _flag("O_NOFOLLOW") | _flag("O_NONBLOCK")
+        fd = os.open(path, flags, 0o600)
         try:
             if not stat.S_ISREG(os.fstat(fd).st_mode):
                 raise ValueError("token path must be a regular file")
-            os.fchmod(fd, 0o600)
+            if hasattr(os, "fchmod"):
+                os.fchmod(fd, 0o600)
+            else:
+                os.chmod(path, stat.S_IREAD | stat.S_IWRITE)
             os.ftruncate(fd, 0)
         except BaseException:
             os.close(fd)
