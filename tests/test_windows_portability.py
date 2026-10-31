@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import getpass
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -19,8 +21,6 @@ from scion_sdk.auth.browser import FileTokenStore
 from scion_sdk.library_state import file_lock
 from scion_sdk.tls import material
 
-SPEC = "SCION-CONNECTOR-CONTROL-R034.1"
-
 
 @pytest.fixture
 def windows(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -33,7 +33,7 @@ def windows(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(bookmark_io, "use_dir_fd", lambda: False)
 
 
-@pytest.mark.spec(SPEC)
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R034.1")
 @pytest.mark.parametrize(
     "module",
     ["scion_sdk.library_state", "scion_sdk.auth.browser", "scion_sdk.tls.material"],
@@ -54,7 +54,7 @@ def test_modules_import_without_fcntl(module: str) -> None:
     assert result.returncode == 0, result.stderr
 
 
-@pytest.mark.spec(SPEC)
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R034.1")
 def test_token_store_without_fchmod_or_nofollow(tmp_path: Path, windows: None) -> None:
     store = FileTokenStore(tmp_path / "tokens")
     store.set("k", "secret")
@@ -62,7 +62,7 @@ def test_token_store_without_fchmod_or_nofollow(tmp_path: Path, windows: None) -
     assert store.get("k") == "again"
 
 
-@pytest.mark.spec(SPEC)
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R034.1")
 def test_token_store_refuses_symlink_without_nofollow(
     tmp_path: Path, windows: None
 ) -> None:
@@ -80,18 +80,18 @@ def test_token_store_refuses_symlink_without_nofollow(
     assert victim.read_text() == "x"
 
 
-@pytest.mark.spec(SPEC)
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R034.1")
 def test_runtime_root_without_getuid(
     tmp_path: Path, windows: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.delenv("XDG_RUNTIME_DIR", raising=False)
-    monkeypatch.setattr(material.getpass, "getuser", lambda: "Dom\\a lice")
-    monkeypatch.setattr(material.tempfile, "gettempdir", lambda: str(tmp_path))
+    monkeypatch.setattr(getpass, "getuser", lambda: "Dom\\a lice")
+    monkeypatch.setattr(tempfile, "gettempdir", lambda: str(tmp_path))
     root = material.default_runtime_root()
     assert root.parent.parent.name == "scion-sdk-Dom_a_lice"
 
 
-@pytest.mark.spec(SPEC)
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R034.1")
 def test_file_lock_uses_shared_primitive(tmp_path: Path) -> None:
     path = tmp_path / "state.json"
     with (
@@ -102,7 +102,7 @@ def test_file_lock_uses_shared_primitive(tmp_path: Path) -> None:
         pass
 
 
-@pytest.mark.spec(SPEC)
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R034.1")
 def test_safe_dir_fallback_opens_confined_files(tmp_path: Path, windows: None) -> None:
     with _temporary(tmp_path) as (directory, name, fd):
         os.write(fd, b"data")
@@ -113,7 +113,7 @@ def test_safe_dir_fallback_opens_confined_files(tmp_path: Path, windows: None) -
     assert not list(tmp_path.glob(".paper-*"))
 
 
-@pytest.mark.spec(SPEC)
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R034.1")
 def test_safe_dir_fallback_refuses_symlink_and_traversal(
     tmp_path: Path, windows: None
 ) -> None:
@@ -133,7 +133,7 @@ def test_safe_dir_fallback_refuses_symlink_and_traversal(
         SafeDir.open(tmp_path / "link")
 
 
-@pytest.mark.spec(SPEC)
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R034.1")
 def test_bookmark_fallback_reads_and_refuses_symlink(
     tmp_path: Path, windows: None
 ) -> None:
@@ -148,7 +148,7 @@ def test_bookmark_fallback_reads_and_refuses_symlink(
         bookmark_io._read_file(tmp_path, "ln/b.html", 100)
 
 
-@pytest.mark.spec(SPEC)
+@pytest.mark.spec("SCION-CONNECTOR-CONTROL-R034.1")
 def test_safe_dir_helpers_report_platform_capabilities(
     windows: None, tmp_path: Path
 ) -> None:
