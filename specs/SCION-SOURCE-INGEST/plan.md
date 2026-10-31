@@ -200,7 +200,7 @@ Data flow: connector tools/call -> register_tool_surface -> dispatch_async -> co
 The ingestion entry is connector-sync --once at `scion_sdk/runner/cli.py:153`.
 ConnectorWorker._sync at `scion_sdk/runner/worker.py:180` calls sync_stream at `scion_sdk/runner/syncing.py:200`.
 sync_stream reads source_status before extraction and submits each page through commit_page at line 106.
-EpistemicGraphSink at `scion_sdk/sinks/medulla.py:91` bridges the generated source contract.
+EpistemicGraphSink at `scion_sdk/sinks/epistemic_graph.py:91` bridges the generated source contract.
 SourceAdapter at `scion_sdk/ports/source_adapter.py:21` remains the common discovery, extraction and reconciliation interface.
 Connector registrars attach tools through `scion_sdk/mcp/tool_surface.py:121`.
 Their handlers use dispatch_async at `scion_sdk/mcp/action_dispatch.py:194`.

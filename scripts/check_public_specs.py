@@ -8,7 +8,8 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
-REQUIRED = ("spec.md", "plan.md", "test-spec.md", "tasks.md", "status.json")
+# status.json is computed at read time (pipelines spec-status) and never tracked.
+REQUIRED = ("spec.md", "plan.md", "test-spec.md", "tasks.md")
 DELIVERY_STATES = frozenset(
     {
         "UNKNOWN",
@@ -311,18 +312,22 @@ def _contract_errors(root: Path, paths: set[Path]) -> list[str]:
             if path not in paths:
                 errors.append(f"{path}: missing required owner contract")
                 continue
-            if filename == "status.json":
-                errors.extend(_status_errors(root, path))
-            else:
-                errors.extend(
-                    _document_errors(path, (root / path).read_text(encoding="utf-8"))
-                )
+            errors.extend(
+                _document_errors(path, (root / path).read_text(encoding="utf-8"))
+            )
+        status = Path("specs") / name / "status.json"
+        if (root / status).is_file():
+            errors.extend(_status_errors(root, status))
     return errors
 
 
 def _link_error(root: Path, path: Path, target: str) -> str | None:
     target = target.strip().split(" ", 1)[0].strip("<>")
     if target.startswith("#"):
+        return None
+    # status.json is computed at read time and never tracked, so a link to
+    # it resolves once the generator runs, not in a clean checkout.
+    if target.split("#", 1)[0].rsplit("/", 1)[-1] == "status.json":
         return None
     parsed = urlsplit(target)
     if parsed.scheme:
