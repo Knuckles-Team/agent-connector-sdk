@@ -1284,10 +1284,10 @@
       "delivery_state": "VERIFIED",
       "landed_in": [
         "2c4e8ae0f172",
+        "4597f84f6eac",
         "629ef53c29f0",
-        "6e4c1561e454",
         "bac65b612ced",
-        "e8d7a742490a"
+        "d3a7fce55caa"
       ],
       "verified_by": [
         "tests/test_library_state.py:14",
@@ -1305,8 +1305,8 @@
       "title": "The SDK imports and runs on Windows",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "6e4c1561e454",
-        "e8d7a742490a"
+        "4597f84f6eac",
+        "d3a7fce55caa"
       ],
       "verified_by": [
         "tests/test_windows_portability.py:105",
