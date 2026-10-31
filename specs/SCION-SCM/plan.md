@@ -96,7 +96,7 @@ ID, no SDK reimplementation is permitted):
   checkout endpoint: arbora (operation rows filed under the arbora spec for
   served operations).
 - Changeset storage, lock-free acceptance, derived history indexes, and path
-  access control: epistemic-graph (filed under the epistemic-graph spec for
+  access control: medulla (filed under the medulla spec for
   source changesets).
 - The in-run development loop that edits through changesets and reacts to
   `conflict`: agent-utilities.

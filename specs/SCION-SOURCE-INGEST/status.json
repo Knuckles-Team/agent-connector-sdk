@@ -1104,7 +1104,7 @@
     },
     {
       "id": "SCION-SOURCE-INGEST-R010",
-      "title": "SDK ships the ingest worker runner `run_ingest_worker` (unblocks `EG-INGEST-WORKER-R001.14`)",
+      "title": "SDK ships the ingest worker runner `run_ingest_worker` (unblocks `MEDULLA-INGEST-WORKER-R001.14`)",
       "delivery_state": "VERIFIED",
       "landed_in": [
         "e02d323a3394"

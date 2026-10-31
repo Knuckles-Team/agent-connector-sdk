@@ -2694,7 +2694,7 @@
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R062.1",
-      "title": "RETIRED: duplicate of EG-DECISION-ENGINE-R142.100",
+      "title": "RETIRED: duplicate of MEDULLA-DECISION-ENGINE-R142.100",
       "delivery_state": "RETIRED",
       "landed_in": [
         "98d68425be41"
@@ -2703,7 +2703,7 @@
         "tests/test_certification_attestation.py:29",
         "tests/test_certification_attestation.py:43"
       ],
-      "retired_reason": "duplicate of EG-DECISION-ENGINE-R142.100"
+      "retired_reason": "duplicate of MEDULLA-DECISION-ENGINE-R142.100"
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R062.2",
@@ -3257,7 +3257,7 @@
     },
     {
       "id": "SCION-CONNECTOR-CONTROL-R014.23",
-      "title": "Typed epistemic-graph compute adapter",
+      "title": "Typed medulla compute adapter",
       "delivery_state": "VERIFIED",
       "landed_in": [
         "da3aa0ab05a4"

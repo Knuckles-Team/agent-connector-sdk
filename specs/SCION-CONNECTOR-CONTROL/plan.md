@@ -236,7 +236,7 @@ Until those producer requirements and their SDK binding exist, reconnect recover
 It must not synthesize a result, reconstruct one from transient progress or repeat a source effect.
 
 Existing effect recovery is narrower: `EpistemicGraphWriteBackLedger.get` and `receipts`
-in `scion_sdk/writeback/epistemic_graph.py:43` and line 73 read generated EG records.
+in `scion_sdk/writeback/medulla.py:43` and line 73 read generated EG records.
 `DurableWritableConnector.apply` at `scion_sdk/writeback/connector.py:75`
 uses those records to prevent repeated effects. Its `reconcile` method at line 96
 records a reconciliation observation. These methods do not map an MCP request to its terminal result.
@@ -579,7 +579,7 @@ One typed `ConnectorPackDeclaration` per connector is the single source of truth
 Current state: the SDK compiles manifest YAML into ontology classes only (`scion_sdk/manifest/ontology_pack.py:190`). Mappings, keys, cursors, access, privacy and provenance stay in YAML and JSON. The SDK keeps a separate `ac:` access vocabulary that R067.2 retires. The tool fingerprint domain at `scion_sdk/manifest/tool_schema.py:31` names another package; R067.3 replaces it.
 ## SCION-CONNECTOR-CONTROL-R068 — connect-time contract resources
 
-References: [MEDULLA-TYPED-PACKS-R104](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/typed-packs-and-catalog/spec.md), [ARBORA-FLEET-R036](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SCION-CONNECTOR-CONTROL-R019, SCION-CONNECTOR-CONTROL-R067
+References: [MEDULLA-TYPED-PACKS-R104](https://github.com/Knuckles-Team/medulla/blob/main/specs/typed-packs-and-catalog/spec.md), [ARBORA-FLEET-R036](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SCION-CONNECTOR-CONTROL-R019, SCION-CONNECTOR-CONTROL-R067
 
 Call path: connector start -> `register_connector_content` (`content.py:163`) -> `connector://resources`, `ontology://`, `shapes://` and `seed://` resources -> arbora multiplexer reads them on first connect.
 
@@ -589,7 +589,7 @@ The SDK serves the resources and notifies on change. The engine validates and st
 
 The typed transport declaration and Turtle read path are delivered together. A declaration is not evidence that a transport exists; registry, certification enforcement and served engine proof remain separate.
 
-References: [MEDULLA-FEDERATED-QUERY-R073.2](https://github.com/Knuckles-Team/epistemic-graph/blob/main/specs/federated-query-and-reasoning/spec.md), [ARBORA-FLEET-R038](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SCION-CONNECTOR-CONTROL-R014.17, SCION-CONNECTOR-CONTROL-R040, SCION-CONNECTOR-CONTROL-R041, SCION-CONNECTOR-CONTROL-R042, SCION-CONNECTOR-CONTROL-R043, SCION-CONNECTOR-CONTROL-R044
+References: [MEDULLA-FEDERATED-QUERY-R073.2](https://github.com/Knuckles-Team/medulla/blob/main/specs/federated-query-and-reasoning/spec.md), [ARBORA-FLEET-R038](https://github.com/Knuckles-Team/arbora/blob/main/specs/fleet-catalog-and-tools/spec.md), SCION-CONNECTOR-CONTROL-R014.17, SCION-CONNECTOR-CONTROL-R040, SCION-CONNECTOR-CONTROL-R041, SCION-CONNECTOR-CONTROL-R042, SCION-CONNECTOR-CONTROL-R043, SCION-CONNECTOR-CONTROL-R044
 
 One protocol stack has one implementation per role (`ARBORA-FLEET-R038`). The SDK owns connector client transports and connector server scaffolding. arbora owns serving and the multiplexer client side.
 
