@@ -18,3 +18,4 @@ Source PR checks include pytest, Ruff, mypy, CCCC, KISS, Dupehound, jscpd, wirin
 `tests/test_conformance_plugin.py` runs every check against a conforming fixture. It breaks the ontology, version, fleet name, provider entry point and sources properties one at a time. A subprocess run in a fixture repository reports one passing test per check. A run without the declaration adds no test. A run with an explicit node id adds none.
 
 - **R005 workspace-local cache:** `tests/gates/test_workflow_contract.py::test_gates_uv_cache_is_workspace_local_and_job_scoped` checks the shared workflow input and ignored cache path. After the shared input is available, compare runner device IDs and a hardlink probe. Compare `uv sync` times for serial and concurrent runs.
+- **R006 advisory scanners:** `tests/gates/test_workflow_contract.py::test_advisory_scanners_run_only_in_the_shared_weekly_workflow` checks CI, the hook config and `advisory.yml`.
