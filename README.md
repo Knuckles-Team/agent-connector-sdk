@@ -41,8 +41,7 @@
 ## Quick Start
 
 Install Scion SDK as `scion-sdk` and import it as
-`scion_sdk`. The repository is `scion-sdk`; package, CLI and API
-identifiers remain unchanged.
+`scion_sdk`. The repository, package, CLI, and API identifiers all use the `scion-sdk` name.
 
 Create a project and install the SDK:
 
@@ -68,7 +67,7 @@ source evidence into Medulla, indexes immutable repository snapshots,
 and applies authorized changes back to source systems.
 
 Connector packages retain vendor behavior. The SDK owns transport, lifecycle,
-certification, and effect execution. Generated Medulla contracts own
+certification, and effect execution. Medulla owns
 durable graph records, checkpoints, content identity, and receipts.
 
 ## Key Capabilities
@@ -79,9 +78,9 @@ durable graph records, checkpoints, content identity, and receipts.
   typed MCP content.
 - Extract bounded source pages and advance checkpoints only from matching
   durable Medulla receipts.
-- Import deterministic ConnectorPack archives without copying graph DTOs or
+- Import deterministic ConnectorPack archives without copying graph types or
   digest algorithms into connector packages.
-- Stream authenticated immutable repository snapshots into the generated
+- Stream authenticated immutable repository snapshots into the
   `IndexRepository` boundary without becoming a semantic writer.
 - Govern write-back through dry-run, authorization, source-version checks,
   idempotency, and uncertain-effect reconciliation.
@@ -104,8 +103,8 @@ then choose the reference that matches the work:
 - [Current status](https://knuckles-team.github.io/scion-sdk/status/)
 
 Sibling authorities: [Medulla](https://knuckles-team.github.io/medulla/)
-owns durable graph state and generated contracts; [Arbora](https://knuckles-team.github.io/arbora/)
-owns authenticated runtime composition.
+owns durable graph state; [Arbora](https://knuckles-team.github.io/arbora/)
+is the one door for admission, auth, served operations, and MCP and A2A serving.
 
 ## Architecture
 
@@ -121,9 +120,10 @@ owns authenticated runtime composition.
 | Write-back | Preview, source-version checks, apply, and reconciliation | Medulla owns change sets, authorization decisions, and durable outcomes. |
 | Runtime composition | Typed ports and checked dependency requirements | Arbora supplies authenticated identity, clients, and live authority. |
 
-The SDK depends directly on `epistemic-graph>=2.27.6`. Generated SourceIngest,
-ConnectorPack, IndexRepository, and WriteBack clients and models are the graph
-boundary; the SDK adds no parallel graph contract.
+The SDK depends directly on `medulla`. The Rust serde types in Medulla are the
+source of truth. The SDK holds hand-written SourceIngest, ConnectorPack,
+IndexRepository, and WriteBack clients, tested on round-trip vectors. The SDK
+adds no parallel graph contract. Spec IDs use the `SCION-` prefix.
 
 ## Contributing
 

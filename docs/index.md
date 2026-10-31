@@ -18,7 +18,7 @@
   </article>
   <article class="site-card" role="listitem">
     <h2 class="site-card__title">Synchronize</h2>
-    <p class="site-card__body">Discover certified source contracts, extract bounded pages, and advance EG-authoritative checkpoints from durable receipts.</p>
+    <p class="site-card__body">Discover certified source contracts, extract bounded pages, and advance Medulla-authoritative checkpoints from durable receipts.</p>
   </article>
   <article class="site-card" role="listitem">
     <h2 class="site-card__title">Publish</h2>
@@ -36,10 +36,11 @@
 
 ## One graph contract
 
-The SDK depends directly on `epistemic-graph>=2.27`. Generated SourceIngest,
-ConnectorPack, and WriteBack models and clients are the sole graph boundary.
-Connector packages keep vendor logic local; durable identity, mapping,
-checkpoints, provenance, and receipts stay authoritative in epistemic-graph.
+The SDK depends directly on `medulla`. Medulla's Rust serde types are the
+source of truth. Hand-written SourceIngest, ConnectorPack, and WriteBack clients
+are the sole graph boundary. Connector packages keep vendor logic local.
+Durable identity, mapping, checkpoints, provenance, and receipts stay
+authoritative in Medulla.
 
 [![Agent ecosystem runtime architecture](https://raw.githubusercontent.com/Knuckles-Team/medulla/main/docs/assets/runtime-architecture.svg)](https://knuckles-team.github.io/.github/architecture/#sdk)
 
@@ -56,12 +57,12 @@ checkpoints, provenance, and receipts stay authoritative in epistemic-graph.
       <div class="site-ownership__value">MCP lifecycle, capture, transport, certification, scheduling, and governed source execution.</div>
     </div>
     <div class="site-ownership__item">
-      <div class="site-ownership__label">epistemic-graph owns</div>
+      <div class="site-ownership__label">Medulla owns</div>
       <div class="site-ownership__value">Graph schemas, source state, content identity, reasoning, provenance, and durable receipts.</div>
     </div>
     <div class="site-ownership__item">
       <div class="site-ownership__label">Arbora owns</div>
-      <div class="site-ownership__value">Verified runtime identity, authority injection, composition, and protocol exposure.</div>
+      <div class="site-ownership__value">Admission, auth, served operations, registry, and MCP and A2A serving.</div>
     </div>
   </div>
 </div>
@@ -79,11 +80,11 @@ checkpoints, provenance, and receipts stay authoritative in epistemic-graph.
   </li>
   <li class="site-flow__step">
     <div class="site-flow__title">Transport</div>
-    <div class="site-flow__body">Bounded pages and exact content archives cross generated epistemic-graph contracts.</div>
+    <div class="site-flow__body">Bounded pages and exact content archives cross the Medulla client boundary.</div>
   </li>
   <li class="site-flow__step">
     <div class="site-flow__title">Acknowledge</div>
-    <div class="site-flow__body">epistemic-graph commits state and returns the receipt that authorizes the next step.</div>
+    <div class="site-flow__body">Medulla commits state and returns the receipt that authorizes the next step.</div>
   </li>
 </ol>
 
